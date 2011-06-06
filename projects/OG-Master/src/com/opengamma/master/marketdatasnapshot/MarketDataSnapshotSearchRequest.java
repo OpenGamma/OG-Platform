@@ -6,16 +6,18 @@
 package com.opengamma.master.marketdatasnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -156,6 +158,30 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataSnapshotSearchRequest other = (MarketDataSnapshotSearchRequest) obj;
+      return JodaBeanUtils.equal(getSnapshotIds(), other.getSnapshotIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(isIncludeData(), other.isIncludeData()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludeData());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of marketDataSnapshot object identifiers, null to not limit by marketDataSnapshot object identifiers.
@@ -245,32 +271,49 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code snapshotIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _snapshotIds = DirectMetaProperty.ofReadWrite(this, "snapshotIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _snapshotIds = DirectMetaProperty.ofReadWrite(
+        this, "snapshotIds", MarketDataSnapshotSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", MarketDataSnapshotSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code includeData} property.
      */
-    private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(this, "includeData", Boolean.TYPE);
+    private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(
+        this, "includeData", MarketDataSnapshotSearchRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "snapshotIds",
+        "name",
+        "includeData");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("snapshotIds", _snapshotIds);
-      temp.put("name", _name);
-      temp.put("includeData", _includeData);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public MarketDataSnapshotSearchRequest createBean() {
-      return new MarketDataSnapshotSearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -168607148:  // snapshotIds
+          return _snapshotIds;
+        case 3373707:  // name
+          return _name;
+        case 274670706:  // includeData
+          return _includeData;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends MarketDataSnapshotSearchRequest> builder() {
+      return new DirectBeanBuilder<MarketDataSnapshotSearchRequest>(new MarketDataSnapshotSearchRequest());
     }
 
     @Override

@@ -266,7 +266,7 @@ public class TestsDataSets {
    */
   public static YieldCurveBundle createCurvesBond1() {
     final String CREDIT_CURVE_NAME = "Credit";
-    final String DISCOUNTING_CURVE_NAME = "Discounting";
+    final String DISCOUNTING_CURVE_NAME = "Repo";
     final String FORWARD_CURVE_NAME = "Forward";
     final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
     final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));

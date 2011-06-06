@@ -28,7 +28,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.livedata.AbstractLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -158,11 +157,11 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   
   private SnapshotDataBundle buildSnapshot(YieldCurveSnapshot yieldCurveSnapshot) {
     SnapshotDataBundle ret = new SnapshotDataBundle();
-    HashMap<Identifier, Double> points = new HashMap<Identifier, Double>();
+    HashMap<UniqueIdentifier, Double> points = new HashMap<UniqueIdentifier, Double>();
     UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
     for (Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
-      points.put(entry.getKey().getUniqueId().toIdentifier(), value);
+      points.put(entry.getKey().getUniqueId(), value);
     }
     ret.setDataPoints(points);
     return ret;

@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -118,6 +120,26 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataSnapshotHistoryRequest other = (MarketDataSnapshotHistoryRequest) obj;
+      return JodaBeanUtils.equal(isIncludeData(), other.isIncludeData()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludeData());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets set whether to include the data values from the snapshot. Set to {@code false} to reduce the
@@ -162,22 +184,33 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
     /**
      * The meta-property for the {@code includeData} property.
      */
-    private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(this, "includeData", Boolean.TYPE);
+    private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(
+        this, "includeData", MarketDataSnapshotHistoryRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "includeData");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("includeData", _includeData);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public MarketDataSnapshotHistoryRequest createBean() {
-      return new MarketDataSnapshotHistoryRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 274670706:  // includeData
+          return _includeData;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends MarketDataSnapshotHistoryRequest> builder() {
+      return new DirectBeanBuilder<MarketDataSnapshotHistoryRequest>(new MarketDataSnapshotHistoryRequest());
     }
 
     @Override

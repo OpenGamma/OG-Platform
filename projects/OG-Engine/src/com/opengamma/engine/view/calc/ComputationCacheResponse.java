@@ -6,18 +6,20 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
@@ -76,6 +78,25 @@ public class ComputationCacheResponse extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComputationCacheResponse other = (ComputationCacheResponse) obj;
+      return JodaBeanUtils.equal(getResults(), other.getResults());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResults());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the results obtained from the computation caches.
@@ -105,7 +126,7 @@ public class ComputationCacheResponse extends DirectBean {
   /**
    * The meta-bean for {@code ComputationCacheResponse}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -115,22 +136,33 @@ public class ComputationCacheResponse extends DirectBean {
      * The meta-property for the {@code results} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Pair<ValueSpecification, Object>>> _results = DirectMetaProperty.ofReadWrite(this, "results", (Class) List.class);
+    private final MetaProperty<List<Pair<ValueSpecification, Object>>> _results = DirectMetaProperty.ofReadWrite(
+        this, "results", ComputationCacheResponse.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "results");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("results", _results);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ComputationCacheResponse createBean() {
-      return new ComputationCacheResponse();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1097546742:  // results
+          return _results;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ComputationCacheResponse> builder() {
+      return new DirectBeanBuilder<ComputationCacheResponse>(new ComputationCacheResponse());
     }
 
     @Override

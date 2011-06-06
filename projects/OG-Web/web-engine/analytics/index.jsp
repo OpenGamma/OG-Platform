@@ -315,6 +315,22 @@
         right: 0;
         bottom: 0;
       }
+      
+      #resultsViewer #tabs .export-button {
+        float: right;
+        border: 0;
+        margin: -3.4em -1em 0 0;
+      }
+      
+      #resultsViewer #tabs .export-button a {
+        margin: 0;
+        padding: 0;
+      }
+      
+      #resultsViewer #tabs .export-button .ui-button-text {
+        font-size: 0.8em;
+        padding: 0.4em 0.5em;
+      }
 
       #loading {
         position: absolute;

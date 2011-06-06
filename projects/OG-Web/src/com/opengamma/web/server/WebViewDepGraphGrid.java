@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.server;
 
-import it.unimi.dsi.fastutil.longs.LongArraySet;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +29,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -46,10 +47,10 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   private static final Logger s_logger = LoggerFactory.getLogger(WebViewDepGraphGrid.class);
 
   private final AtomicBoolean _init = new AtomicBoolean();
-  private final LongSet _historyOutputs = new LongOpenHashSet();
+  private final IntSet _historyOutputs = new IntOpenHashSet();
   
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
-  private Map<ValueSpecification, LongSet> _rowIdMap;
+  private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
   
@@ -68,7 +69,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       return false;
     }
     
-    HashMap<ValueSpecification, LongSet> rowIdMap = new HashMap<ValueSpecification, LongSet>();
+    HashMap<ValueSpecification, IntSet> rowIdMap = new HashMap<ValueSpecification, IntSet>();
     _rowStructure = generateRowStructure(depGraph, valueSpecification, rowIdMap);
     _rowIdMap = rowIdMap;
     
@@ -77,9 +78,9 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
     
     // Not doing viewport for now, so tell it that everything is in the viewport
-    SortedMap<Long, Long> viewportMap = new TreeMap<Long, Long>();
-    for (LongSet rowIds : rowIdMap.values()) {
-      for (long rowId : rowIds) {
+    SortedMap<Integer, Long> viewportMap = new TreeMap<Integer, Long>();
+    for (IntSet rowIds : rowIdMap.values()) {
+      for (int rowId : rowIds) {
         viewportMap.put(rowId, null);
       }
     }
@@ -87,18 +88,18 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return true;
   }
   
-  private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, LongSet> rowIdMap) {
+  private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, IntSet> rowIdMap) {
     List<Object> rowStructure = new ArrayList<Object>();
-    addRowIdAssociation(0L, output, rowIdMap);
+    addRowIdAssociation(0, output, rowIdMap);
     rowStructure.add(getJsonRowStructure(depGraph.getNodeProducing(output), output, -1, 0, 0));
     addInputRowStructures(depGraph, depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
     return rowStructure;
   }
   
-  private long addInputRowStructures(DependencyGraph graph, DependencyNode node, Map<ValueSpecification, LongSet> rowIdMap, List<Object> rowStructure, int indent, long parentRowId, long nextRowId) {
+  private int addInputRowStructures(DependencyGraph graph, DependencyNode node, Map<ValueSpecification, IntSet> rowIdMap, List<Object> rowStructure, int indent, int parentRowId, int nextRowId) {
     for (ValueSpecification inputValue : node.getInputValues()) {
       DependencyNode inputNode = graph.getNodeProducing(inputValue);
-      long rowId = nextRowId++;
+      int rowId = nextRowId++;
       addRowIdAssociation(rowId, inputValue, rowIdMap);
       rowStructure.add(getJsonRowStructure(inputNode, inputValue, parentRowId, rowId, indent));
       nextRowId = addInputRowStructures(graph, inputNode, rowIdMap, rowStructure, indent + 1, rowId, nextRowId);
@@ -106,10 +107,10 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return nextRowId;
   }
   
-  private void addRowIdAssociation(long rowId, ValueSpecification specification, Map<ValueSpecification, LongSet> rowIdMap) {
-    LongSet rowIdSet = rowIdMap.get(specification);
+  private void addRowIdAssociation(int rowId, ValueSpecification specification, Map<ValueSpecification, IntSet> rowIdMap) {
+    IntSet rowIdSet = rowIdMap.get(specification);
     if (rowIdSet == null) {
-      rowIdSet = new LongArraySet();
+      rowIdSet = new IntArraySet();
       rowIdMap.put(specification, rowIdSet);
     }
     rowIdSet.add(rowId);
@@ -157,7 +158,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       ValueSpecification specification = valuePair.getFirst();
       Object value = valuePair.getSecond();
       
-      LongSet rowIds = _rowIdMap.get(specification);
+      IntSet rowIds = _rowIdMap.get(specification);
       if (rowIds == null) {
         s_logger.warn("Cache query returned unexpected item with value specification {}", specification);
         continue;
@@ -171,7 +172,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
           _historyOutputs.addAll(rowIds);
         }
       }
-      for (long rowId : rowIds) {
+      for (int rowId : rowIds) {
         WebGridCell cell = WebGridCell.of(rowId, 0);
         Map<String, Object> cellValue = processCellValue(cell, specification, value, resultTimestamp, converter);
         if (cellValue != null) {
@@ -250,6 +251,16 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     return _rowStructure;
+  }
+
+  @Override
+  protected String[][] getCsvColumnHeaders() {
+    return null;
+  }
+
+  @Override
+  protected String[][] getCsvRows(ViewComputationResultModel result) {
+    return null;
   }
 
 }

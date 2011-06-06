@@ -1,5 +1,7 @@
-.ui-dialog {}
-
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
 .ui-dialog-titlebar {
     background: -moz-linear-gradient(top,  #ccc,  #d7d7d7);
     background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#d7d7d7));

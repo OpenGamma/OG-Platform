@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.batch;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchMaster;
@@ -127,6 +129,31 @@ public class WebBatchData extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebBatchData other = (WebBatchData) obj;
+      return JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriBatchId(), other.getUriBatchId()) &&
+          JodaBeanUtils.equal(getBatch(), other.getBatch());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriBatchId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatch());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the batch manager.
@@ -231,7 +258,7 @@ public class WebBatchData extends DirectBean {
   /**
    * The meta-bean for {@code WebBatchData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -240,37 +267,57 @@ public class WebBatchData extends DirectBean {
     /**
      * The meta-property for the {@code batchMaster} property.
      */
-    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(this, "batchMaster", BatchMaster.class);
+    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
+        this, "batchMaster", WebBatchData.class, BatchMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebBatchData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriBatchId} property.
      */
-    private final MetaProperty<String> _uriBatchId = DirectMetaProperty.ofReadWrite(this, "uriBatchId", String.class);
+    private final MetaProperty<String> _uriBatchId = DirectMetaProperty.ofReadWrite(
+        this, "uriBatchId", WebBatchData.class, String.class);
     /**
      * The meta-property for the {@code batch} property.
      */
-    private final MetaProperty<BatchDocument> _batch = DirectMetaProperty.ofReadWrite(this, "batch", BatchDocument.class);
+    private final MetaProperty<BatchDocument> _batch = DirectMetaProperty.ofReadWrite(
+        this, "batch", WebBatchData.class, BatchDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "batchMaster",
+        "uriInfo",
+        "uriBatchId",
+        "batch");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("batchMaster", _batchMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriBatchId", _uriBatchId);
-      temp.put("batch", _batch);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebBatchData createBean() {
-      return new WebBatchData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -252634564:  // batchMaster
+          return _batchMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case -1764222231:  // uriBatchId
+          return _uriBatchId;
+        case 93509434:  // batch
+          return _batch;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebBatchData> builder() {
+      return new DirectBeanBuilder<WebBatchData>(new WebBatchData());
     }
 
     @Override
