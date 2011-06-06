@@ -29,7 +29,7 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
       Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
       for (int i = 0; i < length; i++) {
         Object label = value.getLabels()[i];
-        Object currentLabel = context.convert(label, mode);
+        Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
         Object currentValue = context.getDoubleConverter().convertForDisplay(context, valueSpec, value.getValues()[i], ConversionMode.SUMMARY);
         labelledValues.put(currentLabel, currentValue);
       }
@@ -40,13 +40,30 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
   }
 
   @Override
-  public String getFormatterName() {
-    return "LABELLED_MATRIX_1D";
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix1D value) {
+    return null;
   }
 
   @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix1D value) {
-    return null;
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix1D value) {
+    StringBuilder sb = new StringBuilder();
+    boolean isFirst = true;
+    for (int i = 0; i < value.getKeys().length; i++) {
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        sb.append("; ").append(value.getValues()[i]);
+      }
+      Object label = value.getLabels()[i];
+      Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
+      sb.append(currentLabel).append("=").append(value.getValues()[i]);
+    }
+    return sb.length() > 0 ? sb.toString() : null;
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "LABELLED_MATRIX_1D";
   }
 
 }

@@ -276,6 +276,11 @@
       sendDepGraphMode(rowId, colId, false);
     }
     
+    this.getCsvGridUrl = function(gridName) {
+      var clientId = _cometd.getClientId();
+      return location.protocol + "//" + location.host + config.contextPath + "/jax/analytics/" + clientId + "/" + gridName;
+    }
+    
     this.connect = function() {
       _cometd.handshake();
     }

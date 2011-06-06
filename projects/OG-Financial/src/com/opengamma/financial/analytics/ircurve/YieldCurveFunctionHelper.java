@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
@@ -31,7 +35,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -138,9 +144,22 @@ public class YieldCurveFunctionHelper {
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
 
-  public SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
-    final Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
-    return (SnapshotDataBundle) marketDataBundle;
+  public Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
+    final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
+    Map<UniqueIdentifier, Double> dataPoints = marketDataBundle.getDataPoints();
+    
+    HashMap<Identifier, Double> ret = new HashMap<Identifier, Double>();
+    for (Entry<UniqueIdentifier, Double> entry : dataPoints.entrySet()) {
+      UniqueIdentifier uid = entry.getKey();
+      Identifier identifier = getIdentifier(uid);
+      ret.put(identifier, entry.getValue());
+    }
+    return ret;
+  }
+
+  private Identifier getIdentifier(UniqueIdentifier uid) {
+    Identifier identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
+    return identifier;
   }
 
 }

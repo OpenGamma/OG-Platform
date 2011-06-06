@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,10 @@ import org.cometd.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ConversionMode;
@@ -43,7 +47,7 @@ public abstract class WebViewGrid {
   private final Client _remote;
   
   // Row-based state
-  private final AtomicReference<SortedMap<Long, Long>> _viewportMap = new AtomicReference<SortedMap<Long, Long>>();
+  private final AtomicReference<SortedMap<Integer, Long>> _viewportMap = new AtomicReference<SortedMap<Integer, Long>>();
   
   // Cell-based state
   private final Set<WebGridCell> _fullConversionModeCells = new CopyOnWriteArraySet<WebGridCell>();  
@@ -72,11 +76,11 @@ public abstract class WebViewGrid {
     return _name;
   }
   
-  public SortedMap<Long, Long> getViewport() {
+  public SortedMap<Integer, Long> getViewport() {
     return _viewportMap.get();
   }
   
-  public void setViewport(SortedMap<Long, Long> viewportMap) {
+  public void setViewport(SortedMap<Integer, Long> viewportMap) {
     _viewportMap.set(viewportMap);
   }
   
@@ -203,5 +207,29 @@ public abstract class WebViewGrid {
     }
     return displayValue;
   }
+  
+  //-------------------------------------------------------------------------
+  
+  /*package*/ String dumpContentsToCsv(ViewComputationResultModel result) {
+    StringWriter stringWriter = new StringWriter();
+    CSVWriter csvWriter = new CSVWriter(stringWriter);
+    String[][] columnHeaders = getCsvColumnHeaders();
+    if (columnHeaders != null) {
+      for (String[] header : columnHeaders) {
+        csvWriter.writeNext(header);
+      }
+    }
+    String[][] rows = getCsvRows(result);
+    if (rows != null) {
+      for (String[] row : rows) {
+        csvWriter.writeNext(row);
+      }
+    }
+    return stringWriter.toString();
+  }
+  
+  protected abstract String[][] getCsvColumnHeaders();
+
+  protected abstract String[][] getCsvRows(ViewComputationResultModel result);
   
 }
