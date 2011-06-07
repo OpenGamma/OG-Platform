@@ -45,6 +45,8 @@ public interface SecurityTestCaseMethods {
   void testIRFutureOptionSecurity();
 
   void testFXOptionSecurity();
+  
+  void testFXBarrierOptionSecurity();
 
   void testOptionOptionSecurity();
 

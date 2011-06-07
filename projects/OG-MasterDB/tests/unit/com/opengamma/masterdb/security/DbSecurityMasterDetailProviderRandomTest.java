@@ -123,6 +123,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   @Test
   public void testFXOptionSecurity() {
     _testCase.testFXOptionSecurity();
+  } 
+
+  @Override
+  @Test
+  public void testFXBarrierOptionSecurity() {
+    _testCase.testFXBarrierOptionSecurity();
   }
 
   @Override

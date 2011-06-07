@@ -91,6 +91,29 @@ CREATE TABLE sec_irfutureoption (
     constraint sec_fk_irfutureoption2exchange foreign key (exchange_id) references sec_exchange (id)
 );
 
+CREATE TABLE sec_fxbarrieroption (
+    id bigint not null,
+    security_id bigint not null,
+    put_amount double precision not null,
+    call_amount double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    put_currency_id bigint not null,
+    call_currency_id bigint not null,
+    settlement_date timestamp not null,
+    settlement_zone varchar(50) not null,
+    barrier_type varchar(32) not null,
+    barrier_direction varchar(32) not null,
+    monitoring_type varchar(32) not null,
+    sampling_frequency varchar(32),
+    primary key (id),
+    constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
+    constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
+);
+
+
 begin;
 insert into sec_equityoption (id, security_id, option_exercise_type, option_type, strike, expiry_date, expiry_zone, 
   expiry_accuracy, underlying_scheme, underlying_identifier, currency_id, exchange_id, pointValue) 
