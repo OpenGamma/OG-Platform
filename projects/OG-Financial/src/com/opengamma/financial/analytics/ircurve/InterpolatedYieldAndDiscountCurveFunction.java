@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -173,8 +172,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
-        final SnapshotDataBundle marketData = _helper.buildMarketDataMap(inputs);
-        final Map<Identifier, Double> marketDataMap = marketData.getDataPoints();
+        final Map<Identifier, Double> marketDataMap = _helper.buildMarketDataMap(inputs);
 
         // Gather market data rates
         // Note that this assumes that all strips are priced in decimal percent. We need to resolve

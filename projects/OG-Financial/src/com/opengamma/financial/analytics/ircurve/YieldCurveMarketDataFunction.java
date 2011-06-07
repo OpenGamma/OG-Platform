@@ -37,6 +37,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
@@ -142,12 +143,10 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   }
 
   private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
-    final Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
+    final Map<UniqueIdentifier, Double> marketDataMap = new HashMap<UniqueIdentifier, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
-      if (value.getValue() instanceof Double) {
-        marketDataMap.put(targetSpecification.getIdentifier(), (Double) value.getValue());
-      }
+      marketDataMap.put(targetSpecification.getUniqueId(), (Double) value.getValue());
     }
     SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
     snapshotDataBundle.setDataPoints(marketDataMap);

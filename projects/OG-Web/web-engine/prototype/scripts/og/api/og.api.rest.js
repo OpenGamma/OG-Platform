@@ -8,7 +8,7 @@ $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.api.live', 'og.common.routes'],
     obj: function () {
-        var module = this, live_data_root = module.liveDataRoot, api,
+        var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = encodeURIComponent,
             outstanding_requests = {}, registrations = [],

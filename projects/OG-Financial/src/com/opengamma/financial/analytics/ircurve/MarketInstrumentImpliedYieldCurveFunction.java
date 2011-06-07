@@ -211,13 +211,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       //final LocalDate localNow = now.toLocalDate();
 
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
-        final Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
+        final Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
         return getSingleCurveResult(marketDataMap, builder, swapConverter, tenorSwapConverter, instrumentAdapter,
             futureAdapter, now);
       }
 
-      final Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
-      final Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs).getDataPoints();
+      final Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+      final Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);

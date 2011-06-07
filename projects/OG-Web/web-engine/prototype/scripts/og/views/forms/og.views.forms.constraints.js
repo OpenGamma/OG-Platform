@@ -8,14 +8,13 @@ $.register_module({
     obj: function () {
         var module = this, id_count = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var form = config.form, data = config.data, block, rows, $widget, index = config.index, render,
+            var data = config.data, data_index = config.index, render,
                 ids = {widget: prefix + id_count++, row_with: prefix + id_count++, row_without: prefix + id_count++},
                 convert = function (datum) {
                     var length = 0, item;
                     if (!datum || typeof datum === 'string') return datum || '';
                     for (item in datum) if (+item + 0 === +item) length += 1;
-                    datum.length = length;
-                    return Array.prototype.join.call(datum, ', ');
+                    return Array.prototype.join.call($.extend({length: length}, datum), ', ');
                 },
                 deconvert = function (datum, optional) {
                     var array = datum.split(/,\s*/g), result;
@@ -24,22 +23,20 @@ $.register_module({
                     if (optional) result.optional = null;
                     return result;
                 };
-            block = new form.Block({
+            return new config.form.Block({
                 module: 'og.views.forms.constraints',
                 extras: ids,
                 processor: function (data) {
-                    var indices = index.split('.'), last = indices.pop(), result = {};
+                    var indices = data_index.split('.'), last = indices.pop(), result = {};
                     $('#' + ids.widget + ' tr.og-js-with').each(function (idx, el) {
                         var $el = $(el), optional = $el.find('input[type=checkbox]').filter(':checked').length,
-                            key = $el.find('input.og-js-key').val(),
-                            value = deconvert($el.find('input.og-js-value').val(), optional);
+                            key = $el.find('input.og-js-key').val();
                         if (!key) throw Error('Type in a with constraint must be defined.');
                         if (!result['with']) result['with'] = {};
-                        result['with'][key] = value;
+                        result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });
                     $('#' + ids.widget + ' tr.og-js-without').each(function (idx, el) {
-                        var $el = $(el), key = $el.find('input.og-js-key').val();
-                        result.without = key || {};
+                        result.without = $(el).find('input.og-js-key').val() || {};
                     });
                     indices.reduce(function (acc, level) {
                         return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
@@ -47,9 +44,7 @@ $.register_module({
                 },
                 handlers: [
                     {type: 'form:load', handler: function () {
-                        var item;
-                        $widget = $('#' + ids.widget);
-                        rows = {
+                        var item, $widget = $('#' + ids.widget), rows = {
                             'with': $('#' + ids.row_with).remove().removeAttr('id'),
                             without: $('#' + ids.row_without).remove().removeAttr('id')
                         };
@@ -90,7 +85,6 @@ $.register_module({
                     }}
                 ]
             });
-            return block;
         };
     }
 });

@@ -17,7 +17,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * Computes the future convexity factor used in future pricing.
    * TODO: add a reference.
    * @param future The future security.
-   * @param data The Hull-White model paramters.
+   * @param data The Hull-White model parameters.
    * @return The factor.
    */
   public double futureConvexityFactor(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
@@ -42,7 +42,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   }
 
   /**
-   * Computes the (zero-coupon) bond volatility divided by a bond numerare for a given period. 
+   * Computes the (zero-coupon) bond volatility divided by a bond numeraire for a given period. 
    * @param startExpiry Start time of the expiry period.
    * @param endExpiry End time of the expiry period.
    * @param numeraireTime Time to maturity for the bond numeraire.
