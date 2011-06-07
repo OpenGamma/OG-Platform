@@ -10,7 +10,13 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
@@ -33,5 +39,17 @@ public interface FinancialSecurityVisitor<T> {
   T visitOptionSecurity(OptionSecurity security);
 
   T visitSwapSecurity(SwapSecurity security);
+  
+  T visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security);
 
+  T visitEquityOptionSecurity(EquityOptionSecurity security);
+
+  T visitFXOptionSecurity(FXOptionSecurity security);
+
+  T visitSwaptionSecurity(SwaptionSecurity security);
+
+  T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
+
+  T visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security);
+  
 }
