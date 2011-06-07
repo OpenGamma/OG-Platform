@@ -27,7 +27,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'timeseries',
+            page_name = module.name.split('.').pop(),
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
