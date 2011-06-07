@@ -113,12 +113,13 @@ CREATE TABLE sec_fxbarrieroption (
     constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
-
 begin;
+
 insert into sec_equityoption (id, security_id, option_exercise_type, option_type, strike, expiry_date, expiry_zone, 
   expiry_accuracy, underlying_scheme, underlying_identifier, currency_id, exchange_id, pointValue) 
 
   select id, security_id, option_exercise_type, option_type, strike, expiry_date, expiry_zone,
     expiry_accuracy, underlying_scheme, underlying_identifier, currency_id, exchange_id, pointValue
-    from sec_option where option_security_type = 'Equity'
+    from sec_option where option_security_type = 'Equity';
+    
 commit;
