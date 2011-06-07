@@ -21,7 +21,6 @@ import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
-import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
