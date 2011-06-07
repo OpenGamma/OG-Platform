@@ -8,7 +8,7 @@ $.register_module({
     name: 'og.api.text',
     dependencies: ['og.api.common'],
     obj: function () {
-        var html_cache = {}, module = this, html_root = module.htmlRoot, api, module_path,
+        var html_cache = {}, module = this, html_root = module.html_root, api, module_path,
             start_loading = og.api.common.start_loading, end_loading = og.api.common.end_loading;
         /**
          * takes a module name (like <code>'og.common.details.foo'</code>) and returns a path:
