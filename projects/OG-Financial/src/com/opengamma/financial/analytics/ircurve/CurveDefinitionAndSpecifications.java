@@ -154,13 +154,17 @@ public class CurveDefinitionAndSpecifications {
   }
   
 
-  public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor[] tenorSwaps) {
+  public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] depositStrips, Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (Tenor liborTenor : liborStrips) {
-      if (liborTenor.getPeriod().equals(Period.ofDays(30))) {
+    for (Tenor depositTenor : depositStrips) {
+      if (depositTenor.getPeriod().equals(Period.ofDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
+<<<<<<< HEAD
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, liborTenor, "DEFAULT"));
+=======
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, "DEFAULT"));
+>>>>>>> bab8441167905271a4b285e2458aafb3da13b592
     }
     for (Tenor tenorSwapTenor : tenorSwaps) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, "DEFAULT"));
@@ -179,8 +183,8 @@ public class CurveDefinitionAndSpecifications {
         strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
       }
     }
-    for (Tenor tenorSwapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, tenorSwapTenor, "DEFAULT"));
+    for (Tenor swapTenor : swaps) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, swapTenor, "DEFAULT"));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
@@ -558,7 +562,7 @@ public class CurveDefinitionAndSpecifications {
       {ONE_MONTH, "USDRA Curncy"}, {TWO_MONTHS, "USDRB Curncy"}, {THREE_MONTHS, "USDRC Curncy"},
       {FOUR_MONTHS, "USDRD Curncy"}, {FIVE_MONTHS, "USDRE Curncy"}, {SIX_MONTHS, "USDRF Curncy"},
       {SEVEN_MONTHS, "USDRG Curncy"}, {EIGHT_MONTHS, "USDRH Curncy"}, {NINE_MONTHS, "USDRI Curncy"},
-      {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},  {TWELVE_MONTHS, "USDRL Curncy"},
+      {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},
       {ONE_YEAR, "USDR1 Curncy"}, {TWO_YEARS, "USDR2 Curncy"}, {THREE_YEARS, "USDR3 Curncy"},
       {FOUR_YEARS, "USDR4 Curncy"}, {FIVE_YEARS, "USDR5 Curncy"}
     };

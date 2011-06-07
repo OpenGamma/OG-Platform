@@ -1,7 +1,8 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
+
 $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text', 'og.api.rest'],
@@ -16,7 +17,7 @@ $.register_module({
          */
         Block = function (form, config) {
             var block = this, klass = 'Block', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], extras = config.extras;
+                handlers = config.handlers || [], extras = config.extras, processor = config.processor;
             block.children = [];
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
@@ -36,10 +37,18 @@ $.register_module({
                     throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
                 });
             };
+            block.process = function (data, errors) {
+                try {
+                    if (processor) processor(data);
+                } catch (error) {
+                    errors.push(error);
+                }
+                block.children.forEach(function (child) {child.process(data, errors);});
+            };
             // initialize Block
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module)  api_text({handler: function (result) {template = result;}, module: module});
+                else if (module) api_text({handler: function (result) {template = result;}, module: module});
             } else {
                 template = '';
             }
@@ -50,10 +59,17 @@ $.register_module({
          */
         Field = function (form, config) {
             var field = this, klass = 'Field', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], generator = config.generator;
+                handlers = config.handlers || [], generator = config.generator, processor = config.processor;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), stall);
-                generator(template, handler);
+                generator(handler, template);
+            };
+            field.process = function (data, errors) {
+                try {
+                    if (processor) processor(data);
+                } catch (error) {
+                    errors.push(error);
+                }
             };
             // initialize Field
             if (url || module) {
@@ -98,12 +114,12 @@ $.register_module({
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
                     var self = 'onsubmit', raw = $form.serializeArray(),
-                        data = config.data ? $.extend(true, {}, config.data) : null;
+                        data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
                     if (data) raw.forEach(function (value) {
                         var hier = value.name.split('.'), last = hier.pop();
                         try {
                             hier.reduce(function (acc, level) {
-                                return typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                                return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
                             }, data)[last] = value.value;
                         } catch (error) {
                             data = null;
@@ -111,7 +127,9 @@ $.register_module({
                             form_events['form:error'].forEach(function (val) {val.handler(error);});
                         }
                     });
-                    return !!form_events['form:submit'].forEach(function (val) {val.handler(raw, data);});
+                    form.process(data, errors);
+                    result = {raw: raw, data: data, errors: errors};
+                    return !!form_events['form:submit'].forEach(function (val) {val.handler(result);});
                 });
             });
             form.Field = Field.partial(form);
