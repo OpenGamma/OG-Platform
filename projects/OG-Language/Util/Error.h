@@ -11,10 +11,10 @@
 
 #ifndef _WIN32
 
-/// Returns the last error on the calling thread. For compatability with Win32 style API.
+// Returns the last error on the calling thread. For compatability with Win32 style API.
 #define GetLastError() errno
 
-/// Sets the value returned by GetLastError. For compatability with Win32 style API.
+// Sets the value returned by GetLastError. For compatability with Win32 style API.
 #define SetLastError(_expr_) (errno = (_expr_))
 
 #endif /* ifndef _WIN32 */
@@ -45,7 +45,7 @@ static int NativeGetLastError () {
 
 #else /* ifdef __cplusplus_cli */
 
-/// Allow compatability between CLI and compiled C++ for access to error codes.
+// Allow compatability between CLI and compiled C++ for access to error codes.
 #define NativeGetLastError GetLastError
 
 #endif /* ifdef __cplusplus_cli */
@@ -57,43 +57,50 @@ static int NativeGetLastError () {
 // which we are using in place of errno.
 
 #undef EALREADY
-/// Map Win32/ERROR_INVALID_STATE to/from Posix/EALREADY
+// Map Win32/ERROR_INVALID_STATE to/from Posix/EALREADY
 #define EALREADY		ERROR_INVALID_STATE
 
 #undef ECANCELED
-/// Map Win32/ERROR_CANCELLED to/from Posix/ECANCELED
+// Map Win32/ERROR_CANCELLED to/from Posix/ECANCELED
 #define ECANCELED		ERROR_CANCELLED
 
 #undef EINVAL
-/// Map Win32/ERROR_INVALID_PARAMETER to/from Posix/EINVAL
+// Map Win32/ERROR_INVALID_PARAMETER to/from Posix/EINVAL
 #define EINVAL			ERROR_INVALID_PARAMETER
 
 #undef EIO
-/// Map Win32/ERROR_READ_FAULT to EIO_READ
+// Map Win32/ERROR_READ_FAULT to EIO_READ
 #define EIO_READ		ERROR_READ_FAULT
-/// Map Win32/ERROR_WRITE_FAULT to EIO_WRITE
+// Map Win32/ERROR_WRITE_FAULT to EIO_WRITE
 #define EIO_WRITE		ERROR_WRITE_FAULT
-/// Use IS_EIO in place of testing against Posix/EIO. It will match both EIO_READ and EIO_WRITE.
+// Use IS_EIO in place of testing against Posix/EIO. It will match both EIO_READ and EIO_WRITE.
 #define IS_EIO(ec)		((ec == ERROR_READ_FAULT) || (ec == ERROR_WRITE_FAULT))
 
 #undef ENOENT
+// Map Win32/ERROR_FILE_NOT_FOUND to Posix/ENOENT
 #define ENOENT			ERROR_FILE_NOT_FOUND
+
 #undef ENOMEM
+// Map Win32/ERROR_OUTOFMEMORY to Posix/ENOMEM
 #define ENOMEM			ERROR_OUTOFMEMORY
+
 #undef ENOTCONN
+// Map Win32/ERROR_NOT_CONNECTED to Posix/ENOTCONN
 #define ENOTCONN		ERROR_NOT_CONNECTED
+
 #undef ETIMEDOUT
+// Map Win32/ERROR_TIMEOUT to Posix/ETIMEDOUT
 #define ETIMEDOUT		ERROR_TIMEOUT
 
 #else /* ifdef _WIN32 */
 
-/// A read error, maps to EIO when there is no distinction between read and write on I/O errors
+// A read error, maps to EIO when there is no distinction between read and write on I/O errors
 #define EIO_READ		EIO
 
-/// A write error, maps to EIO when there is no distinction between read and write on I/O errors
+// A write error, maps to EIO when there is no distinction between read and write on I/O errors
 #define EIO_WRITE		EIO
 
-/// Use IS_EIO in place of testing against Posix/EIO to allow when read and write errors can be distinguished.
+// Use IS_EIO in place of testing against Posix/EIO to allow when read and write errors can be distinguished.
 #define IS_EIO(ec)		(ec == EIO)
 
 #endif /* ifdef _WIN32 */

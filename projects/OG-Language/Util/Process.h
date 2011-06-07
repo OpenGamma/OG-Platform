@@ -10,10 +10,10 @@
 #include "Unicode.h"
 
 #ifdef _WIN32
-#define PROCESS_REFERENCE	HANDLE
+typedef HANDLE PROCESS_REFERENCE;
 #else
 #include <signal.h>
-#define PROCESS_REFERENCE	pid_t
+typedef pid_t PROCESS_REFERENCE;
 #endif
 
 /// Abstraction of an operating system process.

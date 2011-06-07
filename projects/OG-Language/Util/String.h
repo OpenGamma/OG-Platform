@@ -167,7 +167,7 @@ void StringRelease (PRCSTRING pstr);
 PRCSTRING StringCreate (const TCHAR *pszString);
 void StringRetain (PRCSTRING pstr);
 
-/// Returns the string from a reference counted string object
+// Returns the string from a reference counted string object
 #define StringPtr(_prc_) ((const TCHAR*)(_prc_)->szString)
 
 #endif /* ifndef __inc_og_language_util_string_h */

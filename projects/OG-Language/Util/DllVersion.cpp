@@ -5,7 +5,6 @@
  */
 
 #include "stdafx.h"
-
 #define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
@@ -119,7 +118,7 @@ PCTSTR CDllVersion::GetString (PCTSTR pszValue) const {
 
 #else /* ifdef _WIN32 */
 
-#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL;
+#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL
 DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 

@@ -11,22 +11,26 @@
 
 /// I/O functions which support timeouts.
 class CTimeoutIO {
-private:
+public:
 #ifdef _WIN32
+
+	/// O/S file reference is HANDLE
+	typedef HANDLE FILE_REFERENCE;
+
+private:
 
 	/// Overlapped I/O structure
 	OVERLAPPED m_overlapped;
 
-	/// O/S file reference is HANDLE
-	typedef HANDLE FILE_REFERENCE;	
-
 #else /* ifdef _WIN32 */
-
-	/// Reference to the thread blocked on I/O
-	CAtomicPointer<CThread::INTERRUPTIBLE_HANDLE> m_oBlockedThread;
 
 	/// O/S file reference is int
 	typedef int FILE_REFERENCE;
+
+private:
+
+	/// Reference to the thread blocked on I/O
+	CAtomicPointer<CThread::INTERRUPTIBLE_HANDLE> m_oBlockedThread;
 
 #endif /* ifdef _WIN32 */
 	

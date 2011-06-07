@@ -184,30 +184,31 @@ public:
 #endif
 	}
 
-#ifndef _WIN32
-#ifdef HAVE_PTHREAD
+#ifdef _WIN32
+	typedef DWORD INTERRUPTIBLE_HANDLE;
+#elif defined (HAVE_PTHREAD)
 	typedef pthread_t INTERRUPTIBLE_HANDLE;
-#endif /* ifdef HAVE_PTHREAD */
+#endif
 
 	/// Gets an interruptible reference for the calling thread.
 	///
 	/// @return the interruptible reference
 	static INTERRUPTIBLE_HANDLE GetInterruptible () {
-#ifdef HAVE_PTHREAD
+#ifdef _WIN32
+		return GetCurrentThreadId ();
+#elif defined (HAVE_PTHREAD)
 		return pthread_self ();
-#endif /* ifdef HAVE_PTHREAD */
+#endif
 	}
 
+#ifdef HAVE_PTHREAD
 	/// Interrupts a thread, sending it SIGALRM, to release any blocking operations.
 	///
 	/// @param[in] handle interruptible handle returned by GetInterruptible
 	static void Interrupt (INTERRUPTIBLE_HANDLE handle) {
-#ifdef HAVE_PTHREAD
 		pthread_kill (handle, SIGALRM);
-#endif /* ifdef HAVE_PTHREAD */
 	}
-
-#endif /* ifndef _WIN32 */
+#endif /* ifdef HAVE_PTHREAD */
 
 };
 

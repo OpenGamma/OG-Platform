@@ -26,7 +26,6 @@
 #endif /* ifdef _UNICODE */
 #define FUDGE_STRING_LENGTH _tcslen
 
-// Force library initialization (C++)
 #ifdef __cplusplus
 /// Forces library initialisation during static startup.
 class CFudgeInitialiser {

@@ -149,7 +149,7 @@ public:
 /// @param[in] bExclusive false if this is a pipe that can be shared by multiple clients or servers
 /// @param[in] bReader true if this is the reading end of a pipe, false if it is the writing end
 /// @return the O/S file handle
-static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExclusive, bool bReader) {
+static CTimeoutIO::FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExclusive, bool bReader) {
 #ifdef _WIN32
 	HANDLE handle;
 	if (bServer) {

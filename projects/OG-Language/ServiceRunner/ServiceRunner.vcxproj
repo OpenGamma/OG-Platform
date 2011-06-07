@@ -52,6 +52,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -70,6 +71,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

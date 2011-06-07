@@ -48,13 +48,13 @@ public:
 
 class CThreadRecordingOperation : public CAsynchronous::COperation {
 private:
-	void **m_ppThreadRef;
+	CThread::INTERRUPTIBLE_HANDLE *m_phThread;
 public:
-	CThreadRecordingOperation (void **ppThreadRef) {
-		m_ppThreadRef = ppThreadRef;
+	CThreadRecordingOperation (CThread::INTERRUPTIBLE_HANDLE *phThread) {
+		m_phThread = phThread;
 	}
 	void Run () {
-		*m_ppThreadRef = CThread::CurrentRef ();
+		*m_phThread = CThread::GetInterruptible ();
 	}
 };
 
@@ -113,23 +113,22 @@ static void ThreadIdleTimeout () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
 	ASSERT (poCaller);
 	poCaller->SetTimeoutInactivity (TIMEOUT_COMPLETE / 2);
-	void *pThread1 = NULL;
-	void *pThread2 = NULL;
-	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&pThread1);
-	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&pThread2);
+	CThread::INTERRUPTIBLE_HANDLE hThread1 = 0, hThread2 = 0;
+	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&hThread1);
+	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&hThread2);
 	ASSERT (poCaller->Run (poRun1));
 	ASSERT (poCaller->Run (poRun2));
 	CThread::Sleep (TIMEOUT_COMPLETE / 6);
-	ASSERT (pThread1 == pThread2);
-	poRun2 = new CThreadRecordingOperation (&pThread2);
+	ASSERT (hThread1 == hThread2);
+	poRun2 = new CThreadRecordingOperation (&hThread2);
 	CThread::Sleep (TIMEOUT_COMPLETE);
 	// Some O/Ss will re-use the thread ID/reference data so create a dummy thread
 	CThread *poDummyThread = new CDummyThread ();
 	CThread::Release (poDummyThread);
 	ASSERT (poCaller->Run (poRun2));
 	CThread::Sleep (TIMEOUT_COMPLETE / 6);
-	if (pThread2) {
-		ASSERT (pThread1 != pThread2);
+	if (hThread2) {
+		ASSERT (hThread1 != hThread2);
 	} else {
 		LOGWARN (TEXT ("ThreadIdleTimeout test might have failed - no thread identity"));
 	}
@@ -139,17 +138,16 @@ static void ThreadIdleTimeout () {
 static void ThreadRecycling () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
 	ASSERT (poCaller);
-	void *pThread1 = NULL;
-	void *pThread2 = NULL;
-	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&pThread1);
-	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&pThread2);
+	CThread::INTERRUPTIBLE_HANDLE hThread1 = 0, hThread2 = 0;
+	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&hThread1);
+	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&hThread2);
 	ASSERT (poCaller->Run (poRun1));
 	CThread::Sleep (TIMEOUT_COMPLETE / 6);
-	if (pThread1) {
+	if (hThread1) {
 		ASSERT (poCaller->RecycleThread ());
 		ASSERT (poCaller->Run (poRun2));
 		CThread::Sleep (TIMEOUT_COMPLETE / 6);
-		ASSERT (pThread1 != pThread2);
+		ASSERT (hThread1 != hThread2);
 	} else {
 		LOGWARN (TEXT ("ThreadRecycling test might have failed - no thread identity"));
 	}

@@ -9,24 +9,24 @@
 
 #ifdef _WIN32
 
-/// The path character as a string, a backslash on Windows.
+// The path character as a string, a backslash on Windows.
 #define PATH_CHAR_STR	"\\"
 
-/// The path character, a backslash on Window
+// The path character, a backslash on Window
 #define PATH_CHAR		'\\'
 
-/// The separator character (e.g. in the PATH environment variable), a semi-colon on Windows
+// The separator character (e.g. in the PATH environment variable), a semi-colon on Windows
 #define SEP_CHAR_STR	";"
 
 #else
 
-/// The path character as a string, a forward slash on Posix
+// The path character as a string, a forward slash on Posix
 #define PATH_CHAR_STR	"/"
 
-/// The path character, a forward slash on Posix
+// The path character, a forward slash on Posix
 #define PATH_CHAR		'/'
 
-/// The separator character (e..g in the PATH environment variable), a colon on Posix
+// The separator character (e..g in the PATH environment variable), a colon on Posix
 #define SEP_CHAR_STR	":"
 
 #endif
