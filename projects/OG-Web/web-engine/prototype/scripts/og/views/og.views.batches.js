@@ -138,7 +138,7 @@ $.register_module({
                 batches.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

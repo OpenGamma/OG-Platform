@@ -280,7 +280,7 @@ $.register_module({
                 if (args.quantity) obj = get_quantities(args.quantity);
                 search.load($.extend(true, options.slickgrid, {url: args}, {url: obj}));
             },
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };
