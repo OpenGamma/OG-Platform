@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -20,6 +20,5 @@ $.register_module({
                 $(selector).html(html);
             };
         return exchange_functions = {render_info: render_info};
-
     }
 });

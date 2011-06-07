@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.config;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -170,6 +172,39 @@ public class WebConfigData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebConfigData other = (WebConfigData) obj;
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getUriConfigId(), other.getUriConfigId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriConfigId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfig());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -383,7 +418,7 @@ public class WebConfigData extends DirectBean {
   /**
    * The meta-bean for {@code WebConfigData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -392,61 +427,93 @@ public class WebConfigData extends DirectBean {
     /**
      * The meta-property for the {@code configMaster} property.
      */
-    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(this, "configMaster", ConfigMaster.class);
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
+        this, "configMaster", WebConfigData.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebConfigData.class, UriInfo.class);
     /**
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(this, "type", (Class) Class.class);
+    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", WebConfigData.class, (Class) Class.class);
     /**
      * The meta-property for the {@code uriConfigId} property.
      */
-    private final MetaProperty<String> _uriConfigId = DirectMetaProperty.ofReadWrite(this, "uriConfigId", String.class);
+    private final MetaProperty<String> _uriConfigId = DirectMetaProperty.ofReadWrite(
+        this, "uriConfigId", WebConfigData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebConfigData.class, String.class);
     /**
      * The meta-property for the {@code config} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ConfigDocument<?>> _config = DirectMetaProperty.ofReadWrite(this, "config", (Class) ConfigDocument.class);
+    private final MetaProperty<ConfigDocument<?>> _config = DirectMetaProperty.ofReadWrite(
+        this, "config", WebConfigData.class, (Class) ConfigDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ConfigDocument<?>> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", (Class) ConfigDocument.class);
+    private final MetaProperty<ConfigDocument<?>> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebConfigData.class, (Class) ConfigDocument.class);
     /**
      * The meta-property for the {@code typeMap} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<BiMap<String, Class<?>>> _typeMap = DirectMetaProperty.ofReadWrite(this, "typeMap", (Class) BiMap.class);
+    private final MetaProperty<BiMap<String, Class<?>>> _typeMap = DirectMetaProperty.ofReadWrite(
+        this, "typeMap", WebConfigData.class, (Class) BiMap.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "configMaster",
+        "uriInfo",
+        "type",
+        "uriConfigId",
+        "uriVersionId",
+        "config",
+        "versioned",
+        "typeMap");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("configMaster", _configMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("type", _type);
-      temp.put("uriConfigId", _uriConfigId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("config", _config);
-      temp.put("versioned", _versioned);
-      temp.put("typeMap", _typeMap);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebConfigData createBean() {
-      return new WebConfigData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          return _configMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case 3575610:  // type
+          return _type;
+        case -2037268087:  // uriConfigId
+          return _uriConfigId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case -1354792126:  // config
+          return _config;
+        case -1407102089:  // versioned
+          return _versioned;
+        case -853107774:  // typeMap
+          return _typeMap;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebConfigData> builder() {
+      return new DirectBeanBuilder<WebConfigData>(new WebConfigData());
     }
 
     @Override

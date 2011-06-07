@@ -15,17 +15,26 @@ public class TenorConverter implements ResultConverter<Tenor> {
 
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Tenor value, ConversionMode mode) {
-    return value.getPeriod().toString();
-  }
-
-  @Override
-  public String getFormatterName() {
-    return "TENOR";
+    return getPeriodName(value);
   }
 
   @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Tenor value) {
     return null;
+  }
+
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, Tenor value) {
+    return getPeriodName(value);
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "TENOR";
+  }
+  
+  private String getPeriodName(Tenor value) {
+    return value.getPeriod().toString();
   }
 
 }

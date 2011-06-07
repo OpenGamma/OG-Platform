@@ -11,8 +11,11 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -82,13 +85,28 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitBondFuture(final BondFuture bondFuture, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+  public T visitBondFixedSecurity(final BondFixedSecurity bond, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedSecurity()");
   }
 
   @Override
-  public T visitBondTransaction(BondTransaction<? extends Payment> bond, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondTransaction()");
+  public T visitBondFixedTransaction(final BondFixedTransaction bond, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedTransaction()");
+  }
+
+  @Override
+  public T visitBondIborSecurity(final BondIborSecurity bond, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborSecurity()");
+  }
+
+  @Override
+  public T visitBondIborTransaction(final BondIborTransaction bond, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+  }
+
+  @Override
+  public T visitBondFuture(final BondFuture bondFuture, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
   }
 
   @Override
@@ -247,13 +265,28 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitBondFuture(final BondFuture bondFuture) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+  public T visitBondFixedSecurity(final BondFixedSecurity bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedSecurity()");
   }
 
   @Override
-  public T visitBondTransaction(BondTransaction<? extends Payment> bond) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondTransaction()");
+  public T visitBondFixedTransaction(final BondFixedTransaction bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFixedTransaction()");
+  }
+
+  @Override
+  public T visitBondIborSecurity(final BondIborSecurity bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborSecurity()");
+  }
+
+  @Override
+  public T visitBondIborTransaction(final BondIborTransaction bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+  }
+
+  @Override
+  public T visitBondFuture(final BondFuture bondFuture) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
   }
 
   @Override

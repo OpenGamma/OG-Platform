@@ -1,10 +1,7 @@
 /*
- * Default details view area (the right part in the layout)
- *
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
-
 #OG-details {
     background-color: #fff;
     float: left;

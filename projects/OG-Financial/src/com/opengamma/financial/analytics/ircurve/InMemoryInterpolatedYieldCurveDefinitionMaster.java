@@ -91,8 +91,18 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
    * @return the definition, null if not found
    */
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
-    throw new UnsupportedOperationException();
+  public YieldCurveDefinition getDefinition(final Currency currency, final String name, final InstantProvider version) {
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(name, "name");
+    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
+    if (definitions == null) {
+      return null;
+    }
+    final Map.Entry<Instant, YieldCurveDefinition> entry = definitions.floorEntry(Instant.of(version));
+    if (entry == null) {
+      return null;
+    }
+    return entry.getValue();
   }
 
   // VersionedSource

@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.timeseries;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -161,6 +163,41 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      TimeSeriesDocument<?> other = (TimeSeriesDocument<?>) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getLatest(), other.getLatest()) &&
+          JodaBeanUtils.equal(getEarliest(), other.getEarliest()) &&
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLatest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEarliest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -392,7 +429,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   /**
    * The meta-bean for {@code TimeSeriesDocument}.
    */
-  public static class Meta<T> extends BasicMetaBean {
+  public static class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -402,65 +439,100 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", TimeSeriesDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundleWithDates.class);
+    private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", TimeSeriesDocument.class, IdentifierBundleWithDates.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
-    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(this, "dataSource", String.class);
+    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
+        this, "dataSource", TimeSeriesDocument.class, String.class);
     /**
      * The meta-property for the {@code dataProvider} property.
      */
-    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(this, "dataProvider", String.class);
+    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
+        this, "dataProvider", TimeSeriesDocument.class, String.class);
     /**
      * The meta-property for the {@code dataField} property.
      */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(this, "dataField", String.class);
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", TimeSeriesDocument.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
+        this, "observationTime", TimeSeriesDocument.class, String.class);
     /**
      * The meta-property for the {@code latest} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _latest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "latest", Object.class);
+    private final MetaProperty<T> _latest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "latest", TimeSeriesDocument.class, Object.class);
     /**
      * The meta-property for the {@code earliest} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _earliest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "earliest", Object.class);
+    private final MetaProperty<T> _earliest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "earliest", TimeSeriesDocument.class, Object.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<DoubleTimeSeries<T>> _timeSeries = DirectMetaProperty.ofReadWrite(this, "timeSeries", (Class) DoubleTimeSeries.class);
+    private final MetaProperty<DoubleTimeSeries<T>> _timeSeries = DirectMetaProperty.ofReadWrite(
+        this, "timeSeries", TimeSeriesDocument.class, (Class) DoubleTimeSeries.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "identifiers",
+        "dataSource",
+        "dataProvider",
+        "dataField",
+        "observationTime",
+        "latest",
+        "earliest",
+        "timeSeries");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("identifiers", _identifiers);
-      temp.put("dataSource", _dataSource);
-      temp.put("dataProvider", _dataProvider);
-      temp.put("dataField", _dataField);
-      temp.put("observationTime", _observationTime);
-      temp.put("latest", _latest);
-      temp.put("earliest", _earliest);
-      temp.put("timeSeries", _timeSeries);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public TimeSeriesDocument<T> createBean() {
-      return new TimeSeriesDocument<T>();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 1368189162:  // identifiers
+          return _identifiers;
+        case 1272470629:  // dataSource
+          return _dataSource;
+        case 339742651:  // dataProvider
+          return _dataProvider;
+        case -386794640:  // dataField
+          return _dataField;
+        case 951232793:  // observationTime
+          return _observationTime;
+        case -1109880953:  // latest
+          return _latest;
+        case -809579181:  // earliest
+          return _earliest;
+        case 779431844:  // timeSeries
+          return _timeSeries;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends TimeSeriesDocument<T>> builder() {
+      return new DirectBeanBuilder<TimeSeriesDocument<T>>(new TimeSeriesDocument<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

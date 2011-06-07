@@ -10,16 +10,19 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
+import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
  * Describes a generic single currency bond issue.
  * @param <C> The coupon type.
  */
-public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
+public abstract class BondSecurityDefinition<C extends CouponDefinition> implements FixedIncomeInstrumentConverter<BondSecurity<? extends Payment>> {
   /**
    * The notional payments. For bullet bond, it is restricted to a single payment.
    */
@@ -62,7 +65,7 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
    * @param calendar The calendar used to compute the standard settlement date.
    * @param dayCount The coupon day count convention.
    */
-  public BondDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
+  public BondSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(dayCount, "Day count");
@@ -71,12 +74,43 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
     Validate.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
     this._nominal = nominal;
     this._coupon = coupon;
+    // TODO: check that the coupon and nominal correspond in term of remaining notional.
     this._exCouponDays = exCouponDays;
     this._settlementDays = settlementDays;
     this._dayCount = dayCount;
     _calendar = calendar;
     _issuer = "";
     _repoType = "";
+  }
+
+  /**
+   * Bond constructor from all the bond details.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond coupons. The coupons notional and currency should be in line with the bond nominal.
+   * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
+   * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The calendar used to compute the standard settlement date.
+   * @param dayCount The coupon day count convention.
+   * @param issuer The issuer name.
+   * @param repoType The repo type name.
+   */
+  public BondSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount, final String issuer,
+      final String repoType) {
+    Validate.notNull(nominal, "Nominal");
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(dayCount, "Day count");
+    Validate.isTrue(nominal.getCurrency() == coupon.getCurrency(), "Currency of nominal and coupons should be the same");
+    Validate.isTrue(!nominal.isPayer(), "Notional should be positive");
+    Validate.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
+    this._nominal = nominal;
+    this._coupon = coupon;
+    // TODO: check that the coupon and nominal correspond in term of remaining notional.
+    this._exCouponDays = exCouponDays;
+    this._settlementDays = settlementDays;
+    this._dayCount = dayCount;
+    _calendar = calendar;
+    _issuer = issuer;
+    _repoType = repoType;
   }
 
   /**
@@ -184,7 +218,7 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondDescriptionDefinition<?> other = (BondDescriptionDefinition<?>) obj;
+    BondSecurityDefinition<?> other = (BondSecurityDefinition<?>) obj;
     if (!ObjectUtils.equals(_coupon, other._coupon)) {
       return false;
     }

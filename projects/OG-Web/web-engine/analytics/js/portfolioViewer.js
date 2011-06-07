@@ -22,6 +22,7 @@
     function init() {
       _$portfolioGridContainer = $("<div id='portfolioGrid'></div>");
       _$container.append(_$portfolioGridContainer);
+      Common.addExportCsvButton(_$container, _liveResultsClient.getCsvGridUrl(self.getGridName()));
       
       _dataView = new Slick.Data.DataView();
       _dataView.beginUpdate();
@@ -150,6 +151,10 @@
     
     this.onContainerResized = function() {
       _gridHelper.handleContainerResized();
+    }
+    
+    this.getGridName = function() {
+      return _portfolioDetails.name;
     }
 
     this.destroy = function() {

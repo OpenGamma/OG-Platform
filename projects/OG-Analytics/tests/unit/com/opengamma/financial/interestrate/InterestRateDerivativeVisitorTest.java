@@ -13,8 +13,11 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -311,16 +314,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond, Object data) {
-      return visit(bond, data);
-    }
-
-    @Override
-    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond) {
-      return visit(bond);
-    }
-
-    @Override
     public Class<?>[] visit(InterestRateDerivative[] derivative, Object data) {
       return visit(derivative, data);
     }
@@ -418,6 +411,46 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitCouponIborGearing(CouponIborGearing payment) {
       return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondIborSecurity(BondIborSecurity bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondIborTransaction(BondIborTransaction bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondIborSecurity(BondIborSecurity bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondIborTransaction(BondIborTransaction bond) {
+      return visit(bond);
     }
   };
 

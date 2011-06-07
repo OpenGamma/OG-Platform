@@ -120,11 +120,11 @@
         background: url(/images/tick-same.png) no-repeat;
       }
 
-      .slick-cell.highlighted {
+      .slick-cell.explain {
         background-color: #cbead7;
       }
 
-      .slick-cell.highlighted.explain-hover {
+      .slick-cell.explain.explain-hover {
         background-color: #ffff95;
       }
 
@@ -208,6 +208,7 @@
 
       .detail-popup {
         padding: 8px;
+        position: absolute;
       }
 
       .detail-popup .detail-content {
@@ -313,6 +314,22 @@
         left: 0;
         right: 0;
         bottom: 0;
+      }
+      
+      #resultsViewer #tabs .export-button {
+        float: right;
+        border: 0;
+        margin: -3.4em -1em 0 0;
+      }
+      
+      #resultsViewer #tabs .export-button a {
+        margin: 0;
+        padding: 0;
+      }
+      
+      #resultsViewer #tabs .export-button .ui-button-text {
+        font-size: 0.8em;
+        padding: 0.4em 0.5em;
       }
 
       #loading {

@@ -27,6 +27,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   private UserPrincipal _user;
   private ExecutorService _executorService;
   private FudgeContext _fudgeContext;
+  private LiveResultsService _liveResultsService;
   
   public LiveResultsServiceBean() {
   }
@@ -76,6 +77,10 @@ public class LiveResultsServiceBean implements ServletContextAware {
     _fudgeContext = fudgeContext;
   }
   
+  public LiveResultsService getLiveResultsService() {
+    return _liveResultsService;
+  }
+  
   public void afterPropertiesSet() {
     setBayeux((Bayeux) _servletContext.getAttribute(Bayeux.ATTRIBUTE));
     
@@ -89,7 +94,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
       throw new IllegalArgumentException("Fudge context not set");
     }
     // TODO this is a hack at the moment; there should be a life cycle method on the bean from the container that we start and stop the service from ...
-    createLiveResultsService();
+    _liveResultsService = createLiveResultsService();
   }
   
   public LiveResultsService createLiveResultsService() {

@@ -1,0 +1,76 @@
+<div class="OG-security">
+  <div class="OG-warning-message"></div>
+  <h1>
+    <span class="OG-editable">${name}</span>
+  </h1>
+  <div class="og-box">
+    <div class="og-lbl">
+        <div>Type</div>
+        <div>Trade Date</div>
+        <div>Effective Date</div>
+        <div>Maturity Date</div>
+        <div>Counterparty</div>
+    </div>
+    <div class="og-cnt">
+      <div><strong>${securityType}</strong>&nbsp;</div>
+      <div><strong>${tradeDate.date} - ${tradeDate.zone}</strong>&nbsp;</div>
+      <div><strong>${effectiveDate.date} - ${effectiveDate.zone}</strong>&nbsp;</div>
+      <div><strong>${maturityDate.date} - ${maturityDate.zone}</strong>&nbsp;</div>
+      <div><strong>${counterparty}</strong>&nbsp;</div>
+    </div>
+  </div>
+  <h2>Pay Leg</h2>
+  <div class="og-box">
+    <div class="og-lbl">
+        <div>Day Count</div>
+        <div>Frequency</div>
+        <div>Regional Identifier</div>
+        <div>Business Day Convention</div>
+        <div>Notional Notional</div>
+        <div>Floating Reference Rate Id</div>
+        <div>Initial Floating Rate</div>
+        <div>Spread</div>
+        <div>Interest Rate Leg</div>
+    </div>
+    <div class="og-cnt">
+      <div><strong>${payLeg.dayCount}</strong>&nbsp;</div>
+      <div><strong>${payLeg.frequency}</strong>&nbsp;</div>
+      <div><strong>${payLeg.regionIdentifier.value} (${payLeg.regionIdentifier.scheme})</strong></div>
+      <div><strong>${payLeg.businessDayConvention}</strong>&nbsp;</div>
+      <div><strong>${payLeg.notional.amount} - ${payLeg.notional.currency}</strong>&nbsp;</div>
+      <div><strong>${payLeg.floatingReferenceRateId}</strong>&nbsp;</div>
+      <div><strong>${payLeg.initialFloatingRate}</strong>&nbsp;</div>
+      <div><strong>${payLeg.spread}</strong>&nbsp;</div>
+      <div><strong>${payLeg.interestRateLeg}</strong>&nbsp;</div>
+    </div>
+  </div>
+  <h2>Receive Leg</h2>
+  <div class="og-box">
+    <div class="og-lbl">
+        <div>Day Count</div>
+        <div>Frequency</div>
+        <div>Regional Identifier</div>
+        <div>Business Day Convention</div>
+        <div>Notional Notional</div>
+        <div>Floating Reference Rate Id</div>
+        <div>Initial Floating Rate</div>
+        <div>Spread</div>
+        <div>Interest Rate Leg</div>
+    </div>
+    <div class="og-cnt">
+      <div><strong>${receiveLeg.dayCount}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.frequency}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.regionIdentifier.value} (${receiveLeg.regionIdentifier.scheme})</strong></div>
+      <div><strong>${receiveLeg.businessDayConvention}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.notional.amount} ${receiveLeg.notional.currency}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.floatingReferenceRateId}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.initialFloatingRate}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.spread}</strong>&nbsp;</div>
+      <div><strong>${receiveLeg.interestRateLeg}</strong>&nbsp;</div>
+    </div>
+  </div>
+  <div class="og-box">
+    <div class="og-lbl">Identifiers</div>
+    <div class="og-cnt og-js-identifiers"></div>
+  </div>
+</div>

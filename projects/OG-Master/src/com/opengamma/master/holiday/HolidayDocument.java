@@ -6,15 +6,17 @@
 package com.opengamma.master.holiday;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.id.Identifier;
@@ -151,6 +153,32 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidayDocument other = (HolidayDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the holiday unique identifier.
@@ -273,37 +301,57 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", HolidayDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", HolidayDocument.class, String.class);
     /**
      * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
+        this, "providerKey", HolidayDocument.class, Identifier.class);
     /**
      * The meta-property for the {@code holiday} property.
      */
-    private final MetaProperty<ManageableHoliday> _holiday = DirectMetaProperty.ofReadWrite(this, "holiday", ManageableHoliday.class);
+    private final MetaProperty<ManageableHoliday> _holiday = DirectMetaProperty.ofReadWrite(
+        this, "holiday", HolidayDocument.class, ManageableHoliday.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "uniqueId",
+        "name",
+        "providerKey",
+        "holiday");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("uniqueId", _uniqueId);
-      temp.put("name", _name);
-      temp.put("providerKey", _providerKey);
-      temp.put("holiday", _holiday);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public HolidayDocument createBean() {
-      return new HolidayDocument();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 3373707:  // name
+          return _name;
+        case 2064682670:  // providerKey
+          return _providerKey;
+        case 1091905624:  // holiday
+          return _holiday;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends HolidayDocument> builder() {
+      return new DirectBeanBuilder<HolidayDocument>(new HolidayDocument());
     }
 
     @Override

@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.timeseries;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.PublicSPI;
@@ -114,6 +116,33 @@ public class TimeSeriesMetaData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      TimeSeriesMetaData other = (TimeSeriesMetaData) obj;
+      return JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -245,7 +274,7 @@ public class TimeSeriesMetaData extends DirectBean {
   /**
    * The meta-bean for {@code TimeSeriesMetaData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -254,42 +283,65 @@ public class TimeSeriesMetaData extends DirectBean {
     /**
      * The meta-property for the {@code dataSource} property.
      */
-    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(this, "dataSource", String.class);
+    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
+        this, "dataSource", TimeSeriesMetaData.class, String.class);
     /**
      * The meta-property for the {@code dataProvider} property.
      */
-    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(this, "dataProvider", String.class);
+    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
+        this, "dataProvider", TimeSeriesMetaData.class, String.class);
     /**
      * The meta-property for the {@code dataField} property.
      */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(this, "dataField", String.class);
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", TimeSeriesMetaData.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
+        this, "observationTime", TimeSeriesMetaData.class, String.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", TimeSeriesMetaData.class, IdentifierBundle.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "dataSource",
+        "dataProvider",
+        "dataField",
+        "observationTime",
+        "identifiers");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("dataSource", _dataSource);
-      temp.put("dataProvider", _dataProvider);
-      temp.put("dataField", _dataField);
-      temp.put("observationTime", _observationTime);
-      temp.put("identifiers", _identifiers);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public TimeSeriesMetaData createBean() {
-      return new TimeSeriesMetaData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1272470629:  // dataSource
+          return _dataSource;
+        case 339742651:  // dataProvider
+          return _dataProvider;
+        case -386794640:  // dataField
+          return _dataField;
+        case 951232793:  // observationTime
+          return _observationTime;
+        case 1368189162:  // identifiers
+          return _identifiers;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends TimeSeriesMetaData> builder() {
+      return new DirectBeanBuilder<TimeSeriesMetaData>(new TimeSeriesMetaData());
     }
 
     @Override

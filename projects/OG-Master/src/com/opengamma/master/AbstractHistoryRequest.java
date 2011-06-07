@@ -5,20 +5,21 @@
  */
 package com.opengamma.master;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -191,6 +192,35 @@ public abstract class AbstractHistoryRequest extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractHistoryRequest other = (AbstractHistoryRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
+          JodaBeanUtils.equal(getVersionsFromInstant(), other.getVersionsFromInstant()) &&
+          JodaBeanUtils.equal(getVersionsToInstant(), other.getVersionsToInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsFromInstant(), other.getCorrectionsFromInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsToInstant(), other.getCorrectionsToInstant());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -383,7 +413,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
   /**
    * The meta-bean for {@code AbstractHistoryRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -392,46 +422,72 @@ public abstract class AbstractHistoryRequest extends DirectBean {
     /**
      * The meta-property for the {@code pagingRequest} property.
      */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
+    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "pagingRequest", AbstractHistoryRequest.class, PagingRequest.class);
     /**
      * The meta-property for the {@code objectId} property.
      */
-    private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(this, "objectId", ObjectIdentifier.class);
+    private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(
+        this, "objectId", AbstractHistoryRequest.class, ObjectIdentifier.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
-    private final MetaProperty<Instant> _versionsFromInstant = DirectMetaProperty.ofReadWrite(this, "versionsFromInstant", Instant.class);
+    private final MetaProperty<Instant> _versionsFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionsFromInstant", AbstractHistoryRequest.class, Instant.class);
     /**
      * The meta-property for the {@code versionsToInstant} property.
      */
-    private final MetaProperty<Instant> _versionsToInstant = DirectMetaProperty.ofReadWrite(this, "versionsToInstant", Instant.class);
+    private final MetaProperty<Instant> _versionsToInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionsToInstant", AbstractHistoryRequest.class, Instant.class);
     /**
      * The meta-property for the {@code correctionsFromInstant} property.
      */
-    private final MetaProperty<Instant> _correctionsFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionsFromInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionsFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionsFromInstant", AbstractHistoryRequest.class, Instant.class);
     /**
      * The meta-property for the {@code correctionsToInstant} property.
      */
-    private final MetaProperty<Instant> _correctionsToInstant = DirectMetaProperty.ofReadWrite(this, "correctionsToInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionsToInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionsToInstant", AbstractHistoryRequest.class, Instant.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "pagingRequest",
+        "objectId",
+        "versionsFromInstant",
+        "versionsToInstant",
+        "correctionsFromInstant",
+        "correctionsToInstant");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
-      temp.put("objectId", _objectId);
-      temp.put("versionsFromInstant", _versionsFromInstant);
-      temp.put("versionsToInstant", _versionsToInstant);
-      temp.put("correctionsFromInstant", _correctionsFromInstant);
-      temp.put("correctionsToInstant", _correctionsToInstant);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public AbstractHistoryRequest createBean() {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return _pagingRequest;
+        case 90495162:  // objectId
+          return _objectId;
+        case 825630012:  // versionsFromInstant
+          return _versionsFromInstant;
+        case 288644747:  // versionsToInstant
+          return _versionsToInstant;
+        case -1002076478:  // correctionsFromInstant
+          return _correctionsFromInstant;
+        case -1241747055:  // correctionsToInstant
+          return _correctionsToInstant;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends AbstractHistoryRequest> builder() {
       throw new UnsupportedOperationException("AbstractHistoryRequest is an abstract class");
     }
 

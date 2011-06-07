@@ -8,16 +8,18 @@ package com.opengamma.master.position;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -307,6 +309,40 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PositionSearchRequest other = (PositionSearchRequest) obj;
+      return JodaBeanUtils.equal(getPositionIds(), other.getPositionIds()) &&
+          JodaBeanUtils.equal(getTradeIds(), other.getTradeIds()) &&
+          JodaBeanUtils.equal(getSecurityKeys(), other.getSecurityKeys()) &&
+          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
+          JodaBeanUtils.equal(getPositionProviderKey(), other.getPositionProviderKey()) &&
+          JodaBeanUtils.equal(getTradeProviderKey(), other.getTradeProviderKey()) &&
+          JodaBeanUtils.equal(getMinQuantity(), other.getMinQuantity()) &&
+          JodaBeanUtils.equal(getMaxQuantity(), other.getMaxQuantity()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of position object identifiers, null to not limit by position object identifiers.
@@ -532,58 +568,90 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(
+        this, "positionIds", PositionSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code tradeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(
+        this, "tradeIds", PositionSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(
+        this, "securityKeys", PositionSearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code identifierValue} property.
      */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(this, "identifierValue", String.class);
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
+        this, "identifierValue", PositionSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code positionProviderKey} property.
      */
-    private final MetaProperty<Identifier> _positionProviderKey = DirectMetaProperty.ofReadWrite(this, "positionProviderKey", Identifier.class);
+    private final MetaProperty<Identifier> _positionProviderKey = DirectMetaProperty.ofReadWrite(
+        this, "positionProviderKey", PositionSearchRequest.class, Identifier.class);
     /**
      * The meta-property for the {@code tradeProviderKey} property.
      */
-    private final MetaProperty<Identifier> _tradeProviderKey = DirectMetaProperty.ofReadWrite(this, "tradeProviderKey", Identifier.class);
+    private final MetaProperty<Identifier> _tradeProviderKey = DirectMetaProperty.ofReadWrite(
+        this, "tradeProviderKey", PositionSearchRequest.class, Identifier.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
-    private final MetaProperty<BigDecimal> _minQuantity = DirectMetaProperty.ofReadWrite(this, "minQuantity", BigDecimal.class);
+    private final MetaProperty<BigDecimal> _minQuantity = DirectMetaProperty.ofReadWrite(
+        this, "minQuantity", PositionSearchRequest.class, BigDecimal.class);
     /**
      * The meta-property for the {@code maxQuantity} property.
      */
-    private final MetaProperty<BigDecimal> _maxQuantity = DirectMetaProperty.ofReadWrite(this, "maxQuantity", BigDecimal.class);
+    private final MetaProperty<BigDecimal> _maxQuantity = DirectMetaProperty.ofReadWrite(
+        this, "maxQuantity", PositionSearchRequest.class, BigDecimal.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "positionIds",
+        "tradeIds",
+        "securityKeys",
+        "identifierValue",
+        "positionProviderKey",
+        "tradeProviderKey",
+        "minQuantity",
+        "maxQuantity");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("positionIds", _positionIds);
-      temp.put("tradeIds", _tradeIds);
-      temp.put("securityKeys", _securityKeys);
-      temp.put("identifierValue", _identifierValue);
-      temp.put("positionProviderKey", _positionProviderKey);
-      temp.put("tradeProviderKey", _tradeProviderKey);
-      temp.put("minQuantity", _minQuantity);
-      temp.put("maxQuantity", _maxQuantity);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public PositionSearchRequest createBean() {
-      return new PositionSearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -137459505:  // positionIds
+          return _positionIds;
+        case 1271202484:  // tradeIds
+          return _tradeIds;
+        case 807958868:  // securityKeys
+          return _securityKeys;
+        case 2085582408:  // identifierValue
+          return _identifierValue;
+        case -370050619:  // positionProviderKey
+          return _positionProviderKey;
+        case -510247254:  // tradeProviderKey
+          return _tradeProviderKey;
+        case 69860605:  // minQuantity
+          return _minQuantity;
+        case 747293199:  // maxQuantity
+          return _maxQuantity;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends PositionSearchRequest> builder() {
+      return new DirectBeanBuilder<PositionSearchRequest>(new PositionSearchRequest());
     }
 
     @Override

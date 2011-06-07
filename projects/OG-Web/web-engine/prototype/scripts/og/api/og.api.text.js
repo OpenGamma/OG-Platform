@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * API call for making and caching static requests
@@ -8,7 +8,7 @@ $.register_module({
     name: 'og.api.text',
     dependencies: ['og.api.common'],
     obj: function () {
-        var html_cache = {}, module = this, html_root = module.htmlRoot, api, module_path,
+        var html_cache = {}, module = this, html_root = module.html_root, api, module_path,
             start_loading = og.api.common.start_loading, end_loading = og.api.common.end_loading;
         /**
          * takes a module name (like <code>'og.common.details.foo'</code>) and returns a path:
@@ -38,7 +38,11 @@ $.register_module({
                 return setTimeout(api.partial(config), 500);
             if (!do_not_cache) // set it to null before making the request
                 html_cache[url] = null;
-            $.ajax({url: url, success: handler});
+            $.ajax({url: url, success: handler, error: function (response) {
+                do_not_cache = true;
+                delete html_cache[url];
+                handler('Error (HTTP ' + response.status + ') retrieving: ' + url);
+            }});
         };
     }
 });
