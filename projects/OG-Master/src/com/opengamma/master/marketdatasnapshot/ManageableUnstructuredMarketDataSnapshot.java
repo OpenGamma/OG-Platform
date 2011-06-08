@@ -14,6 +14,9 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 
 public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMarketDataSnapshot, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> _values;
 
   /**
