@@ -16,10 +16,11 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
+ * @param <T> The type of the data
  */
 public interface MutableDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSeries<T>, MutableObjectTimeSeries<Date, T> {
+  /** */
   public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<Date, T> implements MutableDateTimeObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<Date> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
@@ -33,6 +34,7 @@ public interface MutableDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSe
     public abstract DateTimeObjectTimeSeries<T> newInstanceFast(Date[] dateTimes, T[] values);
   }
 
+  /** */
   public abstract static class Long<T> extends AbstractMutableLongObjectTimeSeries<Date, T> implements MutableDateTimeObjectTimeSeries<T> {
     public Long(final DateTimeConverter<Date> converter, final FastMutableLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);

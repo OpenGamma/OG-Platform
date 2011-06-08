@@ -43,12 +43,12 @@ public class AbstractExceptionMapper {
   //-------------------------------------------------------------------------
   public Response createResponse(final Throwable exception) {
     if (_headers.getAcceptableMediaTypes().contains(MediaType.TEXT_HTML)) {
-      s_logger.warn("RESTful website exception caught", exception);
+      s_logger.error("RESTful website exception caught", exception);
       // output error page
       // TODO: error page
       return Response.status(_status).build();
     } else {
-      s_logger.info("RESTful web-service exception caught and tunnelled to client", exception);
+      s_logger.error("RESTful web-service exception caught and tunnelled to client", exception);
       // perform transparent exception tunneling for Fudge messages
       return Response.status(_status)
         .header(ExceptionThrowingClientFilter.EXCEPTION_TYPE, exception.getClass().getName())

@@ -19,13 +19,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
@@ -33,6 +31,7 @@ import com.opengamma.util.tuple.LongObjectPair;
 
 /**
  * 
+ * @param <T> The type of the data
  */
 public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
   private final LongArrayList _times;
@@ -51,7 +50,8 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     ensureTimesSorted();
   }
 
-  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<T> values) {
+  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<T> values) {
     super(encoding);
     _times = new LongArrayList(times);
     _values = new ObjectArrayList<T>(values);
@@ -64,7 +64,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     _values = new ObjectArrayList<T>(dts.valuesArrayFast());
     // don't need to check here
   }
-  
+
   public FastListLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastLongObjectTimeSeries<T> dts) {
     super(encoding);
     long[] timesArrayFast = dts.timesArrayFast(); // NOTE: we can't do it this way if we change to returning the backing array.
@@ -75,7 +75,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     _times = new LongArrayList(timesArrayFast);
     _values = new ObjectArrayList<T>(dts.valuesArrayFast());
   }
-  
+
   public FastListLongObjectTimeSeries(final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     int[] timesArrayFast = dts.timesArrayFast();
@@ -86,7 +86,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     _values = new ObjectArrayList<T>(dts.valuesArrayFast());
     // don't need to check here
   }
-  
+
   public FastListLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
@@ -203,7 +203,8 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     if (startIndex == -1 || endIndex == -1) {
       throw new NoSuchElementException();
     }
-    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(
+        startIndex, endIndex));
   }
 
   @Override
@@ -330,7 +331,8 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
   public FastLongObjectTimeSeries<T> tailFast(final int numItems) {
     // note I used _times.size for the second part so it we didn't need two
     // method calls as the optimizer is unlikely to spot it.
-    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()),
+        _values.subList(_times.size() - numItems, _times.size()));
   }
 
   /*

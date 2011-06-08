@@ -19,13 +19,13 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
- * @author jim
  *         This class isn't really necessary but it meant to serve as a way to
  *         distinguish DateDoubleTimeSeries that can store full time accuracy
  *         from that which can't.
  */
 public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBackedDoubleTimeSeries<Date> {
 
+  /** */
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<Date> implements DateTimeDoubleTimeSeries {
     public Integer(final DateTimeConverter<Date> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
@@ -39,6 +39,7 @@ public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBa
     public abstract DateTimeDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 
+  /** */
   public abstract static class Long extends AbstractLongDoubleTimeSeries<Date> implements DateTimeDoubleTimeSeries {
     public Long(final DateTimeConverter<Date> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);

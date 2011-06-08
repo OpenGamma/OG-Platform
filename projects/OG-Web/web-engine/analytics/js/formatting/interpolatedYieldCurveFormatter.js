@@ -15,12 +15,12 @@
     var self = this;
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      if (!value) {
+      if (!value || !value.v) {
         return;
       }
       $cell.empty();
       
-      var points = value.summary;
+      var points = value.v.summary;
 
       $("<span class='interpolated-yield-curve'></div>")
           .height($cell.height() - 10)
@@ -29,8 +29,8 @@
           .sparkline(points, $.extend(true, {}, Common.sparklineDefaults, { width: '100%', height: '100%' , fillColor: false }));
     }
     
-    this.createDetail = function($container, rowId, columnStructure, userConfig) {
-      return new InterpolatedYieldCurveDetail($container, rowId, columnStructure.colId);
+    this.createDetail = function($popup, $container, rowId, columnStructure, userConfig) {
+      return new InterpolatedYieldCurveDetail($popup, $container, rowId, columnStructure.colId);
     }
     
   }

@@ -6,11 +6,6 @@
  
 namespace com.opengamma.financial.security.option {
 
-  enum OptionType {
-    PUT;
-    CALL;
-  }
-  
   /**
    * A security modelling an option.
    */

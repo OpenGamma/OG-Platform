@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+import static org.testng.AssertJUnit.assertNull;
+
 import javax.time.Instant;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
@@ -55,9 +57,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertNull(_master.getDefinition(Currency.CHF, "1"));
   }
   
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testGetDefinition_instant () {
-    _master.getDefinition (Currency.USD, "FUNDING", Instant.now ());
+    assertNotNull(_master.getDefinition(Currency.USD, "1", Instant.now()));
   }
   
   /**

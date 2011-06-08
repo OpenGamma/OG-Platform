@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,6 +19,13 @@
 LOGGING(com.opengamma.language.util.AbstractSettings);
 
 #ifndef _WIN32
+/// Attempts to open a file named by the concatenation of the three path components.
+///
+/// @param[in] pszSettingsLocation the name of the file within the config folder, e.g. &lt;company name&lt;/&lt;product&gt;,
+///            with no leading slash
+/// @param[in] pszBase the location of the config folder, with a leading slash if not the empty string, and no trailing slash
+/// @param[in] pszConfig the config folder name with leading and trailing slash
+/// @return the opened file handle or NULL if not found
 static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBase, const TCHAR *pszConfig) {
 	TCHAR szPath[PATH_MAX];
 	StringCbPrintf (szPath, sizeof (szPath), TEXT ("%s%s%s"), pszBase, pszConfig, pszSettingsLocation);
@@ -32,6 +39,8 @@ static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBa
 }
 #endif /* ifndef _WIN32 */
 
+/// Creates a new settings object. Under Windows, the registry keys are opened. Under Posix, the configuration
+/// file is found and the contents loaded into the cache.
 CAbstractSettings::CAbstractSettings () {
 	m_pCache = NULL;
 	TCHAR szSettingsLocation[256];
@@ -104,6 +113,9 @@ CAbstractSettings::CAbstractSettings () {
 #endif /* ifdef _WIN32 */
 }
 
+/// Destroys the object, releasing any memory allocated to the cache. String pointers
+/// returned by the querying methods will not be valid after the settings object
+/// has been destroyed.
 CAbstractSettings::~CAbstractSettings () {
 #ifdef _WIN32
 	LOGDEBUG ("Closing registry keys");
@@ -126,11 +138,11 @@ CAbstractSettings::~CAbstractSettings () {
 	}
 }
 
-// Note the cache is not about performance, but more to track the memory we've allocated. It is
-// unlikely that keys will be accessed at random, only once anyway, so speedy search lookups
-// from a hash implementation aren't that helpful.
-
-const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) {
+/// Fetches an entry from the cache
+///
+/// @param[in] pszKey the key to search for, never NULL
+/// @return the value found, or NULL if none
+const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) const {
 	struct _setting *pCache = m_pCache;
 	while (pCache) {
 		if (!_tcsicmp (pszKey, pCache->pszKey)) return pCache->pszValue;
@@ -139,7 +151,12 @@ const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) {
 	return NULL;
 }
 
-const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszValue) {
+/// Puts an entry into the cache. The value is duplicated.
+///
+/// @param[in] pszKey the key to store a value against, never NULL
+/// @param[in] pszValue the value to store, never NULL
+/// @return the cached value - a copy of the original
+const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const {
 	struct _setting *pCache = new struct _setting;
 	if (!pCache) {
 		LOGFATAL (TEXT ("Out of memory"));
@@ -154,7 +171,12 @@ const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszV
 }
 
 #ifdef _WIN32
-PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) {
+/// Fetches a value from the registry, adding it to the cache if found.
+///
+/// @param[in] hKey the settings key to look under, never NULL
+/// @param[in] pszKey the key value to search for, never NULL
+/// @return the value found, or NULL if none
+PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {
 	DWORD dwType;
 	union {
 		TCHAR sz[MAX_PATH];
@@ -181,7 +203,11 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) {
 }
 #endif /* ifdef _WIN32 */
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
+/// Fetches a string setting
+///
+/// @param[in] pszKey the key to search for, never NULL
+/// @return the string value, or NULL if none
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) const {
 	const TCHAR *pszValue = CacheGet (pszKey);
 #ifdef _WIN32
 	if (!pszValue) {
@@ -194,21 +220,47 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
 	return pszValue;
 }
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefault) {
+/// Fetches a string setting, or returns a default if none is defined. Note that this should only
+/// be used where the default is a literal value. If the default must be calculated, use a
+/// CAbstractSettingProvider instead.
+/// 
+/// @param[in] pszKey the key to search for, never NULL
+/// @param[in] pszDefault the default value to return if the key is not found
+/// @return the value found or the default value, may be NULL
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefault) const {
 	const TCHAR *pszValue = Get (pszKey);
 	return pszValue ? pszValue : pszDefault;
 }
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, CAbstractSettingProvider *poDefault) {
+/// Fetches a string setting or returns a default if none is defined. The default value is only
+/// created when needed using the CAbstractSettingProvider
+///
+/// @param[in] pszKey the key to search for, never NULL
+/// @param[in] poDefault provider of the default value to return if the key is not found, never NULL
+/// @return the value found or the default value, may be NULL
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const {
 	const TCHAR *pszValue = Get (pszKey);
 	return pszValue ? pszValue : poDefault->GetString ();
 }
 
-int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) {
+/// Fetches a numeric setting or returns a default if none is defined. A string value is searched
+/// for and converted to a decimal integer.
+//
+/// @param[in] pszKey the key to search for, never NULL
+/// @param[in] nDefault the default value to return if the key is not found
+/// @return the value found or the default value
+int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) const {
 	const TCHAR * pszValue = Get (pszKey);
 	return pszValue ? _tstoi (pszValue) : nDefault;
 }
 
+/// Returns the location of the settings. This is constructed as the company and product names separated
+/// by the file separator character. The names are retrieved from the metadata embedded within the
+/// calling executable, DLL or DSO.
+///
+/// @param[in,out] pszBuffer buffer to build the location into as a null terminated string, never NULL
+/// @param[in] cbBufferLen size of the buffer in bytes
+/// @return true if the buffer was populated, false if the buffer was not big enough to accept the string
 bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferLen) {
 	CDllVersion version;
 	const TCHAR *pszCompanyName = version.GetCompanyName ();
@@ -241,20 +293,26 @@ bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferL
 	}
 }
 
+/// Mutex to serialise access to providers
 CMutex CAbstractSettingProvider::s_oMutex;
 
+/// Creates a new provider instance in an uncalculated state
 CAbstractSettingProvider::CAbstractSettingProvider () {
 	m_bCalculated = false;
 	m_pszValue = NULL;
 }
 
+/// Destroys a provider instance. If the default value was calculated, the memory is released.
 CAbstractSettingProvider::~CAbstractSettingProvider () {
 	if (m_pszValue) {
 		delete m_pszValue;
 	}
 }
 
-const TCHAR *CAbstractSettingProvider::GetString () {
+/// Returns the string provided, calculating it if necessary.
+///
+/// @return the setting value, possibly NULL
+const TCHAR *CAbstractSettingProvider::GetString () const {
 	s_oMutex.Enter ();
 	if (!m_bCalculated) {
 		LOGDEBUG (TEXT ("Calculating default setting value"));

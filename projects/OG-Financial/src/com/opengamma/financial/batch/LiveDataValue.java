@@ -16,29 +16,33 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A live data value.
+ * <p>
+ * This class is non-modifiable, however a subclass might not be.
  */
 public class LiveDataValue {
-  
+
   /**
-   * A security (for example - AAPL stock) or a primitive (for example - EUR/USD exchange rate)
+   * The specification of what the data represents.
+   * This could be a security, such as AAPL stock, or a primitive, such as the EUR/USD exchange rate.
    */
   private ComputationTargetSpecification _computationTargetSpecification;
-  
   /**
-   * For example, MARKET_VALUE
+   * The name key of the field, such as 'MARKET_VALUE'.
    */
   private String _fieldName;
-  
   /**
-   * For example, 55.02
+   * The value, held as a {@code double}.
    */
   private double _value;
-  
-  public LiveDataValue(
-      ComputedValue value) {
-    ArgumentChecker.notNull(value, "Value");
-    
+
+  /**
+   * Creates an instance from a {@code ComputedValue}.
+   * 
+   * @param value  the computed value, not null
+   */
+  public LiveDataValue(ComputedValue value) {
+    ArgumentChecker.notNull(value, "value");
     _computationTargetSpecification = value.getSpecification().getTargetSpecification();
     _fieldName = value.getSpecification().getValueName();
     
@@ -47,50 +51,89 @@ public class LiveDataValue {
     }
     _value = (Double) value.getValue();
   }
-  
+
+  /**
+   * Creates an instance from a {@code ValueSpecification} and value.
+   * 
+   * @param valueSpecification  the value specification, not null
+   * @param value  the value, not null
+   */
   public LiveDataValue(
-      ValueSpecification specification,
+      ValueSpecification valueSpecification,
       Double value) {
-    ArgumentChecker.notNull(specification, "Value specification");
-    ArgumentChecker.notNull(value, "Value");
-    
-    _computationTargetSpecification = specification.getTargetSpecification();
-    _fieldName = specification.getValueName();
-    _value = (Double) value;
+    ArgumentChecker.notNull(valueSpecification, "specification");
+    ArgumentChecker.notNull(value, "value");
+    _computationTargetSpecification = valueSpecification.getTargetSpecification();
+    _fieldName = valueSpecification.getValueName();
+    _value = value;
   }
-  
+
+  /**
+   * Creates an instance from a {@code ValueRequirement} and alue.
+   * 
+   * @param valueRequirement  the value requirement, not null
+   * @param value  the value, not null
+   */
   public LiveDataValue(
-      ValueRequirement requirement,
+      ValueRequirement valueRequirement,
       Double value) {
-    ArgumentChecker.notNull(requirement, "Value requirement");
+    ArgumentChecker.notNull(valueRequirement, "valueRequirement");
     ArgumentChecker.notNull(value, "Value");
-    
-    _computationTargetSpecification = requirement.getTargetSpecification();
-    _fieldName = requirement.getValueName();
-    _value = (Double) value;
+    _computationTargetSpecification = valueRequirement.getTargetSpecification();
+    _fieldName = valueRequirement.getValueName();
+    _value = value;
   }
-  
-  public LiveDataValue(ComputationTargetSpecification computationTargetSpecification,
+
+  /**
+   * Creates an instance from a {@code ComputationTargetSpecification}, field name and value.
+   * 
+   * @param computationTargetSpecification  the target specification, not null
+   * @param fieldName  the field name, not null
+   * @param value  the value, not null
+   */
+  public LiveDataValue(
+      ComputationTargetSpecification computationTargetSpecification,
       String fieldName,
       double value) {
-    ArgumentChecker.notNull(computationTargetSpecification, "Computation target specification");
-    ArgumentChecker.notNull(fieldName, "Field name");
-    
+    ArgumentChecker.notNull(computationTargetSpecification, "computationTargetSpecification");
+    ArgumentChecker.notNull(fieldName, "fieldName");
     _computationTargetSpecification = computationTargetSpecification;
     _fieldName = fieldName;
     _value = value;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the computation target specification.
+   * 
+   * @return the specification, not null
+   */
   public ComputationTargetSpecification getComputationTargetSpecification() {
     return _computationTargetSpecification;
   }
 
+  /**
+   * Gets the field name key defining the value.
+   * 
+   * @return the field name, not null
+   */
   public String getFieldName() {
     return _fieldName;
   }
 
+  /**
+   * Gets the value.
+   * 
+   * @return the value
+   */
   public double getValue() {
     return _value;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
 
   @Override
@@ -98,11 +141,6 @@ public class LiveDataValue {
     return HashCodeBuilder.reflectionHashCode(this);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
-  
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);

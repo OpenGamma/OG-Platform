@@ -1,5 +1,6 @@
-/**
- * view for positions section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.regions',
@@ -16,7 +17,7 @@ $.register_module({
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
             ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
-            page_name = 'regions',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {}, // The returned json for the details area
             search_options = {
@@ -62,7 +63,7 @@ $.register_module({
                 regions.search(args);
             };
         module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
+            load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
             load_regions: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name}
         };
@@ -95,7 +96,6 @@ $.register_module({
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     },
-                    dependencies: ['id'],
                     update: regions.details.partial(args)
                 });
             },

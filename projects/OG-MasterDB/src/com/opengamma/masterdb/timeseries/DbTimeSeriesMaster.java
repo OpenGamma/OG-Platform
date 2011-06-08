@@ -23,6 +23,7 @@ import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.GET_
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.GET_ACTIVE_TIME_SERIES_KEY_BY_ID;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.GET_TIME_SERIES_BY_ID;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.GET_TS_DATE_RANGE_BY_OID;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.IDENTIFIER_VALUE_COLUMN;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.INSERT_DATA_FIELD;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.INSERT_DATA_PROVIDER;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.INSERT_DATA_SOURCE;
@@ -45,6 +46,7 @@ import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.LOAD
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.LOAD_TIME_SERIES_DELTA;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.LOAD_TIME_SERIES_WITH_DATES;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.OBSERVATION_TIME_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SCHEME;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELECT_BUNDLE_FROM_IDENTIFIERS;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELECT_DATA_FIELD_ID;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELECT_DATA_PROVIDER_ID;
@@ -53,7 +55,8 @@ import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELE
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELECT_QUOTED_OBJECT_ID;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.SELECT_SCHEME_ID;
 import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.UPDATE_TIME_SERIES;
-import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.*;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.VALID_FROM;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.VALID_TO;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -801,7 +804,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
               return true;
             }
           } else {
-            if (isEqualDateRange(loadedIdentifier, identifierWithDates)) {
+            if (TimeSeriesUtils.isIdenticalRange(loadedIdentifier, identifierWithDates)) {
               if (getActiveTimeSeriesKey(bundleID, 
                   document.getDataSource(), 
                   document.getDataProvider(), 
@@ -821,15 +824,6 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   private boolean isWithoutDates(final IdentifierWithDates identifierWithDates) {
     return identifierWithDates.getValidFrom() == null && identifierWithDates.getValidTo() == null;
-  }
-
-  private boolean isEqualDateRange(final IdentifierWithDates currentIdentifier, final IdentifierWithDates newIdentifier) {
-    if (currentIdentifier.getValidFrom() != null && newIdentifier.getValidFrom() != null) {
-      if (currentIdentifier.getValidTo() != null && newIdentifier.getValidTo() != null) {
-        return currentIdentifier.getValidFrom().equals(newIdentifier.getValidFrom()) && currentIdentifier.getValidTo().equals(newIdentifier.getValidTo());
-      }
-    }
-    return false;
   }
 
   @Override
@@ -1111,7 +1105,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     Map<Long, List<IdentifierWithDates>> bundleMap = searchIdentifierBundles(request);
     
     if (hasIdentifier(request) && bundleMap.isEmpty()) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
@@ -1149,7 +1143,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       }
       result.getDocuments().add(document);
     }
-    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setPaging(Paging.of(request.getPagingRequest(), count));
     return result;
   }
 

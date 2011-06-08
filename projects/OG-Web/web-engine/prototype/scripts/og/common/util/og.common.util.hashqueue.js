@@ -1,23 +1,24 @@
 /**
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * a hash table that automatically discards old items like a queue
  */
 $.register_module({
-    name: 'og.common.util.hashqueue',
+    name: 'og.common.util.HashQueue',
     dependencies: ['og.dev'],
     obj: function () {
         var warn = og.dev.warn;
         return function (instance) {
-            var hashqueue = this, self = 'hashqueue', data, keys = [], size = instance, instance_type = typeof instance,
-                parsed, has = 'hasOwnProperty', corrupted_message = self + ': corrupted data, key or size mismatch';
-            if (instance_type === 'string') parsed = JSON.parse(instance);
-            if (instance_type === 'object') parsed = instance;
+            var hashqueue = this, self = 'HashQueue', data, keys = [], size = instance, type = typeof instance,
+                has = 'hasOwnProperty', corrupted = self + ': corrupted data, key or size mismatch',
+                parsed = type === 'string' ? JSON.parse(instance) : type === 'object' ? instance : null;
             if (parsed) size = parsed.size, data = parsed.data || data, keys = parsed.keys || keys, parsed = (void 0);
             if (!size || size < 1 || size % 1) throw new RangeError(self + ': size must be a positive integer');
-            if (keys.some(function (key) {return !data[has](key);}) || (keys.length > size))
-                throw new Error(corrupted_message);
+            if (keys.some(function (key) {return !data[has](key);}) || (keys.length > size)) throw new Error(corrupted);
             if (data) (function () {
                 var key, key_names = keys.reduce(function (acc, val) {return acc[val] = 0, acc;}, {});
-                for (key in data) if (data[has](key) && !key_names[has](key)) throw new Error(corrupted_message);
+                for (key in data) if (data[has](key) && !key_names[has](key)) throw new Error(corrupted);
             })(); else data = {};
             hashqueue.all = function () {
                 var shallow_copy = {}, key;

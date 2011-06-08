@@ -6,18 +6,25 @@
 
 namespace com.opengamma.financial.security.option {
  
-  message FXOptionSecurity extends OptionSecurity {
+  /**
+   * A security modelling an fx option.
+   */
+  message FXOptionSecurity extends FinancialSecurity {
    
     required string securityType [default = "FX_OPTION"];
     
-    required string counterparty;
     required com.opengamma.util.money.Currency putCurrency;
     required com.opengamma.util.money.Currency callCurrency; 
+    required double putAmount;
+    required double callAmount;
+    required util.time.Expiry expiry;
+    required javax.time.calendar.ZonedDateTime settlementDate;
    
     binding Java {
-      body "public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity (this); }";
+      body <<<JAVA
+        public <T> T accept (FXOptionSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
+JAVA;
     }
-    
   }
-   
 }

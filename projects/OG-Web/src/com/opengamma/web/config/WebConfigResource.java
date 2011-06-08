@@ -14,17 +14,26 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
+import com.opengamma.web.json.ViewDefinitionJSONBuilder;
+import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
@@ -32,7 +41,7 @@ import com.opengamma.util.tuple.Pair;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
-
+  
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -53,11 +62,36 @@ public class WebConfigResource extends AbstractWebConfigResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON() {
+  public Response getHTML(@Context Request request) {
+    EntityTag etag = new EntityTag(data().getConfig().getUniqueId().toString());
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder != null) {
+      return builder.build();
+    }
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    out.put("configXml", StringEscapeUtils.escapeJavaScript(createXML(doc)));
-    return getFreemarker().build("configs/jsonconfig.ftl", out);
+    String jsonConfig = toJSON(doc.getValue());
+    if (jsonConfig != null) {
+      out.put("configJSON", jsonConfig);
+    } else {
+      out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
+    }
+    out.put("type", data().getTypeMap().inverse().get(doc.getType()));
+    String json = getFreemarker().build("configs/jsonconfig.ftl", out);
+    return Response.ok(json).tag(etag).build();
+  }
+
+  private String toJSON(final Object config) {
+    if (config.getClass().isAssignableFrom(ViewDefinition.class)) {
+      return  new ViewDefinitionJSONBuilder().toJSON((ViewDefinition) config);
+    }
+    if (config.getClass().isAssignableFrom(YieldCurveDefinition.class)) {
+      return new YieldCurveDefinitionJSONBuilder().toJSON((YieldCurveDefinition) config);
+    }
+    if (config.getClass().isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
+      return new CurveSpecificationBuilderConfigurationJSONBuilder().toJSON((CurveSpecificationBuilderConfiguration) config);
+    }
+    return null;
   }
 
   //-------------------------------------------------------------------------
@@ -85,7 +119,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
     
-    URI uri = updateConfig(name, parseXML(xml));
+    URI uri = updateConfig(name, parseXML(xml).getFirst());
     return Response.seeOther(uri).build();
   }
 
@@ -94,29 +128,37 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configJSON") String json,
+      @FormParam("configXML") String xml) {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
+    json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
     // JSON allows a null config to just change the name
     if (name == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    updateConfig(name, xml != null ? parseXML(xml) : null);
+    Object configValue = null;
+    if (json != null) {
+      configValue = parseJSON(json).getFirst();
+    } else if (xml != null) {
+      configValue = parseXML(xml).getFirst();
+    }
+    updateConfig(name, configValue);
     return Response.ok().build();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private URI updateConfig(String name, Pair<Object, Class<?>> newConfigValue) {
+  private URI updateConfig(String name, Object newConfigValue) {
     ConfigDocument<?> oldDoc = data().getConfig();
     ConfigDocument doc = new ConfigDocument(oldDoc.getType());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
     if (newConfigValue != null) {  // null means only update the name
-      doc.setValue(newConfigValue.getFirst());
+      doc.setValue(newConfigValue);
     }
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);

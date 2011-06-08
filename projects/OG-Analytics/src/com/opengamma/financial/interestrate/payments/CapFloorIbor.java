@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.payments;
 
 import com.opengamma.financial.instrument.payment.CapFloor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -44,8 +45,30 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
     _isCap = isCap;
   }
 
+  /**
+   * Create a new cap/floor with the same characteristics except the strike.
+   * @param strike The new strike.
+   * @return The cap/floor.
+   */
+  public CapFloorIbor withStrike(final double strike) {
+    return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+        getFixingYearFraction(), getForwardCurveName(), strike, _isCap);
+  }
+
+  /**
+   * Builder from a Ibor coupon, the strike and the cap/floor flag.
+   * @param coupon An Ibor coupon.
+   * @param strike The strike.
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor.
+   */
+  public static CapFloorIbor from(final CouponIbor coupon, final double strike, final boolean isCap) {
+    return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
+        coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction(), coupon.getForwardCurveName(), strike, isCap);
+  }
+
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 
@@ -58,6 +81,16 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
   public double payOff(double fixing) {
     double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCapFloorIbor(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCapFloorIbor(this);
   }
 
   @Override

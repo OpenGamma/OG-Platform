@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -9,18 +9,29 @@
 
 #include "TimeoutIO.h"
 
+/// Reads from a CTimeoutIO data source, making sure that at least a minimum count of bytes
+/// is available to the caller.
 class CBufferedInput {
 private:
+
+	/// Size of the buffer pointed to by m_pData
 	size_t m_cbBuffer;
+
+	/// Index of the first byte used in the buffer.
 	size_t m_cbDataStart;
+
+	/// Index of the last byte used in the buffer.
 	size_t m_cbDataEnd;
+
+	/// Data buffer
 	void *m_pData;
+
 public:
 	CBufferedInput ();
 	~CBufferedInput ();
 	bool Read (CTimeoutIO *poSource, size_t cbMinimum, unsigned long timeout);
-	void *GetData ();
-	size_t GetAvailable ();
+	const void *GetData () const;
+	size_t GetAvailable () const;
 	void Discard (size_t cbAmount);
 };
 

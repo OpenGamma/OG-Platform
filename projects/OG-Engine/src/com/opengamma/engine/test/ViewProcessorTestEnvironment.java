@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
@@ -126,7 +127,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setLiveDataClient(liveDataClient);
 
     if (getSnapshotProvider() == null) {
-      generateProviders();
+      generateProviders(securitySource);
     }
     vpFactBean.setLiveDataSnapshotProvider(getSnapshotProvider());
     vpFactBean.setLiveDataAvailabilityProvider(getAvailabilityProvider());
@@ -154,11 +155,19 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
     
-    vpFactBean.setMarketDataSnaphotSource(new MarketDataSnapshotSource() {
+    vpFactBean.setMarketDataSnapshotSource(new MarketDataSnapshotSource() {
       
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
         return null;
+      }
+
+      @Override
+      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+      }
+
+      @Override
+      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
       }
     });
     
@@ -217,8 +226,8 @@ public class ViewProcessorTestEnvironment {
     _availabilityProvider = liveDataAvailabilityProvider;
   }
   
-  private void generateProviders() {
-    InMemoryLKVSnapshotProvider provider = new InMemoryLKVSnapshotProvider();
+  private void generateProviders(SecuritySource securitySource) {
+    InMemoryLKVSnapshotProvider provider = new InMemoryLKVSnapshotProvider(securitySource);
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
     setProviders(provider, provider);

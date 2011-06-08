@@ -8,13 +8,17 @@ package com.opengamma.financial.model.finitedifference;
 /**
  * 
  */
-public class PDEResults1D {
+public interface PDEResults1D {
 
-  private double[] _f;
-  //private double[] _x;
+  int getNumberSpaceNodes();
 
-  double getFunctionValue(int index) {
-    return _f[index];
-  }
+  double getSpaceValue(int spaceIndex);
+
+  double getFunctionValue(int spaceIndex);
+
+  // spatial derivative
+  double getFirstSpatialDerivative(int spaceIndex);
+
+  double getSecondSpatialDerivative(int spaceIndex);
 
 }

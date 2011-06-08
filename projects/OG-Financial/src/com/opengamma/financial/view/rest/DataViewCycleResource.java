@@ -8,6 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -76,21 +77,11 @@ public class DataViewCycleResource extends AbstractDataResource {
     return Response.ok(_cycle.getResultModel()).build();
   }
   
-  @GET
+  @POST
   @Path(PATH_QUERY_CACHES)
-  public Response queryComputationCaches(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ComputationCacheQuery query = decodeBean(ComputationCacheQuery.class, providers, msgBase64);
+  public Response queryComputationCaches(ComputationCacheQuery query) {
     ComputationCacheResponse result = _cycle.queryComputationCaches(query);
     return Response.ok(result).build();
-  }
-  
-  //-------------------------------------------------------------------------
-  public static URI uriQuery(URI baseUri, String msgBase64) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path(PATH_QUERY_CACHES);
-    if (msgBase64 != null) {
-      bld.queryParam("msg", msgBase64);
-    }
-    return bld.build();
   }
   
 }

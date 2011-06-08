@@ -27,8 +27,8 @@ public class ExponentalMeshing extends MeshingFunction {
    * of points near x_N
    */
   public ExponentalMeshing(final double lowerBound, final double upperBound, final int nPoints, final double lambda) {
+    super(nPoints);
     Validate.isTrue(upperBound > lowerBound, "need upperBound>lowerBound");
-    Validate.isTrue(nPoints > 1);
 
     if (lambda == 0.0) {
       _linear = true;

@@ -27,10 +27,15 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMetaDataRequest;
@@ -40,6 +45,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
+import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
+import com.opengamma.web.json.ViewDefinitionJSONBuilder;
+import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
  * Abstract base class for RESTful config resources.
@@ -133,6 +141,45 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     }
     final Object value = FUDGE_CONTEXT.fromFudgeMsg(logicalClass, message);
     return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(value, logicalClass);
+  }
+  
+  /**
+   * Method to convert JSON to configuration object
+   * 
+   * @param json the config document in JSON
+   * @return the configuration object
+   */
+  @SuppressWarnings("unchecked")
+  protected Pair<Object, Class<?>> parseJSON(String json) {
+    
+    String className = null;
+    try {
+      JSONObject jsonObject = new JSONObject(json);
+      if (!jsonObject.has(String.valueOf(0))) {
+        throw new OpenGammaRuntimeException("class name(field 0) is missing in json document " + json);
+      }
+      className = jsonObject.getString(String.valueOf(0));
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("Invalid json document ", ex);
+    }
+    
+    final Class<?> clazz;
+    try {
+      clazz = Class.forName(className);
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Invalid logical class name in json " + json, ex);
+    }
+    Object value = null;
+    if (clazz.isAssignableFrom(ViewDefinition.class)) {
+      value = new ViewDefinitionJSONBuilder().fromJSON(json);
+    } else if (clazz.isAssignableFrom(YieldCurveDefinition.class)) {
+      value = new YieldCurveDefinitionJSONBuilder().fromJSON(json);
+    } else if (clazz.isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
+      value = new CurveSpecificationBuilderConfigurationJSONBuilder().fromJSON(json);
+    } else {
+      throw new OpenGammaRuntimeException("No custom JSON builder for  " + className);
+    }
+    return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(value, clazz);
   }
 
   protected String createXML(ConfigDocument<?> doc) {

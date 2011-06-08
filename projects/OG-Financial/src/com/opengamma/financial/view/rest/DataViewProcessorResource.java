@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -24,9 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
-import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -46,7 +45,7 @@ public class DataViewProcessorResource {
    * The period after which, if a view client has not been accessed, it may be shut down.
    */
   public static final long VIEW_CLIENT_TIMEOUT_MILLIS = 30000;
-  
+
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
   public static final String PATH_UNIQUE_ID = "id";
@@ -54,35 +53,50 @@ public class DataViewProcessorResource {
   public static final String PATH_PROCESSES = "processes";
   public static final String PATH_CYCLES = "cycles";
   //CSON: just constants
-  
+
+  /**
+   * The view processor.
+   */
   private final ViewProcessor _viewProcessor;
-  private final JmsTemplate _jmsTemplate;
-  private final String _jmsTopicPrefix;
+  /**
+   * The connection factory.
+   */
+  private final ConnectionFactory _connectionFactory;
+  /**
+   * The executor service.
+   */
   private final ScheduledExecutorService _scheduler;
-  
+  /**
+   * The cycle manager.
+   */
   private final AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
-  
+  /**
+   * The view clients.
+   */
   private final ConcurrentMap<UniqueIdentifier, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueIdentifier, DataViewClientResource>();
-  
-  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+
+  /**
+   * Creates an instance.
+   * 
+   * @param viewProcessor  the view processor
+   * @param connectionFactory  the connection factory
+   * @param fudgeContext  the Fudge context
+   * @param scheduler  the scheduler, not null
+   */
+  public DataViewProcessorResource(ViewProcessor viewProcessor, ConnectionFactory connectionFactory, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
-    
-    _jmsTemplate = new JmsTemplate(connectionFactory);
-    _jmsTemplate.setPubSubDomain(true);
-    
-    _jmsTopicPrefix = jmsTopicPrefix;
+    _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     
-    scheduler.scheduleAtFixedRate(new Runnable() {
-
+    Runnable runnable = new Runnable() {
       @Override
       public void run() {
         shutdownStaleViewClients();
       }
-      
-    }, VIEW_CLIENT_TIMEOUT_MILLIS, VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    };
+    scheduler.scheduleAtFixedRate(runnable, VIEW_CLIENT_TIMEOUT_MILLIS, VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
   }
-  
+
   private void shutdownStaleViewClients() {
     Instant timeoutBefore = Instant.now().minus(VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     Iterator<DataViewClientResource> clientIterator = _createdViewClients.values().iterator();
@@ -98,26 +112,26 @@ public class DataViewProcessorResource {
       }
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
     return Response.ok(_viewProcessor.getUniqueId()).build();
   }
-  
+
   @Path(PATH_DEFINITION_REPOSITORY)
   public DataViewDefinitionRepositoryResource getViewDefinitionRepository() {
     return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
   }
-  
+
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
-  public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") String viewProcessId) {    
+  public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") String viewProcessId) {
     ViewProcess view = _viewProcessor.getViewProcess(UniqueIdentifier.parse(viewProcessId));
     return new DataViewProcessResource(view);
   }
-  
+
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
   public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") String viewClientIdString) {
@@ -130,7 +144,7 @@ public class DataViewProcessorResource {
     URI viewProcessorUri = getViewProcessorUri(uriInfo);
     return createViewClientResource(viewClient, viewProcessorUri);
   }
-  
+
   @POST
   @Path(PATH_CLIENTS)
   @Consumes(FudgeRest.MEDIA)
@@ -143,13 +157,13 @@ public class DataViewProcessorResource {
     _createdViewClients.put(client.getUniqueId(), viewClientResource);
     return Response.created(uriClient(uriInfo.getRequestUri(), client.getUniqueId())).build();
   }
-  
+
   //-------------------------------------------------------------------------
   @Path(PATH_CYCLES)
   public DataViewCycleManagerResource getViewCycleManager(@Context UriInfo uriInfo) {
     return getOrCreateDataViewCycleManagerResource(getViewProcessorUri(uriInfo));
   }
-  
+
   //-------------------------------------------------------------------------
   public static URI uriViewProcess(URI baseUri, UniqueIdentifier viewProcessId) {
     // WARNING: '/' characters could well appear in the view name
@@ -157,15 +171,15 @@ public class DataViewProcessorResource {
     // and therefore encode '/' characters, it does not encode '/' characters which come from a variable substitution.
     return UriBuilder.fromUri(baseUri).path("processes").segment(viewProcessId.toString()).build();
   }
-  
+
   public static URI uriClient(URI clientsBaseUri, UniqueIdentifier viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
   }
-  
+
   private URI getViewProcessorUri(UriInfo uriInfo) {
     return UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build();
   }
-  
+
   private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(URI viewProcessorUri) {
     DataViewCycleManagerResource resource = _cycleManagerResource.get();
     if (resource == null) {
@@ -181,10 +195,10 @@ public class DataViewProcessorResource {
     }
     return resource;
   }
-  
+
   private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsTemplate, _jmsTopicPrefix);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _connectionFactory);
   }
-  
+
 }

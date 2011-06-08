@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
@@ -77,52 +78,45 @@ import com.opengamma.util.tuple.Pair;
  * pricing models.
  */
 public class CommandLineBatchJobRun extends BatchJobRun {
-  
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CommandLineBatchJobRun.class);
-  
+
   /**
    * The job this run belongs to.
    */
   private final CommandLineBatchJob _job;
-  
   /**
    * The view processor
    */
   private ViewProcessor _viewProcessor;
-  
   /**
    * The compiled view definition
    */
   private CompiledViewDefinition _compiledViewDefinition;
-  
   /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
    * _observationDate.
    */
   private final LocalDate _snapshotObservationDate;
-  
   /**
-   * Valuation time for purposes of calculating all risk figures. Often referred to as 'T'
-   * in mathematical formulas.
-   * 
+   * Valuation time for purposes of calculating all risk figures.
+   * Often referred to as 'T' in mathematical formulas.
    * Not null.
    */
   private final Instant _valuationTime;
-  
   /** 
    * Historical time used for loading entities out of Config DB.
    */
   private final Instant _configDbTime;
-  
   /**
    * Historical time used for loading entities out of PositionMaster,
    * SecurityMaster, etc.
    */
   private final Instant _staticDataTime;
-  
+
   private final Map<ComputationTargetSpecification, ComputationTarget> _spec2Target = new HashMap<ComputationTargetSpecification, ComputationTarget>();
-  
+
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
@@ -131,19 +125,15 @@ public class CommandLineBatchJobRun extends BatchJobRun {
    * The ViewDefinition (more precisely, a representation of it in the config DB)
    */
   private ConfigDocument<ViewDefinition> _viewDefinitionConfig;
-  
   /**
    * Whether the run failed due to unexpected exception
    */
   private boolean _failed;
 
-
-  // --------------------------------------------------------------------------
-  
   /**
-   * This constructor is useful in tests.
+   * Creates a simple instance based on the creation time, useful for test cases.
    * 
-   * @param job Batch job
+   * @param job  the command line data, not null
    */
   public CommandLineBatchJobRun(CommandLineBatchJob job) {
     this(job,
@@ -152,7 +142,16 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         job.getCreationTime().toLocalDate(),
         job.getCreationTime().toLocalDate());
   }
-  
+
+  /**
+   * Creates an batch job.
+   * 
+   * @param job  the command line data, not null
+   * @param observationDate  the observation date, not null
+   * @param snapshotObservationDate  the snapshot observation date
+   * @param configDbDate  the config database date, not null
+   * @param staticDataDate  the static database date, not null
+   */
   public CommandLineBatchJobRun(CommandLineBatchJob job, 
       LocalDate observationDate, 
       LocalDate snapshotObservationDate,
@@ -182,17 +181,16 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         job.getParameters().getValuationTimeObject(), 
         job.getParameters().getTimeZoneObject()).toInstant();
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public ConfigDocument<ViewDefinition> getViewDefinitionConfig() {
     return _viewDefinitionConfig;
   }
-  
+
   public void setViewDefinitionConfig(ConfigDocument<ViewDefinition> viewDefinitionConfig) {
     _viewDefinitionConfig = viewDefinitionConfig;
   }
-  
+
   public String getViewOid() {
     return _viewDefinitionConfig.getUniqueId().getValue();
   }
@@ -200,7 +198,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public String getViewVersion() {
     return _viewDefinitionConfig.getUniqueId().getVersion();
   }
-  
+
   public Instant getConfigDbTime() {
     return _configDbTime;
   }
@@ -220,9 +218,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public CommandLineBatchJob getJob() {
     return _job;
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public SnapshotId getSnapshotId() {
     return new SnapshotId(_snapshotObservationDate, getJob().getParameters().getSnapshotObservationTime());
@@ -230,9 +227,9 @@ public class CommandLineBatchJobRun extends BatchJobRun {
 
   @Override
   public Instant getValuationTime() {
-    return _valuationTime; 
+    return _valuationTime;
   }
-  
+
   @Override
   public String getRunReason() {
     return getJob().getParameters().getRunReason();
@@ -247,22 +244,22 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public Map<String, String> getJobLevelParameters() {
     return getJob().getParameters().getParameters();
   }
-  
+
   @Override
   public RunCreationMode getRunCreationMode() {
     return getJob().getRunCreationMode();
   }
-  
+
   @Override
   public String getOpenGammaVersion() {
     return getJob().getOpenGammaVersion();
   }
-  
+
   @Override
   public Instant getCreationTime() {
     return getJob().getCreationTime().toInstant();
   }
-  
+
   @Override
   public Map<String, String> getRunLevelParameters() {
     Map<String, String> parameters = super.getRunLevelParameters();
@@ -271,12 +268,11 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     return parameters;
   }
 
-  // --------------------------------------------------------------------------
-  
+  //-------------------------------------------------------------------------
   public InMemoryLKVSnapshotProvider createSnapshotProvider() {
     InMemoryLKVSnapshotProvider provider;
     if (getJob().getHistoricalDataProvider() != null) {
-      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchDbManager(), getJob().getHistoricalDataProvider());
+      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalDataProvider());
     } else {
       provider = new InMemoryLKVSnapshotProvider();
     }
@@ -285,25 +281,24 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     Set<LiveDataValue> liveDataValues;
     try {
-      liveDataValues = getJob().getBatchDbManager().getSnapshotValues(getSnapshotId());
+      liveDataValues = getJob().getBatchMaster().getSnapshotValues(getSnapshotId());
     } catch (IllegalArgumentException e) {
       if (getJob().getHistoricalDataProvider() != null) {
         // if there is a historical data provider, that provider
         // may potentially provide all market data to run the batch,
         // so no pre-existing snapshot is required
         s_logger.info("Auto-creating snapshot " + getSnapshotId());
-        getJob().getBatchDbManager().createLiveDataSnapshot(getSnapshotId());
+        getJob().getBatchMaster().createLiveDataSnapshot(getSnapshotId());
         liveDataValues = Collections.emptySet();
       } else {
         throw e;
       }
     }
-
+    
     for (LiveDataValue value : liveDataValues) {
       ValueRequirement valueRequirement = new ValueRequirement(value.getFieldName(), value.getComputationTargetSpecification());
       provider.addValue(valueRequirement, value.getValue());
     }
-
     return provider;
   }
 
@@ -317,7 +312,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         ViewDefinition.class, 
         viewName, 
         getConfigDbTime().toInstant());
-
+    
     if (_viewDefinitionConfig == null) {
       throw new IllegalStateException("Could not find view definition " + viewName + " at " +
           getConfigDbTime().toInstant() + " in config db");
@@ -358,7 +353,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
-    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getJob().getBatchDbManager().createDependencyGraphExecutorFactory(this);
+    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getJob().getBatchMaster().createDependencyGraphExecutorFactory(this);
     
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionCompilationService);
@@ -372,6 +367,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
         return null;
+      }
+
+      @Override
+      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+      }
+
+      @Override
+      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
       }
     };
     
@@ -407,7 +410,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
     setCompiledViewDefinition(compiledViewDefinition);
   }
-  
+
   public void setViewProcessor(ViewProcessor viewProcessor) {
     _viewProcessor = viewProcessor;
   }
@@ -415,7 +418,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
   }
-  
+
   @Override
   public Collection<String> getCalculationConfigurations() {
     Collection<String> calcConfNames = new HashSet<String>();
@@ -424,7 +427,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     }
     return calcConfNames;
   }
-  
+
   @Override
   public Set<String> getAllOutputValueNames() {
     // REVIEW jonathan 2011-05-04 -- restoring previous behaviour, but this ignores ValueProperties
@@ -436,12 +439,12 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     }
     return valueRequirementNames;
   }
-  
+
   @Override
   public Collection<ComputationTargetSpecification> getAllComputationTargets() {
     return _spec2Target.keySet();
   }
-  
+
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification spec) {
     return _spec2Target.get(spec);
@@ -454,7 +457,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public CompiledViewDefinition getCompiledViewDefinition() {
     return _compiledViewDefinition;
   }
-  
+
   public void setCompiledViewDefinition(CompiledViewDefinition compiledViewDefinition) {
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     _compiledViewDefinition = compiledViewDefinition;
@@ -463,5 +466,5 @@ public class CommandLineBatchJobRun extends BatchJobRun {
       _spec2Target.put(target.toSpecification(), target);
     }
   }
-  
+
 }

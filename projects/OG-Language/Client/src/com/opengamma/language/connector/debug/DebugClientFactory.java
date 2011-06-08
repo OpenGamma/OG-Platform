@@ -16,7 +16,7 @@ import com.opengamma.language.context.SessionContext;
  * Constructs a {@link DebugClient} instance for connection to an external process.
  */
 public final class DebugClientFactory extends ClientFactory {
-
+  
   private DebugClientFactory(final ClientContext clientContext) {
     super(clientContext);
   }

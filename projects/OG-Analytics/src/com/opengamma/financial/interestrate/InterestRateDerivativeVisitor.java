@@ -9,17 +9,29 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -49,7 +61,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondFuture(BondFuture bondFuture, S data);
 
-  T visitBondTransaction(BondTransaction<? extends Payment> bond, S data);
+  T visitBondFixedSecurity(BondFixedSecurity bond, S data);
+
+  T visitBondFixedTransaction(BondFixedTransaction bond, S data);
+
+  T visitBondIborSecurity(BondIborSecurity bond, S data);
+
+  T visitBondIborTransaction(BondIborTransaction bond, S data);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity, S data);
 
@@ -75,6 +93,18 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
+  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
+
+  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future, S data);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, S data);
+
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
+
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
@@ -83,11 +113,17 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIbor(CouponIbor payment, S data);
 
+  T visitCouponIborGearing(CouponIborGearing payment, S data);
+
+  T visitCapFloorIbor(CapFloorIbor payment, S data);
+
   T visitCouponCMS(CouponCMS payment, S data);
 
   T visitCapFloorCMS(CapFloorCMS payment, S data);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
+
+  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, S data);
 
   // One argument
 
@@ -101,7 +137,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondFuture(BondFuture bondFuture);
 
-  T visitBondTransaction(BondTransaction<? extends Payment> bond);
+  T visitBondFixedSecurity(BondFixedSecurity bond);
+
+  T visitBondFixedTransaction(BondFixedTransaction bond);
+
+  T visitBondIborSecurity(BondIborSecurity bond);
+
+  T visitBondIborTransaction(BondIborTransaction bond);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity);
 
@@ -127,6 +169,18 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future);
 
+  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
+
+  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option);
+
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
+
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 
   T visitFixedPayment(PaymentFixed payment);
@@ -135,10 +189,16 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIbor(CouponIbor payment);
 
+  T visitCouponIborGearing(CouponIborGearing payment);
+
+  T visitCapFloorIbor(CapFloorIbor payment);
+
   T visitCouponCMS(CouponCMS payment);
 
   T visitCapFloorCMS(CapFloorCMS payment);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
+
+  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra);
 
 }

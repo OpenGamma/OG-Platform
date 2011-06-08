@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Fetches version information from the current (or another) DLL
-
 #define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
@@ -15,6 +12,7 @@
 
 LOGGING(com.opengamma.language.util.DllVersion);
 
+/// Creates a new version query for the DLL, EXE or DSO containing this static code.
 CDllVersion::CDllVersion () {
 #ifdef _WIN32
 	m_pData = NULL;
@@ -24,14 +22,23 @@ CDllVersion::CDllVersion () {
 
 #ifdef _WIN32
 
+/// Creates a new version query for the DLL referenced by the handle.
+///
+/// @param[in] hModule handle of the DLL containing the information
 CDllVersion::CDllVersion (HMODULE hModule) {
 	Init (hModule);
 }
 
+/// Creates a new version query for a named DLL or EXE
+///
+/// @param[in] pszModule full path to the module
 CDllVersion::CDllVersion (PCTSTR pszModule) {
 	Init (pszModule);
 }
 
+/// Initialises the version query with information from the module handle.
+///
+/// @param[in] hModule handle of the DLL containing the information
 void CDllVersion::Init (HMODULE hModule) {
 	assert (hModule);
 	m_pData = NULL;
@@ -44,6 +51,9 @@ void CDllVersion::Init (HMODULE hModule) {
 	delete pszPath;
 }
 
+/// Initialises the version query with information from the named module.
+///
+/// @param[in] pszModule full path to the module
 void CDllVersion::Init (PCTSTR pszModule) {
 	assert (pszModule);
 	DWORD cbVersionInfo = GetFileVersionInfoSize (pszModule, NULL);
@@ -62,12 +72,16 @@ void CDllVersion::Init (PCTSTR pszModule) {
 	m_pData = NULL;
 }
 
+/// Destroys the version query, releasing any internal resources.
 CDllVersion::~CDllVersion () {
 	if (m_pData != NULL) {
 		delete m_pData;
 	}
 }
 
+/// Obtain a handle to the current module, i.e. one containing this static code.
+///
+/// @return current module handle
 HMODULE CDllVersion::GetCurrentModule () {
 	HMODULE hModule;
 	if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
@@ -78,7 +92,11 @@ HMODULE CDllVersion::GetCurrentModule () {
 	}
 }
 
-PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
+/// Returns a value from the version information resource.
+///
+/// @param[in] pszValue name of the value to query
+/// @return string value, or the empty string if none is defined
+PCTSTR CDllVersion::GetString (PCTSTR pszValue) const {
 	if (m_pData) {
 		TCHAR szValue[128];
 		PCTSTR pszResult;
@@ -100,7 +118,7 @@ PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
 
 #else /* ifdef _WIN32 */
 
-#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL;
+#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL
 DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 

@@ -33,12 +33,17 @@ public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBund
     double[] xi;
     double yi;
     double phi;
+    double dist;
     Pair<double[], Double> temp;
     for (int i = 0; i < n; i++) {
       temp = rawData.get(i);
       xi = temp.getFirst();
       yi = temp.getSecond();
-      phi = _basisFunction.evaluate(InterpolatorNDDataBundle.getDistance(x, xi));
+      dist = InterpolatorNDDataBundle.getDistance(x, xi);
+      if (dist == 0.0) {
+        return yi;
+      }
+      phi = _basisFunction.evaluate(dist);
       sum += yi * phi;
       normSum += phi;
     }

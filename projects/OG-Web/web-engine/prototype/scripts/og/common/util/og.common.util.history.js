@@ -1,15 +1,23 @@
 /**
- * og.common.util.history
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.common.util.history',
-    dependencies: ['og.common.util.hashqueue'],
+    dependencies: ['og.common.util.HashQueue', 'og.dev'],
     obj: function () {
-        var hashqueue = og.common.util.hashqueue, queues = {}, queue, module = this;
+        var HashQueue = og.common.util.HashQueue, queues = {}, queue, module = this;
         queue = function (item) {
             if (typeof item !== 'string') throw new TypeError(module.name + ': "item" should be a string');
             if (queues[item]) return queues[item];
-            return queues[item] = new hashqueue(localStorage.getItem(item) || 5);
+            try {
+                queues[item] = new HashQueue(localStorage.getItem(item) || 5);
+            } catch (error) {
+                og.dev.warn('queues[' + item + '] failed to load ' + localStorage.getItem(item) + '\n' + error.message);
+                localStorage.removeItem(item);
+                queues[item] = new HashQueue(5);
+            }
+            return queues[item];
         };
         return {
             get: function (item) {return queue(item).all();},

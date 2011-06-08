@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  * @colordef #fffee5; light yellow for edit mode (on hover)
  */
@@ -40,7 +40,7 @@ $.register_module({
                         });
                     },
                     update_field = function () {
-                        var current = routes.current(), put_config
+                        var current = routes.current(), put_config,
                             new_content = $editable_element.find('input[type=text]').attr('value');
                         if (!new_content) return;
                         put_config = {

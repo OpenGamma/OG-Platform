@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
@@ -38,10 +38,10 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Currency currency = security.getCurrency();
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
-    return new CashDefinition(maturityDate, security.getRate(), convention);
+    return new CashDefinition(maturityDate, security.getRate() / 100, convention);
   }
 
 }

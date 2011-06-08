@@ -24,7 +24,6 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -76,7 +75,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (fraSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
-          maturity = fraSecurity.getEndDate().toZonedDateTime();
+          maturity = fraSecurity.getEndDate();
           security = fraSecurity;
           break;
         case FUTURE:
@@ -104,7 +103,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (swapSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
-          maturity = swapSecurity.getMaturityDate().toZonedDateTime();
+          maturity = swapSecurity.getMaturityDate();
           security = swapSecurity;
           break;
         case TENOR_SWAP:
@@ -112,7 +111,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (tenorSwapSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
-          maturity = tenorSwapSecurity.getMaturityDate().toZonedDateTime();
+          maturity = tenorSwapSecurity.getMaturityDate();
           security = tenorSwapSecurity;
           break;
         default:
@@ -134,7 +133,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
 //    CashSecurity sec = new CashSecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
 //                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
     CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), 
-        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)), marketValues.get(strip.getSecurity()), 1.0d);
+        spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()), 1.0d);
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
     return sec;
   }
@@ -146,7 +145,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
 //    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
 //                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), 
-        new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)), marketValues.get(strip.getSecurity()), 1.0d);
+        startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()), 1.0d);
   }
   
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
@@ -159,9 +158,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     LocalDate curveDate = spec.getCurveDate();
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
-    DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
-    DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
-    DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
+    ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
+    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
@@ -176,6 +175,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("Could not get initial rate");
     }
     double spread = 0;
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+    }
     double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     SwapSecurity swap =  new SwapSecurity(tradeDate, 
@@ -209,9 +211,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     LocalDate curveDate = spec.getCurveDate();
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
-    DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
-    DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
-    DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
+    ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
+    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());

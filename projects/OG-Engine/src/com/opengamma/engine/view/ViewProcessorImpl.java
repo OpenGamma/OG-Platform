@@ -354,7 +354,10 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       
       _allProcessesById.remove(viewProcess.getUniqueId());
       ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionName(), viewProcess.getExecutionOptions());
-      _sharedProcessesByDescription.remove(description);
+      ViewProcessImpl sharedProc = _sharedProcessesByDescription.get(description);
+      if (sharedProc != null && sharedProc == viewProcess) { //PLAT-1287
+        _sharedProcessesByDescription.remove(description);
+      }
     } finally {
       _processLock.unlock();
     }

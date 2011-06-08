@@ -77,49 +77,71 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
     return getEndPointDescription(fudgeContext);
   }
 
-  public static URI getAccessibleURI(final FudgeMsg endPoint) {
-    ArgumentChecker.notNull(endPoint, "endPoint");
-    if (!TYPE_VALUE.equals(endPoint.getString(TYPE_KEY))) {
-      throw new IllegalArgumentException("End point is not a REST target - " + endPoint);
+  /**
+   * 
+   */
+  public static final class Validater {
+
+    private final ExecutorService _executor = Executors.newCachedThreadPool();
+    private final Client _client = Client.create();
+
+    private Validater() {
+      _client.setReadTimeout(5000);
     }
-    final Client client = Client.create();
-    client.setReadTimeout(5000);
-    final ExecutorService executor = Executors.newCachedThreadPool();
-    final BlockingQueue<URI> result = new LinkedBlockingQueue<URI>();
-    for (final FudgeField uriField : endPoint.getAllByName(URI_KEY)) {
-      executor.execute(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            final URI uri = new URI(endPoint.getFieldValue(String.class, uriField));
-            final int status = client.resource(uri).head().getStatus();
-            s_logger.debug("{} returned {}", uri, status);
-            switch (status) {
-              case 200:
-              case 405:
-                result.add(uri);
-                return;
+
+    public URI getAccessibleURI(final FudgeMsg endPoint) {
+      ArgumentChecker.notNull(endPoint, "endPoint");
+      if (!TYPE_VALUE.equals(endPoint.getString(TYPE_KEY))) {
+        throw new IllegalArgumentException("End point is not a REST target - " + endPoint);
+      }
+      final BlockingQueue<URI> result = new LinkedBlockingQueue<URI>();
+      for (final FudgeField uriField : endPoint.getAllByName(URI_KEY)) {
+        _executor.execute(new Runnable() {
+          @Override
+          public void run() {
+            try {
+              final URI uri = new URI(endPoint.getFieldValue(String.class, uriField));
+              final int status = _client.resource(uri).head().getStatus();
+              s_logger.debug("{} returned {}", uri, status);
+              switch (status) {
+                case 200:
+                case 405:
+                  result.add(uri);
+                  return;
+              }
+            } catch (Exception ex) {
+              s_logger.warn("URI {} not accessible", uriField);
+              s_logger.debug("Exception caught", ex);
             }
-          } catch (Exception ex) {
-            s_logger.warn("URI {} not accessible", uriField);
-            s_logger.debug("Exception caught", ex);
           }
-        }
-      });
+        });
+      }
+      final URI uri;
+      try {
+        uri = result.poll(5000, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException ex) {
+        throw new OpenGammaRuntimeException("Interrupted", ex);
+      }
+      if (uri == null) {
+        s_logger.error("No accessible URIs found in {}", endPoint);
+      } else {
+        s_logger.info("Using {}", uri);
+      }
+      return uri;
     }
-    final URI uri;
-    try {
-      uri = result.poll(5000, TimeUnit.MILLISECONDS);
-      executor.shutdownNow();
-    } catch (InterruptedException ex) {
-      throw new OpenGammaRuntimeException("Interrupted", ex);
+
+    public URI getAccessibleURI(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
+      return getAccessibleURI(endPointProvider.getEndPointDescription(fudgeContext));
     }
-    if (uri == null) {
-      s_logger.error("No accessible URIs found in {}", endPoint);
-    } else {
-      s_logger.info("Using {}", uri);
-    }
-    return uri;
+
+  }
+
+  public static Validater validater() {
+    return new Validater();
+  }
+
+  public static URI getAccessibleURI(final FudgeMsg endPoint) {
+    return validater().getAccessibleURI(endPoint);
   }
 
   public static URI getAccessibleURI(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {

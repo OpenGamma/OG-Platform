@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
@@ -37,7 +37,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -52,12 +52,12 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
     if (!(security.getPayLeg() instanceof InterestRateLeg) || !(security.getReceiveLeg() instanceof InterestRateLeg)) {
       throw new OpenGammaRuntimeException("Can only handle interest rate swaps");
     }
@@ -66,8 +66,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     if (!((InterestRateNotional) payLeg.getNotional()).getCurrency().equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency())) {
       throw new OpenGammaRuntimeException("Can only handle swaps with the same currency on the pay and receive legs");
     }
-    final ZonedDateTime effectiveDate = security.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = security.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = security.getEffectiveDate();
+    final ZonedDateTime maturityDate = security.getMaturityDate();
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       return getSwapFixedIborSpreadDefinition(security, effectiveDate, maturityDate, currency, true);
@@ -108,7 +108,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     return new SwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
   }
 
-  private class MySwapLegVisitor implements SwapLegVisitor<FixedIncomeInstrumentDefinition<?>> {
+  private class MySwapLegVisitor implements SwapLegVisitor<FixedIncomeInstrumentConverter<?>> {
     private final ZonedDateTime _effectiveDate;
     private final ZonedDateTime _maturityDate;
     private final Calendar _calendar;
@@ -155,16 +155,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       AnnuityCouponIborSpreadDefinition annuityIbor = AnnuityCouponIborSpreadDefinition.from(_effectiveDate, _maturityDate, notional, iborIndex, spread, false);
       // TODO: Initial rate fixed or not?
       return annuityIbor;
-      //      final ZonedDateTime[] nominalDates = ScheduleCalculator.getUnadjustedDateSchedule(_effectiveDate, _maturityDate, floatLeg.getFrequency());
-      //      //TODO are settlement days really 0 for swaps?    
-      //      final ZonedDateTime[] settlementDates = ScheduleCalculator.getAdjustedDateSchedule(nominalDates, floatLeg.getBusinessDayConvention(), _calendar, 0);
-      //      final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(_effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), _calendar,
-      //          _conventions.getSwapFloatingLegSettlementDays());
-      //      final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(_effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), 
-      //_calendar, floatLeg.getFrequency());
-      //      final double initialRate = floatLeg.getInitialFloatingRate();
-      //      final SwapConvention convention = new SwapConvention(0, floatLeg.getDayCount(), floatLeg.getBusinessDayConvention(), _calendar, false, _currencyCode + "_FLOATING_LEG_SWAP_CONVENTION");
-      //      return new FloatingSwapLegDefinition(_effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, spread, convention);
     }
   }
 }

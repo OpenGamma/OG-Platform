@@ -1,4 +1,7 @@
 /**
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * maps URL hash routes
  */
 $.register_module({

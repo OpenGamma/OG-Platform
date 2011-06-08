@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Threads using either Win32 or APR
-
 #include "Logging.h"
 #include "Thread.h"
 
@@ -17,9 +14,15 @@ LOGGING (com.opengamma.language.util.Thread);
 CAtomicInt CThread::s_oNextThreadId;
 #endif /* ifndef _WIN32 */
 
+/// Thread execution function. The underlying CThread instance is passed as a pointer. The Run
+/// method is called on the thread object before it is released.
 #ifdef _WIN32
+/// @param[in] pObject CThread instance
+/// @return thread exit code, always 0
 DWORD CThread::StartProc (void *pObject) {
 #else
+/// @param[in] handle thread handle
+/// @param[in] pObject CThread instance
 void *CThread::StartProc (apr_thread_t *handle, void *pObject) {
 #endif
 	CThread *poThread = (CThread*)pObject;
@@ -40,6 +43,10 @@ void *CThread::StartProc (apr_thread_t *handle, void *pObject) {
 		;
 }
 
+/// Starts execution of the thread. This is not re-entrant and must not be called multiple times
+/// on the same object.
+///
+/// @return true if the thread could be started, false otherwise
 bool CThread::Start () {
 #ifdef _WIN32
 	assert (!m_hThread);
@@ -70,15 +77,28 @@ bool CThread::Start () {
 }
 
 #ifndef _WIN32
+
+/// Dummy handler to ignore a signal.
+///
+/// @param[in] signal signal to ignore
 static void _IgnoreSignal (int signal) {
 	LOGDEBUG (TEXT ("Signal ") << signal << TEXT (" ignored"));
 }
+
+/// Suppresses signals used internally.
 class CSuppressSignals {
 public:
+
+	/// Suppresses the SIGALRM and SIGPIPE signal handlers.
 	CSuppressSignals () {
 		sigset (SIGALRM, _IgnoreSignal); // Used to interrupt blocked threads
 		sigset (SIGPIPE, _IgnoreSignal); // Used by NamedPipe transport
 	}
+
 };
+
+/// Suppress signals used internally.
 CSuppressSignals g_oSuppressSignals;
-#endif
+
+#endif /* ifndef _WIN32 */
+

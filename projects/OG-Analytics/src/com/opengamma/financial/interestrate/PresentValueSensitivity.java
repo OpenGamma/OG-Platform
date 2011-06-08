@@ -52,7 +52,7 @@ public class PresentValueSensitivity {
   }
 
   /**
-   * Add a given sensitivity to the existing one.
+   * Create a copy of the sensitivity and add a given sensitivity to it.
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
@@ -84,7 +84,7 @@ public class PresentValueSensitivity {
   }
 
   /**
-   * Multiply a sensitivity by a common factor.
+   * Create a new sensitivity object containing the original sensitivity multiplied by a common factor.
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */

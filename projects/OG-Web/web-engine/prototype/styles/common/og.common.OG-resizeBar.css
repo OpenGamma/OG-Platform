@@ -1,9 +1,11 @@
-/*
+/**
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * Resize bar
  *
  * @colordef #487287; default OG turkwise blue
  */
-
 .OG-resizeBar {
   background-color: #487287;
   cursor: e-resize;

@@ -7,6 +7,9 @@ package com.opengamma.masterdb.timeseries;
 
 import javax.time.calendar.LocalDate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.util.ArgumentChecker;
 
@@ -15,6 +18,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */final class TimeSeriesUtils {
   
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesUtils.class);
   
   /**
    * Restricted constructor
@@ -33,6 +38,7 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(first, "first identifier");
     ArgumentChecker.notNull(second, "second identifier");
         
+    s_logger.debug("checking if {} and {} intersects", first, second);
     LocalDate firstStart = first.getValidFrom();
     LocalDate secondStart = second.getValidFrom();
     LocalDate firstEnd = first.getValidTo();
@@ -56,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
     }
     if (firstEnd == null) {
       if (secondEnd == null) {
-        if (firstStart.isAfter(firstEnd)) {
+        if (firstStart.isAfter(secondStart)) {
           firstEnd = firstStart.plusDays(1);
           secondEnd = firstStart.plusDays(1);
         } else {
@@ -79,6 +85,43 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       return (firstStart.isBefore(secondEnd));
     }
+  }
+  
+  /**
+   * Checks if two IdentifierWithDates dates are identical
+   * 
+   * @param first the first identifier, not null
+   * @param second the second identifier, not null
+   * @return true if they are identical or false otherwise
+   */
+  protected static boolean isIdenticalRange(final IdentifierWithDates first, final IdentifierWithDates second) {
+    ArgumentChecker.notNull(first, "first identifier");
+    ArgumentChecker.notNull(second, "second identifier");
+        
+    s_logger.debug("checking if {} and {} are identical", first, second);
+    LocalDate firstStart = first.getValidFrom();
+    LocalDate secondStart = second.getValidFrom();
+    LocalDate firstEnd = first.getValidTo();
+    LocalDate secondEnd = second.getValidTo();
+    
+    if (firstStart == null && secondStart == null) {
+      if (firstEnd != null && secondEnd != null) {
+        return firstEnd.equals(secondEnd);
+      }
+    }
+    
+    if (firstEnd == null && secondEnd == null) {
+      if (firstStart != null && secondStart != null) {
+        return firstStart.equals(secondStart);
+      }
+    }
+    
+    if (firstStart != null && secondStart != null) {
+      if (firstEnd != null && secondEnd != null) {
+        return firstStart.equals(secondStart) && firstEnd.equals(secondEnd);
+      }
+    }
+    return false;
   }
 
 }

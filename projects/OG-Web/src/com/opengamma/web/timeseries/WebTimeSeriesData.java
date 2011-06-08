@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.timeseries;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
@@ -35,7 +37,7 @@ public class WebTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private TimeSeriesMaster<?> _timeSeriesMaster;
   /**
-   * The timeseries loader
+   * The time series loader.
    */
   @PropertyDefinition
   private TimeSeriesLoader _timeSeriesLoader;
@@ -50,7 +52,7 @@ public class WebTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private String _uriTimeSeriesId;
   /**
-   * The time series.
+   * The loaded time series.
    */
   @PropertyDefinition
   private TimeSeriesDocument<?> _timeSeries;
@@ -99,7 +101,6 @@ public class WebTimeSeriesData extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -120,6 +121,33 @@ public class WebTimeSeriesData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebTimeSeriesData other = (WebTimeSeriesData) obj;
+      return JodaBeanUtils.equal(getTimeSeriesMaster(), other.getTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getTimeSeriesLoader(), other.getTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriTimeSeriesId(), other.getUriTimeSeriesId()) &&
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriTimeSeriesId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -149,7 +177,7 @@ public class WebTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the timeseries loader
+   * Gets the time series loader.
    * @return the value of the property
    */
   public TimeSeriesLoader getTimeSeriesLoader() {
@@ -157,7 +185,7 @@ public class WebTimeSeriesData extends DirectBean {
   }
 
   /**
-   * Sets the timeseries loader
+   * Sets the time series loader.
    * @param timeSeriesLoader  the new value of the property
    */
   public void setTimeSeriesLoader(TimeSeriesLoader timeSeriesLoader) {
@@ -224,7 +252,7 @@ public class WebTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time series.
+   * Gets the loaded time series.
    * @return the value of the property
    */
   public TimeSeriesDocument<?> getTimeSeries() {
@@ -232,7 +260,7 @@ public class WebTimeSeriesData extends DirectBean {
   }
 
   /**
-   * Sets the time series.
+   * Sets the loaded time series.
    * @param timeSeries  the new value of the property
    */
   public void setTimeSeries(TimeSeriesDocument<?> timeSeries) {
@@ -251,7 +279,7 @@ public class WebTimeSeriesData extends DirectBean {
   /**
    * The meta-bean for {@code WebTimeSeriesData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -261,43 +289,66 @@ public class WebTimeSeriesData extends DirectBean {
      * The meta-property for the {@code timeSeriesMaster} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<TimeSeriesMaster<?>> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(this, "timeSeriesMaster", (Class) TimeSeriesMaster.class);
+    private final MetaProperty<TimeSeriesMaster<?>> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesMaster", WebTimeSeriesData.class, (Class) TimeSeriesMaster.class);
     /**
      * The meta-property for the {@code timeSeriesLoader} property.
      */
-    private final MetaProperty<TimeSeriesLoader> _timeSeriesLoader = DirectMetaProperty.ofReadWrite(this, "timeSeriesLoader", TimeSeriesLoader.class);
+    private final MetaProperty<TimeSeriesLoader> _timeSeriesLoader = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesLoader", WebTimeSeriesData.class, TimeSeriesLoader.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebTimeSeriesData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriTimeSeriesId} property.
      */
-    private final MetaProperty<String> _uriTimeSeriesId = DirectMetaProperty.ofReadWrite(this, "uriTimeSeriesId", String.class);
+    private final MetaProperty<String> _uriTimeSeriesId = DirectMetaProperty.ofReadWrite(
+        this, "uriTimeSeriesId", WebTimeSeriesData.class, String.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<TimeSeriesDocument<?>> _timeSeries = DirectMetaProperty.ofReadWrite(this, "timeSeries", (Class) TimeSeriesDocument.class);
+    private final MetaProperty<TimeSeriesDocument<?>> _timeSeries = DirectMetaProperty.ofReadWrite(
+        this, "timeSeries", WebTimeSeriesData.class, (Class) TimeSeriesDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "timeSeriesMaster",
+        "timeSeriesLoader",
+        "uriInfo",
+        "uriTimeSeriesId",
+        "timeSeries");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("timeSeriesMaster", _timeSeriesMaster);
-      temp.put("timeSeriesLoader", _timeSeriesLoader);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriTimeSeriesId", _uriTimeSeriesId);
-      temp.put("timeSeries", _timeSeries);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebTimeSeriesData createBean() {
-      return new WebTimeSeriesData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1946549030:  // timeSeriesMaster
+          return _timeSeriesMaster;
+        case 1930297559:  // timeSeriesLoader
+          return _timeSeriesLoader;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case -377735317:  // uriTimeSeriesId
+          return _uriTimeSeriesId;
+        case 779431844:  // timeSeries
+          return _timeSeries;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebTimeSeriesData> builder() {
+      return new DirectBeanBuilder<WebTimeSeriesData>(new WebTimeSeriesData());
     }
 
     @Override

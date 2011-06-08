@@ -1,0 +1,11 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/* og-constraint */
+.OG-constraints .og-with,
+.OG-constraints .og-without {padding-right: 10px;}
+.OG-constraints .og-with input {width: 48%;}
+.OG-constraints .og-with span {width: 4%;text-align: center;display: inline-block;}
+.OG-constraints .og-without input {width: 100%}

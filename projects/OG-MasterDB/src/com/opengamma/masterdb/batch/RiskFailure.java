@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class RiskFailure {
   
@@ -102,11 +102,11 @@ public class RiskFailure {
   }
   
   public static String sqlDeleteRiskFailures() {
-    return "DELETE FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure WHERE run_id = :run_id";
+    return "DELETE FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_failure WHERE run_id = :run_id";
   }
   
   public static String sqlInsertRiskFailure() {
-    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure " +
+    return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_failure " +
               "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, " +
               "run_id, eval_instant, compute_node_id) " +
             "VALUES " +
@@ -115,7 +115,7 @@ public class RiskFailure {
   }
   
   public static String sqlCount() {
-    return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure";
+    return "SELECT COUNT(*) FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_failure";
   }
 
 }

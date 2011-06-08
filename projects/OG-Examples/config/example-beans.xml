@@ -37,7 +37,6 @@
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="connectionFactory" ref="activeMQConnectionFactory" />
-    <property name="topicPrefix" value="${viewProcessorServerBean.topicPrefix}" />
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
@@ -89,7 +88,7 @@
   
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
-    <constructor-arg ref="batchDbManager" />
+    <constructor-arg ref="dbBatchMaster" />
     <constructor-arg ref="fudgeContext" />
   </bean>
   
@@ -132,6 +131,7 @@
         <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
         <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
         <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
+        <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
       </bean>
     </constructor-arg>
   </bean>
@@ -291,12 +291,8 @@
     <constructor-arg ref="batchDbManager" />
   </bean>
   
-  <bean id="bundleManager" class="com.opengamma.web.spring.ProdBundleManagerFactoryBean">
-    <property name="configFile" value="classpath:${bundle.xml}" />
-    <property name="baseDir" value="${bundle.basedir}" />
-  </bean>
-  
-  <bean id="devBundleManager" class="com.opengamma.web.spring.DevBundleManagerFactoryBean">
+  <!-- Bundles RESTful service -->
+  <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
     <property name="configFile" value="classpath:${bundle.xml}" />
     <property name="baseDir" value="${bundle.basedir}" />
   </bean>
@@ -309,20 +305,18 @@
     <property name="warn" value="${yuiCompressorOptions.warn}" />
   </bean>
   
-  <bean id="sharedCompressedBundleSource" class="com.opengamma.web.bundle.EHCachingCompressedBundleSource">
+  <bean id="bundleCompressor" class="com.opengamma.web.bundle.EHCachingBundleCompressor">
     <constructor-arg>
       <bean class="com.opengamma.web.bundle.YUIBundleCompressor">
-        <constructor-arg ref="bundleManager" />
         <constructor-arg ref="yuiCompressorOptions" />
       </bean>
     </constructor-arg>
     <constructor-arg ref="cacheManager" />
   </bean>
   
-  <!-- Bundle RESTful service -->
   <bean id="webBundlesRestBean" class="com.opengamma.web.bundle.WebBundlesResource" scope="request">
-    <constructor-arg ref="devBundleManager" />
-    <constructor-arg ref="sharedCompressedBundleSource" />
+    <constructor-arg ref="bundleManager" />
+    <constructor-arg ref="bundleCompressor" />
     <constructor-arg value="${bundle.mode}"/>
   </bean>
   
@@ -338,17 +332,29 @@
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
   
-  <!-- MarketDataSnapshot master service -->
-  <!-- TODO 
-    <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
-    -->
-    
-  <bean id="marketDataSnapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
+  <!-- MarketDataSnapshot source/master service -->
+  <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
+  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-        <entry key="0" value-ref="dbMarketDataSnapshotMaster" />
-        <!-- TODO <entry key="test" value-ref="testSecurityMaster" /> -->
+        <entry key="0" value-ref="combinedSnapshotSource" />
+        <entry key="shared" value-ref="sharedSnapshotSource" />
+        <entry key="user" value-ref="userFinancialSnapshotSource" />
+        <entry key="test">
+          <bean class="com.opengamma.financial.snapshot.MasterFinancialSnapshotSource">
+            <constructor-arg ref="testSnapshotMaster" />
+          </bean>
+        </entry>
+      </map>
+    </property>
+  </bean>
+  <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="dbSnapshotMaster" />
+        <entry key="test" value-ref="testSnapshotMaster" />
       </map>
     </property>
   </bean>

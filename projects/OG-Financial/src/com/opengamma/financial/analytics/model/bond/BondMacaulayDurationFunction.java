@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
@@ -34,7 +34,7 @@ public class BondMacaulayDurationFunction extends BondFunction {
   
   @Override
   protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition definition, final Object value,
-      final LocalDate now, final String yieldCurveName) {
+      final ZonedDateTime now, final String yieldCurveName) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MACAULAY_DURATION, security), getUniqueId());
     double dirtyPrice = (Double) value;
     double duration = DURATION_CALCULATOR.calculate(definition.toDerivative(now, yieldCurveName), dirtyPrice);

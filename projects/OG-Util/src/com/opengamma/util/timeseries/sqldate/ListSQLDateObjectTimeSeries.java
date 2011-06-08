@@ -17,15 +17,18 @@ import com.opengamma.util.timeseries.fast.integer.object.FastListIntObjectTimeSe
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the data 
  */
 public class ListSQLDateObjectTimeSeries<T> extends MutableSQLDateObjectTimeSeries.Integer<T> {
-  public static final FastIntObjectTimeSeries<?> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  /** A template time series */
+  public static final FastIntObjectTimeSeries<?> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(
+      DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  /** An empty time series */
   public static final ListSQLDateObjectTimeSeries<?> EMPTY_SERIES = new ListSQLDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<Date> s_converter = new SQLDateEpochDaysConverter();
 
-  protected ListSQLDateObjectTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntObjectTimeSeries<T> fastTS) {
+  protected ListSQLDateObjectTimeSeries(final DateTimeConverter<Date> converter,
+      final FastMutableIntObjectTimeSeries<T> fastTS) {
     super(converter, fastTS);
   }
 
@@ -34,31 +37,37 @@ public class ListSQLDateObjectTimeSeries<T> extends MutableSQLDateObjectTimeSeri
   }
 
   public ListSQLDateObjectTimeSeries(final Date[] dates, final T[] values) {
-    super(s_converter, new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public ListSQLDateObjectTimeSeries(final TimeZone timeZone, final Date[] dates, final T[] values) {
-    super(new SQLDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new SQLDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   public ListSQLDateObjectTimeSeries(final List<Date> dates, final List<T> values) {
-    super(s_converter, new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public ListSQLDateObjectTimeSeries(final TimeZone timeZone, final List<Date> dates, final List<T> values) {
-    super(new SQLDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new SQLDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   @SuppressWarnings("unchecked")
   public ListSQLDateObjectTimeSeries(final ObjectTimeSeries<Date, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(
+        (FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ListSQLDateObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<Date, T> dts) {
-    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
+    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(
+        timeZone).convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   public ListSQLDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

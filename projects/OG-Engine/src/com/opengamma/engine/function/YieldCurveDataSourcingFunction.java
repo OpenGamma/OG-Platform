@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Set;
+
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 
 /**
@@ -12,7 +14,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
  */
 public interface YieldCurveDataSourcingFunction extends CompiledFunctionDefinition {
   /**
-   * @return the key of the curve for which data is required
+   * @return the keys of the curves for which data is required
    */
-  YieldCurveKey getYieldCurveKey();
+  Set<YieldCurveKey> getYieldCurveKeys();
 }

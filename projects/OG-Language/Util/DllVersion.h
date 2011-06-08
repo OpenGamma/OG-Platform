@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,8 +6,6 @@
 
 #ifndef __inc_og_language_util_dllversion_h
 #define __inc_og_language_util_dllversion_h
-
-// Fetches version information from the current (or another) DLL
 
 #include "Unicode.h"
 
@@ -20,49 +18,56 @@
 #endif /* ifndef _WIN32 */
 
 #define DLLVERSION_ATTRIBUTES \
-	ATTRIBUTE (Comments) \
-	ATTRIBUTE (CompanyName) \
-	ATTRIBUTE (FileDescription) \
-	ATTRIBUTE (FileVersion) \
-	ATTRIBUTE (InternalName) \
-	ATTRIBUTE (LegalCopyright) \
-	ATTRIBUTE (OriginalFilename) \
-	ATTRIBUTE (ProductName) \
-	ATTRIBUTE (ProductVersion) \
-	ATTRIBUTE (PrivateBuild) \
-	ATTRIBUTE (SpecialBuild)
+	ATTRIBUTE (Comments); \
+	ATTRIBUTE (CompanyName); \
+	ATTRIBUTE (FileDescription); \
+	ATTRIBUTE (FileVersion); \
+	ATTRIBUTE (InternalName); \
+	ATTRIBUTE (LegalCopyright); \
+	ATTRIBUTE (OriginalFilename); \
+	ATTRIBUTE (ProductName); \
+	ATTRIBUTE (ProductVersion); \
+	ATTRIBUTE (PrivateBuild); \
+	ATTRIBUTE (SpecialBuild);
 
+/// Fetches version information from the current (or another) DLL. The Win32 version will query
+/// the embedded version information resource. The Posix version must define the version constants
+/// before including this file so that they are embedded statically.
 class CDllVersion {
 private:
 #ifdef _WIN32
+
+	/// Version information data buffer
 	PBYTE m_pData;
+
 	void Init (HMODULE hModule);
 	void Init (PCTSTR pszModule);
-	PCTSTR GetString (PCTSTR pszString);
+	PCTSTR GetString (PCTSTR pszString) const;
 #else /* ifdef _WIN32 */
-#define ATTRIBUTE(name) static const TCHAR *s_psz##name;
+#define ATTRIBUTE(name) \
+	static const TCHAR *s_psz##name
 	DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 #endif /* ifdef _WIN32 */
 public:
-	// Default constructor queries the DLL (or EXE) containing this static code
 	CDllVersion ();
 #ifdef _WIN32
-	// Win32 version will query the version info embedded in the DLL
 	CDllVersion (HMODULE hModule);
 	CDllVersion (PCTSTR pszModule);
 	~CDllVersion ();
 	static HMODULE GetCurrentModule ();
-#define ATTRIBUTE(name) const TCHAR *Get##name () { return GetString (TEXT (#name)); }
-#else
-	// Non-Win32 version must defined the version constants before including this file
+#define ATTRIBUTE(name) \
+	const TCHAR *Get##name () const { return GetString (TEXT (#name)); }
+#else /* ifdef _WIN32 */
+	/// Populates the static data buffer with version constants defined at compile time.
 	static void Initialise () {
-#define ATTRIBUTE(name) s_psz##name = TEXT (DllVersion_##name);
+#define ATTRIBUTE(name) s_psz##name = TEXT (DllVersion_##name)
 		DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 	}
-#define ATTRIBUTE(name) const TCHAR *Get##name () { return s_psz##name ? s_psz##name : TEXT (DllVersion_##name); }
-#endif
+#define ATTRIBUTE(name) \
+	const TCHAR *Get##name () const { return s_psz##name ? s_psz##name : TEXT (DllVersion_##name); }
+#endif /* ifdef _WIN32 */
 	DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 };

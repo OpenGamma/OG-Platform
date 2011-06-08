@@ -1,15 +1,27 @@
-/**
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * provides wrappers for the REST API
  */
 $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.api.live', 'og.common.routes'],
     obj: function () {
-        var module = this, live_data_root = module.liveDataRoot, api,
+        var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = encodeURIComponent,
             outstanding_requests = {}, registrations = [],
             meta_data = {configs: null, holidays: null, securities: null},
+            singular = {
+                batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
+                portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
+                timeseries: 'timeseries'
+            },
+            has_id_search = {
+                batches: false, configs: true, exchanges: true, holidays: true, portfolios: true,
+                positions: true, regions: true, securities: true, timeseries: false
+            },
             request_id = 0, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
             /** @ignore */
             register = function (obj) {
@@ -17,7 +29,7 @@ $.register_module({
                     dependencies = obj.config.meta.dependencies || [], id = obj.id;
                 if (!update) return;
                 registrations.push({id: id, dependencies: dependencies, update: update, url: url, current: current});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             filter_registrations = function (filter) {registrations = registrations.filter(filter);},
@@ -30,18 +42,23 @@ $.register_module({
                         return match && handlers.push(val), match;
                     });
                 });
-                handlers.forEach(function (val) {val.update.call(val);});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                handlers.forEach(function (val) {val.update(val);});
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             request = function (method, config) {
-                var id = request_id++, url = live_data_root + method.map(encode).join('/'), current = routes.current(),
+                var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
+                    url = config.meta.type in no_post_body ? // build GET/DELETE URLs instead of letting $.ajax do it
+                        [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
+                            .filter(Boolean).join('?')
+                                : live_data_root + method.map(encode).join('/'),
+                    current = routes.current(),
                     /** @ignore */
                     send = function () {
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
                             type: config.meta.type,
-                            data: config.data,
+                            data: config.meta.type in no_post_body ? {} : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: TIMEOUT,
@@ -65,15 +82,14 @@ $.register_module({
                                 var meta = {}, location = xhr.getResponseHeader('Location');
                                 delete outstanding_requests[id];
                                 if (location) meta.id = location.split('/').pop();
+                                if (config.meta.type in no_post_body) meta.url = url;
                                 config.meta.handler({error: false, message: status, data: data, meta: meta});
                             },
                             complete: end_loading
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET') register({
-                    id: id, config: config, current: current, url: [url, $.param(config.data)].filter(Boolean).join('?')
-                });
+                if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
                 start_loading(config.meta.loading);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
@@ -99,28 +115,31 @@ $.register_module({
             /** @ignore */
             default_get = function (fields, api_fields, config) {
                 var root = this.root, method = [root], data = {}, meta,
-                    all = fields.concat('id', 'version', 'page_size', 'page');
+                    all = fields.concat('id', 'version', 'page_size', 'page'),
                     id = str(config.id), version = str(config.version), version_search = version === '*',
                     field_search = fields.some(function (val) {return val in config;}),
+                    ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
+                    search = field_search || id_search || version_search || !id,
                     has_meta = root in meta_data, meta_request = has_meta && config.meta,
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                 meta = check({
                     bundle: {method: root + '#get', config: config},
                     dependencies: [{fields: ['version'], require: 'id'}],
                     empties: [
-                        {condition: field_search, label: 'search request', fields: ['version', 'id']},
+                        {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
                         {condition: !has_meta, label: 'meta data unavailable for /' + root, fields: ['meta']},
-                        {condition: meta_request, label: 'meta data request', fields: all}
+                        {condition: meta_request, label: 'meta data request', fields: all},
+                        {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
                     ]
                 });
-                if (meta_request)
-                    method.push('metaData');
-                else if ((field_search || version_search || !id))
-                    data = {pageSize: page_size, page: page};
+                if (meta_request) method.push('metaData');
+                if (search) data = {pageSize: page_size, page: page};
                 if (field_search) fields.forEach(function (val, idx) {
                     if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
                 });
-                if (id) method = method.concat(version ? [id, 'versions', version_search ? '' : version] : id);
+                if (id_search) data[singular[root] + 'Id'] = ids;
+                version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
+                if (id) method = method.concat(version);
                 return request(method, {data: data, meta: meta});
             },
             /** @ignore */
@@ -145,44 +164,24 @@ $.register_module({
         return api = {
             abort: function (id) {
                 var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
-                // if request is registered as an update listener, remove it
-                filter_registrations(function (val) {return val.id !== id;});
-                deliver_updates([]);
+                api.deregister(id);
                 // if request is still outstanding remove it
                 if (!xhr) return; else delete outstanding_requests[id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
             },
             batches: { // all requests that begin with /batches
                 root: 'batches',
-                get: function (config) {
-                    var root = this.root, method = [root], data = {}, meta,
-                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE,
-                        observation_date = str(config.observation_date),
-                        observation_time = str(config.observation_time),
-                        is_id = !!observation_date && !!observation_time;
-                    meta = check({
-                        bundle: {method: root + '#get', config: config},
-                        empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
-                    });
-                    if (is_id) {
-                        method.push(observation_date, observation_time);
-                    } else {
-                        data = {pageSize: page_size, page: page};
-                        if (observation_date) data.observationDate = observation_date;
-                        if (observation_time) data.observationTime = observation_time;
-                    }
-                    return request(method, {data: data, meta: meta});
-                },
+                get: default_get.partial(['observation_date', 'observation_time'],
+                        ['observationDate', 'observationTime']),
                 put: not_available.partial('put'),
                 del: not_available.partial('del')
             },
             clean: function () {
-                var id, current = routes.current(), request, mismatch;
+                var id, current = routes.current(), request;
                 for (id in outstanding_requests) {
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
                 }
-                deliver_updates([]);
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -190,7 +189,8 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version), version_search = version === '*',
                         fields = ['name', 'type'], type_search = config.type === '*',
-                        all = fields.concat('id', 'version', 'page_size', 'page');
+                        all = fields.concat('id', 'version', 'page_size', 'page'),
+                        ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         field_search = !type_search && fields.some(function (val) {return val in config;}),
                         meta_request = config.meta,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
@@ -198,31 +198,43 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
                         empties: [
-                            {condition: field_search, label: 'search request', fields: ['version', 'id']},
+                            {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
                             {condition: type_search, label: 'type search request', fields: ['version', 'id', 'name']},
                             {condition: meta_request, label: 'meta data request', fields: all}
                         ]
                     });
                     if (meta_request)
                         method.push('metaData');
-                    else if (!type_search && (field_search || version_search || !id))
+                    else if (!type_search && (field_search || version_search || id_search || !id))
                         data = {pageSize: page_size, page: page};
                     if (field_search) fields.forEach(function (val, idx) {
                         if (val = str(config[val])) data[fields[idx]] = val;
                     });
+                    if (id_search) data.configId = ids;
                     if (id) method = method.concat(version ? [id, 'versions', version_search ? '' : version] : id);
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
-                        id = str(config.id), fields = ['name', 'xml'], api_fields = ['name', 'configxml'];
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{one_of: fields}]});
+                        id = str(config.id), fields = ['name', 'json', 'xml'],
+                        api_fields = ['name', 'configJSON', 'configXML'];
+                    meta = check({
+                        bundle: {method: root + '#put', config: config},
+                        required: [{one_of: fields}],
+                        empties: [{
+                            condition: !!config.json, label: 'json and xml are mutually exclusive', fields: ['xml']
+                        }]
+                    });
                     meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     if (id) method.push(id);
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
+            },
+            deregister: function (id) {
+                filter_registrations(function (val) {return val.id !== id;});
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
@@ -242,18 +254,25 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), node = str(config.node), version = str(config.version),
                         name = str(config.name), name_search =  'name' in config, version_search = version === '*',
+                        ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
+                        nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
+                        search = !id || id_search || node_search || name_search || version_search,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
-                        empties: [
-                            {condition: name_search, label: 'name exists', fields: ['node', 'version', 'id']},
-                            {condition: version_search, label: 'version is *', fields: ['node']}
-                        ]
+                        required: [{condition: version_search, one_of: ['id', 'node']}],
+                        empties: [{
+                            condition: name_search || id_search || node_search,
+                            label: 'search request cannot have id, node, or version',
+                            fields: ['id', 'node', 'version']
+                        }]
                     });
-                    if (version_search || name_search || !id) data = {pageSize: page_size, page: page};
+                    if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;
-                    version = version ? [id, 'versions', version_search ? '' : version] : id;
+                    if (id_search) data.portfolioId = ids;
+                    if (node_search) data.nodeId = nodes;
+                    version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
                     if (id) method = method.concat(node ? [version, 'nodes', node] : version);
                     return request(method, {data: data, meta: meta});
                 },
@@ -326,6 +345,7 @@ $.register_module({
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            register: register,
             registrations: function () {return registrations;},
             securities: { // all requests that begin with /securities
                 root: 'securities',
@@ -373,7 +393,7 @@ $.register_module({
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{all_of: fields}]
+                        required: [{all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']}]
                     });
                     meta.type = 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});

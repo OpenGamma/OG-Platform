@@ -15,26 +15,31 @@
     
     this.formatCell = function(row, cell, value, columnDef, dataContext) {
       return "<span class='cell-value'>Loading...</span>";
-      //return _columnStructure.typeFormatter.formatCell(row, cell, value, columnDef, dataContext, _columnStructure, _userConfig);
     }
     
     this.postRender = function(cellNode, row, dataContext, colDef) {
+      var $cell = $(cellNode);
+      if (!$cell.data('popupChecked')) {
+        $cell.data('popupChecked', true);
+        _viewer.popupManager.onNewCell($cell, dataContext.rowId, colDef.id);
+      }
       if (!dataContext.dataReceived) {
         return;
       }
-      var $cell = $(cellNode);
       var value = dataContext[colDef.field];
-      if (!value) {
+      if (!value || !value.v) {
         $cell.empty().html("<span class='cell-value'>" + _columnStructure.nullValue + "</span>");
         return;
       }
       
       var $cellContents = $cell.data("contents");
+      var formatter = ColumnFormatter.getFormatterForCell(_columnStructure, value.t);
       if (!$cellContents) {
         $cellContents = $("<div></div>").addClass("cell-contents").appendTo($cell.empty());
         $cell.data("contents", $cellContents);
-        if (_columnStructure.typeFormatter.createDetail) {
-          $("<div class='imgbutton revealmore'></div>")
+        if (formatter.createDetail) {
+          var rowId = dataContext['rowId'];
+          var $revealButton = $("<div class='imgbutton revealmore'></div>")
               .appendTo($cell)
               .position({
                 my: "right bottom",
@@ -44,17 +49,33 @@
                 collision: "none"
               })
               .button({ icons: { primary:'ui-icon-carat-1-s' }, text: false })
-              .click(function(ui) { _viewer.popupManager.togglePopup($cell, _columnStructure, row) });
+              .click(function(ui) {
+                ui.stopPropagation();
+                _viewer.popupManager.toggleDetail($cell, _columnStructure, formatter, rowId);
+              })
+              .hide();
+          var handleCellHoverIn = function(e) { $revealButton.fadeTo(200, 1) };
+          var handleCellHoverOut = function(e) { $revealButton.fadeTo(200, 0) };
+          $cell.hover(handleCellHoverIn, handleCellHoverOut);
         }
       }
-      if (_columnStructure.typeFormatter.renderCell) {
-        _columnStructure.typeFormatter.renderCell($cellContents, value, row, dataContext, colDef, _columnStructure, _userConfig);
+      if (formatter.renderCell) {
+        formatter.renderCell($cellContents, value, row, dataContext, colDef, _columnStructure, _userConfig);
       }
     }
     
   }
   
-  ColumnFormatter.getTypeFormatter = function(dataType) {
+  ColumnFormatter.getFormatterForCell = function(columnStructure, dynamicDataType) {
+    if (columnStructure.dynamic && dynamicDataType) {
+      return ColumnFormatter.getFormatterForType(dynamicDataType);
+    } else {
+      // Use cached lookup
+      return columnStructure.typeFormatter;
+    }
+  }
+  
+  ColumnFormatter.getFormatterForType = function(dataType) {
     if (!dataType) {
       return UnknownTypeFormatter;
     }
@@ -62,6 +83,8 @@
     switch (dataType) {
       case 'PRIMITIVE':
         return PrimitiveFormatter;
+      case 'DOUBLE':
+        return DoubleFormatter;
       case 'YIELD_CURVE':
         return InterpolatedYieldCurveFormatter;
       case 'VOLATILITY_SURFACE_DATA':
@@ -70,7 +93,7 @@
         return LabelledMatrix1DFormatter;
       default:
         return UnknownTypeFormatter;
-    }
+    }    
   }
   
   $.extend(true, window, {

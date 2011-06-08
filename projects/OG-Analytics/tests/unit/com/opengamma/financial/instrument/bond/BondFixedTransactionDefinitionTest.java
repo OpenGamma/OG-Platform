@@ -37,7 +37,7 @@ public class BondFixedTransactionDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final double RATE = 0.0325;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final BondFixedDescriptionDefinition BOND_DESCRIPTION = BondFixedDescriptionDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR,
+  private static final BondFixedSecurityDefinition BOND_DESCRIPTION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR,
       DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
   // Transaction
   private static final double PRICE = 0.90;

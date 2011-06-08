@@ -31,7 +31,7 @@ public abstract class SwapLeg implements java.io.Serializable {
       _notional = notional;
     }
   }
-  protected SwapLeg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected SwapLeg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (DAY_COUNT_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'dayCount' is not present");
@@ -52,7 +52,7 @@ public abstract class SwapLeg implements java.io.Serializable {
     fudgeField = fudgeMsg.getByName (REGION_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not present");
     try {
-      _regionIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _regionIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not Identifier message", e);
@@ -68,7 +68,7 @@ public abstract class SwapLeg implements java.io.Serializable {
     fudgeField = fudgeMsg.getByName (NOTIONAL_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'notional' is not present");
     try {
-      _notional = com.opengamma.financial.security.swap.Notional.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _notional = com.opengamma.financial.security.swap.Notional.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'notional' is not Notional message", e);
@@ -88,8 +88,8 @@ public abstract class SwapLeg implements java.io.Serializable {
       _notional = source._notional;
     }
   }
-  public abstract org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext);
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public abstract org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_dayCount != null)  {
       msg.add (DAY_COUNT_KEY, null, _dayCount);
     }
@@ -110,13 +110,13 @@ public abstract class SwapLeg implements java.io.Serializable {
       msg.add (NOTIONAL_KEY, null, fudge1);
     }
   }
-  public static SwapLeg fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static SwapLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.SwapLeg".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.SwapLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.swap.SwapLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

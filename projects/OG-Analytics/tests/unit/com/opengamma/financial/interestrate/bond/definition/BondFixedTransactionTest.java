@@ -23,13 +23,13 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.instrument.bond.BondFixedDescriptionDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -39,6 +39,7 @@ public class BondFixedTransactionTest {
   //Semi-annual 2Y
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final int COUPON_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -49,8 +50,8 @@ public class BondFixedTransactionTest {
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final double RATE = 0.0325;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final BondFixedDescriptionDefinition BOND_DESCRIPTION_DEFINITION = BondFixedDescriptionDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS,
-      CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+  private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR,
+      DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
   // to derivatives: common
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String CREDIT_CURVE_NAME = "Credit";
@@ -68,50 +69,52 @@ public class BondFixedTransactionTest {
   private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, CALENDAR, SETTLEMENT_DAYS);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, STANDARD_SETTLEMENT_DATE);
   private static final double QUANTITY = 100000000; //100m
-  private static final AnnuityCouponFixed COUPON = BOND_DESCRIPTION_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-  private static final AnnuityPaymentFixed NOMINAL = BOND_DESCRIPTION_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+  private static final AnnuityCouponFixedDefinition COUPON_DEFINITION = BOND_SECURITY_DEFINITION.getCoupon();
+  private static final AnnuityCouponFixedDefinition COUPON_DEFINITION_TRIM = COUPON_DEFINITION.trimBefore(STANDARD_SETTLEMENT_DATE);
+  private static final AnnuityCouponFixed COUPON = BOND_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
+  private static final AnnuityPaymentFixed NOMINAL = BOND_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
   private static final AnnuityCouponFixed COUPON_TR = COUPON.trimBefore(BOND_SETTLEMENT_TIME);
   private static final AnnuityPaymentFixed NOMINAL_TR = NOMINAL.trimBefore(BOND_SETTLEMENT_TIME);
   private static final AnnuityCouponFixed COUPON_STD = COUPON.trimBefore(STANDARD_SETTLEMENT_TIME);
   private static final AnnuityPaymentFixed NOMINAL_STD = NOMINAL.trimBefore(STANDARD_SETTLEMENT_TIME);
-  private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION, QUANTITY, BOND_SETTLEMENT_DATE, PRICE);
-  private static final BondFixedDescription BOND_TR_DESCRIPTION = new BondFixedDescription(NOMINAL_TR, COUPON_TR, YIELD_CONVENTION);
-  private static final BondFixedDescription BOND_STD_DESCRIPTION = new BondFixedDescription(NOMINAL_STD, COUPON_STD, YIELD_CONVENTION);
-  private static final PaymentFixed BOND_SETTLEMENT = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME, -PRICE * QUANTITY, DISCOUNTING_CURVE_NAME);
-  private static final double ACCRUED_AT_SPOT = BOND_DESCRIPTION_DEFINITION.accruedInterest(STANDARD_SETTLEMENT_DATE);
-  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, BOND_SETTLEMENT, BOND_STD_DESCRIPTION, STANDARD_SETTLEMENT_TIME,
-      ACCRUED_AT_SPOT, 1.0);
+  private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION = new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, BOND_SETTLEMENT_DATE, PRICE);
+  private static final double ACCRUED_AT_SPOT = BOND_SECURITY_DEFINITION.accruedInterest(STANDARD_SETTLEMENT_DATE);
+  private static final double FACTOR_SPOT = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION_TRIM.getNthPayment(0).getAccrualStartDate(), STANDARD_SETTLEMENT_DATE,
+      COUPON_DEFINITION_TRIM.getNthPayment(0).getAccrualEndDate(), 1.0, COUPON_PER_YEAR);
+  private static final double FACTOR_PERIOD = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION_TRIM.getNthPayment(0).getAccrualStartDate(),
+      COUPON_DEFINITION_TRIM.getNthPayment(0).getAccrualStartDate(), COUPON_DEFINITION_TRIM.getNthPayment(0).getAccrualEndDate(), 1.0, COUPON_PER_YEAR);
+  private static final double FACTOR_TO_NEXT = (FACTOR_PERIOD - FACTOR_SPOT) / FACTOR_PERIOD;
+  private static final BondFixedSecurity BOND_TR_DESCRIPTION = new BondFixedSecurity(NOMINAL_TR, COUPON_TR, BOND_SETTLEMENT_TIME, BOND_TRANSACTION_DEFINITION.getAccruedInterestAtSettlement(), 0.0,
+      YIELD_CONVENTION, COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME);
+  private static final BondFixedSecurity BOND_STD_DESCRIPTION = new BondFixedSecurity(NOMINAL_STD, COUPON_STD, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, FACTOR_TO_NEXT, YIELD_CONVENTION,
+      COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME);
+  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, ACCRUED_AT_SPOT, 1.0);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondPurchase() {
-    new BondFixedTransaction(null, QUANTITY, BOND_SETTLEMENT, BOND_STD_DESCRIPTION, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, 1.0);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSettlement() {
-    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, null, BOND_STD_DESCRIPTION, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, 1.0);
+    new BondFixedTransaction(null, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, ACCRUED_AT_SPOT, 1.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondStandard() {
-    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, BOND_SETTLEMENT, null, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, 1.0);
+    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, null, ACCRUED_AT_SPOT, 1.0);
   }
 
   @Test
   public void testGetters1() {
     assertEquals(BOND_TR_DESCRIPTION, BOND_TRANSACTION.getBondTransaction());
     assertEquals(QUANTITY, BOND_TRANSACTION.getQuantity());
-    assertEquals(BOND_SETTLEMENT, BOND_TRANSACTION.getSettlement());
+    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getSettlementAmount());
     assertEquals(BOND_STD_DESCRIPTION, BOND_TRANSACTION.getBondStandard());
-    assertEquals(STANDARD_SETTLEMENT_TIME, BOND_TRANSACTION.getSpotTime());
-    assertEquals(ACCRUED_AT_SPOT, BOND_TRANSACTION.getAccruedInterestAtSpot());
+    assertEquals(STANDARD_SETTLEMENT_TIME, BOND_TRANSACTION.getBondStandard().getSettlementTime());
+    assertEquals(BOND_SETTLEMENT_TIME, BOND_TRANSACTION.getBondTransaction().getSettlementTime());
+    assertEquals(ACCRUED_AT_SPOT, BOND_TRANSACTION.getBondStandard().getAccruedInterest());
   }
 
   @Test
   public void testToDerivative() {
-    BondFixedTransaction convertedTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    final BondFixedTransaction convertedTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
     convertedTransaction.equals(BOND_TRANSACTION);
     assertEquals(convertedTransaction, BOND_TRANSACTION);
-
   }
 }

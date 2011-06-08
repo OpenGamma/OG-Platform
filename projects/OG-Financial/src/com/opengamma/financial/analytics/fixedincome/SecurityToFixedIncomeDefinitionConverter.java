@@ -30,7 +30,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.bond.BondConvention;
@@ -57,7 +57,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> {
+public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityToFixedIncomeDefinitionConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
@@ -73,13 +73,13 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitBondSecurity(final BondSecurity security) {
     final Currency currency = security.getCurrency();
     final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
-  public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
+  public FixedIncomeInstrumentConverter<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
@@ -92,7 +92,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate datedDate = security.getInterestAccrualDate().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final DayCount daycount = security.getDayCountConvention();
     final boolean isEOMConvention = convention.isEOMConvention();
@@ -108,33 +108,33 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitCashSecurity(final CashSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitCashSecurity(final CashSecurity security) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
     final Currency currency = security.getCurrency();
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
     //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
     return new CashDefinition(maturityDate, 0, convention);
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitFRASecurity(final FRASecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitFRASecurity(final FRASecurity security) {
     final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_FRA"));
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime startDate = security.getStartDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate().toZonedDateTime()); // just in case
+    final ZonedDateTime startDate = security.getStartDate();
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency + "_FRA_CONVENTION");
     //return new FRADefinition(startDate, maturityDate, fraSecurity.getRate(), convention);
     return new FRADefinition(startDate, maturityDate, 0, convention);
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     if (!payLeg.getRegionIdentifier().equals(receiveLeg.getRegionIdentifier())) {
@@ -152,8 +152,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   private SwapFixedIborSpreadDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed) { //FixedIncomeInstrumentDefinition<FixedCouponSwap<Payment>>
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
@@ -168,8 +168,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   private SwapIborIborDefinition getTenorSwapDefinition(final SwapSecurity swapSecurity) { //FixedIncomeInstrumentDefinition<TenorSwap<Payment>> 
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
@@ -226,14 +226,14 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
     final IborIndex index = new IborIndex(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), tenor, conventions.getSettlementDays(), calendar, floatLeg.getDayCount(),
         floatLeg.getBusinessDayConvention(), conventions.isEOMConvention());
     AnnuityCouponIborSpreadDefinition annuity = AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer);
-    annuity.getNthPayment(0).fixingProcess(initialRate);
+    //annuity.getNthPayment(0).fixingProcess(initialRate);
     return annuity;
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
     LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
-    if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+    if (schedule[0].equals(security.getFirstCouponDate().toLocalDate())) {
       final int n = schedule.length;
       final LocalDate[] temp = new LocalDate[n + 1];
       temp[0] = datedDate;
@@ -242,8 +242,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
       }
       schedule = temp;
     }
-    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toLocalDate())) {
+      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toLocalDate());
     }
     return schedule;
   }

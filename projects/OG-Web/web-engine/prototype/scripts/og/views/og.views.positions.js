@@ -1,5 +1,6 @@
-/**
- * view for positions section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.positions',
@@ -27,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this, positions,
-            page_name = 'positions',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             get_quantities,
@@ -89,9 +90,9 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'positions',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'},
+                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link'},
                         {id: 'quantity', name: 'Quantity', field: 'quantity', width: 100, filter_type: 'input'},
-                        {id: 'trades', name: 'Trades', field: 'trades', width: 50, filter_type: 'input'}
+                        {id: 'trades', name: 'Trades', field: 'trades', width: 50}
                     ]
                 },
                 toolbar: {
@@ -126,10 +127,13 @@ $.register_module({
             details_page = function (args) {
                 var render_securities = function (json) {
                         $('.OG-position .og-js-main').html([
-                            '<td class="og-security"><a href=#/securities/', json.security.unique_id, '>', json.security.name, '</a></td>',
+                            '<td class="og-security"><a href=#/securities/', json.security.unique_id, '>',
+                                json.security.name,
+                            '</a></td>',
                             '<td>', json.security.security_type, '</td>',
                             '<td><strong class="og-quantity" data-og-editable="quantity">',
-                            json.template_data.quantity, '</strong></td>'
+                                json.template_data.quantity,
+                            '</strong></td>'
                         ].join(''));
                     },
                     render_identifiers = function (json) {
@@ -158,7 +162,11 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
+                            var $warning, warning_message = 'This position has been deleted';
                             $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
+                                else $warning.empty().hide();
                             render_securities(details_json);
                             render_identifiers(details_json.securities);
                             render_trades(details_json.trades);
@@ -272,7 +280,7 @@ $.register_module({
                 if (args.quantity) obj = get_quantities(args.quantity);
                 search.load($.extend(true, options.slickgrid, {url: args}, {url: obj}));
             },
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

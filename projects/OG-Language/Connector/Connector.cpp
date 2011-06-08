@@ -263,9 +263,9 @@ bool CConnector::CCall::WaitForResult (FudgeMsg *pmsgResponse, unsigned long lTi
 		return false;
 	}
 	FudgeMsg msg = m_poSlot->GetMessage (lTimeout);
-	m_poSlot->Release ();
-	m_poSlot = NULL;
 	if (msg) {
+		m_poSlot->Release ();
+		m_poSlot = NULL;
 		*pmsgResponse = msg;
 		return true;
 	} else {
@@ -357,7 +357,7 @@ bool CConnector::Stop () {
 	return bResult;
 }
 
-bool CConnector::WaitForStartup (unsigned long lTimeout) {
+bool CConnector::WaitForStartup (unsigned long lTimeout) const {
 	CSemaphore oStartupSemaphore (0, 1);
 	m_oMutex.Enter ();
 	m_oStartupSemaphorePtr.Set (&oStartupSemaphore);
@@ -382,7 +382,7 @@ retryLock:
 	return eState == RUNNING;
 }
 
-bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned long lTimeout) {
+bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned long lTimeout) const {
 	if (!msgPayload) {
 		LOGWARN (TEXT ("Null message payload"));
 		SetLastError (EINVAL);
@@ -446,7 +446,7 @@ static bool _SendMessage (CClientService *poClient, fudge_i32 handle, FudgeMsg m
 	return bResult;
 }
 
-CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) {
+CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) const {
 	if (!msgPayload) {
 		LOGWARN (TEXT ("Null message"));
 		SetLastError (EINVAL);
@@ -472,7 +472,7 @@ CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) {
 	}
 }
 
-bool CConnector::Send (FudgeMsg msgPayload) {
+bool CConnector::Send (FudgeMsg msgPayload) const {
 	if (!msgPayload) {
 		LOGWARN (TEXT ("Null payload"));
 		return false;
@@ -508,7 +508,7 @@ bool CConnector::AddCallback (const TCHAR *pszClass, CCallback *poCallback) {
 
 // After the callback is removed, there may still be entries in the queue for it. The reference to the callback
 // will only be discarded after a OnThreadDisconnect has been sent to it.
-bool CConnector::RemoveCallback (CCallback *poCallback) {
+bool CConnector::RemoveCallback (const CCallback *poCallback) {
 	if (!poCallback) {
 		LOGWARN (TEXT ("Null callback object"));
 		return false;

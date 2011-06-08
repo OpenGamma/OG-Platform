@@ -4,10 +4,9 @@
 	<import file="${common.dir}/common.xml"/>
 
 	<target name="new-hsqldb-impl">
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${og-master.scripts.dir}" catalog="og-financial" dropTable="false" />
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${og-engine.scripts.dir}" catalog="og-financial" dropTable="false" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
-	
+
 	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl" description="--> creates the hsqldb tables" />
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -82,7 +81,7 @@
 
 	<property name="org" value="com.opengamma" />
 	<property name="name" value="og-web" />
-	
+
 	<target name="dist-common" depends="common.dist-common,new-hsqldb">
 		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
 			<fileset dir="${lib.dir}/webapp/${org}/${name}">
@@ -106,10 +105,10 @@
 	</target>
 
 
-    <target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
-	    <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
-    </target>
-	
-    <target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
+	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
+		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
+	</target>
+
+	<target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
 
 </project>

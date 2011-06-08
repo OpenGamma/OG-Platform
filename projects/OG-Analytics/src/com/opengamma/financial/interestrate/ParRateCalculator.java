@@ -11,7 +11,11 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -85,6 +89,24 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return (pa / pb - 1) / future.getIndexYearFraction();
   }
 
+  @Override
+  /**
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    return method.parRate(future, curves);
+  }
+
+  @Override
+  /**
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    return method.parRate(future.getUnderlyingFuture(), curves);
+  }
+
   /**
    * Computes the par rate of a swap with one fixed leg.
    * @param swap The Fixed coupon swap.
@@ -148,6 +170,11 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
     return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
+    return visitCouponIbor(payment, data);
   }
 
   @Override

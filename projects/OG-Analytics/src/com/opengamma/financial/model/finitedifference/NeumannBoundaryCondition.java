@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -16,19 +16,22 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
 
   private final Function1D<Double, Double> _timeValue;
   private final double _level;
+  private final boolean _isLower;
 
   /**
    * Neumann  boundary condition, i.e. du/dx(A,t) = f(t), where A is the boundary level, and f(t) is some specified function of time
    * @param timeValue The value of u at the boundary, i.e. du/dx(A,t) = f(t) 
    * @param level The boundary level (A)
+   * @param isLower True if this represents a lower boundary
    */
-  public NeumannBoundaryCondition(final Function1D<Double, Double> timeValue, double level) {
+  public NeumannBoundaryCondition(final Function1D<Double, Double> timeValue, final double level, final boolean isLower) {
     Validate.notNull(timeValue, "null timeValue");
     _timeValue = timeValue;
     _level = level;
+    _isLower = isLower;
   }
 
-  public NeumannBoundaryCondition(final double fixedValue, final double level) {
+  public NeumannBoundaryCondition(final double fixedValue, final double level, final boolean isLower) {
     _timeValue = new Function1D<Double, Double>() {
 
       @Override
@@ -37,16 +40,23 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
       }
     };
     _level = level;
+    _isLower = isLower;
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t, final double dx) {
-    return _timeValue.evaluate(t) * dx;
+  public double getConstant(final PDEDataBundle data, final double t) {
+    return _timeValue.evaluate(t);
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, double t) {
-    return new double[] {-1, 1};
+  public double[] getLeftMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+    double[] temp;
+    if (_isLower) {
+      temp = grid.getFirstDerivativeForwardCoefficients(0);
+    } else {
+      temp = grid.getFirstDerivativeBackwardCoefficients(grid.getNumSpaceNodes() - 1);
+    }
+    return temp;
   }
 
   @Override
@@ -55,7 +65,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, double t) {
+  public double[] getRightMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
     return new double[0];
   }
 

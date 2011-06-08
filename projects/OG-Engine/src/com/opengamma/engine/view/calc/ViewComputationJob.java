@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -536,13 +535,12 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       return;
     }
     
-    ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
     CompiledViewDefinitionWithGraphsImpl compiledView = getLatestCompiledViewDefinition();
     if (compiledView == null) {
       return;
     }
     Map<ValueRequirement, ValueSpecification> liveDataRequirements = compiledView.getLiveDataRequirements();
-    if (liveDataRequirements.containsKey(valueSpecification)) {
+    if (liveDataRequirements.containsKey(value)) {
       liveDataChanged();
     }
   }

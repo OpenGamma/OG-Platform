@@ -12,8 +12,11 @@ import java.util.Map;
 
 import javax.time.Instant;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -90,6 +93,18 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     return _functionInitId;
   }
 
+  //-------------------------------------------------------------------------
+  
+  @Override
+  public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfigName) {
+    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+    DependencyGraph dependencyGraph = getDependencyGraph(calcConfigName);
+    if (dependencyGraph == null) {
+      throw new OpenGammaRuntimeException("The calculation configuration name " + calcConfigName + " does not exist in the view definition");
+    }
+    return new DependencyGraphExplorerImpl(dependencyGraph);
+  }
+  
   //-------------------------------------------------------------------------- 
   private static Pair<Instant, Instant> processValidityRange(Map<String, DependencyGraph> graphsByConfiguration) {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");

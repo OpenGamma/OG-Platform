@@ -70,7 +70,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
         null,
         false);
   }
-  
+
   public static ViewExecutionOptions singleCycle() {
     return singleCycle(Instant.now());
   }
@@ -86,6 +86,10 @@ public class ExecutionOptions implements ViewExecutionOptions {
         false,
         null,
         false);
+  }
+  
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
+    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), false, true, null, false, snapshotIdentifier);
   }
   
   public static ViewExecutionOptions compileOnly() {
@@ -175,7 +179,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (_compileOnly != other._compileOnly) {
       return false;
     }
-    if (_marketDataSnapshotIdentifier != other._marketDataSnapshotIdentifier) {
+    if (_marketDataSnapshotIdentifier == null) {
+      if (other._marketDataSnapshotIdentifier != null) {
+        return false;
+      }
+    } else if (!_marketDataSnapshotIdentifier.equals(other._marketDataSnapshotIdentifier)) {
       return false;
     }
     return true;

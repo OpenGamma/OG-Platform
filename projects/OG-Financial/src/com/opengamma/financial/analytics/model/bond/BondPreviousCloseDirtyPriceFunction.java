@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -44,12 +44,12 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition bondDefinition, final Object value,
-      final LocalDate now, final String yieldCurveName) {
+      final ZonedDateTime now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, security), getUniqueId());
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
-    final LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
+    final ZonedDateTime previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
     final Bond bond = bondDefinition.toDerivative(previousClose, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));

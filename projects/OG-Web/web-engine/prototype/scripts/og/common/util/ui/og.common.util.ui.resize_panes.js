@@ -1,19 +1,18 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * Draggable resize bar that sits between two elements that require resizing.
  * The resize bar should sit in one of the other elements.
- * Stores the new size of each panel in localStorage 
+ * Stores the new size of each panel in localStorage
  *
  * @param {String} leftPane CSS selector
  * @param {String} rightPane CSS selector
- * @param {String} resizeBar CSS selector 
+ * @param {String} resizeBar CSS selector
  *
  * TODO: Doubclick to set to center (or 40/60?)
- * 
+ *
  */
-
 $.register_module({
     name: 'og.common.util.ui.resize_panes',
     dependencies: [],
@@ -22,7 +21,7 @@ $.register_module({
             var $lp = $(left_pane), $rp = $(right_pane), $rb = $(resize_bar);
             $rb.mousedown(function () {
                 var $doc = $(document), $body = $('body'),
-                    $rb = $(this), $rb_position, rb_width, rb_height, rb_left, rb_top, rb_margin_left, rb_margin_right, 
+                    $rb = $(this), $rb_position, rb_width, rb_height, rb_left, rb_top, rb_margin_left, rb_margin_right,
                     set_left_mouse_pos,
                     percentage_left, percentage_right,
                     doc_width = $doc.width(), doc_height = $doc.height(),
@@ -64,14 +63,14 @@ $.register_module({
                     width: rb_width, height: rb_height,
                     left: rb_left, top: rb_top
                 });
-                $glass_pane.one('mouseup', function () {
+                $body.one('mouseup', function () {
                     localStorage['resize_panes_' + left_pane] = percentage_left + '%';
                     localStorage['resize_panes_' + right_pane] = percentage_right + '%';
                     $body.unbind('mousemove', move_panes);
                     $lp.enableSelection(); // Undocumented JQuery UI method
                     $rp.enableSelection();
-                    $tmp_bar.remove();
-                    $glass_pane.remove();
+                    $('.og-js-rb').remove();
+                    $('.og-js-glass-pane').remove();
                 });
             });
         };

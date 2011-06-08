@@ -41,6 +41,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -105,6 +106,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final ExchangeSearchResult result = new ExchangeSearchResult();
     if ((request.getExchangeIds() != null && request.getExchangeIds().size() == 0) ||
         (IdentifierSearch.canMatch(request.getExchangeKeys()) == false)) {
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

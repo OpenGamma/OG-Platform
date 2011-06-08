@@ -14,7 +14,7 @@ public class DependentValueSpecificationsRequest extends com.opengamma.engine.vi
     }
   }
   protected DependentValueSpecificationsRequest (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (JOB_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DependentValueSpecificationsRequest - field 'job' is not present");

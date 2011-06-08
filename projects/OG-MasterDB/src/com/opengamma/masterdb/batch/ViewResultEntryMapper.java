@@ -18,7 +18,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- *  
+ * Hibernate helper.
  */
 public class ViewResultEntryMapper {
   
@@ -32,13 +32,13 @@ public class ViewResultEntryMapper {
       "name, " +
       "function_unique_id, " +
       "value " +
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk where" +
+      " from " + DbBatchMaster.getDatabaseSchema() + "vw_rsk where" +
       " rsk_run_id = :rsk_run_id";
   }
   
   public static String sqlCount() {
     return "select count(*) " + 
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk where" +
+      " from " + DbBatchMaster.getDatabaseSchema() + "vw_rsk where" +
       " rsk_run_id = :rsk_run_id";
   }
   

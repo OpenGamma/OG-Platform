@@ -7,6 +7,7 @@ package com.opengamma.web.portfolio;
 
 import java.net.URI;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
@@ -86,6 +87,15 @@ public class WebPortfoliosUris {
    */
   public URI nodePositions(final ManageablePortfolioNode node) {
     return WebPortfolioNodePositionsResource.uri(_data, node.getUniqueId());
+  }
+
+  /**
+   * Gets the URI.
+   * @param positionId  the position id, not null
+   * @return the URI
+   */
+  public URI nodePosition(final ObjectIdentifiable positionId) {
+    return WebPortfolioNodePositionResource.uri(_data, positionId);
   }
 
 }

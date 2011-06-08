@@ -3,12 +3,14 @@
 /Client/tests/classes/
 /Client/tests/output/
 /dist/
+/doc/
 /*/Debug/
 /*/Release/
 /*/DebugWin32/
 /*/ReleaseWin32/
 /*/Debugx64/
 /*/Releasex64/
+/*/Temp/
 /*/*.aps
 /*/*.vcxproj.user
 /Connector/com_opengamma_language_*
@@ -18,3 +20,4 @@ build.number
 .settings/
 /tests/
 /version.h
+/_ReSharper*

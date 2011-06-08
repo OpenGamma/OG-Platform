@@ -1,0 +1,38 @@
+.OG-config .OG-form .og-tabs-container {
+  margin-bottom: 10px;
+}
+
+.OG-config .OG-form .og-resolution-rule-transform input {
+  width: 50px;
+  vertical-align: inherit;
+  margin: 0 5px;
+}
+
+.OG-config .OG-form .og-resolution-rule-transform td:first-child input {
+  width: 200px;
+  vertical-align: inherit;
+  margin-right: 5px;
+}
+
+.OG-config .OG-form .og-confirm {
+  background: transparent;
+  bottom: 3px;
+  height: 35px;
+  line-height: 35px;
+  margin: 0;
+  right: 16px;
+  position: absolute;
+  width: 100%;
+}
+
+.OG-config .OG-form .og-confirm div {
+  background: #fff;
+  margin:  0 0 0 18px;
+  padding: 0 0 3px 10px;
+}
+
+.OG-config .OG-form .og-confirm button:last-child {
+  bottom: 3px;
+  position: absolute;
+  right: 10px;
+}

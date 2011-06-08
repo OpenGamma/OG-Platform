@@ -6,15 +6,17 @@
 package com.opengamma.master.security;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
@@ -109,6 +111,28 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityDocument other = (SecurityDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the security unique identifier.
@@ -175,27 +199,41 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", SecurityDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code security} property.
      */
-    private final MetaProperty<ManageableSecurity> _security = DirectMetaProperty.ofReadWrite(this, "security", ManageableSecurity.class);
+    private final MetaProperty<ManageableSecurity> _security = DirectMetaProperty.ofReadWrite(
+        this, "security", SecurityDocument.class, ManageableSecurity.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "uniqueId",
+        "security");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("uniqueId", _uniqueId);
-      temp.put("security", _security);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public SecurityDocument createBean() {
-      return new SecurityDocument();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 949122880:  // security
+          return _security;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SecurityDocument> builder() {
+      return new DirectBeanBuilder<SecurityDocument>(new SecurityDocument());
     }
 
     @Override

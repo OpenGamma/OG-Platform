@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
@@ -30,7 +30,7 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition<CouponFixedDef
    * @param fixedLeg The fixed leg.
    * @param iborLeg The ibor leg.
    */
-  public SwapFixedIborSpreadDefinition(AnnuityCouponFixedDefinition fixedLeg, AnnuityCouponIborSpreadDefinition iborLeg) {
+  public SwapFixedIborSpreadDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityCouponIborSpreadDefinition iborLeg) {
     super(fixedLeg, iborLeg);
     Validate.isTrue(fixedLeg.getCurrency() == iborLeg.getCurrency(), "legs should have the same currency");
   }
@@ -61,19 +61,19 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition<CouponFixedDef
 
   @SuppressWarnings("unchecked")
   @Override
-  public FixedCouponSwap<Payment> toDerivative(LocalDate date, String... yieldCurveNames) {
+  public FixedCouponSwap<Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
     final GenericAnnuity<? extends Payment> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);
     return new FixedCouponSwap<Payment>(fixedLeg, (GenericAnnuity<Payment>) iborLeg);
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitSwapFixedIborSpreadDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwapFixedIborSpreadDefinition(this);
   }
 }

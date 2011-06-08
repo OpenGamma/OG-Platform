@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,18 +26,17 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.financial.batch.BatchDataSearchRequest;
-import com.opengamma.financial.batch.BatchDataSearchResult;
+import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchError;
-import com.opengamma.financial.batch.BatchErrorSearchRequest;
-import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchGetRequest;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for a batch.
  */
-@Path("/batches/{observationDate}/{observationTime}")
+@Path("/batches/{batchId}")
 public class WebBatchResource extends AbstractWebBatchResource {
 
   /**
@@ -56,28 +54,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @Context UriInfo uriInfo) {
+    BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
+    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setErrorPagingRequest(PagingRequest.ALL);
+    BatchDocument batchDoc = data().getBatchMaster().get(request);
+    data().setBatch(batchDoc);
+    
     FlexiBean out = createRootData();
-    
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(data().getBatch().getObservationDate());
-    request.setObservationTime(data().getBatch().getObservationTime());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
-    
-    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
-    data().setBatchResults(batchResults.getItems());
-    
-    BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
-    errorRequest.setObservationDate(data().getBatch().getObservationDate());
-    errorRequest.setObservationTime(data().getBatch().getObservationTime());
-    errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
-    
-    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
-    data().setBatchErrors(batchErrors.getItems());
-
-    out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
-    out.put("errorPaging", new WebPaging(batchErrors.getPaging(), data().getUriInfo()));
-    out.put("batchResult", batchResults.getItems());
-    out.put("batchErrors", batchErrors.getItems());
     return getFreemarker().build("batches/batch.ftl", out);
   }
 
@@ -87,91 +70,34 @@ public class WebBatchResource extends AbstractWebBatchResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @Context UriInfo uriInfo) {
+    BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
+    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setErrorPagingRequest(PagingRequest.ALL);
+    BatchDocument batchDoc = data().getBatchMaster().get(request);
+    data().setBatch(batchDoc);
+    
     FlexiBean out = createRootData();
-
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(data().getBatch().getObservationDate());
-    request.setObservationTime(data().getBatch().getObservationTime());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
-
-    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
-    data().setBatchResults(batchResults.getItems());
-
-    BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
-    errorRequest.setObservationDate(data().getBatch().getObservationDate());
-    errorRequest.setObservationTime(data().getBatch().getObservationTime());
-    errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
-
-    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
-    data().setBatchErrors(batchErrors.getItems());
-
-    out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
-    out.put("errorPaging", new WebPaging(batchErrors.getPaging(), data().getUriInfo()));
-    out.put("batchResult", batchResults.getItems());
-    out.put("batchErrors", batchErrors.getItems());
     return getFreemarker().build("batches/jsonbatch.ftl", out);
   }
 
   @GET
   @Produces("text/csv;charset=UTF-8")
-  public StreamingOutput getCsv(
+  public StreamingOutput getCSV(
       @QueryParam("export") final String export) {
-    
     if (export.equalsIgnoreCase("errors")) {
-      return new StreamingOutput() {
-        
-        @Override
-        public void write(OutputStream output) throws IOException, WebApplicationException {
-          OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
-          CSVWriter csvWriter = new CSVWriter(writer);
-          csvWriter.writeNext(new String[] {
-            "Calculation configuration",
-            "Computation target unique id",
-            "Value name",
-            "Function unique id",
-            "Exception class",
-            "Exception msg",
-            "Stack trace"
-          });
-          
-          int page = 1;
-          int pageSize = 1000;
-          
-          while (true) {
-          
-            BatchErrorSearchRequest request = new BatchErrorSearchRequest();
-            request.setObservationDate(data().getBatch().getObservationDate());
-            request.setObservationTime(data().getBatch().getObservationTime());
-            request.setPagingRequest(PagingRequest.of(page, pageSize));
-            
-            BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(request);
-            for (BatchError entry : batchErrors.getItems()) {
-              csvWriter.writeNext(new String[] {
-                entry.getCalculationConfiguration(),
-                entry.getComputationTarget().getUniqueId().toString(),
-                entry.getValueName(), 
-                entry.getFunctionUniqueId(),
-                entry.getExceptionClass(),
-                entry.getExceptionMsg(),
-                entry.getStackTrace()
-              });
-            }
-            
-            if (batchErrors.getPaging().isLastPage()) {
-              break;            
-            }
-
-            page++;
-          }
-          
-          csvWriter.flush();
-          writer.flush();
-        }
-      };
+      return createErrorCsvOutput();
+    } else {
+      return createDataCsvOutput();
     }
-    
+  }
+
+  /**
+   * Creates the CSV output for the batch data.
+   * 
+   * @return the CSV output, not null
+   */
+  protected StreamingOutput createDataCsvOutput() {
     return new StreamingOutput() {
-      
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
         OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
@@ -184,20 +110,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
           "Value"
         });
         
-        int page = 1;
-        int pageSize = 1000;
-        
+        BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
+        request.setDataPagingRequest(PagingRequest.of(1, 1000));
+        request.setErrorPagingRequest(PagingRequest.NONE);
         while (true) {
-        
-          BatchDataSearchRequest request = new BatchDataSearchRequest();
-          request.setObservationDate(data().getBatch().getObservationDate());
-          request.setObservationTime(data().getBatch().getObservationTime());
-          request.setPagingRequest(PagingRequest.of(page, pageSize));
-          
-          BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
-          for (ViewResultEntry entry : batchResults.getItems()) {
+          BatchDocument batchDoc = data().getBatchMaster().get(request);
+          for (ViewResultEntry entry : batchDoc.getData()) {
             ComputedValue value = entry.getComputedValue();
-            
             csvWriter.writeNext(new String[] {
               entry.getCalculationConfiguration(),
               value.getSpecification().getTargetSpecification().getUniqueId().toString(),
@@ -206,14 +125,59 @@ public class WebBatchResource extends AbstractWebBatchResource {
               value.getValue().toString()
             });
           }
-          
-          if (batchResults.getPaging().isLastPage()) {
+          if (batchDoc.getDataPaging().isLastPage()) {
             break;            
           }
-
-          page++;
+          request.setDataPagingRequest(batchDoc.getDataPaging().nextPagingRequest());
         }
+        csvWriter.flush();
+        writer.flush();
+      }
+    };
+  }
+
+  /**
+   * Creates the CSV output for the batch errors.
+   * 
+   * @return the CSV output, not null
+   */
+  protected StreamingOutput createErrorCsvOutput() {
+    return new StreamingOutput() {
+      @Override
+      public void write(OutputStream output) throws IOException, WebApplicationException {
+        OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
+        CSVWriter csvWriter = new CSVWriter(writer);
+        csvWriter.writeNext(new String[] {
+          "Calculation configuration",
+          "Computation target unique id",
+          "Value name",
+          "Function unique id",
+          "Exception class",
+          "Exception msg",
+          "Stack trace"
+        });
         
+        BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
+        request.setDataPagingRequest(PagingRequest.NONE);
+        request.setErrorPagingRequest(PagingRequest.of(1, 1000));
+        while (true) {
+          BatchDocument batchDoc = data().getBatchMaster().get(request);
+          for (BatchError entry : batchDoc.getErrors()) {
+            csvWriter.writeNext(new String[] {
+              entry.getCalculationConfiguration(),
+              entry.getComputationTarget().getUniqueId().toString(),
+              entry.getValueName(), 
+              entry.getFunctionUniqueId(),
+              entry.getExceptionClass(),
+              entry.getExceptionMsg(),
+              entry.getStackTrace()
+            });
+          }
+          if (batchDoc.getErrorsPaging().isLastPage()) {
+            break;            
+          }
+          request.setErrorPagingRequest(batchDoc.getErrorsPaging().nextPagingRequest());
+        }
         csvWriter.flush();
         writer.flush();
       }
@@ -227,7 +191,11 @@ public class WebBatchResource extends AbstractWebBatchResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    out.put("batch", data().getBatch());
+    BatchDocument batchDoc = data().getBatch();
+    out.put("batch", batchDoc);
+    out.put("batchDoc", batchDoc);
+    out.put("resultPaging", new WebPaging(batchDoc.getDataPaging(), data().getUriInfo()));
+    out.put("errorPaging", new WebPaging(batchDoc.getErrorsPaging(), data().getUriInfo()));
     return out;
   }
 
@@ -238,15 +206,18 @@ public class WebBatchResource extends AbstractWebBatchResource {
    * @return the URI, not null
    */
   public static URI uri(final WebBatchData data) {
-    return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(
-        data.getBatch().getObservationDate(),
-        data.getBatch().getObservationTime());
+    return uri(data, null);
   }
 
-  public static URI uri(final WebBatchData data, final LocalDate date, final String observationTime) {
-    return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(
-        date,
-        observationTime);
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @param overrideBatchId  the override batch id, null uses information from data
+   * @return the URI, not null
+   */
+  public static URI uri(final WebBatchData data, final UniqueIdentifier overrideBatchId) {
+    String batchId = data.getBestBatchUriId(overrideBatchId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(batchId);
   }
 
 }

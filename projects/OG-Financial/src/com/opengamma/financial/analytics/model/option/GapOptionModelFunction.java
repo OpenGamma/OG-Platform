@@ -13,9 +13,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.GapOptionModel;
-import com.opengamma.financial.security.option.GapPayoffStyle;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * 
@@ -30,9 +28,13 @@ public class GapOptionModelFunction extends StandardOptionDataAnalyticOptionMode
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     final GapPayoffStyle payoff = (GapPayoffStyle) option.getPayoffStyle();
     return new GapOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL, payoff.getPayment());
+    */
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -40,7 +42,13 @@ public class GapOptionModelFunction extends StandardOptionDataAnalyticOptionMode
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof GapPayoffStyle) {
+      return true;
+    }
+    */
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;

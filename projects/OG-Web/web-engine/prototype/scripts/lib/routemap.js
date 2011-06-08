@@ -58,8 +58,7 @@
         parse = function (path) {
             // go with the first matching page (longest) or any pages with * rules
             var self = 'parse', pages = flat_pages.filter(function (val) { // add slash to paths so all vals match
-                    // .exec populates RegExp.$1 because .replace won't
-                    return slash_exp.exec(path), ~path.replace(slash_exp, RegExp.$1 + SL).indexOf(val);
+                    return ~path.replace(slash_exp, '$1' + SL).indexOf(val);
                 })
                 .filter(function (page, index) {
                     return !index || active_routes[page].some(function (val) {return !!val.rules.star;});
@@ -145,15 +144,15 @@
                     // construct the parameters
                     if (val.match(star_exp)) return (rules.star = RegExp.$2 || RegExp.$3), acc;
                     if (val.match(scalar_exp)) {
-                        if (!RegExp.$2 && acc.last_optional) // required scalars cannot follow optional scalars
+                        if (acc.has_optional_scalar) // no scalars can follow optional scalars
                             throw new SyntaxError(self + ': "' + val + '" cannot follow an optional rule');
-                        if (!!RegExp.$2) acc.last_optional = val;
+                        if (!!RegExp.$2) acc.has_optional_scalar = val;
                         return scalars.push({name: RegExp.$1, required: !RegExp.$2}), acc;
                     }
                     if (val.match(keyval_exp)) return keyvals.push({name: RegExp.$1, required: !RegExp.$2}), acc;
                     throw new SyntaxError(self + ': the rule "' + val + '" was not understood');
-                }, {page: [], rules: {scalars: [], keyvals: [], star: false}, last_optional: ''});
-                delete compiled_route.last_optional; // this is just a temporary value and should not be exposed
+                }, {page: [], rules: {scalars: [], keyvals: [], star: false}, has_optional_scalar: ''});
+                delete compiled_route.has_optional_scalar; // this is just a temporary value and should not be exposed
                 compiled_route.page = compiled_route.page.join(SL).replace(new RegExp(SL + '$'), '') || SL;
                 return memo[route] = compiled_route;
             };

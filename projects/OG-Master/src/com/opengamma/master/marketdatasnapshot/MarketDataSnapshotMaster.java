@@ -6,6 +6,7 @@
 package com.opengamma.master.marketdatasnapshot;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -13,7 +14,7 @@ import com.opengamma.util.PublicSPI;
  * <p>
  */
 @PublicSPI
-public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument> {
+public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>,  NotifyingMaster {
 
   /**
    * Searches for snasphots matching the specified search criteria.
@@ -23,4 +24,16 @@ public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnaps
    * @throws IllegalArgumentException if the request is invalid
    */
   MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request);
+
+  /**
+   * Queries the history of a single snapshot.
+   * <p>
+   * The request must contain an object identifier to identify the snapshot.
+   * 
+   * @param request  the history request, not null
+   * @return the snapshot history, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request);
+
 }

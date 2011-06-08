@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import javax.time.calendar.LocalDate;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -17,8 +18,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.future.IRFutureConvention;
-import com.opengamma.financial.instrument.future.IRFutureDefinition;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.util.time.DateUtil;
 
@@ -33,7 +32,7 @@ public class IRFutureDefinitionTest {
   private static final String NAME = "CONVENTION";
   private static final double YEAR_FRACTION = 0.25;
   private static final IRFutureConvention CONVENTION = new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, NAME);
-  private static final LocalDate DATE = LocalDate.of(2011, 2, 1);
+  private static final ZonedDateTime ZONED_DATE = DateUtil.getUTCDate(2011, 2, 1);
   private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2011, 3, 14);
   private static final ZonedDateTime MATURITY_DATE = DateUtil.getUTCDate(2011, 6, 15);
   private static final double RATE = 95;
@@ -78,7 +77,7 @@ public class IRFutureDefinitionTest {
   @Test
   public void testConversion() {
     final String name = "index";
-    final InterestRateFuture ir = DEFINITION.toDerivative(DATE, RATE, name);
+    final InterestRateFuture ir = DEFINITION.toDerivative(ZONED_DATE, RATE, name);
     assertEquals(ir.getCurveName(), name);
     assertEquals(ir.getFixingDate(), 41. / 360, 0);
     assertEquals(ir.getIndexYearFraction(), 93. / 360, 0);

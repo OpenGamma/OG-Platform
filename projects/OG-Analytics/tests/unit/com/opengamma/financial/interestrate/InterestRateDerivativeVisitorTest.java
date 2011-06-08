@@ -13,17 +13,29 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -302,16 +314,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond, Object data) {
-      return visit(bond, data);
-    }
-
-    @Override
-    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond) {
-      return visit(bond);
-    }
-
-    @Override
     public Class<?>[] visit(InterestRateDerivative[] derivative, Object data) {
       return visit(derivative, data);
     }
@@ -319,6 +321,136 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?>[] visit(InterestRateDerivative[] derivative) {
       return visit(derivative);
+    }
+
+    @Override
+    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, Object data) {
+      return visit(fra, data);
+    }
+
+    @Override
+    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra) {
+      return visit(fra);
+    }
+
+    @Override
+    public Class<?> visitCapFloorIbor(CapFloorIbor payment, Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCapFloorIbor(CapFloorIbor payment) {
+      return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureTransaction(InterestRateFutureTransaction future, Object data) {
+      return visit(future, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureTransaction(InterestRateFutureTransaction future) {
+      return visit(future);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity future, Object data) {
+      return visit(future, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity future) {
+      return visit(future);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitCouponIborGearing(CouponIborGearing payment, Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCouponIborGearing(CouponIborGearing payment) {
+      return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondIborSecurity(BondIborSecurity bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondIborTransaction(BondIborTransaction bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondIborSecurity(BondIborSecurity bond) {
+      return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitBondIborTransaction(BondIborTransaction bond) {
+      return visit(bond);
     }
   };
 

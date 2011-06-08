@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
@@ -45,11 +45,10 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyCode + "_FRA"));
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime startDate = security.getStartDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()
-        .toZonedDateTime()); // just in case
+    final ZonedDateTime startDate = security.getStartDate();
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currencyCode + "_FRA_CONVENTION");
-    return new FRADefinition(startDate, maturityDate, security.getRate(), convention);
+    return new FRADefinition(startDate, maturityDate, security.getRate() / 100, convention);
   }
 }

@@ -71,9 +71,8 @@ public class RemoteViewCycle implements ViewCycle {
   @Override
   public ComputationCacheResponse queryComputationCaches(ComputationCacheQuery computationCacheQuery) {
     ArgumentChecker.notNull(computationCacheQuery, "computationCacheQuery");
-    String msgBase64 = _client.encodeBean(computationCacheQuery);
-    URI uri = DataViewCycleResource.uriQuery(_baseUri, msgBase64);
-    return _client.access(uri).get(ComputationCacheResponse.class);
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_QUERY_CACHES).build();
+    return _client.access(uri).post(ComputationCacheResponse.class, computationCacheQuery);
   }
 
 }

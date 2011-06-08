@@ -5,29 +5,18 @@
  */
 package com.opengamma.web.json;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.wire.FudgeMsgReader;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.json.FudgeJSONStreamReader;
-import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.beust.jcommander.internal.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -37,19 +26,15 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Custom JSON builder to convert ViewDefinition to JSON object and vice versa
+ * Custom JSON builder to convert ViewDefinition to JSON object and back again
  */
-public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefinition> {
-  
-  private static final String FUDGE_ENVELOPE = "fudgeEnvelope";
-  private static final String NAME_FIELD = "name";
+public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
+ 
   private static final String IDENTIFIER_FIELD = "identifier";
-  private static final String UNIQUE_IDENTIFIER_FIELD = "unique";
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
@@ -67,11 +52,8 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
+  private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   
-  private static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
-  private FudgeSerializationContext _serialization = new FudgeSerializationContext(FUDGE_CONTEXT);
-  private FudgeDeserializationContext _deserialization = new FudgeDeserializationContext(FUDGE_CONTEXT);
-
   /**
    * Creates an instance
    */
@@ -79,12 +61,12 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   }
 
   @Override
-  public ViewDefinition fromJSON(String json) {
+  public ViewDefinition fromJSON(final String json) {
     ArgumentChecker.notNull(json, "JSON document");
     
     ViewDefinition viewDefinition = null;
     try {
-      JSONObject viewJSON = new JSONObject(json).getJSONObject(FUDGE_ENVELOPE);
+      JSONObject viewJSON = new JSONObject(json);
       UniqueIdentifier portfolioIdentifier = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
         portfolioIdentifier = convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(IDENTIFIER_FIELD));
@@ -149,11 +131,14 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
           if (calcConfigJSON.opt(DEFAULT_PROPERTIES_FIELD) != null) {
             calcConfig.setDefaultProperties(convertJsonToObject(ValueProperties.class, calcConfigJSON.getJSONObject(DEFAULT_PROPERTIES_FIELD)));
           }
+          if (calcConfigJSON.opt(RESOLUTION_RULE_TRANSFORM_FIELD) != null) {
+            calcConfig.setResolutionRuleTransform(convertJsonToObject(ResolutionRuleTransform.class, calcConfigJSON.getJSONObject(RESOLUTION_RULE_TRANSFORM_FIELD)));
+          }
           viewDefinition.addViewCalculationConfiguration(calcConfig);
         }
       }
-      if (viewJSON.opt(UNIQUE_IDENTIFIER_FIELD) != null) {
-        viewDefinition.setUniqueId(convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(UNIQUE_IDENTIFIER_FIELD)));
+      if (viewJSON.opt(UNIQUE_ID_FIELD) != null) {
+        viewDefinition.setUniqueId(convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(UNIQUE_ID_FIELD)));
       }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create ViewDefinition", ex);
@@ -161,23 +146,12 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
     return viewDefinition;
   }
   
-  private <T> T convertJsonToObject(Class<T> clazz, JSONObject json) {
-    FudgeMsg fudgeMsg = convertJSONToFudgeMsg(json);
-    return _deserialization.fudgeMsgToObject(clazz, fudgeMsg);
-  }
-
-  private FudgeMsg convertJSONToFudgeMsg(final JSONObject uniqueIdentifier) {
-    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeJSONStreamReader(FUDGE_CONTEXT, new StringReader(uniqueIdentifier.toString())));
-    FudgeMsg fudgeMsg = fmr.nextMessage();
-    return fudgeMsg;
-  }
-
   @Override
-  public String toJSON(ViewDefinition viewDefinition) {
+  public String toJSON(final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
-    JSONObject result = new JSONObject();
     JSONObject jsonObject = new JSONObject();
     try {
+      jsonObject.put(String.valueOf(0), ViewDefinition.class.getName());
       jsonObject.put(NAME_FIELD, viewDefinition.getName());
       if (viewDefinition.getPortfolioId() != null) {
         jsonObject.put(IDENTIFIER_FIELD, toJSONObject(viewDefinition.getPortfolioId()));
@@ -233,44 +207,19 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
         }
         calcConfigJSON.put(DELTA_DEFINITION_FIELD, toJSONObject(calcConfig.getDeltaDefinition()));
         calcConfigJSON.put(DEFAULT_PROPERTIES_FIELD, toJSONObject(calcConfig.getDefaultProperties()));
+        calcConfigJSON.put(RESOLUTION_RULE_TRANSFORM_FIELD, toJSONObject(calcConfig.getResolutionRuleTransform(), false));
         calConfigJSONList.add(calcConfigJSON);
       }  
       if (!calConfigJSONList.isEmpty()) {
         jsonObject.put(CALCULATION_CONFIGURATION_FIELD, calConfigJSONList);
       }
-      jsonObject.put(UNIQUE_IDENTIFIER_FIELD, toJSONObject(viewDefinition.getUniqueId()));
-      
-      result.put(FUDGE_ENVELOPE, jsonObject);
-      
+      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(viewDefinition.getUniqueId()));
+            
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
     
-    return result.toString();
+    return jsonObject.toString();
   }
-
-  private JSONObject toJSONObject(Object obj) throws JSONException {
-    MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
-    StringWriter buf = new StringWriter(1024);  
-    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(FUDGE_CONTEXT, buf));
-    writer.writeMessage(removeRedundantFields(fudgeMsg));
-    JSONObject jsonObject = new JSONObject(buf.toString());
-    return jsonObject;
-  }
-
-  private FudgeMsg removeRedundantFields(final FudgeMsg message) {
-    MutableFudgeMsg result = FUDGE_CONTEXT.newMessage();
-    for (FudgeField fudgeField : message) {
-      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != 0)) {
-        if (fudgeField.getValue() instanceof FudgeMsg) {
-          FudgeMsg subMsg = (FudgeMsg) fudgeField.getValue();
-          subMsg = removeRedundantFields(subMsg);
-          result.add(fudgeField.getName(), subMsg);
-        } else {
-          result.add(fudgeField);
-        }
-      }
-    }
-    return result;
-  }
+  
 }

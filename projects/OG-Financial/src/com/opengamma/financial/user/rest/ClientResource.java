@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
+import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
 import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
 import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
@@ -22,6 +23,7 @@ import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
 import com.opengamma.financial.user.UserPortfolioMaster;
 import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
+import com.opengamma.financial.user.UserSnapshotMaster;
 import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
 
 /**
@@ -52,6 +54,10 @@ public class ClientResource {
    */
   public static final String INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH = "interpolatedYieldCurveDefinitions";
   /**
+   * The path used to retrieve user snapshots
+   */
+  public static final String MARKET_DATA_SNAPSHOTS_PATH = "snapshots";
+  /**
    * The path used to signal a heartbeat if no actual transactions are being done
    */
   public static final String HEARTBEAT_PATH = "heartbeat";
@@ -65,6 +71,7 @@ public class ClientResource {
   private SecurityMasterResource _securitiesResource;
   private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
   private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
+  private MarketDataSnapshotMasterResource _snapshotMaster;
 
   /**
    * Contains the timestamp of the last time a resource was requested.
@@ -166,6 +173,17 @@ public class ClientResource {
     return _interpolatedYieldCurveDefinitionsResource;
   }
 
+  @Path(MARKET_DATA_SNAPSHOTS_PATH)
+  public MarketDataSnapshotMasterResource getSnapshots() {
+    _lastAccessed = System.currentTimeMillis();
+    if (_snapshotMaster == null) {
+      s_logger.debug("Creating UserSnapshotMaster for {}/{}", getUserName(), getClientName());
+      UserSnapshotMaster userMaster = new UserSnapshotMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getSnapshotMaster());
+      _snapshotMaster = new MarketDataSnapshotMasterResource(userMaster, _usersResourceContext.getFudgeContext());
+    }
+    return _snapshotMaster;
+  }
+  
   @POST
   @Path(HEARTBEAT_PATH)
   public void heartbeat() {

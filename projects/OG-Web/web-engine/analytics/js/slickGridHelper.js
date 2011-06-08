@@ -28,8 +28,6 @@
       _grid.onColumnsResized = onColumnsResized;
       _dataView.onRowCountChanged.subscribe(onDataViewRowCountChanged);
       _dataView.onRowsChanged.subscribe(onDataViewRowsChanged);
-      
-      $(window).resize(handleWindowResized);
     }
     
     //-----------------------------------------------------------------------
@@ -81,11 +79,6 @@
       _scrollUpdateRequestTimerId = -1;
       self.afterViewportStable.fire();
     }
-    
-    function handleWindowResized() {
-      _grid.resizeCanvas();
-      self.afterViewportStable.fire();
-    }
 
     //-----------------------------------------------------------------------
     // Public API
@@ -123,33 +116,43 @@
         }
         gridRow.dataReceived = true;
         var detailComponents = gridRow.detailComponents;
+        var explainComponents = gridRow.explainComponents;
         for (var columnIdx in columns) {
           var column = columns[columnIdx];
           var latestValue = row[column.colId];
           if (!latestValue) {
             continue;
           }
-          if (column.typeFormatter.supportsHistory) {
-            if (!gridRow[column.colId]) {
-              gridRow[column.colId] = {};
-            }
-            gridRow[column.colId].display = latestValue.display;
-            // Push the history in
-            if (!gridRow[column.colId].history) {
-              gridRow[column.colId].history = new Array();
-            }
-            gridRow[column.colId].history = gridRow[column.colId].history.concat(latestValue.history);
-            var historyCount = gridRow[column.colId].history.length;
-            if (gridRow[column.colId].history.length > 20) {
-              gridRow[column.colId].history = gridRow[column.colId].history.slice(historyCount - 20);
-            }
-          } else {
-            // No history, so just replace the value
-            gridRow[column.colId] = latestValue;
-          }
-          
           if (detailComponents && detailComponents[column.colId]) {
-            detailComponents[column.colId].updateValue(latestValue);
+            detailComponents[column.colId].updateValue(latestValue.v);
+          }
+          if (explainComponents && explainComponents[column.colId]) {
+            explainComponents[column.colId].updateValue(latestValue.dg);
+          }
+          if (latestValue.dg && !latestValue.v) {
+            // Row is out of viewport
+            continue;
+          }
+          var formatter = ColumnFormatter.getFormatterForCell(column, latestValue.t);
+          if (!gridRow[column.colId]) {
+            gridRow[column.colId] = {};
+          }
+          if (latestValue.t) {
+            gridRow[column.colId].t = latestValue.t;
+          }
+          gridRow[column.colId].v = latestValue.v;
+          if (formatter.supportsHistory) {
+            // Push the history in
+            if (!gridRow[column.colId].h) {
+              gridRow[column.colId].h = new Array();
+            }
+            if (latestValue.h) {
+              gridRow[column.colId].h = gridRow[column.colId].h.concat(latestValue.h);
+              var historyCount = gridRow[column.colId].h.length;
+              if (gridRow[column.colId].h.length > 20) {
+                gridRow[column.colId].h = gridRow[column.colId].h.slice(historyCount - 20);
+              }
+            }
           }
         }
         _dataView.updateItem(row.rowId, gridRow);
@@ -164,8 +167,12 @@
       reloadViewportData();
     }
     
+    this.handleContainerResized = function() {
+      _grid.resizeCanvas();
+      self.afterViewportStable.fire();
+    }
+    
     this.destroy = function() {
-      $(window).unbind('resize', handleWindowResized);
       _grid.onViewportChanged = null;
       _grid.onColumnsReordered = null;
       _grid.onColumnsResized = null;
@@ -192,15 +199,9 @@
   //-----------------------------------------------------------------------
   // Static API
     
-  SlickGridHelper.makeGridColumns = function(viewer, titleColumnName, titleColumnKey, titleColumnFormatter, columns, userConfig) {
+  SlickGridHelper.makeGridColumns = function(viewer, titleColumn, columns, userConfig) {
     var gridColumns = [];
-    gridColumns.push({
-      id : titleColumnKey,
-      name : titleColumnName,
-      field : titleColumnKey,
-      width : 450,
-      formatter : titleColumnFormatter
-    });
+    gridColumns.push(titleColumn);
     if (columns) {
       for (colId in columns) {
         var column = columns[colId];
@@ -210,13 +211,30 @@
           name : column.header,
           toolTip: column.description,
           field : column.colId,
-          width : 150, 
+          width : column.width ? column.width : 150, 
           formatter: formatter.formatCell,
           asyncPostRender: formatter.postRender
         });
       }
     }
     return gridColumns;
+  }
+  
+  SlickGridHelper.formatCellWithToggle = function(rows, rowIndex, dataContext, value) {
+    var indent = dataContext["indent"];
+    var isCollapsed = dataContext._collapsed;
+    var html = "<span style='display:inline-block;height:1px;width:" + (15 * indent) + "px'></span>";
+    if (rows[rowIndex + 1] && rows[rowIndex + 1].indent > rows[rowIndex].indent) {
+      if (isCollapsed) {
+        html += "<span class='toggle expand'></span>";
+      } else {
+        html += "<span class='toggle collapse'></span>";
+      }
+    } else {
+      html += "<span class='toggle'></span>";
+    }
+    html += "<span class='cell-title'>" + value + "</span>";
+    return html;
   }
 
   $.extend(true, window, {

@@ -476,6 +476,52 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
       //do nothing
     }
   }
+  
+  @Test
+  public void addMultipleWithDateNulls() throws Exception {
+    
+    IdentifierWithDates edu0 = IdentifierWithDates.of(Identifier.of("BBG", "EDU0"), LocalDate.of(2010, 9, 14), LocalDate.of(2020, 9, 14));
+    IdentifierWithDates edu20 = IdentifierWithDates.of(Identifier.of("BBG", "EDU20"), LocalDate.of(2010, 9, 15), null);
+    IdentifierWithDates cusip = IdentifierWithDates.of(Identifier.of("CUSIP", "EDU0"), LocalDate.of(2010, 9, 14), LocalDate.of(2020, 9, 14));
+    IdentifierWithDates buid = IdentifierWithDates.of(Identifier.of("BUID", "IX-1234"), null, null);
+    
+    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(edu0, edu20, cusip, buid);
+    
+    DoubleTimeSeries<T> ts = makeRandomTimeSeries(7);
+    TimeSeriesDocument<T> tsDoc = createTimeSeries("PX_LAST", "CMPL", "BBG", bundle, ts);
+    assertNotNull(tsDoc);
+    TimeSeriesDocument<T> loadedTs = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertEquals(loadedTs.getTimeSeries(), ts);
+    
+    ts = makeRandomTimeSeries(7);
+    tsDoc = createTimeSeries("VOLUME", "CMPL", "BBG", bundle, ts);
+    assertNotNull(tsDoc);
+    loadedTs = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertEquals(loadedTs.getTimeSeries(), ts); 
+  }
+  
+  @Test
+  public void addMultipleWithNullDates() throws Exception {
+    
+    IdentifierWithDates edu0 = IdentifierWithDates.of(Identifier.of("BBG", "EDU0"), null, LocalDate.of(2020, 9, 14));
+    IdentifierWithDates edu20 = IdentifierWithDates.of(Identifier.of("BBG", "EDU20"), LocalDate.of(2010, 9, 15), null);
+    IdentifierWithDates cusip = IdentifierWithDates.of(Identifier.of("CUSIP", "EDU0"), LocalDate.of(2010, 9, 14), LocalDate.of(2020, 9, 14));
+    IdentifierWithDates buid = IdentifierWithDates.of(Identifier.of("BUID", "IX-1234"), null, null);
+    
+    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(edu0, edu20, cusip, buid);
+    
+    DoubleTimeSeries<T> ts = makeRandomTimeSeries(7);
+    TimeSeriesDocument<T> tsDoc = createTimeSeries("PX_LAST", "CMPL", "BBG", bundle, ts);
+    assertNotNull(tsDoc);
+    TimeSeriesDocument<T> loadedTs = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertEquals(loadedTs.getTimeSeries(), ts);
+    
+    ts = makeRandomTimeSeries(7);
+    tsDoc = createTimeSeries("VOLUME", "CMPL", "BBG", bundle, ts);
+    assertNotNull(tsDoc);
+    loadedTs = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertEquals(loadedTs.getTimeSeries(), ts); 
+  }
 
   /**
    * @param identifiers

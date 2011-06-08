@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class FailureReason {
   
@@ -50,18 +50,18 @@ public class FailureReason {
   }
   
   public static String sqlInsertRiskFailureReason() {
-    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason " +
+    return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_failure_reason " +
               "(id, rsk_failure_id, compute_failure_id) " +
             "VALUES " +
               "(:id, :rsk_failure_id, :compute_failure_id)";
   }
   
   public static String sqlDeleteRiskFailureReasons() {
-    return "DELETE FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason WHERE rsk_failure_id in (SELECT id FROM rsk_failure WHERE run_id = :run_id)";
+    return "DELETE FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_failure_reason WHERE rsk_failure_id in (SELECT id FROM rsk_failure WHERE run_id = :run_id)";
   }
   
   public static String sqlCount() {
-    return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason";
+    return "SELECT COUNT(*) FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_failure_reason";
   }
 
 }

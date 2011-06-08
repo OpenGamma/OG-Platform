@@ -15,7 +15,7 @@ import com.opengamma.math.function.Function1D;
 * For a function <i>y = f(x)</i> where <i>x</i> and <i>y</i> are scalars, this class produces a gradient function <i>g(x)</i>, 
 * i.e. a function that returns the gradient for each point <i>x</i>, where <i>g</i> is the scalar {@latex.inline $\\frac{dy}{dx}$}.
 */
-public class ScalarFirstOrderDifferentiator implements Derivative<Double, Double, Double> {
+public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Double, Double> {
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
   private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
@@ -56,7 +56,7 @@ public class ScalarFirstOrderDifferentiator implements Derivative<Double, Double
   }
 
   @Override
-  public Function1D<Double, Double> derivative(final Function1D<Double, Double> function) {
+  public Function1D<Double, Double> differentiate(final Function1D<Double, Double> function) {
     Validate.notNull(function);
     switch (_differenceType) {
       case FORWARD:

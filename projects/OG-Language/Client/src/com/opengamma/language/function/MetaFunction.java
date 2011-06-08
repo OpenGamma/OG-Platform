@@ -47,8 +47,18 @@ public class MetaFunction extends Definition {
     setReturnCount(returnCount);
   }
 
+  protected MetaFunction(final MetaFunction copyFrom) {
+    super(copyFrom);
+    _invoker = copyFrom.getInvoker();
+  }
+
   public FunctionInvoker getInvoker() {
     return _invoker;
+  }
+
+  @Override
+  public MetaFunction clone() {
+    return new MetaFunction(this);
   }
 
 }

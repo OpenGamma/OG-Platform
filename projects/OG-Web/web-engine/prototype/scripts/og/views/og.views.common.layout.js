@@ -1,3 +1,7 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
 $.register_module({
     name: 'og.views.common.layout',
     dependencies: [],
@@ -9,7 +13,7 @@ $.register_module({
             }
             if (layout === 'default') {
                 $('#OG-details, #OG-sr').show();
-                $('#OG-analytics').hide();
+                $('#OG-analytics').hide().find('.og-main').empty();
             }
         }
     }

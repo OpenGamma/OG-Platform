@@ -10,21 +10,23 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
+import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 
 /**
  * Describes a generic single currency bond transaction. 
  * @param <C> The coupon type.
  */
-public abstract class BondTransactionDefinition<C extends CouponDefinition> implements FixedIncomeInstrumentDefinition<BondTransaction<? extends Payment>> {
+public abstract class BondTransactionDefinition<C extends CouponDefinition> implements FixedIncomeInstrumentConverter<BondTransaction<? extends BondSecurity<? extends Payment>>> {
 
   /**
    * The bond underlying the transaction.
    */
-  private final BondDescriptionDefinition<C> _underlyingBond;
+  private final BondSecurityDefinition<C> _underlyingBond;
   /**
    * The number of bonds purchased (can be negative or positive).
    */
@@ -34,6 +36,10 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    */
   private final ZonedDateTime _settlementDate;
   /**
+   * The ex-coupon date associated to the settlement date, i.e. ex-coupon days after settlement date.
+   */
+  private final ZonedDateTime _settlementExCouponDate;
+  /**
    * The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
   private final double _price;
@@ -42,11 +48,11 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    */
   private final double _paymentAmount;
   /**
-   * The coupon index of the transaction settlement date.
+   * The coupon index of the transaction settlement date. Take the ex-coupon period into account.
    */
   private int _couponIndex;
   /**
-   * Previous accrual date.
+   * Previous accrual date. Take the ex-coupon period into account.
    */
   private final ZonedDateTime _previousAccrualDate;
   /**
@@ -61,16 +67,17 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    * @param settlementDate Transaction settlement date.
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondTransactionDefinition(BondDescriptionDefinition<C> underlyingBond, double quantity, ZonedDateTime settlementDate, double price) {
+  public BondTransactionDefinition(final BondSecurityDefinition<C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     Validate.notNull(underlyingBond, "Underlying bond");
     Validate.notNull(settlementDate, "Settlement date");
     this._underlyingBond = underlyingBond;
     this._quantity = quantity;
     this._settlementDate = settlementDate;
+    _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getCalendar(), _underlyingBond.getExCouponDays());
     this._price = price;
-    int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
+    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (underlyingBond.getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(settlementDate)) {
+      if (underlyingBond.getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementExCouponDate)) {
         _couponIndex = loopcpn;
         break;
       }
@@ -85,7 +92,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    * Gets the bond underlying the transaction.
    * @return The underlying Bond.
    */
-  public BondDescriptionDefinition<C> getUnderlyingBond() {
+  public BondSecurityDefinition<C> getUnderlyingBond() {
     return _underlyingBond;
   }
 
@@ -98,11 +105,19 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
   }
 
   /**
-   * Gets the _settlementDate field.
-   * @return the _settlementDate
+   * Gets the settlement date.
+   * @return The settlement date.
    */
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
+  }
+
+  /**
+   * Gets the ex-coupon date associated to the settlement date, i.e. ex-coupon days before settlement date.
+   * @return The ex-coupon date.
+   */
+  public ZonedDateTime getSettlementExCouponDate() {
+    return _settlementExCouponDate;
   }
 
   /**
@@ -160,7 +175,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -170,7 +185,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondTransactionDefinition<?> other = (BondTransactionDefinition<?>) obj;
+    final BondTransactionDefinition<?> other = (BondTransactionDefinition<?>) obj;
     if (Double.doubleToLongBits(_price) != Double.doubleToLongBits(other._price)) {
       return false;
     }

@@ -35,6 +35,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -45,6 +46,7 @@ import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * RESTful resource for all time series.
@@ -143,27 +145,27 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     
     FlexiBean out = createRootData();
     LocalDate startDate = null;
-    boolean invalidStartDate = false;
+    boolean validStartDate = true;
     if (start != null) {
       try {
         startDate = LocalDate.parse(start);
       } catch (CalendricalException e) {
         out.put("err_startInvalid", true);
-        invalidStartDate = true;
+        validStartDate = false;
       }
     }
     LocalDate endDate = null;
-    boolean invalidEndDate = false;
+    boolean validEndDate = true;
     if (end != null) {
       try {
         endDate = LocalDate.parse(end);
       } catch (CalendricalException e) {
         out.put("err_endInvalid", true);
-        invalidEndDate = true;
+        validEndDate = false;
       }
     }
     
-    if (dataField == null || idValue == null || invalidStartDate || invalidEndDate) {
+    if (dataField == null || idValue == null || !validStartDate || !validEndDate) {
       //data for repopulating the form
       out.put("scheme", idScheme);
       out.put("dataField", dataField);
@@ -182,27 +184,84 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
       return Response.ok(html).build();
     }
     
+    URI uri = addTimeSeries(dataProvider, dataField, idScheme, idValue, startDate, endDate);
+    return Response.seeOther(uri).build();
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(
+      @FormParam("dataProvider") String dataProvider,
+      @FormParam("dataField") String dataField,
+      @FormParam("start") String start,
+      @FormParam("end") String end,
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
+    
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    dataField = StringUtils.trimToNull(dataField);
+    start = StringUtils.trimToNull(start);
+    end = StringUtils.trimToNull(end);
+    dataProvider = StringUtils.trimToNull(dataProvider);
+    
+    LocalDate startDate = null;
+    boolean validStartDate = true;
+    if (start != null) {
+      try {
+        startDate = LocalDate.parse(start);
+        validStartDate = true;
+      } catch (CalendricalException e) {
+        validStartDate = false;
+      }
+    }
+    LocalDate endDate = null;
+    boolean validEndDate = true;
+    if (end != null) {
+      try {
+        endDate = LocalDate.parse(end);
+        validEndDate = true;
+      } catch (CalendricalException e) {
+        validEndDate = false;
+      }
+    }
+    
+    if (dataField == null || idValue == null || !validStartDate || !validEndDate) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    
+    URI uri = addTimeSeries(dataProvider, dataField, idScheme, idValue, startDate, endDate);
+    return Response.created(uri).build();
+  }
+
+  private URI addTimeSeries(String dataProvider, String dataField, String idScheme, String idValue, LocalDate startDate, LocalDate endDate) {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Set<Identifier> identifiers = buildSecurityRequest(scheme, idValue);
     TimeSeriesLoader timeSeriesLoader = data().getTimeSeriesLoader();
-    Map<Identifier, UniqueIdentifier> added = timeSeriesLoader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
-    
-    URI uri = null;
-    if (identifiers.size() == 1) {
-      Identifier requestIdentifier = identifiers.iterator().next();
-      UniqueIdentifier uid = added.get(requestIdentifier);
-      if (uid != null) {
-        uri = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
-      } else {
-        uri = uri(data());
-        s_logger.warn("No timeseries added for {} ", requestIdentifier);
-      }
-    } else {
-      uri = uri(data(), identifiers);
+    Map<Identifier, UniqueIdentifier> added = Maps.newHashMap();
+    if (!identifiers.isEmpty()) {
+      added = timeSeriesLoader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
-    return Response.seeOther(uri).build();
+    
+    URI result = null;
+    if (!identifiers.isEmpty()) {
+      if (identifiers.size() == 1) {
+        Identifier requestIdentifier = identifiers.iterator().next();
+        UniqueIdentifier uid = added.get(requestIdentifier);
+        if (uid != null) {
+          result = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+        } else {
+          s_logger.warn("No timeseries added for {} ", requestIdentifier);
+          result = uri(data());
+        }
+      } else {
+        result = uri(data(), identifiers);
+      }
+    } 
+    return result;
   }
-
+  
   private Set<Identifier> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
     if (idValue == null) {
       return Collections.emptySet();

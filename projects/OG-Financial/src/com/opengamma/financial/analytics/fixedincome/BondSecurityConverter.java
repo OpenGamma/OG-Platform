@@ -28,7 +28,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -43,7 +43,7 @@ import com.opengamma.id.Identifier;
 /**
  * 
  */
-public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondSecurityConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
@@ -87,7 +87,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate datedDate = security.getInterestAccrualDate().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     DayCount daycount = security.getDayCountConvention();
     //TODO remove this when the bonds load correctly
@@ -114,7 +114,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
     LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
-    if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+    if (schedule[0].equals(security.getFirstCouponDate().toLocalDate())) {
       final int n = schedule.length;
       final LocalDate[] temp = new LocalDate[n + 1];
       temp[0] = datedDate;
@@ -123,8 +123,8 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
       }
       schedule = temp;
     }
-    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.info("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toLocalDate())) {
+      s_logger.info("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toLocalDate());
     }
     return schedule;
   }

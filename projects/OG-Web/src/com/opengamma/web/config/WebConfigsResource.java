@@ -6,6 +6,7 @@
 package com.opengamma.web.config;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -25,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -63,8 +65,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
+      @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
   }
 
@@ -75,13 +78,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
+      @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
-  private FlexiBean search(int page, int pageSize, String name, String type, UriInfo uriInfo) {
+  private FlexiBean search(int page, int pageSize, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -97,14 +101,17 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);
-        
+    for (String configIdStr : configIdStrs) {
+      searchRequest.addConfigId(ObjectIdentifier.parse(configIdStr));
+    }
+    
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       ConfigSearchResult<Object> searchResult = null;
       if (searchRequest.getType() != null) {
         searchResult = data().getConfigMaster().search(searchRequest);
       } else {
         searchResult = new ConfigSearchResult<Object>();
-        searchResult.setPaging(Paging.of(searchResult.getDocuments(), searchRequest.getPagingRequest()));
+        searchResult.setPaging(Paging.of(searchRequest.getPagingRequest(), searchResult.getDocuments()));
       }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
@@ -146,19 +153,41 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response postJSON(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configJSON") String json,
+      @FormParam("configXML") String xml) {
     name = StringUtils.trimToNull(name);
+    json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
-      return Response.status(Status.BAD_REQUEST).build();
+    Response result = null;
+    if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
+      result = Response.status(Status.BAD_REQUEST).build();
+    } else {
+      Pair<Object, Class<?>> typedValue = null;
+      if (json != null) {
+        typedValue = parseJSON(json);
+      } else if (xml != null) {
+        typedValue = parseXML(xml);
+      }
+      if (typedValue == null) {
+        result = Response.status(Status.BAD_REQUEST).build();
+      } else {
+        ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+        doc.setName(name);
+        doc.setValue(typedValue.getFirst());
+        ConfigDocument<?> added = data().getConfigMaster().add(doc);
+        URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+        result = Response.created(uri).build();
+      }
     }
-    final Pair<Object, Class<?>> typedValue = parseXML(xml);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
-    doc.setName(name);
-    doc.setValue(typedValue.getFirst());
-    ConfigDocument<?> added = data().getConfigMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.created(uri).build();
+    return result;
+  }
+
+  private boolean isEmptyConfigData(String json, String xml) {
+    return (json == null && xml == null);
+  }
+
+  private boolean isEmptyName(String name) {
+    return name == null;
   }
 
   //-------------------------------------------------------------------------

@@ -5,36 +5,49 @@
  */
 package com.opengamma.web.bundle;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Bean to capture YUICompressor options
+ * Bean to capture YUICompressor options.
  */
 @BeanDefinition
 public class YUICompressorOptions extends DirectBean {
-  
+
+  /**
+   * The line break position.
+   */
   @PropertyDefinition
   private int _lineBreakPosition;
-  
+  /**
+   * The munge flag.
+   */
   @PropertyDefinition
   private boolean _munge;
-  
+  /**
+   * The preserve semi-colon flag.
+   */
   @PropertyDefinition
   private boolean _preserveAllSemiColons;
-  
+  /**
+   * The optimize flag.
+   */
   @PropertyDefinition
   private boolean _optimize;
-  
+  /**
+   * The warn flag.
+   */
   @PropertyDefinition
   private boolean _warn;
 
@@ -92,9 +105,36 @@ public class YUICompressorOptions extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      YUICompressorOptions other = (YUICompressorOptions) obj;
+      return JodaBeanUtils.equal(getLineBreakPosition(), other.getLineBreakPosition()) &&
+          JodaBeanUtils.equal(isMunge(), other.isMunge()) &&
+          JodaBeanUtils.equal(isPreserveAllSemiColons(), other.isPreserveAllSemiColons()) &&
+          JodaBeanUtils.equal(isOptimize(), other.isOptimize()) &&
+          JodaBeanUtils.equal(isWarn(), other.isWarn());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLineBreakPosition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isMunge());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPreserveAllSemiColons());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isOptimize());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isWarn());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
-   * Gets the lineBreakPosition.
+   * Gets the line break position.
    * @return the value of the property
    */
   public int getLineBreakPosition() {
@@ -102,7 +142,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the lineBreakPosition.
+   * Sets the line break position.
    * @param lineBreakPosition  the new value of the property
    */
   public void setLineBreakPosition(int lineBreakPosition) {
@@ -119,7 +159,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the munge.
+   * Gets the munge flag.
    * @return the value of the property
    */
   public boolean isMunge() {
@@ -127,7 +167,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the munge.
+   * Sets the munge flag.
    * @param munge  the new value of the property
    */
   public void setMunge(boolean munge) {
@@ -144,7 +184,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the preserveAllSemiColons.
+   * Gets the preserve semi-colon flag.
    * @return the value of the property
    */
   public boolean isPreserveAllSemiColons() {
@@ -152,7 +192,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the preserveAllSemiColons.
+   * Sets the preserve semi-colon flag.
    * @param preserveAllSemiColons  the new value of the property
    */
   public void setPreserveAllSemiColons(boolean preserveAllSemiColons) {
@@ -169,7 +209,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optimize.
+   * Gets the optimize flag.
    * @return the value of the property
    */
   public boolean isOptimize() {
@@ -177,7 +217,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the optimize.
+   * Sets the optimize flag.
    * @param optimize  the new value of the property
    */
   public void setOptimize(boolean optimize) {
@@ -194,7 +234,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the warn.
+   * Gets the warn flag.
    * @return the value of the property
    */
   public boolean isWarn() {
@@ -202,7 +242,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the warn.
+   * Sets the warn flag.
    * @param warn  the new value of the property
    */
   public void setWarn(boolean warn) {
@@ -221,7 +261,7 @@ public class YUICompressorOptions extends DirectBean {
   /**
    * The meta-bean for {@code YUICompressorOptions}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -230,42 +270,65 @@ public class YUICompressorOptions extends DirectBean {
     /**
      * The meta-property for the {@code lineBreakPosition} property.
      */
-    private final MetaProperty<Integer> _lineBreakPosition = DirectMetaProperty.ofReadWrite(this, "lineBreakPosition", Integer.TYPE);
+    private final MetaProperty<Integer> _lineBreakPosition = DirectMetaProperty.ofReadWrite(
+        this, "lineBreakPosition", YUICompressorOptions.class, Integer.TYPE);
     /**
      * The meta-property for the {@code munge} property.
      */
-    private final MetaProperty<Boolean> _munge = DirectMetaProperty.ofReadWrite(this, "munge", Boolean.TYPE);
+    private final MetaProperty<Boolean> _munge = DirectMetaProperty.ofReadWrite(
+        this, "munge", YUICompressorOptions.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code preserveAllSemiColons} property.
      */
-    private final MetaProperty<Boolean> _preserveAllSemiColons = DirectMetaProperty.ofReadWrite(this, "preserveAllSemiColons", Boolean.TYPE);
+    private final MetaProperty<Boolean> _preserveAllSemiColons = DirectMetaProperty.ofReadWrite(
+        this, "preserveAllSemiColons", YUICompressorOptions.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code optimize} property.
      */
-    private final MetaProperty<Boolean> _optimize = DirectMetaProperty.ofReadWrite(this, "optimize", Boolean.TYPE);
+    private final MetaProperty<Boolean> _optimize = DirectMetaProperty.ofReadWrite(
+        this, "optimize", YUICompressorOptions.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code warn} property.
      */
-    private final MetaProperty<Boolean> _warn = DirectMetaProperty.ofReadWrite(this, "warn", Boolean.TYPE);
+    private final MetaProperty<Boolean> _warn = DirectMetaProperty.ofReadWrite(
+        this, "warn", YUICompressorOptions.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "lineBreakPosition",
+        "munge",
+        "preserveAllSemiColons",
+        "optimize",
+        "warn");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("lineBreakPosition", _lineBreakPosition);
-      temp.put("munge", _munge);
-      temp.put("preserveAllSemiColons", _preserveAllSemiColons);
-      temp.put("optimize", _optimize);
-      temp.put("warn", _warn);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public YUICompressorOptions createBean() {
-      return new YUICompressorOptions();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1489046604:  // lineBreakPosition
+          return _lineBreakPosition;
+        case 104258340:  // munge
+          return _munge;
+        case -1613870185:  // preserveAllSemiColons
+          return _preserveAllSemiColons;
+        case -79080739:  // optimize
+          return _optimize;
+        case 3641990:  // warn
+          return _warn;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends YUICompressorOptions> builder() {
+      return new DirectBeanBuilder<YUICompressorOptions>(new YUICompressorOptions());
     }
 
     @Override

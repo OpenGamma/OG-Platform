@@ -110,9 +110,9 @@ public class CommandLineBatchJob {
   private PositionSource _positionSource;
 
   /**
-   * Used to write stuff to the batch database
+   * Used to write stuff to the batch database.
    */
-  private BatchDbManager _batchDbManager;
+  private BatchRunMaster _batchMaster;
 
   /**
    * Stores instances of all the various interfaces required by functions during execution
@@ -168,7 +168,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
-    _creationTime = ZonedDateTime.now();
+    _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
   }
 
   // --------------------------------------------------------------------------
@@ -271,12 +271,12 @@ public class CommandLineBatchJob {
     _positionSource = positionSource;
   }
 
-  public BatchDbManager getBatchDbManager() {
-    return _batchDbManager;
+  public BatchRunMaster getBatchMaster() {
+    return _batchMaster;
   }
 
-  public void setBatchDbManager(BatchDbManager batchDbManager) {
-    _batchDbManager = batchDbManager;
+  public void setBatchMaster(BatchRunMaster batchMaster) {
+    _batchMaster = batchMaster;
   }
 
   public FunctionExecutionContext getFunctionExecutionContext() {
@@ -464,7 +464,7 @@ public class CommandLineBatchJob {
         
         if (line.hasOption("snapshotDateRange")) {
           try {
-            _batchDbManager.getSnapshotValues(run.getSnapshotId());
+            _batchMaster.getSnapshotValues(run.getSnapshotId());
           } catch (IllegalArgumentException e) {
             whyNotRunReason = "there is no market data snapshot for this day";
           }
@@ -508,13 +508,13 @@ public class CommandLineBatchJob {
         run.createViewDefinition();
         run.createViewProcessor();
         
-        _batchDbManager.startBatch(run);
+        _batchMaster.startBatch(run);
         
         ViewClient client = run.getViewProcessor().createViewClient(UserPrincipal.getLocalUser());
         client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.of(run.getValuationTime())), true);
         client.waitForCompletion();
 
-        _batchDbManager.endBatch(run);
+        _batchMaster.endBatch(run);
         
         s_logger.info("Completed {}", run);
       

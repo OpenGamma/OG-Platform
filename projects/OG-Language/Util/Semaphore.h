@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,8 +6,6 @@
 
 #ifndef __inc_og_language_util_semaphore_h
 #define __inc_og_language_util_semaphore_h
-
-// Semaphores using Win32 or POSIX semaphores
 
 #ifndef _WIN32
 #include <semaphore.h>
@@ -19,18 +17,33 @@
 
 #define MAX_SEMAPHORE_COUNT	0x7FFFFFFF
 
+/// C++ wrapper for a semaphore.
 class CSemaphore {
 private:
 #ifdef _WIN32
+
+	/// Semaphore handle
 	HANDLE m_hSemaphore;
-#else
+
+#else /* ifdef _WIN32 */
+
+	/// Semaphore handle
 	sem_t m_semaphore;
+
+	/// Maximum signal count of the semaphore
 	int m_nMaxValue;
+
 	static CMutex s_oMaxValue;
-#endif
+
+#endif /* ifdef _WIN32 */
 public:
-	// Note that semaphore construction failure will go unnoticed. If you can't create
-	// a semaphore, the system is fairly broken and will probably crash soon anyway.
+
+	/// Creates a new semaphore. Note that semaphore construction failure will go unnoticed.
+	/// If you can't create a semaphore, the system is fairly broken and will probably crash
+	/// soon anyway.
+	///
+	/// @param[in] nInitialValue initial signal count
+	/// @param[in] nMaxValue maximum signal count
 	CSemaphore (int nInitialValue = 0, int nMaxValue = MAX_SEMAPHORE_COUNT) {
 #ifdef _WIN32
 		m_hSemaphore = CreateSemaphore (NULL, nInitialValue, nMaxValue, NULL);
@@ -45,6 +58,8 @@ public:
 		}
 #endif
 	}
+
+	/// Destroys the semaphore, releasing resources.
 	~CSemaphore () {
 #ifdef _WIN32
 		CloseHandle (m_hSemaphore);
@@ -52,6 +67,10 @@ public:
 		sem_destroy (&m_semaphore);
 #endif
 	}
+
+	/// Signals the semaphore.
+	///
+	/// @return true if the semaphore could be signalled, false otherwise
 	bool Signal () {
 #ifdef _WIN32
 		return ReleaseSemaphore (m_hSemaphore, 1, NULL) ? true : false;
@@ -72,6 +91,11 @@ public:
 		return true;
 #endif
 	}
+
+	/// Waits on the semaphore.
+	///
+	/// @param[in] timeout maximum time to wait in milliseconds
+	/// @return true if the semaphore was claimed, false otherwise
 	bool Wait (unsigned long timeout = 0xFFFFFFFF) {
 #ifdef _WIN32
 		switch (WaitForSingleObject (m_hSemaphore, timeout)) {
@@ -89,15 +113,20 @@ public:
 #else
 		if (timeout != 0xFFFFFFFF) {
 			struct timespec ts;
-			time (&ts.tv_sec);
+			clock_gettime (CLOCK_REALTIME, &ts);
 			ts.tv_sec += timeout / 1000;
-			ts.tv_nsec = (500000000 + ((timeout % 1000) * 1000000)) % 1000000000;
+			timeout %= 1000;
+			if ((ts.tv_nsec += timeout * 1000000) >= 1000000000) {
+				ts.tv_nsec -= 1000000000;
+				ts.tv_sec++;
+			}
 			return !sem_timedwait (&m_semaphore, &ts);
 		} else {
 			return !sem_wait (&m_semaphore);
 		}
 #endif
 	}
+
 };
 
 #endif /* ifndef __inc_og_language_util_semaphore_h */

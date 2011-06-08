@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
@@ -33,7 +33,7 @@ public class BondMarketDirtyPriceFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition bond, final Object value,
-      final LocalDate now, final String yieldCurveName) {
+      final ZonedDateTime now, final String yieldCurveName) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
