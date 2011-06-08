@@ -23,23 +23,23 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public final class ZonedDateTimeBuilder implements FudgeBuilder<ZonedDateTime> {
 
   /** Field name. */
-  public static final String ODT_FIELD_NAME = "odt";
+  public static final String DATETIME_FIELD_NAME = "datetime";
   /** Field name. */
   public static final String ZONE_FIELD_NAME = "zone";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ZonedDateTime object) {
     final MutableFudgeMsg msg = context.newMessage();
-    msg.add(ODT_FIELD_NAME, object.toOffsetDateTime());
+    msg.add(DATETIME_FIELD_NAME, object.toOffsetDateTime());
     msg.add(ZONE_FIELD_NAME, object.getZone().getID());
     return msg;
   }
 
   @Override
   public ZonedDateTime buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, ODT_FIELD_NAME);
+    final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, DATETIME_FIELD_NAME);
     if (odt == null) {
-      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'odt' is not present");
+      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'datetime' is not present");
     }
     final String zone = msg.getString(ZONE_FIELD_NAME);
     if (zone == null) {

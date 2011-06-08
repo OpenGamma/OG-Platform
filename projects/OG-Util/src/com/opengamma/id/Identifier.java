@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -274,6 +275,18 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return Identifier.of(scheme, value);
+  }
+
+  /**
+   * Deserializes an identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param fudgeContext  the Fudge context
+   * @param msg the Fudge message, not {@code null}
+   * @return the identifier
+   */
+  public static Identifier fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+    return fromFudgeMsg(msg);
   }
 
 }

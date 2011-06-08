@@ -61,7 +61,7 @@ public class SwapDefinitionConverterDataProvider implements
     Validate.notNull(security, "security");
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
-    final ZonedDateTime swapStartDate = security.getEffectiveDate().toZonedDateTime();
+    final ZonedDateTime swapStartDate = security.getEffectiveDate();
     final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(payLeg, swapStartDate);
     final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(receiveLeg, swapStartDate);
     final Map<SwapLeg, DoubleTimeSeries<ZonedDateTime>> result = new HashMap<SwapLeg, DoubleTimeSeries<ZonedDateTime>>();
