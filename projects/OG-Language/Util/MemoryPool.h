@@ -7,6 +7,8 @@
 #ifndef __inc_og_language_util_memorypool_h
 #define __inc_og_language_util_memorypool_h
 
+#ifndef _WIN32
+
 #include <apr-1/apr_pools.h>
 
 /// C++ wrapper for the APR memory pool functions
@@ -49,5 +51,7 @@ public:
 	}
 
 };
+
+#endif /* ifndef _WIN32 */
 
 #endif /* ifndef __inc_og_language_util_memorypool_h */
