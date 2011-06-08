@@ -13,6 +13,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -418,10 +419,11 @@ public final class UniqueIdentifier
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
    * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
+   * @param fudgeContext  the Fudge context
    * @param msg the Fudge message, not {@code null}
    * @return the unique identifier
    */
-  public static UniqueIdentifier fromFudgeMsg(FudgeMsg msg) {
+  public static UniqueIdentifier fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     String version = msg.getString(VERSION_FUDGE_FIELD_NAME);

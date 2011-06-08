@@ -117,7 +117,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
    */
   protected void broadcast(final CacheMessage message) {
     final MutableFudgeMsg msg = getUnderlying().getFudgeContext().newMessage();
-    message.toFudgeMsg(getUnderlying().getFudgeContext(), msg);
+    message.toFudgeMsg(new FudgeSerializationContext(getUnderlying().getFudgeContext()), msg);
     FudgeSerializationContext.addClassHeader(msg, message.getClass(), CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
       final FudgeConnection connection = connectionEntry.getKey();

@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -69,9 +70,9 @@ public class LiveDataSpecification {
     return _domainSpecificIdentifiers.getIdentifier(domain);
   }
   
-  public static LiveDataSpecification fromFudgeMsg(FudgeMsg fudgeMsg) {
+  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    IdentifierBundle ids = IdentifierBundle.fromFudgeMsg(fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    IdentifierBundle ids = IdentifierBundle.fromFudgeMsg(fudgeContext, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   

@@ -9,7 +9,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
 
-import com.opengamma.financial.security.DateTimeWithZone;
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.Converters;
@@ -53,7 +54,7 @@ public final class FxBarrierOptionSecurityBeanOperation extends AbstractSecurity
     Currency putCurrency = currencyBeanToCurrency(bean.getPutCurrency());
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
-    DateTimeWithZone settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
+    ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
     FXBarrierOptionSecurity sec = new FXBarrierOptionSecurity(putCurrency, 
         callCurrency, 
         bean.getPutAmount(), 

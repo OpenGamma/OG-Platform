@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -355,11 +356,12 @@ public class IdentifierBundleTest {
         Identifier.of("id1", "value1"),
         Identifier.of("id2", "value2")
       );
-    FudgeMsg msg = input.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = input.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    IdentifierBundle decoded = IdentifierBundle.fromFudgeMsg(msg);
+    IdentifierBundle decoded = IdentifierBundle.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(input, decoded);
   }
 

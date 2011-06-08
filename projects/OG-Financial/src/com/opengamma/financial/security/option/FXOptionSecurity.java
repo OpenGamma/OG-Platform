@@ -5,7 +5,7 @@ package com.opengamma.financial.security.option;
 public class FXOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept (FXOptionSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
-  private static final long serialVersionUID = -4230728894638649316l;
+  private static final long serialVersionUID = -4230728897618445968l;
   private com.opengamma.util.money.Currency _putCurrency;
   public static final String PUT_CURRENCY_KEY = "putCurrency";
   private com.opengamma.util.money.Currency _callCurrency;
@@ -16,10 +16,10 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
   public static final String CALL_AMOUNT_KEY = "callAmount";
   private com.opengamma.util.time.Expiry _expiry;
   public static final String EXPIRY_KEY = "expiry";
-  private com.opengamma.financial.security.DateTimeWithZone _settlementDate;
+  private javax.time.calendar.ZonedDateTime _settlementDate;
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
   public static final String SECURITY_TYPE = "FX_OPTION";
-  public FXOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.DateTimeWithZone settlementDate) {
+  public FXOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate) {
     super (SECURITY_TYPE);
     if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
     _putCurrency = putCurrency;
@@ -33,11 +33,11 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
     }
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
   }
-  protected FXOptionSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected FXOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (PUT_CURRENCY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'putCurrency' is not present");
@@ -74,7 +74,7 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
     fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'expiry' is not present");
     try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'expiry' is not Expiry message", e);
@@ -82,13 +82,13 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
     fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'settlementDate' is not present");
     try {
-      _settlementDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _settlementDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'settlementDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
     }
   }
-  public FXOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.DateTimeWithZone settlementDate) {
+  public FXOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate) {
     super (uniqueId, name, securityType, identifiers);
     if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
     _putCurrency = putCurrency;
@@ -102,7 +102,7 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
     }
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
   }
   protected FXOptionSecurity (final FXOptionSecurity source) {
@@ -118,19 +118,19 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
     }
     if (source._settlementDate == null) _settlementDate = null;
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)source._settlementDate.clone ();
+      _settlementDate = source._settlementDate;
     }
   }
   public FXOptionSecurity clone () {
     return new FXOptionSecurity (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_putCurrency != null)  {
       msg.add (PUT_CURRENCY_KEY, null, _putCurrency);
@@ -146,24 +146,22 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
       msg.add (EXPIRY_KEY, null, fudge1);
     }
     if (_settlementDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _settlementDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _settlementDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (SETTLEMENT_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
     }
   }
-  public static FXOptionSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static FXOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.option.FXOptionSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.option.FXOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.option.FXOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new FXOptionSecurity (fudgeMsg);
+    return new FXOptionSecurity (fudgeContext, fudgeMsg);
   }
   public com.opengamma.util.money.Currency getPutCurrency () {
     return _putCurrency;
@@ -200,13 +198,13 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
       _expiry = expiry;
     }
   }
-  public com.opengamma.financial.security.DateTimeWithZone getSettlementDate () {
+  public javax.time.calendar.ZonedDateTime getSettlementDate () {
     return _settlementDate;
   }
-  public void setSettlementDate (com.opengamma.financial.security.DateTimeWithZone settlementDate) {
+  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
   }
   public boolean equals (final Object o) {
