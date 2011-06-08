@@ -40,7 +40,6 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
    * The model used for the convexity adjustment computation.
    */
   private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
-
   /**
    * The Hull-White model.
    */
