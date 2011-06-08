@@ -2,7 +2,7 @@
 {
     "templateData": {
       "name": "${batch.observationDate} - ${batch.observationTime}",
-      "objectId":"${batchDoc.uniqueId.objectId}",
+      "object_id":"${batchDoc.uniqueId.objectId}",
 <#--  "versionId":"${batchDoc.uniqueId.version}", -->
       "date": "${batch.observationDate}",
       "time": "${batch.observationTime}",
