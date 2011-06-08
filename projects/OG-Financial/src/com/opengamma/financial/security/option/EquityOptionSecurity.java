@@ -76,7 +76,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'underlyingIdentifier' is not present");
     try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'underlyingIdentifier' is not Identifier message", e);
@@ -84,7 +84,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     fudgeField = fudgeMsg.getByName (EXERCISE_TYPE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'exerciseType' is not present");
     try {
-      _exerciseType = com.opengamma.financial.security.option.ExerciseType.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _exerciseType = com.opengamma.financial.security.option.ExerciseType.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'exerciseType' is not ExerciseType message", e);
@@ -92,7 +92,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'expiry' is not present");
     try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'expiry' is not Expiry message", e);
