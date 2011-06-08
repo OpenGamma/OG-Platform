@@ -59,7 +59,7 @@ public class DefinitionConverterDataProvider {
     Validate.notNull(security, "security");
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
-    final ZonedDateTime swapStartDate = security.getEffectiveDate().toZonedDateTime();
+    final ZonedDateTime swapStartDate = security.getEffectiveDate();
     final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(
         InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartDate, now, dataSource);
     final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(
@@ -81,7 +81,6 @@ public class DefinitionConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final UniqueIdentifier indexUID = floatingLeg.getFloatingReferenceRateIdentifier();
-      @SuppressWarnings("deprecation")
       final Identifier indexID = indexUID.toIdentifier();
       final IdentifierBundle id = indexID.toBundle(); //TODO //IdentifierBundle.of(indexID);
       LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()

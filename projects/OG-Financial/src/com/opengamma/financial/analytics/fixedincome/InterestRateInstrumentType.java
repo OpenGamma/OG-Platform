@@ -14,7 +14,13 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
@@ -88,6 +94,36 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitSwapSecurity(SwapSecurity security) {
       return SwapSecurityUtils.getSwapType(security);
+    }
+    
+    @Override 
+    public InterestRateInstrumentType visitSwaptionSecurity(SwaptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this SwaptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this EquityIndexOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitEquityOptionSecurity(EquityOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this EquityOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitFXOptionSecurity(FXOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this FXOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this IRFutureOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this FXBarrierOptionSecurity");
     }
 
   }

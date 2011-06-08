@@ -46,4 +46,9 @@ public class MultipleCurrencyAmountConverter implements ResultConverter<Multiple
     return "MULTIPLE_CURRENCY_AMOUNT";
   }
 
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value) {
+    return value.toString();
+  }
+
 }

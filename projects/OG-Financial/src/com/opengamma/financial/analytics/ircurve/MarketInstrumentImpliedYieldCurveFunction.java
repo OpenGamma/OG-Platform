@@ -221,12 +221,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final HistoricalDataSource dataSource = OpenGammaExecutionContext
           .getHistoricalDataSource(executionContext);
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
-        Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
+        Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
         return getSingleCurveResult(marketDataMap, builder, now, dataSource);
       }
 
-      Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
-      Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs).getDataPoints();
+      Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+      Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);

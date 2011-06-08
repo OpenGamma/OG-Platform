@@ -76,8 +76,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
 
   private SwapFixedIborSpreadDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity,
       final boolean payFixed) {
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
@@ -96,8 +96,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   private SwapIborIborDefinition getTenorSwapDefinition(final SwapSecurity swapSecurity) {
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
