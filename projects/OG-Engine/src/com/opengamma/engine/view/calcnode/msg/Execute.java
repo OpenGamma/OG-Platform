@@ -14,7 +14,7 @@ public class Execute extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNo
     }
   }
   protected Execute (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (JOB_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a Execute - field 'job' is not present");

@@ -84,7 +84,7 @@ public class BondSecurityToBondDefinitionConverter {
     }
     final Currency currency = security.getCurrency();
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate datedDate = security.getInterestAccrualDate().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     //TODO remove this when the definitions for USD treasuries are correct
     final DayCount daycount = currency.equals(Currency.USD) ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
@@ -103,7 +103,7 @@ public class BondSecurityToBondDefinitionConverter {
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
     LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
-    if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+    if (schedule[0].equals(security.getFirstCouponDate().toLocalDate())) {
       final int n = schedule.length;
       final LocalDate[] temp = new LocalDate[n + 1];
       temp[0] = datedDate;
@@ -112,8 +112,8 @@ public class BondSecurityToBondDefinitionConverter {
       }
       schedule = temp;
     }
-    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_log.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toLocalDate())) {
+      s_log.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toLocalDate());
       //throw new IllegalArgumentException("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", "
       //    + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
     }

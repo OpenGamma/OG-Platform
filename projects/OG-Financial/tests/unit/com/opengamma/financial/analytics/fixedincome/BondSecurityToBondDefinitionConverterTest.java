@@ -27,7 +27,6 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondDefinition;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.Identifier;
@@ -58,8 +57,8 @@ public class BondSecurityToBondDefinitionConverterTest {
       CONVENTION_SOURCE, REGION_SOURCE);
   private static final GovernmentBondSecurity BOND = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.USD,
       YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(LAST_TRADE_DATE), "", COUPON,
-      SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(FIRST_ACCRUAL_DATE),
-      new DateTimeWithZone(SETTLEMENT_DATE), new DateTimeWithZone(FIRST_COUPON_DATE), 100, 100000000, 5000, 1000, 100, 100);
+      SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), FIRST_ACCRUAL_DATE,
+      SETTLEMENT_DATE, FIRST_COUPON_DATE, 100, 100000000, 5000, 1000, 100, 100);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullHolidaySource() {

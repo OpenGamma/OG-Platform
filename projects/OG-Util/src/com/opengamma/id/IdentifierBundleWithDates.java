@@ -23,6 +23,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -332,16 +333,17 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
 
   /**
    * Deserializes this pair from a Fudge message.
+   * @param fudgeContext  the Fudge context
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static IdentifierBundleWithDates fromFudgeMsg(FudgeMsg msg) {
+  public static IdentifierBundleWithDates fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     Set<IdentifierWithDates> identifiers = new HashSet<IdentifierWithDates>();
     for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
       if (field.getValue() instanceof FudgeMsg == false) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }
-      identifiers.add(IdentifierWithDates.fromFudgeMsg((FudgeMsg) field.getValue()));
+      identifiers.add(IdentifierWithDates.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
     }
     return new IdentifierBundleWithDates(identifiers);
   }

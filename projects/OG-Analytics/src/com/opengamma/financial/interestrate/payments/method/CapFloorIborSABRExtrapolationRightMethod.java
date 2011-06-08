@@ -87,13 +87,14 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
       price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
     } else { // With extrapolation
+      SABRExtrapolationRightFunction sabrExtrapolation;
       DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
       double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
       double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
       SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
-      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       price = df * sabrExtrapolation.price(option) * cap.getNotional() * cap.getPaymentYearFraction();
     }
     return CurrencyAmount.of(cap.getCurrency(), price);

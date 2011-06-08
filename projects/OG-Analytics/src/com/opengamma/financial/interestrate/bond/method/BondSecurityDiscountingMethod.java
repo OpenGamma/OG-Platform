@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.bond.method;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -99,6 +101,7 @@ public class BondSecurityDiscountingMethod {
    * @return The dirty price.
    */
   public double dirtyPriceFromYield(final BondFixedSecurity bond, final double yield) {
+    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     int nbCoupon = bond.getCoupon().getNumberOfPayments();
     double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {

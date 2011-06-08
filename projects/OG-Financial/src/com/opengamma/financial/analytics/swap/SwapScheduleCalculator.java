@@ -23,13 +23,13 @@ public class SwapScheduleCalculator {
   public static double[] getPayLegPaymentTimes(final SwapSecurity security, final Calendar calendar, final ZonedDateTime now) {
     Validate.notNull(security);
     Validate.notNull(calendar);
-    return getPaymentTimes(security.getEffectiveDate().toZonedDateTime(), security.getMaturityDate().toZonedDateTime(), security.getPayLeg(), calendar, now);
+    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getPayLeg(), calendar, now);
   }
 
   public static double[] getReceiveLegPaymentTimes(final SwapSecurity security, final Calendar calendar, final ZonedDateTime now) {
     Validate.notNull(security);
     Validate.notNull(calendar);
-    return getPaymentTimes(security.getEffectiveDate().toZonedDateTime(), security.getMaturityDate().toZonedDateTime(), security.getReceiveLeg(), calendar, now);
+    return getPaymentTimes(security.getEffectiveDate(), security.getMaturityDate(), security.getReceiveLeg(), calendar, now);
   }
 
   // TODO include accrual date as well

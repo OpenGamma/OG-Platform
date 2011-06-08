@@ -4,16 +4,16 @@
 package com.opengamma.financial.security.future;
 public class BondFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitBondFutureSecurity (this); }
-  private static final long serialVersionUID = -1295014613220177536l;
+  private static final long serialVersionUID = -1295017479784556760l;
   private java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> _basket;
   public static final String BASKET_KEY = "basket";
   private String _bondType;
   public static final String BOND_TYPE_KEY = "bondType";
-  private com.opengamma.financial.security.DateTimeWithZone _firstDeliveryDate;
+  private javax.time.calendar.ZonedDateTime _firstDeliveryDate;
   public static final String FIRST_DELIVERY_DATE_KEY = "firstDeliveryDate";
-  private com.opengamma.financial.security.DateTimeWithZone _lastDeliveryDate;
+  private javax.time.calendar.ZonedDateTime _lastDeliveryDate;
   public static final String LAST_DELIVERY_DATE_KEY = "lastDeliveryDate";
-  public BondFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, com.opengamma.financial.security.DateTimeWithZone firstDeliveryDate, com.opengamma.financial.security.DateTimeWithZone lastDeliveryDate) {
+  public BondFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
     super (expiry, tradingExchange, settlementExchange, currency);
     if (basket == null) throw new NullPointerException ("'basket' cannot be null");
     else {
@@ -30,15 +30,15 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     _bondType = bondType;
     if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
     else {
-      _firstDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)firstDeliveryDate.clone ();
+      _firstDeliveryDate = firstDeliveryDate;
     }
     if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
     else {
-      _lastDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)lastDeliveryDate.clone ();
+      _lastDeliveryDate = lastDeliveryDate;
     }
   }
-  protected BondFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected BondFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     org.fudgemsg.FudgeField fudgeField;
     fudgeFields = fudgeMsg.getAllByName (BASKET_KEY);
@@ -47,7 +47,7 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.financial.security.future.BondFutureDeliverable fudge2;
-        fudge2 = com.opengamma.financial.security.future.BondFutureDeliverable.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
+        fudge2 = com.opengamma.financial.security.future.BondFutureDeliverable.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
         _basket.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -65,21 +65,21 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     fudgeField = fudgeMsg.getByName (FIRST_DELIVERY_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'firstDeliveryDate' is not present");
     try {
-      _firstDeliveryDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _firstDeliveryDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'firstDeliveryDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'firstDeliveryDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (LAST_DELIVERY_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not present");
     try {
-      _lastDeliveryDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _lastDeliveryDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not ZonedDateTime typedef", e);
     }
   }
-  public BondFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, com.opengamma.financial.security.DateTimeWithZone firstDeliveryDate, com.opengamma.financial.security.DateTimeWithZone lastDeliveryDate) {
+  public BondFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency);
     if (basket == null) throw new NullPointerException ("'basket' cannot be null");
     else {
@@ -96,11 +96,11 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     _bondType = bondType;
     if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
     else {
-      _firstDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)firstDeliveryDate.clone ();
+      _firstDeliveryDate = firstDeliveryDate;
     }
     if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
     else {
-      _lastDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)lastDeliveryDate.clone ();
+      _lastDeliveryDate = lastDeliveryDate;
     }
   }
   protected BondFutureSecurity (final BondFutureSecurity source) {
@@ -118,23 +118,23 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     _bondType = source._bondType;
     if (source._firstDeliveryDate == null) _firstDeliveryDate = null;
     else {
-      _firstDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)source._firstDeliveryDate.clone ();
+      _firstDeliveryDate = source._firstDeliveryDate;
     }
     if (source._lastDeliveryDate == null) _lastDeliveryDate = null;
     else {
-      _lastDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)source._lastDeliveryDate.clone ();
+      _lastDeliveryDate = source._lastDeliveryDate;
     }
   }
   public BondFutureSecurity clone () {
     return new BondFutureSecurity (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_basket != null)  {
       for (com.opengamma.financial.security.future.BondFutureDeliverable fudge1 : _basket) {
@@ -147,29 +147,25 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
       msg.add (BOND_TYPE_KEY, null, _bondType);
     }
     if (_firstDeliveryDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _firstDeliveryDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _firstDeliveryDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (FIRST_DELIVERY_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, FIRST_DELIVERY_DATE_KEY, null, _firstDeliveryDate);
     }
     if (_lastDeliveryDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _lastDeliveryDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _lastDeliveryDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (LAST_DELIVERY_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, LAST_DELIVERY_DATE_KEY, null, _lastDeliveryDate);
     }
   }
-  public static BondFutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static BondFutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.future.BondFutureSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.future.BondFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.future.BondFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new BondFutureSecurity (fudgeMsg);
+    return new BondFutureSecurity (fudgeContext, fudgeMsg);
   }
   public java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> getBasket () {
     return java.util.Collections.unmodifiableList (_basket);
@@ -206,22 +202,22 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
     if (bondType == null) throw new NullPointerException ("bondType' cannot be null");
     _bondType = bondType;
   }
-  public com.opengamma.financial.security.DateTimeWithZone getFirstDeliveryDate () {
+  public javax.time.calendar.ZonedDateTime getFirstDeliveryDate () {
     return _firstDeliveryDate;
   }
-  public void setFirstDeliveryDate (com.opengamma.financial.security.DateTimeWithZone firstDeliveryDate) {
+  public void setFirstDeliveryDate (javax.time.calendar.ZonedDateTime firstDeliveryDate) {
     if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
     else {
-      _firstDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)firstDeliveryDate.clone ();
+      _firstDeliveryDate = firstDeliveryDate;
     }
   }
-  public com.opengamma.financial.security.DateTimeWithZone getLastDeliveryDate () {
+  public javax.time.calendar.ZonedDateTime getLastDeliveryDate () {
     return _lastDeliveryDate;
   }
-  public void setLastDeliveryDate (com.opengamma.financial.security.DateTimeWithZone lastDeliveryDate) {
+  public void setLastDeliveryDate (javax.time.calendar.ZonedDateTime lastDeliveryDate) {
     if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
     else {
-      _lastDeliveryDate = (com.opengamma.financial.security.DateTimeWithZone)lastDeliveryDate.clone ();
+      _lastDeliveryDate = lastDeliveryDate;
     }
   }
   public boolean equals (final Object o) {

@@ -101,7 +101,7 @@ import com.opengamma.transport.FudgeMessageSender;
         s_logger.debug("Sending scaling message ", scaling);
         final MutableFudgeMsg scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
         FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
-        scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
+        scaling.toFudgeMsg(new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext()), scalingMessage);
         getFudgeMessageSender().send(scalingMessage);
       }
     }

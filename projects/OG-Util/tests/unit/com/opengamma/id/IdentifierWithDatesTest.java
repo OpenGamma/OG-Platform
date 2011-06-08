@@ -14,6 +14,7 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 /**
@@ -124,11 +125,12 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, VALID_TO);
     
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(4, msg.getNumFields());
     
-    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(msg);
+    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
   
@@ -136,11 +138,12 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, null);
     
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(msg);
+    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
   
@@ -148,11 +151,12 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, null, VALID_TO);
     
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(msg);
+    IdentifierWithDates decoded = IdentifierWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
   
