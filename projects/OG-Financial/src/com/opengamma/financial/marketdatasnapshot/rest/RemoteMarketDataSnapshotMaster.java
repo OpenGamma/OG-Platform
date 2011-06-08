@@ -12,12 +12,10 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -99,15 +97,13 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   public MarketDataSnapshotDocument get(final UniqueIdentifier uniqueId) {
     try {
       // [PLAT-1316] Note the document returned is incomplete
-      final FudgeMsg response = getRestClient().getMsg(getTargetBase().resolveBase("securities").resolve(uniqueId.toString()));
+      final FudgeMsg response = getRestClient().getMsg(getTargetBase().resolveBase("snapshots").resolve(uniqueId.toString()));
       if (response == null) {
         throw new DataNotFoundException("Unique identifier " + uniqueId + " not found");
       }
-      final MarketDataSnapshotDocument document = new MarketDataSnapshotDocument();
       final FudgeDeserializationContext fdc = getFudgeDeserializationContext();
-      document.setUniqueId(fdc.fieldValueToObject(UniqueIdentifier.class, response.getByName("uniqueId")));
-      final StructuredMarketDataSnapshot snapshot = fdc.fieldValueToObject(StructuredMarketDataSnapshot.class, response.getByName("snapshot"));
-      document.setSnapshot(new ManageableMarketDataSnapshot(snapshot));
+      
+      MarketDataSnapshotDocument document = fdc.fudgeMsgToObject(MarketDataSnapshotDocument.class, response);
       return document;
     } catch (RestRuntimeException ex) {
       throw ex.translate();

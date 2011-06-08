@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,14 +6,13 @@
 
 #include "stdafx.h"
 
-// BufferedInput.cpp : Input buffer utility class.
-
 #define _INTERNAL
 #include "BufferedInput.h"
 #include "Logging.h"
 
 LOGGING(com.opengamma.language.util.BufferedInput);
 
+/// Creates a new reader object
 CBufferedInput::CBufferedInput () {
 	LOGDEBUG ("Creating input buffer, size " << INITIAL_BUFFER_SIZE);
 	m_cbDataStart = 0;
@@ -21,11 +20,18 @@ CBufferedInput::CBufferedInput () {
 	m_pData = malloc (m_cbBuffer = INITIAL_BUFFER_SIZE);
 }
 
+/// Destroys the reader object, releasing memory used for the buffer.
 CBufferedInput::~CBufferedInput () {
 	LOGDEBUG ("Destroying input buffer, size " << m_cbBuffer);
 	free (m_pData);
 }
 
+/// Reads the next amount of available data into the buffer.
+///
+/// @param[in] poSource source of data to read
+/// @param[in] cbMinimum minimum number of bytes to have in the buffer
+/// @param[in] timeout maximum timeout, in milliseconds, to wait for data
+/// @return true if at least cbMinimum bytes are available in the buffer
 bool CBufferedInput::Read (CTimeoutIO *poSource, size_t cbMinimum, unsigned long timeout) {
 	if (m_cbDataEnd - m_cbDataStart > cbMinimum) {
 		// enough already in the buffer
@@ -78,14 +84,24 @@ bool CBufferedInput::Read (CTimeoutIO *poSource, size_t cbMinimum, unsigned long
 	return true;
 }
 
+/// Returns the data available in the buffer, up to GetAvailable bytes will be present
+/// from this address onwards. Content beyond or before the address is undefined.
+///
+/// @return address of the first available byte
 const void *CBufferedInput::GetData () const {
 	return (char*)m_pData + m_cbDataStart;
 }
 
+/// Returns the number of bytes currently available in the buffer.
+///
+/// @return the number of bytes available
 size_t CBufferedInput::GetAvailable () const {
 	return m_cbDataEnd - m_cbDataStart;
 }
 
+/// Discards a number of bytes from the buffer.
+///
+/// @param[in] cbAmount number of bytes to discard
 void CBufferedInput::Discard (size_t cbAmount) {
 	LOGDEBUG ("Discarding " << cbAmount << " bytes from input buffer");
 	m_cbDataStart += cbAmount;

@@ -19,7 +19,6 @@ namespace com.opengamma.financial.security.option {
     required com.opengamma.util.money.Currency currency;
     required double strike; 
     required OptionType optionType;
-    
    
     binding Java {
       body <<<JAVA

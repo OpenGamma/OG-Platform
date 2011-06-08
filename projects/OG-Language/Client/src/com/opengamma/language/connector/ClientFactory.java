@@ -24,7 +24,7 @@ public class ClientFactory {
     _clientContext = clientContext;
   }
 
-  protected ClientContext getClientContext() {
+  public ClientContext getClientContext() {
     return _clientContext;
   }
 

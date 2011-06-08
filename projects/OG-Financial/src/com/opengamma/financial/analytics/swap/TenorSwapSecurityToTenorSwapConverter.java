@@ -72,8 +72,8 @@ public class TenorSwapSecurityToTenorSwapConverter {
       final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
 
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();

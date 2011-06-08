@@ -18,6 +18,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -330,13 +331,14 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   /**
    * Deserializes an identifier search from a Fudge message.
    * 
+   * @param fudgeContext  the Fudge context
    * @param msg the Fudge message, not null
    * @return the identifier bundle
    */
-  public static IdentifierSearch fromFudgeMsg(FudgeMsg msg) {
+  public static IdentifierSearch fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();
     for (FudgeField field : msg.getAllByName("identifier")) {
-      identifiers.add(Identifier.fromFudgeMsg((FudgeMsg) field.getValue()));
+      identifiers.add(Identifier.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
     }
     IdentifierSearchType type = IdentifierSearchType.valueOf(msg.getString("searchType"));
     return new IdentifierSearch(identifiers, type);

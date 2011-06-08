@@ -127,7 +127,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueAboveCutOff() {
-    final CurrencyAmount methodPrice = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
+    CurrencyAmount methodPrice = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
     final double df = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_HIGH_LONG.getPaymentTime());
     final double forward = PRC.visit(CAP_HIGH_LONG, CURVES);
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
@@ -140,6 +140,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, CUT_OFF_STRIKE, CAP_HIGH_LONG.getFixingTime(), MU);
     EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_HIGH_LONG.getStrike(), CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.isCap());
     final double expectedPrice = sabrExtrapolation.price(option) * CAP_HIGH_LONG.getNotional() * CAP_HIGH_LONG.getPaymentYearFraction() * df;
+    assertEquals("Cap/floor: SABR with extrapolation pricing", expectedPrice, methodPrice.getAmount(), 1E-2);
+    methodPrice = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
     assertEquals("Cap/floor: SABR with extrapolation pricing", expectedPrice, methodPrice.getAmount(), 1E-2);
   }
 

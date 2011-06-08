@@ -21,7 +21,7 @@ public class IsAlive extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNo
     }
   }
   protected IsAlive (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (JOB_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a IsAlive - field 'job' is not present");

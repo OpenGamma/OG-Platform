@@ -16,7 +16,7 @@ public class Result extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNod
     }
   }
   protected Result (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (RESULT_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a Result - field 'result' is not present");
@@ -30,7 +30,7 @@ public class Result extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNod
     if (fudgeField != null)  {
       try {
         final com.opengamma.engine.view.calcnode.msg.Ready fudge1;
-        fudge1 = com.opengamma.engine.view.calcnode.msg.Ready.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+        fudge1 = com.opengamma.engine.view.calcnode.msg.Ready.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
         setReady (fudge1);
       }
       catch (IllegalArgumentException e) {
