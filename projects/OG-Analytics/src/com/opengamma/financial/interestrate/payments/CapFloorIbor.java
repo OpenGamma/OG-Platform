@@ -45,6 +45,28 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
     _isCap = isCap;
   }
 
+  /**
+   * Create a new cap/floor with the same characteristics except the strike.
+   * @param strike The new strike.
+   * @return The cap/floor.
+   */
+  public CapFloorIbor withStrike(final double strike) {
+    return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+        getFixingYearFraction(), getForwardCurveName(), strike, _isCap);
+  }
+
+  /**
+   * Builder from a Ibor coupon, the strike and the cap/floor flag.
+   * @param coupon An Ibor coupon.
+   * @param strike The strike.
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor.
+   */
+  public static CapFloorIbor from(final CouponIbor coupon, final double strike, final boolean isCap) {
+    return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
+        coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingYearFraction(), coupon.getForwardCurveName(), strike, isCap);
+  }
+
   @Override
   public double getStrike() {
     return _strike;
