@@ -23,6 +23,9 @@ import org.springframework.security.userdetails.UserDetails;
  */
 public class User implements UserDetails {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The database id.
    */

@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this, positions,
-            page_name = 'positions',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             get_quantities,
@@ -280,7 +280,7 @@ $.register_module({
                 if (args.quantity) obj = get_quantities(args.quantity);
                 search.load($.extend(true, options.slickgrid, {url: args}, {url: obj}));
             },
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

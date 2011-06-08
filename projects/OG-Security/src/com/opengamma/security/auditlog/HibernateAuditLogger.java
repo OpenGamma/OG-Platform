@@ -156,9 +156,8 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
     }
   }
 
-  @SuppressWarnings("unchecked")
   List<AuditLogEntry> findAll() {
-    return (List<AuditLogEntry>) _hibernateTemplate.loadAll(AuditLogEntry.class);
+    return _hibernateTemplate.loadAll(AuditLogEntry.class);
   }
 
 }
