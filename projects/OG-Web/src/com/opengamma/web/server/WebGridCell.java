@@ -10,23 +10,23 @@ package com.opengamma.web.server;
  */
 public class WebGridCell {
   
-  private final long _rowId;
-  private final long _columnId;
+  private final int _rowId;
+  private final int _columnId;
   
-  public WebGridCell(long rowId, long columnId) {
+  public WebGridCell(int rowId, int columnId) {
     _rowId = rowId;
     _columnId = columnId;
   }
   
-  public static WebGridCell of(long rowId, long columnId) {
+  public static WebGridCell of(int rowId, int columnId) {
     return new WebGridCell(rowId, columnId);
   }
   
-  public long getRowId() {
+  public int getRowId() {
     return _rowId;
   }
   
-  public long getColumnId() {
+  public int getColumnId() {
     return _columnId;
   }
 
@@ -34,8 +34,8 @@ public class WebGridCell {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (int) (_columnId ^ (_columnId >>> 32));
-    result = prime * result + (int) (_rowId ^ (_rowId >>> 32));
+    result = prime * result + _columnId;
+    result = prime * result + _rowId;
     return result;
   }
 
@@ -59,5 +59,5 @@ public class WebGridCell {
     }
     return true;
   }
-  
+
 }

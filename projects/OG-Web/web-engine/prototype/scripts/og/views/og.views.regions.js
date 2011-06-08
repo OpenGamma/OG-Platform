@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -17,7 +17,7 @@ $.register_module({
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
             ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
-            page_name = 'regions',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {}, // The returned json for the details area
             search_options = {

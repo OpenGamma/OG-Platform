@@ -6,6 +6,7 @@
 package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,6 +25,8 @@ import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -43,7 +46,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * The default scheme used for each {@link ObjectIdentifier}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSnap";
-  
+
   /**
    * A cache of snapshots by identifier.
    */
@@ -56,9 +59,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * The change manager.
    */
   private final MasterChangeManager _changeManager;
-  
-  
-  
+
   /**
    * Creates an instance.
    */
@@ -96,8 +97,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     _objectIdSupplier = objectIdSupplier;
     _changeManager = changeManager;
   }
-  
-  
+
   @Override
   public MarketDataSnapshotDocument get(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -123,7 +123,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   public MarketDataSnapshotDocument add(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
-    
+
     final ObjectIdentifier objectId = _objectIdSupplier.get();
     final UniqueIdentifier uniqueId = objectId.atVersion("");
     final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
@@ -142,7 +142,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
-    
+
     final UniqueIdentifier uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument storedDocument = _store.get(uniqueId.getObjectId());
@@ -163,7 +163,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
+
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
@@ -187,6 +187,18 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
+    return result;
+  }
+
+  @Override
+  public MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    final MarketDataSnapshotDocument doc = _store.get(request.getObjectId());
+    final List<MarketDataSnapshotDocument> list = (doc != null) ? Collections.singletonList(doc) : Collections.<MarketDataSnapshotDocument>emptyList();
+    final MarketDataSnapshotHistoryResult result = new MarketDataSnapshotHistoryResult();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(list);
     return result;
   }
 

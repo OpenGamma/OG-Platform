@@ -123,6 +123,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   @Test
   public void testFXOptionSecurity() {
     _testCase.testFXOptionSecurity();
+  } 
+
+  @Override
+  @Test
+  public void testFXBarrierOptionSecurity() {
+    _testCase.testFXBarrierOptionSecurity();
   }
 
   @Override
@@ -133,8 +139,8 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
 
   @Override
   @Test
-  public void testFutureOptionSecurity() {
-    _testCase.testFutureOptionSecurity();
+  public void testIRFutureOptionSecurity() {
+    _testCase.testIRFutureOptionSecurity();
   }
 
   @Override
@@ -189,6 +195,12 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   @Test
   public void testSwapSecurity() {
     _testCase.testSwapSecurity();
+  }
+
+  @Override
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    _testCase.testEquityIndexOptionSecurity();
   }
 
 }

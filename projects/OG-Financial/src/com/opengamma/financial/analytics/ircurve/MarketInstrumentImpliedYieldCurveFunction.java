@@ -266,7 +266,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           parRates[i] = 1.0 - marketValue / 100;
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000.;
+          parRates[i] = marketValue / 10000;
         } else {
           parRates[i] = marketValue / 100.;
         }
@@ -300,7 +300,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           parRates[i] = 1.0 - marketValue / 100;
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000.;
+          parRates[i] = marketValue / 10000;
         } else {
           parRates[i] = marketValue / 100.;
         }
@@ -422,11 +422,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           parRates[i] = 1.0 - marketValue / 100;
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000.;
+          parRates[i] = marketValue / 10000;
         } else {
           parRates[i] = marketValue / 100.;
         }
-
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;
         nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);

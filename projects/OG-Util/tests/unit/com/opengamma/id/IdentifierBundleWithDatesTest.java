@@ -23,6 +23,7 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -327,11 +328,12 @@ public class IdentifierBundleWithDatesTest {
   //-------------------------------------------------------------------------
   public void fudgeEncoding() {
     IdentifierBundleWithDates input = new IdentifierBundleWithDates(_idwd11, _idwd12);
-    FudgeMsg msg = input.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = input.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    IdentifierBundleWithDates decoded = IdentifierBundleWithDates.fromFudgeMsg(msg);
+    IdentifierBundleWithDates decoded = IdentifierBundleWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(input, decoded);
   }
 

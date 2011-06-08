@@ -21,6 +21,7 @@
     function init() {
       _$primitivesGridContainer = $("<div id='primitivesGrid'></div>");
       _$container.append(_$primitivesGridContainer);
+      Common.addExportCsvButton(_$container, _liveResultsClient.getCsvGridUrl(self.getGridName()));
       
       _dataView = new Slick.Data.DataView();
       _dataView.beginUpdate();
@@ -109,6 +110,10 @@
     
     this.onContainerResized = function() {
       _gridHelper.handleContainerResized();
+    }
+    
+    this.getGridName = function() {
+      return _primitivesDetails.name;
     }
 
     this.destroy = function() {

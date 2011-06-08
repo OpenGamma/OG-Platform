@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'holidays',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             holidays,
@@ -36,7 +36,14 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'holidays',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 100, cssClass: 'og-link', filter_type: 'input'},
+                        {
+                            id: 'name',
+                            name: 'Name',
+                            field: 'name',
+                            width: 100,
+                            cssClass: 'og-link',
+                            filter_type: 'input'
+                        },
                         {
                             id: 'type', name: 'Type', field: 'type', width: 200,
                             filter_type: 'select',
@@ -146,7 +153,7 @@ $.register_module({
                 holidays.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

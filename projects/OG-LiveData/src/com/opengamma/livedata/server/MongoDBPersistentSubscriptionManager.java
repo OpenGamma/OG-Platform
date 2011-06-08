@@ -54,6 +54,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   @Override
   protected void readFromStorage() {
     FudgeSerializationContext fsc = new FudgeSerializationContext(FudgeContext.GLOBAL_DEFAULT);
+    FudgeDeserializationContext fdc = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
     DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
     
     DBCursor cursor = dbCollection.find();
@@ -61,7 +62,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
       DBObject mainObject = cursor.next();
       DBObject fieldData = (DBObject) mainObject.get("fieldData");
       MutableFudgeMsg msg = fsc.objectToFudgeMsg(fieldData);
-      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(msg);
+      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(fdc, msg);
       addPersistentSubscription(new PersistentSubscription(spec));
     }
     

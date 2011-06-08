@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 /**
@@ -157,11 +158,6 @@ public class UniqueIdentifierTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSchemeAsObject() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(IdentificationScheme.of("id1"), test.getSchemeObject());
-  }
-
   public void test_isLatest_noVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
     assertEquals(true, test.isLatest());
@@ -190,6 +186,12 @@ public class UniqueIdentifierTest {
   public void test_toLatest_version() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
     assertEquals(UniqueIdentifier.of("id1", "value1"), test.toLatest());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toIdentifier() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertEquals(Identifier.of(UniqueIdentifier.UID, "id1~value1"), test.toIdentifier());
   }
 
   //-------------------------------------------------------------------------
@@ -347,21 +349,23 @@ public class UniqueIdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_noVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(msg);
+    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
 
   public void test_fudgeEncoding_version() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(msg);
+    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
 

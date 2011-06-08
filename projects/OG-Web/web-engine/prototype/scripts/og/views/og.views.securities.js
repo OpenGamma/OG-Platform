@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'securities',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             securities,
@@ -99,7 +99,7 @@ $.register_module({
                         {
                             id: 'type', name: 'Type', field: 'type', width: 80,
                             filter_type: 'select',
-                            filter_type_options: ['BOND', 'CASH', 'OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
+                            filter_type_options: ['BOND', 'CASH', 'EQUITY_OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
                         },
                         {
                             id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
@@ -229,7 +229,7 @@ $.register_module({
                 securities.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

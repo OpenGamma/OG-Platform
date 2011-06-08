@@ -13,6 +13,7 @@
   function DepGraphViewer(_$container, rowId, colId, _liveResultsClient, _userConfig) {
     
     var self = this;
+    var _logger = new Logger("DepGraphViewer", "debug");
     
     var _grid;
     var _gridHelper;
@@ -43,11 +44,12 @@
             typeFormatter: PrimitiveFormatter
           },
           {
-            colId: 'value',
+            colId: 0,
             header: "Value",
             typeFormatter: PrimitiveFormatter,
-            nullValue: "null"
-          },
+            nullValue: "null",
+            dynamic: true
+          },        
           {
             colId: 'function',
             header: "Function",
@@ -57,7 +59,8 @@
           {
             colId: 'properties',
             header: "Properties",
-            typeFormatter: PrimitiveFormatter
+            typeFormatter: PrimitiveFormatter,
+            nullValue: ""
           }
       ];
       var gridColumns = SlickGridHelper.makeGridColumns(self, targetColumn, _columns, _userConfig);
@@ -74,6 +77,8 @@
 
       _gridHelper = new SlickGridHelper(_grid, _dataView, _liveResultsClient.triggerImmediateUpdate, false);
       _gridHelper.afterViewportStable.subscribe(afterGridViewportStable);
+      
+      _userConfig.onSparklinesToggled.subscribe(onSparklinesToggled);
     }
     
     function formatValue(row, cell, value, columnDef, dataContext) {
@@ -103,6 +108,10 @@
     }
     
     function afterGridViewportStable() {
+      _grid.reprocessAllRows();
+    }
+    
+    function onSparklinesToggled(sparklinesEnabled) {
       _grid.reprocessAllRows();
     }
     
@@ -139,18 +148,26 @@
         return;
       }
       if (!_fullRows) {
-        $.each(update, function(idx, row) {
+        if (!update['grid']) {
+          // Cannot do anything with the update
+          _logger.warn("Dependency graph update received without grid structure");
+          return;
+        }
+        self.popupManager = new PopupManager(null, null, null, update['grid']['name'], _dataView, _liveResultsClient, _userConfig);
+        _fullRows = update['grid']['rows'];
+        $.each(_fullRows, function(idx, row) {
           if (row.indent >= 2) {
             row._collapsed = true;
           }
         });
-        _fullRows = update;
         _dataView.beginUpdate();
-        _dataView.setItems(update, 'rowId');
+        _dataView.setItems(_fullRows, 'rowId');
         _dataView.setFilter(dataViewFilter);
         _dataView.endUpdate();
+        _gridHelper.handleUpdate(update['update'], _columns);
+      } else {
+        _gridHelper.handleUpdate(update, _columns);
       }
-      _gridHelper.handleUpdate(update, _columns);
     }
     
     this.resize = function() {
@@ -158,6 +175,8 @@
     }
 
     this.destroy = function() {
+      _userConfig.onSparklinesToggled.unsubscribe(onSparklinesToggled);
+      
       _gridHelper.destroy();
       _grid.onClick = null;
       _grid.destroy();
@@ -166,8 +185,6 @@
     //-----------------------------------------------------------------------
     
     init();
-    
-    this.popupManager = new PopupManager("Dep Graph", _dataView, _liveResultsClient, _userConfig);
   }
   
   $.extend(true, window, {

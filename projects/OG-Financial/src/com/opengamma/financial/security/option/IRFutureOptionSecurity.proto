@@ -1,0 +1,31 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.option {
+ 
+  message IRFutureOptionSecurity extends FinancialSecurity {
+   
+    required string securityType [default = "IRFUTURE_OPTION"];
+    
+    required string exchange;
+    required util.time.Expiry expiry;
+    required ExerciseType exerciseType;
+    required id.Identifier underlyingIdentifier;
+    required double pointValue;
+    required boolean isMargined; 
+    required com.opengamma.util.money.Currency currency;
+    required double strike; 
+    required OptionType optionType;
+    
+   
+    binding Java {
+      body <<<JAVA
+        public <T> T accept (IRFutureOptionSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
+JAVA;
+    }
+  }
+}

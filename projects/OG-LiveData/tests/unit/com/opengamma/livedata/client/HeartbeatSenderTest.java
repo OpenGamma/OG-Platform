@@ -20,6 +20,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
@@ -74,7 +76,7 @@ public class HeartbeatSenderTest {
       for(FudgeField field : fudgeMsg.getAllFields()) {
         assertNull(field.getOrdinal());
         assertTrue(field.getValue() instanceof FudgeMsg);
-        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg((FudgeMsg) field.getValue());
+        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), (FudgeMsg) field.getValue());
         assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
       }
     }

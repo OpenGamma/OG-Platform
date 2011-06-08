@@ -45,9 +45,8 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyCode + "_FRA"));
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime startDate = security.getStartDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()
-        .toZonedDateTime()); // just in case
+    final ZonedDateTime startDate = security.getStartDate();
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currencyCode + "_FRA_CONVENTION");
     return new FRADefinition(startDate, maturityDate, security.getRate() / 100, convention);

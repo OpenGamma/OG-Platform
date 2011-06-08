@@ -1,12 +1,17 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
     name: 'og.api.common',
     dependencies: [],
     obj: function () {
-        var str = function (val) {return val === void 0 ? '' : $.isArray(val) ? val.join('\n') : '' + val;};
+        var str = function (val) {
+            return val === void 0 ? ''
+                : $.isArray(val) ? val.join('\n')
+                    : typeof val === 'object' ? JSON.stringify(val)
+                        : '' + val;
+        };
         return {
             check: (function () {
                 var check_dependencies = function (bundle, dependencies) {

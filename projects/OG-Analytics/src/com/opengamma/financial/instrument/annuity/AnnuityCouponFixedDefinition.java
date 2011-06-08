@@ -55,8 +55,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition from(final Currency currency, final ZonedDateTime settlementDate, final Period tenor, final Period paymentPeriod, final Calendar calendar,
-      final DayCount dayCount,
-      final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(tenor, "tenor");
@@ -131,8 +130,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
-      final Calendar calendar, final DayCount dayCount,
-      final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
@@ -173,8 +171,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
-      final int nbPaymentPerYear, final Calendar calendar,
-      final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final int nbPaymentPerYear, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate,
+      final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
@@ -195,6 +193,21 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
           paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons);
+  }
+
+  /**
+   * Remove the payments paying on or before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityCouponFixedDefinition trimBefore(ZonedDateTime trimDate) {
+    List<CouponFixedDefinition> list = new ArrayList<CouponFixedDefinition>();
+    for (CouponFixedDefinition payment : getPayments()) {
+      if (payment.getPaymentDate().isAfter(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
   }
 
   @Override

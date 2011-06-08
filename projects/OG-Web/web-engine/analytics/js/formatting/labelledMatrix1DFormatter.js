@@ -13,7 +13,7 @@
   function LabelledMatrix1DFormatter() {
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      $cell.html("<span class='cell-value'>Vector (" + value.summary + ")</span>");
+      $cell.html("<span class='cell-value'>Vector (" + value.v.summary + ")</span>");
     }
     
     this.createDetail = function($container, rowId, columnStructure, userConfig) {

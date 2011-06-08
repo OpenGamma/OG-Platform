@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.security;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -119,6 +121,26 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityHistoryRequest other = (SecurityHistoryRequest) obj;
+      return JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of security data to return.
@@ -166,22 +188,33 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
     /**
      * The meta-property for the {@code fullDetail} property.
      */
-    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(this, "fullDetail", Boolean.TYPE);
+    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(
+        this, "fullDetail", SecurityHistoryRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "fullDetail");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("fullDetail", _fullDetail);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public SecurityHistoryRequest createBean() {
-      return new SecurityHistoryRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1233600576:  // fullDetail
+          return _fullDetail;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SecurityHistoryRequest> builder() {
+      return new DirectBeanBuilder<SecurityHistoryRequest>(new SecurityHistoryRequest());
     }
 
     @Override

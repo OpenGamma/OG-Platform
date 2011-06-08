@@ -24,4 +24,16 @@ public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnaps
    * @throws IllegalArgumentException if the request is invalid
    */
   MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request);
+
+  /**
+   * Queries the history of a single snapshot.
+   * <p>
+   * The request must contain an object identifier to identify the snapshot.
+   * 
+   * @param request  the history request, not null
+   * @return the snapshot history, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request);
+
 }

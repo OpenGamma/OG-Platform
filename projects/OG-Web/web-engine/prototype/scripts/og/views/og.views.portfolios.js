@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'portfolios',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             portfolios,
@@ -281,18 +281,27 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter_node:
-                {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_delete_node:
-                {route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'},
-            load_delete:
-                {route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'},
-            load_portfolios: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name},
-            load_new_portfolios:
-                {route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name},
-            load_edit_portfolios:
-                {route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name}
+            load_filter_node: {
+                route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'
+            },
+            load_filter: {
+                route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
+            },
+            load_delete_node: {
+                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
+            },
+            load_delete: {
+                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
+            },
+            load_portfolios: {
+                route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name
+            },
+            load_new_portfolios: {
+                route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name
+            },
+            load_edit_portfolios: {
+                route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name
+            }
         };
         return portfolios = {
             load: function (args) {
@@ -331,7 +340,7 @@ $.register_module({
                 portfolios.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

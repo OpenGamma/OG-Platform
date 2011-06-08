@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -7,7 +7,8 @@ $.register_module({
     dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.api.rest', 'og.common.routes'],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, analytics,
-            layout = og.views.common.layout, masthead = og.common.masthead, mode_handler, page_name = 'analytics',
+            layout = og.views.common.layout, masthead = og.common.masthead, mode_handler,
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name);
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
@@ -28,7 +29,7 @@ $.register_module({
                 layout('analytics');
                 $('#OG-analytics .OG-toolbar').hide();
                 $('#OG-analytics .og-main').html('<iframe id="temp_analytics_frame" ' +
-                        'src="http://localhost:8080/analytics/" width="100%"></iframe>');
+                        'src="/analytics/" width="100%"></iframe>');
                 og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame'});
             },
             load_view: function (args) {

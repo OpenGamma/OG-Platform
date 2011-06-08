@@ -268,7 +268,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
     }
     final MutableFudgeMsg message = getFudgeMessageSender().getFudgeContext().newMessage();
     FudgeSerializationContext.addClassHeader(message, Invocations.class, RemoteCalcNodeMessage.class);
-    new Invocations(configurations).toFudgeMsg(getFudgeMessageSender().getFudgeContext(), message);
+    new Invocations(configurations).toFudgeMsg(new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext()), message);
     getFudgeMessageSender().send(message);
   }
 

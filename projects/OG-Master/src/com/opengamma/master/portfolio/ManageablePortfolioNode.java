@@ -6,20 +6,22 @@
 package com.opengamma.master.portfolio;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
@@ -322,6 +324,35 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageablePortfolioNode other = (ManageablePortfolioNode) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getParentNodeId(), other.getParentNodeId()) &&
+          JodaBeanUtils.equal(getPortfolioId(), other.getPortfolioId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getChildNodes(), other.getChildNodes()) &&
+          JodaBeanUtils.equal(getPositionIds(), other.getPositionIds());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getChildNodes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio node unique identifier.
@@ -493,7 +524,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   /**
    * The meta-bean for {@code ManageablePortfolioNode}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -502,49 +533,75 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageablePortfolioNode.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code parentNodeId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNodeId = DirectMetaProperty.ofReadWrite(this, "parentNodeId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _parentNodeId = DirectMetaProperty.ofReadWrite(
+        this, "parentNodeId", ManageablePortfolioNode.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code portfolioId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(
+        this, "portfolioId", ManageablePortfolioNode.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ManageablePortfolioNode.class, String.class);
     /**
      * The meta-property for the {@code childNodes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ManageablePortfolioNode>> _childNodes = DirectMetaProperty.ofReadWrite(this, "childNodes", (Class) List.class);
+    private final MetaProperty<List<ManageablePortfolioNode>> _childNodes = DirectMetaProperty.ofReadWrite(
+        this, "childNodes", ManageablePortfolioNode.class, (Class) List.class);
     /**
      * The meta-property for the {@code positionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(
+        this, "positionIds", ManageablePortfolioNode.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "parentNodeId",
+        "portfolioId",
+        "name",
+        "childNodes",
+        "positionIds");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("parentNodeId", _parentNodeId);
-      temp.put("portfolioId", _portfolioId);
-      temp.put("name", _name);
-      temp.put("childNodes", _childNodes);
-      temp.put("positionIds", _positionIds);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageablePortfolioNode createBean() {
-      return new ManageablePortfolioNode();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 915246087:  // parentNodeId
+          return _parentNodeId;
+        case -5186429:  // portfolioId
+          return _portfolioId;
+        case 3373707:  // name
+          return _name;
+        case 1339293429:  // childNodes
+          return _childNodes;
+        case -137459505:  // positionIds
+          return _positionIds;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageablePortfolioNode> builder() {
+      return new DirectBeanBuilder<ManageablePortfolioNode>(new ManageablePortfolioNode());
     }
 
     @Override

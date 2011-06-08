@@ -25,7 +25,8 @@ public class ResultConverterCache {
   private final ResultConverter<Object> _fudgeBasedConverter;
   private final Map<Class<?>, ResultConverter<?>> _converterMap;
   
-  private final Map<String, ResultConverter<?>> _converterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
+  private final Map<String, ResultConverter<?>> _valueNameConverterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
+  private final Map<Class<?>, ResultConverter<?>> _typedConverterCache = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
   
   public ResultConverterCache(FudgeContext fudgeContext) {
     _fudgeBasedConverter = new FudgeBasedJsonGeneratorConverter(fudgeContext);
@@ -50,17 +51,34 @@ public class ResultConverterCache {
   
   @SuppressWarnings("unchecked")
   public <T> ResultConverter<? super T> getAndCacheConverter(String valueName, Class<T> valueType) {
-    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterCache.get(valueName);
+    ResultConverter<? super T> converter = (ResultConverter<? super T>) _valueNameConverterCache.get(valueName);
     if (converter == null) {
-      converter = findConverterForType((Class<T>) valueType);
-      _converterCache.put(valueName, converter);
+      converter = getConverterForType((Class<T>) valueType);
+      _valueNameConverterCache.put(valueName, converter);
     }
     return converter; 
   }
   
   @SuppressWarnings("unchecked")
+  public <T> ResultConverter<? super T> getConverterForType(Class<T> type) {
+    ResultConverter<?> converter = _typedConverterCache.get(type);
+    if (converter == null) {
+      Class<?> searchType = type;
+      while (converter == null && searchType != null) {
+        converter = _converterMap.get(searchType);
+        searchType = searchType.getSuperclass();
+      }
+      if (converter == null) {
+        converter = _fudgeBasedConverter;
+      }
+      _typedConverterCache.put(type, converter);
+    }
+    return (ResultConverter<? super T>) converter;
+  }
+  
+  @SuppressWarnings("unchecked")
   public <T> Object convert(T value, ConversionMode mode) {
-    ResultConverter<? super T> converter = findConverterForType((Class<T>) value.getClass());
+    ResultConverter<? super T> converter = getConverterForType((Class<T>) value.getClass());
     return converter.convertForDisplay(this, null, value, mode);
   }
   
@@ -68,25 +86,12 @@ public class ResultConverterCache {
     return _doubleConverter;
   }
   
-  public String getKnownResultTypeName(String valueRequirementName) {
-    ResultConverter<?> converter = _converterCache.get(valueRequirementName);
+  public String getKnownResultTypeName(String valueName) {
+    ResultConverter<?> converter = _valueNameConverterCache.get(valueName);
     return converter != null ? converter.getFormatterName() : null;
   }
   
   public ResultConverter<Object> getFudgeConverter() {
-    return _fudgeBasedConverter;
-  }
-  
-  @SuppressWarnings("unchecked")
-  private <T> ResultConverter<? super T> findConverterForType(Class<T> type) {
-    Class<?> searchType = type;
-    while (searchType != null) {
-      ResultConverter<?> converter = _converterMap.get(searchType);
-      if (converter != null) {
-        return (ResultConverter<? super T>) converter;
-      }
-      searchType = searchType.getSuperclass();
-    }
     return _fudgeBasedConverter;
   }
   
