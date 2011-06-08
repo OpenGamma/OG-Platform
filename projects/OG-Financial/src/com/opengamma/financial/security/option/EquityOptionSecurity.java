@@ -16,8 +16,8 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.optio
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
     _exchange = exchange;
   }
-  protected EquityOptionSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected EquityOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (POINT_VALUE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'pointValue' is not present");
@@ -51,32 +51,32 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.optio
   public EquityOptionSecurity clone () {
     return new EquityOptionSecurity (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     msg.add (POINT_VALUE_KEY, null, _pointValue);
     if (_exchange != null)  {
       msg.add (EXCHANGE_KEY, null, _exchange);
     }
   }
-  public static EquityOptionSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static EquityOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.option.EquityOptionSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.option.EquityOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.option.EquityOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new EquityOptionSecurity (fudgeMsg);
+    return new EquityOptionSecurity (fudgeContext, fudgeMsg);
   }
   public double getPointValue () {
     return _pointValue;

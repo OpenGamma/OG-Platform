@@ -8,7 +8,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) {
           return visitor.visitBondSecurity(this);
         }
-  private static final long serialVersionUID = 8326263055699036774l;
+  private static final long serialVersionUID = 8836932213967444406l;
   private String _issuerName;
   public static final String ISSUER_NAME_KEY = "issuerName";
   private String _issuerType;
@@ -35,13 +35,13 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
   public static final String DAY_COUNT_CONVENTION_KEY = "dayCountConvention";
   private com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
   public static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
-  private com.opengamma.financial.security.DateTimeWithZone _announcementDate;
+  private javax.time.calendar.ZonedDateTime _announcementDate;
   public static final String ANNOUNCEMENT_DATE_KEY = "announcementDate";
-  private com.opengamma.financial.security.DateTimeWithZone _interestAccrualDate;
+  private javax.time.calendar.ZonedDateTime _interestAccrualDate;
   public static final String INTEREST_ACCRUAL_DATE_KEY = "interestAccrualDate";
-  private com.opengamma.financial.security.DateTimeWithZone _settlementDate;
+  private javax.time.calendar.ZonedDateTime _settlementDate;
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.financial.security.DateTimeWithZone _firstCouponDate;
+  private javax.time.calendar.ZonedDateTime _firstCouponDate;
   public static final String FIRST_COUPON_DATE_KEY = "firstCouponDate";
   private double _issuancePrice;
   public static final String ISSUANCE_PRICE_KEY = "issuancePrice";
@@ -56,7 +56,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
   private double _redemptionValue;
   public static final String REDEMPTION_VALUE_KEY = "redemptionValue";
   public static final String SECURITY_TYPE = "BOND";
-  public BondSecurity (String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, com.opengamma.financial.security.DateTimeWithZone interestAccrualDate, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.financial.security.DateTimeWithZone firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
+  public BondSecurity (String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
     super (SECURITY_TYPE);
     if (issuerName == null) throw new NullPointerException ("issuerName' cannot be null");
     _issuerName = issuerName;
@@ -83,15 +83,15 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _dayCountConvention = dayCountConvention;
     if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
     else {
-      _interestAccrualDate = (com.opengamma.financial.security.DateTimeWithZone)interestAccrualDate.clone ();
+      _interestAccrualDate = interestAccrualDate;
     }
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
     if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
     else {
-      _firstCouponDate = (com.opengamma.financial.security.DateTimeWithZone)firstCouponDate.clone ();
+      _firstCouponDate = firstCouponDate;
     }
     _issuancePrice = issuancePrice;
     _totalAmountIssued = totalAmountIssued;
@@ -100,8 +100,8 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _parAmount = parAmount;
     _redemptionValue = redemptionValue;
   }
-  protected BondSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected BondSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (ISSUER_NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerName' is not present");
@@ -154,7 +154,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (LAST_TRADE_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not present");
     try {
-      _lastTradeDate = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _lastTradeDate = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not Expiry message", e);
@@ -194,26 +194,26 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (INTEREST_ACCRUAL_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not present");
     try {
-      _interestAccrualDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _interestAccrualDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not present");
     try {
-      _settlementDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _settlementDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (FIRST_COUPON_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not present");
     try {
-      _firstCouponDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _firstCouponDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (ISSUANCE_PRICE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuancePrice' is not present");
@@ -284,16 +284,14 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (ANNOUNCEMENT_DATE_KEY);
     if (fudgeField != null)  {
       try {
-        final com.opengamma.financial.security.DateTimeWithZone fudge1;
-        fudge1 = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-        setAnnouncementDate (fudge1);
+        setAnnouncementDate (fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField));
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'announcementDate' is not DateTimeWithZone message", e);
+        throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'announcementDate' is not ZonedDateTime typedef", e);
       }
     }
   }
-  public BondSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, String guaranteeType, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.DateTimeWithZone announcementDate, com.opengamma.financial.security.DateTimeWithZone interestAccrualDate, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.financial.security.DateTimeWithZone firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
+  public BondSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, String guaranteeType, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, javax.time.calendar.ZonedDateTime announcementDate, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
     super (uniqueId, name, securityType, identifiers);
     if (issuerName == null) throw new NullPointerException ("issuerName' cannot be null");
     _issuerName = issuerName;
@@ -322,19 +320,19 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _businessDayConvention = businessDayConvention;
     if (announcementDate == null) _announcementDate = null;
     else {
-      _announcementDate = (com.opengamma.financial.security.DateTimeWithZone)announcementDate.clone ();
+      _announcementDate = announcementDate;
     }
     if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
     else {
-      _interestAccrualDate = (com.opengamma.financial.security.DateTimeWithZone)interestAccrualDate.clone ();
+      _interestAccrualDate = interestAccrualDate;
     }
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
     if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
     else {
-      _firstCouponDate = (com.opengamma.financial.security.DateTimeWithZone)firstCouponDate.clone ();
+      _firstCouponDate = firstCouponDate;
     }
     _issuancePrice = issuancePrice;
     _totalAmountIssued = totalAmountIssued;
@@ -364,19 +362,19 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _businessDayConvention = source._businessDayConvention;
     if (source._announcementDate == null) _announcementDate = null;
     else {
-      _announcementDate = (com.opengamma.financial.security.DateTimeWithZone)source._announcementDate.clone ();
+      _announcementDate = source._announcementDate;
     }
     if (source._interestAccrualDate == null) _interestAccrualDate = null;
     else {
-      _interestAccrualDate = (com.opengamma.financial.security.DateTimeWithZone)source._interestAccrualDate.clone ();
+      _interestAccrualDate = source._interestAccrualDate;
     }
     if (source._settlementDate == null) _settlementDate = null;
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)source._settlementDate.clone ();
+      _settlementDate = source._settlementDate;
     }
     if (source._firstCouponDate == null) _firstCouponDate = null;
     else {
-      _firstCouponDate = (com.opengamma.financial.security.DateTimeWithZone)source._firstCouponDate.clone ();
+      _firstCouponDate = source._firstCouponDate;
     }
     _issuancePrice = source._issuancePrice;
     _totalAmountIssued = source._totalAmountIssued;
@@ -385,7 +383,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _parAmount = source._parAmount;
     _redemptionValue = source._redemptionValue;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_issuerName != null)  {
       msg.add (ISSUER_NAME_KEY, null, _issuerName);
@@ -427,24 +425,16 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
       msg.add (BUSINESS_DAY_CONVENTION_KEY, null, _businessDayConvention);
     }
     if (_announcementDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _announcementDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _announcementDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (ANNOUNCEMENT_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, ANNOUNCEMENT_DATE_KEY, null, _announcementDate);
     }
     if (_interestAccrualDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _interestAccrualDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _interestAccrualDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (INTEREST_ACCRUAL_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, INTEREST_ACCRUAL_DATE_KEY, null, _interestAccrualDate);
     }
     if (_settlementDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _settlementDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _settlementDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (SETTLEMENT_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
     }
     if (_firstCouponDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _firstCouponDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _firstCouponDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (FIRST_COUPON_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, FIRST_COUPON_DATE_KEY, null, _firstCouponDate);
     }
     msg.add (ISSUANCE_PRICE_KEY, null, _issuancePrice);
     msg.add (TOTAL_AMOUNT_ISSUED_KEY, null, _totalAmountIssued);
@@ -453,13 +443,13 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     msg.add (PAR_AMOUNT_KEY, null, _parAmount);
     msg.add (REDEMPTION_VALUE_KEY, null, _redemptionValue);
   }
-  public static BondSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static BondSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.bond.BondSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.bond.BondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.bond.BondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
@@ -557,40 +547,40 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
   public void setBusinessDayConvention (com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention) {
     _businessDayConvention = businessDayConvention;
   }
-  public com.opengamma.financial.security.DateTimeWithZone getAnnouncementDate () {
+  public javax.time.calendar.ZonedDateTime getAnnouncementDate () {
     return _announcementDate;
   }
-  public void setAnnouncementDate (com.opengamma.financial.security.DateTimeWithZone announcementDate) {
+  public void setAnnouncementDate (javax.time.calendar.ZonedDateTime announcementDate) {
     if (announcementDate == null) _announcementDate = null;
     else {
-      _announcementDate = (com.opengamma.financial.security.DateTimeWithZone)announcementDate.clone ();
+      _announcementDate = announcementDate;
     }
   }
-  public com.opengamma.financial.security.DateTimeWithZone getInterestAccrualDate () {
+  public javax.time.calendar.ZonedDateTime getInterestAccrualDate () {
     return _interestAccrualDate;
   }
-  public void setInterestAccrualDate (com.opengamma.financial.security.DateTimeWithZone interestAccrualDate) {
+  public void setInterestAccrualDate (javax.time.calendar.ZonedDateTime interestAccrualDate) {
     if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
     else {
-      _interestAccrualDate = (com.opengamma.financial.security.DateTimeWithZone)interestAccrualDate.clone ();
+      _interestAccrualDate = interestAccrualDate;
     }
   }
-  public com.opengamma.financial.security.DateTimeWithZone getSettlementDate () {
+  public javax.time.calendar.ZonedDateTime getSettlementDate () {
     return _settlementDate;
   }
-  public void setSettlementDate (com.opengamma.financial.security.DateTimeWithZone settlementDate) {
+  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
-      _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();
+      _settlementDate = settlementDate;
     }
   }
-  public com.opengamma.financial.security.DateTimeWithZone getFirstCouponDate () {
+  public javax.time.calendar.ZonedDateTime getFirstCouponDate () {
     return _firstCouponDate;
   }
-  public void setFirstCouponDate (com.opengamma.financial.security.DateTimeWithZone firstCouponDate) {
+  public void setFirstCouponDate (javax.time.calendar.ZonedDateTime firstCouponDate) {
     if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
     else {
-      _firstCouponDate = (com.opengamma.financial.security.DateTimeWithZone)firstCouponDate.clone ();
+      _firstCouponDate = firstCouponDate;
     }
   }
   public double getIssuancePrice () {

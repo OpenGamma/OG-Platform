@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -99,11 +98,10 @@ public class DbSecurityMasterTest extends DBTest {
   @Test
   public void test_bond() throws Exception {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
-    DateTimeWithZone dtwz = new DateTimeWithZone(zdt, zdt.getZone().getID());
     GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
         Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
-        dtwz, dtwz, dtwz, 129d, 1324d, 12d, 1d, 2d, 3d);
+        zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     

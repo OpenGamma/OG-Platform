@@ -21,7 +21,7 @@ public class Cancel extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNod
     }
   }
   protected Cancel (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (JOB_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a Cancel - field 'job' is not present");

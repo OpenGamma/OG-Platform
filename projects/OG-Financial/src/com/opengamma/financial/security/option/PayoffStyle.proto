@@ -52,7 +52,7 @@ namespace com.opengamma.financial.security.option {
   }
   
   message ExtremeSpreadPayoffStyle extends PayoffStyle {
-    required readonly DateTimeWithZone periodEnd;
+    required readonly javax.time.calendar.ZonedDateTime periodEnd;
     required readonly boolean isReverse;
     binding Java {
       method equals;
@@ -100,7 +100,7 @@ namespace com.opengamma.financial.security.option {
   }
   
   message SimpleChooserPayoffStyle extends PayoffStyle {
-    required readonly DateTimeWithZone chooseDate;
+    required readonly javax.time.calendar.ZonedDateTime chooseDate;
     required readonly double underlyingStrike;
     required readonly util.time.Expiry underlyingExpiry;
     binding Java {

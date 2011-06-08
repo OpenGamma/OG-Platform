@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.PublicAPI;
 
@@ -62,7 +63,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return msg;
   
   }
-  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeMsg msg) {
+  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
     FudgeMsg specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
     FudgeMsg fields = msg.getMessage(FIELDS_FIELD_NAME);
@@ -76,7 +77,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     if (fields == null) {
       return null;
     }
-    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(specificationFields);
+    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(fudgeContext, specificationFields);
     return new LiveDataValueUpdateBean(sequenceNumber, spec, fields);
   }
 

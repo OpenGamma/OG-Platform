@@ -10,7 +10,7 @@ public class DependentValueSpecificationsReply extends com.opengamma.engine.view
     super (correlationId);
   }
   protected DependentValueSpecificationsReply (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (VALUE_SPECIFICATION_KEY);
     if (fudgeFields.size () > 0)  {
