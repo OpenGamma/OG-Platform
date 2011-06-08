@@ -12,23 +12,27 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model. 
  *  No convexity adjustment is done for payment at non-standard dates.
  */
-public class CapFloorIborSABRMethod {
+public class CapFloorIborSABRMethod implements PricingMethod {
 
   /**
    * The Black function used in the pricing.
@@ -49,7 +53,7 @@ public class CapFloorIborSABRMethod {
    * @param sabrData The SABR data bundle. 
    * @return The present value.
    */
-  public double presentValue(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
@@ -61,7 +65,14 @@ public class CapFloorIborSABRMethod {
     BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
     double price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
-    return price;
+    return CurrencyAmount.of(cap.getCurrency(), price);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof CapFloorIbor, "Cap/Floor on Ibor");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
+    return presentValue((CapFloorIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**

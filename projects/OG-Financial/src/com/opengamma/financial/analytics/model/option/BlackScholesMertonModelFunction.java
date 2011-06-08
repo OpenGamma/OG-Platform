@@ -18,9 +18,9 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
-import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
@@ -35,7 +35,7 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof OptionSecurity) {
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;
@@ -52,7 +52,7 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
     return option.getExerciseType().accept(
       new ExerciseTypeVisitor<OptionDefinition>() {
         @Override

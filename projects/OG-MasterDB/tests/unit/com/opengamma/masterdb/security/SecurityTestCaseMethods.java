@@ -42,9 +42,11 @@ public interface SecurityTestCaseMethods {
 
   void testEquityOptionSecurity();
 
-  void testFutureOptionSecurity();
+  void testIRFutureOptionSecurity();
 
   void testFXOptionSecurity();
+  
+  void testFXBarrierOptionSecurity();
 
   void testOptionOptionSecurity();
 
@@ -53,5 +55,7 @@ public interface SecurityTestCaseMethods {
   void testForwardSwapSecurity();
 
   void testSwapSecurity();
+  
+  void testEquityIndexOptionSecurity();
 
 }

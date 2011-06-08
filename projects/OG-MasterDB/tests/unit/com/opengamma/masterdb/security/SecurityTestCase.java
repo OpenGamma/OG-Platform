@@ -69,16 +69,18 @@ import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
-import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.GapPayoffStyle;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
@@ -566,6 +568,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
+  
+  @Override
+  @Test
+  public void testFXBarrierOptionSecurity() {
+    assertSecurities(FXBarrierOptionSecurity.class);
+  }
 
   @Override
   @Test
@@ -575,8 +583,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testFutureOptionSecurity() {
-    assertSecurities(FutureOptionSecurity.class);
+  public void testIRFutureOptionSecurity() {
+    assertSecurities(IRFutureOptionSecurity.class);
   }
 
   @Override
@@ -632,5 +640,13 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
+
+  @Override
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    assertSecurities(EquityIndexOptionSecurity.class);
+  }
+  
+  
 
 }

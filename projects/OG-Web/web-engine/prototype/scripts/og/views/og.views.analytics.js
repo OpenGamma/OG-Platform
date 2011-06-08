@@ -7,7 +7,8 @@ $.register_module({
     dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.api.rest', 'og.common.routes'],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, analytics,
-            layout = og.views.common.layout, masthead = og.common.masthead, mode_handler, page_name = 'analytics',
+            layout = og.views.common.layout, masthead = og.common.masthead, mode_handler,
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name);
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},

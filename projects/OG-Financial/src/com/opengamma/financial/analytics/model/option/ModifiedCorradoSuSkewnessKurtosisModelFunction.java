@@ -13,7 +13,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.ModifiedCorradoSuSkewnessKurtosisModel;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
@@ -30,13 +30,13 @@ public class ModifiedCorradoSuSkewnessKurtosisModelFunction extends SkewKurtosis
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
     return new EuropeanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
+    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;

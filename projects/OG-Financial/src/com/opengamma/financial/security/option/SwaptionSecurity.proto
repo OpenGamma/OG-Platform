@@ -6,14 +6,22 @@
 
 namespace com.opengamma.financial.security.option {
  
-  message SwaptionSecurity extends OptionSecurity {
+  /**
+   * A security modelling a swaption.
+   */
+  message SwaptionSecurity extends FinancialSecurity {
    
     required string securityType [default = "SWAPTION"];
     
-    binding Java {
-      body "public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity (this); }";
-    }
+    required id.Identifier underlyingIdentifier;
+    required util.time.Expiry expiry;
+    required boolean isCashSettled;
     
+    binding Java {
+      body <<<JAVA
+        public <T> T accept (SwaptionSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity(this); }
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity(this); }
+JAVA;
+    }
   }
-   
 }
