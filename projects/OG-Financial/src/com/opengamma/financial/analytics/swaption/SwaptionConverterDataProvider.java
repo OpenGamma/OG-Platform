@@ -16,6 +16,7 @@ import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefiniti
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * 
@@ -35,11 +36,17 @@ public class SwaptionConverterDataProvider {
       final HistoricalDataSource dataSource) {
     if (definition instanceof SwaptionCashFixedIborDefinition) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;
+      final SwapSecurity swapSecurity = null; //TODO
+      //      final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now,
+      //          curveNames, dataSource);
       return cashSettled.toDerivative(now, curveNames);
       //return cashSettled.toDerivative(now, new DoubleTimeSeries[] {swapFixingTS}, curveNames);
     }
     if (definition instanceof SwaptionPhysicalFixedIborDefinition) {
       final SwaptionPhysicalFixedIborDefinition physicallySettled = (SwaptionPhysicalFixedIborDefinition) definition;
+      final SwapSecurity swapSecurity = null; //TODO
+      //      final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now,
+      //          curveNames, dataSource);
       return physicallySettled.toDerivative(now, curveNames);
       //return physicallySettled.toDerivative(now, new DoubleTimeSeries[] {swapFixingTS}, curveNames);
     }
