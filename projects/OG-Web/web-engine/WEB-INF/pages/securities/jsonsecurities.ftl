@@ -5,7 +5,8 @@
         "type": "Securities",
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
-        "count": ${"${paging.pagingSize}"?replace(',','')}
+        "page": ${"${paging.page}"?replace(',','')},
+        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
         </#if>
     },
     "data" : [<#if searchResult??><#list searchResult.documents as item>
