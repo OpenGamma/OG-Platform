@@ -21,7 +21,6 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
