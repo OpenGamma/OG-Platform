@@ -11,6 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -51,8 +53,11 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getJSON() {
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
     HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
     HolidayHistoryResult result = data().getHolidayMaster().history(request);
     
     FlexiBean out = createRootData();

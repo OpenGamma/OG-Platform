@@ -11,6 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -51,8 +53,11 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getJSON() {
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
     SecurityHistoryRequest request = new SecurityHistoryRequest(data().getSecurity().getUniqueId());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
     SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();

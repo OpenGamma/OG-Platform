@@ -11,6 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -51,8 +53,11 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getJSON() {
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
     RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();
