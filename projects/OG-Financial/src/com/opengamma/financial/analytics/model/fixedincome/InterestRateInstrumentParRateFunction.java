@@ -17,7 +17,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -26,17 +25,17 @@ public class InterestRateInstrumentParRateFunction extends InterestRateInstrumen
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
 
-  public InterestRateInstrumentParRateFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentParRateFunction(String fundingCurveName, String forwardCurveName) {
+    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, Pair<String, String> curveNames) {
+      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
     final Double parRate = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-          curveNames.getSecond(), curveNames.getFirst()));
+            fundingCurveName, forwardCurveName, createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, parRate));
   }
 

@@ -20,7 +20,6 @@ import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -29,17 +28,17 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY;
 
-  public InterestRateInstrumentParRateCurveSensitivityFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentParRateCurveSensitivityFunction(String fundingCurveName, String forwardCurveName) {
+    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, Pair<String, String> curveNames) {
+      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
     Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-          curveNames.getSecond(), curveNames.getFirst()));
+          fundingCurveName, forwardCurveName, createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, sensitivities));
 
   }

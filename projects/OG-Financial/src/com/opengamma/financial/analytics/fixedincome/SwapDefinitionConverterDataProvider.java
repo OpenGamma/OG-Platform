@@ -21,6 +21,7 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -77,7 +78,7 @@ public class SwapDefinitionConverterDataProvider implements
   private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final SwapLeg leg, final ZonedDateTime swapStartDate) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-      final UniqueIdentifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+      final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id = null; //TODO //IdentifierBundle.of(indexID);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _dataSource.getHistoricalData(id,
           _dataSourceName, null, _fieldName, swapStartDate.toLocalDate(), true, _now, false);

@@ -17,7 +17,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -26,17 +25,17 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
 
-  public InterestRateInstrumentPresentValueFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentPresentValueFunction(String fundingCurveName, String forwardCurveName) {
+    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, Pair<String, String> curveNames) {
+      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-          curveNames.getSecond(), curveNames.getFirst()));
+            fundingCurveName, forwardCurveName, createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 

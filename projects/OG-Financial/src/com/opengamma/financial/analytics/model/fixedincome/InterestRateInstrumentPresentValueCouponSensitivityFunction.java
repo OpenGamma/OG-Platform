@@ -17,7 +17,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCouponSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -27,17 +26,17 @@ public class InterestRateInstrumentPresentValueCouponSensitivityFunction extends
       .getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY;
 
-  public InterestRateInstrumentPresentValueCouponSensitivityFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentPresentValueCouponSensitivityFunction(String fundingCurveName, String forwardCurveName) {
+    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, Pair<String, String> curveNames) {
+      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-          curveNames.getSecond(), curveNames.getFirst()));
+            fundingCurveName, forwardCurveName, createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 

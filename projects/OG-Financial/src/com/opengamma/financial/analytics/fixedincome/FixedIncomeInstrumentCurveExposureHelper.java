@@ -13,6 +13,7 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -84,10 +85,10 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   }
 
   public static ValueProperties getValuePropertiesForSecurity(FinancialSecurity security, String fundingCurveName,
-      String forwardCurveName) {
+      String forwardCurveName, Builder properties) {
     String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
-    Builder properties = ValueProperties.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security)
-        .getCode());
+    Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());    
     for (String name : curveNames) {
       if (name.equals(fundingCurveName)) {
         properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
