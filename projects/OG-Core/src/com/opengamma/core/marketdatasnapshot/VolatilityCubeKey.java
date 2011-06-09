@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A key used to identify a volatility cube.
  */
-public class VolatilityCubeKey implements Comparable<VolatilityCubeKey>, Serializable {
+public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
   
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

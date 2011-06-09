@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.cube;
+package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 

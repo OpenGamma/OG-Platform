@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
@@ -22,12 +24,14 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.StructuredMarketDataDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -83,7 +87,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   /**
    * 
    */
-  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
+  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction implements StructuredMarketDataDataSourcingFunction {
 
     private final Set<ValueRequirement> _requirements;
     private final VolatilityCubeKey _volatilityCubeKey;
@@ -130,5 +134,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       return _helper.canApplyTo(context, target);
     }
 
+    @Override
+    public Set<Pair<StructuredMarketDataKey, ValueSpecification>> getStructuredMarketData() {
+      HashSet<Pair<StructuredMarketDataKey, ValueSpecification>> ret = new HashSet<Pair<StructuredMarketDataKey, ValueSpecification>>();
+      ret.add(Pair.of((StructuredMarketDataKey) _volatilityCubeKey, _marketDataResult));
+      return ret;
+    }
   }
 }
