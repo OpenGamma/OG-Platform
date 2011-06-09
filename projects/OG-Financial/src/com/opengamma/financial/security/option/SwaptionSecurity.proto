@@ -16,6 +16,7 @@ namespace com.opengamma.financial.security.option {
     required id.Identifier underlyingIdentifier;
     required util.time.Expiry expiry;
     required boolean isCashSettled;
+    required boolean isLong;
     
     binding Java {
       body <<<JAVA
