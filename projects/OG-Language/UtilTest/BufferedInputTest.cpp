@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Test the functions and objects in Util/BufferedInput.cpp
-
 #define _INTERNAL
 #include "Util/BufferedInput.h"
 
@@ -90,6 +87,7 @@ static void ReadSequence () {
 #endif
 }
 
+/// Tests the functions and objects in Util/BufferedInput.cpp
 BEGIN_TESTS (BufferedInputTest)
 	TEST (EmptyState)
 	TEST (ReadSequence)

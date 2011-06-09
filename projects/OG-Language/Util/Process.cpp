@@ -1,12 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Process abstraction
 
 #include "Logging.h"
 #include "Process.h"
@@ -18,6 +16,7 @@
 
 LOGGING (com.opengamma.language.util.Process);
 
+/// Destory a process instance. This only closes the underlying reference, the process is not affected.
 CProcess::~CProcess () {
 #ifdef _WIN32
 	CloseHandle (m_process);
@@ -26,6 +25,11 @@ CProcess::~CProcess () {
 #endif
 }
 
+/// Obtains the EXE, DLL or DSO containing this static code.
+///
+/// @param[out] pszBuffer buffer to receive name of the module
+/// @param[in] cchBuffer size of the buffer in characters
+/// @return true if the buffer was populated, false otherwise
 bool CProcess::GetCurrentModule (TCHAR *pszBuffer, size_t cchBuffer) {
 #ifdef _WIN32
 	HMODULE hModule = CDllVersion::GetCurrentModule ();
@@ -36,6 +40,10 @@ bool CProcess::GetCurrentModule (TCHAR *pszBuffer, size_t cchBuffer) {
 #endif
 }
 
+/// Finds a process instance that is running the named image.
+///
+/// @param[in] pszExecutable image to search for
+/// @return process instance or NULL if not found
 CProcess *CProcess::FindByName (const TCHAR *pszExecutable) {
 #ifdef _WIN32
 	DWORD cdwProcesses = 512;
@@ -148,6 +156,10 @@ CProcess *CProcess::FindByName (const TCHAR *pszExecutable) {
 }
 
 #ifndef _WIN32
+/// Tests if a process is still running.
+///
+/// @param[in] pid process identifier
+/// @return true if still running, false otherwise
 static bool _IsRunning (pid_t pid) {
 	TCHAR sz[32], szExecutable[256];
 	StringCbPrintf (sz, sizeof (sz), TEXT ("/proc/%d/exe"), pid);
@@ -171,6 +183,10 @@ static bool _IsRunning (pid_t pid) {
 }
 #endif
 
+/// Wait for a process to terminate.
+///
+/// @param[in] lTimeout maximum time to wait in milliseconds
+/// @return true if the process terminated, false otherwise
 bool CProcess::Wait (unsigned long lTimeout) const {
 #ifdef _WIN32
 	switch (WaitForSingleObject (m_process, lTimeout)) {
@@ -195,6 +211,11 @@ bool CProcess::Wait (unsigned long lTimeout) const {
 #endif
 }
 
+/// Starts a new process from the given image and command line parameters
+///
+/// @param[in] pszExecutable image to execute
+/// @param[in] pszParameters command line parameters
+/// @return the process instance, or NULL if there was a problem
 CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameters) {
 	LOGINFO (TEXT ("Running ") << pszExecutable);
 #ifdef _WIN32
@@ -238,6 +259,9 @@ CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameter
 #endif /* ifdef _WIN32 */
 }
 
+/// Tests if the process identified by this handle is still executing.
+///
+/// @return true if still executing, false otherwise
 bool CProcess::IsAlive () const {
 #ifdef _WIN32
 	DWORD dwExitCode;

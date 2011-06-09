@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Test the functions and objects in Util/DllVersion.cpp
-
 #include "DllVersionInfo.h"
 #include "Util/DllVersion.h"
 
@@ -28,6 +25,7 @@ static void DefaultValues () {
 	ASSERT (!_tcslen (version.GetSpecialBuild ())); // No special build in our reference file
 }
 
+/// Test the functions and objects in Util/DllVersion.cpp
 BEGIN_TESTS (DllVersionTest)
 	TEST (DefaultValues)
 END_TESTS
