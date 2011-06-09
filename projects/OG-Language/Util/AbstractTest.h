@@ -86,30 +86,30 @@ public:
 
 #ifdef __cplusplus_cli
 
-/// Marks the beginning of a testing scenario. For internal use only.
-///
-/// @param[in] automatic true if the test is to run automatically, false for manual selection only
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario. For internal use only.
+//
+// @param[in] automatic true if the test is to run automatically, false for manual selection only
+// @param[in] label the name of the test
 #define BEGIN_TESTS_(automatic, label) \
 	static bool s_bAutomatic = automatic; \
 	[TestClass] \
 	public ref class C##label { \
 	public:
 
-/// Marks the beginning of a testing scenario. The test will run whenever the full test suite is
-/// selected.
-///
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario. The test will run whenever the full test suite is
+// selected.
+//
+// @param[in] label the name of the test
 #define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
 
-/// Marks the beginning of a testing scenario for manual runs only. The test will not normally run.
-///
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario for manual runs only. The test will not normally run.
+//
+// @param[in] label the name of the test
 #define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
 
-/// Marks a function (in global scope) as a test method for execution within this scenario.
-///
-/// @param[in] proc the test method
+// Marks a function (in global scope) as a test method for execution within this scenario.
+//
+// @param[in] proc the test method
 #define TEST(proc) \
 		[TestMethod] \
 		void Test##proc () { \
@@ -123,10 +123,10 @@ public:
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete")); \
 		}
 
-/// Marks a function (in global scope) for execution before each test method. This may only be used
-/// once within the testing scenario and should be placed after the test methods.
-///
-/// @param[in] proc the per-test method initialisation procedure.
+// Marks a function (in global scope) for execution before each test method. This may only be used
+// once within the testing scenario and should be placed after the test methods.
+//
+// @param[in] proc the per-test method initialisation procedure.
 #define BEFORE_TEST(proc) \
 		[TestInitialize] \
 		void Before##proc () { \
@@ -140,10 +140,10 @@ public:
 			LOGINFO (TEXT ("Pre-test ") << TEXT (#proc) << TEXT (" complete")); \
 		}
 
-/// Marks a function (in global scope) for execution after each test method. This may only be used
-/// once within the testing scenario and should be placed after the test methods.
-///
-/// @param[in] proc the per-test method clean up procedure.
+// Marks a function (in global scope) for execution after each test method. This may only be used
+// once within the testing scenario and should be placed after the test methods.
+//
+// @param[in] proc the per-test method clean up procedure.
 #define AFTER_TEST(proc) \
 		[TestCleanup] \
 		void After##proc () { \
@@ -156,11 +156,11 @@ public:
 			LOGINFO (TEXT ("Post-test ") << TEXT (#proc) << TEXT (" complete")); \
 		}
 
-/// Marks a function (in global scope) for execution before any of the test methods in the testing
-/// scenario. This may only be used once within the testing scenario and should be placed after the
-/// test methods.
-///
-/// @param[in] proc the initialisation procedure.
+// Marks a function (in global scope) for execution before any of the test methods in the testing
+// scenario. This may only be used once within the testing scenario and should be placed after the
+// test methods.
+//
+// @param[in] proc the initialisation procedure.
 #define BEFORE_ALL_TESTS(proc) \
 		[ClassInitialize] \
 		static void BeforeAll##proc () { \
@@ -174,11 +174,11 @@ public:
 			LOGINFO (TEXT ("Before-all ") << TEXT (#proc) << TEXT (" complete")); \
 		}
 	
-/// Marks a function (in global scope) for execution after all of the test methods in the testing
-/// scenario. This may only be used once within the testing scenario and should be placed after the
-/// test methods.
-///
-/// @param[in] proc the clean up procedure.
+// Marks a function (in global scope) for execution after all of the test methods in the testing
+// scenario. This may only be used once within the testing scenario and should be placed after the
+// test methods.
+//
+// @param[in] proc the clean up procedure.
 #define AFTER_ALL_TESTS(proc) \
 		[ClassCleanup] \
 		static void AfterAll##proc () { \
@@ -191,16 +191,16 @@ public:
 			LOGINFO (TEXT ("After-all ") << TEXT (#proc) << TEXT (" complete")); \
 		}
 
-/// Marks the end of a testing scenario.
+// Marks the end of a testing scenario.
 #define END_TESTS \
 	};
 
 #else /* ifdef __cplusplus_cli */
 
-/// Marks the beginning of a testing scenario. For internal use only.
-///
-/// @param[in] automatic true if the test is to run automatically, false for manual selection only
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario. For internal use only.
+//
+// @param[in] automatic true if the test is to run automatically, false for manual selection only
+// @param[in] label the name of the test
 #define BEGIN_TESTS_(automatic, label) \
 	static class C##label : public CAbstractTest { \
 	public: \
@@ -208,20 +208,20 @@ public:
 		void Run () { \
 			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
 
-/// Marks the beginning of a testing scenario. The test will run whenever the full test suite is
-/// selected.
-///
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario. The test will run whenever the full test suite is
+// selected.
+//
+// @param[in] label the name of the test
 #define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
 
-/// Marks the beginning of a testing scenario for manual runs only. The test will not normally run.
-///
-/// @param[in] label the name of the test
+// Marks the beginning of a testing scenario for manual runs only. The test will not normally run.
+//
+// @param[in] label the name of the test
 #define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
 
-/// Marks a function (in global scope) as a test method for execution within this scenario.
-///
-/// @param[in] proc the test method
+// Marks a function (in global scope) as a test method for execution within this scenario.
+//
+// @param[in] proc the test method
 #define TEST(proc) \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			Before (); \
@@ -229,10 +229,10 @@ public:
 			After (); \
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete"));
 
-/// Marks a function (in global scope) for execution before each test method. This may only be used
-/// once within the testing scenario and must be placed after the test methods.
-///
-/// @param[in] proc the per-test method initialisation procedure
+// Marks a function (in global scope) for execution before each test method. This may only be used
+// once within the testing scenario and must be placed after the test methods.
+//
+// @param[in] proc the per-test method initialisation procedure
 #define BEFORE_TEST(proc) \
 		} \
 		void Before () { \
@@ -240,10 +240,10 @@ public:
 			::proc (); \
 			LOGDEBUG (TEXT ("Pre-test ") << TEXT (#proc) << TEXT (" complete"));
 
-/// Marks a function (in global scope) for execution after each test method. This may only be used
-/// once within the testing scenario and must be placed after the test methods.
-///
-/// @param[in] proc the per-test method clean up procedure
+// Marks a function (in global scope) for execution after each test method. This may only be used
+// once within the testing scenario and must be placed after the test methods.
+//
+// @param[in] proc the per-test method clean up procedure
 #define AFTER_TEST(proc) \
 		} \
 		void After () { \
@@ -252,11 +252,11 @@ public:
 			LOGDEBUG (TEXT ("Post-test ") << TEXT (#proc) << TEXT (" complete")); \
 			CAbstractTest::After ();
 
-/// Marks a function (in global scope) for execution before any of the test methods in the testing
-/// scenario. This may only be used once within the testing scenario and must be placed after the
-/// test methods.
-///
-/// @param[in] proc the initialisation procedure
+// Marks a function (in global scope) for execution before any of the test methods in the testing
+// scenario. This may only be used once within the testing scenario and must be placed after the
+// test methods.
+//
+// @param[in] proc the initialisation procedure
 #define BEFORE_ALL_TESTS(proc) \
 		} \
 		void BeforeAll () { \
@@ -264,11 +264,11 @@ public:
 			::proc (); \
 			LOGDEBUG (TEXT ("Before-all ") << TEXT (#proc) << TEXT (" complete"));
 
-/// Marks a function (in global scope) for execution after all of the test methods in the testing
-/// scenario. This may only be used once within the testing scenario and must be placed after the
-/// test methods.
-///
-/// @param[in] proc the clean u pprocedure
+// Marks a function (in global scope) for execution after all of the test methods in the testing
+// scenario. This may only be used once within the testing scenario and must be placed after the
+// test methods.
+//
+// @param[in] proc the clean u pprocedure
 #define AFTER_ALL_TESTS(proc) \
 		} \
 		void AfterAll () { \
@@ -276,7 +276,7 @@ public:
 			::proc (); \
 			LOGDEBUG (TEXT ("After-all ") << TEXT (#proc) << TEXT (" complete"));
 
-/// Marks the end of a testing scenario
+// Marks the end of a testing scenario
 #define END_TESTS \
 		} \
 	} g_o##__LINE__;

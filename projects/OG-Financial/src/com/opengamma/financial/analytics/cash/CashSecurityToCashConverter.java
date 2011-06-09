@@ -64,7 +64,7 @@ public class CashSecurityToCashConverter {
     final ZonedDateTime startDate = conventions.getBusinessDayConvention().adjustDate(calendar, now.plusDays(conventions.getSettlementDays()));
     final DayCount dayCount = conventions.getDayCount();
     final double tradeTime = dayCount.getDayCountFraction(now, startDate);
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final ZonedDateTime maturityDate = security.getMaturity();
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);

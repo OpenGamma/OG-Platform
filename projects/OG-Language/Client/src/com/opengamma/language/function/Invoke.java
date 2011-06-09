@@ -12,8 +12,8 @@ public class Invoke extends com.opengamma.language.connector.Function implements
   public Invoke (int identifier) {
     _identifier = identifier;
   }
-  protected Invoke (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected Invoke (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeField = fudgeMsg.getByName (IDENTIFIER_KEY);
@@ -31,7 +31,7 @@ public class Invoke extends com.opengamma.language.connector.Function implements
       for (org.fudgemsg.FudgeField fudge2 : fudgeFields) {
         try {
           final com.opengamma.language.Data fudge3;
-          fudge3 = com.opengamma.language.Data.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge2));
+          fudge3 = com.opengamma.language.Data.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge2));
           fudge1.add (fudge3);
         }
         catch (IllegalArgumentException e) {
@@ -71,13 +71,13 @@ public class Invoke extends com.opengamma.language.connector.Function implements
   public Invoke clone () {
     return new Invoke (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     msg.add (IDENTIFIER_KEY, null, _identifier);
     if (_parameter != null)  {
@@ -88,19 +88,19 @@ public class Invoke extends com.opengamma.language.connector.Function implements
       }
     }
   }
-  public static Invoke fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static Invoke fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.function.Invoke".equals (className)) break;
       try {
-        return (com.opengamma.language.function.Invoke)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.function.Invoke)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new Invoke (fudgeMsg);
+    return new Invoke (fudgeContext, fudgeMsg);
   }
   public int getIdentifier () {
     return _identifier;

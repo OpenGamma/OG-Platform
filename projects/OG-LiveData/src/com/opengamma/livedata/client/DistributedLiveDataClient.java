@@ -378,7 +378,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg fudgeMsg = msgEnvelope.getMessage();
-    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fudgeMsg);
+    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), fudgeMsg);
     valueUpdate(update);
   }
 

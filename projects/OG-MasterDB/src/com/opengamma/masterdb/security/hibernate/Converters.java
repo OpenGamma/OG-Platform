@@ -17,7 +17,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -94,25 +93,23 @@ public final class Converters {
     return bean;
   }
 
-  public static DateTimeWithZone zonedDateTimeBeanToDateTimeWithZone(final ZonedDateTimeBean date) {
+  public static ZonedDateTime zonedDateTimeBeanToDateTimeWithZone(final ZonedDateTimeBean date) {
     if ((date == null) || (date.getDate() == null)) {
       return null;
     }
     final long epochSeconds = date.getDate().getTime() / 1000;
     if (date.getZone() == null) {
-      return new DateTimeWithZone(ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC));
+      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC);
     } else {
-      final ZonedDateTime zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(date.getZone()));
-      return new DateTimeWithZone(zdt, zdt.getZone().getID());
+      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(date.getZone()));
     }
   }
 
-  public static ZonedDateTimeBean dateTimeWithZoneToZonedDateTimeBean(final DateTimeWithZone date) {
-    if (date == null) {
+  public static ZonedDateTimeBean dateTimeWithZoneToZonedDateTimeBean(final ZonedDateTime zdt) {
+    if (zdt == null) {
       return null;
     }
     final ZonedDateTimeBean bean = new ZonedDateTimeBean();
-    final ZonedDateTime zdt = ZonedDateTime.of(date.getDate(), TimeZone.of(date.getZone()));
     bean.setDate(new Date(zdt.toInstant().toEpochMillisLong()));
     bean.setZone(zdt.getZone().getID());
     return bean;

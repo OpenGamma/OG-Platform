@@ -21,7 +21,8 @@ LOGGING(com.opengamma.language.util.AbstractSettings);
 #ifndef _WIN32
 /// Attempts to open a file named by the concatenation of the three path components.
 ///
-/// @param[in] pszSettingsLocation the name of the file within the config folder, e.g. <company name>/<product>, with no leading slash
+/// @param[in] pszSettingsLocation the name of the file within the config folder, e.g. &lt;company name&lt;/&lt;product&gt;,
+///            with no leading slash
 /// @param[in] pszBase the location of the config folder, with a leading slash if not the empty string, and no trailing slash
 /// @param[in] pszConfig the config folder name with leading and trailing slash
 /// @return the opened file handle or NULL if not found

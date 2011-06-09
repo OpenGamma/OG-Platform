@@ -32,7 +32,7 @@ public class ConnectorMessage implements java.io.Serializable {
     if (operation == null) throw new NullPointerException ("operation' cannot be null");
     _operation = operation;
   }
-  protected ConnectorMessage (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected ConnectorMessage (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (OPERATION_ORDINAL);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ConnectorMessage - field 'operation' is not present");
@@ -67,13 +67,13 @@ public class ConnectorMessage implements java.io.Serializable {
   public ConnectorMessage clone () {
     return new ConnectorMessage (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_operation != null)  {
       msg.add (null, OPERATION_ORDINAL, _operation.getFudgeEncoding ());
     }
@@ -81,19 +81,19 @@ public class ConnectorMessage implements java.io.Serializable {
       msg.add (null, STASH_ORDINAL, (_stash instanceof org.fudgemsg.MutableFudgeMsg) ? fudgeContext.newMessage (_stash) : _stash);
     }
   }
-  public static ConnectorMessage fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static ConnectorMessage fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.connector.ConnectorMessage".equals (className)) break;
       try {
-        return (com.opengamma.language.connector.ConnectorMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.connector.ConnectorMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new ConnectorMessage (fudgeMsg);
+    return new ConnectorMessage (fudgeContext, fudgeMsg);
   }
   public com.opengamma.language.connector.ConnectorMessage.Operation getOperation () {
     return _operation;

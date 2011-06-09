@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.position;
 
+import java.util.Map;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
@@ -80,5 +82,11 @@ public interface Trade extends PositionOrTrade {
    * @return the premium time with offset, can be null
    */
   OffsetTime getPremiumTime();
-
+  
+  /**
+   * Gets the attributes to use for trade aggregation
+   * 
+   * @return the attributes, not null
+   */
+  Map<String, String> getAttributes();
 }

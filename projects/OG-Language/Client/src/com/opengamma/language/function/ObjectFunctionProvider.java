@@ -16,6 +16,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -35,6 +37,8 @@ import com.opengamma.master.security.ManageableSecurity;
  * {@link #loadDefinitions} method.
  */
 public class ObjectFunctionProvider extends AbstractFunctionProvider {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ObjectFunctionProvider.class);
 
   private static final String[] EMPTY = new String[0];
 
@@ -238,6 +242,11 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       return getInheritedAttribute(parameter).getDescription();
     }
 
+    @Override
+    public String toString() {
+      return "ObjectInfo[" + getObjectClass() + "]";
+    }
+
   }
 
   protected ResourceBundle getResourceBundle() {
@@ -371,6 +380,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
   }
 
   protected void loadDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
+    s_logger.debug("Loading definitions for {}", object);
     if (ManageableSecurity.class.isAssignableFrom(object.getObjectClass())) {
       loadManageableSecurityDefinitions(object, definitions);
     } else {
@@ -388,6 +398,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
 
   @Override
   protected final void loadDefinitions(final Collection<MetaFunction> definitions) {
+    s_logger.info("Starting loadDefinitions with {} in collection", definitions.size());
     final Map<String, ObjectInfo> functions = new HashMap<String, ObjectInfo>();
     final ResourceBundle mapping = getResourceBundle();
     for (final String key : mapping.keySet()) {
@@ -431,6 +442,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       }
     }
     loadDefinitions(objects, definitions);
+    s_logger.debug("Finished loadDefinitions with {} definitions in collection", definitions.size());
   }
 
 }

@@ -27,7 +27,7 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
         _dataInput = dataInput;
         _dataOutput = dataOutput;
       }
-      protected PerFunction (final org.fudgemsg.FudgeMsg fudgeMsg) {
+      protected PerFunction (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
         org.fudgemsg.FudgeField fudgeField;
         fudgeField = fudgeMsg.getByName (IDENTIFIER_KEY);
         if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a PerFunction - field 'identifier' is not present");
@@ -81,13 +81,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
       public PerFunction clone () {
         return new PerFunction (this);
       }
-      public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+      public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
         if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
         final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
         toFudgeMsg (fudgeContext, msg);
         return msg;
       }
-      public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+      public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
         if (_identifier != null)  {
           msg.add (IDENTIFIER_KEY, null, _identifier);
         }
@@ -96,19 +96,19 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
         msg.add (DATA_INPUT_KEY, null, _dataInput);
         msg.add (DATA_OUTPUT_KEY, null, _dataOutput);
       }
-      public static PerFunction fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+      public static PerFunction fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
         final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
         for (org.fudgemsg.FudgeField field : types) {
           final String className = (String)field.getValue ();
           if ("com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction".equals (className)) break;
           try {
-            return (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+            return (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
           }
           catch (Throwable t) {
             // no-action
           }
         }
-        return new PerFunction (fudgeMsg);
+        return new PerFunction (fudgeContext, fudgeMsg);
       }
       public String getIdentifier () {
         return _identifier;
@@ -164,7 +164,7 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
         _function = fudge0;
       }
     }
-    protected PerConfiguration (final org.fudgemsg.FudgeMsg fudgeMsg) {
+    protected PerConfiguration (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
       org.fudgemsg.FudgeField fudgeField;
       java.util.List<org.fudgemsg.FudgeField> fudgeFields;
       fudgeField = fudgeMsg.getByName (CONFIGURATION_KEY);
@@ -181,7 +181,7 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
       for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
         try {
           final com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction fudge2;
-          fudge2 = com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
+          fudge2 = com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
           _function.add (fudge2);
         }
         catch (IllegalArgumentException e) {
@@ -205,13 +205,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
     public PerConfiguration clone () {
       return new PerConfiguration (this);
     }
-    public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+    public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
       if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
       final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
       toFudgeMsg (fudgeContext, msg);
       return msg;
     }
-    public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+    public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
       if (_configuration != null)  {
         msg.add (CONFIGURATION_KEY, null, _configuration);
       }
@@ -223,19 +223,19 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
         }
       }
     }
-    public static PerConfiguration fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+    public static PerConfiguration fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
       final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
       for (org.fudgemsg.FudgeField field : types) {
         final String className = (String)field.getValue ();
         if ("com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration".equals (className)) break;
         try {
-          return (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+          return (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
         }
         catch (Throwable t) {
           // no-action
         }
       }
-      return new PerConfiguration (fudgeMsg);
+      return new PerConfiguration (fudgeContext, fudgeMsg);
     }
     public String getConfiguration () {
       return _configuration;
@@ -291,8 +291,8 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
       _configuration = fudge0;
     }
   }
-  protected Invocations (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected Invocations (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (CONFIGURATION_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a Invocations - field 'configuration' is not present");
@@ -300,7 +300,7 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration fudge2;
-        fudge2 = com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
+        fudge2 = com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
         _configuration.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -324,13 +324,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
   public Invocations clone () {
     return new Invocations (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_configuration != null)  {
       for (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration fudge1 : _configuration) {
@@ -340,19 +340,19 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
       }
     }
   }
-  public static Invocations fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static Invocations fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.calcnode.msg.Invocations".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.calcnode.msg.Invocations)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.engine.view.calcnode.msg.Invocations)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new Invocations (fudgeMsg);
+    return new Invocations (fudgeContext, fudgeMsg);
   }
   public java.util.List<com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration> getConfiguration () {
     return java.util.Collections.unmodifiableList (_configuration);

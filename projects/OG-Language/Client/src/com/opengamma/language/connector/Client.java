@@ -26,6 +26,8 @@ import java.util.concurrent.TimeoutException;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.FudgeRuntimeIOException;
@@ -144,7 +146,7 @@ public class Client implements Runnable {
   }
 
   protected void sendUserMessage(final UserMessage message) {
-    sendUserMessage(message.toFudgeMsg(getClientContext().getFudgeContext()));
+    sendUserMessage(message.toFudgeMsg(new FudgeSerializationContext(getClientContext().getFudgeContext())));
   }
   
   protected void sendUserMessage(final FudgeMsg msg) {
@@ -240,6 +242,7 @@ public class Client implements Runnable {
     try {
       boolean contextInitialized = false;
       final FudgeMsgReader reader = new FudgeMsgReader(getInputPipe());
+      final FudgeDeserializationContext fdc = new FudgeDeserializationContext(getClientContext().getFudgeContext());
       s_logger.info("Starting message read loop");
       while (!_poisoned && reader.hasNext()) {
         final FudgeMsgEnvelope messageEnvelope = reader.nextMessageEnvelope();
@@ -250,7 +253,7 @@ public class Client implements Runnable {
             break;
           }
           case MessageDirectives.CLIENT: {
-            final ConnectorMessage message = new ConnectorMessage(messageEnvelope.getMessage());
+            final ConnectorMessage message = new ConnectorMessage(fdc, messageEnvelope.getMessage());
             switch (message.getOperation()) {
               case HEARTBEAT:
                 if (getOutputMessageBuffer().isEmpty()) {
@@ -375,7 +378,8 @@ public class Client implements Runnable {
   }
   
   protected void doDispatchUserMessage(final FudgeMsg msg) {
-    UserMessage userMessage = new UserMessage(msg);
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext(getClientContext().getFudgeContext());
+    UserMessage userMessage = new UserMessage(fdc, msg);
     UserMessagePayload response = null;
     try {
       s_logger.debug("Dispatching user message {}", msg);
@@ -399,7 +403,8 @@ public class Client implements Runnable {
       _stashMessage = stashMessage;
     }
     final ConnectorMessage msg = new ConnectorMessage(Operation.STASH, stashMessage);
-    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.CLIENT));
+    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg.toFudgeMsg(
+        new FudgeSerializationContext(getClientContext().getFudgeContext())), 0, MessageDirectives.CLIENT));
   }
 
   protected synchronized FudgeMsg getStashMessage() {

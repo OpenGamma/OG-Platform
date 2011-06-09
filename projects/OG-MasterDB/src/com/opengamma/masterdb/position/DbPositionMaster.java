@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -27,6 +28,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -105,7 +107,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           "t.premium_time AS premium_time, " +
           "t.premium_zone_offset AS premium_zone_offset, " +
           "ts.key_scheme AS trade_key_scheme, " +
-          "ts.key_value AS trade_key_value ";
+          "ts.key_value AS trade_key_value, " +
+          "ta.key AS trade_attr_key, " +
+          "ta.value AS trade_attr_value ";
   /**
    * SQL from.
    */
@@ -115,7 +119,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           "LEFT JOIN pos_idkey ps ON (ps.id = pi.idkey_id) " +
           "LEFT JOIN pos_trade t ON (t.position_id = main.id) " +
           "LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id) " +
-          "LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id) ";
+          "LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id) " +
+          "LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id) ";
 
   /**
    * Creates an instance.
@@ -403,8 +408,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     }
 
     // the arguments for inserting into the trade table
-    final List<DbMapSqlParameterSource> tradeList = new ArrayList<DbMapSqlParameterSource>();
-    final List<DbMapSqlParameterSource> tradeAssocList = new ArrayList<DbMapSqlParameterSource>();
+    final List<DbMapSqlParameterSource> tradeList = Lists.newArrayList();
+    final List<DbMapSqlParameterSource> tradeAssocList = Lists.newArrayList();
+    final List<DbMapSqlParameterSource> tradeAttributeList = Lists.newArrayList();
     for (ManageableTrade trade : position.getTrades()) {
       final long tradeId = nextId("pos_master_seq");
       final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
@@ -430,7 +436,18 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
 
       tradeList.add(tradeArgs);
-
+      
+      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+        final long tradeAttrId = nextId("pos_trade_attr_seq");
+        final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
+            .addValue("attr_id", tradeAttrId)
+            .addValue("trade_id", tradeId)
+            .addValue("trade_oid", tradeOid)
+            .addValue("key", entry.getKey())
+            .addValue("value", entry.getValue());
+        tradeAttributeList.add(tradeAttributeArgs);
+      }
+      
       // set the trade uniqueId
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
       UniqueIdentifiables.setInto(trade, tradeUid);
@@ -463,6 +480,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     getJdbcTemplate().batchUpdate(sqlInsertPositionIdKey(), posAssocList.toArray(new DbMapSqlParameterSource[posAssocList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTradeIdKey(), tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertTradeAttributes(), tradeAttributeList.toArray(new DbMapSqlParameterSource[tradeAttributeList.size()]));
+    
 
     // set the uniqueId
     position.setUniqueId(positionUid);
@@ -495,6 +514,17 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             "VALUES " +
               "(:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value, " +
               ":premium_value, :premium_currency, :premium_date, :premium_time, :premium_zone_offset)";
+  }
+  
+  /**
+   * Gets the SQL for inserting trade attributes.
+   * 
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertTradeAttributes() {
+    return "INSERT INTO pos_trade_attribute " +
+              "(id, trade_id, trade_oid, key, value) " +
+           "VALUES (:attr_id, :trade_id, :trade_oid, :key, :value)";
   }
 
   /**
@@ -672,6 +702,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         if (tradeIdScheme != null && tradeIdValue != null) {
           Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
           _trade.setSecurityKey(_trade.getSecurityKey().withIdentifier(id));
+        }
+        
+        final String tradeAttrKey = rs.getString("TRADE_ATTR_KEY");
+        final String tradeAttrValue = rs.getString("TRADE_ATTR_VALUE");
+        if (tradeAttrKey != null && tradeAttrValue != null) {
+          _trade.addAttribute(tradeAttrKey, tradeAttrValue);
         }
       }
       return _documents;
