@@ -3,10 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.exchange;
+package com.opengamma.web.holiday;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Year;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -21,29 +25,30 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * RESTful resource for a version of a exchange.
+ * RESTful resource for a version of a holiday.
  */
-@Path("/exchanges/{exchangeId}/versions/{versionId}")
+@Path("/holidays/{holidayId}/versions/{versionId}")
 @Produces(MediaType.TEXT_HTML)
-public class WebExchangeVersionResource extends AbstractWebExchangeResource {
+public class WebHolidayVersionResource extends AbstractWebHolidayResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebExchangeVersionResource(final AbstractWebExchangeResource parent) {
+  public WebHolidayVersionResource(final AbstractWebHolidayResource parent) {
     super(parent);
   }
 
   //-------------------------------------------------------------------------
-  @GET
-  public String getHTML() {
-    FlexiBean out = createRootData();
-    return getFreemarker().build("exchanges/exchangeversion.ftl", out);
-  }
+//  @GET
+//  public String getHTML() {
+//    FlexiBean out = createRootData();
+//    return getFreemarker().build("holidays/holidayversion.ftl", out);
+//  }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -54,7 +59,7 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("exchanges/jsonexchange.ftl", out);
+    String json = getFreemarker().build("holidays/jsonholiday.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 
@@ -65,13 +70,30 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ExchangeDocument latestDoc = data().getExchange();
-    ExchangeDocument versionedExchange = data().getVersioned();
-    out.put("latestExchangeDoc", latestDoc);
-    out.put("latestExchange", latestDoc.getExchange());
-    out.put("exchangeDoc", versionedExchange);
-    out.put("exchange", versionedExchange.getExchange());
+    HolidayDocument latestDoc = data().getHoliday();
+    HolidayDocument versionedHoliday = data().getVersioned();
+    out.put("latestHolidayDoc", latestDoc);
+    out.put("latestHoliday", latestDoc.getHoliday());
+    out.put("holidayDoc", versionedHoliday);
+    out.put("holiday", versionedHoliday.getHoliday());
     out.put("deleted", !latestDoc.isLatest());
+    List<Pair<Year, List<LocalDate>>> map = new ArrayList<Pair<Year, List<LocalDate>>>();
+    List<LocalDate> dates = versionedHoliday.getHoliday().getHolidayDates();
+    if (dates.size() > 0) {
+      int year = dates.get(0).getYear();
+      int start = 0;
+      int pos = 0;
+      for ( ; pos < dates.size(); pos++) {
+        if (dates.get(pos).getYear() == year) {
+          continue;
+        }
+        map.add(Pair.of(Year.of(year), dates.subList(start, pos)));
+        year = dates.get(pos).getYear();
+        start = pos;
+      }
+      map.add(Pair.of(Year.of(year), dates.subList(start, pos)));
+    }
+    out.put("holidayDatesByYear", map);
     return out;
   }
 
@@ -81,7 +103,7 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebExchangeData data) {
+  public static URI uri(final WebHolidayData data) {
     return uri(data, null);
   }
 
@@ -91,10 +113,10 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideVersionId) {
-    String exchangeId = data.getBestExchangeUriId(null);
+  public static URI uri(final WebHolidayData data, final UniqueIdentifier overrideVersionId) {
+    String holidayId = data.getBestHolidayUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
-    return data.getUriInfo().getBaseUriBuilder().path(WebExchangeVersionResource.class).build(exchangeId, versionId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebHolidayVersionResource.class).build(holidayId, versionId);
   }
 
 }
