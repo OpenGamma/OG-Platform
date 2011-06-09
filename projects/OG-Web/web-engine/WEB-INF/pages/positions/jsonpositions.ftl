@@ -4,8 +4,9 @@
     	"type": "Positions",
     	"dataFields": ["id", "name", "quantity", "trades"],
     	<#if searchResult??>
-      "total" : ${"${paging.totalItems}"?replace(',','')},
-	    "count": ${"${paging.pagingSize}"?replace(',','')}
+        "total" : ${"${paging.totalItems}"?replace(',','')},
+        "page": ${"${paging.page}"?replace(',','')},
+        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
 	    </#if>
     },
 	"data": [<#if searchResult??>

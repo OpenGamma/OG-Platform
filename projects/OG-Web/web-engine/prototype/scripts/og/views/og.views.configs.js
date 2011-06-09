@@ -145,12 +145,12 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name + '.' + args.type, handler: function (template) {
-                            var json = details_json.templateData, $warning,
+                            var json = details_json.template_data, $warning,
                                 warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';

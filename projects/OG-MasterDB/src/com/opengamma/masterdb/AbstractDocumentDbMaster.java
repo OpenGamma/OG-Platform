@@ -230,6 +230,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   protected DbMapSqlParameterSource argsGetById(final UniqueIdentifier uniqueId) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("doc_oid", extractOid(uniqueId))
       .addValue("doc_id", extractRowId(uniqueId));
     return args;
   }
@@ -240,7 +241,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the SQL, not null
    */
   protected String sqlGetById() {
-    return sqlSelectFrom() + "WHERE main.id = :doc_id " + sqlAdditionalWhere() + sqlAdditionalOrderBy(true);
+    // extra check for oid ensures that Db~100~1 doesn't match DB~101~0
+    return sqlSelectFrom() + "WHERE main.id = :doc_id AND main.oid = :doc_oid " + sqlAdditionalWhere() + sqlAdditionalOrderBy(true);
   }
 
   //-------------------------------------------------------------------------

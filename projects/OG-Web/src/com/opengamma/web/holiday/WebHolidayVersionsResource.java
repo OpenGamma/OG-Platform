@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.region;
+package com.opengamma.web.holiday;
 
 import java.net.URI;
 
@@ -17,49 +17,49 @@ import javax.ws.rs.core.Response;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.web.WebPaging;
 
 /**
- * RESTful resource for all versions of an region.
+ * RESTful resource for all versions of an holiday.
  */
-@Path("/regions/{regionId}/versions")
+@Path("/holidays/{holidayId}/versions")
 @Produces(MediaType.TEXT_HTML)
-public class WebRegionVersionsResource extends AbstractWebRegionResource {
+public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebRegionVersionsResource(final AbstractWebRegionResource parent) {
+  public WebHolidayVersionsResource(final AbstractWebHolidayResource parent) {
     super(parent);
   }
 
   //-------------------------------------------------------------------------
-  @GET
-  public String getHTML() {
-    RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
-    RegionHistoryResult result = data().getRegionMaster().history(request);
-    
-    FlexiBean out = createRootData();
-    out.put("versionsResult", result);
-    out.put("versions", result.getRegions());
-    return getFreemarker().build("regions/regionversions.ftl", out);
-  }
+//  @GET
+//  public String getHTML() {
+//    HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
+//    HolidayHistoryResult result = data().getHolidayMaster().history(request);
+//    
+//    FlexiBean out = createRootData();
+//    out.put("versionsResult", result);
+//    out.put("versions", result.getHolidays());
+//    return getFreemarker().build("holidays/holidayversions.ftl", out);
+//  }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
-    RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
-    RegionHistoryResult result = data().getRegionMaster().history(request);
+    HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
+    HolidayHistoryResult result = data().getHolidayMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
-    out.put("versions", result.getRegions());
+    out.put("versions", result.getHolidays());
     out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
-    String json = getFreemarker().build("regions/jsonregionversions.ftl", out);
+    String json = getFreemarker().build("holidays/jsonholidayversions.ftl", out);
     return Response.ok(json).build();
   }
 
@@ -70,26 +70,26 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    RegionDocument doc = data().getRegion();
-    out.put("regionDoc", doc);
-    out.put("region", doc.getRegion());
+    HolidayDocument doc = data().getHoliday();
+    out.put("holidayDoc", doc);
+    out.put("holiday", doc.getHoliday());
     out.put("deleted", !doc.isLatest());
     return out;
   }
 
   //-------------------------------------------------------------------------
   @Path("{versionId}")
-  public WebRegionVersionResource findVersion(@PathParam("versionId") String idStr) {
+  public WebHolidayVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
-    RegionDocument doc = data().getRegion();
+    HolidayDocument doc = data().getHoliday();
     UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
-      RegionDocument versioned = data().getRegionMaster().get(combined);
+      HolidayDocument versioned = data().getHolidayMaster().get(combined);
       data().setVersioned(versioned);
     } else {
       data().setVersioned(doc);
     }
-    return new WebRegionVersionResource(this);
+    return new WebHolidayVersionResource(this);
   }
 
   //-------------------------------------------------------------------------
@@ -98,9 +98,9 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebRegionData data) {
-    String regionId = data.getBestRegionUriId(null);
-    return data.getUriInfo().getBaseUriBuilder().path(WebRegionVersionsResource.class).build(regionId);
+  public static URI uri(final WebHolidayData data) {
+    String holidayId = data.getBestHolidayUriId(null);
+    return data.getUriInfo().getBaseUriBuilder().path(WebHolidayVersionsResource.class).build(holidayId);
   }
 
 }

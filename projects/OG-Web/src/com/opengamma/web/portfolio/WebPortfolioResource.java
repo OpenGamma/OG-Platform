@@ -154,6 +154,11 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     return new WebPortfolioNodesResource(this);
   }
 
+  @Path("versions")
+  public WebPortfolioVersionsResource findVersions() {
+    return new WebPortfolioVersionsResource(this);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.
