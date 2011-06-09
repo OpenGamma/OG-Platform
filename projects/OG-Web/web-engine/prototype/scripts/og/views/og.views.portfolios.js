@@ -68,7 +68,7 @@ $.register_module({
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         if (details_json.template_data.parent_node_id) {
                                             args_obj.node = details_json.template_data.parent_node_id;
-                                            args_obj.id = details_json.template_data.id;
+                                            args_obj.id = details_json.template_data.object_id;
                                         }
                                         routes.go(routes.hash(module.rules.load_delete,
                                                 $.extend(true, {}, last.args, {deleted: true}, args_obj)
@@ -137,7 +137,7 @@ $.register_module({
                                     ));
                                 },
                                 name: $input.val(),
-                                id: details_json.template_data.id,
+                                id: details_json.template_data.object_id,
                                 node: details_json.template_data.node,
                                 'new': true
                             });
@@ -158,11 +158,11 @@ $.register_module({
                                     // TODO: prevent search from reloading
                                     routes.go(routes.hash(module.rules.load_new_portfolios,
                                          $.extend({}, routes.last().args,
-                                             {id: details_json.template_data.id, 'new': true})
+                                             {id: details_json.template_data.object_id, 'new': true})
                                     ));
                                 },
                                 position: id ? id.item.value : $input.val(),
-                                id: details_json.template_data.id,
+                                id: details_json.template_data.object_id,
                                 node: details_json.template_data.node
                            });
                         };
@@ -189,7 +189,7 @@ $.register_module({
                         ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position');
                     },
                     render_portfolio_rows = function (selector, json, handler) {
-                        var $parent = $(selector), id = json.template_data.id, portfolios = json.portfolios,
+                        var $parent = $(selector), id = json.template_data.object_id, portfolios = json.portfolios,
                             rule = og.views.portfolios.rules['load_portfolios'], length = portfolios.length,
                             render, iterator, CHUNK = 500;
                         if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();

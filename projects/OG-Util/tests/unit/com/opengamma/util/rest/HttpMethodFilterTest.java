@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.transport.jaxrs;
+package com.opengamma.util.rest;
 
 import static org.testng.AssertJUnit.assertSame;
 import static org.mockito.Mockito.verify;
@@ -15,6 +15,7 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 import org.mockito.Mockito;
 
+import com.opengamma.util.rest.HttpMethodFilter;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.spi.container.ContainerRequest;
 

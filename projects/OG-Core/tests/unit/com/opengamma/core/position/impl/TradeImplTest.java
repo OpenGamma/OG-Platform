@@ -11,13 +11,13 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.OffsetDateTime;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.test.MockSecurity;
@@ -92,7 +92,7 @@ public class TradeImplTest {
   }
   
   public void test_equals() {
-    List<TradeImpl> trades = Lists.newArrayList();
+    Set<TradeImpl> trades = Sets.newHashSet();
     
     TradeImpl trade1 = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trades.add(trade1);
@@ -107,11 +107,20 @@ public class TradeImplTest {
     TradeImpl trade3 = new TradeImpl(POSITION_UID, Identifier.of("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trades.add(trade3);
     
-    assertEquals(3, trades.size());
+    TradeImpl trade4 = new TradeImpl(trade3);
+    trades.add(trade4);
+    
+    TradeImpl trade5 = new TradeImpl(trade1);
+    trade5.addAttribute("key1", "value1");
+    trade5.addAttribute("key2", "value2");
+    trades.add(trade5);
+    
+    assertEquals(4, trades.size());
     assertTrue(trades.contains(trade1));
     assertTrue(trades.contains(trade2));
     assertTrue(trades.contains(trade3));
-    
+    assertTrue(trades.contains(trade4));
+    assertTrue(trades.contains(trade5));
   }
   
 }

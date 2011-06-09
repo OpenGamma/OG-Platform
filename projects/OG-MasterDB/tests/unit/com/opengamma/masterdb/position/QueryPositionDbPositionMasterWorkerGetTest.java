@@ -41,8 +41,14 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_get_versioned_notFound() {
+  public void test_get_versioned_notFoundId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
+    _posMaster.get(uid);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_get_versioned_notFoundVersion() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "1");
     _posMaster.get(uid);
   }
 

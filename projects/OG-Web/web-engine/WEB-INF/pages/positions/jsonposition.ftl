@@ -2,18 +2,20 @@
 {
     "template_data": {
         "name": "${position.name}",
-        "objectId":"${position.uniqueId.objectId}",
-        "versionId":"${position.uniqueId.version}",
-<#if deleted>
-        "deleted":"${positionDoc.versionToInstant}",
-</#if>
+        "object_id": "${position.uniqueId.objectId}",
+        "version_id": "${position.uniqueId.version}",
+        <#if deleted>
+        "deleted": "${positionDoc.versionToInstant}",
+        </#if>
         "quantity": "${position.quantity}"
     },
+    <#if security?has_content>
     "security": {
         "name": "${security.name}",
         "unique_id": "${security.uniqueId.objectId}",
         "security_type": "${security.securityType}"
     },
+    </#if>
     "securities": [
         <#list position.securityKey.identifiers as item>{
             "scheme": "${item.scheme.name}",

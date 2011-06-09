@@ -10,6 +10,7 @@
 /*/ReleaseWin32/
 /*/Debugx64/
 /*/Releasex64/
+/*/Temp/
 /*/*.aps
 /*/*.vcxproj.user
 /Connector/com_opengamma_language_*

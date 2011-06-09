@@ -41,8 +41,14 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_getSecurity_versioned_notFound() {
+  public void test_getSecurity_versioned_notFoundId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
+    _secMaster.get(uid);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getSecurity_versioned_notFoundVersion() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "1");
     _secMaster.get(uid);
   }
 

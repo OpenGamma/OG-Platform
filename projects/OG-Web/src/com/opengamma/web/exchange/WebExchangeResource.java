@@ -55,7 +55,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getHTML(@Context Request request) {
+  public Response getJSON(@Context Request request) {
     EntityTag etag = new EntityTag(data().getExchange().getUniqueId().toString());
     ResponseBuilder builder = request.evaluatePreconditions(etag);
     if (builder != null) {

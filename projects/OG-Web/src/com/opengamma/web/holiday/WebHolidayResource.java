@@ -153,10 +153,10 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
   }
 
   //-------------------------------------------------------------------------
-//  @Path("versions")
-//  public WebHolidayVersionsResource findVersions() {
-//    return new WebHolidayVersionsResource(this);
-//  }
+  @Path("versions")
+  public WebHolidayVersionsResource findVersions() {
+    return new WebHolidayVersionsResource(this);
+  }
 
   //-------------------------------------------------------------------------
   /**
