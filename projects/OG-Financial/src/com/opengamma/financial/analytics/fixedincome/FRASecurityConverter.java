@@ -39,6 +39,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
 
   @Override
   public FRADefinition visitFRASecurity(final FRASecurity security) {
+    Validate.notNull(security, "security");
     final Currency currency = security.getCurrency();
     final String currencyCode = currency.getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(
