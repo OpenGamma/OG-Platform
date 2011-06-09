@@ -80,6 +80,16 @@ public class ConventionBundleImpl implements ConventionBundle {
     _settlementDays = settlementDays;
   }
 
+  // generic cash
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, 
+      final int settlementDays) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _settlementDays = settlementDays;
+  }
+  
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
       final int settlementDays) {

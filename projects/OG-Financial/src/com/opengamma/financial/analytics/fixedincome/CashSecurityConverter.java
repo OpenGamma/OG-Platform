@@ -9,15 +9,18 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,8 +40,15 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
 
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
+    Validate.notNull(security, "security");
+    ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Currency currency = security.getCurrency();
+    if (conventions == null) {
+      conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_GENERIC_CASH"));
+      if (conventions == null) {
+        throw new OpenGammaRuntimeException("Could not get convention for " + security);
+      }
+    }
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
     final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),

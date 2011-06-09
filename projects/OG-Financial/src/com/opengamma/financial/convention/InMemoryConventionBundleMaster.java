@@ -119,6 +119,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     convention.setUniqueId(uid);
     return uid;
   }
+  
+  @Override
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
+      final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int settlementDays) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, settlementDays);
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueId(uid);
+    return uid;
+  }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
@@ -456,6 +465,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     Period nullPeriod = null;
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360,
         following, nullPeriod, 2);
+    addConventionBundle(
+        IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_GENERIC_CASH")), "USD_GENERIC_CASH", act360, following,
+        Period.ofDays(7), 2);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IRFUTURE")), "USD_IRFUTURE", act360,
         following, null, 2, 0.25);
