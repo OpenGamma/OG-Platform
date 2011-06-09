@@ -35,8 +35,10 @@ public class InterestRateFutureTradeConverter {
         "Can only handle trades with security type InterestRateFutureSecurity");
     final InterestRateFutureSecurityDefinition securityDefinition = _securityConverter
         .convert((InterestRateFutureSecurity) trade.getSecurity());
-    final int quantity = (int) trade.getQuantity().doubleValue();
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atMidnight(), TimeZone.UTC); //TODO need the closing time of the exchange
+    final int quantity = trade.getQuantity().intValue();
+    //TODO trade time or premium time?
+    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
+        TimeZone.UTC); //TODO need the zone of the exchange
     final double tradePrice = trade.getPremium();
     return new InterestRateFutureTransactionDefinition(securityDefinition, quantity, tradeDate, tradePrice);
   }
