@@ -67,10 +67,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101");
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
+        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio102");
+    template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio201");
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestPortfolio202");
-    _totalPortfolios = 2;
+    _totalPortfolios = 3;
     
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
         111, 111, 101, 101, null, null, 0, 1, 6, "TestNode111");
@@ -78,6 +80,8 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
         112, 112, 101, 101, 111, 111, 1, 2, 5, "TestNode112");
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
         113, 113, 101, 101, 112, 112, 2, 3, 4, "TestNode113");
+    template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
+        121, 121, 102, 102, null, null, 0, 1, 2, "TestNode121");
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
         211, 211, 201, 201, null, null, 0, 1, 2, "TestNode211");
     template.update("INSERT INTO prt_node VALUES (?,?,?,?,?, ?,?,?,?,?)",
@@ -158,6 +162,19 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(2, node.getPositionIds().size());
     assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "501")));
     assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "502")));
+  }
+
+  protected void assert102(final PortfolioDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "102", "0");
+    assertNotNull(test);
+    assertEquals(uid, test.getUniqueId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePortfolio portfolio = test.getPortfolio();
+    assertEquals(uid, portfolio.getUniqueId());
+    assertEquals("TestPortfolio102", portfolio.getName());
   }
 
   protected void assert201(final PortfolioDocument test) {
