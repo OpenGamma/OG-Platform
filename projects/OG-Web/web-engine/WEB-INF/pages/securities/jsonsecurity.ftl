@@ -1,6 +1,6 @@
 <#escape x as x?html>
 {
-    "templateData": {
+    "template_data": {
     <#switch security.securityType>
       <#case "FRA">
         "amount":"${security.amount}",
@@ -151,14 +151,12 @@
         },
         <#break>
     </#switch>
-    "name":"${security.name}",
-    "objectId":"${security.uniqueId.objectId}",
-    "versionId":"${security.uniqueId.version}",
-<#-- deprecated -->
-    "uniqueId":{"Value":"${security.uniqueId.value}","Scheme":"${security.uniqueId.scheme}","Version":"${security.uniqueId.version}"},
-<#if deleted>
-    "deleted":"${securityDoc.versionToInstant}",
-</#if>
+    "name": "${security.name}",
+    "object_id": "${security.uniqueId.objectId}",
+    "version_id": "${security.uniqueId.version}",
+    <#if deleted>
+    "deleted": "${securityDoc.versionToInstant}",
+    </#if>
     "securityType":"${security.securityType}" },
     "identifiers": {<#list security.identifiers.identifiers as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
 }

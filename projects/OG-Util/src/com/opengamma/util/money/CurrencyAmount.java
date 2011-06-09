@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.money;
 
+import java.io.Serializable;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -17,7 +19,10 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class CurrencyAmount {
+public final class CurrencyAmount implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The currency.
@@ -29,11 +34,7 @@ public final class CurrencyAmount {
   private final double _amount;
 
   /**
-   * Obtains an instance of {@code CurrencyAmount} for the specified ISO-4217
-   * three letter currency code dynamically creating a currency if necessary.
-   * <p>
-   * A currency is uniquely identified by ISO-4217 three letter code.
-   * This method creates the currency if it is not known.
+   * Obtains an instance of {@code CurrencyAmount} for the specified currency and amount.
    *
    * @param currency  the currency the amount is in, not null
    * @param amount  the amount of the currency to represent
@@ -106,7 +107,22 @@ public final class CurrencyAmount {
   public CurrencyAmount plus(final CurrencyAmount amountToAdd) {
     ArgumentChecker.notNull(amountToAdd, "amountToAdd");
     ArgumentChecker.isTrue(amountToAdd.getCurrency().equals(_currency), "Unable to add amounts in different currencies");
-    return new CurrencyAmount(_currency, amountToAdd._amount + _amount);
+    return plus(amountToAdd.getAmount());
+  }
+
+  /**
+   * Returns a copy of this {@code CurrencyAmount} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * The addition simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param amountToAdd  the amount to add, in the same currency
+   * @return an amount based on this with the specified amount added, not null
+   */
+  public CurrencyAmount plus(final double amountToAdd) {
+    return new CurrencyAmount(_currency, _amount + amountToAdd);
   }
 
   /**

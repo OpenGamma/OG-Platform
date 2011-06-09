@@ -7,11 +7,16 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.Counterparty;
@@ -22,7 +27,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -81,7 +85,10 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * Time of premium payment
    */
   private OffsetTime _premiumTime;
-  
+  /**
+   * The trade attributes
+   */
+  private Map<String, String> _attributes = new HashMap<String, String>();
 
   /**
    * Creates a trade which must be initialized by calling methods.
@@ -179,6 +186,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _parentPositionId = copyFrom.getParentPositionId();
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
+    _attributes.putAll(copyFrom.getAttributes());
   }
 
   //-------------------------------------------------------------------------
@@ -401,6 +409,24 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public void setPremiumTime(OffsetTime premiumTime) {
     _premiumTime = premiumTime;
   }
+  
+  @Override
+  public Map<String, String> getAttributes() {
+    return Collections.unmodifiableMap(_attributes);
+  }
+  
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
+  }
+  
+  public void setAttributes(Map<String, String> attributes) {
+    ArgumentChecker.notNull(attributes, "attributes");
+    for (Entry<String, String> entry : attributes.entrySet()) {
+      addAttribute(entry.getKey(), entry.getValue());
+    }
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -410,32 +436,37 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     }
     if (obj instanceof TradeImpl) {
       TradeImpl other = (TradeImpl) obj;
-      return CompareUtils.compareWithNull(getQuantity(), other.getQuantity()) == 0 &&
-          ObjectUtils.equals(getCounterparty(), other.getCounterparty()) &&
-          ObjectUtils.equals(getTradeDate(), other.getTradeDate()) &&
-          ObjectUtils.equals(getTradeTime(), other.getTradeTime()) &&
-          ObjectUtils.equals(getSecurityKey(), other.getSecurityKey()) &&
-          ObjectUtils.equals(getSecurity(), other.getSecurity()) &&
-          ObjectUtils.equals(getPremium(), other.getPremium()) && 
-          ObjectUtils.equals(getPremiumCurrency(), other.getPremiumCurrency()) &&
-          ObjectUtils.equals(getPremiumDate(), other.getPremiumDate()) &&
-          ObjectUtils.equals(getPremiumTime(), other.getPremiumTime());
+      return new EqualsBuilder()
+        .append(getQuantity(), other.getQuantity())
+        .append(getCounterparty(), other.getCounterparty())
+        .append(getTradeDate(), other.getTradeDate())
+        .append(getSecurityKey(), other.getSecurityKey())
+        .append(getSecurity(), other.getSecurity())
+        .append(getPremium(), other.getPremium())
+        .append(getPremiumCurrency(), other.getPremiumCurrency())
+        .append(getPremiumDate(), other.getPremiumDate())
+        .append(getPremiumTime(), other.getPremiumTime())
+        .append(getAttributes(), other.getAttributes())
+        .isEquals();
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hashCode = 65;
-    hashCode += getQuantity().hashCode();
-    hashCode += hashCode ^ ObjectUtils.hashCode(getCounterparty()) ^ ObjectUtils.hashCode(getTradeDate()) ^ ObjectUtils.hashCode(getTradeTime());
-    if (getSecurity() != null) {
-      hashCode *= 31;
-      hashCode += getSecurity().hashCode();
-    }
-    hashCode *= 31;
-    hashCode += ObjectUtils.hashCode(getSecurityKey());
-    return hashCode;
+    return new HashCodeBuilder()
+      .append(getQuantity())
+      .append(getCounterparty())
+      .append(getTradeDate())
+      .append(getSecurityKey())
+      .append(getSecurity())
+      .append(getPremium())
+      .append(getPremiumCurrency())
+      .append(getPremiumCurrency())
+      .append(getPremiumDate())
+      .append(getPremiumTime())
+      .append(getAttributes())
+      .toHashCode();
   }
 
   @Override

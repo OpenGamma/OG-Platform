@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 /**
@@ -151,11 +152,12 @@ public class IdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding() {
     Identifier test = Identifier.of("id1", "value1");
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
+    FudgeContext context = new FudgeContext();
+    FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    Identifier decoded = Identifier.fromFudgeMsg(msg);
+    Identifier decoded = Identifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
 

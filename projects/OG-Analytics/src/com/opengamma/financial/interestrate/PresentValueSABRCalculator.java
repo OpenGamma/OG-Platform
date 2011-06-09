@@ -42,7 +42,7 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       CapFloorIborSABRMethod method = new CapFloorIborSABRMethod();
-      return method.presentValue(cap, sabr);
+      return method.presentValue(cap, sabr).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorIbor requires a SABRInterestRateDataBundle as data.");
   }

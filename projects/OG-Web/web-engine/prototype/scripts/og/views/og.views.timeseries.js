@@ -27,7 +27,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'timeseries',
+            page_name = module.name.split('.').pop(),
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
@@ -160,13 +160,13 @@ $.register_module({
                         var f = details.timeseries_functions;
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.id,
+                            name: details_json.template_data.id,
                             item: 'history.timeseries.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.render_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {
@@ -238,7 +238,7 @@ $.register_module({
                 timeseries.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {
                 for (var rule in module.rules) routes.add(module.rules[rule]);
             },

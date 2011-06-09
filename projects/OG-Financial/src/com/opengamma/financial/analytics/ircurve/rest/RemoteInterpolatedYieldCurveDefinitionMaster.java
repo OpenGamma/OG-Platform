@@ -66,7 +66,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
     if (uidField == null) {
       return null;
     }
-    return UniqueIdentifier.fromFudgeMsg(msg.getFieldValue(FudgeMsg.class, uidField));
+    return UniqueIdentifier.fromFudgeMsg(getFudgeDeserializationContext(), msg.getFieldValue(FudgeMsg.class, uidField));
   }
 
   public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {

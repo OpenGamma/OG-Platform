@@ -36,7 +36,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -67,7 +67,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof OptionSecurity) {
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;
@@ -78,7 +78,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (!canApplyTo(context, target)) {
       return null;
     }
-    final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
     SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
@@ -97,13 +97,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (!canApplyTo(context, target)) {
       return null;
     }
-    return Collections.singleton(createResultSpecification(target.toSpecification(), (OptionSecurity) target.getSecurity()));
+    return Collections.singleton(createResultSpecification(target.toSpecification(), (EquityOptionSecurity) target.getSecurity()));
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
-    final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
     SecuritySource secMaster = executionContext.getSecuritySource();
     Security underlying = secMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
@@ -139,7 +139,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return Collections.singleton(resultValue);
   }
 
-  protected ValueSpecification createResultSpecification(final ComputationTargetSpecification target, final OptionSecurity targetSecurity) {
+  protected ValueSpecification createResultSpecification(final ComputationTargetSpecification target, final EquityOptionSecurity targetSecurity) {
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, createValueProperties().with(ValuePropertyNames.CURRENCY,
         targetSecurity.getCurrency().getCode()).get());
     return resultSpec;

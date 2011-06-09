@@ -39,10 +39,10 @@ public class FRASecurityToForwardRateAgreementConverter {
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency()); // TODO: check we've got the right holiday calendar.
 
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, security.getStartDate().toZonedDateTime()); // just in case
+    final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, security.getStartDate()); // just in case
 
-    final ZonedDateTime settlementDate = businessDayConvention.adjustDate(calendar, security.getStartDate().toZonedDateTime().plusDays(conventions.getSettlementDays()));
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate().toZonedDateTime()); // just in case
+    final ZonedDateTime settlementDate = businessDayConvention.adjustDate(calendar, security.getStartDate().plusDays(conventions.getSettlementDays()));
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()); // just in case
 
     final DayCount dayCount = conventions.getDayCount();
 

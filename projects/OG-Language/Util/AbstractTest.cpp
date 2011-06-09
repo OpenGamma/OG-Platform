@@ -5,9 +5,6 @@
  */
 
 #include "stdafx.h"
-
-// Generic testing abstraction
-
 #include "AbstractTest.h"
 #include "Fudge.h"
 #include <log4cxx/propertyconfigurator.h>

@@ -12,8 +12,8 @@ namespace com.opengamma.financial.security.fra {
     
     required com.opengamma.util.money.Currency currency;
     required id.Identifier region;
-    required DateTimeWithZone startDate;
-    required DateTimeWithZone endDate;
+    required javax.time.calendar.ZonedDateTime startDate;
+    required javax.time.calendar.ZonedDateTime endDate;
     required double rate;
     required double amount;
 

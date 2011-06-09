@@ -267,7 +267,7 @@ public class BondSecurityDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_G = false;
   private static final Period BOND_TENOR_G = Period.ofYears(12);
-  private static final int SETTLEMENT_DAYS_G = 2;
+  private static final int SETTLEMENT_DAYS_G = 1;
   private static final int EX_DIVIDEND_DAYS_G = 7;
   private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtil.getUTCDate(2002, 9, 7);
   private static final ZonedDateTime MATURITY_DATE_G = START_ACCRUAL_DATE_G.plus(BOND_TENOR_G);
@@ -306,7 +306,7 @@ public class BondSecurityDiscountingMethodTest {
   public void dirtyPriceFromYieldUKExDividend() {
     double yield = 0.04;
     double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
-    double dirtyPriceExpected = 1.0278965232; // To be check with another source.
+    double dirtyPriceExpected = 1.0277859038; // To be check with another source.
     assertEquals("Fixed coupon bond security: dirty price from yield UK", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
@@ -332,7 +332,7 @@ public class BondSecurityDiscountingMethodTest {
   public void modifiedDurationFromYieldUKExDividend() {
     double yield = 0.04;
     double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_G, yield);
-    double modifiedDurationExpected = 2.7730477202; // To be check with another source.
+    double modifiedDurationExpected = 2.7757118292; // To be check with another source.
     assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - hard coded value", modifiedDurationExpected, modifiedDuration, 1E-8);
     double shift = 1.0E-6;
     double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
@@ -340,6 +340,46 @@ public class BondSecurityDiscountingMethodTest {
     double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield - shift);
     double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
     assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - finite difference", modifiedDurationFD, modifiedDuration, 1E-8);
+  }
+
+  // UKT 6 1/4 11/25/10
+  private static final DayCount DAY_COUNT_G2 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
+  //  private static final Period BOND_TENOR_G2 = Period.ofYears(10);
+  private static final int SETTLEMENT_DAYS_G2 = 1;
+  private static final int EX_DIVIDEND_DAYS_G2 = 7;
+  private static final ZonedDateTime START_ACCRUAL_DATE_G2 = DateUtil.getUTCDate(1999, 11, 25);
+  private static final ZonedDateTime MATURITY_DATE_G2 = DateUtil.getUTCDate(2010, 11, 25);
+  private static final double RATE_G2 = 0.0625;
+  private static final double NOTIONAL_G2 = 100;
+  private static final YieldConvention YIELD_CONVENTION_G2 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD");
+  private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_G2 = BondFixedSecurityDefinition.from(CUR_G, MATURITY_DATE_G2, START_ACCRUAL_DATE_G2, PAYMENT_TENOR_G, RATE_G2,
+      SETTLEMENT_DAYS_G2, NOTIONAL_G2, EX_DIVIDEND_DAYS_G2, CALENDAR_G, DAY_COUNT_G2, BUSINESS_DAY_G, YIELD_CONVENTION_G2, IS_EOM_G, ISSUER_G, REPO_TYPE_G);
+  private static final ZonedDateTime REFERENCE_DATE_4 = DateUtil.getUTCDate(2001, 8, 10);
+  private static final BondFixedSecurity BOND_FIXED_SECURITY_G2 = BOND_FIXED_SECURITY_DEFINITION_G2.toDerivative(REFERENCE_DATE_4, CURVES_NAME);
+
+  @Test
+  public void dirtyPriceFromCleanPriceUK() {
+    double cleanPrice = 110.20 / 100.00;
+    double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    double dirtyPriceExpected = 1.11558696;
+    assertEquals("Fixed coupon bond security: dirty price from clean price", dirtyPriceExpected, dirtyPrice, 1E-8);
+  }
+
+  @Test
+  public void yieldPriceFromCleanPriceUK() {
+    double cleanPrice = 110.20 / 100.00;
+    double yield = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    double yieldExpected = 0.04870;
+    assertEquals("Fixed coupon bond security: dirty price from clean price", yieldExpected, yield, 1E-5);
+  }
+
+  @Test
+  public void modifiedDurationFromCleanPriceUK() {
+    double cleanPrice = 110.20 / 100.00;
+    double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    double md = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_G2, dirtyPrice);
+    double mdExpected = 7.039;
+    assertEquals("Fixed coupon bond security: dirty price from clean price", mdExpected, md, 1E-3);
   }
 
 }

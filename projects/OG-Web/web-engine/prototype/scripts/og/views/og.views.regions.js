@@ -17,7 +17,7 @@ $.register_module({
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
             ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
-            page_name = 'regions',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {}, // The returned json for the details area
             search_options = {
@@ -76,12 +76,12 @@ $.register_module({
                         var f = details.region_functions;
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.regions.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.render_keys('.OG-region .og-js-keys', details_json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', details_json.parent);
                             f.render_regions('.OG-region .og-js-child_regions', details_json.child);

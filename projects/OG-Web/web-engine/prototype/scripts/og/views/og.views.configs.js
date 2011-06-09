@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'configs',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             configs,
@@ -145,12 +145,12 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name + '.' + args.type, handler: function (template) {
-                            var json = details_json.templateData, $warning,
+                            var json = details_json.template_data, $warning,
                                 warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';
@@ -272,7 +272,7 @@ $.register_module({
                 configs.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

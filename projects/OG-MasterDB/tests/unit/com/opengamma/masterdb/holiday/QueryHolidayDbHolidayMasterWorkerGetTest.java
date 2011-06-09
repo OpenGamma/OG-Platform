@@ -41,8 +41,14 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_getHoliday_versioned_notFound() {
+  public void test_getHoliday_versioned_notFoundId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
+    _holMaster.get(uid);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getHoliday_versioned_notFoundVersion() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "1");
     _holMaster.get(uid);
   }
 

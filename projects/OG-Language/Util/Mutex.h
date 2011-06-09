@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -17,19 +17,31 @@
 #include "MemoryPool.h"
 #endif
 
+/// C++ wrapper for a mutual exclusion lock using a Win32 Critical Section, pthread mutex, or APR.
 class CMutex {
 private:
 #ifdef _WIN32
+
+	/// Underlying Win32 critical section
 	CRITICAL_SECTION m_cs;
+
 #elif defined (HAVE_PTHREAD)
+
+	/// Unterlying pthread mutex
 	pthread_mutex_t m_mutex;
 #else
+
+	/// Underlying pthread mutex
 	apr_thread_mutex_t *m_pMutex;
+
+	/// APR memory pool for mutex operations
 	CMemoryPool m_oPool;
+
 #endif
 public:
-	// Note that mutex construction failure will go unnoticed. If you can't create
-	// a mutex, the system is fairly broken and will probably crash soon anyway.
+	
+	/// Creates a new mutex. Note that  mutex construction failure will go unnoticed. If you can't
+	/// create a mutex, the system is fairly broken and will probably crash soon anyway.
 	CMutex () {
 #ifdef _WIN32
 		InitializeCriticalSection (&m_cs);
@@ -40,6 +52,8 @@ public:
 		apr_thread_mutex_create (&m_pMutex, APR_THREAD_MUTEX_DEFAULT, m_oPool);
 #endif
 	}
+
+	/// Destroys the mutex.
 	~CMutex () {
 #ifdef _WIN32
 		DeleteCriticalSection (&m_cs);
@@ -49,6 +63,8 @@ public:
 		apr_thread_mutex_destroy (m_pMutex);
 #endif
 	}
+
+	/// Acquires the mutex lock, blocking the caller until the lock is available.
 	void Enter () {
 #ifdef _WIN32
 		EnterCriticalSection (&m_cs);
@@ -58,6 +74,8 @@ public:
 		apr_thread_mutex_lock (m_pMutex);
 #endif
 	}
+
+	/// Releases the mutex lock, possibly unblocking a thread blocked on a call to Enter.
 	void Leave () {
 #ifdef _WIN32
 		LeaveCriticalSection (&m_cs);
@@ -67,6 +85,7 @@ public:
 		apr_thread_mutex_unlock (m_pMutex);
 #endif
 	}
+
 };
 
 #endif /* ifndef __inc_og_language_util_mutex_h */

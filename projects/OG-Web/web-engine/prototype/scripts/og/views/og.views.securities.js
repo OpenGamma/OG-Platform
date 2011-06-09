@@ -28,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'securities',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             securities,
@@ -153,17 +153,17 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + details_json.templateData.securityType,
+                        api.text({module: module.name + '.' + details_json.template_data.securityType,
                                 handler: function (template) {
                             var $warning, warning_message = 'This security has been deleted',
                                 html = [], id, json = details_json.identifiers;
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             $warning = $('#OG-details .OG-warning-message');
-                            if (details_json.templateData.deleted) $warning.html(warning_message).show();
+                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
                                 else $warning.empty().hide();
                             for (id in json) if (json.hasOwnProperty(id))
                                     html.push('<div><strong>', json[id], '</strong></div>');
@@ -229,7 +229,7 @@ $.register_module({
                 securities.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

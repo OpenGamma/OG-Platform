@@ -6,18 +6,19 @@
 package com.opengamma.financial.analytics.swap;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -37,7 +38,7 @@ public class SwapScheduleCalculatorTest {
   private static final Notional NOTIONAL = new Notional() {
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
       // Okay to return NULL as we're not doing any messaging with this
       return null;
     }
@@ -76,7 +77,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
       return null;
     }
 
@@ -90,7 +91,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
       return null;
     }
 
@@ -108,7 +109,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapSecurity SECURITY = new SwapSecurity(new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(MATURITY), "", PAY_LEG, RECEIVE_LEG);
+  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity1() {

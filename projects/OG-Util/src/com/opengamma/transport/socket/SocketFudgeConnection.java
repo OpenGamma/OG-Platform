@@ -52,11 +52,8 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
           startIfNecessary();
         } catch (OpenGammaRuntimeException e) {
           if (e.getCause() instanceof IOException) {
-            final FudgeConnectionStateListener stateListener = _stateListener;
-            if (stateListener != null) {
-              stateListener.connectionFailed(SocketFudgeConnection.this, (IOException) e.getCause());
-              // Should we still carry on and throw the exception if the user's been given it as a callback? Maybe allow the connectionFailed callback specify which to rethrow?
-            }
+            notifyConnectionFailed((IOException) e.getCause());
+            // Should we still carry on and throw the exception if the user's been given it as a callback? Maybe allow the connectionFailed callback specify which to rethrow?
           }
           throw e;
         } finally {
@@ -88,6 +85,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
         } else {
           s_logger.warn("I/O exception during send - {} - stopping socket to flush error", e.getCause().getMessage());
           stop();
+          notifyConnectionFailed(e);
         }
         throw e;
       }
@@ -164,6 +162,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
           } else {
             s_logger.warn("I/O exception during recv - {} - stopping socket to flush error", e.getCause());
             stop();
+            notifyConnectionFailed(e);
           }
           return;
         }
@@ -228,6 +227,17 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   @Override
   public void setConnectionStateListener(FudgeConnectionStateListener listener) {
     _stateListener = listener;
+  }
+  
+  protected void notifyConnectionFailed(Exception e) {
+    final FudgeConnectionStateListener stateListener = _stateListener;
+    if (stateListener != null) {
+      try {
+        stateListener.connectionFailed(SocketFudgeConnection.this, e);
+      } catch (Exception e2) {
+        s_logger.warn("Error notifying state listener of connection failure", e2);
+      }
+    }
   }
 
 }

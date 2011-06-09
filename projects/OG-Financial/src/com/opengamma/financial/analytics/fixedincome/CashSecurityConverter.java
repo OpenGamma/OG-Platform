@@ -42,7 +42,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
     }
     final Currency currency = security.getCurrency();
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
     return new CashDefinition(maturityDate, security.getRate() / 100, convention);

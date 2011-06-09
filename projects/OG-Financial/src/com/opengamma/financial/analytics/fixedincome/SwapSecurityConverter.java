@@ -66,8 +66,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     if (!((InterestRateNotional) payLeg.getNotional()).getCurrency().equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency())) {
       throw new OpenGammaRuntimeException("Can only handle swaps with the same currency on the pay and receive legs");
     }
-    final ZonedDateTime effectiveDate = security.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = security.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = security.getEffectiveDate();
+    final ZonedDateTime maturityDate = security.getMaturityDate();
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       return getSwapFixedIborSpreadDefinition(security, effectiveDate, maturityDate, currency, true);

@@ -19,8 +19,8 @@ public class GetResponse extends com.opengamma.engine.view.cache.msg.CacheMessag
       _data = fudge0;
     }
   }
-  protected GetResponse (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected GetResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (DATA_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a GetResponse - field 'data' is not present");
@@ -60,13 +60,13 @@ public class GetResponse extends com.opengamma.engine.view.cache.msg.CacheMessag
   public GetResponse clone () {
     return new GetResponse (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_data != null)  {
       for (org.fudgemsg.FudgeMsg fudge1 : _data) {
@@ -74,19 +74,19 @@ public class GetResponse extends com.opengamma.engine.view.cache.msg.CacheMessag
       }
     }
   }
-  public static GetResponse fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static GetResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.cache.msg.GetResponse".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.cache.msg.GetResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.engine.view.cache.msg.GetResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new GetResponse (fudgeMsg);
+    return new GetResponse (fudgeContext, fudgeMsg);
   }
   public java.util.List<org.fudgemsg.FudgeMsg> getData () {
     return java.util.Collections.unmodifiableList (_data);

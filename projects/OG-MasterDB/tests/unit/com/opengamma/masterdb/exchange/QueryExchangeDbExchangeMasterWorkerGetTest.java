@@ -41,8 +41,14 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_getExchange_versioned_notFound() {
+  public void test_getExchange_versioned_notFoundId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
+    _exgMaster.get(uid);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getExchange_versioned_notFoundVersion() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "1");
     _exgMaster.get(uid);
   }
 

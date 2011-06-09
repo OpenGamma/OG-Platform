@@ -16,6 +16,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.ExpiryBuilder;
@@ -164,12 +165,13 @@ public class Expiry implements InstantProvider, Serializable {
    * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
    * used directly as a message type instead of through the serialization framework.
    * 
+   * @param fudgeContext  the Fudge context
    * @param message the message to decode
    * @return the expiry object
    * @deprecated Use builder
    */
   @Deprecated
-  public static Expiry fromFudgeMsg(final FudgeMsg message) {
+  public static Expiry fromFudgeMsg(final FudgeDeserializationContext fudgeContext, final FudgeMsg message) {
     return ExpiryBuilder.fromFudgeMsg(message);
   }
 

@@ -41,8 +41,14 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_get_versioned_notFound() {
+  public void test_get_versioned_notFoundId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0", "0");
+    _prtMaster.get(uid);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_get_versioned_notFoundVersion() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "101", "1");
     _prtMaster.get(uid);
   }
 
