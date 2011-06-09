@@ -103,11 +103,12 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueIdentifier.of("XXX", "AAA"));
     
     HashMap<String,ValueSnapshot> hashMapA = new HashMap<String,ValueSnapshot>();
-    hashMapA.put("X", new ValueSnapshot(12,null));
-    hashMapA.put("Y", new ValueSnapshot(1,null));
+    hashMapA.put("X", new ValueSnapshot(Double.valueOf(12),null));
+    hashMapA.put("Y", new ValueSnapshot(Double.valueOf(1),null));
+    hashMapA.put("Z", new ValueSnapshot(null,null));
     values.put(specA, hashMapA);
     HashMap<String,ValueSnapshot> hashMapB = new HashMap<String,ValueSnapshot>();
-    hashMapB.put("X", new ValueSnapshot(12,Double.valueOf(11)));
+    hashMapB.put("X", new ValueSnapshot(Double.valueOf(12),Double.valueOf(11)));
     values.put(specB, hashMapB);
     
     
