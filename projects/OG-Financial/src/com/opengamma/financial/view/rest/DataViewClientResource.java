@@ -171,6 +171,7 @@ public class DataViewClientResource {
     return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
   }
   
+  @GET
   @Path(PATH_VIEW_DEFINITION)
   public Response getViewDefinition() {
     return Response.ok(getViewClient().getViewDefinition()).build();
