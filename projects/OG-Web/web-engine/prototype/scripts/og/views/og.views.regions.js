@@ -76,12 +76,12 @@ $.register_module({
                         var f = details.region_functions;
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.regions.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.render_keys('.OG-region .og-js-keys', details_json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', details_json.parent);
                             f.render_regions('.OG-region .og-js-child_regions', details_json.child);

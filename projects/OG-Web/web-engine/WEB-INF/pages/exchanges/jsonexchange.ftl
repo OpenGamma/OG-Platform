@@ -3,10 +3,10 @@
     "template_data": {
         "name": "${exchange.name}",
         "object_id": "${exchange.uniqueId.objectId}",
+        "version_id": "${exchange.uniqueId.version}"
         <#if deleted>
         "deleted": "${exchangeDoc.versionToInstant}",
         </#if>
-        "version_id": "${exchange.uniqueId.version}"
     },
     "regionKey": {
         <#list exchange.regionKey.identifiers as item>

@@ -419,6 +419,7 @@ CREATE TABLE sec_swaption (
     expiry_zone varchar(50) not null,
     expiry_accuracy smallint not null,
     cash_settled boolean not null,
+    is_long boolean not null,
     primary key (id),
     constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
 );

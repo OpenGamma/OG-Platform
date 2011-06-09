@@ -8,6 +8,7 @@ package com.opengamma.financial.forex.calculator;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 
 /**
@@ -57,6 +58,16 @@ public class AbstractForexDerivativeVisitor<S, T> implements ForexDerivativeVisi
 
   @Override
   public T visitForexSwap(ForexSwap derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+  }
+
+  @Override
+  public T visitForexOptionVanilla(ForexOptionVanilla derivative, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
+  }
+
+  @Override
+  public T visitForexOptionVanilla(ForexOptionVanilla derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexSwap()");
   }
 
