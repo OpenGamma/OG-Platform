@@ -61,6 +61,10 @@ import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPositionFunc
 import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveNodeSensitivityFixedFloatSwapFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
@@ -69,10 +73,6 @@ import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
-import com.opengamma.financial.analytics.model.swap.PV01FixedFloatSwapFunction;
-import com.opengamma.financial.analytics.model.swap.ParRateFixedFloatSwapFunction;
-import com.opengamma.financial.analytics.model.swap.ParRateParallelCurveShiftFixedFloatSwapFunction;
-import com.opengamma.financial.analytics.model.swap.PresentValueFixedFloatSwapFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalculatorFunction;
@@ -200,10 +200,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         expectedRiskFreeReturnCalculatorName, expectedMarketReturnCalculatorName, assetStandardDeviationCalculatorName, marketStandardDeviationCalculatorName, startDate)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PositionWeightFromNAVFunction.class.getName(), Collections.singleton("56000000")));
 
-    functionConfigs.add(new StaticFunctionConfiguration(PV01FixedFloatSwapFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(PresentValueFixedFloatSwapFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ParRateFixedFloatSwapFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ParRateParallelCurveShiftFixedFloatSwapFunction.class.getName()));
+    //functionConfigs.add(new StaticFunctionConfiguration(PV01FixedFloatSwapFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentPV01Function.class.getName()));
+    //functionConfigs.add(new StaticFunctionConfiguration(PresentValueFixedFloatSwapFunction.class.getName()));
+    //functionConfigs.add(new StaticFunctionConfiguration(ParRateFixedFloatSwapFunction.class.getName()));
+    //functionConfigs.add(new StaticFunctionConfiguration(ParRateParallelCurveShiftFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivityFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(StandardEquityModelFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
@@ -277,6 +281,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.PV01);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
     addScalingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
 
     addSummingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
