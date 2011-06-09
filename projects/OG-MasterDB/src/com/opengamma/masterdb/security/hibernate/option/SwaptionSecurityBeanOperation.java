@@ -33,6 +33,7 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
   public SwaptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, SwaptionSecurity security) {
     SwaptionSecurityBean bean = new SwaptionSecurityBean();
     bean.setCashSettled(security.getIsCashSettled());
+    bean.setLong(security.getIsLong());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
     return bean;
@@ -40,7 +41,11 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
 
   @Override
   public SwaptionSecurity createSecurity(OperationContext context, SwaptionSecurityBean bean) {
-    SwaptionSecurity security = new SwaptionSecurity(identifierBeanToIdentifier(bean.getUnderlying()), expiryBeanToExpiry(bean.getExpiry()), bean.iscashSettled());
+    SwaptionSecurity security = new SwaptionSecurity(
+        identifierBeanToIdentifier(bean.getUnderlying()), 
+        expiryBeanToExpiry(bean.getExpiry()), 
+        bean.iscashSettled(),
+        bean.isLong());
     return security;
   }
 
