@@ -1,6 +1,6 @@
 <#escape x as x?html>
 {
-    "templateData": {
+    "template_data": {
     <#switch security.securityType>
       <#case "FRA">
         "amount":"${security.amount}",

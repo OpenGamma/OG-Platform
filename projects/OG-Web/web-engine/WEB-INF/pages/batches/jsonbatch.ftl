@@ -1,9 +1,9 @@
 <#escape x as x?html>
 {
-    "templateData": {
+    "template_data": {
       "name": "${batch.observationDate} - ${batch.observationTime}",
       "object_id":"${batchDoc.uniqueId.objectId}",
-<#--  "versionId":"${batchDoc.uniqueId.version}", -->
+<#--  "version_id":"${batchDoc.uniqueId.version}", -->
       "date": "${batch.observationDate}",
       "time": "${batch.observationTime}",
       "status": "${batch.status}",

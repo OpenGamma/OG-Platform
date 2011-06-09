@@ -1,6 +1,6 @@
 <#escape x as x?html>
 {
-    "templateData": {
+    "template_data": {
         "name": "${region.name}",
         "object_id": "${region.uniqueId.objectId}",
         "version_id": "${region.uniqueId.version}",
