@@ -2,12 +2,12 @@
 {
     "header": {
         "type": "Portfolios",
-        "dataFields": ["id", "node", "name", "validFrom"],
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
         "page": ${"${paging.page}"?replace(',','')},
         "pageSize": ${"${paging.pagingSize}"?replace(',','')},
 	      </#if>
+	      "dataFields": ["id", "node", "name", "validFrom"]
     },
     "data": [<#if searchResult??>
       <#list searchResult.documents as item>

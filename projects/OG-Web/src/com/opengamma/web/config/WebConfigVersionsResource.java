@@ -11,6 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,6 +21,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -53,8 +55,11 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public Response getJSON() {
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
     ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
     ConfigHistoryResult<?> result = data().getConfigMaster().history(request);
     
     FlexiBean out = createRootData();
