@@ -39,7 +39,7 @@ namespace com.opengamma.financial.security.swap {
    * Represents a floating interest rate leg of a swap.
    */
   message FloatingInterestRateLeg extends InterestRateLeg {
-    required readonly id.UniqueIdentifier floatingReferenceRateIdentifier;
+    required readonly id.Identifier floatingReferenceRateIdentifier;
     required readonly double initialFloatingRate;
     required readonly double spread;
 

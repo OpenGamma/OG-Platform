@@ -11,8 +11,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdentifierBeanToUniqueIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdentifierToUniqueIdentifierBean;
 
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -59,7 +57,7 @@ public final class SwapLegBeanOperation {
       public SwapLegBean visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
         final SwapLegBean bean = createInterestRateLegBean(swapLeg);
         bean.setRate(swapLeg.getInitialFloatingRate());
-        bean.setRateIdentifier(uniqueIdentifierToUniqueIdentifierBean(swapLeg.getFloatingReferenceRateIdentifier()));
+        bean.setRateIdentifier(identifierToIdentifierBean(swapLeg.getFloatingReferenceRateIdentifier()));
         bean.setSpread(swapLeg.getSpread());
         return bean;
       }
@@ -88,7 +86,7 @@ public final class SwapLegBeanOperation {
             identifierBeanToIdentifier(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
-            uniqueIdentifierBeanToUniqueIdentifier(bean.getRateIdentifier()),
+            identifierBeanToIdentifier(bean.getRateIdentifier()),
             bean.getRate(),
             bean.getSpread());
       }

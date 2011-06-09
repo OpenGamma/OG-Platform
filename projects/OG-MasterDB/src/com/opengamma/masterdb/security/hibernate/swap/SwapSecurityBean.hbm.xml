@@ -42,7 +42,7 @@
       </component>
       <property name="rate" type="double" column="pay_rate" />
       <property name="spread" type="double" column="pay_spread" />
-      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
         <property name="scheme" type="string" column="pay_rateidentifierscheme" />
         <property name="identifier" type="string" column="pay_rateidentifierid" />
       </component>
@@ -67,7 +67,7 @@
       </component>
       <property name="rate" type="double" column="receive_rate" />
       <property name="spread" type="double" column="receive_spread" />
-      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
         <property name="scheme" type="string" column="receive_rateidentifierscheme" />
         <property name="identifier" type="string" column="receive_rateidentifierid" />
       </component>

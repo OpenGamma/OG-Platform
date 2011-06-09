@@ -21,6 +21,8 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.InterestRateLeg;
+import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -114,6 +116,13 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitSwapSecurity(SwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return payLeg.getCurrency();
+            }
+          }
           return null;
         }
 

@@ -4,14 +4,14 @@
 package com.opengamma.financial.security.swap;
 public class FloatingInterestRateLeg extends com.opengamma.financial.security.swap.InterestRateLeg implements java.io.Serializable {
   public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }
-  private static final long serialVersionUID = 55830238432243367l;
-  private final com.opengamma.id.UniqueIdentifier _floatingReferenceRateIdentifier;
+  private static final long serialVersionUID = 56704331065437238l;
+  private final com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
   public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_KEY = "floatingReferenceRateIdentifier";
   private final double _initialFloatingRate;
   public static final String INITIAL_FLOATING_RATE_KEY = "initialFloatingRate";
   private final double _spread;
   public static final String SPREAD_KEY = "spread";
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.UniqueIdentifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread) {
+  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
     else {
@@ -26,10 +26,10 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
     try {
-      _floatingReferenceRateIdentifier = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _floatingReferenceRateIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not UniqueIdentifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not Identifier message", e);
     }
     fudgeField = fudgeMsg.getByName (INITIAL_FLOATING_RATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'initialFloatingRate' is not present");
@@ -67,7 +67,7 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_floatingReferenceRateIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.Identifier.class);
       _floatingReferenceRateIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, null, fudge1);
     }
@@ -88,7 +88,7 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     }
     return new FloatingInterestRateLeg (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getFloatingReferenceRateIdentifier () {
+  public com.opengamma.id.Identifier getFloatingReferenceRateIdentifier () {
     return _floatingReferenceRateIdentifier;
   }
   public double getInitialFloatingRate () {
