@@ -80,9 +80,8 @@ public class DefinitionConverterDataProvider {
       final ZonedDateTime swapStartDate, ZonedDateTime now, HistoricalDataSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-      final UniqueIdentifier indexUID = floatingLeg.getFloatingReferenceRateIdentifier();
-      final Identifier indexID = indexUID.toIdentifier();
-      final IdentifierBundle id = indexID.toBundle(); //TODO //IdentifierBundle.of(indexID);
+      final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+      final IdentifierBundle id = indexID.toBundle(); 
       LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource

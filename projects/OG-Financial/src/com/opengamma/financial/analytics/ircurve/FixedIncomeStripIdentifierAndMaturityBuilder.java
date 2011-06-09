@@ -20,6 +20,7 @@ import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -33,6 +34,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Tenor;
 
@@ -178,6 +180,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
+    Identifier floatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
     Double initialRate = null;
     for (Identifier identifier : floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {
@@ -204,7 +207,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFloatingLegRegion(),
                                                 convention.getSwapFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateConvention.getUniqueId(),
+                                                floatRateBloombergTicker,
                                                 initialRate,
                                                 spread),
                                             new FixedInterestRateLeg(
@@ -232,6 +235,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     String counterparty = "";
     ConventionBundle payLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     ConventionBundle receiveLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapReceiveFloatingLegInitialRate());
+    Identifier payLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    Identifier receiveLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }
@@ -248,7 +253,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapPayFloatingLegRegion(),
                                                 convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                payLegFloatRateConvention.getUniqueId(),
+                                                payLegFloatRateBloombergTicker,
                                                 0,
                                                 0),
                                             new FloatingInterestRateLeg(
@@ -257,7 +262,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapReceiveFloatingLegRegion(),
                                                 convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                receiveLegFloatRateConvention.getUniqueId(),
+                                                receiveLegFloatRateBloombergTicker,
                                                 0,
                                                 spread));
     swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
