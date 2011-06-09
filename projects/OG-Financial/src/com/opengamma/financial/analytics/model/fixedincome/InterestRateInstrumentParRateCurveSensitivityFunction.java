@@ -28,8 +28,8 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY;
 
-  public InterestRateInstrumentParRateCurveSensitivityFunction(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentParRateCurveSensitivityFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

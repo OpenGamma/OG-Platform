@@ -25,8 +25,8 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
 
-  public InterestRateInstrumentPresentValueFunction(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentPresentValueFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

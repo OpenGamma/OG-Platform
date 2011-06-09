@@ -26,8 +26,8 @@ public class InterestRateInstrumentPresentValueCouponSensitivityFunction extends
       .getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY;
 
-  public InterestRateInstrumentPresentValueCouponSensitivityFunction(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentPresentValueCouponSensitivityFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

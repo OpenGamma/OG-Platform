@@ -27,8 +27,8 @@ public class InterestRateInstrumentParRateParallelCurveSensitivityFunction exten
       .getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT;
 
-  public InterestRateInstrumentParRateParallelCurveSensitivityFunction(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentParRateParallelCurveSensitivityFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

@@ -25,8 +25,8 @@ public class InterestRateInstrumentParRateFunction extends InterestRateInstrumen
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
 
-  public InterestRateInstrumentParRateFunction(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentParRateFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

@@ -27,8 +27,8 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PV01;
 
-  public InterestRateInstrumentPV01Function(String fundingCurveName, String forwardCurveName) {
-    super(VALUE_REQUIREMENT, fundingCurveName, forwardCurveName);
+  public InterestRateInstrumentPV01Function() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override

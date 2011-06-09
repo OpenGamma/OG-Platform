@@ -84,11 +84,19 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
+  public static ValueProperties getValuePropertiesForSecurity(FinancialSecurity security, Builder properties) {
+    Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    return properties.get();
+  }
+
   public static ValueProperties getValuePropertiesForSecurity(FinancialSecurity security, String fundingCurveName,
       String forwardCurveName, Builder properties) {
     String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());    
+    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     for (String name : curveNames) {
       if (name.equals(fundingCurveName)) {
         properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
