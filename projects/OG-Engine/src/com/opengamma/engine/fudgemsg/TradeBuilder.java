@@ -6,6 +6,7 @@
 package com.opengamma.engine.fudgemsg;
 
 import java.math.BigDecimal;
+import java.util.Map.Entry;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -31,7 +32,26 @@ import com.opengamma.util.money.Currency;
  */
 @GenericFudgeBuilderFor(Trade.class)
 public class TradeBuilder implements FudgeBuilder<Trade> {
-
+  /**
+   * Attributes fudge field name.
+   */
+  private static final String ATTRIBUTES = "attributes";
+  /**
+   * Premium time fudge field name.
+   */
+  private static final String PREMIUM_TIME = "premiumTime";
+  /**
+   * Premium date fudge field name.
+   */
+  private static final String PREMIUM_DATE = "premiumDate";
+  /**
+   * Premium currency fudge field name.
+   */
+  private static final String PREMIUM_CURRENCY = "premiumCurrency";
+  /**
+   * Premium value fudge field name.
+   */
+  private static final String PREMIUM = "premium";
   /**
    * Fudge field name.
    */
@@ -82,18 +102,29 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
       message.add(FIELD_TRADE_TIME, null, trade.getTradeTime());
     }
     if (trade.getPremium() != null) {
-      message.add("premium", null, trade.getPremium());
+      message.add(PREMIUM, null, trade.getPremium());
     }
     if (trade.getPremiumCurrency() != null) {
-      message.add("premiumCurrency", null, trade.getPremiumCurrency().getCode());
+      message.add(PREMIUM_CURRENCY, null, trade.getPremiumCurrency().getCode());
     }
     if (trade.getPremiumDate() != null) {
-      message.add("premiumDate", null, trade.getPremiumDate());
+      message.add(PREMIUM_DATE, null, trade.getPremiumDate());
     }
     if (trade.getPremiumTime() != null) {
-      message.add("premiumTime", null, trade.getPremiumTime());
+      message.add(PREMIUM_TIME, null, trade.getPremiumTime());
+    }
+    if (haveAttributes(trade)) {
+      final MutableFudgeMsg attributesMsg = context.newMessage();
+      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+        attributesMsg.add(entry.getKey(), entry.getValue());
+      }
+      context.addToMessage(message, ATTRIBUTES, null, attributesMsg);
     }
     return message;
+  }
+
+  private static boolean haveAttributes(final Trade trade) {
+    return trade.getAttributes() != null && !trade.getAttributes().isEmpty();
   }
 
   @Override
@@ -106,44 +137,74 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   }
 
   protected static TradeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
-    FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
-    UniqueIdentifier tradeId = uidField != null ? context.fieldValueToObject(UniqueIdentifier.class, uidField) : null;
-    FudgeField quantityField = message.getByName(FIELD_QUANTITY);
-    FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
-    FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
-    FudgeField tradeDateField = message.getByName(FIELD_TRADE_DATE);
-    FudgeField tradeTimeField = message.getByName(FIELD_TRADE_TIME);
+    
     TradeImpl trade = new TradeImpl();
-    if (tradeId != null) {
-      trade.setUniqueId(tradeId);
+    if (message.hasField(FIELD_UNIQUE_ID)) {
+      FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
+      if (uidField != null) {
+        trade.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uidField));
+      }      
     }
-    if (quantityField != null) {
-      trade.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
+    if (message.hasField(FIELD_QUANTITY)) {
+      FudgeField quantityField = message.getByName(FIELD_QUANTITY);
+      if (quantityField != null) {
+        trade.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
+      }
     }
-    if (secKeyField != null) {
-      trade.setSecurityKey(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+    if (message.hasField(FIELD_SECURITYKEY)) {
+      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
+      if (secKeyField != null) {
+        trade.setSecurityKey(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+      }
     }
-    if (counterpartyField != null) {
-      trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(Identifier.class, counterpartyField)));
+    if (message.hasField(FIELD_COUNTERPARTY)) {
+      FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
+      if (counterpartyField != null) {
+        trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(Identifier.class, counterpartyField)));
+      }
     }
-    if (tradeDateField != null) {
-      trade.setTradeDate(message.getFieldValue(LocalDate.class, tradeDateField));
+    if (message.hasField(FIELD_TRADE_DATE)) {
+      FudgeField tradeDateField = message.getByName(FIELD_TRADE_DATE);
+      if (tradeDateField != null) {
+        trade.setTradeDate(message.getFieldValue(LocalDate.class, tradeDateField));
+      }
     }
-    if (tradeTimeField != null) {
-      trade.setTradeTime(message.getFieldValue(OffsetTime.class, tradeTimeField));
+    if (message.hasField(FIELD_TRADE_TIME)) {
+      FudgeField tradeTimeField = message.getByName(FIELD_TRADE_TIME);
+      if (tradeTimeField != null) {
+        trade.setTradeTime(message.getFieldValue(OffsetTime.class, tradeTimeField));
+      }
     }
-    trade.setPremium(message.getDouble("premium"));
-    String currencyCode = message.getString("premiumCurrency");
-    if (currencyCode != null) {
-      trade.setPremiumCurrency(Currency.of(currencyCode));
+    if (message.hasField(PREMIUM)) {
+      trade.setPremium(message.getDouble(PREMIUM));
     }
-    FudgeField premiumDate = message.getByName("premiumDate");
-    if (premiumDate != null) {
-      trade.setPremiumDate(message.getFieldValue(LocalDate.class, premiumDate));
+    if (message.hasField(PREMIUM_CURRENCY)) {
+      String currencyCode = message.getString(PREMIUM_CURRENCY);
+      if (currencyCode != null) {
+        trade.setPremiumCurrency(Currency.of(currencyCode));
+      }
     }
-    FudgeField premiumTime = message.getByName("premiumTime");
-    if (premiumTime != null) {
-      trade.setPremiumTime(message.getFieldValue(OffsetTime.class, premiumTime));
+    if (message.hasField(PREMIUM_DATE)) {
+      FudgeField premiumDate = message.getByName(PREMIUM_DATE);
+      if (premiumDate != null) {
+        trade.setPremiumDate(message.getFieldValue(LocalDate.class, premiumDate));
+      }
+    }
+    if (message.hasField(PREMIUM_TIME)) {
+      FudgeField premiumTime = message.getByName(PREMIUM_TIME);
+      if (premiumTime != null) {
+        trade.setPremiumTime(message.getFieldValue(OffsetTime.class, premiumTime));
+      }
+    }
+    if (message.hasField(ATTRIBUTES)) {
+      FudgeMsg attributesMsg = message.getMessage(ATTRIBUTES);
+      for (FudgeField fudgeField : attributesMsg) {
+        String key = fudgeField.getName();
+        Object value = fudgeField.getValue();
+        if (key != null && value != null) {
+          trade.addAttribute(key, (String) value);
+        }
+      }
     }
     return trade;
   }
