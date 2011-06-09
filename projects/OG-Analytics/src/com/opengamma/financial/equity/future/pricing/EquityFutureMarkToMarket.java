@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.equity.future.method;
+package com.opengamma.financial.equity.future.pricing;
 
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 

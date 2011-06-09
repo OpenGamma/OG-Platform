@@ -25,8 +25,8 @@ public class StockFutureSecurity extends com.opengamma.financial.security.future
       }
     }
   }
-  public StockFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
+  public StockFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;

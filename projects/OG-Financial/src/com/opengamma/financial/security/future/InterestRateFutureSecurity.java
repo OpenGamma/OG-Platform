@@ -24,8 +24,8 @@ public class InterestRateFutureSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a InterestRateFutureSecurity - field 'cashRateType' is not string", e);
     }
   }
-  public InterestRateFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, String cashRateType) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
+  public InterestRateFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String cashRateType) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (cashRateType == null) throw new NullPointerException ("cashRateType' cannot be null");
     _cashRateType = cashRateType;
   }

@@ -199,6 +199,18 @@ public final class FutureSecurityBeanOperation extends
             return security;
           }
 
+          @Override
+          public FutureSecurity visitEquityFutureType() {
+            // TODO Auto-generated method stub
+            return null;
+          }
+
+          @Override
+          public FutureSecurity visitEquityIndexDividendFutureType() {
+            // TODO Auto-generated method stub
+            return null;
+          }
+
         });
     return sec;
   }
@@ -262,6 +274,16 @@ public final class FutureSecurityBeanOperation extends
             return resolveFutureType();
           }
 
+          @Override
+          public FutureSecurityBean visitEquityFutureType() {
+            return resolveFutureType();
+          }
+
+          @Override
+          public FutureSecurityBean visitEquityIndexDividendFutureType() {
+            return resolveFutureType();
+          }
+
         });
   }
 
@@ -295,6 +317,18 @@ public final class FutureSecurityBeanOperation extends
       @Override
       public Object visitEnergyFutureType() {
         postPersistCommodityFuture();
+        return null;
+      }
+
+      @Override
+      public Object visitEquityFutureType() {
+        postPersistFuture();
+        return null;
+      }
+
+      @Override
+      public Object visitEquityIndexDividendFutureType() {
+        postPersistFuture();
         return null;
       }
 
@@ -350,6 +384,7 @@ public final class FutureSecurityBeanOperation extends
         bean.setCurrency1(secMasterSession
             .getOrCreateCurrencyBean(security.getCurrency()
                 .getCode()));
+        bean.setUnitAmount(security.getUnitAmount());
         return bean;
       }
 

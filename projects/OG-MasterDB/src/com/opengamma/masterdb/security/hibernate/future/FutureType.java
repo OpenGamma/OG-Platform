@@ -76,6 +76,19 @@ public enum FutureType {
       }
 
       @Override
+      public FutureType visitEquityFutureSecurity(EquityFutureSecurity security) {
+        // TODO Case: Confirm my add of this fix is fine
+        return EQUITY;
+      }
+
+      @Override
+      public FutureType visitEquityIndexDividendFutureSecurity(
+          EquityIndexDividendFutureSecurity security) {
+        // TODO Case: Confirm my add of this fix is fine
+        return EQUITY_INDEX_DIVIDEND;
+      }
+
+      @Override
       public FutureType visitMetalFutureSecurity(MetalFutureSecurity security) {
         return METAL;
       }
@@ -88,19 +101,6 @@ public enum FutureType {
       @Override
       public FutureType visitStockFutureSecurity(StockFutureSecurity security) {
         return STOCK;
-      }
-
-      @Override
-      public FutureType visitEquityFutureSecurity(EquityFutureSecurity security) {
-        // TODO Case: Confirm my add of this fix is fine
-        return EQUITY;
-      }
-
-      @Override
-      public FutureType visitEquityIndexDividendFutureSecurity(
-          EquityIndexDividendFutureSecurity security) {
-        // TODO Case: Confirm my add of this fix is fine
-        return EQUITY_INDEX_DIVIDEND;
       }
 
     });
@@ -125,6 +125,10 @@ public enum FutureType {
     T visitIndexFutureType();
 
     T visitStockFutureType();
+
+    T visitEquityFutureType();
+
+    T visitEquityIndexDividendFutureType();
   }
 
   public <T> T accept(final Visitor<T> visitor) {
@@ -135,6 +139,10 @@ public enum FutureType {
         return visitor.visitBondFutureType();
       case ENERGY:
         return visitor.visitEnergyFutureType();
+      case EQUITY:
+        return visitor.visitEquityFutureType();
+      case EQUITY_INDEX_DIVIDEND:
+        return visitor.visitEquityIndexDividendFutureType();
       case FX:
         return visitor.visitFXFutureType();
       case INTEREST_RATE:

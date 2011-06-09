@@ -11,8 +11,8 @@ public class AgricultureFutureSecurity extends com.opengamma.financial.security.
   protected AgricultureFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
   }
-  public AgricultureFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, String commodityType, Double unitNumber, String unitName) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount, commodityType, unitNumber, unitName);
+  public AgricultureFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType, Double unitNumber, String unitName) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount, commodityType, unitNumber, unitName);
   }
   protected AgricultureFutureSecurity (final AgricultureFutureSecurity source) {
     super (source);

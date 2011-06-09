@@ -7,7 +7,7 @@ package com.opengamma.financial.equity;
 
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
-import com.opengamma.financial.equity.future.method.EquityFutureMarkToMarket;
+import com.opengamma.financial.equity.future.pricing.EquityFutureMarkToMarket;
 
 import org.apache.commons.lang.Validate;
 

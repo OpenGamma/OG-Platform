@@ -23,7 +23,7 @@ public class EquityFuture implements EquityDerivative {
   private final Currency _currency;
 
   /**
-   * Skeleton. Needs to be described in full
+   * 
    * @param timeToExpiry    time (in years as a double) until the date-time at which the reference index is fixed  
    * @param timeToSettlement  time (in years as a double) until the date-time at which the contract is settled
    * @param strike         Set strike price at trade time. Note that we may handle margin by resetting this at the end of each trading day

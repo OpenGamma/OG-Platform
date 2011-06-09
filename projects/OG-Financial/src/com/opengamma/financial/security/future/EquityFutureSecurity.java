@@ -39,8 +39,8 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
       }
     }
   }
-  public EquityFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
+  public EquityFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
       _settlementDate = (com.opengamma.financial.security.DateTimeWithZone)settlementDate.clone ();

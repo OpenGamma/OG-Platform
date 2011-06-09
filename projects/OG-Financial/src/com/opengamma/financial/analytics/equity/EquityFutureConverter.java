@@ -34,7 +34,7 @@ public class EquityFutureConverter extends FutureSecurityConverter {
    * @param trade
    * @return EquityFutureDefinition
    */
-  public EquityFutureDefinition visitEquityFutureSecurity(TradeImpl trade) {
+  public EquityFutureDefinition visitEquityFutureTrade(TradeImpl trade) {
 
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 

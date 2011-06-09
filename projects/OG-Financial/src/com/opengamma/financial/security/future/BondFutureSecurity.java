@@ -79,8 +79,8 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
       throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not DateTimeWithZone message", e);
     }
   }
-  public BondFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, com.opengamma.financial.security.DateTimeWithZone firstDeliveryDate, com.opengamma.financial.security.DateTimeWithZone lastDeliveryDate) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
+  public BondFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, com.opengamma.financial.security.DateTimeWithZone firstDeliveryDate, com.opengamma.financial.security.DateTimeWithZone lastDeliveryDate) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (basket == null) throw new NullPointerException ("'basket' cannot be null");
     else {
       final java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> fudge0 = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (basket);
