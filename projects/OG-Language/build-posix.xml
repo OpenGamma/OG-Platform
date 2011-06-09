@@ -17,6 +17,9 @@
 			outtype="static"
 			outputfileproperty="cpptask.ok"
 			failonerror="false">
+			<defineset>
+				<define name="HAVE_PTHREAD" if="cc.library.have_pthread" />
+			</defineset>
 			<includepath>
 				<pathelement path="${solution.dir}" />
 				<pathelement path="${lib.dir}/include" />

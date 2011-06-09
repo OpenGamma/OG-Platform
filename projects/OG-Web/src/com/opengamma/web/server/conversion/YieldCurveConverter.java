@@ -94,13 +94,35 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
   }
 
   @Override
-  public String getFormatterName() {
-    return "YIELD_CURVE";
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value) {
+    return null;
   }
 
   @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value) {
-    return null;
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value) {
+    if (value.getCurve() instanceof InterpolatedDoublesCurve) {
+      StringBuilder sb = new StringBuilder();
+      InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
+      double[] xData = interpolatedCurve.getXDataAsPrimitive();
+      double[] yData = interpolatedCurve.getYDataAsPrimitive();
+      boolean isFirst = true;
+      for (int i = 0; i < interpolatedCurve.size(); i++) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append("; ");
+        }
+        sb.append(xData[i]).append("=").append(yData[i]);
+      }
+      return sb.length() > 0 ? sb.toString() : null;
+    } else {
+      return value.getClass().getSimpleName();
+    }
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "YIELD_CURVE";
   }
   
 }

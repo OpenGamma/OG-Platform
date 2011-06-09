@@ -16,17 +16,48 @@
     
     var _logger = new Logger("TabbedViewResultsViewer", "debug");
     var _$tabsContainer;
+    var _$popupList;
+    var _$layout;
     var _tabManager;
     
     //-----------------------------------------------------------------------
     // Initialization
     
     function init() {
-      // Set up UI components
+      var $mainContentContainer = $("<div class='ui-layout-center'></div>");
+      var $popupContainer = $("<div class='ui-layout-east'></div>");
+      _$popupList = $("<ul class='popup-list'></ul>");
+      _$popupList.sortable({
+        connectWith: _$popupList,
+        appendTo: _$popupList,
+        handle: '.popup-head',
+        cursor: 'move',
+        placeholder: 'popup-placeholder',
+        revert: 200,
+        smooth: true,
+        helper: function (evt, ui) { return $(ui).clone().appendTo('#resultsViewer').show(); },
+        opacity: 0.8
+      });
+
+      $popupContainer.append(_$popupList);
+      _$container.empty().append($mainContentContainer).append($popupContainer);
+      _$layout = _$container.layout({
+        defaults: {
+          fxName: "slide"
+        },
+        center: {
+          onresize: handleCenterResized
+        },
+        east: {
+          size: 600,
+          initClosed: true
+        }
+      });
+      
       _tabManager = new TabManager();
       _$tabsContainer = $("<div id='tabs'></div>")
         .append("<ul></ul>");
-      _$container.empty().append(_$tabsContainer);
+      $mainContentContainer.append(_$tabsContainer);
       _$tabsContainer.tabs({
         select : _tabManager.onSelectTab,
         show : _tabManager.onShowTab
@@ -36,20 +67,23 @@
       if (portfolioDetails) {
         var $portfolioContainer = $("<div id='portfolio'></div>");
         _$tabsContainer.append($portfolioContainer);
-        var portfolio = new PortfolioViewer($portfolioContainer, portfolioDetails, _liveResultsClient, _userConfig);
+        _portfolio = new PortfolioViewer($portfolioContainer, _$layout, _$popupList, portfolioDetails, _liveResultsClient, _userConfig);
+        _tabManager.registerTab("portfolio", _portfolio);
         _$tabsContainer.tabs("add", "#portfolio", "Portfolio");
-        _tabManager.registerTab("portfolio", portfolio);
       }
       
       var primitivesDetails = _gridStructures.primitives;
       if (primitivesDetails) {
         var $primitivesContainer = $("<div id='primitives'></div>");
         _$tabsContainer.append($primitivesContainer);
-        var primitives = new PrimitivesViewer($primitivesContainer, primitivesDetails, _liveResultsClient, _userConfig);
+        _primitives = new PrimitivesViewer($primitivesContainer, primitivesDetails, _liveResultsClient, _userConfig);
+        _tabManager.registerTab("primitives", _primitives);
         _$tabsContainer.tabs("add", "#primitives", "Primitives");
-        _tabManager.registerTab("primitives", primitives);
       }
-
+    }
+    
+    function handleCenterResized() {
+      _tabManager.onTabContainerResized();
     }
 
     //-----------------------------------------------------------------------

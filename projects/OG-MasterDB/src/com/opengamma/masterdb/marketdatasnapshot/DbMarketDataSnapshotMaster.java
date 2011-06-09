@@ -28,6 +28,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -64,7 +66,6 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
-  
   /**
    * SQL select.
    */
@@ -76,7 +77,6 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
    * SQL from.
    */
   protected static final String FROM = "FROM snp_snapshot main ";
-
 
   /**
    * Creates an instance.
@@ -102,8 +102,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
 
-    searchWithPaging(request.getPagingRequest(), sqlSearchMarketDataSnapshots(request), args,
-        new MarketDataSnapshotDocumentExtractor(), result);
+    searchWithPaging(request.getPagingRequest(), sqlSearchMarketDataSnapshots(request), args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
     return result;
   }
 
@@ -129,17 +128,20 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
     return new String[] {search, count };
   }
 
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
+    return doHistory(request, new MarketDataSnapshotHistoryResult(), new MarketDataSnapshotDocumentExtractor(request.isIncludeData()));
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument get(final UniqueIdentifier uniqueId) {
-    return doGet(uniqueId, new MarketDataSnapshotDocumentExtractor(), "MarketDataSnapshot");
+    return doGet(uniqueId, new MarketDataSnapshotDocumentExtractor(true), "MarketDataSnapshot");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    return doGetByOidInstants(objectId, versionCorrection, new MarketDataSnapshotDocumentExtractor(),
-        "MarketDataSnapshot");
+    return doGetByOidInstants(objectId, versionCorrection, new MarketDataSnapshotDocumentExtractor(true), "MarketDataSnapshot");
   }
 
   //-------------------------------------------------------------------------
@@ -204,9 +206,14 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
   /**
    * Mapper from SQL rows to a MarketDataSnapshotDocument.
    */
-  protected final class MarketDataSnapshotDocumentExtractor implements
-      ResultSetExtractor<List<MarketDataSnapshotDocument>> {
-    private List<MarketDataSnapshotDocument> _documents = new ArrayList<MarketDataSnapshotDocument>();
+  protected final class MarketDataSnapshotDocumentExtractor implements ResultSetExtractor<List<MarketDataSnapshotDocument>> {
+
+    private final boolean _includeData;
+    private final List<MarketDataSnapshotDocument> _documents = new ArrayList<MarketDataSnapshotDocument>();
+
+    public MarketDataSnapshotDocumentExtractor(final boolean includeData) {
+      _includeData = includeData;
+    }
 
     @Override
     public List<MarketDataSnapshotDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
@@ -225,16 +232,19 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       LobHandler lob = getDbHelper().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
-      ManageableMarketDataSnapshot marketDataSnaphshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
+      ManageableMarketDataSnapshot marketDataSnapshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
           new ByteArrayInputStream(bytes));
-
+      if (!_includeData) {
+        marketDataSnapshot.setGlobalValues(null);
+        marketDataSnapshot.setYieldCurves(null);
+      }
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
       doc.setUniqueId(createUniqueIdentifier(docOid, docId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSnapshot(marketDataSnaphshot);
+      doc.setSnapshot(marketDataSnapshot);
       _documents.add(doc);
     }
   }

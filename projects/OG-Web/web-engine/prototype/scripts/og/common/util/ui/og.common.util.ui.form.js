@@ -8,8 +8,8 @@ $.register_module({
     dependencies: ['og.api.text', 'og.api.rest'],
     obj: function () {
         var stall = 500, item_prefix = 'item_', id_count = 1,
-            form_template = '<form action="." id="${id}">' +
-                '{{html html}}<input type="submit" style="display: none;"></form>',
+            form_template = '<form action="." id="${id}"><div class="OG-form">' +
+                '{{html html}}<input type="submit" style="display: none;"></div></form>',
             api_text = og.api.text, api_rest = og.api.rest,
             Form, Block, Field;
         /**
@@ -17,7 +17,7 @@ $.register_module({
          */
         Block = function (form, config) {
             var block = this, klass = 'Block', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], extras = config.extras;
+                handlers = config.handlers || [], extras = config.extras, processor = config.processor;
             block.children = [];
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
@@ -37,10 +37,18 @@ $.register_module({
                     throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
                 });
             };
+            block.process = function (data, errors) {
+                try {
+                    if (processor) processor(data);
+                } catch (error) {
+                    errors.push(error);
+                }
+                block.children.forEach(function (child) {child.process(data, errors);});
+            };
             // initialize Block
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module)  api_text({handler: function (result) {template = result;}, module: module});
+                else if (module) api_text({handler: function (result) {template = result;}, module: module});
             } else {
                 template = '';
             }
@@ -51,10 +59,17 @@ $.register_module({
          */
         Field = function (form, config) {
             var field = this, klass = 'Field', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], generator = config.generator;
+                handlers = config.handlers || [], generator = config.generator, processor = config.processor;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), stall);
-                generator(template, handler);
+                generator(handler, template);
+            };
+            field.process = function (data, errors) {
+                try {
+                    if (processor) processor(data);
+                } catch (error) {
+                    errors.push(error);
+                }
             };
             // initialize Field
             if (url || module) {
@@ -68,7 +83,7 @@ $.register_module({
         /**
          * @class Form
          */
-        Form = function (config) {
+        return Form = function (config) {
             var form = new Block(null, config), selector = config.selector, $root = $(selector), $form,
                 klass = 'Form', form_events = {'form:load': [], 'form:unload': [], 'form:submit': [], 'form:error': []},
                 dom_events = {},
@@ -99,12 +114,12 @@ $.register_module({
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
                     var self = 'onsubmit', raw = $form.serializeArray(),
-                        data = config.data ? $.extend(true, {}, config.data) : null;
+                        data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
                     if (data) raw.forEach(function (value) {
                         var hier = value.name.split('.'), last = hier.pop();
                         try {
                             hier.reduce(function (acc, level) {
-                                return typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                                return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
                             }, data)[last] = value.value;
                         } catch (error) {
                             data = null;
@@ -112,7 +127,9 @@ $.register_module({
                             form_events['form:error'].forEach(function (val) {val.handler(error);});
                         }
                     });
-                    return !!form_events['form:submit'].forEach(function (val) {val.handler(raw, data);});
+                    form.process(data, errors);
+                    result = {raw: raw, data: data, errors: errors};
+                    return !!form_events['form:submit'].forEach(function (val) {val.handler(result);});
                 });
             });
             form.Field = Field.partial(form);
@@ -122,6 +139,5 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        return Form;
     }
 });

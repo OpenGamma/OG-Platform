@@ -1,36 +1,11 @@
-/**
- * @copyright 2009 - 2011 by OpenGamma Inc
+/*
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 
 /* og-constraint */
-.OG-constraints {display: inline-block; white-space: nowrap;}
-.OG-constraints tr:first-child td {padding-top: 5px;}
-.OG-constraints tr:last-child td {padding-bottom: 5px;}
-.OG-constraints table {margin: 0 5px;}
-
-.OG-constraints tr {height: 2.6em;}
-.OG-constraints td {vertical-align: middle;}
-.OG-constraints td label {vertical-align: middle;margin-right: 20px;}
 .OG-constraints .og-with,
 .OG-constraints .og-without {padding-right: 10px;}
 .OG-constraints .og-with input {width: 48%;}
 .OG-constraints .og-with span {width: 4%;text-align: center;display: inline-block;}
 .OG-constraints .og-without input {width: 100%}
-.OG-constraints > span:first-child {color: #999;}
-.OG-constraints > div {border: 1px solid #e4e4e4;background-color: #fefefe;-moz-border-radius: 5px;-webkit-border-radius: 5px;}
-.OG-constraints .og-optional,
-.OG-constraints .og-remove,
-.OG-constraints .og-add {width: 23px;text-align: center;vertical-align: middle;border-left: 1px solid #fff;}
-.OG-constraints .og-remove span,
-.OG-constraints .og-add span {margin-top: 6px;}
-.OG-constraints .og-optional {background: #cbcbcb;}
-.OG-constraints .og-remove {
-  background: #e9cccc;
-}
-.OG-form .OG-constraints .OG-icon.og-icon-add {
-  margin-left: 0;
-}
-.OG-form .OG-constraints .og-add {
-  background: #dff1e7;
-}

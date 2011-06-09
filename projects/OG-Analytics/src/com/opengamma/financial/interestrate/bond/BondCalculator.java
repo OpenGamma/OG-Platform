@@ -9,7 +9,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
- * 
+ * Interface used to compute the bond specific figures.
  */
 public abstract class BondCalculator {
 

@@ -2,15 +2,16 @@
 {
     "template_data": {
         "portfolio_name": "${portfolio.name}",
-        "id": "${portfolio.uniqueId.objectId}",
-    <#if parentNode?has_content>
+        "object_id": "${portfolio.uniqueId.objectId}",
+        "version_id": "${portfolio.uniqueId.version}",
+        <#if parentNode?has_content>
         "parent_node": "${parentNode.name}",
         "parent_node_id": "${parentNode.uniqueId.objectId}",
-    <#else>
-    "parent_node": "Root",
-	</#if>
-            "name": "${node.name}",
-            "node": "${node.uniqueId.objectId}"
+        <#else>
+        "parent_node": "Root",
+        </#if>
+        "name": "${node.name}",
+        "node": "${node.uniqueId.objectId}"
     },
     "portfolios": [
     	<#list childNodes as item>

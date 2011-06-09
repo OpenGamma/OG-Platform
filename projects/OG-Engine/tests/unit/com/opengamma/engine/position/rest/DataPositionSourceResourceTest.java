@@ -5,19 +5,21 @@
  */
 package com.opengamma.engine.position.rest;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -83,6 +85,8 @@ public class DataPositionSourceResourceTest {
   public void testGetPosition() {
     final PositionImpl position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
     position.setParentNodeId(UID2);
+    final TradeImpl trade = new TradeImpl(position.getUniqueId(), Identifier.of("A", "B"), BigDecimal.TEN, new CounterpartyImpl(Identifier.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
+    position.addTrade(trade);
     when(_underlying.getPosition(eq(UID1))).thenReturn(position);
     
     assertEquals (position, decodeResponse (Position.class, "position", _resource.getPosition(UID1.toString())));

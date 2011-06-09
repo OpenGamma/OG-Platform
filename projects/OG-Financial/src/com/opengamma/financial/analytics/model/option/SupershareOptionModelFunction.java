@@ -13,8 +13,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.definition.SupershareOptionDefinition;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.SupershareOptionModel;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.financial.security.option.SupersharePayoffStyle;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * 
@@ -29,9 +28,13 @@ public class SupershareOptionModelFunction extends StandardOptionDataAnalyticOpt
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     final SupersharePayoffStyle payoff = (SupersharePayoffStyle) option.getPayoffStyle();
     return new SupershareOptionDefinition(option.getExpiry(), payoff.getLowerBound(), payoff.getUpperBound());
+    */
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -39,7 +42,13 @@ public class SupershareOptionModelFunction extends StandardOptionDataAnalyticOpt
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof SupersharePayoffStyle) {
+      return true;
+    }
+    */
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;

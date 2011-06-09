@@ -32,7 +32,11 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinit
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
+import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
@@ -434,6 +438,46 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future) {
       return "InterestRateFutureOptionPremiumTransaction2";
+    }
+
+    @Override
+    public String visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, T data) {
+      return "BondFixedTransaction1";
+    }
+
+    @Override
+    public String visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond) {
+      return "BondFixedTransaction2";
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data) {
+      return "BondFixedSecurity1";
+    }
+
+    @Override
+    public String visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond) {
+      return "BondFixedSecurity2";
+    }
+
+    @Override
+    public String visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data) {
+      return "BondIborTransaction1";
+    }
+
+    @Override
+    public String visitBondIborTransactionDefinition(BondIborTransactionDefinition bond) {
+      return "BondIborTransaction2";
+    }
+
+    @Override
+    public String visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, T data) {
+      return "BondIborSecurity1";
+    }
+
+    @Override
+    public String visitBondIborSecurityDefinition(BondIborSecurityDefinition bond) {
+      return "BondIborSecurity2";
     }
   }
 }

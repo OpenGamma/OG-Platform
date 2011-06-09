@@ -2,7 +2,7 @@
 <nav>
   <ul>
     <li class="og-analytics">
-      <a href="/analytics/" class="OG-icon">Analytics</a><!-- og-icon-header-dropdown -->
+      <a href="#/analytics/" class="OG-icon">Analytics</a><!-- og-icon-header-dropdown -->
       <div class="og-dd-menu" style="display:none">
         <div class="OG-shadow">
           <script id="OG-js-analytics-menu-template" type="text/x-jquery-tmpl">

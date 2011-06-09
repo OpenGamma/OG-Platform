@@ -10,7 +10,7 @@
 (function($) {
   
   /** @constructor */
-  function PortfolioViewer(_$container, _portfolioDetails, _liveResultsClient, _userConfig) {
+  function PortfolioViewer(_$container, _$layout, _$popupList, _portfolioDetails, _liveResultsClient, _userConfig) {
     
     var self = this;
     
@@ -22,6 +22,7 @@
     function init() {
       _$portfolioGridContainer = $("<div id='portfolioGrid'></div>");
       _$container.append(_$portfolioGridContainer);
+      Common.addExportCsvButton(_$container, _liveResultsClient.getCsvGridUrl(self.getGridName()));
       
       _dataView = new Slick.Data.DataView();
       _dataView.beginUpdate();
@@ -30,7 +31,14 @@
       }
       _dataView.setFilter(dataViewFilter);
       _dataView.endUpdate();
-      var gridColumns = SlickGridHelper.makeGridColumns(self, "Position", "position", formatPositionName, _portfolioDetails.columns, _userConfig);
+      var positionColumn = {
+          id : "position",
+          name : "Position",
+          field : "position",
+          width : 450,
+          formatter : formatPositionName
+        };
+      var gridColumns = SlickGridHelper.makeGridColumns(self, positionColumn, _portfolioDetails.columns, _userConfig);
       
       var gridOptions = {
           enableAddRow: false,
@@ -56,22 +64,32 @@
       _gridHelper.populateViewportData(updateMetadata.portfolioViewport);
     }
     
-    function onGridClicked(e, row, cell) {
-      if ($(e.target).hasClass("toggle")) {
-        var item = _dataView.rows[row];
-        if (item) {
-          if (!item._collapsed) {
-            item._collapsed = true;
+    function onGridClicked(e, rowIdx, colIdx) {
+      if ($(e.target).hasClass("toggle") && $(e.target).closest(".depgraph-popup").length == 0) {
+        var row = _dataView.rows[rowIdx];
+        if (row) {
+          if (!row._collapsed) {
+            row._collapsed = true;
           } else {
-            item._collapsed = false;
+            row._collapsed = false;
           }
-          _dataView.updateItem(item.rowId, item);
+          _dataView.updateItem(row.rowId, row);
           _grid.removeAllRows();
           _grid.render();
           _liveResultsClient.triggerImmediateUpdate();
         }
         return true;
       }
+      
+      var col = _grid.getColumns()[colIdx];
+      if (col.id != "position") {
+        var row = _dataView.rows[rowIdx];
+        var $cell = $(e.target).closest(".slick-cell");
+        var popupTitle = col.name + " on " + row['position'];
+        self.popupManager.openExplain($cell, col.id, row.rowId, popupTitle);
+        return true;
+      }
+      
       return false;
     }
     
@@ -130,6 +148,14 @@
     this.updateReceived = function(update, timestamp, latency) {
       _gridHelper.handleUpdate(update, _portfolioDetails.columns);
     }
+    
+    this.onContainerResized = function() {
+      _gridHelper.handleContainerResized();
+    }
+    
+    this.getGridName = function() {
+      return _portfolioDetails.name;
+    }
 
     this.destroy = function() {
       _userConfig.onSparklinesToggled.unsubscribe(onSparklinesToggled);
@@ -147,7 +173,7 @@
     
     init();
     
-    this.popupManager = new PopupManager(_portfolioDetails.name, _dataView, _liveResultsClient, _userConfig);
+    this.popupManager = new PopupManager(_$layout, _$popupList, _grid, _portfolioDetails.name, _dataView, _liveResultsClient, _userConfig);
   }
   
   $.extend(true, window, {

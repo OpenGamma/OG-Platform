@@ -44,7 +44,6 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.Identifier;
@@ -96,8 +95,8 @@ public class BondFutureConversionTest {
       final ZonedDateTime firstCouponDate = MATURITY_DATE[i].minusYears(11).plusMonths(6);
       DELIVERABLE_BONDS[i] = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.USD,
           YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(MATURITY_DATE[i]), "", COUPON[i] * 100,
-          SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(accrualDate),
-          new DateTimeWithZone(accrualDate), new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+          SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), accrualDate,
+          accrualDate, firstCouponDate, 100, 100000000, 5000, 1000, 100, 100);
     }
   }
 
@@ -150,8 +149,8 @@ public class BondFutureConversionTest {
     final DayCount bondDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
-        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), bondDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
-        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), bondDayCount, firstCouponDate, firstCouponDate,
+        firstCouponDate, 100, 100000000, 5000, 1000, 100, 100);
     final double accruedInterestForBond = 0.015780822;
     final double accruedToDelivery = 0.041917808;
     final double repoRate = 0.0624;
@@ -206,8 +205,8 @@ public class BondFutureConversionTest {
     assertEquals(accruedInterestForBond, accruedInterestDayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-6);
     final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
-        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
-        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, firstCouponDate, firstCouponDate,
+        firstCouponDate, 100, 100000000, 5000, 1000, 100, 100);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
     final Bond bond = delivered.getUnderlyingBond().toDerivative(tradeDate, CURVE_NAME);
     final BondForward bondForward = delivered.toDerivative(settlementDate, CURVE_NAME);
@@ -258,8 +257,8 @@ public class BondFutureConversionTest {
     final DayCount accruedInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
     final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
-        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
-        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, firstCouponDate, firstCouponDate,
+        firstCouponDate, 100, 100000000, 5000, 1000, 100, 100);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
     final Bond bond = delivered.getUnderlyingBond().toDerivative(settlementDate, CURVE_NAME);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice);

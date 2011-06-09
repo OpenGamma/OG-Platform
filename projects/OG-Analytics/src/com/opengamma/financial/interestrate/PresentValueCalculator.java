@@ -11,8 +11,12 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
-import com.opengamma.financial.interestrate.bond.definition.BondTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
+import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
@@ -148,7 +152,31 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitBondTransaction(final BondTransaction<? extends Payment> bond, final YieldCurveBundle curves) {
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bond);
+    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    return method.presentValue(bond, curves);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bond);
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    return method.presentValue(bond, curves);
+  }
+
+  @Override
+  public Double visitBondIborSecurity(final BondIborSecurity bond, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bond);
+    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    return method.presentValue(bond, curves);
+  }
+
+  @Override
+  public Double visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
     final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();

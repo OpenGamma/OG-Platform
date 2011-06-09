@@ -5,20 +5,22 @@
  */
 package com.opengamma.master.timeseries;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -157,6 +159,41 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      TimeSeriesSearchHistoricRequest other = (TimeSeriesSearchHistoricRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getCurrentDate(), other.getCurrentDate()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getTimestamp(), other.getTimestamp());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimestamp());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -391,7 +428,7 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
   /**
    * The meta-bean for {@code TimeSeriesSearchHistoricRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -400,62 +437,97 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
     /**
      * The meta-property for the {@code pagingRequest} property.
      */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
+    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "pagingRequest", TimeSeriesSearchHistoricRequest.class, PagingRequest.class);
     /**
      * The meta-property for the {@code timeSeriesId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(this, "timeSeriesId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesId", TimeSeriesSearchHistoricRequest.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", TimeSeriesSearchHistoricRequest.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code currentDate} property.
      */
-    private final MetaProperty<LocalDate> _currentDate = DirectMetaProperty.ofReadWrite(this, "currentDate", LocalDate.class);
+    private final MetaProperty<LocalDate> _currentDate = DirectMetaProperty.ofReadWrite(
+        this, "currentDate", TimeSeriesSearchHistoricRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
-    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(this, "dataSource", String.class);
+    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
+        this, "dataSource", TimeSeriesSearchHistoricRequest.class, String.class);
     /**
      * The meta-property for the {@code dataProvider} property.
      */
-    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(this, "dataProvider", String.class);
+    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
+        this, "dataProvider", TimeSeriesSearchHistoricRequest.class, String.class);
     /**
      * The meta-property for the {@code dataField} property.
      */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(this, "dataField", String.class);
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", TimeSeriesSearchHistoricRequest.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
+        this, "observationTime", TimeSeriesSearchHistoricRequest.class, String.class);
     /**
      * The meta-property for the {@code timestamp} property.
      */
-    private final MetaProperty<Instant> _timestamp = DirectMetaProperty.ofReadWrite(this, "timestamp", Instant.class);
+    private final MetaProperty<Instant> _timestamp = DirectMetaProperty.ofReadWrite(
+        this, "timestamp", TimeSeriesSearchHistoricRequest.class, Instant.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "pagingRequest",
+        "timeSeriesId",
+        "identifiers",
+        "currentDate",
+        "dataSource",
+        "dataProvider",
+        "dataField",
+        "observationTime",
+        "timestamp");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
-      temp.put("timeSeriesId", _timeSeriesId);
-      temp.put("identifiers", _identifiers);
-      temp.put("currentDate", _currentDate);
-      temp.put("dataSource", _dataSource);
-      temp.put("dataProvider", _dataProvider);
-      temp.put("dataField", _dataField);
-      temp.put("observationTime", _observationTime);
-      temp.put("timestamp", _timestamp);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public TimeSeriesSearchHistoricRequest createBean() {
-      return new TimeSeriesSearchHistoricRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return _pagingRequest;
+        case 1709694943:  // timeSeriesId
+          return _timeSeriesId;
+        case 1368189162:  // identifiers
+          return _identifiers;
+        case 600751303:  // currentDate
+          return _currentDate;
+        case 1272470629:  // dataSource
+          return _dataSource;
+        case 339742651:  // dataProvider
+          return _dataProvider;
+        case -386794640:  // dataField
+          return _dataField;
+        case 951232793:  // observationTime
+          return _observationTime;
+        case 55126294:  // timestamp
+          return _timestamp;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends TimeSeriesSearchHistoricRequest> builder() {
+      return new DirectBeanBuilder<TimeSeriesSearchHistoricRequest>(new TimeSeriesSearchHistoricRequest());
     }
 
     @Override

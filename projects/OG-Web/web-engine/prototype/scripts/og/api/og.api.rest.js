@@ -1,11 +1,14 @@
-/**
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * provides wrappers for the REST API
  */
 $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.api.live', 'og.common.routes'],
     obj: function () {
-        var module = this, live_data_root = module.liveDataRoot, api,
+        var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = encodeURIComponent,
             outstanding_requests = {}, registrations = [],
@@ -213,8 +216,15 @@ $.register_module({
                 },
                 put: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
-                        id = str(config.id), fields = ['name', 'xml'], api_fields = ['name', 'configxml'];
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{one_of: fields}]});
+                        id = str(config.id), fields = ['name', 'json', 'xml'],
+                        api_fields = ['name', 'configJSON', 'configXML'];
+                    meta = check({
+                        bundle: {method: root + '#put', config: config},
+                        required: [{one_of: fields}],
+                        empties: [{
+                            condition: !!config.json, label: 'json and xml are mutually exclusive', fields: ['xml']
+                        }]
+                    });
                     meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     if (id) method.push(id);
@@ -383,7 +393,7 @@ $.register_module({
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{all_of: fields}]
+                        required: [{all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']}]
                     });
                     meta.type = 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});

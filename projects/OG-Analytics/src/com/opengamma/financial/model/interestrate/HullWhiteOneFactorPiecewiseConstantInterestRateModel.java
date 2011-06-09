@@ -17,7 +17,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * Computes the future convexity factor used in future pricing.
    * TODO: add a reference.
    * @param future The future security.
-   * @param data The Hull-White model paramters.
+   * @param data The Hull-White model parameters.
    * @return The factor.
    */
   public double futureConvexityFactor(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
@@ -39,6 +39,39 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
           * (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
     }
     return Math.exp(factor1 / numerator * factor2);
+  }
+
+  /**
+   * Computes the (zero-coupon) bond volatility divided by a bond numeraire for a given period. 
+   * @param startExpiry Start time of the expiry period.
+   * @param endExpiry End time of the expiry period.
+   * @param numeraireTime Time to maturity for the bond numeraire.
+   * @param bondMaturity Time to maturity for the bond.
+   * @param data Hull-White model data.
+   * @return The re-based bond volatility.
+   */
+  public double alpha(final double startExpiry, final double endExpiry, final double numeraireTime, final double bondMaturity, final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+    double factor1 = Math.exp(-data.getMeanReversion() * numeraireTime) - Math.exp(-data.getMeanReversion() * bondMaturity);
+    double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
+    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    while (startExpiry > data.getVolatilityTime()[indexStart]) {
+      indexStart++;
+    }
+    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
+    while (endExpiry > data.getVolatilityTime()[indexEnd]) {
+      indexEnd++;
+    }
+    int sLen = indexEnd - indexStart + 1;
+    double[] s = new double[sLen + 1];
+    s[0] = startExpiry;
+    System.arraycopy(data.getVolatilityTime(), indexStart, s, 1, sLen - 1);
+    s[sLen] = endExpiry;
+    double factor2 = 0.0;
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1]
+          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
+    }
+    return factor1 * Math.sqrt(factor2 / numerator);
   }
 
 }

@@ -176,7 +176,7 @@ public class ClientResource {
   @Path(MARKET_DATA_SNAPSHOTS_PATH)
   public MarketDataSnapshotMasterResource getSnapshots() {
     _lastAccessed = System.currentTimeMillis();
-    if (_portfolioMaster == null) {
+    if (_snapshotMaster == null) {
       s_logger.debug("Creating UserSnapshotMaster for {}/{}", getUserName(), getClientName());
       UserSnapshotMaster userMaster = new UserSnapshotMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getSnapshotMaster());
       _snapshotMaster = new MarketDataSnapshotMasterResource(userMaster, _usersResourceContext.getFudgeContext());

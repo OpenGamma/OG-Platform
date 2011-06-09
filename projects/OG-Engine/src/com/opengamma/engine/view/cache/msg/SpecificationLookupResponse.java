@@ -21,7 +21,7 @@ public class SpecificationLookupResponse extends com.opengamma.engine.view.cache
     }
   }
   protected SpecificationLookupResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (SPECIFICATION_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a SpecificationLookupResponse - field 'specification' is not present");

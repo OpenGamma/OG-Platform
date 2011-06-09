@@ -26,6 +26,8 @@ import java.util.concurrent.TimeoutException;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.FudgeRuntimeIOException;
@@ -59,8 +61,7 @@ public class Client implements Runnable {
   private volatile boolean _poisoned;
   private FudgeMsg _stashMessage;
 
-  protected Client(ClientContext clientContext, final String inputPipeName, final String outputPipeName,
-      final SessionContext session) {
+  protected Client(ClientContext clientContext, final String inputPipeName, final String outputPipeName, final SessionContext session) {
     _clientContext = clientContext;
     _sessionContext = session;
     _executor = clientContext.createExecutor();
@@ -104,12 +105,7 @@ public class Client implements Runnable {
     return new Runnable() {
       @Override
       public void run() {
-        s_logger.info("Queuing poison message and disconnecting pipes");
-        _poisoned = true;
-        // Poison the writer thread with an empty Fudge message
-        getOutputMessageBuffer().add(FudgeContext.EMPTY_MESSAGE_ENVELOPE);
-        // Poison the reader thread by forcing an I/O exception when the pipes close
-        disconnectPipes();
+        doPoison();
       }
     };
   }
@@ -132,6 +128,7 @@ public class Client implements Runnable {
           }
           if (msg.getMessage().getNumFields() > 0) {
             try {
+              s_logger.debug("Writing message {}", msg);
               _writer.writeMessageEnvelope(msg);
             } catch (Throwable t) {
               s_logger.error("Exception during message write", t);
@@ -149,8 +146,11 @@ public class Client implements Runnable {
   }
 
   protected void sendUserMessage(final UserMessage message) {
-    getOutputMessageBuffer().add(
-        new FudgeMsgEnvelope(message.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.USER));
+    sendUserMessage(message.toFudgeMsg(new FudgeSerializationContext(getClientContext().getFudgeContext())));
+  }
+  
+  protected void sendUserMessage(final FudgeMsg msg) {
+    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg, 0, MessageDirectives.USER));
   }
 
   protected SessionContextInitializationEventHandler getSessionInitializer() {
@@ -162,7 +162,7 @@ public class Client implements Runnable {
 
           @Override
           public UserMessagePayload call(final UserMessagePayload message, final long timeoutMillis)
-              throws TimeoutException {
+            throws TimeoutException {
             // TODO: implement this if/when we need it
             throw new UnsupportedOperationException();
           }
@@ -242,18 +242,18 @@ public class Client implements Runnable {
     try {
       boolean contextInitialized = false;
       final FudgeMsgReader reader = new FudgeMsgReader(getInputPipe());
+      final FudgeDeserializationContext fdc = new FudgeDeserializationContext(getClientContext().getFudgeContext());
       s_logger.info("Starting message read loop");
       while (!_poisoned && reader.hasNext()) {
         final FudgeMsgEnvelope messageEnvelope = reader.nextMessageEnvelope();
         watchdog.stillAlive();
         switch (messageEnvelope.getProcessingDirectives()) {
           case MessageDirectives.USER: {
-            final UserMessage message = new UserMessage(messageEnvelope.getMessage());
-            getExecutor().execute(dispatchUserMessage(message));
+            getExecutor().execute(dispatchUserMessage(messageEnvelope.getMessage()));
             break;
           }
           case MessageDirectives.CLIENT: {
-            final ConnectorMessage message = new ConnectorMessage(messageEnvelope.getMessage());
+            final ConnectorMessage message = new ConnectorMessage(fdc, messageEnvelope.getMessage());
             switch (message.getOperation()) {
               case HEARTBEAT:
                 if (getOutputMessageBuffer().isEmpty()) {
@@ -368,32 +368,35 @@ public class Client implements Runnable {
     }
   }
 
-  protected UserMessagePayload dispatchUserMessage(final UserMessagePayload message) {
-    return message.accept(getClientContext().getMessageHandler(), getSessionContext());
-  }
-
-  private Runnable dispatchUserMessage(final UserMessage message) {
+  private Runnable dispatchUserMessage(final FudgeMsg msg) {
     return new Runnable() {
       @Override
       public void run() {
-        UserMessagePayload response = null;
-        try {
-          s_logger.debug("Dispatching user message {}", message);
-          response = dispatchUserMessage(message.getPayload());
-        } catch (Throwable t) {
-          s_logger.error("Error in user message handler", t);
-          response = UserMessagePayload.EMPTY_PAYLOAD;
-        }
-        if (message.getHandle() != null) {
-          if (response == null) {
-            s_logger.error("User message handler returned null for synchronous message call {}", message);
-            response = UserMessagePayload.EMPTY_PAYLOAD;
-          }
-          message.setPayload(response);
-          sendUserMessage(message);
-        }
+        doDispatchUserMessage(msg);
       }
     };
+  }
+  
+  protected void doDispatchUserMessage(final FudgeMsg msg) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext(getClientContext().getFudgeContext());
+    UserMessage userMessage = new UserMessage(fdc, msg);
+    UserMessagePayload response = null;
+    try {
+      s_logger.debug("Dispatching user message {}", msg);
+      response = userMessage.getPayload().accept(getClientContext().getMessageHandler(), getSessionContext());
+    } catch (Throwable t) {
+      s_logger.error("Error in user message handler", t);
+      response = UserMessagePayload.EMPTY_PAYLOAD;
+    }
+    if (userMessage.getHandle() != null) {
+      if (response == null) {
+        s_logger.error("User message handler returned null for synchronous message call {}", msg);
+        response = UserMessagePayload.EMPTY_PAYLOAD;
+      }
+      s_logger.debug("Response {}", response);
+      userMessage.setPayload(response);
+      sendUserMessage(userMessage);
+    }
   }
 
   protected void setStashMessage(final FudgeMsg stashMessage) {
@@ -401,11 +404,25 @@ public class Client implements Runnable {
       _stashMessage = stashMessage;
     }
     final ConnectorMessage msg = new ConnectorMessage(Operation.STASH, stashMessage);
-    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.CLIENT));
+    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg.toFudgeMsg(
+        new FudgeSerializationContext(getClientContext().getFudgeContext())), 0, MessageDirectives.CLIENT));
   }
 
   protected synchronized FudgeMsg getStashMessage() {
     return _stashMessage;
+  }
+
+  protected void doPoison() {
+    s_logger.info("Queuing poison message and disconnecting pipes");
+    _poisoned = true;
+    // Poison the writer thread with an empty Fudge message
+    getOutputMessageBuffer().add(FudgeContext.EMPTY_MESSAGE_ENVELOPE);
+    // Poison the reader thread by forcing an I/O exception when the pipes close
+    disconnectPipes();
+  }
+  
+  protected boolean isPoisoned() {
+    return _poisoned;
   }
 
 }

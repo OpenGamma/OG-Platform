@@ -73,6 +73,14 @@ public class Forex implements ForexDerivative {
     return _paymentCurrency2.getCurrency();
   }
 
+  /**
+   * Gets the payment time.
+   * @return The time.
+   */
+  public double getPaymentTime() {
+    return _paymentCurrency1.getPaymentTime();
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

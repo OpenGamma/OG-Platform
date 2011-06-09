@@ -1,8 +1,9 @@
-/**
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
  * Delete old next and prev buttons and add in custom ones
- *
  * TODO: make select box work
- *
  */
 $.register_module({
     name: 'og.common.details.calendar_ui_changes',

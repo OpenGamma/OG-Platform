@@ -29,6 +29,18 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     TradeImpl trade = new TradeImpl();
     assertEncodeDecodeCycle(Trade.class, trade);
   }
+  
+  public void testTrade() {
+    TradeImpl trade = new TradeImpl();
+    trade.setUniqueId(UniqueIdentifier.of("A", "B"));
+    trade.setParentPositionId(UniqueIdentifier.of("C", "D"));
+    trade.setQuantity(BigDecimal.valueOf(12.34d));
+    trade.setSecurityKey(IdentifierBundle.of(Identifier.of("E", "F")));
+    trade.setCounterparty(new CounterpartyImpl(Identifier.of("G", "H")));
+    trade.setTradeDate(LocalDate.of(2011, 1, 5));
+    trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
+    assertEncodeDecodeCycle(Trade.class, trade);
+  }
 
   public void testFull() {
     TradeImpl trade = new TradeImpl();
@@ -41,10 +53,48 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
     
     //set premium
-    trade.setPremuim(100.00);
+    trade.setPremium(100.00);
     trade.setPremiumCurrency(Currency.USD);
     trade.setPremiumDate(LocalDate.of(2011, 1, 6));
     trade.setPremiumTime(OffsetTime.parse("15:30+02:00"));
+    
+    //set attributes
+    trade.addAttribute("A", "B");
+    trade.addAttribute("C", "D");
+    assertEncodeDecodeCycle(Trade.class, trade);
+  }
+  
+  public void testTrade_withPremium() {
+    TradeImpl trade = new TradeImpl();
+    trade.setUniqueId(UniqueIdentifier.of("A", "B"));
+    trade.setParentPositionId(UniqueIdentifier.of("C", "D"));
+    trade.setQuantity(BigDecimal.valueOf(12.34d));
+    trade.setSecurityKey(IdentifierBundle.of(Identifier.of("E", "F")));
+    trade.setCounterparty(new CounterpartyImpl(Identifier.of("G", "H")));
+    trade.setTradeDate(LocalDate.of(2011, 1, 5));
+    trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
+    
+    //set premium
+    trade.setPremium(100.00);
+    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumDate(LocalDate.of(2011, 1, 6));
+    trade.setPremiumTime(OffsetTime.parse("15:30+02:00"));
+    assertEncodeDecodeCycle(Trade.class, trade);
+  }
+  
+  public void testTrade_withAttributes() {
+    TradeImpl trade = new TradeImpl();
+    trade.setUniqueId(UniqueIdentifier.of("A", "B"));
+    trade.setParentPositionId(UniqueIdentifier.of("C", "D"));
+    trade.setQuantity(BigDecimal.valueOf(12.34d));
+    trade.setSecurityKey(IdentifierBundle.of(Identifier.of("E", "F")));
+    trade.setCounterparty(new CounterpartyImpl(Identifier.of("G", "H")));
+    trade.setTradeDate(LocalDate.of(2011, 1, 5));
+    trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
+    
+    //set attributes
+    trade.addAttribute("A", "B");
+    trade.addAttribute("C", "D");
     assertEncodeDecodeCycle(Trade.class, trade);
   }
 

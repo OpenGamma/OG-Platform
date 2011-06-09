@@ -5,11 +5,15 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -28,6 +32,11 @@ public final class DayCountFactory {
    * Map of convention name to convention.
    */
   private final Map<String, DayCount> _conventionMap = new HashMap<String, DayCount>();
+
+  /**
+   * All convention instances.
+   */
+  private final Collection<DayCount> _conventions;
 
   /**
    * Creates the factory
@@ -52,6 +61,7 @@ public final class DayCountFactory {
       }
       _conventionMap.put(convention.toLowerCase(Locale.ENGLISH), instance);
     }
+    _conventions = new ArrayList<DayCount>(instances.values());
   }
 
   // -------------------------------------------------------------------------
@@ -63,6 +73,16 @@ public final class DayCountFactory {
    */
   public DayCount getDayCount(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
+  }
+
+  /**
+   * Iterates over the available conventions. No particular ordering is specified and conventions may
+   * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * 
+   * @return the available conventions, not {@code null}
+   */
+  public Iterator<DayCount> enumerateAvailableDayCounts() {
+    return Iterators.unmodifiableIterator(_conventions.iterator());
   }
 
 }

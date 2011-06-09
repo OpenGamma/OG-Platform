@@ -20,14 +20,14 @@ import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
@@ -40,10 +40,6 @@ public class InMemorySnapshotMasterTest {
   // TODO Move the logical tests from here to the generic SnapshotMasterTestCase then we can just extend from that
 
   private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
-  private static final Identifier ID1 = Identifier.of("A", "B");
-  private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
-  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
   private static final ManageableMarketDataSnapshot SNAP1 = new ManageableMarketDataSnapshot("Test 1", new ManageableUnstructuredMarketDataSnapshot(),new HashMap<YieldCurveKey, YieldCurveSnapshot>(12));
   private static final ManageableMarketDataSnapshot SNAP2 = new ManageableMarketDataSnapshot("Test 2", new ManageableUnstructuredMarketDataSnapshot(),new HashMap<YieldCurveKey, YieldCurveSnapshot>(12));
   
@@ -113,6 +109,22 @@ public class InMemorySnapshotMasterTest {
     List<MarketDataSnapshotDocument> docs = result.getDocuments();
     assertEquals(1, docs.size());
     assertEquals(true, docs.contains(doc2));
+  }
+
+  public void test_history_emptyMaster() {
+    MarketDataSnapshotHistoryRequest request = new MarketDataSnapshotHistoryRequest();
+    request.setObjectId(doc1.getUniqueId().getObjectId());
+    MarketDataSnapshotHistoryResult result = testEmpty.history(request);
+    assertEquals(0, result.getPaging().getTotalItems());
+    assertEquals(0, result.getDocuments().size());
+  }
+
+  public void test_history_populatedMaster() {
+    MarketDataSnapshotHistoryRequest request = new MarketDataSnapshotHistoryRequest();
+    request.setObjectId(doc1.getUniqueId().getObjectId());
+    MarketDataSnapshotHistoryResult result = testPopulated.history(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    assertEquals(1, result.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------

@@ -14,7 +14,12 @@ import javax.time.calendar.Year;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -46,9 +51,15 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON() {
+  public Response getHTML(@Context Request request) {
+    EntityTag etag = new EntityTag(data().getHoliday().getUniqueId().toString());
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder != null) {
+      return builder.build();
+    }
     FlexiBean out = createRootData();
-    return getFreemarker().build("holidays/jsonholiday.ftl", out);
+    String json = getFreemarker().build("holidays/jsonholiday.ftl", out);
+    return Response.ok(json).tag(etag).build();
   }
 
   //-------------------------------------------------------------------------
@@ -142,10 +153,10 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
   }
 
   //-------------------------------------------------------------------------
-//  @Path("versions")
-//  public WebHolidayVersionsResource findVersions() {
-//    return new WebHolidayVersionsResource(this);
-//  }
+  @Path("versions")
+  public WebHolidayVersionsResource findVersions() {
+    return new WebHolidayVersionsResource(this);
+  }
 
   //-------------------------------------------------------------------------
   /**

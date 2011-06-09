@@ -172,7 +172,7 @@ bool CClientPipes::Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeo
 	} while (true);
 }
 
-void *CClientPipes::PeekInput (size_t cb, unsigned long lTimeout) {
+const void *CClientPipes::PeekInput (size_t cb, unsigned long lTimeout) {
 	if (m_oInputBuffer.Read (m_poInput, cb, lTimeout)) {
 		return m_oInputBuffer.GetData ();
 	} else {

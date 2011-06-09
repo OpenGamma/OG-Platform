@@ -1,5 +1,6 @@
-/**
- * view for portfolios section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.portfolios',
@@ -27,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'portfolios',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             portfolios,
@@ -67,7 +68,7 @@ $.register_module({
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         if (details_json.template_data.parent_node_id) {
                                             args_obj.node = details_json.template_data.parent_node_id;
-                                            args_obj.id = details_json.template_data.id;
+                                            args_obj.id = details_json.template_data.object_id;
                                         }
                                         routes.go(routes.hash(module.rules.load_delete,
                                                 $.extend(true, {}, last.args, {deleted: true}, args_obj)
@@ -136,7 +137,7 @@ $.register_module({
                                     ));
                                 },
                                 name: $input.val(),
-                                id: details_json.template_data.id,
+                                id: details_json.template_data.object_id,
                                 node: details_json.template_data.node,
                                 'new': true
                             });
@@ -157,11 +158,11 @@ $.register_module({
                                     // TODO: prevent search from reloading
                                     routes.go(routes.hash(module.rules.load_new_portfolios,
                                          $.extend({}, routes.last().args,
-                                             {id: details_json.template_data.id, 'new': true})
+                                             {id: details_json.template_data.object_id, 'new': true})
                                     ));
                                 },
                                 position: id ? id.item.value : $input.val(),
-                                id: details_json.template_data.id,
+                                id: details_json.template_data.object_id,
                                 node: details_json.template_data.node
                            });
                         };
@@ -188,7 +189,7 @@ $.register_module({
                         ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position');
                     },
                     render_portfolio_rows = function (selector, json, handler) {
-                        var $parent = $(selector), id = json.template_data.id, portfolios = json.portfolios,
+                        var $parent = $(selector), id = json.template_data.object_id, portfolios = json.portfolios,
                             rule = og.views.portfolios.rules['load_portfolios'], length = portfolios.length,
                             render, iterator, CHUNK = 500;
                         if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();
@@ -280,18 +281,27 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter_node:
-                {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_delete_node:
-                {route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'},
-            load_delete:
-                {route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'},
-            load_portfolios: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name},
-            load_new_portfolios:
-                {route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name},
-            load_edit_portfolios:
-                {route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name}
+            load_filter_node: {
+                route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'
+            },
+            load_filter: {
+                route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
+            },
+            load_delete_node: {
+                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
+            },
+            load_delete: {
+                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
+            },
+            load_portfolios: {
+                route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name
+            },
+            load_new_portfolios: {
+                route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name
+            },
+            load_edit_portfolios: {
+                route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name
+            }
         };
         return portfolios = {
             load: function (args) {
@@ -330,7 +340,7 @@ $.register_module({
                 portfolios.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };
