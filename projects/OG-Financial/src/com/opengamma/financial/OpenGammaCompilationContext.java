@@ -10,6 +10,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 
@@ -23,6 +24,7 @@ public final class OpenGammaCompilationContext {
   private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
   private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
   private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
+  private static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
   private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
 
   /**
@@ -111,6 +113,14 @@ public final class OpenGammaCompilationContext {
 
   public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
+  }
+  
+  public static VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, VOLATILITY_CUBE_DEFINITION_SOURCE_NAME);
+  }
+
+  public static void setVolatilityCubeDefinitionSource(final FunctionCompilationContext compilationContext, final VolatilityCubeDefinitionSource source) {
+    set(compilationContext, VOLATILITY_CUBE_DEFINITION_SOURCE_NAME, source);
   }
 
   public static CurrencyMatrixSource getCurrencyMatrixSource(final FunctionCompilationContext compilationContext) {

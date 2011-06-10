@@ -16,10 +16,10 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.util.money.Currency;
 
 /**
- * A key used to identify a yield curve.
+ * A key used to identify a volatility cube.
  */
-public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldCurveKey>, Serializable {
-
+public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
+  
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -38,7 +38,7 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
    * @param currency  the currency
    * @param name  the name
    */
-  public YieldCurveKey(Currency currency, String name) {
+  public VolatilityCubeKey(Currency currency, String name) {
     super();
     _currency = currency;
     _name = name;
@@ -71,7 +71,7 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
    * @return the comparison value
    */
   @Override
-  public int compareTo(YieldCurveKey other) {
+  public int compareTo(VolatilityCubeKey other) {
     int currCompare = _currency.compareTo(other.getCurrency());
     if (currCompare != 0) {
       return currCompare;
@@ -92,8 +92,8 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
     if (object == this) {
       return true;
     }
-    if (object instanceof YieldCurveKey) {
-      YieldCurveKey other = (YieldCurveKey) object;
+    if (object instanceof VolatilityCubeKey) {
+      VolatilityCubeKey other = (VolatilityCubeKey) object;
       return ObjectUtils.equals(getCurrency(), other.getCurrency()) &&
               ObjectUtils.equals(getName(), other.getName());
     }
@@ -118,8 +118,8 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
     return msg;
   }
 
-  public static YieldCurveKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    return new YieldCurveKey(Currency.of(msg.getString("currency")), msg.getString("name"));
+  public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+    return new VolatilityCubeKey(Currency.of(msg.getString("currency")), msg.getString("name"));
   }
 
 }
