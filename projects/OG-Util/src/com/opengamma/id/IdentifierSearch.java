@@ -316,7 +316,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   /**
    * Serializes this identifier search to a Fudge message.
    * 
-   * @param factory a message creator, not {@code null}
+   * @param factory  a message creator, not null
    * @return the serialized Fudge message
    */
   public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
@@ -332,7 +332,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * Deserializes an identifier search from a Fudge message.
    * 
    * @param fudgeContext  the Fudge context
-   * @param msg the Fudge message, not null
+   * @param msg  the Fudge message, not null
    * @return the identifier bundle
    */
   public static IdentifierSearch fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
