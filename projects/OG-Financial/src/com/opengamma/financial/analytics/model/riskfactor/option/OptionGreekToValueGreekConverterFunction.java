@@ -32,14 +32,7 @@ import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
-import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.FutureOptionSecurity;
-import com.opengamma.financial.security.option.OptionOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
@@ -70,7 +63,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final OptionSecurity security = (OptionSecurity) position.getSecurity();
+    final EquityOptionSecurity security = (EquityOptionSecurity) position.getSecurity();
     final GreekResultCollection greekResultCollection = new GreekResultCollection();
     final Map<UnderlyingType, Double> underlyingData = new HashMap<UnderlyingType, Double>();
     Greek greek;
@@ -80,7 +73,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
     final Double greekResult = (Double) inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
     greek = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName);
     greekResultCollection.put(greek, greekResult);
-    final OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), getPointValue(security));
+    final OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), security.getPointValue());
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
@@ -111,7 +104,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof OptionSecurity;
+    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override
@@ -177,43 +170,6 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
-  }
-
-  private static final OptionSecurityVisitor<Double> s_getPointValue = new OptionSecurityVisitor<Double>() {
-
-    @Override
-    public Double visitBondOptionSecurity(BondOptionSecurity security) {
-      return 1.0;
-    }
-
-    @Override
-    public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
-      return security.getPointValue();
-    }
-
-    @Override
-    public Double visitFXOptionSecurity(FXOptionSecurity security) {
-      return 1.0;
-    }
-
-    @Override
-    public Double visitFutureOptionSecurity(FutureOptionSecurity security) {
-      return security.getPointValue();
-    }
-
-    @Override
-    public Double visitOptionOptionSecurity(OptionOptionSecurity security) {
-      return 1.0;
-    }
-
-    @Override
-    public Double visitSwaptionSecurity(SwaptionSecurity security) {
-      return 1.0;
-    }
-  };
-
-  private double getPointValue(final OptionSecurity option) {
-    return option.accept(s_getPointValue);
   }
 
 }
