@@ -31,7 +31,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -89,13 +91,15 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private ValueRequirement getValueRequirement(VolatilityPoint point) {
-    //TODO: This, when we've worked out the tickers
-    return null;
+    Identifier instrument = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstrument(_helper.getKey().getCurrency(), point);
+    return instrument == null ? null : new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, instrument);
   }
   
   private VolatilityPoint getVolatilityPoint(ValueSpecification spec) {
-    //TODO: This, when we've worked out the tickers
-    return null;
+    if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+      return null;
+    }
+    return VolatilityCubeInstrumentProvider.BLOOMBERG.getPoint(_helper.getKey().getCurrency(), spec.getTargetSpecification().getIdentifier());
   }
 
   private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
@@ -104,6 +108,9 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     
     for (ComputedValue value : inputs.getAllValues()) {
       VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
+      if (!(value.getValue() instanceof Double)) {
+        continue;
+      }
       Double dValue = (Double) value.getValue();
       if (volatilityPoint == null) {
         otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
@@ -171,6 +178,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       HashSet<Pair<StructuredMarketDataKey, ValueSpecification>> ret = new HashSet<Pair<StructuredMarketDataKey, ValueSpecification>>();
       ret.add(Pair.of((StructuredMarketDataKey) _volatilityCubeKey, _marketDataResult));
       return ret;
+    }
+    
+    @Override
+    public boolean canHandleMissingInputs() {
+      return true;
     }
   }
 }
