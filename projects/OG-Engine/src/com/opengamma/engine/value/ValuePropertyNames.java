@@ -41,6 +41,11 @@ public final class ValuePropertyNames {
    * be used to differentiate the input curves.
    */
   public static final String CURVE = "Curve";
+  
+  /**
+   * 
+   */
+  public static final String CURVE_CURRENCY = "CurveCurrency";
 
   /**
    * The symbolic name of a volatility cube used to produce a value, valid within the naming context of
