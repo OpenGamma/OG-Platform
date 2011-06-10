@@ -45,7 +45,7 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
   /**
    * Creates a new service.
    * 
-   * @param fudgeContext the Fudge context to use, not {@code null}
+   * @param fudgeContext the Fudge context to use, not null
    */
   protected AbstractResourceService(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -73,8 +73,8 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
   /**
    * Adds a named resource to the resource map.
    * 
-   * @param name the resource name, not {@code null}
-   * @param resource the resource, not {@code null}
+   * @param name the resource name, not null
+   * @param resource the resource, not null
    */
   protected void addResource(final String name, final UnderlyingResource resource) {
     ArgumentChecker.notNull(name, "name");
@@ -85,16 +85,16 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
   /**
    * Creates a resource to handle calls to the given underlying instance.
    * 
-   * @param underlying the underlying object to handle the REST calls, not {@code null}
-   * @return a resource instance, not {@code null}
+   * @param underlying the underlying object to handle the REST calls, not null
+   * @return a resource instance, not null
    */
   protected abstract UnderlyingResource createResource(Underlying underlying);
 
   /**
    * Wraps the named underlying in a resource using {@link #createResource} and adds it to the map.
    * 
-   * @param name the resource name, not {@code null}
-   * @param underlying the underlying, not {@code null}
+   * @param name the resource name, not null
+   * @param underlying the underlying, not null
    */
   protected void addUnderlying(final String name, final Underlying underlying) {
     ArgumentChecker.notNull(name, "name");
@@ -105,7 +105,7 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
   /**
    * Wraps the underlying in a resource using {@link #createResource} and adds it to the map with the default name.
    * 
-   * @param underlying the underlying, not {@code null}
+   * @param underlying the underlying, not null
    */
   public void setUnderlying(final Underlying underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -115,7 +115,7 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
   /**
    * Wraps the named underlyings in resources using {@link #createResource} and adds them to the map.
    * 
-   * @param underlyings a map of name to underlying pairs, not {@code null}
+   * @param underlyings a map of name to underlying pairs, not null
    */
   public void setUnderlyingMap(Map<String, Underlying> underlyings) {
     ArgumentChecker.notNull(underlyings, "underlyings");
@@ -130,7 +130,7 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
    * Returns the named resource.
    * 
    * @param name the resource name
-   * @return the resource, or {@code null} if not found
+   * @return the resource, or null if not found
    */
   @Path("{name}")
   public UnderlyingResource findResource(@PathParam("name") String name) {

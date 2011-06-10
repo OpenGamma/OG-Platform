@@ -15,7 +15,7 @@ import java.util.Comparator;
  * If the magnitudes differ then the result is returned based on the magnitude.
  * If the magnitude is equal then the {@link QuadrantPairComparator} is used.
  * <p>
- * This comparator does not support {@code null} elements in the pair.
+ * This comparator does not support null elements in the pair.
  * <p>
  * This class is immutable and thread-safe.
  */
