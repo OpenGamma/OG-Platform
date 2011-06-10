@@ -365,6 +365,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
   }
   
+  //-------------------------------------------------------------------------
+  
   /**
    * Gets the live data override injector for the view process currently associated with a client.
    * 
@@ -373,6 +375,21 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @throws IllegalStateException if the client is not associated with a view process
    */
   public LiveDataInjector getLiveDataOverrideInjector(UniqueIdentifier clientId) {
+    return getClientViewProcess(clientId).getLiveDataOverrideInjector();
+  }
+  
+  /**
+   * Gets the view definition being operated on by the process associated with a client.
+   * 
+   * @param clientId  the unique identifier of the client, not null
+   * @return the view definition, not null
+   * @throws IllegalStateException if the client is not associated with a view process
+   */
+  public ViewDefinition getViewDefinition(UniqueIdentifier clientId) {
+    return getClientViewProcess(clientId).getDefinition();
+  }
+  
+  private ViewProcessImpl getClientViewProcess(UniqueIdentifier clientId) {
     checkIdScheme(clientId, CLIENT_SCHEME);
     _processLock.lock();
     try {
@@ -380,8 +397,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (clientAttachment == null) {
         throw new IllegalStateException("Client " + clientId + " is not attached to a view process");
       }
-      ViewProcessImpl viewProcess = clientAttachment.getFirst();
-      return viewProcess.getLiveDataOverrideInjector();
+      return clientAttachment.getFirst();
     } finally {
       _processLock.unlock();
     }

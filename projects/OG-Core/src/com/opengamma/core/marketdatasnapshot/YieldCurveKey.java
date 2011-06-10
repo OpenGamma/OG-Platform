@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A key used to identify a yield curve.
  */
-public class YieldCurveKey implements Comparable<YieldCurveKey>, Serializable {
+public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldCurveKey>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

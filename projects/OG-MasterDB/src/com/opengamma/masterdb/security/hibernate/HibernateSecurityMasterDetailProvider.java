@@ -36,7 +36,6 @@ import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
-import com.opengamma.masterdb.security.hibernate.option.OptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
 import com.opengamma.util.db.DbHelper;
@@ -127,7 +126,6 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(CashSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquitySecurityBeanOperation.INSTANCE);
     loadBeanOperation(FRASecurityBeanOperation.INSTANCE);
-    loadBeanOperation(OptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FutureSecurityBeanOperation.INSTANCE);
     loadBeanOperation(SwapSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityIndexOptionSecurityBeanOperation.INSTANCE);

@@ -19,10 +19,6 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.language.connector.debug.DebugClient;
-import com.opengamma.language.connector.debug.DebugClientFactory;
-import com.opengamma.language.context.GlobalContext;
-import com.opengamma.language.context.GlobalContextFactory;
 import com.opengamma.language.context.SessionContextFactory;
 import com.opengamma.util.tuple.Pair;
 

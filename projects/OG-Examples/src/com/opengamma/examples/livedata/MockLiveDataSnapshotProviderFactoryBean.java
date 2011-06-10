@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -81,7 +81,7 @@ public class MockLiveDataSnapshotProviderFactoryBean extends SingletonFactoryBea
       }
 
       @Override
-      public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
+      public SnapshotDataBundle querySnapshot(long snapshot, StructuredMarketDataKey marketDataKey) {
         return null;
       }
     };

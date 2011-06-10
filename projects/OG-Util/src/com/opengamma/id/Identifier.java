@@ -241,8 +241,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * Serializes this identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not {@code null}
-   * @param message the message to serialize into, not {@code null}
+   * @param factory  a message creator, not null
+   * @param message  the message to serialize into, not null
    * @return the serialized message
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
@@ -257,7 +257,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * Serializes this identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not {@code null}
+   * @param factory  a message creator, not null
    * @return the serialized Fudge message
    */
   public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
@@ -268,7 +268,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * Deserializes an identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param msg the Fudge message, not {@code null}
+   * @param msg the Fudge message, not null
    * @return the identifier
    */
   public static Identifier fromFudgeMsg(FudgeMsg msg) {
@@ -282,7 +282,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param fudgeContext  the Fudge context
-   * @param msg the Fudge message, not {@code null}
+   * @param msg  the Fudge message, not null
    * @return the identifier
    */
   public static Identifier fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {

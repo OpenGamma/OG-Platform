@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.id;
+package com.opengamma.util.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+
+import com.opengamma.id.ObjectIdentifier;
 
 /**
  * Defines a {@code ObjectIdentifier} as a Fudge type using a String.
@@ -18,7 +20,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class ObjectIdentifierFudgeType extends SecondaryFieldType<ObjectIdentifier, String> {
+public final class ObjectIdentifierSecondaryType extends SecondaryFieldType<ObjectIdentifier, String> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -27,12 +29,12 @@ public final class ObjectIdentifierFudgeType extends SecondaryFieldType<ObjectId
    * Singleton instance of the type.
    */
   @FudgeSecondaryType
-  public static final ObjectIdentifierFudgeType INSTANCE = new ObjectIdentifierFudgeType();
+  public static final ObjectIdentifierSecondaryType INSTANCE = new ObjectIdentifierSecondaryType();
 
   /**
    * Creates an instance.
    */
-  private ObjectIdentifierFudgeType() {
+  private ObjectIdentifierSecondaryType() {
     super(FudgeWireType.STRING, ObjectIdentifier.class);
   }
 
