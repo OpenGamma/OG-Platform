@@ -143,7 +143,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, boolean isEOMConvention) {
+      final int settlementDays, final boolean isEOMConvention) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention,
         settlementDays, isEOMConvention);
     final UniqueIdentifier uid = _mapper.add(bundle, convention);
@@ -462,7 +462,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP",
         act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD FF 3m"),
         usgb, act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
-    Period nullPeriod = null;
+    final Period nullPeriod = null;
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360,
         following, nullPeriod, 2);
     addConventionBundle(
@@ -622,6 +622,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
     //TODO Check this, it's just copied from the US one.
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_IRFUTURE")), "EUR_IRFUTURE", act360, following, null, 2, 0.25);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_IBOR_INDEX")), "EUR_IBOR_INDEX",
+        act360, following, 2, false);
 
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360,
@@ -766,6 +768,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
     //TODO check this, it's just the USD one copied here.
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_IRFUTURE")), "JPY_IRFUTURE", act360, following, null, 2, 0.25);
+    //TODO check this
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_IBOR_INDEX")), "JPY_IBOR_INDEX",
+        act360, following, 2, false);
   }
 
   private void addCAFixedIncomeInstruments() {
@@ -897,6 +902,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_IRFUTURE")), "GBP_IRFUTURE", act365,
         following, null, 2, 0.25);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_IBOR_INDEX")), "GBP_IBOR_INDEX",
+        act365, modified, 0, false);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP1D")), "GBPCASHP1D", act365,
         following, Period.ofDays(1), 0);
@@ -970,7 +977,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO don't know if this is the right one - Australia also has Banker's Acceptance notes (like Canada) 
     //TODO check daycount
 
-    Period nullPeriod = null;
+    final Period nullPeriod = null;
     addConventionBundle(
         IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("AU0003M Index"),
             Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill")), "AUD 3m Bill", act365, following, nullPeriod,
@@ -1072,6 +1079,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360,
         modified, annual, 2, ch, act360, modified, semiAnnual, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX")), "CHF_IBOR_INDEX",
+        act360, following, 2, false);
 
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP1D")), "CHFCASHP1D", act360,

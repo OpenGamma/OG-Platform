@@ -62,7 +62,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   @Override
   public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
     Validate.notNull(security, "swap security");
-    InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
+    final InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
     switch (swapType) {
       case SWAP_FIXED_IBOR:
         return SwapSecurityUtils.payFixed(security) ? getFixedFloatSwapDefinition(security, true)
@@ -84,7 +84,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
-    Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final String currencyString = currency.getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyString + "_SWAP"));
@@ -114,7 +114,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
 
   private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate,
       final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
-      final Currency currency, final ConventionBundle conventions, boolean isPayer) {
+      final Currency currency, final ConventionBundle conventions, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double fixedRate = fixedLeg.getRate() / 100; //TODO this should not be hard-coded here
     return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(),
@@ -163,16 +163,19 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   //TODO see above
   private AnnuityCouponIborSpreadDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate,
       final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
-      final Calendar calendar, final Currency currency, boolean isPayer) {
+      final Calendar calendar, final Currency currency, final boolean isPayer) {
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     final double spread = floatLeg.getSpread();
     // TODO: index period can be different from leg period
     // FIXME: convert frequency to period in a better way
-    Frequency freq = floatLeg.getFrequency();
-    Period tenor = getTenor(freq);
+    final Frequency freq = floatLeg.getFrequency();
+    final Period tenor = getTenor(freq);
     //TODO check this
-    ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
+    }
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
         indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
 
@@ -180,7 +183,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   // FIXME: convert frequency to period in a better way
-  private Period getTenor(Frequency freq) {
+  private Period getTenor(final Frequency freq) {
     Period tenor;
     if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
       tenor = Period.ofMonths(12);
