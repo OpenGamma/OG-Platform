@@ -55,6 +55,7 @@ public class DataViewClientResource {
   public static final String PATH_COMPLETED = "completed";
   public static final String PATH_RESULT_AVAILABLE = "resultAvailable";
   public static final String PATH_LATEST_RESULT = "latestResult";
+  public static final String PATH_VIEW_DEFINITION = "viewDefinition";
   public static final String PATH_LATEST_COMPILED_VIEW_DEFINITION = "latestCompiledViewDefinition";
   public static final String PATH_VIEW_CYCLE_ACCESS_SUPPORTED = "viewCycleAccessSupported";
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
@@ -168,6 +169,12 @@ public class DataViewClientResource {
   public LiveDataInjectorResource getLiveDataOverrideInjector() {
     updateLastAccessed();
     return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
+  }
+  
+  @GET
+  @Path(PATH_VIEW_DEFINITION)
+  public Response getViewDefinition() {
+    return Response.ok(getViewClient().getViewDefinition()).build();
   }
   
   //-------------------------------------------------------------------------  
