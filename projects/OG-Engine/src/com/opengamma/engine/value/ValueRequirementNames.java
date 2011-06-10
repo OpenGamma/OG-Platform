@@ -40,6 +40,11 @@ public final class ValueRequirementNames {
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   
+  public static final String VOLATILITY_CUBE = "VolatilityCube";
+  public static final String VOLATILITY_CUBE_DEFN = "VolatilityCubeDefinition";
+  public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
+  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
+  
   //
   public static final String FAIR_VALUE = "FairValue";
   public static final String POSITION_FAIR_VALUE = "PositionFairValue";

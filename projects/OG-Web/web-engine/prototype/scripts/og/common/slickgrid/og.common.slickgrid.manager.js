@@ -66,7 +66,7 @@ $.register_module({
                     }
                     json_header = r.data.header;
                     from = from_page * DEFAULT_PAGESIZE;
-                    to = from + json_header.count;
+                    to = from + json_header.pageSize;
                     data.length = parseInt(json_header.total);
                     // Create Data Object for slickgrid
                     data.total = r.data.header.total;

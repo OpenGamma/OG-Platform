@@ -45,7 +45,7 @@ import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
@@ -160,7 +160,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
       final PortfolioNode node = target.getPortfolioNode();
       final List<Position> allPositions = getAllPositions(new ArrayList<Position>(), node);
       for (final Position p : allPositions) {
-        if (!(p.getSecurity() instanceof OptionSecurity)) {
+        if (!(p.getSecurity() instanceof EquityOptionSecurity)) {
           return false;
         }
       }

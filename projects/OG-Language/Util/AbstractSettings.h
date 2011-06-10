@@ -62,12 +62,12 @@ public:
 /// while the Posix implementation will use a flat file on disk. The GetSettingsLocation method identifies
 /// the exact settings to use (e.g. registry key names or filenames).
 ///
-/// Under Windows, the settings are held under HKLM or HKCU \Software\<company name>\<product>. The settings
-/// in HKCU take precedence over settings in HKLM allowing a per user override.
+/// Under Windows, the settings are held under HKLM or HKCU \\Software\\&lt;company name&gt;\\&lt;product&gt;.
+/// The settings in HKCU take precedence over settings in HKLM allowing a per user override.
 ///
-/// Under Posix, the settings are held in a file at $HOME/etc/<company name>/<product>,
-/// /usr/local/etc/<company name>/<product>, or /etc/<company name>/<product>. Entries in the file are
-/// of the form <key>=<value> with lines starting # ignored.
+/// Under Posix, the settings are held in a file at $HOME/etc/&lt;company name&gt;/&lt;product&gt;,
+/// /usr/local/etc/&lt;company name&gt;/&lt;product&gt;, or /etc/&lt;company name&gt;/&lt;product&gt;.
+/// Entries in the file are of the form &lt;key&gt;=&lt;value&gt; with lines starting # ignored.
 ///
 /// The company and product names used to locate the settings are retrieved from the metadata embedded
 /// within the calling executable, DLL, or DSO.

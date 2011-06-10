@@ -2,11 +2,12 @@
 {
     "header": {
         "type": "Batches",
-        "dataFields": ["id", "date", "time", "status"],
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
-	      "count": ${"${paging.pagingSize}"?replace(',','')}
+        "page": ${"${paging.page}"?replace(',','')},
+        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
 	      </#if>
+	      "dataFields": ["id", "date", "time", "status"]
     },
     "data": [
       <#if searchResult??>

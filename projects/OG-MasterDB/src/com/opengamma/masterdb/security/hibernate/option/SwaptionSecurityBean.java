@@ -9,7 +9,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
@@ -22,6 +21,7 @@ public class SwaptionSecurityBean extends SecurityBean {
   private ExpiryBean _expiry;
   private IdentifierBean _underlying;
   private Boolean _cashSettled;
+  private Boolean _long;
   
   public SwaptionSecurityBean() {
     super();
@@ -65,7 +65,14 @@ public class SwaptionSecurityBean extends SecurityBean {
   public void setCashSettled(final Boolean cashSettled) {
     _cashSettled = cashSettled;
   }
+  
+  public Boolean isLong() {
+    return _long;
+  }
 
+  public void setLong(final Boolean aLong) {
+    _long = aLong;
+  }
   
 
   @Override
@@ -82,6 +89,7 @@ public class SwaptionSecurityBean extends SecurityBean {
       .append(getExpiry(), option.getExpiry())
       .append(getUnderlying(), option.getUnderlying())
       .append(iscashSettled(), option.iscashSettled())
+      .append(isLong(), option.isLong())
       .isEquals();
   }
 
@@ -91,6 +99,7 @@ public class SwaptionSecurityBean extends SecurityBean {
       .append(getExpiry())
       .append(getUnderlying())
       .append(iscashSettled())
+      .append(isLong())
       .toHashCode();
   }
 

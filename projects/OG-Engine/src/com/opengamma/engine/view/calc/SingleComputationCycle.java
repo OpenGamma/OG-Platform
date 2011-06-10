@@ -30,22 +30,17 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.function.YieldCurveDataSourcingFunction;
+import com.opengamma.engine.function.StructuredMarketDataDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -319,21 +314,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
 
     if (_liveDataSnapshotProvider.hasStructuredData()) {
-      for (Map.Entry<YieldCurveKey, ValueSpecification> yieldCurveReq : getYieldCurveDataRequirements().entrySet()) {
-        SnapshotDataBundle bundle = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(),
-            yieldCurveReq.getKey());
+      for (Map.Entry<StructuredMarketDataKey, ValueSpecification> structuredReq : getStructuredDataRequirements().entrySet()) {
+        Object bundle = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(), structuredReq.getKey());
         if (bundle == null) {
           throw new NotImplementedException("Should use unstructured data here");
         }
-        if (bundle.getDataPoints() == null) { // TODO duplicate below
-          s_logger.debug("Unable to load yield curve value for {} at snapshot {}.", yieldCurveReq.getKey(),
-              getValuationTime());
-          missingLiveData.add(yieldCurveReq.getValue());
-        } else {
-          ComputedValue dataAsValue = new ComputedValue(yieldCurveReq.getValue(), bundle);
-          addToAllCaches(dataAsValue);
-          getResultModel().addLiveData(dataAsValue);
-        }
+        ComputedValue dataAsValue = new ComputedValue(structuredReq.getValue(), bundle);
+        addToAllCaches(dataAsValue);
+        getResultModel().addLiveData(dataAsValue);
       }
     }
 
@@ -361,11 +349,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private Map<YieldCurveKey, ValueSpecification> getYieldCurveDataRequirements() {
-    Map<YieldCurveKey, ValueSpecification> ret = new HashMap<YieldCurveKey, ValueSpecification>();
+  private Map<StructuredMarketDataKey, ValueSpecification> getStructuredDataRequirements() {
+    Map<StructuredMarketDataKey, ValueSpecification> ret = new HashMap<StructuredMarketDataKey, ValueSpecification>();
 
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      Map<YieldCurveKey, ValueSpecification> configReqs = processYieldCurveDataRequirements(getDependencyGraph(calcConfigurationName));
+      Map<StructuredMarketDataKey, ValueSpecification> configReqs = processStructuredDataRequirements(getDependencyGraph(calcConfigurationName));
       ret.putAll(configReqs);
     }
     return ret;
@@ -376,32 +364,25 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @param dependencyGraph
    * @return
    */
-  private static Map<YieldCurveKey, ValueSpecification> processYieldCurveDataRequirements(
+  private static Map<StructuredMarketDataKey, ValueSpecification> processStructuredDataRequirements(
       DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    HashMap<YieldCurveKey, ValueSpecification> ret = new HashMap<YieldCurveKey, ValueSpecification>();
+    HashMap<StructuredMarketDataKey, ValueSpecification> ret = new HashMap<StructuredMarketDataKey, ValueSpecification>();
 
     Set<DependencyNode> dependencyNodes = dependencyGraph.getDependencyNodes();
     for (DependencyNode dependencyNode : dependencyNodes) {
       CompiledFunctionDefinition compiledFunction = dependencyNode.getFunction().getFunction();
-      if (compiledFunction instanceof YieldCurveDataSourcingFunction) {
-        YieldCurveDataSourcingFunction function = (YieldCurveDataSourcingFunction) compiledFunction;
-        Set<YieldCurveKey> yieldCurveKeys = function.getYieldCurveKeys();
-        for (YieldCurveKey yieldCurveKey : yieldCurveKeys) {
-          ret.put(yieldCurveKey, getYieldCurveDataSpec(compiledFunction, yieldCurveKey));
+      if (compiledFunction instanceof StructuredMarketDataDataSourcingFunction) {
+        StructuredMarketDataDataSourcingFunction function = (StructuredMarketDataDataSourcingFunction) compiledFunction;
+        Set<Pair<StructuredMarketDataKey, ValueSpecification>> keys = function.getStructuredMarketData();
+        for (Pair<StructuredMarketDataKey, ValueSpecification> key : keys) {
+          ret.put(key.getFirst(), key.getSecond());
         }
       }
     }
     return ret;
   }
 
-  private static ValueSpecification getYieldCurveDataSpec(CompiledFunctionDefinition compiledFunction,
-      YieldCurveKey yieldCurveKey) {
-    String uniqueId = compiledFunction.getFunctionDefinition().getUniqueId();
-    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(yieldCurveKey.getCurrency()),
-        ValueProperties.with(ValuePropertyNames.FUNCTION, uniqueId).with(ValuePropertyNames.CURVE, yieldCurveKey.getName()).get());
-    return spec;
-  }
 
   private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
@@ -535,7 +516,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         if (node.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
           markExecuted(node);
         }
-        if (haveResolvedStructuredData && node.getFunction().getFunction() instanceof YieldCurveDataSourcingFunction) {
+        if (haveResolvedStructuredData && node.getFunction().getFunction() instanceof StructuredMarketDataDataSourcingFunction) {
           markExecuted(node);
         }
 

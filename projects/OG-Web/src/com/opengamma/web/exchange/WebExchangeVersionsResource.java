@@ -11,7 +11,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -19,6 +21,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
+import com.opengamma.util.db.PagingRequest;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all versions of an exchange.
@@ -37,7 +41,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public String get() {
+  public String getHTML() {
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
@@ -45,6 +49,23 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     out.put("versionsResult", result);
     out.put("versions", result.getExchanges());
     return getFreemarker().build("exchanges/exchangeversions.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
+    ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    ExchangeHistoryResult result = data().getExchangeMaster().history(request);
+    
+    FlexiBean out = createRootData();
+    out.put("versionsResult", result);
+    out.put("versions", result.getExchanges());
+    out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
+    String json = getFreemarker().build("exchanges/jsonexchangeversions.ftl", out);
+    return Response.ok(json).build();
   }
 
   //-------------------------------------------------------------------------

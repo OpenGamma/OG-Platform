@@ -38,8 +38,6 @@ public interface SecurityTestCaseMethods {
 
   void testStockFutureSecurity();
 
-  void testBondOptionSecurity();
-
   void testEquityOptionSecurity();
 
   void testIRFutureOptionSecurity();
@@ -47,8 +45,6 @@ public interface SecurityTestCaseMethods {
   void testFXOptionSecurity();
   
   void testFXBarrierOptionSecurity();
-
-  void testOptionOptionSecurity();
 
   void testSwapOptionSecurity();
 

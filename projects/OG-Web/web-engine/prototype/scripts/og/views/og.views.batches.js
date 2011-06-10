@@ -83,12 +83,12 @@ $.register_module({
                         var f = details.batch_functions;
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.batches.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.results('.OG-batch .og-js-results', details_json.data.batch_results);
                             f.errors('.OG-batch .og-js-errors', details_json.data.batch_errors);
                             ui.message({location: '#OG-details', destroy: true});

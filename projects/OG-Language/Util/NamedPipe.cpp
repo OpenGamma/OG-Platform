@@ -1,14 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Named pipes using either Win32 or POSIX
-// Note that Unix and Windows "named pipes" have different semantics, so we sometimes use "Unix Domain Sockets"
-
 #include "Logging.h"
 #include "NamedPipe.h"
 #include "Thread.h"
@@ -16,6 +12,12 @@
 
 LOGGING (com.opengamma.language.util.NamedPipe);
 
+/// Creates a new named pipe instance.
+///
+/// @param[in] pipe underlying O/S file handle
+/// @param[in] pszName name of the pipe, not NULL
+/// @param[in] bServer true if this is a server that can accept connections
+/// @param[in] bReader true if this is the read end (or a server that returns read ends, i.e. accepts connections from clients that will write)
 CNamedPipe::CNamedPipe (FILE_REFERENCE pipe, const TCHAR *pszName, bool bServer, bool bReader)
 : CTimeoutIO (pipe) {
 	m_pszName = _tcsdup (pszName);
@@ -23,6 +25,7 @@ CNamedPipe::CNamedPipe (FILE_REFERENCE pipe, const TCHAR *pszName, bool bServer,
 	m_bReader = bReader;
 }
 
+/// Destroys the pipe instance, freeing any resources.
 CNamedPipe::~CNamedPipe () {
 #ifndef _WIN32
 	if (IsServer ()) {
@@ -43,6 +46,12 @@ CNamedPipe::~CNamedPipe () {
 
 #ifndef _WIN32
 
+#define TIMEOUT_IO_DEFAULT 1000
+
+/// Set timeout, buffer, and signalling properties on a Unix Domain Socket.
+///
+/// @param[in] sock socket to configure
+/// @return true if the socket was configured, false if there was an error
 static bool _SetDefaultSocketOptions (int sock) {
 	timeval tv;
 	tv.tv_sec = TIMEOUT_IO_DEFAULT / 1000;
@@ -84,19 +93,39 @@ static bool _SetDefaultSocketOptions (int sock) {
 	return true;
 }
 
+/// Asynchronous thread to unblock the client end of a pipe. Client ends are created by the O/S in
+/// a blocked state until the server appears. We require a non-blocking/timeout operation when
+/// establishing a real connection, so trick it into thinking the connection exists initially with
+/// this dummy server, but then break the pipe immediately. Instead of a "not-connected" we will
+/// see a "broken-pipe" error when attempting to use the client for the first time.
 class CNamedPipeOpenThread : public CThread {
 private:
+
+	/// Name of the pipe
 	TCHAR *m_pszName;
+
+	/// File mode to open the pipe in (opposite of the requested client)
 	int m_nMode;
+
 protected:
+
+	/// Destroys the thread instance
 	~CNamedPipeOpenThread () {
 		delete m_pszName;
 	}
+
 public:
-	CNamedPipeOpenThread (const TCHAR *pszName, int nMode) : CThread (){
+
+	/// Creates a new thread instance
+	///
+	/// @param[in] pszName name of the pipe, not NULL
+	/// @param[in] nMode file mode to open the pipe in
+	CNamedPipeOpenThread (const TCHAR *pszName, int nMode) : CThread () {
 		m_pszName = _tcsdup (pszName);
 		m_nMode = nMode;
 	}
+
+	/// Runs the thread, opening the pipe and closing it immediately.
 	void Run () {
 		LOGDEBUG (TEXT ("Opening pipe to unblock exclusive server end"));
 		int file = open (m_pszName, m_nMode);
@@ -108,10 +137,19 @@ public:
 			LOGDEBUG (TEXT ("Pipe closed"));
 		}
 	}
+
 };
+
 #endif /* ifndef _WIN32 */
 
-static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExclusive, bool bReader) {
+/// Creates the underlying O/S file handle.
+///
+/// @param[in] pszName name of the pipe
+/// @param[in] bServer true if this is a server end, false if it is a client
+/// @param[in] bExclusive false if this is a pipe that can be shared by multiple clients or servers
+/// @param[in] bReader true if this is the reading end of a pipe, false if it is the writing end
+/// @return the O/S file handle
+static CTimeoutIO::FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExclusive, bool bReader) {
 #ifdef _WIN32
 	HANDLE handle;
 	if (bServer) {
@@ -145,7 +183,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 	}
 	LOGINFO (TEXT ("Created pipe ") << pszName);
 	return handle;
-#else
+#else /* ifdef _WIN32 */
 	if (bExclusive) {
 		if (mkfifo (pszName, 0666)) {
 			int ec = GetLastError ();
@@ -242,29 +280,52 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 		}
 		return sock;
 	}
-#endif
+#endif /* ifdef _WIN32 */
 }
 
+/// Creates a reading client on the named pipe.
+///
+/// @param[in] pszName pipe name
+/// @return the named pipe instance, the read methods from CTimeoutIO are valid on it
 CNamedPipe *CNamedPipe::ClientRead (const TCHAR *pszName) {
 	FILE_REFERENCE hFile = _CreatePipe (pszName, false, false, true);
 	return hFile ? new CNamedPipe (hFile, pszName, false, true) : NULL;
 }
 
+/// Creates a writing client on the named pipe.
+///
+/// @param[in] pszName pipe name
+/// @return the named pipe instance, the write methods from CTimeoutIO are valid on it
 CNamedPipe *CNamedPipe::ClientWrite (const TCHAR *pszName) {
 	FILE_REFERENCE hFile = _CreatePipe (pszName, false, false, false);
 	return hFile ? new CNamedPipe (hFile, pszName, false, false) : NULL;
 }
 
+/// Creates a server to accept incoming requests from writing clients on the named pipe.
+///
+/// @param[in] pszName pipe name
+/// @param[in] bExclusive false if this is a pipe that can be shared by multiple servers
+/// @return the named pipe instance, the Accept method is valid on it
 CNamedPipe *CNamedPipe::ServerRead (const TCHAR *pszName, bool bExclusive) {
 	FILE_REFERENCE hFile = _CreatePipe (pszName, true, bExclusive, true);
 	return hFile ? new CNamedPipe (hFile, pszName, true, true) : NULL;
 }
 
+/// Creates a server to accept incoming requests from reading clients on the named pipe.
+///
+/// @param[in] pszName pipe name
+/// @param[in] bExclusive false if this is a pipe that can be shared by multiple servers
+/// @return the named pipe instance, the Accept method is valid on it
 CNamedPipe *CNamedPipe::ServerWrite (const TCHAR *pszName, bool bExclusive) {
 	FILE_REFERENCE hFile = _CreatePipe (pszName, true, bExclusive, false);
 	return hFile ? new CNamedPipe (hFile, pszName, true, false) : NULL;
 }
 
+
+/// Accepts an incoming connection on a server pipe.
+///
+/// @param[in] timeout maximum time to wait for a client in milliseconds
+/// @return this end of a pipe connected to the client, or NULL if none was available
 CNamedPipe *CNamedPipe::Accept (unsigned long timeout) {
 	assert (IsServer ());
 #ifdef _WIN32
@@ -351,6 +412,10 @@ timeoutOperation:
 #endif
 }
 
+/// Creates a string prefix for pipe names to be used by unit tests. On Win32 this is OpenGammaLanguageAPI-Test
+/// suffixed with the user's name. On Posix, this is OpenGammaLanguageAPI-Test in the user's home folder.
+///
+/// @return name prefix
 const TCHAR *CNamedPipe::GetTestPipePrefix () {
 	static TCHAR szPipeTest[256] = { 0 };
 	if (!szPipeTest[0]) {

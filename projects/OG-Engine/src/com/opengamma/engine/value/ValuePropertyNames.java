@@ -43,6 +43,16 @@ public final class ValuePropertyNames {
   public static final String CURVE = "Curve";
 
   /**
+   * The symbolic name of a volatility cube used to produce a value, valid within the naming context of
+   * the function repository containing the function definition used.
+   * <p>
+   * This should only be used where it is meaningful to describe a value based on a single
+   * cube. If produced by functions requiring multiple cube inputs, a suitable prefix should
+   * be used to differentiate the input cubes.
+   */
+  public static final String CUBE = "Cube";
+  
+  /**
    * The function identifier that produced a value.
    * <p>
    * If there are multiple functions in a repository that can compute a given value, this can
