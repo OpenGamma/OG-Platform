@@ -13,6 +13,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -53,12 +54,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   private final String _valueRequirementName;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 
-  public InterestRateInstrumentFunction(String valueRequirementName) {
+  public InterestRateInstrumentFunction(final String valueRequirementName) {
     _valueRequirementName = valueRequirementName;
   }
 
   @Override
-  public void init(FunctionCompilationContext context) {
+  public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
@@ -74,9 +75,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalDataSource dataSource = OpenGammaExecutionContext
@@ -84,17 +85,17 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     final String forwardCurveName = curveNames.getFirst();
     final String fundingCurveName = curveNames.getSecond();
-    ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
-      throw new NullPointerException("Could not get " + forwardCurveRequirement);
+      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
     if (!forwardCurveName.equals(fundingCurveName)) {
       final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
-        throw new NullPointerException("Could not get " + fundingCurveRequirement);
+        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
       }
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
@@ -102,8 +103,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         : (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {forwardCurveName, fundingCurveName},
         new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
-    FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
-    InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
+    final FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         fundingCurveName, forwardCurveName), dataSource);
     return getComputedValues(derivative, bundle, security, forwardCurveName, fundingCurveName);
   }
@@ -117,7 +118,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
@@ -128,8 +129,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-      ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+      final ValueRequirement desiredValue) {
     final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
     final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
     if (forwardCurveName.equals(fundingCurveName)) {
@@ -140,7 +141,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(
         new ValueSpecification(_valueRequirementName, target.toSpecification(),
             FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
