@@ -12,7 +12,7 @@ import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
 
 /**
- * Class describing a vanilla foreign exchange option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
+ * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
  * if the option is a put, the option holder has the right to enter into a Forex transaction equal to the underlying but with opposite signs.
  * A Call on a Forex EUR 1.00 / USD -1.41 is thus the right to call 1.00 EUR and put 1.41 USD. A put on a Forex EUR -1.00 / USD 1.41 is the right to 
  * exchange -(-1.00) EUR = 1.00 EUR and -1.41 EUR; it is thus also the right to call 1.00 EUR and put 1.41 USD. A put on a Forex  USD 1.41 / EUR -1.00 is 

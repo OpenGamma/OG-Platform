@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Pricing method for forex transactions by discounting each payment.
+ * Pricing method for Forex swap transactions by discounting each payment.
  */
 public class ForexSwapDiscountingMethod implements ForexPricingMethod {
 

@@ -13,7 +13,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculator of the present value for Forex derivatives.
  */
 public class PresentValueCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
 

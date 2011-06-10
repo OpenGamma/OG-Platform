@@ -8,7 +8,8 @@ package com.opengamma.financial.forex.calculator;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
+ * Converter from the Definition versions to the Derivative version.
+ * Interface to Forex Definition accepting a visitor.
  * @param <T> Type of the InterestRateDerivative that the definition returns
  */
 public interface ForexConverter<T extends ForexDerivative> {
