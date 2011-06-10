@@ -47,6 +47,7 @@ public class SummingFunction extends PropertyPreservingFunction {
     return new String[] {
       ValuePropertyNames.CURRENCY,
       ValuePropertyNames.CURVE,
+      ValuePropertyNames.CURVE_CURRENCY,
       YieldCurveFunction.PROPERTY_FORWARD_CURVE,
       YieldCurveFunction.PROPERTY_FUNDING_CURVE };
   }
