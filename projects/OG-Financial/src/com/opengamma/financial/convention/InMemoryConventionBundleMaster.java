@@ -403,6 +403,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
+    //TODO Check this, it's just copied from the US one.
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_IRFUTURE")), "EUR_IRFUTURE", act360, following, null, 2, 0.25);
     
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360, following, Period.ofDays(1), 0);
@@ -446,6 +448,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO looked at BSYM and the codes seem right but need to check
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR O/N")), "JPY LIBOR O/N", act360, following,
         Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00S/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR S/N")), "JPY LIBOR S/N", act360, following,
+        Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR T/N")), "JPY LIBOR T/N", act360, following,
         Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following,
@@ -481,6 +485,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Identifier jp = RegionUtils.financialRegionId("JP");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
+    //TODO check this, it's just the USD one copied here.
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_IRFUTURE")), "JPY_IRFUTURE", act360, following, null, 2, 0.25);
   }
 
   private void addCAFixedIncomeInstruments() {
@@ -630,6 +636,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
     //TODO check that it's actually libor that we need
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR O/N")), "CHF LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00S/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR S/N")), "CHF LIBOR S/N", act360, following,
         Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR T/N")), "CHF LIBOR T/N", act360, following,
         Period.ofDays(1), 0);
