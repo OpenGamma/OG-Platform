@@ -114,46 +114,6 @@ CREATE TABLE sec_equity (
     constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
 );
 
-CREATE TABLE sec_option (
-    id bigint not null,
-    security_id bigint not null,
-    option_security_type varchar(32) not null,
-    option_exercise_type varchar(32) not null,
-    option_payoff_style varchar(32) not null,
-    option_type varchar(32) not null,
-    strike double precision not null,
-    expiry_date timestamp not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    currency_id bigint not null,
-    put_currency_id bigint,
-    call_currency_id bigint,
-    exchange_id bigint,
-    counterparty varchar(255),
-    power double precision,
-    cap double precision,
-    margined boolean,
-    pointValue double precision,
-    payment double precision,
-    lowerbound double precision,
-    upperbound double precision,
-    choose_date timestamp,
-    choose_zone varchar(50),
-    underlyingstrike double precision,
-    underlyingexpiry_date timestamp,
-    underlyingexpiry_zone varchar(50),
-    underlyingexpiry_accuracy smallint,
-    reverse boolean,
-    primary key (id),
-    constraint sec_fk_option2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_option2putcurrency foreign key (put_currency_id) references sec_currency (id),
-    constraint sec_fk_option2callcurrency foreign key (call_currency_id) references sec_currency (id),
-    constraint sec_fk_option2exchange foreign key (exchange_id) references sec_exchange (id)
-);
-
 CREATE TABLE sec_equityindexoption (
     id bigint not null,
     security_id bigint not null,
