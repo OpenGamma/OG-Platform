@@ -61,6 +61,7 @@ import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPositionFunc
 import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.fixedincome.NotApplicableYieldCurveNodeSensitivityFixedFloatSwapFunction;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveNodeSensitivityFixedFloatSwapFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
@@ -205,6 +206,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(ParRateFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ParRateParallelCurveShiftFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivityFixedFloatSwapFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(NotApplicableYieldCurveNodeSensitivityFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(StandardEquityModelFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondPreviousCloseDirtyPriceFunction.class.getName()));

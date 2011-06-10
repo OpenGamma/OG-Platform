@@ -66,7 +66,6 @@ import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -81,7 +80,6 @@ import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
@@ -517,12 +515,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testBondOptionSecurity() {
-    assertSecurities(BondOptionSecurity.class);
-  }
-
-  @Override
-  @Test
   public void testCashSecurity() {
     assertSecurities(CashSecurity.class);
   }
@@ -615,12 +607,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testMunicipalBondSecurity() {
     assertSecurities(MunicipalBondSecurity.class);
-  }
-
-  @Override
-  @Test
-  public void testOptionOptionSecurity() {
-    assertSecurities(OptionOptionSecurity.class);
   }
 
   @Override

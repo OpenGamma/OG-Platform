@@ -5,15 +5,17 @@ package com.opengamma.financial.security.option;
 public class SwaptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept (SwaptionSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity(this); }
-  private static final long serialVersionUID = 2195944140107062575l;
+  private static final long serialVersionUID = 7373494203472818065l;
   private com.opengamma.id.Identifier _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   private com.opengamma.util.time.Expiry _expiry;
   public static final String EXPIRY_KEY = "expiry";
   private boolean _isCashSettled;
   public static final String IS_CASH_SETTLED_KEY = "isCashSettled";
+  private boolean _isLong;
+  public static final String IS_LONG_KEY = "isLong";
   public static final String SECURITY_TYPE = "SWAPTION";
-  public SwaptionSecurity (com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.util.time.Expiry expiry, boolean isCashSettled) {
+  public SwaptionSecurity (com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.util.time.Expiry expiry, boolean isCashSettled, boolean isLong) {
     super (SECURITY_TYPE);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
@@ -24,6 +26,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
       _expiry = expiry;
     }
     _isCashSettled = isCashSettled;
+    _isLong = isLong;
   }
   protected SwaptionSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -52,8 +55,16 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwaptionSecurity - field 'isCashSettled' is not boolean", e);
     }
+    fudgeField = fudgeMsg.getByName (IS_LONG_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwaptionSecurity - field 'isLong' is not present");
+    try {
+      _isLong = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a SwaptionSecurity - field 'isLong' is not boolean", e);
+    }
   }
-  public SwaptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.util.time.Expiry expiry, boolean isCashSettled) {
+  public SwaptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.util.time.Expiry expiry, boolean isCashSettled, boolean isLong) {
     super (uniqueId, name, securityType, identifiers);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
@@ -64,6 +75,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
       _expiry = expiry;
     }
     _isCashSettled = isCashSettled;
+    _isLong = isLong;
   }
   protected SwaptionSecurity (final SwaptionSecurity source) {
     super (source);
@@ -77,6 +89,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
       _expiry = source._expiry;
     }
     _isCashSettled = source._isCashSettled;
+    _isLong = source._isLong;
   }
   public SwaptionSecurity clone () {
     return new SwaptionSecurity (this);
@@ -100,6 +113,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
       msg.add (EXPIRY_KEY, null, fudge1);
     }
     msg.add (IS_CASH_SETTLED_KEY, null, _isCashSettled);
+    msg.add (IS_LONG_KEY, null, _isLong);
   }
   public static SwaptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -139,6 +153,12 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
   public void setIsCashSettled (boolean isCashSettled) {
     _isCashSettled = isCashSettled;
   }
+  public boolean getIsLong () {
+    return _isLong;
+  }
+  public void setIsLong (boolean isLong) {
+    _isLong = isLong;
+  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof SwaptionSecurity)) return false;
@@ -158,6 +178,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
     }
     else if (msg._expiry != null) return false;
     if (_isCashSettled != msg._isCashSettled) return false;
+    if (_isLong != msg._isLong) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -168,6 +189,8 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
     if (_expiry != null) hc += _expiry.hashCode ();
     hc *= 31;
     if (_isCashSettled) hc++;
+    hc *= 31;
+    if (_isLong) hc++;
     return hc;
   }
   public String toString () {

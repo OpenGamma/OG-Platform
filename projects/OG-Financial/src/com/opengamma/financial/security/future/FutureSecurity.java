@@ -5,7 +5,7 @@ package com.opengamma.financial.security.future;
 public abstract class FutureSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFutureSecurity(this); }
-  private static final long serialVersionUID = -359772637316411559l;
+  private static final long serialVersionUID = 4746632989975319918l;
   private com.opengamma.util.time.Expiry _expiry;
   public static final String EXPIRY_KEY = "expiry";
   private String _tradingExchange;
@@ -14,8 +14,10 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
   public static final String SETTLEMENT_EXCHANGE_KEY = "settlementExchange";
   private com.opengamma.util.money.Currency _currency;
   public static final String CURRENCY_KEY = "currency";
+  private double _unitAmount;
+  public static final String UNIT_AMOUNT_KEY = "unitAmount";
   public static final String SECURITY_TYPE = "FUTURE";
-  public FutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency) {
+  public FutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
     super (SECURITY_TYPE);
     if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
     else {
@@ -27,6 +29,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     _settlementExchange = settlementExchange;
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
+    _unitAmount = unitAmount;
   }
   protected FutureSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -63,8 +66,16 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'currency' is not Currency typedef", e);
     }
+    fudgeField = fudgeMsg.getByName (UNIT_AMOUNT_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'unitAmount' is not present");
+    try {
+      _unitAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'unitAmount' is not double", e);
+    }
   }
-  public FutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency) {
+  public FutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
     super (uniqueId, name, securityType, identifiers);
     if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
     else {
@@ -76,6 +87,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     _settlementExchange = settlementExchange;
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
+    _unitAmount = unitAmount;
   }
   protected FutureSecurity (final FutureSecurity source) {
     super (source);
@@ -87,6 +99,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     _tradingExchange = source._tradingExchange;
     _settlementExchange = source._settlementExchange;
     _currency = source._currency;
+    _unitAmount = source._unitAmount;
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
@@ -104,6 +117,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     if (_currency != null)  {
       msg.add (CURRENCY_KEY, null, _currency);
     }
+    msg.add (UNIT_AMOUNT_KEY, null, _unitAmount);
   }
   public static FutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -149,6 +163,12 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
   }
+  public double getUnitAmount () {
+    return _unitAmount;
+  }
+  public void setUnitAmount (double unitAmount) {
+    _unitAmount = unitAmount;
+  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof FutureSecurity)) return false;
@@ -181,6 +201,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
       else return false;
     }
     else if (msg._currency != null) return false;
+    if (_unitAmount != msg._unitAmount) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -193,6 +214,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     if (_settlementExchange != null) hc += _settlementExchange.hashCode ();
     hc *= 31;
     if (_currency != null) hc += _currency.hashCode ();
+    hc = (hc * 31) + (int)_unitAmount;
     return hc;
   }
   public String toString () {

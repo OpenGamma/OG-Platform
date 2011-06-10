@@ -7,8 +7,8 @@ package com.opengamma.financial.equity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.equity.future.EquityIndexDividendFuture;
-import com.opengamma.financial.equity.EquityDerivative;
+import com.opengamma.financial.equity.future.derivative.*;
+
 
 /**
  * 
@@ -23,15 +23,15 @@ public abstract class AbstractEquityDerivativeVisitor<S, T>  implements EquityDe
     Validate.notNull(data, "data");
     return derivative.accept(this, data);
   }
-
-  @Override
-  public T visit(final EquityDerivative derivative) {
-    Validate.notNull(derivative, "derivative");
-    return derivative.accept(this);
-  }
   
   @Override
   public T visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexDividendFuture()");
   }
+  
+  @Override
+  public T visitEquityFuture(final EquityFuture future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityFuture()");
+  }
+
 }

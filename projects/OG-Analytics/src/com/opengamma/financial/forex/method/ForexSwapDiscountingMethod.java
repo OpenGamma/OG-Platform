@@ -31,8 +31,7 @@ public class ForexSwapDiscountingMethod implements ForexPricingMethod {
    */
   public MultipleCurrencyAmount presentValue(final ForexSwap fx, final YieldCurveBundle curves) {
     MultipleCurrencyAmount pv = FX_METHOD.presentValue(fx.getNearLeg(), curves);
-    pv.add(FX_METHOD.presentValue(fx.getFarLeg(), curves));
-    return pv;
+    return pv.plus(FX_METHOD.presentValue(fx.getFarLeg(), curves));
   }
 
   @Override

@@ -160,13 +160,13 @@ $.register_module({
                         var f = details.timeseries_functions;
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.id,
+                            name: details_json.template_data.id,
                             item: 'history.timeseries.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.render_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {

@@ -2,11 +2,12 @@
 {
 	"header": {
     	"type": "Positions",
-    	"dataFields": ["id", "name", "quantity", "trades"],
     	<#if searchResult??>
-      "total" : ${"${paging.totalItems}"?replace(',','')},
-	    "count": ${"${paging.pagingSize}"?replace(',','')}
+        "total" : ${"${paging.totalItems}"?replace(',','')},
+        "page": ${"${paging.page}"?replace(',','')},
+        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
 	    </#if>
+	    "dataFields": ["id", "name", "quantity", "trades"]
     },
 	"data": [<#if searchResult??>
 	 <#list searchResult.documents as item>

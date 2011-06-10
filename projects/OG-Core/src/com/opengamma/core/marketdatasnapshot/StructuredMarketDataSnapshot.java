@@ -47,4 +47,10 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
    */
   Map<YieldCurveKey, YieldCurveSnapshot> getYieldCurves();
 
+  /**
+   * Gets the vol cubes.
+   * 
+   * @return the vol cubes
+   */
+  Map<VolatilityCubeKey, VolatilityCubeSnapshot> getVolatilityCubes();
 }

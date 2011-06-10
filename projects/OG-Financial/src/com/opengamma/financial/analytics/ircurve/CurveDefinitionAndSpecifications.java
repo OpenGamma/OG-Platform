@@ -246,9 +246,9 @@ public class CurveDefinitionAndSpecifications {
     
     Currency eur = Currency.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
-    forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40 })));
-    singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency gbp = Currency.GBP;
     Identifier gbpRegion = RegionUtils.countryRegionId("GB");
@@ -294,9 +294,9 @@ public class CurveDefinitionAndSpecifications {
     
     Currency jpy = Currency.JPY;
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
-    forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
+    forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
-    singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
+    singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     results.put("FORWARD", forwardDefinitions);

@@ -10,7 +10,12 @@ import java.net.URI;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -35,9 +40,22 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("exchanges/exchangeversion.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getJSON(@Context Request request) {
+    EntityTag etag = new EntityTag(data().getVersioned().getUniqueId().toString());
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder != null) {
+      return builder.build();
+    }
+    FlexiBean out = createRootData();
+    String json = getFreemarker().build("exchanges/jsonexchange.ftl", out);
+    return Response.ok(json).tag(etag).build();
   }
 
   //-------------------------------------------------------------------------

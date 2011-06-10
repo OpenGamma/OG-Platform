@@ -56,7 +56,8 @@ public class CompiledViewDefinitionBuilder implements FudgeBuilder<CompiledViewD
   @Override
   public CompiledViewDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ViewDefinition viewDefinition = context.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
-    Portfolio portfolio = context.fieldValueToObject(Portfolio.class, message.getByName(PORTFOLIO_FIELD));
+    FudgeField portfolioField = message.getByName(PORTFOLIO_FIELD);
+    Portfolio portfolio = portfolioField != null ? context.fieldValueToObject(Portfolio.class, portfolioField) : null;
     
     // Deserialise each instance specifically into the required type
     Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = new ArrayList<CompiledViewCalculationConfiguration>();

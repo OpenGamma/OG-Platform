@@ -10,11 +10,19 @@ import java.net.URI;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionDocument;
 
@@ -35,9 +43,30 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("positions/positionversion.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getJSON(@Context Request request) {
+    EntityTag etag = new EntityTag(data().getVersioned().getUniqueId().toString());
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder != null) {
+      return builder.build();
+    }
+    FlexiBean out = createRootData();
+    createSecurityData(out, data().getVersioned());
+    String json = getFreemarker().build("positions/jsonposition.ftl", out);
+    return Response.ok(json).tag(etag).build();
+  }
+
+  private void createSecurityData(FlexiBean out, PositionDocument doc) {
+    IdentifierBundle securityKey = doc.getPosition().getSecurityKey();
+    SecuritySource securitySource = data().getSecuritySource();
+    Security security = securitySource.getSecurity(securityKey);
+    out.put("security", security);
   }
 
   //-------------------------------------------------------------------------
