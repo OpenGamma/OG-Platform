@@ -50,7 +50,6 @@ public class EquityFutureConverter extends FutureSecurityConverter {
 
     return new EquityFutureDefinition(
           security.getExpiry().getExpiry(),
-          security.getSettlementDate().toZonedDateTime(),
-          futuresPrice, security.getCurrency(), security.getUnitAmount());
+          security.getSettlementDate(), futuresPrice, security.getCurrency(), security.getUnitAmount());
   }
 }

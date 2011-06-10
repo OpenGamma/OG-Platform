@@ -11,7 +11,7 @@ namespace com.opengamma.financial.security.future {
    */
   message EquityFutureSecurity extends FutureSecurity {
      
-    required DateTimeWithZone settlementDate;  
+    required javax.time.calendar.ZonedDateTime settlementDate;  
     optional id.Identifier underlyingIdentifier; 
     
     binding Java {
