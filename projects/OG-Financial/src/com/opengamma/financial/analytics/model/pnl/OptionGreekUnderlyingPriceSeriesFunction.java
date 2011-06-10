@@ -38,7 +38,7 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -116,7 +116,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity;
+    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override

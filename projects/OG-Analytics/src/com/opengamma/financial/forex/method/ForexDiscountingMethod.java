@@ -37,10 +37,9 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
    */
   public MultipleCurrencyAmount presentValue(final Forex fx, final YieldCurveBundle curves) {
     double pv1 = PVC.visit(fx.getPaymentCurrency1(), curves);
-    MultipleCurrencyAmount pv = new MultipleCurrencyAmount(fx.getCurrency1(), pv1);
+    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(fx.getCurrency1(), pv1);
     double pv2 = PVC.visit(fx.getPaymentCurrency2(), curves);
-    pv.add(fx.getCurrency2(), pv2);
-    return pv;
+    return pv.plus(fx.getCurrency2(), pv2);
   }
 
   @Override

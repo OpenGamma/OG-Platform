@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
 
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
@@ -88,7 +87,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final OptionSecurity security = (OptionSecurity) target.getSecurity();
+      final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
         results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));

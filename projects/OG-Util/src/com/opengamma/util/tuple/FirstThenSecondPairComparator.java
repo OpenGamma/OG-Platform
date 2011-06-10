@@ -15,7 +15,7 @@ import java.util.Comparator;
  * <i>x<sub>1</sub> < x<sub>2</sub></i><br>
  * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> < y<sub>2</sub></i><br>
  * <p>
- * This comparator does not support {@code null} elements in the pair.
+ * This comparator does not support null elements in the pair.
  * <p>
  * This class is immutable and thread-safe.
  *

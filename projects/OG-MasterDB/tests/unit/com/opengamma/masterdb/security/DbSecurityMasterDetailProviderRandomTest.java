@@ -73,12 +73,6 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
 
   @Override
   @Test
-  public void testBondOptionSecurity() {
-    _testCase.testBondOptionSecurity();
-  }
-
-  @Override
-  @Test
   public void testCashSecurity() {
     _testCase.testCashSecurity();
   }
@@ -171,12 +165,6 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   @Test
   public void testMunicipalBondSecurity() {
     _testCase.testMunicipalBondSecurity();
-  }
-
-  @Override
-  @Test
-  public void testOptionOptionSecurity() {
-    _testCase.testOptionOptionSecurity();
   }
 
   @Override

@@ -51,8 +51,8 @@ public class ForexSwapDiscountingMethodTest {
     MultipleCurrencyAmount pv = METHOD.presentValue(FX_SWAP, CURVES);
     MultipleCurrencyAmount pvNear = METHOD_FX.presentValue(FX_SWAP.getNearLeg(), CURVES);
     MultipleCurrencyAmount pvFar = METHOD_FX.presentValue(FX_SWAP.getFarLeg(), CURVES);
-    assertEquals(pvNear.getAmountFor(CUR_1) + pvFar.getAmountFor(CUR_1), pv.getAmountFor(CUR_1));
-    assertEquals(pvNear.getAmountFor(CUR_2) + pvFar.getAmountFor(CUR_2), pv.getAmountFor(CUR_2));
+    assertEquals(pvNear.getAmount(CUR_1) + pvFar.getAmount(CUR_1), pv.getAmount(CUR_1));
+    assertEquals(pvNear.getAmount(CUR_2) + pvFar.getAmount(CUR_2), pv.getAmount(CUR_2));
   }
 
   @Test

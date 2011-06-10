@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -36,6 +37,9 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
+    if (conventions == null) {
+      throw new OpenGammaRuntimeException("Could not find convention for " + security.getIdentifiers());
+    }
     final Currency currency = security.getCurrency();
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
     final ZonedDateTime maturityDate = security.getMaturity();

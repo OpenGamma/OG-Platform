@@ -31,6 +31,7 @@ import com.google.common.base.Function;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -234,6 +235,12 @@ public class RemoteViewClient implements ViewClient {
   public LiveDataInjector getLiveDataOverrideInjector() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
     return new RemoteLiveDataInjector(uri);
+  }
+  
+  @Override
+  public ViewDefinition getViewDefinition() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_DEFINITION);
+    return _client.access(uri).get(ViewDefinition.class);
   }
 
   private void processCompleted() {

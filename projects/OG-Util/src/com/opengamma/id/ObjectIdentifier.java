@@ -245,8 +245,8 @@ public final class ObjectIdentifier
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
    * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not {@code null}
-   * @param msg the message to serialize into, not {@code null}
+   * @param factory  a message creator, not null
+   * @param msg  the message to serialize into, not null
    * @return the serialized message
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
@@ -262,7 +262,7 @@ public final class ObjectIdentifier
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
    * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not null
+   * @param factory  a message creator, not null
    * @return the serialized Fudge message, not null
    */
   public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
@@ -274,7 +274,7 @@ public final class ObjectIdentifier
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
    * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param msg the Fudge message, not {@code null}
+   * @param msg  the Fudge message, not null
    * @return the object identifier, not null
    */
   public static ObjectIdentifier fromFudgeMsg(FudgeMsg msg) {
