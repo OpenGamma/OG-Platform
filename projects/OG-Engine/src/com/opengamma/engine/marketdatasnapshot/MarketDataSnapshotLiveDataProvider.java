@@ -172,9 +172,13 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   
   
   private SnapshotDataBundle buildSnapshot(YieldCurveSnapshot yieldCurveSnapshot) {
+    UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
+    return buildBundle(values);
+  }
+
+  private SnapshotDataBundle buildBundle(UnstructuredMarketDataSnapshot values) {
     SnapshotDataBundle ret = new SnapshotDataBundle();
     HashMap<UniqueIdentifier, Double> points = new HashMap<UniqueIdentifier, Double>();
-    UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
     for (Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
       points.put(entry.getKey().getUniqueId(), value);
@@ -195,6 +199,7 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
       }
     }
     ret.setDataPoints(dataPoints);
+    ret.setOtherData(buildBundle(volCubeSnapshot.getOtherValues()));
     return ret;
   }
 

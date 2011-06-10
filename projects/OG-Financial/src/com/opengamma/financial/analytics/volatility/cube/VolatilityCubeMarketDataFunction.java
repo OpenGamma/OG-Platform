@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
@@ -30,6 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -78,9 +80,12 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
-    //TODO: this    
+    //TODO: this properly
     VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
     volatilityCubeData.setDataPoints(new HashMap<VolatilityPoint, Double>());
+    SnapshotDataBundle bundle = new SnapshotDataBundle();
+    bundle.setDataPoints(new HashMap<UniqueIdentifier, Double>());
+    volatilityCubeData.setOtherData(bundle);
     return volatilityCubeData;
   }
   

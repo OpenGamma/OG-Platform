@@ -15,8 +15,8 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.IndicatorType;
-import org.joda.beans.BeanDefinition;
 
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
@@ -24,15 +24,14 @@ import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 /**
  * 
  */
-@BeanDefinition
 public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot {
   
   /**
-   * The values in the snapshot.  values are possibly null, representing a point which was requested but unavailable
+   * The values in the snapshot.
    */
   private Map<VolatilityPoint, ValueSnapshot> _values;
   
-  
+  private UnstructuredMarketDataSnapshot _otherValues;
 
   @Override
   public Map<VolatilityPoint, ValueSnapshot> getValues() {
@@ -57,6 +56,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
       }
     }
     ret.add("values", valuesMsg);
+    ret.add("otherValues", context.objectToFudgeMsg(_otherValues));
     return ret;
   }
 
@@ -81,8 +81,18 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
       }
     }
 
+    UnstructuredMarketDataSnapshot otherValues = context.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
     ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
     ret.setValues(values);
+    ret.setOtherValues(otherValues);
     return ret;
+  }
+
+  public void setOtherValues(UnstructuredMarketDataSnapshot otherValues) {
+    _otherValues = otherValues;
+  }
+
+  public UnstructuredMarketDataSnapshot getOtherValues() {
+    return _otherValues;
   }
 }
