@@ -18,7 +18,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -41,10 +40,9 @@ import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.DefinitionConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
-import com.opengamma.financial.analytics.fixedincome.FutureSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.LastDateCalculator;
@@ -104,7 +102,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _forwardCurveDefinition;
   private YieldCurveDefinition _fundingCurveDefinition;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _instrumentAdapter;
-  private FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> _futureAdapter;
   private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _fundingInterpolator;
   private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _forwardInterpolator;
   private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
@@ -150,26 +147,23 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
     _forwardCurveDefinition = _forwardHelper.init(context, this);
     _fundingCurveDefinition = _fundingHelper.init(context, this);
-    HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    ExchangeSource exchangeSource = OpenGammaCompilationContext.getExchangeSource(context);
-    ConventionBundleSource conventionSource = OpenGammaCompilationContext
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
-    final FutureSecurityConverter futureConverter = new FutureSecurityConverter(holidaySource, conventionSource,
-        exchangeSource);
+    final InterestRateFutureSecurityConverter futureConverter = new InterestRateFutureSecurityConverter(holidaySource,
+        conventionSource, regionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)
+            .futureSecurityVisitor(futureConverter)
             .create();
-    _futureAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeFutureInstrumentDefinition<?>>builder()
-            .futureSecurityVisitor(futureConverter).create();
     _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory
         .getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
             Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -186,8 +180,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     }
   }
 
+  //TODO this normalization should not be happening here
+  private double getNormalizedData(final FixedIncomeStripWithSecurity strip, final Double marketValue) {
+    if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+      return 1.0 - marketValue / 100;
+    } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
+      return marketValue / 10000;
+    }
+    return marketValue / 100.;
+  }
+
   /**
-   *
+   * 
    */
   public final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
@@ -221,12 +225,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final HistoricalDataSource dataSource = OpenGammaExecutionContext
           .getHistoricalDataSource(executionContext);
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
-        Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+        final Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
         return getSingleCurveResult(marketDataMap, builder, now, dataSource);
       }
 
-      Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
-      Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
+      final Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+      final Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);
@@ -248,28 +252,22 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (fundingMarketValue == null) {
           throw new NullPointerException("Could not get funding market data for " + strip);
         }
-        double marketValue = fundingMarketValue;
+        final double marketValue = fundingMarketValue;
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
-        String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
+        final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
-        } else {
-          FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-          derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
-        }
+        //if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
+        //} else {
+        final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
+        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          parRates[i] = 1.0 - marketValue / 100;
-        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000;
-        } else {
-          parRates[i] = marketValue / 100.;
-        }
+        parRates[i] = getNormalizedData(strip, marketValue);
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
         fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -286,24 +284,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
-        String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
+        final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
-        } else {
-          FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-          derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
-        }
+        //if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
+        //} else {
+        final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
+        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          parRates[i] = 1.0 - marketValue / 100;
-        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000;
-        } else {
-          parRates[i] = marketValue / 100.;
-        }
+        parRates[i] = getNormalizedData(strip, marketValue);
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
         forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -388,9 +380,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return ComputationTargetType.PRIMITIVE;
     }
 
-    private Set<ComputedValue> getSingleCurveResult(Map<Identifier, Double> marketDataMap,
-        FixedIncomeStripIdentifierAndMaturityBuilder builder,
-        ZonedDateTime now, HistoricalDataSource dataSource) {
+    private Set<ComputedValue> getSingleCurveResult(final Map<Identifier, Double> marketDataMap,
+        final FixedIncomeStripIdentifierAndMaturityBuilder builder,
+        final ZonedDateTime now, final HistoricalDataSource dataSource) {
       // TODO going to arbitrarily use funding curve - will give the same result as forward curve
       final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, marketDataMap);
@@ -408,24 +400,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         InterestRateDerivative derivative;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-        String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
+        final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
-        } else {
-          FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-          derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
-        }
+        //if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
+        //} else {
+        final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
+        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          parRates[i] = 1.0 - marketValue / 100;
-        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          parRates[i] = marketValue / 10000;
-        } else {
-          parRates[i] = marketValue / 100.;
-        }
+        parRates[i] = getNormalizedData(strip, marketValue);
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;
         nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -484,13 +470,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+    final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper
         .compile(context, atInstant);
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper
+    final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper
         .compile(context, atInstant);
-    InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
-    InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
+    final InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
+    final InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
     return new CompiledImpl(earliest, latest, fundingCompile.getThird(), forwardCompile.getThird());
   }
 

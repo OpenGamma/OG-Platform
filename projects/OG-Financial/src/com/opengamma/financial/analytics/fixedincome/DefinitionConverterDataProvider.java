@@ -40,13 +40,13 @@ public class DefinitionConverterDataProvider {
   private final String _fieldName;
   private final String _dataProvider = "CMPL"; // TODO: totally fix this.
 
-  public DefinitionConverterDataProvider(String dataSourceName, String fieldName) {
+  public DefinitionConverterDataProvider(final String dataSourceName, final String fieldName) {
     _dataSourceName = dataSourceName;
     _fieldName = fieldName;
   }
 
-  public InterestRateDerivative convert(Security security, FixedIncomeInstrumentConverter<?> definition,
-      ZonedDateTime now, String[] curveNames, HistoricalDataSource dataSource) {
+  public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentConverter<?> definition,
+      final ZonedDateTime now, final String[] curveNames, final HistoricalDataSource dataSource) {
     if (security instanceof SwapSecurity) {
       return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);
     }
@@ -54,8 +54,8 @@ public class DefinitionConverterDataProvider {
   }
 
   @SuppressWarnings("unchecked")
-  public InterestRateDerivative convert(SwapSecurity security, SwapDefinition definition, ZonedDateTime now,
-      String[] curveNames, HistoricalDataSource dataSource) {
+  public InterestRateDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now,
+      final String[] curveNames, final HistoricalDataSource dataSource) {
     Validate.notNull(security, "security");
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -76,13 +76,13 @@ public class DefinitionConverterDataProvider {
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }
 
-  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(InterestRateInstrumentType type, final SwapLeg leg,
-      final ZonedDateTime swapStartDate, ZonedDateTime now, HistoricalDataSource dataSource) {
+  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg,
+      final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalDataSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
-      final IdentifierBundle id = indexID.toBundle(); 
-      LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
+      final IdentifierBundle id = indexID.toBundle();
+      final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource
           .getHistoricalData(id,
@@ -100,12 +100,13 @@ public class DefinitionConverterDataProvider {
       } else {
         throw new OpenGammaRuntimeException("Couldn't identify swap type");
       }
-      FastLongDoubleTimeSeries convertedTS = localDateTS
+      final FastLongDoubleTimeSeries convertedTS = localDateTS
           .toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-      LocalTime fixingTime = LocalTime.of(11, 0);
+      final LocalTime fixingTime = LocalTime.of(11, 0);
       return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime),
           convertedTS);
     }
     return null;
   }
+
 }

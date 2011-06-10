@@ -33,8 +33,8 @@ public class InterestRateFutureTradeConverter {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity,
         "Can only handle trades with security type InterestRateFutureSecurity");
-    final InterestRateFutureSecurityDefinition securityDefinition = _securityConverter
-        .convert((InterestRateFutureSecurity) trade.getSecurity());
+    final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) _securityConverter
+        .visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
     final int quantity = trade.getQuantity().intValue();
     //TODO trade time or premium time?
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
