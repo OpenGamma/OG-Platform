@@ -27,7 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -46,7 +46,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final OptionSecurity option = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final SecuritySource securityMaster = executionContext.getSecuritySource();
     final Security underlying = securityMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
     final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueId());
@@ -70,7 +70,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (target.getSecurity() instanceof OptionSecurity) {
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;
@@ -79,7 +79,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      final OptionSecurity option = (OptionSecurity) target.getSecurity();
+      final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
       // TODO: need most liquid options on same underlying OR all options around the strike + time to expiry of this
       // option
       // TODO: need to make sure that these options surround the time to expiry and strike of this option

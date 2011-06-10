@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.util.SingletonFactoryBean;
@@ -31,6 +32,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private ConventionBundleSource _conventionBundleSource;
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   private CurrencyMatrixSource _currencyMatrixSource;
   private HolidaySource _holidaySource;
   private ExchangeSource _exchangeSource;
@@ -93,6 +95,14 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     _interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
 
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return _volatilityCubeDefinitionSource;
+  }
+
+  public void setVolatilityCubeDefinitionSource(final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
+  }
+
   public CurrencyMatrixSource getCurrencyMatrixSource() {
     return _currencyMatrixSource;
   }
@@ -121,10 +131,9 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     OpenGammaCompilationContext.setConfigSource(context, _configSource);
     OpenGammaCompilationContext.setRegionSource(context, _regionSource);
     OpenGammaCompilationContext.setConventionBundleSource(context, _conventionBundleSource);
-    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context,
-        _interpolatedYieldCurveDefinitionSource);
-    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context,
-        _interpolatedYieldCurveSpecificationBuilder);
+    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, _interpolatedYieldCurveDefinitionSource);
+    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, _interpolatedYieldCurveSpecificationBuilder);
+    OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, _volatilityCubeDefinitionSource);
     OpenGammaCompilationContext.setCurrencyMatrixSource(context, _currencyMatrixSource);
     OpenGammaCompilationContext.setHolidaySource(context, _holidaySource);
     OpenGammaCompilationContext.setExchangeSource(context, _exchangeSource);

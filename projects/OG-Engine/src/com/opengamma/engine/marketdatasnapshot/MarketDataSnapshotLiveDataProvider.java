@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdatasnapshot;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +20,14 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.engine.ComputationTargetType;
@@ -135,14 +141,24 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   }
   
   @Override
-  public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
-    YieldCurveSnapshot yieldCurveSnapshot = getSnapshot(snapshot).getYieldCurves().get(yieldCurveKey);
-    if (yieldCurveSnapshot == null) {
-      return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
+  public Object querySnapshot(long snapshot, StructuredMarketDataKey marketDataKey) {
+    if (marketDataKey instanceof YieldCurveKey) {
+      YieldCurveSnapshot yieldCurveSnapshot = getSnapshot(snapshot).getYieldCurves().get(marketDataKey);
+      if (yieldCurveSnapshot == null) {
+        return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
+      }
+      return buildSnapshot(yieldCurveSnapshot);
+    } else if (marketDataKey instanceof VolatilityCubeKey) {
+      VolatilityCubeSnapshot volCubeSnapshot = getSnapshot(snapshot).getVolatilityCubes().get(marketDataKey);
+      if (volCubeSnapshot == null) {
+        return new VolatilityCubeData(); //NOTE: this is not the same as return null;
+      }
+      return buildVolatilityCubeData(volCubeSnapshot);
+    } else {
+      throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
-    return buildSnapshot(yieldCurveSnapshot);
   }
-  
+
   private Double query(ValueSnapshot valueSnapshot) {
     if (valueSnapshot == null) {
       return null;
@@ -156,14 +172,34 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   
   
   private SnapshotDataBundle buildSnapshot(YieldCurveSnapshot yieldCurveSnapshot) {
+    UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
+    return buildBundle(values);
+  }
+
+  private SnapshotDataBundle buildBundle(UnstructuredMarketDataSnapshot values) {
     SnapshotDataBundle ret = new SnapshotDataBundle();
     HashMap<UniqueIdentifier, Double> points = new HashMap<UniqueIdentifier, Double>();
-    UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
     for (Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
       points.put(entry.getKey().getUniqueId(), value);
     }
     ret.setDataPoints(points);
+    return ret;
+  }
+  
+  
+  private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
+    VolatilityCubeData ret = new VolatilityCubeData();
+    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
+    ret.setDataPoints(dataPoints);
+    ret.setOtherData(buildBundle(volCubeSnapshot.getOtherValues()));
     return ret;
   }
 

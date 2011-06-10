@@ -19,7 +19,6 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -87,16 +86,11 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitOptionSecurity(OptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle this OptionSecurity");
-    }
-
-    @Override
     public InterestRateInstrumentType visitSwapSecurity(SwapSecurity security) {
       return SwapSecurityUtils.getSwapType(security);
     }
-    
-    @Override 
+
+    @Override
     public InterestRateInstrumentType visitSwaptionSecurity(SwaptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this SwaptionSecurity");
     }

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -27,8 +26,8 @@ public class MultipleCurrencyAmountConverter implements ResultConverter<Multiple
     result.put("summary", size);
     if (mode == ConversionMode.FULL) {
       Set<Object> values = new LinkedHashSet<Object>();
-      for (Map.Entry<Currency, Double> entry : value) {
-        Object converted = context.convert(CurrencyAmount.of(entry.getKey(), entry.getValue()), mode);
+      for (CurrencyAmount entry : value) {
+        Object converted = context.convert(entry, mode);
         values.add(converted);
       }
       result.put("full", values);

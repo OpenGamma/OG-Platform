@@ -28,7 +28,6 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -37,11 +36,8 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
-import com.opengamma.financial.security.option.OptionOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -68,13 +64,10 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String ENERGY_FUTURES = "Energy Futures";
   /* package */static final String INDEX_FUTURES = "Index Futures";
   /* package */static final String STOCK_FUTURES = "Stock Futures";
-  /* package */static final String BOND_OPTIONS = "Bond Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
-  /* package */static final String FUTURE_OPTIONS = "Future Options";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
-  /* package */static final String OPTION_OPTIONS = "Option Options";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String CASH = "Cash";
   /* package */static final String FRAS = "FRAs";
@@ -161,37 +154,6 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
-        }
-      }, new OptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitBondOptionSecurity(BondOptionSecurity security) {
-          return BOND_OPTIONS;
-        }
-
-        @Override
-        public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-          return EQUITY_OPTIONS;
-        }
-
-        @Override
-        public String visitFutureOptionSecurity(FutureOptionSecurity security) {
-          return FUTURE_OPTIONS;
-        }
-
-        @Override
-        public String visitFXOptionSecurity(FXOptionSecurity security) {
-          return FX_OPTIONS;
-        }
-
-        @Override
-        public String visitOptionOptionSecurity(OptionOptionSecurity security) {
-          return OPTION_OPTIONS;
-        }
-
-        @Override
-        public String visitSwaptionSecurity(SwaptionSecurity security) {
-          return SWAPTIONS;
         }
       }, new SwapSecurityVisitor<String>() {
 
