@@ -23,6 +23,8 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.Identifier;
@@ -104,10 +106,26 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY_NO3YR", "SWAP_ONLY_NO3YR");
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY");
     
+    //These need to be replaced with meaningful cube defns
+    addVolatilityCubeFunction(configs, "USD", "DEFAULT");
+    
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
     return new RepositoryConfiguration(configs);
   }
 
+  
+  private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
+    addVolatilityCubeFunction(configs, Arrays.asList(parameters));
+  }
+
+  private void addVolatilityCubeFunction(final List<FunctionConfiguration> configs, List<String> parameters) {
+    if (parameters.size() != 2) {
+      throw new IllegalArgumentException();
+    }
+    
+    configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeFunction.class.getName(), parameters));
+    configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
+  }
   
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, String... parameters) {
     addYieldCurveFunction(configs, Arrays.asList(parameters));

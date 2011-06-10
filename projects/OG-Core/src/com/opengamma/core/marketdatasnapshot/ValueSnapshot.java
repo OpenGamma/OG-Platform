@@ -28,7 +28,7 @@ public class ValueSnapshot implements Serializable {
   /**
    * The value sampled from the market.
    */
-  private final double _marketValue;
+  private final Double _marketValue;
   /**
    * The value entered by the user, null if not overridden.
    */
@@ -40,7 +40,7 @@ public class ValueSnapshot implements Serializable {
    * @param marketValue  the real market value
    * @param overrideValue  the override, null if no override
    */
-  public ValueSnapshot(double marketValue, Double overrideValue) {
+  public ValueSnapshot(Double marketValue, Double overrideValue) {
     super();
     _marketValue = marketValue;
     _overrideValue = overrideValue;
@@ -52,7 +52,7 @@ public class ValueSnapshot implements Serializable {
    * 
    * @return the value sampled from the market
    */
-  public double getMarketValue() {
+  public Double getMarketValue() {
     return _marketValue;
   }
 
@@ -109,7 +109,9 @@ public class ValueSnapshot implements Serializable {
   //-------------------------------------------------------------------------
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     final MutableFudgeMsg msg = context.newMessage();
-    msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue());
+    if (getMarketValue() != null) {
+      msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue().doubleValue());
+    }
     if (getOverrideValue() != null) {
       msg.add("overrideValue", null, FudgeWireType.DOUBLE, getOverrideValue().doubleValue());
     }

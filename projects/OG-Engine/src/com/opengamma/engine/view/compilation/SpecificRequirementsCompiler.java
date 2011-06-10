@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.EnumSet;
+
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -24,8 +27,10 @@ public final class SpecificRequirementsCompiler {
    * Adds any specific requirements mentioned in the view calculation configurations to the dependency graphs.
    * 
    * @param compilationContext  the context of the view definition compilation
+   * @return the set of target types found in the specific requirements, not {@code null}
    */
-  public static void execute(ViewCompilationContext compilationContext) {
+  public static EnumSet<ComputationTargetType> execute(ViewCompilationContext compilationContext) {
+    EnumSet<ComputationTargetType> specificTargetTypes = EnumSet.noneOf(ComputationTargetType.class);
     ResultModelDefinition resultModelDefinition = compilationContext.getViewDefinition().getResultModelDefinition();
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
@@ -37,8 +42,10 @@ public final class SpecificRequirementsCompiler {
           continue;
         }
         builder.addTarget(requirement);
+        specificTargetTypes.add(requirement.getTargetSpecification().getType());
       }
     }
+    return specificTargetTypes;
   }
   
 }

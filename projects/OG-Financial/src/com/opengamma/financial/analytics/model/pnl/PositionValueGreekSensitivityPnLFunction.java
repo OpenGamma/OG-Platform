@@ -39,7 +39,7 @@ import com.opengamma.financial.pnl.SensitivityPnLCalculator;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
@@ -123,7 +123,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof OptionSecurity;
+    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override
