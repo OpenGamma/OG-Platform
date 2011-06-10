@@ -13,9 +13,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.AsymmetricPowerOptionModel;
-import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
 
 /**
  * 
@@ -44,7 +42,13 @@ public class AsymmetricPowerOptionModelFunction extends StandardOptionDataAnalyt
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    //REVIEW yomi 09-06-2011 OptionSecurity is no more..
+    /*
     if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AsymmetricPoweredPayoffStyle) {
+      return true;
+    }
+    */
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;
