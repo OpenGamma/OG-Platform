@@ -92,8 +92,11 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurves.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(getCurrencyForTarget(security), labelledMatrix, forwardCurveName);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, security), createValueProperties().with(
-        ValuePropertyNames.CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, security), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(security).getCode())
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
     result.add(new ComputedValue(specification, data.getLabelledMatrix()));
     return result;
   }
@@ -113,15 +116,21 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getCode())
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE,
-        curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond()).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getCode())
+        .with(ValuePropertyNames.CURVE, curveNames.getFirst())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond()).get()));
   }
 
   @Override
