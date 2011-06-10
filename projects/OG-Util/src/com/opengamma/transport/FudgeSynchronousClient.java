@@ -34,6 +34,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * The default timeout.
    */
   private static final long DEFAULT_TIMEOUT_IN_MILLISECONDS = 30 * 1000L;
+
   /**
    * The generator of correlation ids.
    */
@@ -82,9 +83,10 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     _messageSender = connection.getFudgeMessageSender();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the message sender.
+   * 
    * @return the message sender, not null
    */
   public FudgeMessageSender getMessageSender() {
@@ -93,6 +95,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
   /**
    * Gets the timeout in milliseconds.
+   * 
    * @return the timeout
    */
   public long getTimeoutInMilliseconds() {
@@ -113,15 +116,17 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
   /**
    * Gets the next id.
+   * 
    * @return the next numeric id
    */
   protected long getNextCorrelationId() {
     return _nextCorrelationId.incrementAndGet();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Sends the message.
+   * 
    * @param requestMsg  the message, not null
    * @param correlationId  the message id
    * @return the result
@@ -153,6 +158,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
   /**
    * Receives a message from Fudge.
+   * 
    * @param fudgeContext  the Fudge context, not null
    * @param msgEnvelope  the message, not null
    */
@@ -180,12 +186,13 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
 
   /**
    * Extracts the correlation id from the reply object.
+   * 
    * @param reply  the reply
-   * @return the id, or {@code null} if it's an asynchronous message (over {@link FudgeConnection} transport only)
+   * @return the id, null if it's an asynchronous message (over {@link FudgeConnection} transport only)
    */
   protected abstract Long getCorrelationIdFromReply(FudgeMsg reply);
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Data holder.
    */

@@ -20,11 +20,10 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   private final Object[] _labels;
   private final double[] _values;
   private final T _defaultTolerance;
-
+  
   public LabelledMatrix1D(final S[] keys, final double[] values, final T defaultTolerance) {
     Validate.notNull(keys, "labels");
     Validate.notNull(values, "values");
-    Validate.isTrue(keys.length > 0, "keys array must not be empty");
     final int n = keys.length;
     Validate.isTrue(n == values.length, "length of keys array must match length of values array");
     _keys = Arrays.copyOf(keys, n);
@@ -42,7 +41,6 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     Validate.notNull(keys, "labels");
     Validate.notNull(labels, "label names");
     Validate.notNull(values, "values");
-    Validate.isTrue(keys.length > 0, "labels array must not be empty");
     final int n = keys.length;
     Validate.isTrue(n == labels.length, "length of keys array (" + n + ") must match length of label names array (" + labels.length + ")");
     Validate.isTrue(n == values.length, "length of keys array (" + n + ") must match length of values array (" + values.length + ")");

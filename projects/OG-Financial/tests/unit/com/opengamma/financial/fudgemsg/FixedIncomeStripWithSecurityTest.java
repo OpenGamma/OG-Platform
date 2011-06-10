@@ -31,12 +31,14 @@ public class FixedIncomeStripWithSecurityTest extends FinancialTestBase {
   @Test
   public void testCycle() {
     @SuppressWarnings("unchecked")
-    final IdentifierBundle bundle = IdentifierBundle.of(Collections.singleton(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity")));
-    final EquitySecurity equity = new EquitySecurity(UniqueIdentifier.of("TEST", "TEST"), "Apple Inc", "EQUITY", bundle, "Apple Inc", "NASDAQ", "NSDQ", "Apple Inc", Currency.USD, GICSCode.getInstance(10203040));
-    final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity"), equity);
+    final Identifier dummyId = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity");
+    final IdentifierBundle bundle = IdentifierBundle.of(Collections.singleton(dummyId));
+    final EquitySecurity equity = new EquitySecurity(UniqueIdentifier.of("TEST", "TEST"), "Apple Inc", "EQUITY", bundle, "Apple Inc", "NASDAQ", "NSDQ", "Apple Inc", Currency.USD,
+        GICSCode.getInstance(10203040));
+    final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), dummyId, equity);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
-    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, "LIBOR");
-    final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2, ZonedDateTime.now(), Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity"), future);
+    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, "LIBOR");
+    final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2, ZonedDateTime.now(), dummyId, future);
     assertEquals(futureStrip, cycleObject(FixedIncomeStripWithSecurity.class, futureStrip));
   }
 }

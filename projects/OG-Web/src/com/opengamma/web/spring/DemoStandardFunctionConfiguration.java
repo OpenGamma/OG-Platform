@@ -66,7 +66,7 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.fixedincome.YieldCurveNodeSensitivityFixedFloatSwapFunction;
+import com.opengamma.financial.analytics.model.fixedincome.NotApplicableYieldCurveNodeSensitivityFixedFloatSwapFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
@@ -201,16 +201,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         expectedRiskFreeReturnCalculatorName, expectedMarketReturnCalculatorName, assetStandardDeviationCalculatorName, marketStandardDeviationCalculatorName, startDate)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PositionWeightFromNAVFunction.class.getName(), Collections.singleton("56000000")));
 
-    //functionConfigs.add(new StaticFunctionConfiguration(PV01FixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentPV01Function.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName()));
-    //functionConfigs.add(new StaticFunctionConfiguration(PresentValueFixedFloatSwapFunction.class.getName()));
-    //functionConfigs.add(new StaticFunctionConfiguration(ParRateFixedFloatSwapFunction.class.getName()));
-    //functionConfigs.add(new StaticFunctionConfiguration(ParRateParallelCurveShiftFixedFloatSwapFunction.class.getName()));
-    //functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivityFixedFloatSwapFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(NotApplicableYieldCurveNodeSensitivityFixedFloatSwapFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(StandardEquityModelFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondMarketCleanPriceFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondPreviousCloseDirtyPriceFunction.class.getName()));

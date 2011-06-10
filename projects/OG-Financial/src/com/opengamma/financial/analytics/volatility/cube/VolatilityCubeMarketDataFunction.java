@@ -31,7 +31,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -76,15 +78,51 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
   
   private Set<ValueRequirement> buildRequirements(VolatilityCubeSpecification third, FunctionCompilationContext context) {
-    return new HashSet<ValueRequirement>(); //TODO: This, when we've worked out the tickers
+    HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+    Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
+    for (VolatilityPoint point : allPoints) {
+      ValueRequirement valueRequirement = getValueRequirement(point);
+      if (valueRequirement != null) {
+        ret.add(valueRequirement);
+      }
+    }
+    //TODO: any other values required
+    return ret; 
+  }
+
+  private ValueRequirement getValueRequirement(VolatilityPoint point) {
+    Identifier instrument = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstrument(_helper.getKey().getCurrency(), point);
+    return instrument == null ? null : new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, instrument);
+  }
+  
+  private VolatilityPoint getVolatilityPoint(ValueSpecification spec) {
+    if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+      return null;
+    }
+    return VolatilityCubeInstrumentProvider.BLOOMBERG.getPoint(_helper.getKey().getCurrency(), spec.getTargetSpecification().getIdentifier());
   }
 
   private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
-    //TODO: this properly
+    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    HashMap<UniqueIdentifier, Double> otherData = new HashMap<UniqueIdentifier, Double>();
+    
+    for (ComputedValue value : inputs.getAllValues()) {
+      VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
+      if (!(value.getValue() instanceof Double)) {
+        continue;
+      }
+      Double dValue = (Double) value.getValue();
+      if (volatilityPoint == null) {
+        otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
+      } else {
+        dataPoints.put(volatilityPoint, dValue);
+      }
+    }
+        
     VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
-    volatilityCubeData.setDataPoints(new HashMap<VolatilityPoint, Double>());
+    volatilityCubeData.setDataPoints(dataPoints);
     SnapshotDataBundle bundle = new SnapshotDataBundle();
-    bundle.setDataPoints(new HashMap<UniqueIdentifier, Double>());
+    bundle.setDataPoints(otherData);
     volatilityCubeData.setOtherData(bundle);
     return volatilityCubeData;
   }
@@ -102,10 +140,6 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       super(earliest, latest);
       _requirements = requirements;
       _volatilityCubeKey = volatilityCubeKey;
-    }
-
-    public VolatilityCubeKey getVolatilityCubeKey() {
-      return _volatilityCubeKey;
     }
 
     @Override
@@ -144,6 +178,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       HashSet<Pair<StructuredMarketDataKey, ValueSpecification>> ret = new HashSet<Pair<StructuredMarketDataKey, ValueSpecification>>();
       ret.add(Pair.of((StructuredMarketDataKey) _volatilityCubeKey, _marketDataResult));
       return ret;
+    }
+    
+    @Override
+    public boolean canHandleMissingInputs() {
+      return true;
     }
   }
 }

@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -81,8 +82,6 @@ public class VolatilityCubeFunction extends AbstractFunction {
         return requirements;
       }
       
-      //TODO all of this
-      
       @Override
       public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
         return _helper.getKey().getCurrency().getUniqueId().equals(target.getUniqueId());
@@ -91,6 +90,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
           ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
+        //TODO this
         return Sets.newHashSet(new ComputedValue(_cubeResult, 0xdeadbeef));
       }
     };

@@ -97,27 +97,27 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addGBBondFutureConvention();
   }
 
+  protected UniqueIdentifier add(final IdentifierBundle bundle, final ConventionBundleImpl convention) {
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueId(uid);
+    return uid;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention,
-        frequency, settlementDays);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays, final double yearFraction) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention,
-        frequency, settlementDays, yearFraction);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, yearFraction);
+    return add(bundle, convention);
   }
 
   @Override
@@ -135,20 +135,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
       final Period period, final int settlementDays) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention,
         period, settlementDays);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays, final boolean isEOMConvention) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention,
-        settlementDays, isEOMConvention);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, settlementDays);
+    return add(bundle, convention);
   }
 
   @Override
@@ -163,51 +158,35 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
         swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency,
         swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
-  public UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
-      final DayCount tenorSwapPayFloatingLegDayCount,
-      final BusinessDayConvention tenorSwapPayFloatingLegBusinessDayConvention,
-      final Frequency tenorSwapPayFloatingLegFrequency, final Integer tenorSwapPayFloatingLegSettlementDays,
-      final Identifier tenorSwapPayFloatingLegInitialRate, final Identifier tenorSwapPayFloatingLegRegion,
-      final DayCount tenorSwapReceiveFloatingLegDayCount,
-      final BusinessDayConvention tenorSwapReceiveFloatingLegBusinessDayConvention,
-      final Frequency tenorSwapReceiveFloatingLegFrequency, final Integer tenorSwapReceiveFloatingLegSettlementDays,
-      final Identifier tenorSwapReceiveFloatingLegInitialRate, final Identifier tenorSwapReceiveFloatingLegRegion) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, tenorSwapPayFloatingLegDayCount,
-        tenorSwapPayFloatingLegBusinessDayConvention, tenorSwapPayFloatingLegFrequency,
-        tenorSwapPayFloatingLegSettlementDays, tenorSwapPayFloatingLegInitialRate, tenorSwapPayFloatingLegRegion,
-        tenorSwapReceiveFloatingLegDayCount,
-        tenorSwapReceiveFloatingLegBusinessDayConvention, tenorSwapReceiveFloatingLegFrequency,
-        tenorSwapReceiveFloatingLegSettlementDays, tenorSwapReceiveFloatingLegInitialRate,
-        tenorSwapReceiveFloatingLegRegion);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+  public UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
+      final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
+      final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
+      final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
+      final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, basisSwapPayFloatingLegDayCount, basisSwapPayFloatingLegBusinessDayConvention, basisSwapPayFloatingLegFrequency,
+        basisSwapPayFloatingLegSettlementDays, basisSwapPayFloatingLegInitialRate, basisSwapPayFloatingLegRegion, basisSwapReceiveFloatingLegDayCount,
+        basisSwapReceiveFloatingLegBusinessDayConvention, basisSwapReceiveFloatingLegFrequency, basisSwapReceiveFloatingLegSettlementDays, basisSwapReceiveFloatingLegInitialRate,
+        basisSwapReceiveFloatingLegRegion);
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final String capmRiskFreeRateName, final String capmMarketName) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, capmRiskFreeRateName, capmMarketName);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name,
       final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
       final int exDividendDays, final int settlementDays, final boolean rollToSettlement) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention,
-        calculateScheduleFromMaturity, exDividendDays, settlementDays, rollToSettlement);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays, rollToSettlement);
+    return add(bundle, convention);
   }
 
   @Override
@@ -218,9 +197,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention,
         calculateScheduleFromMaturity, exDividendDays, settlementDays, dayCount, businessDayConvention,
         yieldConvention);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
