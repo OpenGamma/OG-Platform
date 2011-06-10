@@ -393,6 +393,7 @@ public class Client implements Runnable {
         s_logger.error("User message handler returned null for synchronous message call {}", msg);
         response = UserMessagePayload.EMPTY_PAYLOAD;
       }
+      s_logger.debug("Response {}", response);
       userMessage.setPayload(response);
       sendUserMessage(userMessage);
     }

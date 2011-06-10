@@ -11,7 +11,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -19,6 +21,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
+import com.opengamma.util.db.PagingRequest;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all versions of an region.
@@ -37,7 +41,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public String get() {
+  public String getHTML() {
     RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
@@ -45,6 +49,23 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
     out.put("versionsResult", result);
     out.put("versions", result.getRegions());
     return getFreemarker().build("regions/regionversions.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize) {
+    RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    RegionHistoryResult result = data().getRegionMaster().history(request);
+    
+    FlexiBean out = createRootData();
+    out.put("versionsResult", result);
+    out.put("versions", result.getRegions());
+    out.put("paging", new WebPaging(result.getPaging(), data().getUriInfo()));
+    String json = getFreemarker().build("regions/jsonregionversions.ftl", out);
+    return Response.ok(json).build();
   }
 
   //-------------------------------------------------------------------------

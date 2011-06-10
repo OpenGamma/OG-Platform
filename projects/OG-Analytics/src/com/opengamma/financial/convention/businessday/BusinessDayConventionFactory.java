@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.convention.businessday;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -27,6 +31,11 @@ public final class BusinessDayConventionFactory {
    * Map of convention name to convention.
    */
   private final Map<String, BusinessDayConvention> _conventionMap = new HashMap<String, BusinessDayConvention>();
+
+  /**
+   * All convention instances.
+   */
+  private final Collection<BusinessDayConvention> _conventions;
 
   /**
    * Creates the factory.
@@ -51,6 +60,7 @@ public final class BusinessDayConventionFactory {
       }
       _conventionMap.put(convention.toLowerCase(), instance);
     }
+    _conventions = new ArrayList<BusinessDayConvention>(instances.values());
   }
 
   /**
@@ -61,6 +71,16 @@ public final class BusinessDayConventionFactory {
    */
   public BusinessDayConvention getBusinessDayConvention(final String name) {
     return _conventionMap.get(name.toLowerCase());
+  }
+
+  /**
+   * Iterates over the available conventions. No particular ordering is specified and conventions may
+   * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * 
+   * @return the available conventions, not {@code null}
+   */
+  public Iterator<BusinessDayConvention> enumerateAvailableBusinessDayConventions() {
+    return Iterators.unmodifiableIterator(_conventions.iterator());
   }
 
 }

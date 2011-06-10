@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.transport.jaxrs;
+package com.opengamma.util.rest;
 
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;

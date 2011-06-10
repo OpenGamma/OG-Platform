@@ -1,7 +1,8 @@
 <#escape x as x?html>
 {
-    "templateData": {
-            "id": "${timeseriesDoc.uniqueId.value}",
+    "template_data": {
+            "object_id": "${timeseriesDoc.uniqueId.objectId}",
+            "version_id": "${timeseriesDoc.uniqueId.version}",
             "data_source": "${timeseriesDoc.dataSource}",
             "data_provider": "${timeseriesDoc.dataProvider}",
             "data_field": "${timeseriesDoc.dataField}",
