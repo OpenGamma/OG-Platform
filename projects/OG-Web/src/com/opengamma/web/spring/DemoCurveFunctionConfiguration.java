@@ -107,7 +107,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY");
     
     //These need to be replaced with meaningful cube defns
-    addVolatilityCubeFunction(configs, "USD", "TEST");
+    addVolatilityCubeFunction(configs, "USD", "DEFAULT");
     
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
     return new RepositoryConfiguration(configs);
