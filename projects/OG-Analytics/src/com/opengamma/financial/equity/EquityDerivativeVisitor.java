@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.equity;
 
-import com.opengamma.financial.equity.future.derivative.*;
+import com.opengamma.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 
 /**
  * 
@@ -13,16 +14,19 @@ import com.opengamma.financial.equity.future.derivative.*;
  * @param <T> The return type of the calculation
  */
 public interface EquityDerivativeVisitor<S, T> {
-  
+
   T visit(EquityDerivative derivative, S data);
+
   T visit(EquityDerivative derivative);
 
   T visitEquityFuture(EquityFuture equityFuture, S data);
+
   T visitEquityFuture(EquityFuture equityFuture);
-  
+
   T visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture, S data);
+
   T visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture);
-  
+
   /*
    * TODO:  
    *  a) Include here the initial list of equity derivatives that we wish to handle
@@ -30,7 +34,5 @@ public interface EquityDerivativeVisitor<S, T> {
    *  T visitEquitySingleStockDividendFuture(EquitySingleStockDividendFuture equitySingleStockDividendFuture, S data);
    *  T visitEquityVarianceSwap(EquityVarianceSwap equityVarianceSwap, S data);
    */
-
-
 
 }

@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.equity.future.definition;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.ZonedDateTime;
 
 /**
  * Each time a view is recalculated, the security definition 
@@ -17,18 +17,18 @@ import javax.time.calendar.ZonedDateTime;
 public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition {
 
   /**
-   * @param expiryDate
-   * @param settlementDate
-   * @param strikePrice
-   * @param currency
-   * @param unitValue
+   * @param expiryDate The expiry date
+   * @param settlementDate The settlement date
+   * @param strikePrice The strike price
+   * @param currency The currency
+   * @param unitValue The unit value
    */
-  public EquityIndexDividendFutureDefinition(ZonedDateTime expiryDate, ZonedDateTime settlementDate, double strikePrice, Currency currency, double unitValue) {
+  public EquityIndexDividendFutureDefinition(final ZonedDateTime expiryDate, final ZonedDateTime settlementDate, final double strikePrice, final Currency currency, final double unitValue) {
     super(expiryDate, settlementDate, strikePrice, currency, unitValue);
   }
 
   @Override
-  public EquityIndexDividendFuture toDerivative(ZonedDateTime date) {
+  public EquityIndexDividendFuture toDerivative(final ZonedDateTime date) {
     return (EquityIndexDividendFuture) super.toDerivative(date);
 
   }
