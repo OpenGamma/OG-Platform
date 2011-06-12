@@ -199,7 +199,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
     //        conventions.getSwapFloatingLegSettlementDays());
     //    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
-    final double initialRate = floatLeg.getInitialFloatingRate();
+    //final double initialRate = floatLeg.getInitialFloatingRate();
     final double spread = floatLeg.getSpread();
     //    final SwapConvention convention = new SwapConvention(0, conventions.getSwapFloatingLegDayCount(), conventions.getSwapFloatingLegBusinessDayConvention(), calendar, false, currency
     //        + "_FLOATING_LEG_SWAP_CONVENTION");

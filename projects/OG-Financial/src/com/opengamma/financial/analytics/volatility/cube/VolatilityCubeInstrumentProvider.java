@@ -83,6 +83,7 @@ public final class VolatilityCubeInstrumentProvider {
           VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
 
           Identifier identifier = getIdentifier(ticker + " Curncy");
+          @SuppressWarnings("unused")
           Identifier prev = _idsByPoint.put(Pair.of(currency, point), identifier);
           if (_pointsById.put(Pair.of(currency, identifier), point) != null) {
             throw new IllegalArgumentException();
