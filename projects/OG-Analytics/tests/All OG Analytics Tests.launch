@@ -17,6 +17,11 @@
 <listEntry value="com.opengamma.financial.convention.yield"/>
 <listEntry value="com.opengamma.financial.covariance"/>
 <listEntry value="com.opengamma.financial.equity"/>
+<listEntry value="com.opengamma.financial.equity.capm"/>
+<listEntry value="com.opengamma.financial.equity.future"/>
+<listEntry value="com.opengamma.financial.forex.definition"/>
+<listEntry value="com.opengamma.financial.forex.derivative"/>
+<listEntry value="com.opengamma.financial.forex.method"/>
 <listEntry value="com.opengamma.financial.greeks"/>
 <listEntry value="com.opengamma.financial.instrument"/>
 <listEntry value="com.opengamma.financial.instrument.annuity"/>
@@ -33,11 +38,15 @@
 <listEntry value="com.opengamma.financial.interestrate.annuity.definition"/>
 <listEntry value="com.opengamma.financial.interestrate.bond"/>
 <listEntry value="com.opengamma.financial.interestrate.bond.definition"/>
+<listEntry value="com.opengamma.financial.interestrate.bond.method"/>
 <listEntry value="com.opengamma.financial.interestrate.cash.definition"/>
+<listEntry value="com.opengamma.financial.interestrate.fra"/>
 <listEntry value="com.opengamma.financial.interestrate.fra.definition"/>
 <listEntry value="com.opengamma.financial.interestrate.future.definition"/>
-<listEntry value="com.opengamma.financial.interestrate.libor"/>
+<listEntry value="com.opengamma.financial.interestrate.future.method"/>
+<listEntry value="com.opengamma.financial.interestrate.method"/>
 <listEntry value="com.opengamma.financial.interestrate.payments"/>
+<listEntry value="com.opengamma.financial.interestrate.payments.method"/>
 <listEntry value="com.opengamma.financial.interestrate.swap"/>
 <listEntry value="com.opengamma.financial.interestrate.swap.definition"/>
 <listEntry value="com.opengamma.financial.interestrate.swaption"/>
@@ -107,6 +116,7 @@
 <listEntry value="com.opengamma.math.statistics.leastsquare"/>
 <listEntry value="com.opengamma.math.surface"/>
 <listEntry value="com.opengamma.math.util.wrapper"/>
+<listEntry value="com.opengamma.tutorial"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>
