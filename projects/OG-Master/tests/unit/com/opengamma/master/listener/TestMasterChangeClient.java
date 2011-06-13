@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.listener;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -102,7 +104,7 @@ import com.opengamma.util.tuple.Pair;
 
   private void waitForLatch(CountDownLatch countDownLatch, long timeoutMs) {
     try {
-      countDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+      assertEquals(true, countDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS));
     } catch (InterruptedException e) {
       Thread.interrupted();
       throw new RuntimeException("Interrupted");
