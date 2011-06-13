@@ -34,6 +34,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
+@SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
 
   private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
@@ -73,37 +74,37 @@ public class SABRFiniteDifferenceTest {
     final Function<Double, Double> sabrSurface = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
-        double t = x[0];
-        double k = x[1];
-        SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, NU, RHO);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option);
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double k = x[1];
+        final SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, NU, RHO);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option);
         return func.evaluate(sabrdata);
       }
     };
 
     SABR_VOL_SURFACE = new BlackVolatilitySurface(FunctionalDoublesSurface.from(sabrSurface));
 
-    Function<Double, Double> priceSurface = new Function<Double, Double>() {
+    final Function<Double, Double> priceSurface = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
-        double t = x[0];
-        double k = x[1];
-        double sigma = sabrSurface.evaluate(x);
-        double df = YIELD_CURVE.getDiscountFactor(t);
-        BlackFunctionData data = new BlackFunctionData(SPOT / df, df, sigma);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<BlackFunctionData, Double> pfunc = BLACK_PRICE_FUNCTION.getPriceFunction(option);
-        double price = pfunc.evaluate(data);
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double k = x[1];
+        final double sigma = sabrSurface.evaluate(x);
+        final double df = YIELD_CURVE.getDiscountFactor(t);
+        final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, sigma);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<BlackFunctionData, Double> pfunc = BLACK_PRICE_FUNCTION.getPriceFunction(option);
+        final double price = pfunc.evaluate(data);
         return price;
       }
     };
 
     SABR_PRICE_SURFACE = new PriceSurface(FunctionalDoublesSurface.from(priceSurface));
 
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
     SABR_LOCAL_VOL = cal.getLocalVolatility(SABR_VOL_SURFACE, SPOT, RATE);
 
     STRIKE = SPOT / YIELD_CURVE.getDiscountFactor(T);
@@ -117,9 +118,9 @@ public class SABRFiniteDifferenceTest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double sigma = SABR_LOCAL_VOL.getVolatility(t, s);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double sigma = SABR_LOCAL_VOL.getVolatility(t, s);
         return -s * s * sigma * sigma / 2.;
       }
     };
@@ -128,7 +129,7 @@ public class SABRFiniteDifferenceTest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return -s * RATE;
       }
     };
@@ -148,7 +149,7 @@ public class SABRFiniteDifferenceTest {
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
 
         return Math.max(0, x - STRIKE);
 
@@ -160,26 +161,26 @@ public class SABRFiniteDifferenceTest {
 
   @Test
   public void test() {
-    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
-    int tNodes = 20;
-    int xNodes = 101;
-    PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, LOWER.getLevel(), UPPER.getLevel());
-    PDEResults1D res = solver.solve(DATA, grid, LOWER, UPPER);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
+    final int tNodes = 20;
+    final int xNodes = 101;
+    final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, LOWER.getLevel(), UPPER.getLevel());
+    final PDEResults1D res = solver.solve(DATA, grid, LOWER, UPPER);
 
-    int i = (int) (xNodes * SPOT / UPPER.getLevel());
-    double spot = res.getSpaceValue(i);
-    double price = res.getFunctionValue(i);
-    double df = YIELD_CURVE.getDiscountFactor(T);
+    final int i = (int) (xNodes * SPOT / UPPER.getLevel());
+    final double spot = res.getSpaceValue(i);
+    final double price = res.getFunctionValue(i);
+    final double df = YIELD_CURVE.getDiscountFactor(T);
 
     assertEquals(SPOT, spot, 1e-9);
     assertEquals(SABR_PRICE_SURFACE.getPrice(T, STRIKE), price, price * 2e-3);
 
-    BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+    final BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
 
     double impVol;
     try {
       impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       impVol = 0.0;
     }
     assertEquals(SABR_VOL_SURFACE.getVolatility(T, STRIKE), impVol, 1e-3);

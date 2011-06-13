@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -20,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling.
  */
-public class SABRInterestRateParameter implements VolatilityModel<double[]> {
+public class SABRInterestRateParameters implements VolatilityModel<double[]> {
 
   /**
    * The alpha (volatility level) surface.
@@ -55,18 +56,8 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param nu The nu parameters.
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    */
-  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, DayCount dayCount) {
-    Validate.notNull(alpha, "alpha surface");
-    Validate.notNull(beta, "beta surface");
-    Validate.notNull(rho, "rho surface");
-    Validate.notNull(nu, "nu surface");
-    Validate.notNull(dayCount, "standard day count");
-    _alphaSurface = alpha;
-    _betaSurface = beta;
-    _rhoSurface = rho;
-    _nuSurface = nu;
-    _dayCount = dayCount;
-    _sabrFunction = new SABRHaganVolatilityFunction();
+  public SABRInterestRateParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount) {
+    this(alpha, beta, rho, nu, dayCount, new SABRHaganVolatilityFunction());
   }
 
   /**
@@ -78,12 +69,13 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param sabrFormula The SABR formula provider.
    */
-  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, DayCount dayCount,
-      VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
+  public SABRInterestRateParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount,
+      final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
     Validate.notNull(alpha, "alpha surface");
     Validate.notNull(beta, "beta surface");
     Validate.notNull(rho, "rho surface");
     Validate.notNull(nu, "nu surface");
+    Validate.notNull(dayCount, "dayCount");
     Validate.notNull(sabrFormula, "SABR formula");
     _alphaSurface = alpha;
     _betaSurface = beta;
@@ -98,7 +90,7 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param expiryMaturity The expiry/maturity pair.
    * @return The alpha parameter.
    */
-  public double getAlpha(DoublesPair expiryMaturity) {
+  public double getAlpha(final DoublesPair expiryMaturity) {
     return _alphaSurface.getVolatility(expiryMaturity);
   }
 
@@ -107,7 +99,7 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param expiryMaturity The expiry/maturity pair.
    * @return The beta parameter.
    */
-  public double getBeta(DoublesPair expiryMaturity) {
+  public double getBeta(final DoublesPair expiryMaturity) {
     return _betaSurface.getVolatility(expiryMaturity);
   }
 
@@ -116,7 +108,7 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param expiryMaturity The expiry/maturity pair.
    * @return The rho parameter.
    */
-  public double getRho(DoublesPair expiryMaturity) {
+  public double getRho(final DoublesPair expiryMaturity) {
     return _rhoSurface.getVolatility(expiryMaturity);
   }
 
@@ -125,7 +117,7 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param expiryMaturity The expiry/maturity pair.
    * @return The nu parameter.
    */
-  public double getNu(DoublesPair expiryMaturity) {
+  public double getNu(final DoublesPair expiryMaturity) {
     return _nuSurface.getVolatility(expiryMaturity);
   }
 
@@ -185,11 +177,11 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param forward The forward.
    * @return The volatility.
    */
-  public double getVolatility(double expiryTime, double maturity, double strike, double forward) {
-    DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
-    SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
-    Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option);
+  public double getVolatility(final double expiryTime, final double maturity, final double strike, final double forward) {
+    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
+    final Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option);
     return funcSabrLongPayer.evaluate(data);
   }
 
@@ -199,8 +191,9 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @param data An array of four doubles with [0] the expiry, [1] the maturity, [2] the strike, [3] the forward.
    * @return The volatility.
    */
-  public Double getVolatility(double[] data) {
-    Validate.isTrue(data.length == 4, "data should have for components");
+  public Double getVolatility(final double[] data) {
+    Validate.notNull(data, "data");
+    Validate.isTrue(data.length == 4, "data should have four components (expiry time, maturity, strike and forward");
     return getVolatility(data[0], data[1], data[2], data[3]);
   }
 
@@ -213,13 +206,56 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @return The volatility and its derivative. An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, 
    * [3] the derivative w.r.t. to alpha, [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu.
    */
-  public double[] getVolatilityAdjoint(double expiryTime, double maturity, double strike, double forward) {
+  public double[] getVolatilityAdjoint(final double expiryTime, final double maturity, final double strike, final double forward) {
     Validate.isTrue(_sabrFunction instanceof SABRHaganVolatilityFunction, "Adjoint volatility available only for Hagan formula");
-    SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
-    DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
-    SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
+    final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
+    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     return sabrHaganFunction.getVolatilityAdjoint(option, data);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _alphaSurface.hashCode();
+    result = prime * result + _betaSurface.hashCode();
+    result = prime * result + _dayCount.hashCode();
+    result = prime * result + _nuSurface.hashCode();
+    result = prime * result + _rhoSurface.hashCode();
+    result = prime * result + _sabrFunction.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SABRInterestRateParameters other = (SABRInterestRateParameters) obj;
+    if (!ObjectUtils.equals(_alphaSurface, other._alphaSurface)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_betaSurface, other._betaSurface)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_rhoSurface, other._rhoSurface)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_nuSurface, other._nuSurface)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
+      return false;
+    }
+    return ObjectUtils.equals(_sabrFunction, other._sabrFunction);
   }
 
 }

@@ -39,7 +39,7 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
   public FixedIncomeInstrumentConverter<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
     Validate.notNull(swaptionSecurity, "swaption security");
     final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
-    final boolean isLong = true; //TODO should come from security
+    final boolean isLong = swaptionSecurity.getIsLong();
     //Identifier underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
     final SwapSecurity swapSecurity = null; //TODO how do I get this?

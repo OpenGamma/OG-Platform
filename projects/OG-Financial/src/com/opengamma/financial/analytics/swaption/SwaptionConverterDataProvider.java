@@ -31,26 +31,21 @@ public class SwaptionConverterDataProvider {
     //_swapConverter = new DefinitionConverterDataProvider(dataSourceName, fieldName, dataProvider);
   }
 
-  public InterestRateDerivative convert(final SwaptionSecurity security,
-      final FixedIncomeInstrumentConverter<?> definition, final ZonedDateTime now, final String[] curveNames,
+  @SuppressWarnings("unused")
+  public InterestRateDerivative convert(final SwaptionSecurity security, final FixedIncomeInstrumentConverter<?> definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalDataSource dataSource) {
     if (definition instanceof SwaptionCashFixedIborDefinition) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;
       final SwapSecurity swapSecurity = null; //TODO
-      //      final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now,
-      //          curveNames, dataSource);
-      return cashSettled.toDerivative(now, curveNames);
+      //final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now, curveNames, dataSource);
       //return cashSettled.toDerivative(now, new DoubleTimeSeries[] {swapFixingTS}, curveNames);
     }
     if (definition instanceof SwaptionPhysicalFixedIborDefinition) {
       final SwaptionPhysicalFixedIborDefinition physicallySettled = (SwaptionPhysicalFixedIborDefinition) definition;
       final SwapSecurity swapSecurity = null; //TODO
-      //      final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now,
-      //          curveNames, dataSource);
-      return physicallySettled.toDerivative(now, curveNames);
+      //final DoubleTimeSeries<ZonedDateTime> swapFixingSeries = _swapConverter.convert(swapSecurity, definition, now, curveNames, dataSource);
       //return physicallySettled.toDerivative(now, new DoubleTimeSeries[] {swapFixingTS}, curveNames);
     }
-    throw new OpenGammaRuntimeException(
-        "This converter can only handle SwaptionCashFixedIborDefinition and SwaptionPhysicalFixedIborDefinition");
+    throw new OpenGammaRuntimeException("This converter can only handle SwaptionCashFixedIborDefinition and SwaptionPhysicalFixedIborDefinition");
   }
 }

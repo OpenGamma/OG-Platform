@@ -76,7 +76,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Currency of payment at time of purchase
    */
-  private Currency _premuimCurrency;
+  private Currency _premiumCurrency;
   /**
    * Date of premium payment
    */
@@ -383,11 +383,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   //-------------------------------------------------------------------------
   @Override
   public Currency getPremiumCurrency() {
-    return _premuimCurrency;
+    return _premiumCurrency;
   }
   
-  public void setPremiumCurrency(Currency premuimCurrency) {
-    _premuimCurrency = premuimCurrency;
+  public void setPremiumCurrency(Currency premiumCurrency) {
+    _premiumCurrency = premiumCurrency;
   }
 
   //-------------------------------------------------------------------------

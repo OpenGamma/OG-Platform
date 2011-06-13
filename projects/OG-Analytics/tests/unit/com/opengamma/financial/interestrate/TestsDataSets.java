@@ -10,7 +10,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameter;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -40,7 +40,7 @@ public class TestsDataSets {
    * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
+  public static SABRInterestRateParameters createSABR1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
     InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1, 1,
         1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR,
         LINEAR));
@@ -56,14 +56,14 @@ public class TestsDataSets {
         1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR,
         LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
+    return new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
    * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1() {
+  public static SABRInterestRateParameters createSABR1() {
     return createSABR1(new SABRHaganVolatilityFunction());
   }
 
@@ -73,7 +73,7 @@ public class TestsDataSets {
    * @param shift The shift.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1AlphaBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
+  public static SABRInterestRateParameters createSABR1AlphaBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
     InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1, 1,
         1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift, 0.05 + shift,
         0.05 + shift, 0.05 + shift, 0.06 + shift, 0.06 + shift, 0.06 + shift, 0.06 + shift, 0.06 + shift, 0.06 + shift}, new GridInterpolator2D(LINEAR, LINEAR));
@@ -89,7 +89,7 @@ public class TestsDataSets {
         1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR,
         LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
+    return new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -97,7 +97,7 @@ public class TestsDataSets {
    * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1AlphaBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
+  public static SABRInterestRateParameters createSABR1AlphaBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
     double shift = 0.0001;
     return createSABR1AlphaBumped(sabrFunction, shift);
   }
@@ -107,7 +107,7 @@ public class TestsDataSets {
    * @param shift The shift.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1AlphaBumped(double shift) {
+  public static SABRInterestRateParameters createSABR1AlphaBumped(double shift) {
     return createSABR1AlphaBumped(new SABRHaganVolatilityFunction(), shift);
   }
 
@@ -115,7 +115,7 @@ public class TestsDataSets {
    * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Alpha data is bumped by 0.0001 with respect to SABR1.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1AlphaBumped() {
+  public static SABRInterestRateParameters createSABR1AlphaBumped() {
     return createSABR1AlphaBumped(new SABRHaganVolatilityFunction());
   }
 
@@ -123,7 +123,7 @@ public class TestsDataSets {
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Rho data is bumped by the shift with respect to SABR1.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1RhoBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
+  public static SABRInterestRateParameters createSABR1RhoBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
     InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1, 1,
         1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR,
         LINEAR));
@@ -139,7 +139,7 @@ public class TestsDataSets {
         1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR,
         LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
+    return new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -147,7 +147,7 @@ public class TestsDataSets {
    * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1RhoBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
+  public static SABRInterestRateParameters createSABR1RhoBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
     double shift = 0.0001;
     return createSABR1RhoBumped(sabrFunction, shift);
   }
@@ -157,7 +157,7 @@ public class TestsDataSets {
    * @param shift The shift.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1RhoBumped(double shift) {
+  public static SABRInterestRateParameters createSABR1RhoBumped(double shift) {
     return createSABR1RhoBumped(new SABRHaganVolatilityFunction(), shift);
   }
 
@@ -165,7 +165,7 @@ public class TestsDataSets {
    * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Alpha data is bumped by 0.0001 with respect to SABR1.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1RhoBumped() {
+  public static SABRInterestRateParameters createSABR1RhoBumped() {
     double shift = 0.0001;
     return createSABR1RhoBumped(new SABRHaganVolatilityFunction(), shift);
   }
@@ -174,7 +174,7 @@ public class TestsDataSets {
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Nu data is bumped by 0.0001 with respect to SABR1.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1NuBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
+  public static SABRInterestRateParameters createSABR1NuBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double shift) {
     InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1, 1,
         1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR,
         LINEAR));
@@ -190,7 +190,7 @@ public class TestsDataSets {
         1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift,
         0.50 + shift, 0.50 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
+    return new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -198,7 +198,7 @@ public class TestsDataSets {
    * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1NuBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
+  public static SABRInterestRateParameters createSABR1NuBumped(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
     double shift = 0.0001;
     return createSABR1NuBumped(sabrFunction, shift);
   }
@@ -208,7 +208,7 @@ public class TestsDataSets {
    * @param shift The shift.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1NuBumped(double shift) {
+  public static SABRInterestRateParameters createSABR1NuBumped(double shift) {
     return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
   }
 
@@ -216,7 +216,7 @@ public class TestsDataSets {
    * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Nu data is bumped by 0.0001 with respect to SABR1.
    * @return The SABR parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1NuBumped() {
+  public static SABRInterestRateParameters createSABR1NuBumped() {
     double shift = 0.0001;
     return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
   }
@@ -229,7 +229,7 @@ public class TestsDataSets {
    * @return The SABR surface with extrapolation parameters.
    */
   public static SABRInterestRateExtrapolationParameter createSABRExtrapolation1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double cutOffStrike, double mu) {
-    SABRInterestRateParameter sabr = createSABR1();
+    SABRInterestRateParameters sabr = createSABR1();
     return SABRInterestRateExtrapolationParameter.from(sabr, cutOffStrike, mu);
   }
 
