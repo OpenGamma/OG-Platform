@@ -6,7 +6,6 @@
 package com.opengamma.web.server.conversion;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
@@ -25,7 +24,6 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
     int columns = value.getXKeys().length;
     result.put("summary", rows + " x " + columns);
     if (mode == ConversionMode.FULL) {
-      Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
       String[] xStrings = new String[columns];
       String[] yStrings = new String[rows];
       for (int i = 0; i < xStrings.length; i++) {
