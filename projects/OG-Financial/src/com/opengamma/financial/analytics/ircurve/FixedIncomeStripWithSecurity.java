@@ -152,6 +152,14 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
     if (result != 0) {
       return result;
     }
+    if (getSecurity().getUniqueId() == null) {
+      if (o.getSecurity().getUniqueId() == null) {
+        return 0;
+      } else {
+        //TODO check this
+        return -1;
+      }
+    }
     result = getSecurity().getUniqueId().getValue().compareTo(o.getSecurity().getUniqueId().getValue());
     return result;
   }
