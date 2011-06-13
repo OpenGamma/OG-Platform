@@ -41,7 +41,7 @@
 <listEntry value="com.opengamma.financial.interestrate.swap"/>
 <listEntry value="com.opengamma.financial.interestrate.swap.definition"/>
 <listEntry value="com.opengamma.financial.interestrate.swaption"/>
-<listEntry value="com.opengamma.financial.model.finiteDifference"/>
+<listEntry value="com.opengamma.financial.model.finitedifference"/>
 <listEntry value="com.opengamma.financial.model.forward.definition"/>
 <listEntry value="com.opengamma.financial.model.forward.pricing"/>
 <listEntry value="com.opengamma.financial.model.future.definition"/>
