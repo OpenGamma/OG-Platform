@@ -39,4 +39,9 @@ public class UniqueIdentifierSupplierTest {
     assertEquals(UniqueIdentifier.parse("Prefixing~B-3"), test.getWithValuePrefix("B-"));
   }
 
+  public void test_toString() {
+    UniqueIdentifierSupplier test = new UniqueIdentifierSupplier("Prefixing");
+    assertEquals(true, test.toString().contains("Prefixing"));
+  }
+
 }

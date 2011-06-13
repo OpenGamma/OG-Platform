@@ -20,7 +20,6 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
@@ -119,10 +118,18 @@ public final class VolatilityCubeInstrumentProvider {
     return _idsByPoint.get(Pair.of(currency, point));
   }
 
-  public Set<Identifier> getAllInstruments(VolatilityCubeKey key) {
-    HashSet<Identifier> ret = new HashSet<Identifier>();
-    for (Entry<ObjectsPair<Currency, Identifier>, VolatilityPoint> entry : _pointsById.entrySet()) {
-      if (entry.getKey().first.equals(key.getCurrency())) {
+  public Set<Currency> getAllCurrencies() {
+    HashSet<Currency> ret = new HashSet<Currency>();
+    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+      ret.add(entry.getKey().first);
+    }
+    return ret;
+  }
+  
+  public Set<VolatilityPoint> getAllPoints(Currency currency) {
+    HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
+    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+      if (entry.getKey().first.equals(currency)) {
         ret.add(entry.getKey().second);
       }
     }
