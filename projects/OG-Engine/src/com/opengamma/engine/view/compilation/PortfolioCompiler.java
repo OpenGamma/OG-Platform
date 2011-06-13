@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -239,12 +240,17 @@ public final class PortfolioCompiler {
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.setSecurity(security);
       populatedPosition.setParentNodeId(populatedNode.getUniqueId());
-      //set the children trade security as well
-      for (Trade trade : position.getTrades()) {
-        TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
-        populatedTrade.setSecurity(security);
-        populatedPosition.addTrade(populatedTrade);
+      // set the children trade security as well
+      final Set<Trade> origTrades = populatedPosition.getTrades();
+      if (!origTrades.isEmpty()) {
+        final Set<Trade> newTrades = Sets.newHashSetWithExpectedSize(origTrades.size());
+        for (Trade trade : origTrades) {
+          TradeImpl populatedTrade = new TradeImpl(trade);
+          populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
+          populatedTrade.setSecurity(security);
+          newTrades.add(populatedTrade);
+        }
+        populatedPosition.setTrades(newTrades);
       }
       populatedNode.addPosition(populatedPosition);
     }
