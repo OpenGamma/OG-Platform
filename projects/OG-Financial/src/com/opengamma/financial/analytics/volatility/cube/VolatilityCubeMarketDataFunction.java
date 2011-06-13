@@ -81,18 +81,32 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (VolatilityPoint point : allPoints) {
-      ValueRequirement valueRequirement = getValueRequirement(point);
-      if (valueRequirement != null) {
-        ret.add(valueRequirement);
-      }
+      Set<ValueRequirement> valueRequirements = getValueRequirements(point);
+      ret.addAll(valueRequirements);
     }
-    //TODO: any other values required
-    return ret; 
+    ret.addAll(getOtherRequirements());
+    return ret;
   }
 
-  private ValueRequirement getValueRequirement(VolatilityPoint point) {
-    Identifier instrument = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstrument(_helper.getKey().getCurrency(), point);
-    return instrument == null ? null : new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, instrument);
+  private Set<ValueRequirement> getOtherRequirements() {
+    Set<Identifier> instruments = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllInstruments(_helper.getKey());
+    return getMarketValueReqs(instruments);
+  }
+
+  private Set<ValueRequirement> getValueRequirements(VolatilityPoint point) {
+    Set<Identifier> instruments = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstruments(_helper.getKey()
+        .getCurrency(), point);
+    return getMarketValueReqs(instruments);
+  }
+
+  private Set<ValueRequirement> getMarketValueReqs(Set<Identifier> instruments) {
+    HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+    if (instruments != null) {
+      for (Identifier id : instruments) {
+        ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, new ComputationTargetSpecification(id)));
+      }
+    }
+    return ret;
   }
   
   private VolatilityPoint getVolatilityPoint(ValueSpecification spec) {
@@ -115,7 +129,10 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       if (volatilityPoint == null) {
         otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
       } else {
-        dataPoints.put(volatilityPoint, dValue);
+        Double previous = dataPoints.put(volatilityPoint, dValue);
+        if (previous != null) {
+          previous = null;
+        }
       }
     }
         

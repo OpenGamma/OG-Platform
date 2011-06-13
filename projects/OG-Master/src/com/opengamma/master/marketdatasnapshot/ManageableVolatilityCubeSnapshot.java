@@ -38,7 +38,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     return _values;
   }
 
-  private void setValues(Map<VolatilityPoint, ValueSnapshot> values) {
+  public void setValues(Map<VolatilityPoint, ValueSnapshot> values) {
     _values = values;
   }
 

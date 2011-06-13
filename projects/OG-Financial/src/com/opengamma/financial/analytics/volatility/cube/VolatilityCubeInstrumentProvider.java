@@ -9,13 +9,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.time.calendar.Period;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
@@ -36,13 +41,13 @@ public final class VolatilityCubeInstrumentProvider {
 
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
-  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Identifier> _idsByPoint;
+  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> _idsByPoint;
   private final HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint> _pointsById;
 
   private VolatilityCubeInstrumentProvider() {
     //TODO not here
 
-    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Identifier>();
+    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>>();
     _pointsById = new HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint>();
 
     InputStream is = getClass().getResourceAsStream(TICKER_FILE);
@@ -60,7 +65,7 @@ public final class VolatilityCubeInstrumentProvider {
         String expiryUnit = nextLine[3];
         String swapPeriod = nextLine[4];
         String swapPeriodUnit = nextLine[5];
-        String payOrReceive = nextLine[6]; //TODO
+        String payOrReceive = nextLine[6];
         String relativeStrike = nextLine[7];
         String ticker = nextLine[8];
 
@@ -71,7 +76,7 @@ public final class VolatilityCubeInstrumentProvider {
           double sign;
           if ("PY".equals(payOrReceive)) {
             sign = -1;
-          } else if ("RCV".equals(payOrReceive)) {
+          } else if ("RC".equals(payOrReceive)) {
             sign = 1;
           } else {
             throw new IllegalArgumentException();
@@ -83,8 +88,14 @@ public final class VolatilityCubeInstrumentProvider {
           VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
 
           Identifier identifier = getIdentifier(ticker + " Curncy");
-          @SuppressWarnings("unused")
-          Identifier prev = _idsByPoint.put(Pair.of(currency, point), identifier);
+
+          ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
+          if (_idsByPoint.containsKey(key)) {
+            _idsByPoint.get(key).add(identifier);
+          } else {
+            _idsByPoint.put(key, Sets.newHashSet(identifier));
+          }
+
           if (_pointsById.put(Pair.of(currency, identifier), point) != null) {
             throw new IllegalArgumentException();
           }
@@ -104,7 +115,17 @@ public final class VolatilityCubeInstrumentProvider {
     return _pointsById.get(Pair.of(currency, instrument));
   }
 
-  public Identifier getInstrument(Currency currency, VolatilityPoint point) {
+  public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
     return _idsByPoint.get(Pair.of(currency, point));
+  }
+
+  public Set<Identifier> getAllInstruments(VolatilityCubeKey key) {
+    HashSet<Identifier> ret = new HashSet<Identifier>();
+    for (Entry<ObjectsPair<Currency, Identifier>, VolatilityPoint> entry : _pointsById.entrySet()) {
+      if (entry.getKey().first.equals(key.getCurrency())) {
+        ret.add(entry.getKey().second);
+      }
+    }
+    return ret;
   }
 }
