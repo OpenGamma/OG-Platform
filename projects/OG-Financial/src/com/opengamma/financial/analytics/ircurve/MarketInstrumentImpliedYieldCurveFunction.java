@@ -158,7 +158,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)

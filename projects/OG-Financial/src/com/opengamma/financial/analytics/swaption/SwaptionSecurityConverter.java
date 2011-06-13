@@ -15,24 +15,31 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
-import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * 
  */
 public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
-  private final SwapSecurityConverter _swapConverter;
+  private final SecuritySource _securitySource;
+  private final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 
-  public SwaptionSecurityConverter(final SwapSecurityConverter swapConverter) {
+  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
+    Validate.notNull(securitySource, "security source");
     Validate.notNull(swapConverter, "swap converter");
-    _swapConverter = swapConverter;
+    _securitySource = securitySource;
+    _visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder().swapSecurityVisitor(swapConverter).create();
   }
 
   @Override
@@ -40,16 +47,14 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
     Validate.notNull(swaptionSecurity, "swaption security");
     final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
     final boolean isLong = swaptionSecurity.getIsLong();
-    //Identifier underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
+    final Identifier underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final SwapSecurity swapSecurity = null; //TODO how do I get this?
-    final FixedIncomeInstrumentConverter<?> swap = _swapConverter.visitSwapSecurity(swapSecurity);
-    if (!(swap instanceof SwapFixedIborDefinition)) {
+    final FixedIncomeInstrumentConverter<?> underlyingSwap = ((FinancialSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier))).accept(_visitor);
+    if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }
-    final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) swap;
+    final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)
         : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedFloat, isLong);
   }
-
 }

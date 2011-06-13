@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
