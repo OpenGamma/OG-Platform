@@ -141,6 +141,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     setPremiumCurrency(trade.getPremiumCurrency());
     setPremiumDate(trade.getPremiumDate());
     setPremiumTime(trade.getPremiumTime());
+    setAttributes(trade.getAttributes());
   }
 
   /**

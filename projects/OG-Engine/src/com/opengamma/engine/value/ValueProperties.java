@@ -261,7 +261,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+    nextProperty:
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           if (!isOptional(property.getKey())) {
@@ -431,10 +432,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       return _properties.isEmpty();
     }
 
-    public static String toString(final Map<String, Set<String>> properties, final Set<String> optional) {
+    public static String toString(final Map<String, Set<String>> properties, final Set<String> optional, final boolean strict) {
       Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
       final StringBuilder sb = new StringBuilder();
-      sb.append("{");
+      if (strict) {
+        sb.append("{");
+      }
       boolean first = true;
       for (Map.Entry<String, Set<String>> property : properties.entrySet()) {
         if (first) {
@@ -442,7 +445,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         } else {
           sb.append(",");
         }
-        sb.append(escape(escapePattern, property.getKey())).append("=[");
+        sb.append(escape(escapePattern, property.getKey())).append("=");
+        boolean grouped = strict || property.getValue().size() > 1;
+        if (grouped) {
+          sb.append("[");
+        }
         boolean firstValue = true;
         for (String value : property.getValue()) {
           if (firstValue) {
@@ -452,18 +459,27 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
           }
           sb.append(escape(escapePattern, value));
         }
-        sb.append("]");
+        if (grouped) {
+          sb.append("]");
+        }
         if (optional.contains(property.getKey())) {
           sb.append("?");
         }
       }
-      sb.append("}");
+      if (strict) {
+        sb.append("}");
+      }
       return sb.toString();
+    }
+    
+    @Override
+    public String toSimpleString() {
+      return toString(_properties, _optional, false);
     }
 
     @Override
     public String toString() {
-      return toString(_properties, _optional);
+      return toString(_properties, _optional, true);
     }
   }
   
@@ -616,8 +632,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * The set of properties not included.
      */
     private final Set<String> _without;
-
-    
     
     /**
      * Gets the properties not included
@@ -722,6 +736,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public String toSimpleString() {
+      return toString();
+    }
+    
+    @Override
     public boolean equals(final Object o) {
       if (o == this) {
         return true;
@@ -752,6 +771,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       return 1;
     }
+
   }
 
   // -------------------------------------------------------------------------
@@ -822,6 +842,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public String toSimpleString() {
+      return toString();
+    }
+
+    @Override
     public ValueProperties withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       return new NearlyInfinitePropertiesImpl(Collections.singleton(propertyName));
@@ -834,6 +859,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       return 1;
     }
+
   }
 
   // -------------------------------------------------------------------------
@@ -897,6 +923,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public String toString() {
       return "EMPTY";
+    }
+
+    @Override
+    public String toSimpleString() {
+      return toString();
     }
   }
 
@@ -1075,6 +1106,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public ValueProperties withoutAny(final String propertyName) {
     return copy().withoutAny(propertyName).get();
   }
+  
+  /**
+   * Returns a simple string representation of the {@link ValueProperties} instance. This simple representation omits
+   * unnecessary brackets for better readability. The output remains valid as the input to {@link #parse(String)}.
+   * 
+   * @return a simple string representation
+   */
+  public abstract String toSimpleString();
 
   // -------------------------------------------------------------------------
   /**
