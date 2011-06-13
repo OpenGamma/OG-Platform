@@ -47,6 +47,11 @@ CREATE TABLE pos_trade (
     cparty_value varchar(255) not null,
     provider_scheme varchar(255),
     provider_value varchar(255),
+    premium_value double precision,
+    premium_currency varchar(255),
+    premium_date date,
+    premium_time time,
+    premium_zone_offset int,
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
@@ -55,6 +60,24 @@ CREATE TABLE pos_trade (
 CREATE INDEX ix_pos_trade_oid ON pos_trade(oid);
 CREATE INDEX ix_pos_trade_position_id ON pos_trade(position_id);
 CREATE INDEX ix_pos_trade_position_oid ON pos_trade(position_oid);
+
+CREATE SEQUENCE pos_trade_attr_seq
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE pos_trade_attribute (
+    id bigint not null,
+    trade_id bigint not null,
+    trade_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_tradeattr2trade foreign key (trade_id) references pos_trade (id),
+    constraint pos_chk_uq_trade_attribute unique (trade_id, key, value)
+);
+-- trade_oid is an optimization
+-- pos_trade_attribute is fully dependent of pos_trade
+CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
+CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
 
 CREATE TABLE pos_idkey (
     id bigint not null,

@@ -70,8 +70,8 @@
     <constructor-arg ref="cfgDbSource" />
     <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
-  <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader"> -->
-  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="currencyMatrixLoader,surfaceLoader">
+  <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader, cubeLoader"> -->
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="currencyMatrixLoader,surfaceLoader, cubeLoader">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <!-- Config loaders, should be commented out most of the time -->
@@ -82,6 +82,9 @@
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <bean id="surfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator ">
+    <constructor-arg ref="sharedConfigMaster" />
+  </bean>
+  <bean id="cubeLoader" class="com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   
@@ -168,10 +171,20 @@
   </bean>
   
   <!-- Curves -->
-  <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource">
+  <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.EHCachingInterpolatedYieldCurveDefinitionSource">
+        <constructor-arg ref="configDBInterpolatedYieldCurveDefinitionSource" />
+        <constructor-arg ref="cacheManager" />
+  </bean>
+  <bean id="configDBInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
   <bean id="sharedInterpolatedYieldCurveSpecificationBuilder" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder">
+    <constructor-arg ref="sharedConfigSource" />
+  </bean>
+  
+  <!-- Vol Cubes-->
+  <!-- TODO: this properly, user source and cacheing -->
+  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
   </bean>
   
@@ -216,7 +229,7 @@
     </constructor-arg>
   </bean>
   
-    <!-- MarketDataSnapshotMaster -->
+  <!-- MarketDataSnapshotMaster -->
   <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="finDbSource" />
