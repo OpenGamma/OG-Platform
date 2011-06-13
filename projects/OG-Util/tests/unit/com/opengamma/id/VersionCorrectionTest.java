@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertSame;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -28,6 +29,18 @@ public class VersionCorrectionTest {
     assertEquals(null, test.getVersionAsOf());
     assertEquals(null, test.getCorrectedTo());
     assertEquals("VLATEST.CLATEST", test.toString());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_VersionCorrection() {
+    VersionCorrection base = VersionCorrection.of(INSTANT1, INSTANT2);
+    VersionCorrection test = VersionCorrection.of(base);
+    assertSame(base, test);
+  }
+
+  public void test_of_VersionCorrection_null() {
+    VersionCorrection test = VersionCorrection.of((VersionCorrection) null);
+    assertSame(VersionCorrection.LATEST, test);
   }
 
   //-------------------------------------------------------------------------
@@ -103,6 +116,24 @@ public class VersionCorrectionTest {
   public void test_parse_latests() {
     VersionCorrection test = VersionCorrection.parse("VLATEST.CLATEST");
     assertSame(VersionCorrection.LATEST, test);
+  }
+
+  @DataProvider(name = "parseInvalid")
+  public Object[][] data_parseInvalid() {
+    return new Object[][] {
+        {"1970-01-01T00:00:01Z.C1970-01-01T00:00:02Z"},  // no V
+        {"V1970-01-01T00:00:01Z.1970-01-01T00:00:02Z"},  // no C
+        {""},  // blank
+        {"V1970-01-01T00:00:01Z"},  // only half
+        {"V1970-12-01 00:00:01Z.C1970-01-01T00:00:02Z"},  // invalid date 1
+        {"V1970-12-01T00:00:01Z.C1970-01-20 00:00:02Z"},  // invalid date 2
+        {"VLATS.CLATS"},  // invalid latest
+    };
+  }
+
+  @Test(dataProvider = "parseInvalid", expectedExceptions = IllegalArgumentException.class)
+  public void test_parse_invalidNoV(String input) {
+    VersionCorrection.parse(input);
   }
 
   //-------------------------------------------------------------------------

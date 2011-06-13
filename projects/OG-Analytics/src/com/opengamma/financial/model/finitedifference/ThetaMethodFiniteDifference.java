@@ -30,7 +30,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
   /**
    * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
-   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit 
+   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit
+   * @param showFullResults Show the full results 
    */
   public ThetaMethodFiniteDifference(final double theta, final boolean showFullResults) {
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
@@ -162,8 +163,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
   @Override
   public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
     return solve(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
   }

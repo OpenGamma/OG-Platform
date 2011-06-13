@@ -23,7 +23,9 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
+import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -33,6 +35,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.SingletonFactoryBean;
+import com.opengamma.util.money.Currency;
 
 /**
  * Creates function repository configuration for curve supplying functions.
@@ -108,6 +111,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "DEFAULT");
+    
+    Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    for (Currency currency : volCubeCurrencies) {
+      addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
+    }
     
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
     return new RepositoryConfiguration(configs);

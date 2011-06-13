@@ -119,7 +119,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
    * Future transaction pricing without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    final InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
     return method.presentValue(future, curves).getAmount();
   }
 
@@ -208,7 +208,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve liborCurve = curves.getCurve(payment.getForwardCurveName());
-    //    final double forward = (liborCurve.getDiscountFactor(payment.getFixingTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
     final double forward = (liborCurve.getDiscountFactor(payment.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
@@ -247,13 +246,13 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
-    CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
     return method.presentValue(cmsCoupon, curves);
   }
 
   @Override
   public Double visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
-    CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
     return method.presentValue(coupon, curves).getAmount();
   }
 

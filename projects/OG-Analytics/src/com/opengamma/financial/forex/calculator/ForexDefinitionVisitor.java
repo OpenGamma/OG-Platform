@@ -10,7 +10,7 @@ import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 
 /**
- * Visitor of Forex instrument.
+ * Visitor to Forex instrument (Definition version).
  * @param <T> Type of the data.
  * @param <U> Type of the result.
  */

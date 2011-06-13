@@ -27,7 +27,7 @@ import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMargi
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -72,7 +72,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
   private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameter SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES_BUNDLE);
   private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
 
@@ -82,9 +82,9 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    */
   public void presentValueFromOptionPrice() {
     final double priceQuoted = 0.01;
-    InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pv = METHOD.presentValueFromPrice(transactionNoPremium, priceQuoted).getAmount();
-    double pvExpected = (priceQuoted - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
+    final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
+    final double pv = METHOD.presentValueFromPrice(transactionNoPremium, priceQuoted).getAmount();
+    final double pvExpected = (priceQuoted - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
     assertEquals("Future option: present value from quoted price", pvExpected, pv);
   }
 
@@ -94,13 +94,13 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    */
   public void presentValueFromFuturePrice() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    double priceFuture = 0.9905;
-    InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pv = METHOD.presentValueFromFuturePrice(transactionNoPremium, sabrBundle, priceFuture).getAmount();
-    double priceSecurity = METHOD_SECURITY.optionPriceFromFuturePrice(OPTION_EDU2, sabrBundle, priceFuture);
-    double pvExpected = (priceSecurity - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
+    final double priceFuture = 0.9905;
+    final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
+    final double pv = METHOD.presentValueFromFuturePrice(transactionNoPremium, sabrBundle, priceFuture).getAmount();
+    final double priceSecurity = METHOD_SECURITY.optionPriceFromFuturePrice(OPTION_EDU2, sabrBundle, priceFuture);
+    final double pvExpected = (priceSecurity - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
     assertEquals("Future option: present value from future price", pvExpected, pv, 1.0E-2);
   }
 
@@ -109,11 +109,11 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    * Test the present value from the future price.
    */
   public void presentValue() {
-    InterestRateFutureSecurityDiscountingMethod methodFuture = new InterestRateFutureSecurityDiscountingMethod();
-    double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
-    InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
-    double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture).getAmount();
+    final InterestRateFutureSecurityDiscountingMethod methodFuture = new InterestRateFutureSecurityDiscountingMethod();
+    final double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
+    final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
+    final double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
+    final double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture).getAmount();
     assertEquals("Future option: present value", pvNoPremiumExpected, pvNoPremium);
   }
 
@@ -122,9 +122,9 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    * Test the present value from the method and from the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, 0.0);
-    double pvNoPremiumMethod = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
-    double pvNoPremiumCalculator = PVC.visit(transactionNoPremium, SABR_BUNDLE);
+    final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, 0.0);
+    final double pvNoPremiumMethod = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
+    final double pvNoPremiumCalculator = PVC.visit(transactionNoPremium, SABR_BUNDLE);
     assertEquals("Future option: present value: Method vs Calculator", pvNoPremiumMethod, pvNoPremiumCalculator);
   }
 
