@@ -4,14 +4,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
@@ -51,16 +49,6 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilderTest e
 
     final InterpolatedYieldCurveSpecificationWithSecurities spec = new InterpolatedYieldCurveSpecificationWithSecurities(LocalDate.now(), "FUNDING", Currency.USD,
         Interpolator1DFactory.LINEAR_INSTANCE, strips);
-    InterpolatedYieldCurveSpecificationWithSecurities cycled = cycleObject(InterpolatedYieldCurveSpecificationWithSecurities.class, spec);
-    Set<FixedIncomeStripWithSecurity> temp = cycled.getStrips();
-    Security temp1 = null;
-    for (FixedIncomeStripWithSecurity s : temp) {
-      if (s.getSecurity().getSecurityType().equals("FUTURE")) {
-        temp1 = s.getSecurity();
-        break;
-      }
-    }
-    System.out.println(temp1);
     assertEquals(spec, cycleObject(InterpolatedYieldCurveSpecificationWithSecurities.class, spec));
   }
 }
