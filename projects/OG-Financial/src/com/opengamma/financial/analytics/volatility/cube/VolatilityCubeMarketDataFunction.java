@@ -44,7 +44,6 @@ import com.opengamma.util.tuple.Triple;
 public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
   private ValueSpecification _marketDataResult;
-  private ValueSpecification _definitionResult;
   private Set<ValueSpecification> _results;
   private final VolatilityCubeFunctionHelper _helper;
   private VolatilityCubeDefinition _definition;
@@ -65,9 +64,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     
     _marketDataResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, currencySpec,
         createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
-    _definitionResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_DEFN, currencySpec,
-        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
-    _results = Sets.newHashSet(_marketDataResult, _definitionResult);
+    _results = Sets.newHashSet(_marketDataResult);
   }
   
   @Override
@@ -81,18 +78,32 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (VolatilityPoint point : allPoints) {
-      ValueRequirement valueRequirement = getValueRequirement(point);
-      if (valueRequirement != null) {
-        ret.add(valueRequirement);
-      }
+      Set<ValueRequirement> valueRequirements = getValueRequirements(point);
+      ret.addAll(valueRequirements);
     }
-    //TODO: any other values required
-    return ret; 
+    ret.addAll(getOtherRequirements());
+    return ret;
   }
 
-  private ValueRequirement getValueRequirement(VolatilityPoint point) {
-    Identifier instrument = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstrument(_helper.getKey().getCurrency(), point);
-    return instrument == null ? null : new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, instrument);
+  private Set<ValueRequirement> getOtherRequirements() {
+    //TODO this
+    return new HashSet<ValueRequirement>();
+  }
+
+  private Set<ValueRequirement> getValueRequirements(VolatilityPoint point) {
+    Set<Identifier> instruments = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstruments(_helper.getKey()
+        .getCurrency(), point);
+    return getMarketValueReqs(instruments);
+  }
+
+  private Set<ValueRequirement> getMarketValueReqs(Set<Identifier> instruments) {
+    HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+    if (instruments != null) {
+      for (Identifier id : instruments) {
+        ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, new ComputationTargetSpecification(id)));
+      }
+    }
+    return ret;
   }
   
   private VolatilityPoint getVolatilityPoint(ValueSpecification spec) {
@@ -115,7 +126,13 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       if (volatilityPoint == null) {
         otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
       } else {
-        dataPoints.put(volatilityPoint, dValue);
+        Double previous = dataPoints.put(volatilityPoint, dValue);
+        /*if (previous != null) {
+          throw new NotImplementedException("Don't know which of these points is the right one to use");
+        }*/
+        if (previous != null && previous > dValue) {
+          dataPoints.put(volatilityPoint, previous);
+        }
       }
     }
         
@@ -146,7 +163,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
         ComputationTarget target, Set<ValueRequirement> desiredValues) {
       VolatilityCubeData map = buildMarketDataMap(inputs);
-      return Sets.newHashSet(new ComputedValue(_marketDataResult, map), new ComputedValue(_definitionResult, _definition));
+      return Sets.newHashSet(new ComputedValue(_marketDataResult, map));
     }
 
     @Override
