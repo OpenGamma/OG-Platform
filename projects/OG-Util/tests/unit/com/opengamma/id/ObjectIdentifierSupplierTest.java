@@ -39,4 +39,9 @@ public class ObjectIdentifierSupplierTest {
     assertEquals(ObjectIdentifier.parse("Prefixing~B-3"), test.getWithValuePrefix("B-"));
   }
 
+  public void test_toString() {
+    ObjectIdentifierSupplier test = new ObjectIdentifierSupplier("Prefixing");
+    assertEquals(true, test.toString().contains("Prefixing"));
+  }
+
 }

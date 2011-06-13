@@ -105,6 +105,30 @@ public class IdentifierSearchTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_constructor_IterableType_empty() {
+    IdentifierSearch test = new IdentifierSearch(new ArrayList<Identifier>(), IdentifierSearchType.EXACT);
+    assertEquals(0, test.size());
+    assertEquals(IdentifierSearchType.EXACT, test.getSearchType());
+  }
+
+  public void test_constructor_IterableType_two() {
+    IdentifierSearch test = new IdentifierSearch(Arrays.asList(_id11, _id12), IdentifierSearchType.EXACT);
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
+    assertEquals(IdentifierSearchType.EXACT, test.getSearchType());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor_IterableType_null() {
+    new IdentifierSearch((Iterable<Identifier>) null, IdentifierSearchType.EXACT);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor_IterableType_noNulls() {
+    new IdentifierSearch(Arrays.asList(_id11, null, _id12), IdentifierSearchType.EXACT);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_singleIdentifierDifferentConstructors() {
     assertTrue(new IdentifierSearch(_id11).equals(new IdentifierSearch(Collections.singleton(_id11))));
   }
@@ -188,6 +212,59 @@ public class IdentifierSearchTest {
     assertEquals(true, expected.remove(test.next()));
     assertEquals(false, test.hasNext());
     assertEquals(0, expected.size());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_matches1_EXACT() {
+    IdentifierSearch test1 = new IdentifierSearch(_id11);
+    test1.setSearchType(IdentifierSearchType.EXACT);
+    assertEquals(true, test1.matches(_id11));
+    assertEquals(false, test1.matches(_id21));
+    
+    IdentifierSearch test2 = new IdentifierSearch(_id11, _id21);
+    test2.setSearchType(IdentifierSearchType.EXACT);
+    assertEquals(false, test2.matches(_id11));
+    assertEquals(false, test2.matches(_id12));
+    assertEquals(false, test2.matches(_id21));
+  }
+
+  public void test_matches1_ALL() {
+    IdentifierSearch test1 = new IdentifierSearch(_id11);
+    test1.setSearchType(IdentifierSearchType.ALL);
+    assertEquals(true, test1.matches(_id11));
+    assertEquals(false, test1.matches(_id12));
+    
+    IdentifierSearch test2 = new IdentifierSearch(_id11, _id21);
+    test2.setSearchType(IdentifierSearchType.ALL);
+    assertEquals(false, test2.matches(_id11));
+    assertEquals(false, test2.matches(_id12));
+    assertEquals(false, test2.matches(_id21));
+  }
+
+  public void test_matches1_ANY() {
+    IdentifierSearch test1 = new IdentifierSearch(_id11);
+    test1.setSearchType(IdentifierSearchType.ANY);
+    assertEquals(true, test1.matches(_id11));
+    assertEquals(false, test1.matches(_id12));
+    
+    IdentifierSearch test2 = new IdentifierSearch(_id11, _id21);
+    test2.setSearchType(IdentifierSearchType.ANY);
+    assertEquals(true, test2.matches(_id11));
+    assertEquals(false, test2.matches(_id12));
+    assertEquals(true, test2.matches(_id21));
+  }
+
+  public void test_matches1_NONE() {
+    IdentifierSearch test1 = new IdentifierSearch(_id11);
+    test1.setSearchType(IdentifierSearchType.NONE);
+    assertEquals(false, test1.matches(_id11));
+    assertEquals(true, test1.matches(_id12));
+    
+    IdentifierSearch test2 = new IdentifierSearch(_id11, _id21);
+    test2.setSearchType(IdentifierSearchType.NONE);
+    assertEquals(false, test2.matches(_id11));
+    assertEquals(true, test2.matches(_id12));
+    assertEquals(false, test2.matches(_id21));
   }
 
   //-------------------------------------------------------------------------
