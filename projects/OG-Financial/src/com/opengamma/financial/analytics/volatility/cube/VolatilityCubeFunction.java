@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -90,6 +90,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
           ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        @SuppressWarnings("unused")
         VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
         //TODO this
         return Sets.newHashSet(new ComputedValue(_cubeResult, 0xdeadbeef));

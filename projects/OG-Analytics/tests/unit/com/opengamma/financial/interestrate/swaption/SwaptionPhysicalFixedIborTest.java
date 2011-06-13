@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
@@ -206,7 +206,7 @@ public class SwaptionPhysicalFixedIborTest {
         0.50,
         0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
     final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    final SABRInterestRateParameter sabrParameter = new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT_STANDARD);
+    final SABRInterestRateParameters sabrParameter = new SABRInterestRateParameters(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT_STANDARD);
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     // Swaption pricing.
     final double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
@@ -245,28 +245,28 @@ public class SwaptionPhysicalFixedIborTest {
   public void testPriceChangeSABRFormula() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     // SABR Hagan volatility function
-    final SABRInterestRateParameter sabrParameterHagan = TestsDataSets.createSABR1(new SABRHaganVolatilityFunction());
+    final SABRInterestRateParameters sabrParameterHagan = TestsDataSets.createSABR1(new SABRHaganVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     final double priceHagan = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganBundle);
     // From previous run
     assertEquals(1905752.097, priceHagan, 1E-2);
     // SABR Hagan alternative volatility function
-    final SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
+    final SABRInterestRateParameters sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);
     final double priceHaganAlt = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganAltBundle);
     assertEquals(priceHagan, priceHaganAlt, 5E+2);
     // SABR Berestycki volatility function
-    final SABRInterestRateParameter sabrParameterBerestycki = TestsDataSets.createSABR1(new SABRBerestyckiVolatilityFunction());
+    final SABRInterestRateParameters sabrParameterBerestycki = TestsDataSets.createSABR1(new SABRBerestyckiVolatilityFunction());
     final SABRInterestRateDataBundle sabrBerestyckiBundle = new SABRInterestRateDataBundle(sabrParameterBerestycki, curves);
     final double priceBerestycki = PVC.visit(SWAPTION_LONG_PAYER, sabrBerestyckiBundle);
     assertEquals(priceHagan, priceBerestycki, 5E+2);
     // SABR Johnson volatility function
-    final SABRInterestRateParameter sabrParameterJohnson = TestsDataSets.createSABR1(new SABRJohnsonVolatilityFunction());
+    final SABRInterestRateParameters sabrParameterJohnson = TestsDataSets.createSABR1(new SABRJohnsonVolatilityFunction());
     final SABRInterestRateDataBundle sabrJohnsonBundle = new SABRInterestRateDataBundle(sabrParameterJohnson, curves);
     final double priceJohnson = PVC.visit(SWAPTION_LONG_PAYER, sabrJohnsonBundle);
     assertEquals(priceHagan, priceJohnson, 1E+3);
     // SABR Paulot volatility function ! Does not work well !
-    final SABRInterestRateParameter sabrParameterPaulot = TestsDataSets.createSABR1(new SABRPaulotVolatilityFunction());
+    final SABRInterestRateParameters sabrParameterPaulot = TestsDataSets.createSABR1(new SABRPaulotVolatilityFunction());
     final SABRInterestRateDataBundle sabrPaulotBundle = new SABRInterestRateDataBundle(sabrParameterPaulot, curves);
     final double pricePaulot = PVC.visit(SWAPTION_LONG_PAYER, sabrPaulotBundle);
     assertEquals(priceHagan, pricePaulot, 1E+4);

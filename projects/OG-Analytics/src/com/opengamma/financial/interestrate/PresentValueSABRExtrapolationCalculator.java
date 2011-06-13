@@ -40,10 +40,10 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(cap);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
-        CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        final CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(cap, sabr).getAmount();
       }
     }
@@ -55,10 +55,10 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(swaption);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
-        SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        final SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(swaption, sabr);
       }
     }
@@ -70,26 +70,25 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(swaption);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
-        SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(swaption, sabr);
       }
     }
     throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
-
   }
 
   @Override
-  public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
+  public Double visitCouponCMS(final CouponCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
-        CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        final CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return replication.presentValue(payment, sabr);
       }
     }
@@ -97,14 +96,14 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
   }
 
   @Override
-  public Double visitCapFloorCMS(CapFloorCMS payment, final YieldCurveBundle curves) {
+  public Double visitCapFloorCMS(final CapFloorCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
-        CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        final CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return replication.presentValue(payment, sabr);
       }
     }

@@ -26,6 +26,7 @@ import com.opengamma.math.surface.Surface;
 /**
  * 
  */
+@SuppressWarnings("unused")
 public class FokkerPlankPDETest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
@@ -61,7 +62,7 @@ public class FokkerPlankPDETest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         // return -0.5 * 100;
         return -s * s * ATM_VOL * ATM_VOL / 2;
       }
@@ -71,7 +72,7 @@ public class FokkerPlankPDETest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         //return RATE;
         return (RATE - 2 * ATM_VOL * ATM_VOL) * s;
       }
@@ -93,10 +94,10 @@ public class FokkerPlankPDETest {
       double tOffset = 0.05;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
 
-        double x = Math.log(s / SPOT);
-        NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * tOffset, ATM_VOL * Math.sqrt(tOffset));
+        final double x = Math.log(s / SPOT);
+        final NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * tOffset, ATM_VOL * Math.sqrt(tOffset));
         return dist.getPDF(x) / s;
 
         // return NORMAL.getPDF((x - SPOT) / eta) / eta;
@@ -123,37 +124,37 @@ public class FokkerPlankPDETest {
 
   @Test
   public void test() {
-    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
-    int tNodes = 30;
-    int xNodes = 101;
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T - 0.01, tNodes, 0.0);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
+    final int tNodes = 30;
+    final int xNodes = 101;
+    final MeshingFunction timeMesh = new ExponentalMeshing(0, T - 0.01, tNodes, 0.0);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.1);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.1);
 
-    double[] timeGrid = new double[tNodes];
+    final double[] timeGrid = new double[tNodes];
     for (int n = 0; n < tNodes; n++) {
       timeGrid[n] = timeMesh.evaluate(n);
     }
 
-    double[] spaceGrid = new double[xNodes];
+    final double[] spaceGrid = new double[xNodes];
     for (int i = 0; i < xNodes; i++) {
       spaceGrid[i] = spaceMesh.evaluate(i);
     }
 
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-    PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
 
     for (int i = 0; i < xNodes; i++) {
-      double x = Math.log(res.getSpaceValue(i) / SPOT);
+      final double x = Math.log(res.getSpaceValue(i) / SPOT);
 
-      NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
-      double pdf = dist.getPDF(x) / res.getSpaceValue(i);
+      final NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
+      final double pdf = dist.getPDF(x) / res.getSpaceValue(i);
       //System.out.println(res.getSpaceValue(i) + "\t" + pdf + "\t" + res.getFunctionValue(i));
       assertEquals(pdf, res.getFunctionValue(i), 1e-4);
     }
 
-    double k = STRIKE;
-    double df = YIELD_CURVE.getDiscountFactor(T - 0.01);
+    final double k = STRIKE;
+    final double df = YIELD_CURVE.getDiscountFactor(T - 0.01);
 
     double sum = 0.0;
     double s1, s2, rho1, rho2;
@@ -172,11 +173,11 @@ public class FokkerPlankPDETest {
       s1 = s2;
       rho1 = rho2;
     }
-    double price = df * sum;
+    final double price = df * sum;
 
-    BlackFunctionData data = new BlackFunctionData(SPOT / df, df, ATM_VOL);
-    Function1D<BlackFunctionData, Double> pricer = BLACK_FUNCTION.getPriceFunction(OPTION);
-    double bs_price = pricer.evaluate(data);
+    final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, ATM_VOL);
+    final Function1D<BlackFunctionData, Double> pricer = BLACK_FUNCTION.getPriceFunction(OPTION);
+    final double bs_price = pricer.evaluate(data);
     assertEquals(bs_price, price, 2e-2 * bs_price);
 
     //    for (int i = 0; i < xNodes; i++) {

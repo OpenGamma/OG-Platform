@@ -21,20 +21,20 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
 public class EquityFutureConverter extends FutureSecurityConverter {
 
   /**
-   * @param holidaySource
-   * @param conventionSource
-   * @param exchangeSource
+   * @param holidaySource The holiday data source
+   * @param conventionSource The convention bundle source
+   * @param exchangeSource The exchange data source
    */
-  public EquityFutureConverter(HolidaySource holidaySource, ConventionBundleSource conventionSource, ExchangeSource exchangeSource) {
+  public EquityFutureConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final ExchangeSource exchangeSource) {
     super(holidaySource, conventionSource, exchangeSource);
   }
 
   /**
    * Converts an EquityFutureSecurity Trade to an EquityFutureDefinition
-   * @param trade
+   * @param trade The trade
    * @return EquityFutureDefinition
    */
-  public EquityFutureDefinition visitEquityFutureTrade(TradeImpl trade) {
+  public EquityFutureDefinition visitEquityFutureTrade(final TradeImpl trade) {
 
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 
@@ -48,8 +48,6 @@ public class EquityFutureConverter extends FutureSecurityConverter {
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
     */
 
-    return new EquityFutureDefinition(
-          security.getExpiry().getExpiry(),
-          security.getSettlementDate(), futuresPrice, security.getCurrency(), security.getUnitAmount());
+    return new EquityFutureDefinition(security.getExpiry().getExpiry(), security.getSettlementDate(), futuresPrice, security.getCurrency(), security.getUnitAmount());
   }
 }
