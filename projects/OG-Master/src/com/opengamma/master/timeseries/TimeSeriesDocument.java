@@ -41,27 +41,32 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
   /**
-   * Identifiers with valid dates if available.
+   * The identifier keys with valid dates if available.
+   * The key of the specific series, such as the equity identifiers.
    */
   @PropertyDefinition
   private IdentifierBundleWithDates _identifiers;
   /**
    * The data source.
+   * The source of the data, typically a major financial data supplier.
    */
   @PropertyDefinition
   private String _dataSource;
   /**
    * The data provider.
+   * The underlying data provider, such as an individual exchange.
    */
   @PropertyDefinition
   private String _dataProvider;
   /**
    * The data field.
+   * This defines the type of data that the series represents.
    */
   @PropertyDefinition
   private String _dataField;
   /**
-   * The observation time.
+   * The descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    */
   @PropertyDefinition
   private String _observationTime;
@@ -227,7 +232,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   //-----------------------------------------------------------------------
   /**
-   * Gets identifiers with valid dates if available.
+   * Gets the identifier keys with valid dates if available.
+   * The key of the specific series, such as the equity identifiers.
    * @return the value of the property
    */
   public IdentifierBundleWithDates getIdentifiers() {
@@ -235,7 +241,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   }
 
   /**
-   * Sets identifiers with valid dates if available.
+   * Sets the identifier keys with valid dates if available.
+   * The key of the specific series, such as the equity identifiers.
    * @param identifiers  the new value of the property
    */
   public void setIdentifiers(IdentifierBundleWithDates identifiers) {
@@ -244,6 +251,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code identifiers} property.
+   * The key of the specific series, such as the equity identifiers.
    * @return the property, not null
    */
   public final Property<IdentifierBundleWithDates> identifiers() {
@@ -253,6 +261,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   //-----------------------------------------------------------------------
   /**
    * Gets the data source.
+   * The source of the data, typically a major financial data supplier.
    * @return the value of the property
    */
   public String getDataSource() {
@@ -261,6 +270,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Sets the data source.
+   * The source of the data, typically a major financial data supplier.
    * @param dataSource  the new value of the property
    */
   public void setDataSource(String dataSource) {
@@ -269,6 +279,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code dataSource} property.
+   * The source of the data, typically a major financial data supplier.
    * @return the property, not null
    */
   public final Property<String> dataSource() {
@@ -278,6 +289,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   //-----------------------------------------------------------------------
   /**
    * Gets the data provider.
+   * The underlying data provider, such as an individual exchange.
    * @return the value of the property
    */
   public String getDataProvider() {
@@ -286,6 +298,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Sets the data provider.
+   * The underlying data provider, such as an individual exchange.
    * @param dataProvider  the new value of the property
    */
   public void setDataProvider(String dataProvider) {
@@ -294,6 +307,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code dataProvider} property.
+   * The underlying data provider, such as an individual exchange.
    * @return the property, not null
    */
   public final Property<String> dataProvider() {
@@ -303,6 +317,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   //-----------------------------------------------------------------------
   /**
    * Gets the data field.
+   * This defines the type of data that the series represents.
    * @return the value of the property
    */
   public String getDataField() {
@@ -311,6 +326,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Sets the data field.
+   * This defines the type of data that the series represents.
    * @param dataField  the new value of the property
    */
   public void setDataField(String dataField) {
@@ -319,6 +335,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code dataField} property.
+   * This defines the type of data that the series represents.
    * @return the property, not null
    */
   public final Property<String> dataField() {
@@ -327,7 +344,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the observation time.
+   * Gets the descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -335,7 +353,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   }
 
   /**
-   * Sets the observation time.
+   * Sets the descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
@@ -344,6 +363,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code observationTime} property.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the property, not null
    */
   public final Property<String> observationTime() {

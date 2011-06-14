@@ -27,11 +27,11 @@ import com.opengamma.util.PublicSPI;
 public interface TimeSeriesMaster<T> {
 
   /**
-   * Value for unknown data provider in the database
+   * Value for unknown data provider in the database.
    */
   String UNKNOWN_PROVIDER = "UNKNOWN";
   /**
-   * Value for Unknown observation time in the database
+   * Value for Unknown observation time in the database.
    */
   String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
 
