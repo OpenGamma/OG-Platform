@@ -17,7 +17,6 @@ import javax.time.calendar.ZoneOffset;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -28,7 +27,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
  * Test DateTimeDbTimeSeriesMaster.
  */
 @Test
-public class DateTimeDbTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
+public class DateTimeDbTimeSeriesMasterTest extends DbTimeSeriesMasterTest<Date> {
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public DateTimeDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
@@ -36,7 +35,7 @@ public class DateTimeDbTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
   }
 
   @Override
-  protected TimeSeriesMaster<Date> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
+  protected DbTimeSeriesMaster<Date> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
     return new DateTimeDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
