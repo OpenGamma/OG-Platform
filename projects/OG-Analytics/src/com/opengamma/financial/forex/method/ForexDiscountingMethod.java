@@ -48,6 +48,11 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
     return presentValue((Forex) derivative, curves);
   }
 
+  @Override
+  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+    return presentValue(instrument, curves);
+  }
+
   /**
    * Compute the present value sensitivity to rates of a forex transaction.
    * @param fx The Forex transaction.

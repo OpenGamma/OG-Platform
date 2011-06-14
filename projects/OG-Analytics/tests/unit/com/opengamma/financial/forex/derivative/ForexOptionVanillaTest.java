@@ -43,11 +43,6 @@ public class ForexOptionVanillaTest {
   private static final ForexOptionVanilla FX_OPTION = new ForexOptionVanilla(FX, EXPIRATION_TIME, IS_CALL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullFX() {
-    new ForexOptionVanilla(null, EXPIRATION_TIME, IS_CALL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongExpiration() {
     new ForexOptionVanilla(FX, EXPIRATION_TIME + 0.5, IS_CALL);
   }
@@ -55,8 +50,25 @@ public class ForexOptionVanillaTest {
   @Test
   public void getter() {
     assertEquals(FX, FX_OPTION.getUnderlyingForex());
-    assertEquals(EXPIRATION_TIME, FX_OPTION.getExpirationTime());
+    assertEquals(EXPIRATION_TIME, FX_OPTION.getTimeToExpiry());
     assertEquals(IS_CALL, FX_OPTION.isCall());
+  }
+
+  @Test
+  /**
+   * Tests the call/put description.
+   */
+  public void callPut() {
+    ForexOptionVanilla optPositiveCall = new ForexOptionVanilla(FX, EXPIRATION_TIME, IS_CALL);
+    assertTrue("Forex vanilla option call/put: Positive amount / call", optPositiveCall.isCall());
+    ForexOptionVanilla optPositivePut = new ForexOptionVanilla(FX, EXPIRATION_TIME, !IS_CALL);
+    assertTrue("Forex vanilla option call/put: Positive amount / put", !optPositivePut.isCall());
+    ForexDefinition fxNegativeDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, -NOMINAL_1, FX_RATE);
+    Forex fxNegative = fxNegativeDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    ForexOptionVanilla optNegativePut = new ForexOptionVanilla(fxNegative, EXPIRATION_TIME, !IS_CALL);
+    assertTrue("Forex vanilla option call/put: Negative amount / put", optNegativePut.isCall());
+    ForexOptionVanilla optNegativeCall = new ForexOptionVanilla(fxNegative, EXPIRATION_TIME, IS_CALL);
+    assertTrue("Forex vanilla option call/put: Negative amount / call", !optNegativeCall.isCall());
   }
 
   @Test
