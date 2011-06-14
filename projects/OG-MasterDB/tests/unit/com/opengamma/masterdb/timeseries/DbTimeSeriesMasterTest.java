@@ -42,12 +42,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.timeseries.DataFieldBean;
 import com.opengamma.master.timeseries.DataPointDocument;
-import com.opengamma.master.timeseries.DataProviderBean;
-import com.opengamma.master.timeseries.DataSourceBean;
-import com.opengamma.master.timeseries.ObservationTimeBean;
-import com.opengamma.master.timeseries.SchemeBean;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchHistoricRequest;
@@ -55,6 +50,11 @@ import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.masterdb.timeseries.hibernate.DataFieldBean;
+import com.opengamma.masterdb.timeseries.hibernate.DataProviderBean;
+import com.opengamma.masterdb.timeseries.hibernate.DataSourceBean;
+import com.opengamma.masterdb.timeseries.hibernate.ObservationTimeBean;
+import com.opengamma.masterdb.timeseries.hibernate.SchemeBean;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -64,10 +64,10 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Abstract test for time-series masters.
  */
-public abstract class TimeSeriesMasterTest<T> extends DBTest {
+public abstract class DbTimeSeriesMasterTest<T> extends DBTest {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbTimeSeriesMasterTest.class);
   
   private static final int TS_DATASET_SIZE = 1;
 
@@ -83,15 +83,15 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   private static final LocalDate DEFAULT_START = DateUtil.previousWeekDay().minusDays(7);
 
   private Random _random = new Random();
-  private TimeSeriesMaster<T> _tsMaster;
+  private DbTimeSeriesMaster<T> _tsMaster;
   
-  public TimeSeriesMasterTest(String databaseType, String databaseVersion) {
+  public DbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {} version {}", databaseType, databaseVersion);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
   
-  abstract protected TimeSeriesMaster<T> getTimeSeriesMaster(Map<String, String> namedSQLMap);
+  abstract protected DbTimeSeriesMaster<T> getTimeSeriesMaster(Map<String, String> namedSQLMap);
   abstract protected DoubleTimeSeries<T> getTimeSeries(MapLocalDateDoubleTimeSeries tsMap);
   abstract protected DoubleTimeSeries<T> getTimeSeries(List<T> dates, List<Double> values);
   abstract protected DoubleTimeSeries<T> getEmptyTimeSeries();
