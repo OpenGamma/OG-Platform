@@ -42,6 +42,7 @@ namespace com.opengamma.financial.security.swap {
     required readonly id.UniqueIdentifier floatingReferenceRateIdentifier;
     required readonly double initialFloatingRate;
     required readonly double spread;
+    required readonly boolean isIBOR;
 
     binding Java {
       body "public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }";

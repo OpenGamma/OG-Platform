@@ -192,7 +192,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 floatRateConvention.getUniqueId(), 
                                                 initialRate, 
-                                                spread),
+                                                spread,
+                                                true),
                                             new FixedInterestRateLeg(
                                                 convention.getSwapFixedLegDayCount(), 
                                                 convention.getSwapFixedLegFrequency(),
@@ -242,7 +243,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 floatRateConvention.getUniqueId(), 
                                                 initialRate, 
-                                                spread),
+                                                spread,
+                                                true),
                                             new FloatingInterestRateLeg(
                                                 convention.getBasisSwapReceiveFloatingLegDayCount(),
                                                 convention.getBasisSwapReceiveFloatingLegFrequency(),
@@ -251,7 +253,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 floatRateConvention.getUniqueId(), 
                                                 initialRate, 
-                                                spread)
+                                                spread,
+                                                true)
                                           );
     swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
     return swap;
