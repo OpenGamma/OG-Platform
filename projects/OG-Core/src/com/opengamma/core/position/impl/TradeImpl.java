@@ -428,6 +428,15 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     }
   }
 
+  public void clearAttributes() {
+    _attributes.clear();
+  }
+
+  public void removeAttribute(final String key) {
+    ArgumentChecker.notNull(key, "key");
+    _attributes.remove(key);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {

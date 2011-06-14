@@ -25,21 +25,21 @@ public class SmileDeltaDataBundleTest {
   private static final double[] RISK_REVERSAL = new double[] {-0.0130, -0.0050};
   private static final double[] STRANGLE = new double[] {0.0300, 0.0100};
 
-  private static final SmileDeltaDataBundle SMILE = new SmileDeltaDataBundle(TIME_TO_EXPIRY, FORWARD, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+  private static final SmileDeltaParameter SMILE = new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelta() {
-    new SmileDeltaDataBundle(TIME_TO_EXPIRY, FORWARD, ATM, null, RISK_REVERSAL, STRANGLE);
+    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, null, RISK_REVERSAL, STRANGLE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRRLength() {
-    new SmileDeltaDataBundle(TIME_TO_EXPIRY, FORWARD, ATM, DELTA, new double[3], STRANGLE);
+    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, new double[3], STRANGLE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStrangleLength() {
-    new SmileDeltaDataBundle(TIME_TO_EXPIRY, FORWARD, ATM, DELTA, RISK_REVERSAL, new double[3]);
+    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, new double[3]);
   }
 
   @Test
@@ -48,11 +48,9 @@ public class SmileDeltaDataBundleTest {
    */
   public void getter() {
     assertEquals("Smile by delta: time to expiry", TIME_TO_EXPIRY, SMILE.getTimeToExpiry());
-    assertEquals("Smile by delta: forward", FORWARD, SMILE.getForward());
-    assertEquals("Smile by delta: atm", ATM, SMILE.getAtm());
     assertEquals("Smile by delta: delta", DELTA, SMILE.getDelta());
-    assertEquals("Smile by delta: risk reversal", RISK_REVERSAL, SMILE.getRiskReversal());
-    assertEquals("Smile by delta: strangle", STRANGLE, SMILE.getStrangle());
+    SmileDeltaParameter smile2 = new SmileDeltaParameter(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
+    assertEquals("Smile by delta: volatility", SMILE.getVolatility(), smile2.getVolatility());
   }
 
   @Test
@@ -74,7 +72,7 @@ public class SmileDeltaDataBundleTest {
    * Tests the strikes computations.
    */
   public void strike() {
-    double[] strike = SMILE.getStrike();
+    double[] strike = SMILE.getStrike(FORWARD);
     BlackPriceFunction function = new BlackPriceFunction();
     double[] volatility = SMILE.getVolatility();
     int nbDelta = DELTA.length;
@@ -94,6 +92,30 @@ public class SmileDeltaDataBundleTest {
     EuropeanVanillaOption optionCall = new EuropeanVanillaOption(strike[nbDelta], TIME_TO_EXPIRY, true);
     double[] dCall = function.getPriceAdjoint(optionCall, data);
     assertEquals("Strike: ATM", dCall[1] + dPut[1], 0.0, 1.0E-8);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performance() {
+    int nbDelta = DELTA.length;
+    long startTime, endTime;
+    final int nbTest = 1000;
+    SmileDeltaParameter[] smile = new SmileDeltaParameter[nbTest];
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      smile[looptest] = new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " smile from ATM/RR/S in delta term: " + (endTime - startTime) + " ms");
+    startTime = System.currentTimeMillis();
+    double[][] strikes = new double[nbTest][2 * nbDelta + 1];
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      strikes[looptest] = SMILE.getStrike(FORWARD);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " smile from ATM/RR/S in delta term: " + (endTime - startTime) + " ms");
   }
 
 }

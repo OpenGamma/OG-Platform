@@ -49,7 +49,6 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilderTest e
 
     final InterpolatedYieldCurveSpecificationWithSecurities spec = new InterpolatedYieldCurveSpecificationWithSecurities(LocalDate.now(), "FUNDING", Currency.USD,
         Interpolator1DFactory.LINEAR_INSTANCE, strips);
-
     assertEquals(spec, cycleObject(InterpolatedYieldCurveSpecificationWithSecurities.class, spec));
   }
 }

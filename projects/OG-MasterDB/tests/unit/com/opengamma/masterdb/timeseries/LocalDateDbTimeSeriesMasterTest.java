@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.test.DBTest;
@@ -31,7 +30,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
  * Test LocalDateDbTimeSeriesMaster.
  */
 @Test
-public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDate> {
+public class LocalDateDbTimeSeriesMasterTest extends DbTimeSeriesMasterTest<LocalDate> {
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public LocalDateDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
@@ -39,7 +38,7 @@ public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalD
   }
   
   @Override
-  protected TimeSeriesMaster<LocalDate> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
+  protected DbTimeSeriesMaster<LocalDate> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
     return new LocalDateDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,

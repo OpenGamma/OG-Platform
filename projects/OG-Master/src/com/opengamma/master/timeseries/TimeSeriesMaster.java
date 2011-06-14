@@ -36,93 +36,12 @@ public interface TimeSeriesMaster<T> {
   String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
 
   /**
-   * Creates or gets a data source with description.
-   * 
-   * @param dataSource  the data source name, not null
-   * @param description  the description
-   * @return the data source bean, not null
-   */
-  DataSourceBean getOrCreateDataSource(String dataSource, String description);
-
-  /**
-   * Gets all the data sources.
-   * 
-   * @return the list of data sources, not null
-   */
-  List<DataSourceBean> getDataSources();
-
-  /**
-   * Creates or gets a data provider with description.
-   * 
-   * @param dataProvider  the data provider name, not null
-   * @param description  the description
-   * @return the data provider bean, not null
-   */
-  DataProviderBean getOrCreateDataProvider(String dataProvider, String description);
-
-  /**
-   * Gets all the data providers.
-   * 
-   * @return the list of data providers, not null
-   */
-  List<DataProviderBean> getDataProviders();
-
-  /**
-   * Creates or gets a data field with description.
-   * 
-   * @param dataField  the data field name, not null
-   * @param description  the description
-   * @return the data field bean, not null
-   */
-  DataFieldBean getOrCreateDataField(String dataField, String description);
-
-  /**
-   * Gets all the data fields.
-   * 
-   * @return the list of data fields, not null
-   */
-  List<DataFieldBean> getDataFields();
-
-  /**
-   * Creates or gets an observation time with description.
-   * 
-   * @param observationTime  the observation time name, not null
-   * @param description  the description
-   * @return the observation time bean, not null
-   */
-  ObservationTimeBean getOrCreateObservationTime(String observationTime, String description);
-
-  /**
-   * Gets all the observation times.
-   * 
-   * @return the list of observation times, not null
-   */
-  List<ObservationTimeBean> getObservationTimes();
-
-  /**
-   * Creates or gets a scheme with description.
-   * 
-   * @param scheme  the scheme name, not null
-   * @param description  the description
-   * @return the scheme bean, not null
-   */
-  SchemeBean getOrCreateScheme(String scheme, String description);
-
-  /**
-   * Gets all the schemes.
-   * 
-   * @return the list of schemes, not null
-   */
-  List<SchemeBean> getSchemes();
-
-  /**
    * Gets all the identifiers.
    * 
    * @return the list of identifiers, not null
    */
   List<IdentifierBundleWithDates> getAllIdentifiers();
 
-  //-------------------------------------------------------------------------
   /**
    * Searches for time-series matching the specified search criteria.
    * 

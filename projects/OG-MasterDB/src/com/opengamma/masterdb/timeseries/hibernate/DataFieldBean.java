@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.timeseries;
+package com.opengamma.masterdb.timeseries.hibernate;
 
 /**
  * Database bean for storing a data field.
