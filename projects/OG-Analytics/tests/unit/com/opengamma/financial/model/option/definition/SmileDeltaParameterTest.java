@@ -16,7 +16,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 /**
  * Tests related to the construction of the data required to describe a delta dependent smile from ATM, risk reversal and strangle as used in Forex market.
  */
-public class SmileDeltaDataBundleTest {
+public class SmileDeltaParameterTest {
 
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final double FORWARD = 1.40;

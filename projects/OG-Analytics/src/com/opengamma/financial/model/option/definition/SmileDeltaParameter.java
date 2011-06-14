@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
@@ -45,20 +47,20 @@ public class SmileDeltaParameter {
 
   /**
    * Constructor from market data ATM, RR, Strangle.
-   * @param timeToMaturity The time to maturity associated to the data.
+   * @param timeToExpiry The time to expiration associated to the data.
    * @param atm The ATM volatility.
    * @param delta Delta of the different data points. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
    * @param riskReversal The risk reversal volatility figures, in the same order as the delta.
    * @param strangle The strangle volatility figures, in the same order as the delta.
    */
-  public SmileDeltaParameter(double timeToMaturity, double atm, double[] delta, double[] riskReversal, double[] strangle) {
+  public SmileDeltaParameter(double timeToExpiry, double atm, double[] delta, double[] riskReversal, double[] strangle) {
     Validate.notNull(delta, "Delta");
     Validate.notNull(riskReversal, "Risk Reversal");
     Validate.notNull(strangle, "Strangle");
     Validate.isTrue(delta.length == riskReversal.length, "Length of delta should be equal to length of risk reversal");
     Validate.isTrue(delta.length == strangle.length, "Length of delta should be equal to length of strangle");
     //TODO: check that delta is sorted (ascending).
-    this._timeToExpiry = timeToMaturity;
+    this._timeToExpiry = timeToExpiry;
     this._delta = delta;
     int nbDelta = delta.length;
     _volatility = new double[2 * nbDelta + 1];
@@ -67,6 +69,22 @@ public class SmileDeltaParameter {
       _volatility[loopdelta] = strangle[loopdelta] + atm - riskReversal[loopdelta] / 2.0; // Put
       _volatility[2 * nbDelta - loopdelta] = strangle[loopdelta] + atm + riskReversal[loopdelta] / 2.0; // Call
     }
+  }
+
+  /**
+   * Computes the strikes in ascending order. Put with lower delta (in absolute value) first, ATM and call with larger delta first 
+   * @param forward The forward.
+   * @return The strikes.
+   */
+  public double[] getStrike(double forward) {
+    int nbDelta = _delta.length;
+    double[] strike = new double[2 * nbDelta + 1];
+    strike[nbDelta] = forward * Math.exp(_volatility[nbDelta] * _volatility[nbDelta] * _timeToExpiry / 2.0);
+    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
+      strike[loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(-_delta[loopdelta], false, forward, _timeToExpiry, _volatility[loopdelta]); // Put
+      strike[2 * nbDelta - loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(_delta[loopdelta], true, forward, _timeToExpiry, _volatility[2 * nbDelta - loopdelta]); // Call
+    }
+    return strike;
   }
 
   /**
@@ -93,20 +111,40 @@ public class SmileDeltaParameter {
     return _volatility;
   }
 
-  /**
-   * Computes the strikes in ascending order. Put with lower delta (in absolute value) first, ATM and call with larger delta first 
-   * @param forward The forward.
-   * @return The strikes.
-   */
-  public double[] getStrike(double forward) {
-    int nbDelta = _delta.length;
-    double[] strike = new double[2 * nbDelta + 1];
-    strike[nbDelta] = forward * Math.exp(_volatility[nbDelta] * _volatility[nbDelta] * _timeToExpiry / 2.0);
-    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      strike[loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(-_delta[loopdelta], false, forward, _timeToExpiry, _volatility[loopdelta]); // Put
-      strike[2 * nbDelta - loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(_delta[loopdelta], true, forward, _timeToExpiry, _volatility[2 * nbDelta - loopdelta]); // Call
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_delta);
+    long temp;
+    temp = Double.doubleToLongBits(_timeToExpiry);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_volatility);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-    return strike;
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    SmileDeltaParameter other = (SmileDeltaParameter) obj;
+    if (!Arrays.equals(_delta, other._delta)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other._timeToExpiry)) {
+      return false;
+    }
+    if (!Arrays.equals(_volatility, other._volatility)) {
+      return false;
+    }
+    return true;
   }
 
 }

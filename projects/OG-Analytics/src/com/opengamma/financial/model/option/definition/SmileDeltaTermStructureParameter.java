@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
@@ -38,6 +40,28 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     _timeToExpiration = new double[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _timeToExpiration[loopexp] = _volatilityTerm[loopexp].getTimeToExpiry();
+    }
+  }
+
+  /**
+   * Constructor from market data.
+   * @param timeToExpiration The time to expiration of each volatility smile.
+   * @param delta The delta at which the volatilities are given. Common to all time to expiration.
+   * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration.
+   * @param riskReversal The risk reversal figures.
+   * @param strangle The strangle figures.
+   */
+  public SmileDeltaTermStructureParameter(final double[] timeToExpiration, final double[] delta, double[] atm, double[][] riskReversal, double[][] strangle) {
+    int nbExp = timeToExpiration.length;
+    Validate.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiration length");
+    Validate.isTrue(riskReversal.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
+    Validate.isTrue(strangle.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
+    Validate.isTrue(riskReversal[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
+    Validate.isTrue(strangle[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
+    _timeToExpiration = timeToExpiration;
+    _volatilityTerm = new SmileDeltaParameter[nbExp];
+    for (int loopexp = 0; loopexp < nbExp; loopexp++) {
+      _volatilityTerm[loopexp] = new SmileDeltaParameter(timeToExpiration[loopexp], atm[loopexp], delta, riskReversal[loopexp], strangle[loopexp]);
     }
   }
 
@@ -105,6 +129,36 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    */
   public SmileDeltaParameter[] getVolatilityTerm() {
     return _volatilityTerm;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_timeToExpiration);
+    result = prime * result + Arrays.hashCode(_volatilityTerm);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    SmileDeltaTermStructureParameter other = (SmileDeltaTermStructureParameter) obj;
+    if (!Arrays.equals(_timeToExpiration, other._timeToExpiration)) {
+      return false;
+    }
+    if (!Arrays.equals(_volatilityTerm, other._volatilityTerm)) {
+      return false;
+    }
+    return true;
   }
 
 }

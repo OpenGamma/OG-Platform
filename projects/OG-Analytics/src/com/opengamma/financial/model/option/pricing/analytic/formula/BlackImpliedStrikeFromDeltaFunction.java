@@ -20,6 +20,15 @@ public class BlackImpliedStrikeFromDeltaFunction {
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Computes the implied strike from delta and volatility in the Black formula.
+   * @param delta The option delta
+   * @param isCall The call (true) / put (false) flag.
+   * @param forward The forward.
+   * @param time The time to expiration.
+   * @param volatility The volatility.
+   * @return The strike.
+   */
   public static double impliedStrike(final double delta, final boolean isCall, final double forward, final double time, final double volatility) {
     Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put");
     Validate.isTrue(forward > 0, "Forward negative");

@@ -17,18 +17,18 @@ import com.opengamma.util.tuple.Triple;
  * Tests related to the construction of term structure of smile data from delta.
  * Tests related to the interpolation of volatility.
  */
-public class SmileDeltaTermStructureDataBundleTest {
+public class SmileDeltaTermStructureParameterTest {
 
   private static final double[] TIME_TO_EXPIRY = {0.0, 0.25, 0.50, 1.00, 2.00};
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16};
-  private static final double[][] DELTA = new double[][] { {0.10, 0.25}, {0.10, 0.25}, {0.10, 0.25}, {0.10, 0.25}, {0.10, 0.25}};
+  private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}};
   private static final int NB_EXP = TIME_TO_EXPIRY.length;
   private static final SmileDeltaParameter[] VOLATILITY_TERM = new SmileDeltaParameter[NB_EXP];
   static {
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
-      VOLATILITY_TERM[loopexp] = new SmileDeltaParameter(TIME_TO_EXPIRY[loopexp], ATM[loopexp], DELTA[loopexp], RISK_REVERSAL[loopexp], STRANGLE[loopexp]);
+      VOLATILITY_TERM[loopexp] = new SmileDeltaParameter(TIME_TO_EXPIRY[loopexp], ATM[loopexp], DELTA, RISK_REVERSAL[loopexp], STRANGLE[loopexp]);
     }
   }
   private static final SmileDeltaTermStructureParameter SMILE_TERM = new SmileDeltaTermStructureParameter(VOLATILITY_TERM);
@@ -41,6 +41,12 @@ public class SmileDeltaTermStructureDataBundleTest {
   @Test
   public void getter() {
     assertEquals("Smile by delta term structure: volatility", VOLATILITY_TERM, SMILE_TERM.getVolatilityTerm());
+  }
+
+  @Test
+  public void constructor() {
+    SmileDeltaTermStructureParameter smileTerm2 = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTerm2);
   }
 
   @Test
@@ -87,7 +93,7 @@ public class SmileDeltaTermStructureDataBundleTest {
     for (int loopvol = 0; loopvol < vol050.length; loopvol++) {
       vol[loopvol] = Math.sqrt(((vol050[loopvol] * vol050[loopvol] * TIME_TO_EXPIRY[2] + vol100[loopvol] * vol100[loopvol] * TIME_TO_EXPIRY[3]) / 2.0) / timeToExpiration);
     }
-    SmileDeltaParameter smile = new SmileDeltaParameter(timeToExpiration, DELTA[0], vol);
+    SmileDeltaParameter smile = new SmileDeltaParameter(timeToExpiration, DELTA, vol);
     double[] strikes = smile.getStrike(forward);
     ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
     LinearInterpolator1D interpolator = new LinearInterpolator1D();
