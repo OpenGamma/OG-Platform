@@ -38,4 +38,10 @@ public interface FunctionInvoker {
       FunctionInputs inputs,
       ComputationTarget target,
       Set<ValueRequirement> desiredValues);
+  
+  /**
+   * 
+   * @return whether the function should be executed, even if not all of its input requirements were met
+   */
+  boolean canHandleMissingInputs();
 }

@@ -191,8 +191,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     }
     statistics.setDataInputBytes(inputBytes, inputSamples);
     if (!missingInputs.isEmpty()) {
-      s_logger.info("Not able to execute as missing inputs {}", missingInputs);
-      throw new MissingInputException(missingInputs, functionUniqueId);
+      if (invoker.canHandleMissingInputs()) {
+        s_logger.debug("Executing even with missing inputs {}", missingInputs);
+      } else {
+        s_logger.info("Not able to execute as missing inputs {}", missingInputs);
+        throw new MissingInputException(missingInputs, functionUniqueId);
+      }
     }
     final FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     // execute

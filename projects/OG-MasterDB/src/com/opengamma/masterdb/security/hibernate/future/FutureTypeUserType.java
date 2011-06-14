@@ -16,6 +16,8 @@ public class FutureTypeUserType extends EnumUserType<FutureType> {
   private static final String BOND_FUTURE_TYPE = "Bond";
   private static final String FX_FUTURE_TYPE = "FX";
   private static final String ENERGY_FUTURE_TYPE = "Energy";
+  private static final String EQUITY = "Equity";
+  private static final String EQUITY_INDEX_DIVIDEND = "Equity Index Dividend";
   private static final String INTEREST_RATE_FUTURE_TYPE = "Interest Rate";
   private static final String METAL_FUTURE_TYPE = "Metal";
   private static final String INDEX_FUTURE_TYPE = "Index";
@@ -63,13 +65,24 @@ public class FutureTypeUserType extends EnumUserType<FutureType> {
       public String visitIndexFutureType() {
         return INDEX_FUTURE_TYPE;
       }
-      
+
       @Override
       public String visitStockFutureType() {
         return STOCK_FUTURE_TYPE;
       }
 
+      @Override
+      public String visitEquityFutureType() {
+        return EQUITY;
+      }
+
+      @Override
+      public String visitEquityIndexDividendFutureType() {
+        // TODO Auto-generated method stub
+        return EQUITY_INDEX_DIVIDEND;
+      }
+
     });
   }
-  
+
 }

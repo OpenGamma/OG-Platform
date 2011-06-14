@@ -10,28 +10,21 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexDerivativeVisitor;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 /**
- * Class describing a vanilla foreign exchange option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
+ * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
  * if the option is a put, the option holder has the right to enter into a Forex transaction equal to the underlying but with opposite signs.
  * A Call on a Forex EUR 1.00 / USD -1.41 is thus the right to call 1.00 EUR and put 1.41 USD. A put on a Forex EUR -1.00 / USD 1.41 is the right to 
  * exchange -(-1.00) EUR = 1.00 EUR and -1.41 EUR; it is thus also the right to call 1.00 EUR and put 1.41 USD. A put on a Forex  USD 1.41 / EUR -1.00 is 
  * also the right to call 1.00 EUR and put 1.41 USD.
  */
-public class ForexOptionVanilla implements ForexDerivative {
+public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDerivative {
 
   /**
    * The underlying Forex transaction (the one entered into in case of exercise).
    */
   private final Forex _underlyingForex;
-  /**
-   * The expiration date (and time) of the option.
-   */
-  private final double _expirationTime;
-  /**
-   * The call (true) / put (false) flag.
-   */
-  private final boolean _isCall;
 
   /**
    * Constructor from all details.
@@ -40,11 +33,9 @@ public class ForexOptionVanilla implements ForexDerivative {
    * @param isCall The call (true) / put (false) flag.
    */
   public ForexOptionVanilla(Forex underlyingForex, double expirationTime, boolean isCall) {
-    Validate.notNull(underlyingForex, "Underlying forex");
+    super(-underlyingForex.getPaymentCurrency2().getAmount() / underlyingForex.getPaymentCurrency1().getAmount(), expirationTime, isCall ^ (underlyingForex.getPaymentCurrency1().getAmount() < 0));
     Validate.isTrue(expirationTime <= underlyingForex.getPaymentTime(), "Expiration should be before payment.");
     this._underlyingForex = underlyingForex;
-    this._expirationTime = expirationTime;
-    this._isCall = isCall;
   }
 
   /**
@@ -55,31 +46,11 @@ public class ForexOptionVanilla implements ForexDerivative {
     return _underlyingForex;
   }
 
-  /**
-   * Gets the expiration date (and time) of the option.
-   * @return The expiration date.
-   */
-  public double getExpirationTime() {
-    return _expirationTime;
-  }
-
-  /**
-   * Gets the call (true) / put (false) flag.
-   * @return The call / put flag.
-   */
-  public boolean isCall() {
-    return _isCall;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_expirationTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_isCall ? 1231 : 1237);
-    result = prime * result + _underlyingForex.hashCode();
+    int result = super.hashCode();
+    result = prime * result + ((_underlyingForex == null) ? 0 : _underlyingForex.hashCode());
     return result;
   }
 
@@ -88,19 +59,13 @@ public class ForexOptionVanilla implements ForexDerivative {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
     ForexOptionVanilla other = (ForexOptionVanilla) obj;
-    if (Double.doubleToLongBits(_expirationTime) != Double.doubleToLongBits(other._expirationTime)) {
-      return false;
-    }
-    if (_isCall != other._isCall) {
-      return false;
-    }
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {
       return false;
     }

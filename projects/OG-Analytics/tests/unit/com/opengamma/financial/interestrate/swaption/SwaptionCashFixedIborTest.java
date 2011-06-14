@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -133,7 +133,7 @@ public class SwaptionCashFixedIborTest {
   @Test
   public void testPriceSABRSurface() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final PresentValueSABRCalculator pvcSabr = PresentValueSABRCalculator.getInstance();
     // Swaption pricing.

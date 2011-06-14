@@ -20,8 +20,8 @@ import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
  * Hibernate bean for storage.
  */
 public class FutureSecurityBean extends SecurityBean {
-  
-  private FutureType _futureType;
+
+  private FutureType _futureType; // TODO 2011-06-01 Case - Describe FutureSecurityBean members.
   private ExpiryBean _expiry;
   private ExchangeBean _tradingExchange;
   private ExchangeBean _settlementExchange;
@@ -31,17 +31,18 @@ public class FutureSecurityBean extends SecurityBean {
   private BondFutureTypeBean _bondType;
   private CommodityFutureTypeBean _commodityType;
   private CashRateTypeBean _cashRateType;
+  private Double _unitAmount;
   private UnitBean _unitName;
   private Double _unitNumber;
   private IdentifierBean _underlying;
   private Set<FutureBundleBean> _basket;
   private ZonedDateTimeBean _firstDeliveryDate;
   private ZonedDateTimeBean _lastDeliveryDate;
-  
+
   public FutureSecurityBean() {
     super();
   }
-  
+
   /**
    * @return the future type
    */
@@ -62,28 +63,28 @@ public class FutureSecurityBean extends SecurityBean {
   public void setExpiry(ExpiryBean expiry) {
     _expiry = expiry;
   }
-  
+
   /**
    * @return the first delivery date (bond futures only)
    */
   public ZonedDateTimeBean getFirstDeliveryDate() {
     return _firstDeliveryDate;
   }
-  
+
   /**
    * @param firstDeliveryDate the first delivery date (bond futures only)
    */
   public void setFirstDeliveryDate(ZonedDateTimeBean firstDeliveryDate) {
     _firstDeliveryDate = firstDeliveryDate;
   }
-  
+
   /**
    * @return the last delivery date (bond futures only)
    */
   public ZonedDateTimeBean getLastDeliveryDate() {
     return _lastDeliveryDate;
   }
-  
+
   /**
    * @param lastDeliveryDate the last delivery date (bond futures only)
    */
@@ -176,6 +177,20 @@ public class FutureSecurityBean extends SecurityBean {
   }
 
   /**
+   * @param unitAmount the unitAmount to set
+   */
+  public void setUnitAmount(Double unitAmount) {
+    _unitAmount = unitAmount;
+  }
+
+  /**
+   * @return the unitAmount
+   */
+  public Double getUnitAmount() {
+    return _unitAmount;
+  }
+
+  /**
    * @return the unitName
    */
   public UnitBean getUnitName() {
@@ -237,11 +252,11 @@ public class FutureSecurityBean extends SecurityBean {
   public void setBasket(Set<FutureBundleBean> basket) {
     _basket = basket;
   }
-  
+
   public IdentifierBean getUnderlying() {
     return _underlying;
   }
-  
+
   public void setUnderlying(final IdentifierBean underlying) {
     _underlying = underlying;
   }

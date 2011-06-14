@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -93,7 +93,7 @@ public class CapFloorCMSSABRReplicationMethod {
    * @return The present value.
    */
   public double presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
-    final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
+    final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
@@ -126,7 +126,7 @@ public class CapFloorCMSSABRReplicationMethod {
    */
   @SuppressWarnings("synthetic-access")
   public PresentValueSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
-    final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
+    final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
@@ -187,7 +187,7 @@ public class CapFloorCMSSABRReplicationMethod {
    */
   @SuppressWarnings("synthetic-access")
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
-    final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
+    final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
@@ -255,7 +255,7 @@ public class CapFloorCMSSABRReplicationMethod {
     /**
      * Constructor
      */
-    public CMSIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameter sabrParameter, final double forward) {
+    public CMSIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
@@ -401,7 +401,7 @@ public class CapFloorCMSSABRReplicationMethod {
     /**
      * 
      */
-    public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameter sabrParameter, final double forward) {
+    public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
@@ -582,7 +582,7 @@ public class CapFloorCMSSABRReplicationMethod {
     /**
      * 
      */
-    public CMSVegaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameter sabrParameter, final double forward) {
+    public CMSVegaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;

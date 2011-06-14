@@ -40,8 +40,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(cap);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      CapFloorIborSABRMethod method = new CapFloorIborSABRMethod();
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final CapFloorIborSABRMethod method = new CapFloorIborSABRMethod();
       return method.presentValue(cap, sabr).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorIbor requires a SABRInterestRateDataBundle as data.");
@@ -52,8 +52,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(swaption);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SwaptionCashFixedIborSABRMethod method = SwaptionCashFixedIborSABRMethod.getInstance();
       return method.presentValue(swaption, sabr);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateDataBundle as data.");
@@ -64,8 +64,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(swaption);
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
+      final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      final SwaptionPhysicalFixedIborSABRMethod method = SwaptionPhysicalFixedIborSABRMethod.getInstance();
       return method.presentValue(swaption, sabr);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateDataBundle as data.");
@@ -73,24 +73,24 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
   }
 
   @Override
-  public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
+  public Double visitCouponCMS(final CouponCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
   }
 
   @Override
-  public Double visitCapFloorCMS(CapFloorCMS payment, final YieldCurveBundle curves) {
+  public Double visitCapFloorCMS(final CapFloorCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CapFloorCMSSABRReplicationMethod replication = new CapFloorCMSSABRReplicationMethod();
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final CapFloorCMSSABRReplicationMethod replication = new CapFloorCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
@@ -101,8 +101,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(curves);
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
       return method.presentValue(option, sabrBundle).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");

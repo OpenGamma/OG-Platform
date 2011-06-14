@@ -10,9 +10,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.calculator.ForexDefinitionVisitor;
+import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
@@ -38,7 +38,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
    * @param currency2 The second currency.
    * @param exchangeDate The date of the exchange.
    * @param amountCurrency1 The amount in the first currency.
-   * @param fxRate The forex rate, understood as 1.0 Currency1 is exchanged for fxRate Currency2. The amount in Currency2 will be -ammountCurrency1*fxRate.
+   * @param fxRate The forex rate, understood as 1.0 Currency1 is exchanged for fxRate Currency2. The amount in Currency2 will be -amountCurrency1*fxRate.
    */
   public ForexDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime exchangeDate, final double amountCurrency1, final double fxRate) {
     Validate.notNull(currency1, "Currency 1");
@@ -49,7 +49,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
   }
 
   /**
-   * Constructor from two fixed payments. The payments should take place on the same date. The sign of the amounts should be opposite.
+   * Constructor from two fixed payments. The payments should take place on the same date. The signs of the amounts should be opposite.
    * @param paymentCurrency1 The first currency payment.
    * @param paymentCurrency2 The second currency payment.
    */
@@ -122,6 +122,14 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
   @Override
   public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexDefinition(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "Forex transaction:";
+    result += "\nCurrency 1 payment: " + _paymentCurrency1.toString();
+    result += "\nCurrency 2 payment: " + _paymentCurrency2.toString();
+    return result;
   }
 
   @Override
