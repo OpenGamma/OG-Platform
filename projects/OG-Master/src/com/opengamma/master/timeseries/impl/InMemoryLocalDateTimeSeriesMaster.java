@@ -90,13 +90,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public TimeSeriesSearchResult<LocalDate> searchTimeSeries(final TimeSeriesSearchRequest<LocalDate> request) {
+  public TimeSeriesSearchResult<LocalDate> search(final TimeSeriesSearchRequest<LocalDate> request) {
     ArgumentChecker.notNull(request, "request");
     final TimeSeriesSearchResult<LocalDate> result = new TimeSeriesSearchResult<LocalDate>();
     Collection<TimeSeriesDocument<LocalDate>> docs = _timeseriesDb.values();
     
     if (request.getTimeSeriesId() != null) {
-      docs = Collections.singleton(getTimeSeries(request.getTimeSeriesId()));
+      docs = Collections.singleton(get(request.getTimeSeriesId()));
     }
     
     if (request.getDataField() != null) {
@@ -231,7 +231,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public TimeSeriesDocument<LocalDate> getTimeSeries(UniqueIdentifier uniqueId) {
+  public TimeSeriesDocument<LocalDate> get(UniqueIdentifier uniqueId) {
     validateUId(uniqueId);
     final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(uniqueId);
     if (document == null) {
@@ -253,7 +253,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public TimeSeriesDocument<LocalDate> addTimeSeries(TimeSeriesDocument<LocalDate> document) {
+  public TimeSeriesDocument<LocalDate> add(TimeSeriesDocument<LocalDate> document) {
     validateTimeSeriesDocument(document);
     if (!contains(document)) {
       final UniqueIdentifier uniqueId = _uniqueIdSupplier.get();
@@ -303,7 +303,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public TimeSeriesDocument<LocalDate> updateTimeSeries(TimeSeriesDocument<LocalDate> document) {
+  public TimeSeriesDocument<LocalDate> update(TimeSeriesDocument<LocalDate> document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getTimeSeries(), "document.timeseries");
     ArgumentChecker.notNull(document.getDataField(), "document.dataField");
@@ -324,7 +324,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public void removeTimeSeries(UniqueIdentifier uniqueId) {
+  public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_timeseriesDb.remove(uniqueId) == null) {
       throw new DataNotFoundException("Timeseries not found: " + uniqueId);
@@ -337,7 +337,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeseriesId");
     
     final TimeSeriesSearchHistoricResult<LocalDate> result = new TimeSeriesSearchHistoricResult<LocalDate>();
-    TimeSeriesDocument<LocalDate> doc = getTimeSeries(request.getTimeSeriesId());
+    TimeSeriesDocument<LocalDate> doc = get(request.getTimeSeriesId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

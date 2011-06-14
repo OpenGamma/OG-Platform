@@ -48,7 +48,7 @@ public class DataPointDocument<T> extends DirectBean {
   @PropertyDefinition
   private T _date;
   /**
-   * The time-series value
+   * The time-series value.
    */
   @PropertyDefinition
   private Double _value;
@@ -214,7 +214,7 @@ public class DataPointDocument<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-series value
+   * Gets the time-series value.
    * @return the value of the property
    */
   public Double getValue() {
@@ -222,7 +222,7 @@ public class DataPointDocument<T> extends DirectBean {
   }
 
   /**
-   * Sets the time-series value
+   * Sets the time-series value.
    * @param value  the new value of the property
    */
   public void setValue(Double value) {

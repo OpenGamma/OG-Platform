@@ -118,7 +118,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      TimeSeriesSearchResult<?> searchResult = data().getTimeSeriesMaster().searchTimeSeries(searchRequest);
+      TimeSeriesSearchResult<?> searchResult = data().getTimeSeriesMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
@@ -281,7 +281,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
   @Path("{timeseriesId}")
   public WebOneTimeSeriesResource findPortfolio(@PathParam("timeseriesId") String idStr) {
     data().setUriTimeSeriesId(idStr);
-    TimeSeriesDocument<?> portfolio = data().getTimeSeriesMaster().getTimeSeries(UniqueIdentifier.parse(idStr));
+    TimeSeriesDocument<?> portfolio = data().getTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
     data().setTimeSeries(portfolio);
     return new WebOneTimeSeriesResource(this);
   }

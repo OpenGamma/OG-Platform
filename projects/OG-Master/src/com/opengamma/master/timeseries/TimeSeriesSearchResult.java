@@ -25,7 +25,10 @@ import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching time-series.
+ * Result from searching for time-series.
+ * <p>
+ * The returned documents will match the search criteria.
+ * See {@link TimeSeriesSearchRequest} for more details.
  * 
  * @param <T> LocalDate/java.util.Date
  */
@@ -34,12 +37,12 @@ import com.opengamma.util.db.Paging;
 public class TimeSeriesSearchResult<T> extends DirectBean {
 
   /**
-   * The paging information.
+   * The paging information, not null if correctly created.
    */
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched time-series documents.
+   * The matching documents, not null.
    */
   @PropertyDefinition
   private final List<TimeSeriesDocument<T>> _documents = new ArrayList<TimeSeriesDocument<T>>();
@@ -116,7 +119,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the paging information.
+   * Gets the paging information, not null if correctly created.
    * @return the value of the property
    */
   public Paging getPaging() {
@@ -124,7 +127,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
   }
 
   /**
-   * Sets the paging information.
+   * Sets the paging information, not null if correctly created.
    * @param paging  the new value of the property
    */
   public void setPaging(Paging paging) {
@@ -141,7 +144,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched time-series documents.
+   * Gets the matching documents, not null.
    * @return the value of the property
    */
   public List<TimeSeriesDocument<T>> getDocuments() {
@@ -149,7 +152,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
   }
 
   /**
-   * Sets the list of matched time-series documents.
+   * Sets the matching documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<TimeSeriesDocument<T>> documents) {

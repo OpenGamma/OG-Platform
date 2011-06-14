@@ -20,10 +20,14 @@ public interface IdentifierProvider {
 
   /**
    * Get all available identifiers with dates if available.
+   * <p>
+   * Some identifiers are only valid for a limited period of time.
+   * After the identifier becomes invalid, it may be re-used for something else.
+   * The {@code IdentifierBundleWithDates} concept captures the valid dates for identifiers.
    * 
-   * @param unresolvedIdentifiers  the identifiers that need to be resolved, not empty
+   * @param identifiers  the identifiers that need to be resolved, not empty
    * @return a map of requested identifier to IdentifierBundleWithDates if available
    */
-  Map<Identifier, IdentifierBundleWithDates> getIdentifiers(Set<Identifier> unresolvedIdentifiers);
+  Map<Identifier, IdentifierBundleWithDates> getIdentifiers(Set<Identifier> identifiers);
 
 }

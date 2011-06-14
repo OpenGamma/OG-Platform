@@ -33,7 +33,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@code TimeSeriesSource} implemented using an underlying {@code TimeSeriesMaster}.
+ * A {@code HistoricalDataSource} implemented using an underlying {@code TimeSeriesMaster}.
  * <p>
  * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
  * This class provides the source on top of a standard {@link TimeSeriesMaster}.
@@ -98,7 +98,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     request.setLoadTimeSeries(true);
     
     LocalDateDoubleTimeSeries timeseries = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().searchTimeSeries(request);
+    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().search(request);
     List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
     UniqueIdentifier uniqueId = null;
     if (!documents.isEmpty()) {
@@ -128,7 +128,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     request.setLoadTimeSeries(true);
     
     LocalDateDoubleTimeSeries result = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().searchTimeSeries(request);
+    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().search(request);
     List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
       if (documents.size() > 1) {
@@ -235,7 +235,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     }
     return getHistoricalData(securityBundle, configDocName, currentDate, start, end);
   }
-  
+
   @Override
   public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
       Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,

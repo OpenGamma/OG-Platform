@@ -18,7 +18,7 @@ import com.opengamma.util.PublicSPI;
 public interface TimeSeriesMetaDataResolver {
 
   /**
-   * Default data field value
+   * Default data field value.
    */
   String DEFAULT_DATA_FIELD = "PX_LAST";
 
@@ -27,10 +27,10 @@ public interface TimeSeriesMetaDataResolver {
    * <p>
    * Looks up security in security master and returns default meta-data based on security type.
    * 
-   * @param securityBundle  the bundle of identifiers for the security, not null
+   * @param securityKey  the bundle of identifiers for the security, not null
    * @param configName  the name of the configuration rules to use for resolving meta-data, not null
    * @return the default meta-data, null if the security cannot be found in security master
    */
-  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle securityBundle, String configName);
+  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle securityKey, String configName);
 
 }

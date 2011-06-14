@@ -101,7 +101,7 @@ public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMas
     request.setEnd(latestDate);
     request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult<LocalDate> searchResult = getTsMaster().searchTimeSeries(request);
+    TimeSeriesSearchResult<LocalDate> searchResult = getTsMaster().search(request);
     return searchResult.getDocuments().get(0);
   }
 

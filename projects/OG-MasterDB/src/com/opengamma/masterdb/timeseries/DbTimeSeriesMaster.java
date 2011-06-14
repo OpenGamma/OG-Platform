@@ -760,7 +760,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public TimeSeriesDocument<T> addTimeSeries(TimeSeriesDocument<T> document) {
+  public TimeSeriesDocument<T> add(TimeSeriesDocument<T> document) {
     validateTimeSeriesDocument(document);
     if (!contains(document)) {
       UniqueIdentifier uniqueId = addTimeSeries(
@@ -898,7 +898,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   }
 
   @Override
-  public TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uniqueId) {
+  public TimeSeriesDocument<T> get(UniqueIdentifier uniqueId) {
     Long tsId = validateAndGetTimeSeriesId(uniqueId);
     
     TimeSeriesDocument<T> result = new TimeSeriesDocument<T>();
@@ -1132,7 +1132,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   //-------------------------------------------------------------------------
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public void removeTimeSeries(UniqueIdentifier uniqueId) {
+  public void remove(UniqueIdentifier uniqueId) {
     Long tsId = validateAndGetTimeSeriesId(uniqueId);
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("tsKey", tsId, Types.BIGINT);
@@ -1141,7 +1141,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   }
 
   @Override
-  public TimeSeriesSearchResult<T> searchTimeSeries(TimeSeriesSearchRequest<T> request) {
+  public TimeSeriesSearchResult<T> search(TimeSeriesSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "timeseries request");
     if (request.getTimeSeriesId() != null) {
       return searchByUniqueIdentifier(request);
@@ -1355,7 +1355,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public TimeSeriesDocument<T> updateTimeSeries(TimeSeriesDocument<T> document) {
+  public TimeSeriesDocument<T> update(TimeSeriesDocument<T> document) {
     ArgumentChecker.notNull(document, "timeseries document");
     ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
     Long tsId = validateAndGetTimeSeriesId(document.getUniqueId());
@@ -1458,7 +1458,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     request.setLoadTimeSeries(false);
     
     UniqueIdentifier result = null;
-    TimeSeriesSearchResult<T> searchResult = searchTimeSeries(request);
+    TimeSeriesSearchResult<T> searchResult = search(request);
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
       if (documents.size() == 1) {

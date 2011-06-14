@@ -107,7 +107,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       
       tsDocument.setTimeSeries(timeSeries);
       
-      tsDocument = _tsMaster.addTimeSeries(tsDocument);
+      tsDocument = _tsMaster.add(tsDocument);
       
       assertNotNull(tsDocument);
       assertNotNull(tsDocument.getUniqueId());
@@ -151,7 +151,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     request.setObservationTime(observationTime);
     request.setLoadTimeSeries(loadTimeSeries);
     request.setLoadDates(loadDates);
-    TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(request);
+    TimeSeriesSearchResult<T> searchResult = _tsMaster.search(request);
     return searchResult;
   }
   
@@ -167,7 +167,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       request.setObservationTime(expectedTSDoc.getObservationTime());
       request.setLoadTimeSeries(true);
       
-      TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(request);
+      TimeSeriesSearchResult<T> searchResult = _tsMaster.search(request);
       assertNotNull(searchResult);
       List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
       assertNotNull(documents);
@@ -228,12 +228,12 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
             assertEquals(convert(start), timeSeries.getEarliestTime());
             tsDocument.setTimeSeries(timeSeries);
             
-            tsDocument = _tsMaster.addTimeSeries(tsDocument);
+            tsDocument = _tsMaster.add(tsDocument);
             
             assertNotNull(tsDocument);
             assertNotNull(tsDocument.getUniqueId());
             
-            TimeSeriesDocument<T> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+            TimeSeriesDocument<T> actualDoc = _tsMaster.get(tsDocument.getUniqueId());
             assertNotNull(actualDoc);
             assertEquals(timeSeries, actualDoc.getTimeSeries());
             result.add(tsDocument);
@@ -257,12 +257,12 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
     tsDocument.setTimeSeries(timeSeries);
     
-    tsDocument = _tsMaster.addTimeSeries(tsDocument);
+    tsDocument = _tsMaster.add(tsDocument);
     
     assertNotNull(tsDocument);
     assertNotNull(tsDocument.getUniqueId());
     
-    TimeSeriesDocument<T> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+    TimeSeriesDocument<T> actualDoc = _tsMaster.get(tsDocument.getUniqueId());
     assertNotNull(actualDoc);
     
     assertEqualTimeSeriesDocument(tsDocument, actualDoc);
@@ -276,7 +276,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
     otherDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
     try {
-      _tsMaster.addTimeSeries(otherDoc);
+      _tsMaster.add(otherDoc);
       Assert.fail();
     } catch (IllegalArgumentException ex) {
       //do nothing
@@ -287,30 +287,30 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
       tsDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
+      TimeSeriesDocument<T> updatedDoc = _tsMaster.update(tsDoc);
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
       assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
       
-      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
+      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.get(updatedDoc.getUniqueId()));
       
       //delete dataPoints, set with empty timeseries
       tsDoc.setTimeSeries(getEmptyTimeSeries()); 
-      updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
+      updatedDoc = _tsMaster.update(tsDoc);
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
       assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
       
-      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
+      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.get(updatedDoc.getUniqueId()));
     }
   }
   
   public void removeTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
-      _tsMaster.removeTimeSeries(tsDoc.getUniqueId());
+      _tsMaster.remove(tsDoc.getUniqueId());
       try {
-        _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+        _tsMaster.get(tsDoc.getUniqueId());
         Assert.fail();
       } catch(DataNotFoundException ex) {
         //do nothing
@@ -323,7 +323,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     try {
       TimeSeriesDocument<T> tsDoc = tsList.get(0);
       String scheme = tsDoc.getUniqueId().getScheme();
-      _tsMaster.getTimeSeries(UniqueIdentifier.of(scheme, String.valueOf(Long.MIN_VALUE)));
+      _tsMaster.get(UniqueIdentifier.of(scheme, String.valueOf(Long.MIN_VALUE)));
       Assert.fail();
     } catch(DataNotFoundException ex) {
       //do nothing
@@ -333,7 +333,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
   public void getInvalidUID() throws Exception {
     addAndTestTimeSeries();
     try {
-      _tsMaster.getTimeSeries(UniqueIdentifier.of("INVALID", "unknown"));
+      _tsMaster.get(UniqueIdentifier.of("INVALID", "unknown"));
       Assert.fail();
     } catch(IllegalArgumentException ex) {
       //do nothing
@@ -392,7 +392,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       tsDocument.setIdentifiers(IdentifierBundleWithDates.of(bundle));
       tsDocument.setTimeSeries(timeSeries);
       
-      tsDocument = _tsMaster.addTimeSeries(tsDocument);
+      tsDocument = _tsMaster.add(tsDocument);
       assertNotNull(tsDocument);
       assertNotNull(tsDocument.getUniqueId());
       
@@ -439,7 +439,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       tsDoc.setTimeSeries(appendedTS);
       _tsMaster.appendTimeSeries(tsDoc);
       
-      TimeSeriesDocument<T> latestDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+      TimeSeriesDocument<T> latestDoc = _tsMaster.get(tsDoc.getUniqueId());
       assertNotNull(latestDoc);
       tsDoc.setTimeSeries(mergedTS);
       assertEqualTimeSeriesDocument(tsDoc, latestDoc);
@@ -560,7 +560,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       dataPointDocument = _tsMaster.addDataPoint(dataPointDocument);
       assertNotNull(dataPointDocument);
       assertEquals(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(convert(date))), dataPointDocument.getDataPointId());
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+      TimeSeriesDocument<T> updatedDoc = _tsMaster.get(tsDoc.getUniqueId());
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
       assertEquals(updatedTS, updatedDoc.getTimeSeries());
@@ -611,7 +611,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       assertEquals(dataPointDocument.getDate(), updated.getDate());
       assertEquals(dataPointDocument.getValue(), updated.getValue());
       
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+      TimeSeriesDocument<T> updatedDoc = _tsMaster.get(tsDoc.getUniqueId());
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
       assertEquals(updatedTS, updatedDoc.getTimeSeries());
@@ -635,7 +635,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       String tsId = tsDocument.getUniqueId().getValue();
       _tsMaster.removeDataPoint(UniqueIdentifier.of(scheme, tsId + "/" + print(deletedDate)));
       
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+      TimeSeriesDocument<T> updatedDoc = _tsMaster.get(tsDocument.getUniqueId());
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
       assertEquals(deletedTS, updatedDoc.getTimeSeries());
@@ -651,7 +651,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       T firstDateToRetain = timeSeries.getTime(timeSeries.size() - desiredSize);
       _tsMaster.removeDataPoints(tsDocument.getUniqueId(), firstDateToRetain);
       
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+      TimeSeriesDocument<T> updatedDoc = _tsMaster.get(tsDocument.getUniqueId());
 
       assertNotNull(updatedDoc);
       assertNotNull(updatedDoc.getUniqueId());
@@ -718,12 +718,12 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     assertEquals(convert(start), timeSeries.getEarliestTime());
     tsDocument.setTimeSeries(timeSeries);
     
-    tsDocument = _tsMaster.addTimeSeries(tsDocument);
+    tsDocument = _tsMaster.add(tsDocument);
     
     assertNotNull(tsDocument);
     assertNotNull(tsDocument.getUniqueId());
     
-    TimeSeriesDocument<T> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+    TimeSeriesDocument<T> actualDoc = _tsMaster.get(tsDocument.getUniqueId());
     assertNotNull(actualDoc);
     assertEquals(timeSeries, actualDoc.getTimeSeries());
     expectedTS.put(edu10Buid, timeSeries);
@@ -747,12 +747,12 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     assertEquals(convert(start), timeSeries.getEarliestTime());
     tsDocument.setTimeSeries(timeSeries);
     
-    tsDocument = _tsMaster.addTimeSeries(tsDocument);
+    tsDocument = _tsMaster.add(tsDocument);
     
     assertNotNull(tsDocument);
     assertNotNull(tsDocument.getUniqueId());
     
-    actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+    actualDoc = _tsMaster.get(tsDocument.getUniqueId());
     assertNotNull(actualDoc);
     assertEquals(timeSeries, actualDoc.getTimeSeries());
     expectedTS.put(edu20Buid, timeSeries);

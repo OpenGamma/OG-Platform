@@ -49,7 +49,7 @@ public interface TimeSeriesMaster<T> {
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  TimeSeriesSearchResult<T> searchTimeSeries(TimeSeriesSearchRequest<T> request);
+  TimeSeriesSearchResult<T> search(TimeSeriesSearchRequest<T> request);
 
   /**
    * Gets a time-series by unique identifier.
@@ -59,16 +59,18 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uniqueId);
+  TimeSeriesDocument<T> get(UniqueIdentifier uniqueId);
 
   /**
    * Adds a time-series to the data store.
+   * <p>
+   * The unique identifier will be set in the response.
    * 
    * @param document  the document, not null
    * @return the added document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  TimeSeriesDocument<T> addTimeSeries(TimeSeriesDocument<T> document);
+  TimeSeriesDocument<T> add(TimeSeriesDocument<T> document);
 
   /**
    * Updates a time-series in the data store.
@@ -80,7 +82,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no time-series with that unique identifier
    */
-  TimeSeriesDocument<T> updateTimeSeries(TimeSeriesDocument<T> document);
+  TimeSeriesDocument<T> update(TimeSeriesDocument<T> document);
 
   /**
    * Removes a time-series from the data store.
@@ -89,7 +91,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void removeTimeSeries(final UniqueIdentifier uniqueId);
+  void remove(final UniqueIdentifier uniqueId);
 
   /**
    * Searches for time-series matching the specified search criteria.

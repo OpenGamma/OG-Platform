@@ -83,7 +83,7 @@ public class PerformanceTest extends DBTest {
       tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
       tsDocument.setTimeSeries(timeSeries);
       s_logger.debug("adding timeseries {}", tsDocument);
-      _tsMaster.addTimeSeries(tsDocument);
+      _tsMaster.add(tsDocument);
       
       timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       

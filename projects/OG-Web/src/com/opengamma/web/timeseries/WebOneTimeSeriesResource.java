@@ -101,7 +101,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
 
   private URI deleteTimeSeries() {
     TimeSeriesDocument<?> doc = data().getTimeSeries();
-    data().getTimeSeriesMaster().removeTimeSeries(doc.getUniqueId());
+    data().getTimeSeriesMaster().remove(doc.getUniqueId());
     URI uri = WebAllTimeSeriesResource.uri(data());
     return uri;
   }

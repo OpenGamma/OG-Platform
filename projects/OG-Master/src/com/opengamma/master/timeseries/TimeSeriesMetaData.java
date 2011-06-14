@@ -33,30 +33,35 @@ import com.opengamma.util.PublicSPI;
 public class TimeSeriesMetaData extends DirectBean {
 
   /**
-   * The data store.
+   * The identifier keys.
+   * The key of the specific series, such as the equity identifiers.
+   */
+  @PropertyDefinition
+  private IdentifierBundle _identifiers;
+  /**
+   * The data source.
+   * The source of the data, typically a major financial data supplier.
    */
   @PropertyDefinition
   private String _dataSource;
   /**
    * The data provider.
+   * The underlying data provider, such as an individual exchange.
    */
   @PropertyDefinition
   private String _dataProvider;
   /**
    * The data field.
+   * This defines the type of data that the series represents.
    */
   @PropertyDefinition
   private String _dataField;
   /**
-   * The observation time.
+   * The descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    */
   @PropertyDefinition
   private String _observationTime;
-  /**
-   * The bundle of identifiers.
-   */
-  @PropertyDefinition
-  private IdentifierBundle _identifiers;
 
   /**
    * Creates an instance.
@@ -82,6 +87,8 @@ public class TimeSeriesMetaData extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case 1368189162:  // identifiers
+        return getIdentifiers();
       case 1272470629:  // dataSource
         return getDataSource();
       case 339742651:  // dataProvider
@@ -90,8 +97,6 @@ public class TimeSeriesMetaData extends DirectBean {
         return getDataField();
       case 951232793:  // observationTime
         return getObservationTime();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
     }
     return super.propertyGet(propertyName);
   }
@@ -99,6 +104,9 @@ public class TimeSeriesMetaData extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case 1368189162:  // identifiers
+        setIdentifiers((IdentifierBundle) newValue);
+        return;
       case 1272470629:  // dataSource
         setDataSource((String) newValue);
         return;
@@ -111,9 +119,6 @@ public class TimeSeriesMetaData extends DirectBean {
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((IdentifierBundle) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -125,11 +130,11 @@ public class TimeSeriesMetaData extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TimeSeriesMetaData other = (TimeSeriesMetaData) obj;
-      return JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+      return JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers());
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime());
     }
     return false;
   }
@@ -137,17 +142,46 @@ public class TimeSeriesMetaData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data store.
+   * Gets the identifier keys.
+   * The key of the specific series, such as the equity identifiers.
+   * @return the value of the property
+   */
+  public IdentifierBundle getIdentifiers() {
+    return _identifiers;
+  }
+
+  /**
+   * Sets the identifier keys.
+   * The key of the specific series, such as the equity identifiers.
+   * @param identifiers  the new value of the property
+   */
+  public void setIdentifiers(IdentifierBundle identifiers) {
+    this._identifiers = identifiers;
+  }
+
+  /**
+   * Gets the the {@code identifiers} property.
+   * The key of the specific series, such as the equity identifiers.
+   * @return the property, not null
+   */
+  public final Property<IdentifierBundle> identifiers() {
+    return metaBean().identifiers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the data source.
+   * The source of the data, typically a major financial data supplier.
    * @return the value of the property
    */
   public String getDataSource() {
@@ -155,7 +189,8 @@ public class TimeSeriesMetaData extends DirectBean {
   }
 
   /**
-   * Sets the data store.
+   * Sets the data source.
+   * The source of the data, typically a major financial data supplier.
    * @param dataSource  the new value of the property
    */
   public void setDataSource(String dataSource) {
@@ -164,6 +199,7 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Gets the the {@code dataSource} property.
+   * The source of the data, typically a major financial data supplier.
    * @return the property, not null
    */
   public final Property<String> dataSource() {
@@ -173,6 +209,7 @@ public class TimeSeriesMetaData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the data provider.
+   * The underlying data provider, such as an individual exchange.
    * @return the value of the property
    */
   public String getDataProvider() {
@@ -181,6 +218,7 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Sets the data provider.
+   * The underlying data provider, such as an individual exchange.
    * @param dataProvider  the new value of the property
    */
   public void setDataProvider(String dataProvider) {
@@ -189,6 +227,7 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Gets the the {@code dataProvider} property.
+   * The underlying data provider, such as an individual exchange.
    * @return the property, not null
    */
   public final Property<String> dataProvider() {
@@ -198,6 +237,7 @@ public class TimeSeriesMetaData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the data field.
+   * This defines the type of data that the series represents.
    * @return the value of the property
    */
   public String getDataField() {
@@ -206,6 +246,7 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Sets the data field.
+   * This defines the type of data that the series represents.
    * @param dataField  the new value of the property
    */
   public void setDataField(String dataField) {
@@ -214,6 +255,7 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Gets the the {@code dataField} property.
+   * This defines the type of data that the series represents.
    * @return the property, not null
    */
   public final Property<String> dataField() {
@@ -222,7 +264,8 @@ public class TimeSeriesMetaData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the observation time.
+   * Gets the descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -230,7 +273,8 @@ public class TimeSeriesMetaData extends DirectBean {
   }
 
   /**
-   * Sets the observation time.
+   * Sets the descriptive observation time key.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
@@ -239,35 +283,11 @@ public class TimeSeriesMetaData extends DirectBean {
 
   /**
    * Gets the the {@code observationTime} property.
+   * This defines, textually, the time of day, such as LONDON_CLOSE.
    * @return the property, not null
    */
   public final Property<String> observationTime() {
     return metaBean().observationTime().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the bundle of identifiers.
-   * @return the value of the property
-   */
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
-  }
-
-  /**
-   * Sets the bundle of identifiers.
-   * @param identifiers  the new value of the property
-   */
-  public void setIdentifiers(IdentifierBundle identifiers) {
-    this._identifiers = identifiers;
-  }
-
-  /**
-   * Gets the the {@code identifiers} property.
-   * @return the property, not null
-   */
-  public final Property<IdentifierBundle> identifiers() {
-    return metaBean().identifiers().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -280,6 +300,11 @@ public class TimeSeriesMetaData extends DirectBean {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code identifiers} property.
+     */
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", TimeSeriesMetaData.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
@@ -301,20 +326,15 @@ public class TimeSeriesMetaData extends DirectBean {
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", TimeSeriesMetaData.class, String.class);
     /**
-     * The meta-property for the {@code identifiers} property.
-     */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
-        this, "identifiers", TimeSeriesMetaData.class, IdentifierBundle.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
+        "identifiers",
         "dataSource",
         "dataProvider",
         "dataField",
-        "observationTime",
-        "identifiers");
+        "observationTime");
 
     /**
      * Restricted constructor.
@@ -325,6 +345,8 @@ public class TimeSeriesMetaData extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1368189162:  // identifiers
+          return _identifiers;
         case 1272470629:  // dataSource
           return _dataSource;
         case 339742651:  // dataProvider
@@ -333,8 +355,6 @@ public class TimeSeriesMetaData extends DirectBean {
           return _dataField;
         case 951232793:  // observationTime
           return _observationTime;
-        case 1368189162:  // identifiers
-          return _identifiers;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -355,6 +375,14 @@ public class TimeSeriesMetaData extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code identifiers} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<IdentifierBundle> identifiers() {
+      return _identifiers;
+    }
+
     /**
      * The meta-property for the {@code dataSource} property.
      * @return the meta-property, not null
@@ -385,14 +413,6 @@ public class TimeSeriesMetaData extends DirectBean {
      */
     public final MetaProperty<String> observationTime() {
       return _observationTime;
-    }
-
-    /**
-     * The meta-property for the {@code identifiers} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<IdentifierBundle> identifiers() {
-      return _identifiers;
     }
 
   }

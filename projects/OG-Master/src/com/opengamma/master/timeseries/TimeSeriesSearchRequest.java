@@ -31,6 +31,9 @@ import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for time-series.
+ * <p>
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results.
  * 
  * @param <T> LocalDate/java.sql.Date
  */
