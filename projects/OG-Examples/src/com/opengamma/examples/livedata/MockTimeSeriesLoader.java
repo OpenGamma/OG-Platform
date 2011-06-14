@@ -14,19 +14,19 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesLoader;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 
 /**
- * Mock timeseries loader to get the example engine server running
+ * Mock time-series loader to get the example engine server running.
  * 
- * For fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters, please contact sales@opengamma.com
+ * For fully supported implementations supporting major data vendors like Bloomberg and
+ * Thomson-Reuters, please contact sales@opengamma.com
  */
 public class MockTimeSeriesLoader implements TimeSeriesLoader {
 
-  private static final String MESSAGE = "This is a placeholder timeseries loader." +
+  private static final String MESSAGE = "This is a placeholder time-series loader." +
       "\nFor fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters," +
       "\nPlease contact sales@opengamma.com.";
-  
+
   @Override
   public Map<Identifier, UniqueIdentifier> addTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
     System.out.println(MESSAGE);
@@ -37,11 +37,6 @@ public class MockTimeSeriesLoader implements TimeSeriesLoader {
   public boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
-  }
-
-  @Override
-  public TimeSeriesMaster<?> getTimeSeriesMaster() {
-    return null;
   }
 
 }

@@ -15,13 +15,18 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Provides bulk loading of historical data
+ * Loader for obtaining a time-series.
+ * <p>
+ * A time-series is a representation of a value over time, such as the price of an equity.
+ * The series is typically obtained from a major data source.
  */
 @PublicSPI
 public interface TimeSeriesLoader {
 
   /**
-   * Loads time-series from a data source like BLOOMBERG/REUTERS and add to {@link TimeSeriesMaster}.
+   * Loads a time-series from a data source.
+   * <p>
+   * This will typically update an associated {@code TimeSeriesMaster}.
    * 
    * @param identifiers  the identifiers, not null
    * @param dataProvider  the data provider, null should default to a sensible value
@@ -32,19 +37,15 @@ public interface TimeSeriesLoader {
    */
   Map<Identifier, UniqueIdentifier> addTimeSeries(
       Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate);
-  
+
   /**
-   * Reloads the timeseries from a data source and updates {@link TimeSeriesMaster} with the new series
+   * Updates the time-series with the latest data from a data source.
+   * <p>
+   * This will typically update an associated {@code TimeSeriesMaster}.
    * 
    * @param uniqueIdentifier the unique identifier, not null
    * @return true if the operation is successful otherwise false 
    */
   boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier);
-  
-  /**
-   * Gets the associated timeseries master.
-   * 
-   * @return the master that is being populated, not null
-   */
-  TimeSeriesMaster<?> getTimeSeriesMaster();
+
 }
