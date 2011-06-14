@@ -7,6 +7,7 @@ package com.opengamma.master.timeseries;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +25,15 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -70,8 +77,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    * This method is suitable for exact machine searching, whereas the {@code identifierValue}
    * search is useful for human searching.
    */
-  @PropertyDefinition
-  private final List<Identifier> _identifiers = new ArrayList<Identifier>();
+  @PropertyDefinition(set = "manual")
+  private List<Identifier> _identifiers;
   /**
    * Current date (if applicable for identifiers).
    */
@@ -122,6 +129,123 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    * Creates an instance.
    */
   public TimeSeriesSearchRequest() {
+  }
+
+  /**
+   * Creates an instance using a single search identifier.
+   * 
+   * @param identifier  the identifier to search for, not null
+   */
+  public TimeSeriesSearchRequest(Identifier identifier) {
+    addIdentifier(identifier);
+  }
+
+  /**
+   * Creates an instance using a bundle of identifiers.
+   * 
+   * @param identifiers  the identifiers to search for, not null
+   */
+  public TimeSeriesSearchRequest(Iterable<Identifier> identifiers) {
+    setIdentifiers(identifiers);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single security key identifier to the collection to search for.
+   * 
+   * @param identifier  the identifier to add, not null
+   */
+  public void addIdentifier(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    if (_identifiers == null) {
+      _identifiers = new ArrayList<Identifier>();
+    }
+    _identifiers.add(identifier);
+  }
+
+  /**
+   * Adds a collection of identifiers to the collection to search for.
+   * 
+   * @param identifiers  the identifiers to add, not null
+   */
+  public void setIdentifiers(Identifier... identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    if (identifiers == null) {
+      _identifiers = null;
+    } else {
+      _identifiers = new ArrayList<Identifier>(Arrays.asList(identifiers));
+    }
+  }
+
+  /**
+   * Adds a collection of identifiers to the collection to search for.
+   * 
+   * @param identifiers  the identifiers to add, not null
+   */
+  public void setIdentifiers(List<Identifier> identifiers) {  // signature for bean API
+    setIdentifiers((Iterable<Identifier>) identifiers);
+  }
+
+  /**
+   * Adds a collection of identifiers to the collection to search for.
+   * 
+   * @param identifiers  the identifiers to add, not null
+   */
+  public void setIdentifiers(Iterable<Identifier> identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    if (identifiers == null) {
+      _identifiers = null;
+    } else {
+      _identifiers = Lists.newArrayList(identifiers);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this search matches the specified document.
+   * 
+   * @param document  the document to match, null or inappropriate document type returns false
+   * @return true if matches
+   */
+  public boolean matches(TimeSeriesDocument<?> document) {
+    if (getTimeSeriesId() != null && getTimeSeriesId().equals(document.getUniqueId()) == false) {
+      return false;
+    }    
+    if (getDataSource() != null && getDataSource().equals(document.getDataSource()) == false) {
+      return false;
+    }    
+    if (getDataProvider() != null && getDataProvider().equals(document.getDataProvider()) == false) {
+      return false;
+    }    
+    if (getDataField() != null && getDataField().equals(document.getDataField()) == false) {
+      return false;
+    }    
+    if (getObservationTime() != null && getObservationTime().equals(document.getObservationTime()) == false) {
+      return false;
+    }    
+    if (getIdentifiers() != null) {
+      success: {  // label used with break statement, CSIGNORE
+        IdentifierBundleWithDates docBundle = document.getIdentifiers();
+        for (IdentifierWithDates docId : docBundle) {
+          if (getIdentifiers().contains(docId.asIdentifier()) && docId.isValidOn(getCurrentDate())) {
+            break success;
+          }
+        }
+        return false;
+      }
+    }
+    if (getIdentifierValue() != null) {
+      success: {  // label used with break statement, CSIGNORE
+        IdentifierBundle docBundle = document.getIdentifiers().asIdentifierBundle();
+        for (Identifier identifier : docBundle.getIdentifiers()) {
+          if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue())) {
+            break success;
+          }
+        }
+        return false;
+      }
+    }
+    return true;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -370,20 +494,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    */
   public List<Identifier> getIdentifiers() {
     return _identifiers;
-  }
-
-  /**
-   * Sets the identifiers to match, empty to not match on identifiers.
-   * This will return time-series where at least one complete identifier in the series matches
-   * at least one complete identifier in this bundle. Note that an empty bundle will not match
-   * anything, whereas a null bundle places no restrictions on the result.
-   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
-   * search is useful for human searching.
-   * @param identifiers  the new value of the property
-   */
-  public void setIdentifiers(List<Identifier> identifiers) {
-    this._identifiers.clear();
-    this._identifiers.addAll(identifiers);
   }
 
   /**

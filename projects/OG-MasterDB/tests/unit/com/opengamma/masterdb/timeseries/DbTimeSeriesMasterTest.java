@@ -328,7 +328,7 @@ public abstract class DbTimeSeriesMasterTest<T> extends DBTest {
     request.setCurrentDate(currentDate);
     request.setTimeSeriesId(timeSeriesId);
     if (bundle != null) {
-      request.getIdentifiers().addAll(bundle.getIdentifiers());
+      request.setIdentifiers(bundle);
     }
     request.setDataField(dataField);
     request.setDataProvider(dataProvider);

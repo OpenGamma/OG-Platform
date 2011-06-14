@@ -88,7 +88,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     ArgumentChecker.notNull(dataField, "field");
     
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(securityBundle.getIdentifiers());
+    request.setIdentifiers(securityBundle);
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
     request.setDataField(dataField);

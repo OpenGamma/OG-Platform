@@ -62,7 +62,7 @@ public class DefaultTimeSeriesMetaDataResolver<T> implements TimeSeriesMetaDataR
     ArgumentChecker.notNull(securityBundle, "securityBundle");
     ArgumentChecker.notNull(configName, "configName");
     TimeSeriesSearchRequest<T> searchRequest = new TimeSeriesSearchRequest<T>();
-    searchRequest.getIdentifiers().addAll(securityBundle.getIdentifiers());
+    searchRequest.setIdentifiers(securityBundle);
     searchRequest.setLoadTimeSeries(false);
     
     TimeSeriesSearchResult<T> searchResult = _tsMaster.search(searchRequest);

@@ -7,11 +7,8 @@ package com.opengamma.master.timeseries.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
@@ -19,9 +16,7 @@ import javax.time.calendar.format.CalendricalParseException;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -92,105 +87,23 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   @Override
   public TimeSeriesSearchResult<LocalDate> search(final TimeSeriesSearchRequest<LocalDate> request) {
     ArgumentChecker.notNull(request, "request");
-    final TimeSeriesSearchResult<LocalDate> result = new TimeSeriesSearchResult<LocalDate>();
-    Collection<TimeSeriesDocument<LocalDate>> docs = _timeseriesDb.values();
-    
-    if (request.getTimeSeriesId() != null) {
-      docs = Collections.singleton(get(request.getTimeSeriesId()));
-    }
-    
-    if (request.getDataField() != null) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          return request.getDataField().equals(doc.getDataField());
-        }
-      });
-    }
-    
-    if (request.getDataProvider() != null) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          return request.getDataProvider().equals(doc.getDataProvider());
-        }
-      });
-    }
-    
-    if (request.getDataSource() != null) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          return request.getDataSource().equals(doc.getDataSource());
-        }
-      });
-    }
-    
-    if (request.getObservationTime() != null) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          return request.getObservationTime().equals(doc.getObservationTime());
-        }
-      });
-    }
-    
-    if (request.getIdentifiers() != null && !request.getIdentifiers().isEmpty()) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          IdentifierBundleWithDates bundleWithDates = doc.getIdentifiers();
-          List<Identifier> requestIdentifiers = request.getIdentifiers();
-          LocalDate currentDate = request.getCurrentDate();
-          for (IdentifierWithDates idWithDates : bundleWithDates) {
-            LocalDate validFrom = idWithDates.getValidFrom();
-            LocalDate validTo = idWithDates.getValidTo();
-            if (requestIdentifiers.contains(idWithDates.asIdentifier())) {
-              if (currentDate != null) {
-                if (validFrom == null && validTo != null) {
-                  return currentDate.isBefore(validTo) || currentDate.equals(validTo);
-                }
-                if (validFrom != null && validTo == null) {
-                  return currentDate.isAfter(validFrom) || currentDate.equals(validFrom);
-                }
-                if (validFrom != null && validTo != null) {
-                  return currentDate.equals(validFrom) || currentDate.equals(validTo) || (currentDate.isAfter(validFrom) && currentDate.isBefore(validTo));
-                }
-              } else {
-                return true;
-              }
-            }
-          }
-          return false;
-        }
-      });
-    }
-        
-    if (request.getIdentifierValue() != null) {
-      docs = Collections2.filter(docs, new Predicate<TimeSeriesDocument<LocalDate>>() {
-        @Override
-        public boolean apply(final TimeSeriesDocument<LocalDate> doc) {
-          IdentifierBundle bundle = doc.getIdentifiers().asIdentifierBundle();
-          Set<String> identifierValues = new HashSet<String>();
-          for (Identifier identifier : bundle.getIdentifiers()) {
-            identifierValues.add(identifier.getValue());
-          }
-          return identifierValues.contains(request.getIdentifierValue());
-        }
-      });
+    List<TimeSeriesDocument<LocalDate>> list = new ArrayList<TimeSeriesDocument<LocalDate>>();
+    for (TimeSeriesDocument<LocalDate> doc : _timeseriesDb.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
     }
     
     if (request.isLoadDates()) {
-      for (TimeSeriesDocument<LocalDate> tsDocument : docs) {
+      for (TimeSeriesDocument<LocalDate> tsDocument : list) {
         assert tsDocument.getTimeSeries() != null;
         tsDocument.setLatest(tsDocument.getTimeSeries().getLatestTime());
         tsDocument.setEarliest(tsDocument.getTimeSeries().getEarliestTime());
       }
     }
-    
     if (!request.isLoadTimeSeries()) {
       List<TimeSeriesDocument<LocalDate>> noSeries = new ArrayList<TimeSeriesDocument<LocalDate>>();
-      for (TimeSeriesDocument<LocalDate> tsDocument : docs) {
+      for (TimeSeriesDocument<LocalDate> tsDocument : list) {
         TimeSeriesDocument<LocalDate> doc = new TimeSeriesDocument<LocalDate>();
         doc.setDataField(tsDocument.getDataField());
         doc.setDataProvider(tsDocument.getDataProvider());
@@ -202,12 +115,11 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
         doc.setUniqueId(tsDocument.getUniqueId());
         noSeries.add(doc);
       }
-      docs = noSeries;
+      list = noSeries;
     }
-    
     if (request.getStart() != null && request.getEnd() != null) {
       List<TimeSeriesDocument<LocalDate>> subseriesList = new ArrayList<TimeSeriesDocument<LocalDate>>();
-      for (TimeSeriesDocument<LocalDate> tsDocument : docs) {
+      for (TimeSeriesDocument<LocalDate> tsDocument : list) {
         TimeSeriesDocument<LocalDate> doc = new TimeSeriesDocument<LocalDate>();
         doc.setDataField(tsDocument.getDataField());
         doc.setDataProvider(tsDocument.getDataProvider());
@@ -221,15 +133,16 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
         doc.setTimeSeries(subseries);
         subseriesList.add(doc);
       }
-      docs = subseriesList;
+      list = subseriesList;
     }
     
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
+    final TimeSeriesSearchResult<LocalDate> result = new TimeSeriesSearchResult<LocalDate>();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
-    
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public TimeSeriesDocument<LocalDate> get(UniqueIdentifier uniqueId) {
     validateUId(uniqueId);

@@ -105,7 +105,7 @@ public class LocalDateDbTimeSeriesMasterTest extends DbTimeSeriesMasterTest<Loca
   
   private TimeSeriesDocument<LocalDate> getHistoricalTimeSeries(IdentifierBundleWithDates identifierBundleWithDates, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(identifierBundleWithDates.asIdentifierBundle().getIdentifiers());
+    request.setIdentifiers(identifierBundleWithDates.asIdentifierBundle());
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
     request.setDataField(dataField);

@@ -143,7 +143,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     request.setCurrentDate(currentDate);
     request.setTimeSeriesId(timeSeriesId);
     if (bundle != null) {
-      request.getIdentifiers().addAll(bundle.getIdentifiers());
+      request.setIdentifiers(bundle);
     }
     request.setDataField(dataField);
     request.setDataProvider(dataProvider);
@@ -171,7 +171,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       assertNotNull(searchResult);
       List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
       assertNotNull(documents);
-      assertTrue(documents.size() == 1);
+      assertEquals(1, documents.size());
       
       TimeSeriesDocument<T> searchedDoc = documents.get(0);
       assertNotNull(searchedDoc);
@@ -187,7 +187,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       assertNotNull(searchResult);
       List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
       assertNotNull(documents);
-      assertTrue(documents.size() == 1);
+      assertEquals(1, documents.size());
       
       assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
     }
@@ -200,7 +200,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
       assertNotNull(searchResult);
       List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
       assertNotNull(documents);
-      assertTrue(documents.size() == 1);
+      assertEquals(1, documents.size());
       assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
     }
   }
@@ -483,7 +483,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     assertNotNull(searchResult);
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     assertNotNull(documents);
-    assertTrue(tsList.size() == documents.size());
+    assertEquals(tsList.size(), documents.size());
     for (TimeSeriesDocument<T> expectedDoc : tsList) {
       assertTrue(documents.contains(expectedDoc));
     }
@@ -524,7 +524,7 @@ public abstract class InMemoryTimeSeriesMasterTest<T> {
     assertNotNull(searchResult);
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     assertNotNull(documents);
-    assertTrue(tsList.size() == documents.size());
+    assertEquals(tsList.size(), documents.size());
     for (TimeSeriesDocument<T> tsDoc : tsList) {
       tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
       tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());

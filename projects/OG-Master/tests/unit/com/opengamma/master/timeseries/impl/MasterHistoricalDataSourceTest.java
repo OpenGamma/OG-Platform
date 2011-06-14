@@ -89,7 +89,7 @@ public class MasterHistoricalDataSourceTest {
 
   public void getHistoricalDataByIdentifierWithMetaData() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
+    request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);
@@ -115,7 +115,7 @@ public class MasterHistoricalDataSourceTest {
 
   public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
+    request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);
@@ -152,7 +152,7 @@ public class MasterHistoricalDataSourceTest {
     LocalDate start = end.minusDays(7);
     
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
+    request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
     request.setDataField(CLOSE_DATA_FIELD);

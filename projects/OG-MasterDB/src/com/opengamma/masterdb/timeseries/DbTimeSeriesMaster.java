@@ -1199,6 +1199,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   }
 
   private boolean hasIdentifier(TimeSeriesSearchRequest<T> request) {
+    // TODO: isEmpty check is probably wrong
     return (request.getIdentifiers() != null && !request.getIdentifiers().isEmpty()) || request.getIdentifierValue() != null;
   }
 
@@ -1450,7 +1451,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     ArgumentChecker.notNull(field, "field");
     
     TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
-    request.getIdentifiers().addAll(identifiers.getIdentifiers());
+    request.setIdentifiers(identifiers);
     request.setDataField(field);
     request.setDataProvider(dataProvider);
     request.setDataSource(dataSource);
