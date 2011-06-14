@@ -140,9 +140,9 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
     List<Double> ys = new ArrayList<Double>(steps);
     
     // Output 100 points equally spaced along the curve
-    double step = (last - first) / steps;
-    for (int i = 1; i <= steps; i++) {
-      double t = step * i;
+    double step = (last - first) / (steps - 1);
+    for (int i = 0; i < steps; i++) {
+      double t = first + step * i;
       xs.add(t);
       ys.add(curve.getYValue(t));
     }
