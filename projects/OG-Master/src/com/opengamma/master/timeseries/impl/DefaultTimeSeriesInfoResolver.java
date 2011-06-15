@@ -82,13 +82,7 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
     List<TimeSeriesInfo> infoList = new ArrayList<TimeSeriesInfo>(documents.size());
     for (TimeSeriesDocument<T> document : documents) {
       if (document.getDataField().equals(DEFAULT_DATA_FIELD)) {
-        TimeSeriesInfo info = new TimeSeriesInfo();
-        info.setIdentifiers(document.getIdentifiers());
-        info.setDataField(DEFAULT_DATA_FIELD);
-        info.setDataProvider(document.getDataProvider());
-        info.setDataSource(document.getDataSource());
-        info.setObservationTime(document.getObservationTime());
-        infoList.add(info);
+        infoList.add(document.toInfo());
       }
     }
     return infoList;
