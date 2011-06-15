@@ -5,22 +5,22 @@
  */
 package com.opengamma.master.timeseries.impl;
 
-import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesInfo;
 
 /**
- * Scores a meta-data instance.
+ * Scores time-series info.
  * <p>
  * This strategy pattern interface allows different rules to be provided for choosing
- * time-series meta-data.
+ * time-series info.
  */
-public interface TimeSeriesMetaDataRateProvider {
+public interface TimeSeriesInfoRateProvider {
 
   /**
-   * Rates a meta data based on its rules.
+   * Rates time-series info based on its rules.
    * 
-   * @param metaData  the meta-data, not null
+   * @param info  the time-series info, not null
    * @return the rating
    */
-  int rate(TimeSeriesMetaData metaData);
+  int rate(TimeSeriesInfo info);
 
 }

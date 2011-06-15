@@ -16,18 +16,20 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * The set of rules to use when loading time-series from a master.
+ * <p>
+ * This class is immutable and thread-safe.
  */
-public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRateProvider {
+public class TimeSeriesInfoConfiguration implements TimeSeriesInfoRateProvider {
 
   /**
    * The set of rules.
    */
-  private final Set<TimeSeriesMetaDataRating> _rules = new HashSet<TimeSeriesMetaDataRating>();
+  private final Set<TimeSeriesInfoRating> _rules = new HashSet<TimeSeriesInfoRating>();
   /**
    * The rules grouped by field type.
    */
@@ -42,7 +44,7 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
    * 
    * @param rules  the rules, not null and not empty
    */
-  public TimeSeriesMetaDataConfiguration(Collection<TimeSeriesMetaDataRating> rules) {
+  public TimeSeriesInfoConfiguration(Collection<TimeSeriesInfoRating> rules) {
     ArgumentChecker.notEmpty(rules, "rules");
     _rules.addAll(rules);
     buildRuleDb();
@@ -50,7 +52,7 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
   }
 
   private void buildRuleDb() {
-    for (TimeSeriesMetaDataRating rule : _rules) {
+    for (TimeSeriesInfoRating rule : _rules) {
       String fieldName = rule.getFieldName();
       Map<String, Integer> ruleDb = _rulesByFieldType.get(fieldName);
       if (ruleDb == null) {
@@ -67,27 +69,27 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
    * 
    * @return the rules, not null
    */
-  public Collection<TimeSeriesMetaDataRating> getRules() {
+  public Collection<TimeSeriesInfoRating> getRules() {
     return Collections.unmodifiableCollection(_rules);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public int rate(TimeSeriesMetaData metaData) {
-    String dataSource = metaData.getDataSource();
-    Map<String, Integer> dataSourceMap = _rulesByFieldType.get(TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME);
+  public int rate(TimeSeriesInfo info) {
+    String dataSource = info.getDataSource();
+    Map<String, Integer> dataSourceMap = _rulesByFieldType.get(TimeSeriesInfoFieldNames.DATA_SOURCE_NAME);
     Integer dsRating = dataSourceMap.get(dataSource);
     if (dsRating == null) {
-      dsRating = dataSourceMap.get(TimeSeriesMetaDataFieldNames.STAR_VALUE);
+      dsRating = dataSourceMap.get(TimeSeriesInfoFieldNames.STAR_VALUE);
       if (dsRating == null) {
         throw new OpenGammaRuntimeException("There must be a star match if no match with given dataSource: " + dataSource);
       }
     }
-    String dataProvider = metaData.getDataProvider();
-    Map<String, Integer> dataProviderMap = _rulesByFieldType.get(TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME);
+    String dataProvider = info.getDataProvider();
+    Map<String, Integer> dataProviderMap = _rulesByFieldType.get(TimeSeriesInfoFieldNames.DATA_PROVIDER_NAME);
     Integer dpRating = dataProviderMap.get(dataProvider);
     if (dpRating == null) {
-      dpRating = dataProviderMap.get(TimeSeriesMetaDataFieldNames.STAR_VALUE);
+      dpRating = dataProviderMap.get(TimeSeriesInfoFieldNames.STAR_VALUE);
       if (dpRating == null) {
         throw new OpenGammaRuntimeException("There must be a star match if no match with given dataProvider: " + dataProvider);
       }
@@ -101,8 +103,8 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
     if (this == obj) {
       return true;
     }
-    if (obj instanceof TimeSeriesMetaDataConfiguration) {
-      TimeSeriesMetaDataConfiguration other = (TimeSeriesMetaDataConfiguration) obj;
+    if (obj instanceof TimeSeriesInfoConfiguration) {
+      TimeSeriesInfoConfiguration other = (TimeSeriesInfoConfiguration) obj;
       return _rules.equals(other._rules);
     }
     return false;

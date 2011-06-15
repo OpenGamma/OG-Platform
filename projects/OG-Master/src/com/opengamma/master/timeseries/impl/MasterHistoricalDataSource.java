@@ -21,8 +21,8 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.master.timeseries.TimeSeriesMetaData;
-import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesInfo;
+import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -50,7 +50,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   /**
    * The time-series resolver.
    */
-  private final TimeSeriesMetaDataResolver _timeSeriesResolver;
+  private final TimeSeriesInfoResolver _timeSeriesResolver;
 
   /**
    * Creates an instance wrapping an underlying time-series master.
@@ -58,7 +58,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
    * @param timeSeriesMaster the time-series master, not null
    * @param timeSeriesResolver the time-series resolver, not null
    */
-  public MasterHistoricalDataSource(TimeSeriesMaster<LocalDate> timeSeriesMaster, TimeSeriesMetaDataResolver timeSeriesResolver) {
+  public MasterHistoricalDataSource(TimeSeriesMaster<LocalDate> timeSeriesMaster, TimeSeriesInfoResolver timeSeriesResolver) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
     _timeSeriesMaster = timeSeriesMaster;
@@ -147,12 +147,12 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle securityBundle, String configDocName, LocalDate currentDate, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(securityBundle != null && !securityBundle.getIdentifiers().isEmpty(), "Cannot get historical data with null/empty identifiers");
     if (StringUtils.isBlank(configDocName)) {
-      configDocName = TimeSeriesMetaDataFieldNames.DEFAULT_CONFIG_NAME;
+      configDocName = TimeSeriesInfoFieldNames.DEFAULT_CONFIG_NAME;
     }
-    TimeSeriesMetaData metaData = _timeSeriesResolver.getDefaultMetaData(securityBundle, configDocName);
+    TimeSeriesInfo info = _timeSeriesResolver.getInfo(securityBundle, configDocName);
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> result = new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
-    if (metaData != null) {
-      result = getHistoricalData(securityBundle, currentDate, metaData.getDataSource(), metaData.getDataProvider(), metaData.getDataField(), start, end);
+    if (info != null) {
+      result = getHistoricalData(securityBundle, currentDate, info.getDataSource(), info.getDataProvider(), info.getDataField(), start, end);
     } 
     return result;
   }

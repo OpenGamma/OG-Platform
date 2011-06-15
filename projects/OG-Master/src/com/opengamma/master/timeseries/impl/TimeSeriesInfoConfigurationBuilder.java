@@ -17,32 +17,30 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-
 /**
  * Builder for converting TimeSeriesMataDataConfiguration instances to/from Fudge messages.
  */
-@FudgeBuilderFor(TimeSeriesMetaDataConfiguration.class)
-public class TimeSeriesMetaDataConfigurationBuilder implements FudgeBuilder<TimeSeriesMetaDataConfiguration> {
+@FudgeBuilderFor(TimeSeriesInfoConfiguration.class)
+public class TimeSeriesInfoConfigurationBuilder implements FudgeBuilder<TimeSeriesInfoConfiguration> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final TimeSeriesMetaDataConfiguration object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final TimeSeriesInfoConfiguration object) {
     MutableFudgeMsg message = context.newMessage();
-    for (TimeSeriesMetaDataRating rule : object.getRules()) {
-//      message.add("rule", context.objectToFudgeMsg(rule));
+    for (TimeSeriesInfoRating rule : object.getRules()) {
       context.addToMessage(message, "rules", null, rule);
     }
     return message;
   }
 
   @Override
-  public TimeSeriesMetaDataConfiguration buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public TimeSeriesInfoConfiguration buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     Collection<FudgeField> fields = message.getAllByName("rules");
-    final List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>(fields.size());
+    final List<TimeSeriesInfoRating> rules = new ArrayList<TimeSeriesInfoRating>(fields.size());
     for (FudgeField field : fields) {
-      TimeSeriesMetaDataRating rule = context.fudgeMsgToObject(TimeSeriesMetaDataRating.class, (FudgeMsg) field.getValue());
+      TimeSeriesInfoRating rule = context.fudgeMsgToObject(TimeSeriesInfoRating.class, (FudgeMsg) field.getValue());
       rules.add(rule);
     }
-    return new TimeSeriesMetaDataConfiguration(rules);
+    return new TimeSeriesInfoConfiguration(rules);
   }
 
 }

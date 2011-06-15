@@ -12,15 +12,14 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-
 /**
- * Builder for converting TimeSeriesMetaDataRating instances to/from Fudge messages.
+ * Builder for converting TimeSeriesInfoRating instances to/from Fudge messages.
  */
-@FudgeBuilderFor(TimeSeriesMetaDataRating.class)
-public class TimeSeriesMetaDataRatingBuilder implements FudgeBuilder<TimeSeriesMetaDataRating> {
+@FudgeBuilderFor(TimeSeriesInfoRating.class)
+public class TimeSeriesInfoRatingBuilder implements FudgeBuilder<TimeSeriesInfoRating> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, TimeSeriesMetaDataRating object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, TimeSeriesInfoRating object) {
     MutableFudgeMsg message = context.newMessage();
     message.add("fieldName", object.getFieldName());
     message.add("fieldValue", object.getFieldValue());
@@ -29,20 +28,20 @@ public class TimeSeriesMetaDataRatingBuilder implements FudgeBuilder<TimeSeriesM
   }
 
   @Override
-  public TimeSeriesMetaDataRating buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public TimeSeriesInfoRating buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     String fieldName = message.getString("fieldName");
     if (fieldName == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataRating - field 'fieldName' is not present");
+      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'fieldName' is not present");
     }
     String fieldValue = message.getString("fieldValue");
     if (fieldValue == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataRating - field 'fieldValue' is not present");
+      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'fieldValue' is not present");
     }
     Integer rating = message.getInt("rating");
     if (rating == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataRating - field 'rating' is not present");
+      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'rating' is not present");
     }
-    return new TimeSeriesMetaDataRating(fieldName, fieldValue, rating);
+    return new TimeSeriesInfoRating(fieldName, fieldValue, rating);
   }
 
 }

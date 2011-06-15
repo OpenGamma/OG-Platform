@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.timeseries.impl;
 
-import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_SOURCE_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -23,20 +23,20 @@ import org.testng.annotations.Test;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test TimeSeriesMetaDataConfiguration to/from fudge message.
+ * Test TimeSeriesInfoConfiguration to/from fudge message.
  */
 @Test
-public class TimeSeriesMetaDataConfigurationTest {
+public class TimeSeriesInfoConfigurationTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void fudgeEncoding() {
-    List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>();
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "REUTERS", 1));
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPL", 3));
+    List<TimeSeriesInfoRating> rules = new ArrayList<TimeSeriesInfoRating>();
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "REUTERS", 1));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, "CMPL", 3));
     
-    TimeSeriesMetaDataConfiguration inputConfig = new TimeSeriesMetaDataConfiguration(rules);
+    TimeSeriesInfoConfiguration inputConfig = new TimeSeriesInfoConfiguration(rules);
     
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputConfig);
@@ -45,7 +45,7 @@ public class TimeSeriesMetaDataConfigurationTest {
     assertEquals(3, outputMsg.getNumFields());
     
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
-    TimeSeriesMetaDataConfiguration outputConfig = deserializationContext.fudgeMsgToObject(TimeSeriesMetaDataConfiguration.class, outputMsg);
+    TimeSeriesInfoConfiguration outputConfig = deserializationContext.fudgeMsgToObject(TimeSeriesInfoConfiguration.class, outputMsg);
     
     assertEquals(inputConfig, outputConfig);
   }

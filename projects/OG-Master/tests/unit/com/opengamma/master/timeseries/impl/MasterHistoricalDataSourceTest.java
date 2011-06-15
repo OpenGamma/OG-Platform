@@ -23,8 +23,8 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.master.timeseries.TimeSeriesMetaData;
-import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesInfo;
+import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.time.DateUtil;
@@ -50,14 +50,14 @@ public class MasterHistoricalDataSourceTest {
   private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of(Identifier.of("A", "B"));
   
   private TimeSeriesMaster<LocalDate> _mockMaster;
-  private TimeSeriesMetaDataResolver _mockResolver;
+  private TimeSeriesInfoResolver _mockResolver;
   private MasterHistoricalDataSource _tsSource;
 
   @BeforeMethod
   @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
     _mockMaster = mock(TimeSeriesMaster.class);
-    _mockResolver = mock(TimeSeriesMetaDataResolver.class);
+    _mockResolver = mock(TimeSeriesInfoResolver.class);
     _tsSource = new MasterHistoricalDataSource(_mockMaster, _mockResolver);
   }
 
@@ -71,7 +71,7 @@ public class MasterHistoricalDataSourceTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
-    TimeSeriesMetaDataResolver mock = mock(TimeSeriesMetaDataResolver.class);
+    TimeSeriesInfoResolver mock = mock(TimeSeriesInfoResolver.class);
     new MasterHistoricalDataSource(null, mock);
   }
 
@@ -129,14 +129,13 @@ public class MasterHistoricalDataSourceTest {
     tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
-    TimeSeriesMetaData metaData = new TimeSeriesMetaData();
-    metaData.setDataField(CLOSE_DATA_FIELD);
-    metaData.setDataProvider(CMPL_DATA_PROVIDER);
-    metaData.setDataSource(BBG_DATA_SOURCE);
-    metaData.setIdentifiers(IDENTIFIERS);
+    TimeSeriesInfo info = new TimeSeriesInfo();
+    info.setDataField(CLOSE_DATA_FIELD);
+    info.setDataProvider(CMPL_DATA_PROVIDER);
+    info.setDataSource(BBG_DATA_SOURCE);
     
     when(_mockMaster.search(request)).thenReturn(searchResult);
-    when(_mockResolver.getDefaultMetaData(IDENTIFIERS, TEST_CONFIG)).thenReturn(metaData);
+    when(_mockResolver.getInfo(IDENTIFIERS, TEST_CONFIG)).thenReturn(info);
     
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).search(request);

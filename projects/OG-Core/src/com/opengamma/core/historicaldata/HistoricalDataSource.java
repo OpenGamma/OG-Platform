@@ -159,10 +159,10 @@ public interface HistoricalDataSource {
    */
   LocalDateDoubleTimeSeries getHistoricalData(
       UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
-  
+
   /**
-   * Finds multiple time-series for the same source, provider and field, with all data points between start and end
-   * date. 
+   * Finds multiple time-series for the same source, provider and field, with all data
+   * points between start and end date. 
    * 
    * @param identifierSet  a set containing an identifier bundle for each time-series required, not null
    * @param dataSource  the data source, not null

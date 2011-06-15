@@ -12,9 +12,9 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
-import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
-import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.STAR_VALUE;
+import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.STAR_VALUE;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +29,8 @@ import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.master.timeseries.TimeSeriesMetaData;
-import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesInfo;
+import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -38,56 +38,56 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Test DefaultTimeSeriesResolver.
  */
 @Test
-public class DefaultTimeSeriesMetaDataResolverTest {
+public class DefaultTimeSeriesInfoResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
   private static final String DEFAULT_DATA_PROVIDER = "CMPL";
   
-  private static final String[] DATA_FIELDS = new String[] { TimeSeriesMetaDataResolver.DEFAULT_DATA_FIELD, "VOLUME" };
+  private static final String[] DATA_FIELDS = new String[] { TimeSeriesInfoResolver.DEFAULT_DATA_FIELD, "VOLUME" };
   private static final String[] DATA_PROVIDERS = new String[] { "UNKNOWN", "CMPL", "CMPT" };
   private static final String[] DATA_SOURCES = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
   private static final String CONFIG_DOC_NAME = "TEST";
 
-  private DefaultTimeSeriesMetaDataResolver<LocalDate> _metaDataResolver;
+  private DefaultTimeSeriesInfoResolver<LocalDate> _infoResolver;
   private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
   @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
-    _metaDataResolver = new DefaultTimeSeriesMetaDataResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
+    _infoResolver = new DefaultTimeSeriesInfoResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class);
+    ConfigDocument<TimeSeriesInfoConfiguration> testDoc = new ConfigDocument<TimeSeriesInfoConfiguration>(TimeSeriesInfoConfiguration.class);
     testDoc.setName(CONFIG_DOC_NAME);
     testDoc.setValue(createRules());
     ConfigMasterUtils.storeByName(configMaster, testDoc);
   }
 
-  private TimeSeriesMetaDataConfiguration createRules() {
-    List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>();
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "BLOOMBERG", 3));
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "REUTERS", 2));
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "JPM", 1));
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "XXX", 0));
-    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, STAR_VALUE, 0));
+  private TimeSeriesInfoConfiguration createRules() {
+    List<TimeSeriesInfoRating> rules = new ArrayList<TimeSeriesInfoRating>();
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "BLOOMBERG", 3));
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "REUTERS", 2));
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "JPM", 1));
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, "XXX", 0));
+    rules.add(new TimeSeriesInfoRating(DATA_SOURCE_NAME, STAR_VALUE, 0));
     
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPL", 3));
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPT", 2));
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPN", 1));
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "EXCH_LSE", 0));
-    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, STAR_VALUE, 0));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, "CMPL", 3));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, "CMPT", 2));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, "CMPN", 1));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, "EXCH_LSE", 0));
+    rules.add(new TimeSeriesInfoRating(DATA_PROVIDER_NAME, STAR_VALUE, 0));
     
-    TimeSeriesMetaDataConfiguration config = new TimeSeriesMetaDataConfiguration(rules);
+    TimeSeriesInfoConfiguration config = new TimeSeriesInfoConfiguration(rules);
     return config;
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _metaDataResolver = null;
+    _infoResolver = null;
     _tsMaster = null;
   }
 
@@ -96,11 +96,11 @@ public class DefaultTimeSeriesMetaDataResolverTest {
     addAndTestTimeSeries();
     List<IdentifierBundleWithDates> identifiers = _tsMaster.getAllIdentifiers();
     for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
-      TimeSeriesMetaData defaultMetaData = _metaDataResolver.getDefaultMetaData(identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
+      TimeSeriesInfo defaultMetaData = _infoResolver.getInfo(identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
       assertNotNull(defaultMetaData);
       assertEquals(DEFAULT_DATA_SOURCE, defaultMetaData.getDataSource());
       assertEquals(DEFAULT_DATA_PROVIDER, defaultMetaData.getDataProvider());
-      assertEquals(TimeSeriesMetaDataResolver.DEFAULT_DATA_FIELD, defaultMetaData.getDataField());
+      assertEquals(TimeSeriesInfoResolver.DEFAULT_DATA_FIELD, defaultMetaData.getDataField());
     }
   }
 

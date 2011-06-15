@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class TimeSeriesMetaDataRating {
+public final class TimeSeriesInfoRating {
 
   /**
    * The field name
@@ -39,9 +39,9 @@ public final class TimeSeriesMetaDataRating {
    * @param rating  the rating, zero or greater
    * @throws IllegalArgumentException if the input is invalid
    */
-  public TimeSeriesMetaDataRating(String fieldName, String fieldValue, int rating) {
+  public TimeSeriesInfoRating(String fieldName, String fieldValue, int rating) {
     ArgumentChecker.notNull(fieldName, "fieldName");
-    ArgumentChecker.isTrue(TimeSeriesMetaDataFieldNames.VALID_FIELD_NAMES.contains(fieldName), "invalid field name");
+    ArgumentChecker.isTrue(TimeSeriesInfoFieldNames.VALID_FIELD_NAMES.contains(fieldName), "invalid field name");
     ArgumentChecker.notNull(fieldValue, "fieldValue");
     ArgumentChecker.isTrue(rating >= 0, "rating cannot be negative");
     _fieldName = fieldName;
@@ -83,8 +83,8 @@ public final class TimeSeriesMetaDataRating {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof TimeSeriesMetaDataRating) {
-      TimeSeriesMetaDataRating other = (TimeSeriesMetaDataRating) obj;
+    if (obj instanceof TimeSeriesInfoRating) {
+      TimeSeriesInfoRating other = (TimeSeriesInfoRating) obj;
       return ObjectUtils.equals(_fieldName, other._fieldName) && ObjectUtils.equals(_fieldValue, other._fieldValue) && _rating == other._rating;
     }
     return false;

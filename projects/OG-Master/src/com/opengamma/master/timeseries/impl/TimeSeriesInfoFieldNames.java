@@ -10,9 +10,9 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Constants for time-series meta-data field names.
+ * Constants for time-series info field names.
  */
-public final class TimeSeriesMetaDataFieldNames {
+public final class TimeSeriesInfoFieldNames {
 
   /**
    * Field name for data source.
@@ -42,7 +42,7 @@ public final class TimeSeriesMetaDataFieldNames {
   /**
    * Restricted constructor.
    */
-  private TimeSeriesMetaDataFieldNames() {
+  private TimeSeriesInfoFieldNames() {
   }
 
 }
