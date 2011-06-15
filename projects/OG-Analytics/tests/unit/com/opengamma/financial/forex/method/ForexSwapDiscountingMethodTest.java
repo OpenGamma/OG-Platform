@@ -41,7 +41,7 @@ public class ForexSwapDiscountingMethodTest {
 
   private static final ForexSwapDiscountingMethod METHOD = new ForexSwapDiscountingMethod();
   private static final ForexDiscountingMethod METHOD_FX = new ForexDiscountingMethod();
-  private static final com.opengamma.financial.forex.calculator.PresentValueCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueCalculator.getInstance();
+  private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
 
   @Test
   /**

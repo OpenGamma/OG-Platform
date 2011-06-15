@@ -26,7 +26,10 @@ import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
@@ -85,6 +88,9 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
 
   private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -92,27 +98,37 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMS CMS_FLOOR = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators
-  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
+  private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
+  private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
+  private static final CapFloorCMSSABRReplicationMethod METHOD = new CapFloorCMSSABRReplicationMethod();
 
   @Test
   /**
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
    */
   public void testPriceReplication() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // CMS cap/floor with strike 0 has the same price as a CMS coupon.
-    final double priceCMSCoupon = PVC.visit(CMS_COUPON, sabrBundle);
-    final double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
+    final double priceCMSCoupon = PVC_SABR.visit(CMS_COUPON, SABR_BUNDLE);
+    final double priceCMSCap0 = PVC_SABR.visit(CMS_CAP_0, SABR_BUNDLE);
     assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
-    final double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
-    assertEquals(717.182, priceCMSCap, 1E-2);//From previous run
-    final double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
-    assertEquals(597.902, priceCMSFloor, 1E-2);//From previous run
-    final double priceStrike = PVC.visit(COUPON_STRIKE, curves);
+    final double priceCMSCap = PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+    assertEquals(717.182, priceCMSCap, 1E-2); //From previous run
+    final double priceCMSFloor = PVC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
+    assertEquals(597.902, priceCMSFloor, 1E-2); //From previous run
+    final double priceStrike = PVC_SABR.visit(COUPON_STRIKE, CURVES);
     // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
     assertEquals(priceCMSCap - priceCMSFloor + 24.0, priceCMSCoupon - priceStrike, 1.0);
+  }
+
+  @Test
+  /**
+   * Tests the present value SABR parameters sensitivity: Method vs Calculator.
+   */
+  public void presentValueSABRSensitivityMethodVsCalculator() {
+    final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(CMS_CAP, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+    assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
   @Test(enabled = false)
@@ -120,31 +136,28 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void testPerformance() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
-    final int nbTest = 10000;
+    final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      replication.presentValue(CMS_CAP, sabrBundle);
-      replication.presentValueSensitivity(CMS_CAP, sabrBundle);
-      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
+      PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+      PVCSC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+      PVSSC_SABR.visit(CMS_CAP, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-May: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 1000 cap 5Y.
-    // Performance note: price+delta+vega: 04-May: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 820 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 345 ms for 1000 cap 5Y.
+    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 615 ms for 1000 cap 5Y.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      replication.presentValue(CMS_FLOOR, sabrBundle);
-      replication.presentValueSensitivity(CMS_FLOOR, sabrBundle);
-      replication.presentValueSABRSensitivity(CMS_FLOOR, sabrBundle);
+      PVC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
+      PVCSC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
+      PVSSC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 410 ms for 1000 floor 5Y.
-    // Performance note: price+delta+vega: 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 810 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 1000 floor 5Y.
+    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 490 ms for 1000 cap 5Y.
   }
+
 }

@@ -49,7 +49,7 @@ public class ForexDiscountingMethodTest {
 
   private static final ForexDiscountingMethod METHOD = new ForexDiscountingMethod();
   private static final com.opengamma.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
-  private static final com.opengamma.financial.forex.calculator.PresentValueCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueCalculator.getInstance();
+  private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
 
   @Test

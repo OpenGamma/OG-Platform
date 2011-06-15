@@ -27,6 +27,7 @@ public class SwapLegBean {
   private double _rate;
   private double _spread;
   private IdentifierBean _rateIdentifier;
+  private Boolean _ibor;
 
   public SwapLegType getSwapLegType() {
     return _swapLegType;
@@ -163,5 +164,13 @@ public class SwapLegBean {
   public void setRateIdentifier(IdentifierBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
-
+  
+  public Boolean isIBOR() {
+    return _ibor;
+  }
+  
+  public void setIBOR(final Boolean ibor) {
+    _ibor = ibor;
+  }
+  
 }

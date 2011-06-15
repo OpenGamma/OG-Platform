@@ -33,13 +33,13 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -95,20 +95,24 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
   private static final CouponCMS CMS_COUPON_RECEIVER = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponCMS CMS_COUPON_PAYER = (CouponCMS) CMS_COUPON_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators
-  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
+  private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
+  private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private static final CouponCMSSABRReplicationMethod METHOD = new CouponCMSSABRReplicationMethod();
-  private static final PresentValueCurveSensitivitySABRCalculator PVSC = PresentValueCurveSensitivitySABRCalculator.getInstance();
 
   @Test
   public void testPriceReplicationPayerReceiver() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final double priceReceiver = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);
-    final double pricePayer = PVC.visit(CMS_COUPON_PAYER, sabrBundle);
+    final double priceReceiver = PVC_SABR.visit(CMS_COUPON_RECEIVER, sabrBundle);
+    final double pricePayer = PVC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Payer/receiver", priceReceiver, -pricePayer);
   }
 
@@ -121,7 +125,7 @@ public class CouponCMSSABRReplicationMethodTest {
     SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     double pvMethod = METHOD.presentValue(CMS_COUPON_PAYER, sabrBundle);
-    double pvCalculator = PVC.visit(CMS_COUPON_PAYER, sabrBundle);
+    double pvCalculator = PVC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvMethod, pvCalculator);
   }
 
@@ -134,7 +138,7 @@ public class CouponCMSSABRReplicationMethodTest {
     SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
-    Map<String, List<DoublesPair>> pvsCalculator = PVSC.visit(CMS_COUPON_PAYER, sabrBundle);
+    Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivity(), pvsCalculator);
   }
 
@@ -183,7 +187,7 @@ public class CouponCMSSABRReplicationMethodTest {
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
       final SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumpedForward);
-      final double bumpedpv = PVC.visit(cmsBumpedForward, sabrBundleBumped);
+      final double bumpedpv = PVC_SABR.visit(cmsBumpedForward, sabrBundleBumped);
       final double res = (bumpedpv - pv) / deltaShift;
       final DoublesPair pair = tempForward.get(i);
       assertEquals("Node " + i, nodeTimesForward[i + 1], pair.getFirst(), 1E-8);
@@ -223,23 +227,20 @@ public class CouponCMSSABRReplicationMethodTest {
    * Test the present value sensitivity to the SABR parameters.
    */
   public void testPresentValueSABRSensitivitySABRParameters() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
-    final PresentValueSABRSensitivityDataBundle pvsReceiver = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
-    final PresentValueSABRSensitivityDataBundle pvsPayer = METHOD.presentValueSABRSensitivity(CMS_COUPON_PAYER, sabrBundle);
+    final PresentValueSABRSensitivityDataBundle pvsReceiver = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvsPayer = METHOD.presentValueSABRSensitivity(CMS_COUPON_PAYER, SABR_BUNDLE);
     // Long/short parity
     pvsPayer.multiply(-1.0);
     assertEquals(pvsPayer.getAlpha(), pvsReceiver.getAlpha());
     // SABR sensitivity vs finite difference
-    final double pvLongPayer = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
+    final double pvLongPayer = METHOD.presentValue(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
     final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_COUPON_RECEIVER.getFixingTime(), ANNUITY_TENOR_YEAR + 1.0 / 365.0);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
-    final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);
+    final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);
     final double pvLongPayerAlphaBumped = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundleAlphaBumped);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pvLongPayer) / shiftAlpha;
     assertEquals("Number of alpha sensitivity", pvsReceiver.getAlpha().keySet().size(), 1);
@@ -247,7 +248,7 @@ public class CouponCMSSABRReplicationMethodTest {
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsReceiver.getAlpha().get(expectedExpiryTenor), 150.0);
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
-    final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, curves);
+    final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES);
     final double pvLongPayerRhoBumped = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundleRhoBumped);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pvLongPayer) / shift;
     assertEquals("Number of rho sensitivity", pvsReceiver.getRho().keySet().size(), 1);
@@ -255,7 +256,7 @@ public class CouponCMSSABRReplicationMethodTest {
     assertEquals("Rho sensitivity value", pvsReceiver.getRho().get(expectedExpiryTenor), expectedRhoSensi, 2.0);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
-    final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, curves);
+    final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES);
     final double pvLongPayerNuBumped = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundleNuBumped);
     final double expectedNuSensi = (pvLongPayerNuBumped - pvLongPayer) / shift;
     assertEquals("Number of nu sensitivity", pvsReceiver.getNu().keySet().size(), 1);
@@ -263,26 +264,32 @@ public class CouponCMSSABRReplicationMethodTest {
     assertEquals("Nu sensitivity value", pvsReceiver.getNu().get(expectedExpiryTenor), expectedNuSensi, 15.0);
   }
 
-  @Test(enabled = false)
+  @Test
+  /**
+   * Tests the present value SABR parameters sensitivity: Method vs Calculator.
+   */
+  public void presentValueSABRSensitivityMethodVsCalculator() {
+    final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+    assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
+  }
+
+  @Test(enabled = true)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
   public void testPerformance() {
-    // Used only to assess performance
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
     final int nbTest = 100;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
-      replication.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
-      replication.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
+      PVC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+      PVCSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+      PVSSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS swap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 50 coupon 5Y.
-    // Performance note: price+delta+vega: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 50 coupon 5Y.
-    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 87 ms for 100 coupon 5Y.
-    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 131 ms for 100 coupon 5Y.
+    // Performance note: price+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 84 ms for 100 coupon 5Y.
+    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 130 ms for 100 coupon 5Y.
   }
 }
