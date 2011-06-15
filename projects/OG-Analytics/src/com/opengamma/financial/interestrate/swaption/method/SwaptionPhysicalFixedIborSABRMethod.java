@@ -34,14 +34,6 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
    * The par rate calculator.
    */
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod INSTANCE = new SwaptionPhysicalFixedIborSABRMethod();
-
-  public static SwaptionPhysicalFixedIborSABRMethod getInstance() {
-    return INSTANCE;
-  }
-
-  private SwaptionPhysicalFixedIborSABRMethod() {
-  }
 
   /**
    * Computes the present value of a physical delivery European swaption in the SABR model.
