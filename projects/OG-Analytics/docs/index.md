@@ -1,4 +1,4 @@
-View OpenGamma's [API documentation](api) or the [javadocs](../java/javadocs).
+View OpenGamma's [API documentation](api) or the [javadocs](/{{ OG_VERSION }}/javadocs).
 
 ## Guides
 
