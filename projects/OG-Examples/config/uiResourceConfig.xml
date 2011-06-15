@@ -11,6 +11,7 @@
     <fragment>/styles/common/og.common.OG-resizeBar.css</fragment>
     <fragment>/styles/common/og.common.buttons.css</fragment>
     <fragment>/styles/common/og.common.OG-toolbar.css</fragment>
+    <fragment>/styles/common/og.common.OG-tabs.css</fragment>
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.og-dd-menu.css</fragment>
@@ -18,6 +19,7 @@
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-message.css</fragment>
+    <fragment>/styles/common/util/ui/og.common.util.ui.OG-warning-message.css</fragment>
   </bundle>
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
@@ -25,6 +27,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-gradient-02.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-rounded.css</fragment>
@@ -44,9 +47,17 @@
     <fragment>/styles/common/details/og.common.OG-details.OG-exchange.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-batch.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
+    <fragment>/styles/common/details/og.common.OG-details.OG-default.css</fragment>
+  </bundle>
+  <bundle id="common.forms.css">
+    <fragment>/styles/common/forms/og.common.forms.OG-form.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-constraints.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
+    <fragment>/styles/views/forms/configs/og.views.forms.configs.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
+    <fragment>/styles/views/forms/configs/og.views.forms.configs.OG-form-column-sets.css</fragment>
   </bundle>
   <bundle id="libs.css">
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
@@ -68,6 +79,7 @@
     <bundle idref="common.classes.css" />
     <bundle idref="common.search.css" />
     <bundle idref="common.details.css"/>
+    <bundle idref="common.forms.css"/>
     <bundle idref="views.css"/>
     <bundle idref="libs.css" />
     <bundle idref="slickgrid.css" />
@@ -121,8 +133,10 @@
   </bundle>
   <bundle id="util.js">
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
+    <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
   </bundle>
   <bundle id="util_ui.js">
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toggle_text_on_focus.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.expand_height_to_window_bottom.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
@@ -139,9 +153,6 @@
     <fragment>/scripts/og/common/og.common.layout.resize.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.timeseries_functions.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.portfolio_functions.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.position_functions.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.security_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.exchange_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
@@ -150,7 +161,6 @@
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.minimize.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
-    <fragment>/scripts/og/common/og.common.init.js</fragment>
   </bundle>
   <bundle id="views.js">
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
@@ -165,6 +175,7 @@
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
     <fragment>/scripts/og/views/og.views.batches.js</fragment>
     <fragment>/scripts/og/views/og.views.analytics.js</fragment>
+    <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.min.js</fragment>
@@ -176,5 +187,6 @@
     <bundle idref="util_ui.js" />
     <bundle idref="common.js" />
     <bundle idref="views.js" />
+    <fragment>/scripts/og/common/og.common.init.js</fragment>
   </bundle>
 </uiResourceConfig>
