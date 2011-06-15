@@ -14,6 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,12 +35,9 @@ import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.statistics.descriptive.SampleCovarianceCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -70,13 +68,13 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeries marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode));
     final Object fairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     if (marketTSObject != null && assetPnLObject != null && fairValueObject != null) {
       final double fairValue = (Double) fairValueObject;
-      DoubleTimeSeries<?> marketReturn = _returnCalculator.evaluate(marketTSObject.getSecond());
+      DoubleTimeSeries<?> marketReturn = _returnCalculator.evaluate(marketTSObject.getTimeSeries());
       DoubleTimeSeries<?> assetReturn = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
       assetReturn = assetReturn.intersectionFirstValue(marketReturn);
       marketReturn = marketReturn.intersectionFirstValue(assetReturn);

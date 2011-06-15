@@ -18,13 +18,14 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.time.DateUtil;
@@ -33,7 +34,6 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test MasterHistoricalDataSource.
@@ -105,12 +105,12 @@ public class MasterHistoricalDataSourceTest {
     
     when(_mockMaster.search(request)).thenReturn(searchResult);
     
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     verify(_mockMaster, times(1)).search(request);
     
-    assertEquals(UID, tsPair.getFirst());
-    assertEquals(tsDoc.getTimeSeries().times(), tsPair.getSecond().times());
-    assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
+    assertEquals(UID, hts.getUniqueId());
+    assertEquals(tsDoc.getTimeSeries().times(), hts.getTimeSeries().times());
+    assertEquals(tsDoc.getTimeSeries().values(), hts.getTimeSeries().values());
   }
 
   public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
@@ -137,12 +137,12 @@ public class MasterHistoricalDataSourceTest {
     when(_mockMaster.search(request)).thenReturn(searchResult);
     when(_mockResolver.getInfo(IDENTIFIERS, TEST_CONFIG)).thenReturn(info);
     
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, TEST_CONFIG);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).search(request);
     
-    assertEquals(UID, tsPair.getFirst());
-    assertEquals(tsDoc.getTimeSeries().times(), tsPair.getSecond().times());
-    assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
+    assertEquals(UID, hts.getUniqueId());
+    assertEquals(tsDoc.getTimeSeries().times(), hts.getTimeSeries().times());
+    assertEquals(tsDoc.getTimeSeries().values(), hts.getTimeSeries().values());
   }
 
   public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
@@ -179,10 +179,10 @@ public class MasterHistoricalDataSourceTest {
         tsDoc.setTimeSeries(subSeries);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
-        Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
+        HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
         verify(_mockMaster, times(1)).search(request);
-        assertEquals(UID, tsPair.getFirst());
-        assertEquals(tsDoc.getTimeSeries(), tsPair.getSecond());
+        assertEquals(UID, hts.getUniqueId());
+        assertEquals(tsDoc.getTimeSeries(), hts.getTimeSeries());
       }
     }
   }
@@ -216,11 +216,12 @@ public class MasterHistoricalDataSourceTest {
     
     when(_mockMaster.search(request)).thenReturn(searchResult);
     
-    LocalDateDoubleTimeSeries timeSeries = _tsSource.getHistoricalData(UID);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalData(UID);
     verify(_mockMaster, times(1)).search(request);
     
-    assertEquals(tsDoc.getTimeSeries().times(), timeSeries.times());
-    assertEquals(tsDoc.getTimeSeries().values(), timeSeries.values());
+    assertEquals(UID, hts.getUniqueId());
+    assertEquals(tsDoc.getTimeSeries().times(), hts.getTimeSeries().times());
+    assertEquals(tsDoc.getTimeSeries().values(), hts.getTimeSeries().values());
   }
 
 }

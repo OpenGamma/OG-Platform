@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -33,12 +34,9 @@ import com.opengamma.financial.riskreward.TreynorRatioCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -69,7 +67,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeRateTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeries riskFreeRateTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (riskFreeRateTSObject == null) {
       throw new NullPointerException("Risk free rate series was null");
@@ -89,7 +87,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final double beta = (Double) betaObject;
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-    DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getSecond().divide(100 * DAYS_PER_YEAR);
+    DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getTimeSeries().divide(100 * DAYS_PER_YEAR);
     assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
     riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
     final double ratio = _treynorRatio.evaluate(assetReturnTS, riskFreeReturnTS, beta);

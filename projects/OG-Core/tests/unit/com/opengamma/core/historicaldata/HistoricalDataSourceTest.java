@@ -6,8 +6,7 @@
 package com.opengamma.core.historicaldata;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,12 +17,13 @@ import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource;
 import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -125,9 +125,9 @@ public class HistoricalDataSourceTest {
         for (String dataProvider : new String[] {"UNKNOWN", "CMPL", "CMPT"}) {
           for (String field : new String[] {"PX_LAST", "VOLUME"}) {
             LocalDateDoubleTimeSeries expectedTS = map.get(dsids).get(dataSource).get(dataProvider).get(field);
-            Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = inMemoryHistoricalDataProvider.getHistoricalData(dsids, dataSource, dataProvider, field);
-            assertEquals(expectedTS, tsPair.getSecond());
-            assertEquals(expectedTS, inMemoryHistoricalDataProvider.getHistoricalData(tsPair.getFirst()));
+            HistoricalTimeSeries hts = inMemoryHistoricalDataProvider.getHistoricalData(dsids, dataSource, dataProvider, field);
+            assertEquals(expectedTS, hts.getTimeSeries());
+            assertEquals(hts, inMemoryHistoricalDataProvider.getHistoricalData(hts.getUniqueId()));
           }
         }
       }
@@ -153,13 +153,13 @@ public class HistoricalDataSourceTest {
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];
-      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> inMemPair = inMemoryHistoricalDataProvider.getHistoricalData(ids, dataSource, dataProvider, field);
-      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> cachedPair = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field);
-      assertEquals(inMemPair, cachedPair);
-      assertEquals(inMemoryHistoricalDataProvider.getHistoricalData(inMemPair.getFirst()), cachedProvider.getHistoricalData(cachedPair.getFirst()));
+      HistoricalTimeSeries inMemSeries = inMemoryHistoricalDataProvider.getHistoricalData(ids, dataSource, dataProvider, field);
+      HistoricalTimeSeries cachedSeries = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field);
+      assertEquals(inMemSeries, cachedSeries);
+      assertEquals(inMemoryHistoricalDataProvider.getHistoricalData(inMemSeries.getUniqueId()), cachedProvider.getHistoricalData(cachedSeries.getUniqueId()));
       
-      cachedPair = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field, inMemPair.getValue().getEarliestTime(), true, inMemPair.getValue().getLatestTime(), false);
-      assertEquals(inMemPair, cachedPair);
+      cachedSeries = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
+      assertEquals(inMemSeries, cachedSeries);
     }
   }
 }

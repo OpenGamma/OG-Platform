@@ -10,20 +10,19 @@ import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceSe
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DEFAULT;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DEFAULT_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_END;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_EXCLUSIVE_END;
-
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID_BY_DATE;
 
 import java.util.Map;
 import java.util.Set;
@@ -39,21 +38,19 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * A HistoricalDataSource implementation that connects to a remote one with REST calls.
  */
 public class RemoteHistoricalDataSource implements HistoricalDataSource {
-
-  private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
 
   /**
    * The RESTful client instance.
@@ -66,6 +63,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
 
   /**
    * Creates an instance.
+   * 
    * @param fudgeContext  the Fudge context, not null
    * @param baseTarget  the base target URI to call, not null
    */
@@ -76,6 +74,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     _targetBase = baseTarget;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the RESTful client.
    * @return the client, not null
@@ -92,9 +91,9 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     return _targetBase;
   }
 
-  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> decodePairMessage(final FudgeMsg message) {
+  private HistoricalTimeSeries decodeMessage(final FudgeMsg message) {
     if (message == null) {
-      return Pair.of(null, EMPTY_TIMESERIES);
+      return null;
     }
     final FudgeField uniqueIdField = message.getByName(HISTORICALDATASOURCE_UNIQUEID);
     if (uniqueIdField == null) {
@@ -105,23 +104,36 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
       throw new IllegalArgumentException(HISTORICALDATASOURCE_TIMESERIES + " not present in message");
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    return Pair.of(context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField), context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField));
+    UniqueIdentifier uniqueId = context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField);
+    LocalDateDoubleTimeSeries ts = context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
+    return new HistoricalTimeSeriesImpl(uniqueId, ts);
   }
 
-  private LocalDateDoubleTimeSeries decodeTimeSeriesMessage(final FudgeMsg message) {
-    if (message == null) {
-      return EMPTY_TIMESERIES;
-    }
-    final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
-    if (timeSeriesField == null) {
-      throw new IllegalArgumentException(HISTORICALDATASOURCE_TIMESERIES + " not present in message");
-    }
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    return context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
-  }
-  
+  //-------------------------------------------------------------------------
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uid.toString());
+    return decodeMessage(getRestClient().getMsg(target));
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(uid, "uid");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uid.toString())
+      .resolveBase(start.toString())
+      .resolveBase(String.valueOf(inclusiveStart))
+      .resolveBase(end.toString())
+      .resolveBase(String.valueOf(exclusiveEnd));
+    return decodeMessage(getRestClient().getMsg(target));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -129,31 +141,31 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
       .resolveBase(dataField).resolveQuery("id", identifiers.toStringList());
-    return decodePairMessage(getRestClient().getMsg(target));
+    return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase((configDocName != null) ? configDocName : NULL_VALUE)
       .resolveQuery("id", identifiers.toStringList());
-    return decodePairMessage(getRestClient().getMsg(target));
+    return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName) {
     return getHistoricalData(identifiers, (LocalDate) null, configDocName);
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(start, "start");
@@ -167,38 +179,17 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
       .resolveBase(end.toString())
       .resolveBase(String.valueOf(exclusiveEnd))
       .resolveQuery("id", identifiers.toStringList());
-    return decodePairMessage(getRestClient().getMsg(target));
+    return decodeMessage(getRestClient().getMsg(target));
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName, 
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalData(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
   }
-  
-  @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uid.toString());
-    return decodeTimeSeriesMessage(getRestClient().getMsg(target));
-  }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    ArgumentChecker.notNull(uid, "uid");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
-    
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uid.toString())
-      .resolveBase(start.toString())
-      .resolveBase(String.valueOf(inclusiveStart))
-      .resolveBase(end.toString())
-      .resolveBase(String.valueOf(exclusiveEnd));
-    return decodeTimeSeriesMessage(getRestClient().getMsg(target));
-  }
-  
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
       String dataProvider, String dataField, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -214,18 +205,18 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
       .resolveBase(end.toString())
       .resolveBase(String.valueOf(exclusiveEnd))
       .resolveQuery("id", identifiers.toStringList());
-    return decodePairMessage(getRestClient().getMsg(target));
+    return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalData(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());

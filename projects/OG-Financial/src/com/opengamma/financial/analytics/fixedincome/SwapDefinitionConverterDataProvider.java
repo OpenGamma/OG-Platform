@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
@@ -24,8 +25,6 @@ import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -79,12 +78,12 @@ public class SwapDefinitionConverterDataProvider implements
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final UniqueIdentifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id = null; //TODO //IdentifierBundle.of(indexID);
-      final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _dataSource.getHistoricalData(id,
+      final HistoricalTimeSeries hts = _dataSource.getHistoricalData(id,
           _dataSourceName, null, _fieldName, swapStartDate.toLocalDate(), true, _now, false);
-      if (tsPair == null) {
+      if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
-      return tsPair.getSecond().toZonedDateTimeDoubleTimeSeries(_timeZone);
+      return hts.getTimeSeries().toZonedDateTimeDoubleTimeSeries(_timeZone);
     }
     return null;
   }

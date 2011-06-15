@@ -13,14 +13,12 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory data source, typically used for testing.
@@ -28,28 +26,23 @@ import com.opengamma.util.tuple.Pair;
 public class MockHistoricalDataSource implements HistoricalDataSource {
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
-   */
-  public static final String DEFAULT_UID_SCHEME = "MemoryTS";
-
-  /**
    * The store of unique identifiers.
    */
-  private Map<MetaDataKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<MetaDataKey, UniqueIdentifier>();
+  private Map<HistoricalDataKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<HistoricalDataKey, UniqueIdentifier>();
   /**
    * The store of unique time-series.
    */
-  private Map<UniqueIdentifier, LocalDateDoubleTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, LocalDateDoubleTimeSeries>();
+  private Map<UniqueIdentifier, HistoricalTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, HistoricalTimeSeries>();
   /**
-   * The supplied of identifiers.
+   * The suppler of unique identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
 
   /**
-   * Creates an empty TimeSeriesSource using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
    */
   public MockHistoricalDataSource() {
-    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
+    _uidSupplier = new UniqueIdentifierSupplier("MockHTS");
   }
 
   /**
@@ -62,25 +55,104 @@ public class MockHistoricalDataSource implements HistoricalDataSource {
     _uidSupplier = uidSupplier;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
-      IdentifierBundle identifiers, String dataSource, String dataProvider,
-      String dataField) {
+  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    return _timeSeriesStore.get(uniqueId);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(
+      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    HistoricalTimeSeries hts = getHistoricalData(uniqueId);
+    return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeries getHistoricalData(
+      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
-    LocalDateDoubleTimeSeries timeSeries = _timeSeriesStore.get(uid);
-    if (timeSeries == null) {
-      return new ArrayLocalDateDoubleTimeSeries();
-    } else {
-      return timeSeries;
+  public HistoricalTimeSeries getHistoricalData(
+      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    HistoricalDataKey key = new HistoricalDataKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
+    UniqueIdentifier uniqueId = _metaUniqueIdentifierStore.get(key);
+    if (uniqueId == null) {
+      return null;
     }
+    return getHistoricalData(uniqueId);
   }
 
-  public void storeHistoricalTimeSeries(IdentifierBundle dsids, String dataSource, String dataProvider, String field, LocalDateDoubleTimeSeries dts) {
-    MetaDataKey metaKey = new MetaDataKey(null, null, dsids, dataSource, dataProvider, field);
+  @Override
+  public HistoricalTimeSeries getHistoricalData(
+      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    return getHistoricalData(
+        identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(
+      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    HistoricalTimeSeries hts = getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField);
+    return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalData(
+      Set<IdentifierBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalData for multiple time-series");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Stores a time-series in this source.
+   * 
+   * @param identifiers  the identifier bundle, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @param timeSeriesDataPoints  the time-series data points, not null
+   */
+  public void storeHistoricalTimeSeries(
+      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDateDoubleTimeSeries timeSeriesDataPoints) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(timeSeriesDataPoints, "timeSeriesDataPoints");
+    HistoricalDataKey metaKey = new HistoricalDataKey(null, null, identifiers, dataSource, dataProvider, dataField);
     UniqueIdentifier uid = null;
     synchronized (this) {
       uid = _metaUniqueIdentifierStore.get(metaKey);
@@ -89,80 +161,29 @@ public class MockHistoricalDataSource implements HistoricalDataSource {
         _metaUniqueIdentifierStore.put(metaKey, uid);
       }
     }
-    _timeSeriesStore.put(uid, dts);
+    _timeSeriesStore.put(uid, new HistoricalTimeSeriesImpl(uid, timeSeriesDataPoints));
   }
 
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configName, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, dataSource, dataProvider, field);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
-      return Pair.of(tsPair.getKey(), timeSeries);
-    } else {
+  /**
+   * Gets a sub-series based on the supplied dates.
+   * 
+   * @param hts  the time-series, null returns null
+   * @param start  the start date, null will load the earliest date 
+   * @param inclusiveStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param exclusiveEnd  whether or not the end date is included in the result
+   * @return the historical time-series, null if null input
+   */
+  private HistoricalTimeSeries getSubSeries(
+      HistoricalTimeSeries hts, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    if (hts == null) {
       return null;
     }
-  }
-
-  @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
-    if (timeseries != null) {
-      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
-    } else {
-      return null;
+    if (hts.getTimeSeries().isEmpty()) {
+      return hts;
     }
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    UniqueIdentifier uid = _metaUniqueIdentifierStore.get(new MetaDataKey(null, currentDate, identifiers, dataSource, dataProvider, dataField));
-    if (uid == null) {
-      return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
-    } else {
-      return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, _timeSeriesStore.get(uid));
-    }
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String field,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, currentDate, dataSource, dataProvider, field);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
-      return Pair.of(tsPair.getKey(), timeSeries);
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
-  }
-
-  @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
-  }
-
-  @Override
-  public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
-      Set<IdentifierBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalData for multiple time-series");
+    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, exclusiveEnd);
+    return new HistoricalTimeSeriesImpl(hts.getUniqueId(), timeSeries);
   }
 
 }

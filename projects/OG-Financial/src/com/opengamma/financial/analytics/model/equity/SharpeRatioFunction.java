@@ -14,6 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,12 +35,9 @@ import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -73,7 +71,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> benchmarkTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeries benchmarkTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     if (benchmarkTSObject == null) {
       throw new NullPointerException("Benchmark time series was null");
@@ -88,7 +86,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     }
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-    DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getSecond());
+    DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getTimeSeries());
     assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
     benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
     final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);

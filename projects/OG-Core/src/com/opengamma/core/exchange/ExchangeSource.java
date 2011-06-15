@@ -22,11 +22,11 @@ public interface ExchangeSource {
   /**
    * Finds a specific exchange by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the exchange, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Exchange getExchange(UniqueIdentifier uid);
+  Exchange getExchange(UniqueIdentifier uniqueId);
 
   /**
    * Finds a specific exchange by identifier.

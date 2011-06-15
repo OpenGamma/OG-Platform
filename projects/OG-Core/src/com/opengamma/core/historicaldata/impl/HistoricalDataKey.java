@@ -12,29 +12,29 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * Key to represent time-series meta-data.
+ * Key to represent time-series data in a hash-map or cache.
  */
-/* package */ final class MetaDataKey {
+/* package */ final class HistoricalDataKey {
 
-  private final IdentifierBundle _dsids;
+  private final IdentifierBundle _identifiers;
+  private final LocalDate _currentDate;
   private final String _dataSource;
   private final String _dataProvider;
-  private final String _field;
-  private final LocalDate _currentDate;
+  private final String _dataField;
   private final String _configName;
 
-  /* package */ MetaDataKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
-    _dsids = dsids;
+  /* package */ HistoricalDataKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
+    _identifiers = dsids;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
-    _field = field;
+    _dataField = field;
     _currentDate = currentDate;
     _configName = configName;
   }
-  
+
   //-------------------------------------------------------------------------
   public IdentifierBundle getIdentifiers() {
-    return _dsids;
+    return _identifiers;
   }
 
   //-------------------------------------------------------------------------
@@ -43,13 +43,14 @@ import com.opengamma.id.IdentifierBundle;
     if (object == this) {
       return true;
     }
-    if ((object instanceof MetaDataKey)) {
-      MetaDataKey other = (MetaDataKey) object;
-      return ObjectUtils.equals(_field, other._field) &&
-          ObjectUtils.equals(_dsids, _dsids) &&
+    if ((object instanceof HistoricalDataKey)) {
+      HistoricalDataKey other = (HistoricalDataKey) object;
+      return
+          ObjectUtils.equals(_identifiers, _identifiers) &&
+          ObjectUtils.equals(_currentDate, other._currentDate) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
           ObjectUtils.equals(_dataSource, other._dataSource) &&
-          ObjectUtils.equals(_currentDate, other._currentDate) &&
+          ObjectUtils.equals(_dataField, other._dataField) &&
           ObjectUtils.equals(_configName, other._configName);
     }
     return false;
@@ -57,8 +58,12 @@ import com.opengamma.id.IdentifierBundle;
 
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(_dsids) ^ ObjectUtils.hashCode(_field) ^
-            ObjectUtils.hashCode(_dataProvider) ^ ObjectUtils.hashCode(_dataSource);
+    return ObjectUtils.hashCode(_identifiers) ^
+            ObjectUtils.hashCode(_currentDate) ^
+            ObjectUtils.hashCode(_dataProvider) ^
+            ObjectUtils.hashCode(_dataSource) ^
+            ObjectUtils.hashCode(_dataField) ^
+            ObjectUtils.hashCode(_configName);
   }
 
 }

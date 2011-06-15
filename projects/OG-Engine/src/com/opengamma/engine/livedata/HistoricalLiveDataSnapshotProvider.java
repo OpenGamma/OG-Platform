@@ -14,13 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Snapshot provider will always return the historical data on the date provided from the provided historical data source.
@@ -58,7 +56,7 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
     LocalDate date = LocalDate.ofEpochDays(snapshot / MILLIS_PER_DAY);
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = _historicalDataSource.getHistoricalData(
+    HistoricalTimeSeries hts = _historicalDataSource.getHistoricalData(
         IdentifierBundle.of(identifier), 
         _dataSource, 
         _dataProvider, 
@@ -67,10 +65,10 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
         true, 
         date, 
         false);
-    if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
+    if (hts == null || hts.getTimeSeries().isEmpty()) {
       return null;
     }
-    return historicalData.getValue().getValue(date);
+    return hts.getTimeSeries().getValue(date);
   }
 
   @Override
@@ -90,21 +88,14 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field);
-    if (historicalData == null || historicalData.getKey() == null) {
-      historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field);
+    HistoricalTimeSeries hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field);
+    if (hts == null) {
+      hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field);
+      if (hts == null) {
+        hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field);
+      }
     }
-    if (historicalData == null || historicalData.getKey() == null) {
-      historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field);
-    }
-    if (historicalData != null) {
-      //System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = " + (historicalData.getKey() != null));
-      return historicalData.getKey() != null;
-    } else {
-      //System.err.println("isAvailable(" + identifier + ", " + _dataSource + ", " + _dataProvider + ", " + _field + ") = false (no data at all)");
-      return false;
-    }
-    
+    return (hts != null);
   }
 
 }

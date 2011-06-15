@@ -15,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,8 +34,6 @@ import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFact
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -74,12 +73,12 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final Security security = target.getSecurity();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsObject = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
+    final HistoricalTimeSeries tsObject = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
         .toLocalDate(), false);
     if (tsObject == null) {
       throw new NullPointerException("Could not get time series for " + security.getIdentifiers());
     }
-    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(tsObject.getSecond());
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(tsObject.getTimeSeries());
     final double skew = _skewCalculator.evaluate(returnTS);
     final double kurtosis = _kurtosisCalculator.evaluate(returnTS);
     double pearson, fisher;
