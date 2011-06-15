@@ -16,6 +16,7 @@ namespace com.opengamma.financial.security.fra {
     required javax.time.calendar.ZonedDateTime endDate;
     required double rate;
     required double amount;
+    required id.Identifier underlyingIdentifier;
 
     binding Java {
       body <<<JAVA

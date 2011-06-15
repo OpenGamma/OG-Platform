@@ -40,6 +40,7 @@ public final class FRASecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setEndDate(dateTimeWithZoneToZonedDateTimeBean(security.getEndDate()));
     bean.setRate(security.getRate());
     bean.setAmount(security.getAmount());
+    bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
     return bean;
   }
 
@@ -47,7 +48,7 @@ public final class FRASecurityBeanOperation extends AbstractSecurityBeanOperatio
   public FRASecurity createSecurity(final OperationContext context, FRASecurityBean bean) {
     return new FRASecurity(currencyBeanToCurrency(bean.getCurrency()), identifierBeanToIdentifier(bean.getRegion()), 
                            zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEndDate()), 
-                           bean.getRate(), bean.getAmount());
+                           bean.getRate(), bean.getAmount(), identifierBeanToIdentifier(bean.getUnderlying()));
   }
 
 }
