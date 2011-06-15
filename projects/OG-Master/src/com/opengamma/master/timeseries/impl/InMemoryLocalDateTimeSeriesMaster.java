@@ -145,15 +145,15 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   //-------------------------------------------------------------------------
   @Override
   public TimeSeriesDocument<LocalDate> get(UniqueIdentifier uniqueId) {
-    validateUId(uniqueId);
+    validateUid(uniqueId);
     final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(uniqueId);
     if (document == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
+      throw new DataNotFoundException("Time-series not found: " + uniqueId);
     }
     return document;
   }
   
-  private void validateUId(UniqueIdentifier uniqueId) {
+  private void validateUid(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "TimeSeries UID");
     ArgumentChecker.isTrue(uniqueId.getScheme().equals(DEFAULT_UID_SCHEME), "UID not " + DEFAULT_UID_SCHEME);
     ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
@@ -185,20 +185,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
     }
   }
-  
-  private void validateTimeSeriesDocument(TimeSeriesDocument<LocalDate> document) {
-    ArgumentChecker.notNull(document, "timeseries document");
-    ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
-    ArgumentChecker.notNull(document.getIdentifiers(), "identifiers");
-    ArgumentChecker.isTrue(!document.getIdentifiers().asIdentifierBundle().getIdentifiers().isEmpty(), "cannot add timeseries with empty identifiers");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataSource()), "cannot add timeseries with blank dataSource");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataField()), "cannot add timeseries with blank field");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getObservationTime()), "cannot add timeseries with blank observationTime");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
-  }
-  
+
   private boolean contains(TimeSeriesDocument<LocalDate> document) {
     for (IdentifierWithDates identifierWithDates : document.getIdentifiers()) {
       Identifier identifier = identifierWithDates.asIdentifier();
@@ -217,18 +204,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   
   @Override
   public TimeSeriesDocument<LocalDate> update(TimeSeriesDocument<LocalDate> document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getTimeSeries(), "document.timeseries");
-    ArgumentChecker.notNull(document.getDataField(), "document.dataField");
-    ArgumentChecker.notNull(document.getDataProvider(), "document.dataProvider");
-    ArgumentChecker.notNull(document.getDataSource(), "document.dataSource");
-    ArgumentChecker.notNull(document.getObservationTime(), "document.observationTime");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    validateTimeSeriesDocument(document);
     
     final UniqueIdentifier uniqueId = document.getUniqueId();
     final TimeSeriesDocument<LocalDate> storedDocument = _timeseriesDb.get(uniqueId);
     if (storedDocument == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
+      throw new DataNotFoundException("Time-series not found: " + uniqueId);
     }
     if (_timeseriesDb.replace(uniqueId, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
@@ -240,14 +222,14 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_timeseriesDb.remove(uniqueId) == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
+      throw new DataNotFoundException("Time-series not found: " + uniqueId);
     }
   }
 
   @Override
   public TimeSeriesSearchHistoricResult<LocalDate> searchHistoric(final TimeSeriesSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeseriesId");
+    ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeSeriesId");
     
     final TimeSeriesSearchHistoricResult<LocalDate> result = new TimeSeriesSearchHistoricResult<LocalDate>();
     TimeSeriesDocument<LocalDate> doc = get(request.getTimeSeriesId());
@@ -265,7 +247,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getValue(), "data point value");
     
     UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
-    validateUId(timeSeriesId);
+    validateUid(timeSeriesId);
     
     TimeSeriesDocument<LocalDate> storeDoc = _timeseriesDb.get(timeSeriesId);
     DoubleTimeSeries<LocalDate> timeSeries = storeDoc.getTimeSeries();
@@ -281,7 +263,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
     UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
-    validateUId(timeSeriesId);
+    validateUid(timeSeriesId);
     
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(timeSeriesId);
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries();
@@ -359,13 +341,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
 
   @Override
   public void appendTimeSeries(TimeSeriesDocument<LocalDate> document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getIdentifiers(), "identifiers");
-    ArgumentChecker.notNull(document.getDataSource(), "dataSource");
-    ArgumentChecker.notNull(document.getDataProvider(), "dataProvider");
-    ArgumentChecker.notNull(document.getDataField(), "dataField");
+    validateTimeSeriesDocument(document);
     
-    validateUId(document.getUniqueId());
+    validateUid(document.getUniqueId());
     UniqueIdentifier uniqueId = document.getUniqueId();
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(uniqueId);
     DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries());
@@ -378,8 +356,8 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    ArgumentChecker.notNull(securityBundle, "securityBundle");
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityKey, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    ArgumentChecker.notNull(securityKey, "securityBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -389,7 +367,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       TimeSeriesDocument<LocalDate> tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
         for (IdentifierWithDates idWithDates : tsDoc.getIdentifiers()) {
-          if (securityBundle.contains(idWithDates.asIdentifier())) {
+          if (securityKey.contains(idWithDates.asIdentifier())) {
             LocalDate validFrom = idWithDates.getValidFrom();
             LocalDate validTo = idWithDates.getValidTo();
             if (currentDate != null) {
@@ -408,11 +386,23 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
 
   @Override
   public void removeDataPoints(UniqueIdentifier timeSeriesUid, LocalDate firstDateToRetain) {
-    validateUId(timeSeriesUid);
+    validateUid(timeSeriesUid);
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(timeSeriesUid);
     DoubleTimeSeries<LocalDate> timeSeries = storedDoc.getTimeSeries();
     DoubleTimeSeries<LocalDate> subSeries = timeSeries.subSeries(firstDateToRetain, true, timeSeries.getLatestTime(), false);
     storedDoc.setTimeSeries(subSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  private void validateTimeSeriesDocument(TimeSeriesDocument<LocalDate> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getTimeSeries(), "document.timeSeries");
+    ArgumentChecker.notNull(document.getIdentifiers(), "document.identifiers");
+    ArgumentChecker.isTrue(document.getIdentifiers().asIdentifierBundle().getIdentifiers().size() > 0, "document.identifiers must not be empty");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataSource()), "document.dataSource must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataProvider()), "document.dataProvider must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataField()), "document.dataField must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObservationTime()), "document.observationTime must not be blank");
   }
 
 }
