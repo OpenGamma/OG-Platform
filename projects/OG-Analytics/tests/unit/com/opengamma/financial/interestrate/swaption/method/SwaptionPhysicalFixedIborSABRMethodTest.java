@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swaption;
+package com.opengamma.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -34,14 +34,16 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -99,6 +101,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
   private static final FixedCouponSwap<Payment> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final FixedCouponSwap<Payment> SWAP_RECEIVER = SWAP_DEFINITION_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -108,8 +113,10 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   // Calculators
   private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final PresentValueCurveSensitivitySABRCalculator PVSC = PresentValueCurveSensitivitySABRCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = SwaptionPhysicalFixedIborSABRMethod.getInstance();
+  private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
+  private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
+  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = new SwaptionPhysicalFixedIborSABRMethod();
   // Pricing functions
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -118,7 +125,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
   }
 
   /**
@@ -201,7 +208,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-    final Map<String, List<DoublesPair>> pvsCalculator = PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
     assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivity(), pvsCalculator);
   }
 
@@ -217,7 +224,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final PresentValueSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
     assertEquals(pvsLongPayer.getSensitivity(), pvsShortPayer_1.getSensitivity());
     // PresentValueCalculator
-    final Map<String, List<DoublesPair>> pvscLongPayer = PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvscLongPayer = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
     assertEquals(pvsLongPayer.getSensitivity(), pvscLongPayer);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
@@ -333,33 +340,38 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals("Nu sensitivity value", pvsLongPayer.getNu().get(expectedExpiryTenor), expectedNuSensi, 2.0E+0);
   }
 
+  @Test
+  /**
+   * Tests the present value SABR parameters sensitivity: Method vs Calculator.
+   */
+  public void presentValueSABRSensitivityMethodVsCalculator() {
+    final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    assertEquals("Swaption Physical SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
+  }
+
   @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
   public void testPerformance() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     long startTime, endTime;
     final int nbTest = 1000;
     final double[] pv = new double[nbTest];
-    final PresentValueSensitivity[] pvcs = new PresentValueSensitivity[nbTest];
     final PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle) + looptest;
-      pvcs[looptest] = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-      pvss[looptest] = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE) + looptest;
+      PVCSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+      pvss[looptest] = PVSSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 19-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 1000 swaptions.
+    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 170 ms for 1000 swaptions.
 
     //    double sum = 0.0;
     //    for (int looptest = 0; looptest < nbTest; looptest++) {
     //      sum += pv[looptest];
-    //      sum += pvcs[looptest].getSensitivity().size();
     //      sum += pvss[looptest].getAlpha().hashCode();
     //    }
   }
@@ -376,7 +388,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap, IS_LONG);
     SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     long startTime, endTime;
-    final int nbTest = 100;
+    final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       swap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
@@ -393,15 +405,15 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       PVC.visit(swaption, sabrBundle);
-      PVSC.visit(swaption, sabrBundle);
-      METHOD.presentValueSABRSensitivity(swaption, sabrBundle);
+      PVCSC_SABR.visit(swaption, sabrBundle);
+      PVSSC_SABR.visit(swaption, sabrBundle);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (pv+delta+SABR vega): " + (endTime - startTime) + " ms");
-    // Performance note: definition construction: 16-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 45 ms for 1000 swaptions.
-    // Performance note: to derivatives: 16-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 20 ms for 1000 swaptions.
-    // Performance note: pv: 16-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 50 ms for 1000 swaptions.
-    // Performance note: pv+delta: 16-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 135 ms for 1000 swaptions.
-    // Performance note: pv+delta+SABR vega: 16-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 185 ms for 1000 swaptions.
+    // Performance note: definition construction: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 45 ms for 1000 swaptions.
+    // Performance note: to derivatives: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 40 ms for 1000 swaptions.
+    // Performance note: pv: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 45 ms for 1000 swaptions.
+    // Performance note: pv+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 130 ms for 1000 swaptions.
+    // Performance note: pv+delta+SABR vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 1000 swaptions.
   }
 }
