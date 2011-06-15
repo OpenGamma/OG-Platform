@@ -20,9 +20,11 @@ $.register_module({
                     render = function (start, end) {
                         if (start >= length) return handler();
                         var str = json.data.slice(start, end).reduce(function (acc, val) {
-                            var date = new Date(val[0]);
+                            var date = new Date(val[0]), d = date.getDate(), m = date.getMonth() + 1,
+                                day = d < 10 ? '0' + d : d,
+                                month = m < 10 ? '0' + m : m;
                             acc.push(
-                                '<tr><td>', date.getDay(), '/', date.getMonth(), '/', date.getFullYear(), '</td>',
+                                '<tr><td>', day, '/', month, '/', date.getFullYear(), '</td>',
                                 '<td>', val[1], '</td></tr>'
                             );
                             return acc;

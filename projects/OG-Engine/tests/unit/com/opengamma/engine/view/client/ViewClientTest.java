@@ -29,6 +29,7 @@ import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -42,6 +43,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests ViewClient
@@ -448,9 +450,10 @@ public class ViewClientTest {
     Set<ValueRequirement> remaining = new HashSet<ValueRequirement>(expected.keySet());
     Collection<ComputationTargetSpecification> targets = result.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
-      Map<String, ComputedValue> values = result.getValues(target);
-      for (Map.Entry<String, ComputedValue> value : values.entrySet()) {
-        ValueRequirement requirement = new ValueRequirement(value.getKey(), target.getType(), target.getUniqueId());
+      Map<Pair<String, ValueProperties>, ComputedValue> values = result.getValues(target);
+      for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> value : values.entrySet()) {
+        String valueName = value.getKey().getFirst();
+        ValueRequirement requirement = new ValueRequirement(valueName, target.getType(), target.getUniqueId());
         assertTrue(expected.containsKey(requirement));
         
         assertEquals(expected.get(requirement), value.getValue().getValue());

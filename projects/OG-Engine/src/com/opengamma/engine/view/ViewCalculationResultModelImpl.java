@@ -7,11 +7,12 @@ package com.opengamma.engine.view;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A simple implementation of the calculation result model.
@@ -31,12 +32,12 @@ public class ViewCalculationResultModelImpl extends AbstractResultModel<Computat
   // REVIEW Andrew 2010-09-14 -- Do we need the dependency graph model ?
 
   @Override
-  public Map<String, ComputedValue> getValues(final ComputationTargetSpecification target) {
+  public Map<Pair<String, ValueProperties>, ComputedValue> getValues(final ComputationTargetSpecification target) {
     return super.getValuesByName(target);
   }
   
   @Override
-  public Set<ComputedValue> getAllValues(final ComputationTargetSpecification target) {
+  public Collection<ComputedValue> getAllValues(final ComputationTargetSpecification target) {
     return super.getAllValues(target);
   }
 

@@ -235,7 +235,7 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
 			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
@@ -247,7 +247,7 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 			</zipfileset>
 		</zip>
 	</target>
