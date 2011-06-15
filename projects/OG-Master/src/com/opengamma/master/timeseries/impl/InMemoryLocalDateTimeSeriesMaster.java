@@ -29,12 +29,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
-import com.opengamma.master.timeseries.DataFieldBean;
 import com.opengamma.master.timeseries.DataPointDocument;
-import com.opengamma.master.timeseries.DataProviderBean;
-import com.opengamma.master.timeseries.DataSourceBean;
-import com.opengamma.master.timeseries.ObservationTimeBean;
-import com.opengamma.master.timeseries.SchemeBean;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchHistoricRequest;
@@ -84,56 +79,6 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public DataSourceBean getOrCreateDataSource(String dataSource, String description) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<DataSourceBean> getDataSources() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DataProviderBean getOrCreateDataProvider(String dataProvider, String description) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<DataProviderBean> getDataProviders() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public DataFieldBean getOrCreateDataField(String field, String description) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<DataFieldBean> getDataFields() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ObservationTimeBean getOrCreateObservationTime(String observationTime, String description) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<ObservationTimeBean> getObservationTimes() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public SchemeBean getOrCreateScheme(String scheme, String descrption) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<SchemeBean> getSchemes() {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     List<IdentifierBundleWithDates> result = new ArrayList<IdentifierBundleWithDates>();

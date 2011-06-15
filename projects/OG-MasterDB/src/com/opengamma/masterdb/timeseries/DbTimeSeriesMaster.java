@@ -99,19 +99,19 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.timeseries.DataFieldBean;
 import com.opengamma.master.timeseries.DataPointDocument;
-import com.opengamma.master.timeseries.DataProviderBean;
-import com.opengamma.master.timeseries.DataSourceBean;
-import com.opengamma.master.timeseries.NamedDescriptionBean;
-import com.opengamma.master.timeseries.ObservationTimeBean;
-import com.opengamma.master.timeseries.SchemeBean;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchHistoricRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
+import com.opengamma.masterdb.timeseries.hibernate.DataFieldBean;
+import com.opengamma.masterdb.timeseries.hibernate.DataProviderBean;
+import com.opengamma.masterdb.timeseries.hibernate.DataSourceBean;
+import com.opengamma.masterdb.timeseries.hibernate.NamedDescriptionBean;
+import com.opengamma.masterdb.timeseries.hibernate.ObservationTimeBean;
+import com.opengamma.masterdb.timeseries.hibernate.SchemeBean;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.db.DbDateUtils;
@@ -962,7 +962,12 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return tsId;
   }
 
-  @Override
+  //-------------------------------------------------------------------------
+  /**
+   * Gets all the data fields.
+   * 
+   * @return the list of data fields, not null
+   */
   public List<DataFieldBean> getDataFields() {
     List<DataFieldBean> result = new ArrayList<DataFieldBean>();
     for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_FIELDS))) {
@@ -973,7 +978,11 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Gets all the data providers.
+   * 
+   * @return the list of data providers, not null
+   */
   public List<DataProviderBean> getDataProviders() {
     List<DataProviderBean> result = new ArrayList<DataProviderBean>();
     for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_PROVIDER))) {
@@ -984,7 +993,11 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Gets all the data sources.
+   * 
+   * @return the list of data sources, not null
+   */
   public List<DataSourceBean> getDataSources() {
     List<DataSourceBean> result = new ArrayList<DataSourceBean>();
     for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_SOURCES))) {
@@ -995,7 +1008,11 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Gets all the observation times.
+   * 
+   * @return the list of observation times, not null
+   */
   public List<ObservationTimeBean> getObservationTimes() {
     List<ObservationTimeBean> result = new ArrayList<ObservationTimeBean>();
     for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_OBSERVATION_TIMES))) {
@@ -1005,10 +1022,12 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     }
     return result;
   }
-  
-  
 
-  @Override
+  /**
+   * Gets all the schemes.
+   * 
+   * @return the list of schemes, not null
+   */
   public List<SchemeBean> getSchemes() {
     List<SchemeBean> result = new ArrayList<SchemeBean>();
     for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_SCHEME))) {
@@ -1019,19 +1038,32 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  //-------------------------------------------------------------------------
+  /**
+   * Creates or gets a data field with description.
+   * 
+   * @param dataField  the data field name, not null
+   * @param description  the description
+   * @return the data field bean, not null
+   */
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public DataFieldBean getOrCreateDataField(String field, String description) {
-    long id = getDataFieldId(field);
+  public DataFieldBean getOrCreateDataField(String dataField, String description) {
+    long id = getDataFieldId(dataField);
     if (id == INVALID_KEY) {
-      id = createDataField(field, description);
+      id = createDataField(dataField, description);
     }
-    DataFieldBean result = new DataFieldBean(field, description);
+    DataFieldBean result = new DataFieldBean(dataField, description);
     result.setId(id);
     return result;
   }
 
-  @Override
+  /**
+   * Creates or gets a data provider with description.
+   * 
+   * @param dataProvider  the data provider name, not null
+   * @param description  the description
+   * @return the data provider bean, not null
+   */
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public DataProviderBean getOrCreateDataProvider(String dataProvider, String description) {
     long id = getDataProviderId(dataProvider);
@@ -1043,7 +1075,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Creates or gets a data source with description.
+   * 
+   * @param dataSource  the data source name, not null
+   * @param description  the description
+   * @return the data source bean, not null
+   */
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public DataSourceBean getOrCreateDataSource(String dataSource, String description) {
     long id = getDataSourceId(dataSource);
@@ -1055,7 +1093,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Creates or gets a scheme with description.
+   * 
+   * @param scheme  the scheme name, not null
+   * @param description  the description
+   * @return the scheme bean, not null
+   */
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public SchemeBean getOrCreateScheme(String scheme, String description) {
     long id = getSchemeId(scheme);
@@ -1067,7 +1111,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
-  @Override
+  /**
+   * Creates or gets an observation time with description.
+   * 
+   * @param observationTime  the observation time name, not null
+   * @param description  the description
+   * @return the observation time bean, not null
+   */
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public ObservationTimeBean getOrCreateObservationTime(String observationTime, String description) {
     long id = getObservationTimeId(observationTime);
@@ -1079,6 +1129,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public void removeTimeSeries(UniqueIdentifier uniqueId) {

@@ -4,7 +4,7 @@
 <!-- split "{{package_name}}" -->
 <h2 id="package-{{ package_name }}">Package {{ package_name }}</h2>
 
-<p>view <a href="../../java/javadocs/{{ package_name.replace(".", "/")}}/package-summary.html">javadocs</a> for this package</p>
+<p>view <a href="/{{ OG_VERSION }}/javadocs/{{ package_name.replace(".", "/")}}/package-summary.html">javadocs</a> for this package</p>
 
 <ul>
 {% for class_name, class_info in package_info['classes'].items() %}
@@ -15,13 +15,21 @@
 {% for class_name, class_info in package_info['classes'].items() %}
 <!-- split "{{ class_info['qualified-name'] }}" -->
 <h2 id="class-{{ class_info['qualified-name'] }}">Class {{ class_name }}</h2>
-<p>view <a href="../../java/javadocs/{{ class_info['qualified-name'].replace(".", "/")}}.html">javadocs</a> for this class</p>
+<p>view <a href="/{{ OG_VERSION }}/javadocs/{{ class_info['qualified-name'].replace(".", "/")}}.html">javadocs</a> for this class</p>
 {% if class_info.has_key('superclass') %} {% if not class_info['superclass'].startswith('java.lang') %}
 {% set superclass_package = class_info['superclass'].rpartition(".")[0] %}
 <p>Subclass of: <a href="{{ class_info['superclass'] }}.html">{{ class_info['superclass'] }}</a></p>
 {% endif %} {% endif %}
 
-{{ class_info['comment-text'] }}
+{{ class_info['fulltext'] }}
+
+{% for x in class_info['antlr-source'].keys() %}
+<h3>{{ x }}</h3>
+<pre>
+{{ class_info['antlr-source'][x] }}
+</pre>
+{% endfor %}
+
 
 {% if class_info.has_key('constructors') %}
 <h3>Constructors</h3>
@@ -55,7 +63,7 @@
   {% endfor -%})
 </h4>
 
-{{ method_info['comment-text'] }}
+{{ method_info['fulltext'] }}
 
 {{ method_info['source-html'] }}
 

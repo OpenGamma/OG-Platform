@@ -15,6 +15,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.Interpolator1D;
 
@@ -103,4 +104,30 @@ final class MathCurve {
     }
   }
 
+
+  /**
+   * Fudge builder for {@code NodalDoublesCurve}
+   */
+  @FudgeBuilderFor(NodalDoublesCurve.class)
+  public static final class NodalDoublesCurveBuilder extends AbstractFudgeBuilder<NodalDoublesCurve> {
+    private static final String X_DATA_FIELD_NAME = "x data";
+    private static final String Y_DATA_FIELD_NAME = "y data";
+    private static final String CURVE_NAME_FIELD_NAME = "curve name";
+
+    @Override
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final NodalDoublesCurve object) {
+      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+    }
+
+    @Override
+    public NodalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
+      final double[] y = context.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
+      final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
+      NodalDoublesCurve nodalDoublesCurve = new NodalDoublesCurve(x, y, true, name);
+      return nodalDoublesCurve;
+    }
+  }
 }
