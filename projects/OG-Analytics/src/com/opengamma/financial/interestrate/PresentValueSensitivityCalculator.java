@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
@@ -77,22 +77,22 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final String fundingCurveName = fra.getFundingCurveName();
-    final String liborCurveName = fra.getIndexCurveName();
+    final String liborCurveName = fra.getForwardCurveName();
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fundingCurveName);
     final YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double fixingDate = fra.getFixingDate();
-    final double settlementDate = fra.getSettlementDate();
-    final double maturity = fra.getMaturity();
+    final double fwdAlpha = fra.getFixingYearFraction();
+    final double discountAlpha = fra.getPaymentYearFraction();
+    final double fixingDate = fra.getFixingPeriodStartTime();
+    final double settlementDate = fra.getPaymentTime();
+    final double maturity = fra.getFixingPeriodEndTime();
 
-    final double fwd = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
+    final double fwd = (liborCurve.getDiscountFactor(fixingDate) / liborCurve.getDiscountFactor(maturity) - 1.0) / fwdAlpha;
     final double onePlusAlphaF = 1 + discountAlpha * fwd;
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     List<DoublesPair> temp = new ArrayList<DoublesPair>();
     if (settlementDate > 0) {
-      final DoublesPair s = new DoublesPair(settlementDate, -settlementDate * fundingCurve.getDiscountFactor(settlementDate) * (fwd - fra.getStrike()) * fwdAlpha / onePlusAlphaF);
+      final DoublesPair s = new DoublesPair(settlementDate, -settlementDate * fundingCurve.getDiscountFactor(settlementDate) * (fwd - fra.getRate()) * fwdAlpha / onePlusAlphaF);
       temp.add(s);
       if (!fundingCurveName.equals(liborCurveName)) {
         result.put(fundingCurveName, temp);
@@ -101,7 +101,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     }
 
     double factor = fundingCurve.getDiscountFactor(settlementDate) * liborCurve.getDiscountFactor(fixingDate) / liborCurve.getDiscountFactor(maturity) / onePlusAlphaF;
-    factor *= 1 - (fwd - fra.getStrike()) * discountAlpha / onePlusAlphaF;
+    factor *= 1 - (fwd - fra.getRate()) * discountAlpha / onePlusAlphaF;
     final DoublesPair s1 = new DoublesPair(fixingDate, -fixingDate * factor);
     final DoublesPair s2 = new DoublesPair(maturity, maturity * factor);
     temp.add(s1);
@@ -135,7 +135,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    * Future transaction pricing without convexity adjustment.
    */
   public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    final InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
     return method.presentValueCurveSensitivity(future, curves).getSensitivity();
   }
 
@@ -146,13 +146,13 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValueSensitivity(bond, curves).getSensitivity();
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValueSensitivity(bond, curves).getSensitivity();
   }
 
@@ -305,8 +305,8 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponCMS(CouponCMS payment, YieldCurveBundle data) {
-    CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+  public Map<String, List<DoublesPair>> visitCouponCMS(final CouponCMS payment, final YieldCurveBundle data) {
+    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
     return method.presentValueSensitivity(payment, data).getSensitivity();
   }
 
@@ -317,7 +317,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    * @param time The time
    * @return The sensitivity.
    */
-  public static Map<String, List<DoublesPair>> discountFactorSensitivity(String curveName, YieldAndDiscountCurve curve, double time) {
+  public static Map<String, List<DoublesPair>> discountFactorSensitivity(final String curveName, final YieldAndDiscountCurve curve, final double time) {
     final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(s);

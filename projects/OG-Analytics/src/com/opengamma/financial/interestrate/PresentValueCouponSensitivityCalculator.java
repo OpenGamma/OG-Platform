@@ -11,7 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
@@ -55,14 +55,26 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
     return curve.getDiscountFactor(cash.getMaturity()) * cash.getYearFraction();
   }
 
+  //
+  //  @Override
+  //  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+  //    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
+  //    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
+  //    final double fwdAlpha = fra.getForwardYearFraction();
+  //    final double discountAlpha = fra.getDiscountingYearFraction();
+  //    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
+  //    final double res = -fundingCurve.getDiscountFactor(fra.getSettlementDate()) * fwdAlpha / (1 + forward * discountAlpha);
+  //    return res;
+  //  }
+
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double res = -fundingCurve.getDiscountFactor(fra.getSettlementDate()) * fwdAlpha / (1 + forward * discountAlpha);
+    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getForwardCurveName());
+    final double fwdAlpha = fra.getFixingYearFraction();
+    final double discountAlpha = fra.getPaymentYearFraction();
+    final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fwdAlpha;
+    final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * fwdAlpha / (1 + forward * discountAlpha);
     return res;
   }
 
@@ -75,11 +87,6 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
-
-  //  @Override
-  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    return visitSwap(frn, curves);
-  //  }
 
   /**
    * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)

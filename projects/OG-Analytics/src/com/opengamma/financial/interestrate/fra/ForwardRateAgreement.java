@@ -9,13 +9,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Forward Rate Agreement (FRA).
  */
-public class ZZZForwardRateAgreement extends CouponFloating {
+public class ForwardRateAgreement extends CouponFloating {
 
   /**
    * Ibor-like index on which the FRA fixes. The index currency should be the same as the instrument currency.
@@ -57,7 +58,7 @@ public class ZZZForwardRateAgreement extends CouponFloating {
    * @param rate The FRA rate.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public ZZZForwardRateAgreement(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IborIndex index,
+  public ForwardRateAgreement(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IborIndex index,
       final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double rate, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.notNull(forwardCurveName);
@@ -150,7 +151,7 @@ public class ZZZForwardRateAgreement extends CouponFloating {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ZZZForwardRateAgreement other = (ZZZForwardRateAgreement) obj;
+    final ForwardRateAgreement other = (ForwardRateAgreement) obj;
     if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
       return false;
     }
@@ -170,6 +171,16 @@ public class ZZZForwardRateAgreement extends CouponFloating {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitForwardRateAgreement(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitForwardRateAgreement(this);
   }
 
 }

@@ -113,9 +113,9 @@ public class BondSecurityDiscountingMethod {
         }
         pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
         return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
-      } else { // In the last period: simple rate
-        return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
-      }
+      } 
+      // In the last period: simple rate
+      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double pvAtFirstCoupon = 0;
@@ -208,9 +208,9 @@ public class BondSecurityDiscountingMethod {
         double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
         double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
         return md;
-      } else { // In the last period: simple rate
-        return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
-      }
+      } 
+      // In the last period: simple rate
+      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double mdAtFirstCoupon = 0;

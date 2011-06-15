@@ -152,13 +152,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final InterestRateFutureSecurityConverter futureConverter = new InterestRateFutureSecurityConverter(holidaySource,
         conventionSource, regionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)

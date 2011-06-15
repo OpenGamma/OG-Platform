@@ -30,7 +30,7 @@ public class MarkovChain {
   private final MersenneTwister _rand;
 
   public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21) {
-    this(vol1, vol2, lambda12, lambda21, MersenneTwister64.DEFAULT_SEED);
+    this(vol1, vol2, lambda12, lambda21, MersenneTwister.DEFAULT_SEED);
   }
 
   public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21, int seed) {

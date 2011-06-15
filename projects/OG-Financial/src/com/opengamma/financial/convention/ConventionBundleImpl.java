@@ -82,7 +82,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // generic cash
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, 
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
@@ -90,7 +90,7 @@ public class ConventionBundleImpl implements ConventionBundle {
     _businessDayConvention = businessDayConvention;
     _settlementDays = settlementDays;
   }
-  
+
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
       final int settlementDays) {
@@ -104,7 +104,7 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, boolean isEOMConvention) {
+      final int settlementDays, final boolean isEOMConvention) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;

@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.interestratefuture;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -23,17 +22,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.security.future.AgricultureFutureSecurity;
-import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
-import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
-import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.future.MetalFutureSecurity;
-import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 
@@ -41,7 +30,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 //TODO rename me
-public class InterestRateFutureSecurityConverter implements FutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
+public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -57,47 +46,12 @@ public class InterestRateFutureSecurityConverter implements FutureSecurityVisito
   }
 
   @Override
-  public FixedIncomeInstrumentConverter<?> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitBondFutureSecurity(final BondFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitEquityFutureSecurity(final EquityFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitFXFutureSecurity(final FXFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitIndexFutureSecurity(final IndexFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public FixedIncomeInstrumentConverter<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final ConventionBundle iborConvention = _conventionSource.getConventionBundle(Identifier.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IRFUTURE"));
+        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IRFUTURE")); //TODO should actually use the ibor convention
     if (iborConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }
@@ -106,21 +60,11 @@ public class InterestRateFutureSecurityConverter implements FutureSecurityVisito
     final IborIndex iborIndex = new IborIndex(currency, getTenor(paymentAccrualFactor), iborConvention.getSettlementDays(),
         calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
         iborConvention.isEOMConvention());
-    final double notional = 1000000; //TODO don't have this hard-coded
+    final double notional = security.getUnitAmount();
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor);
   }
 
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitMetalFutureSecurity(final MetalFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public FixedIncomeInstrumentConverter<?> visitStockFutureSecurity(final StockFutureSecurity security) {
-    throw new NotImplementedException();
-  }
-
-  //TODO this should be not be done here - we probably need the period in the security
+  //TODO this should be not be done here - we need to get the period from the underlying index 
   private Period getTenor(final double accrualFactor) {
     if (Double.doubleToLongBits(accrualFactor) == Double.doubleToLongBits(0.25)) {
       return Period.ofMonths(3);

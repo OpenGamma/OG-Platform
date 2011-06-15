@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -67,12 +67,24 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return (curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) - 1) / yearFrac;
   }
 
+  //  @Override
+  //  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+  //    final YieldAndDiscountCurve curve = curves.getCurve(fra.getIndexCurveName());
+  //    final double ta = fra.getFixingDate();
+  //    final double tb = fra.getMaturity();
+  //    final double yearFrac = fra.getForwardYearFraction();
+  //    Validate.isTrue(yearFrac > 0, "tenor span must be greater than zero");
+  //    final double pa = curve.getDiscountFactor(ta);
+  //    final double pb = curve.getDiscountFactor(tb);
+  //    return (pa / pb - 1) / yearFrac;
+  //  }
+
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(fra.getIndexCurveName());
-    final double ta = fra.getFixingDate();
-    final double tb = fra.getMaturity();
-    final double yearFrac = fra.getForwardYearFraction();
+    final YieldAndDiscountCurve curve = curves.getCurve(fra.getForwardCurveName());
+    final double ta = fra.getFixingPeriodStartTime();
+    final double tb = fra.getFixingPeriodEndTime();
+    final double yearFrac = fra.getFixingYearFraction();
     Validate.isTrue(yearFrac > 0, "tenor span must be greater than zero");
     final double pa = curve.getDiscountFactor(ta);
     final double pb = curve.getDiscountFactor(tb);
@@ -94,7 +106,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
     return method.parRate(future, curves);
   }
 
@@ -103,7 +115,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
     return method.parRate(future.getUnderlyingFuture(), curves);
   }
 
@@ -138,19 +150,6 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     }
     return (-pvFirst - pvSecond) / pvSpread;
   }
-
-  //  @Override
-  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    final GenericAnnuity<PaymentFixed> pay = frn.getFirstLeg();
-  //    final AnnuityCouponIbor receive = (AnnuityCouponIbor) frn.getSecondLeg();
-  //    final double pvPay = PVC.visit(pay, curves);
-  //    final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
-  //    final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
-  //    if (pvSpread == 0.0) {
-  //      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
-  //    }
-  //    return (pvPay - pvReceive) / pvSpread;
-  //  }
 
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)

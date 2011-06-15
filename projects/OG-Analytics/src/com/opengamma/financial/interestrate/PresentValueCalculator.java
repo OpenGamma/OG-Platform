@@ -18,9 +18,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
@@ -84,19 +83,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(fra);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double fv = (forward - fra.getStrike()) * fwdAlpha / (1 + forward * discountAlpha);
-    return fv * fundingCurve.getDiscountFactor(fra.getSettlementDate());
-  }
-
-  @Override
-  public Double visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(fra);
     final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();

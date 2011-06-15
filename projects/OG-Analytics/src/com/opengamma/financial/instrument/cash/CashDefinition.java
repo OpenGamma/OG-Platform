@@ -23,22 +23,30 @@ import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
   private static final Logger s_logger = LoggerFactory.getLogger(CashDefinition.class);
+  private final Currency _currency;
   private final Convention _convention;
   private final ZonedDateTime _maturityDate;
   private final double _rate;
 
-  public CashDefinition(final ZonedDateTime maturityDate, final double rate, final Convention convention) {
+  public CashDefinition(final Currency currency, final ZonedDateTime maturityDate, final double rate, final Convention convention) {
+    Validate.notNull(currency, "currency");
     Validate.notNull(maturityDate, "maturity date");
     Validate.notNull(convention, "convention");
+    _currency = currency;
     _convention = convention;
     _maturityDate = maturityDate;
     _rate = rate;
+  }
+
+  public Currency getCurrency() {
+    return _currency;
   }
 
   public Convention getConvention() {
@@ -57,6 +65,7 @@ public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _currency.hashCode();
     result = prime * result + _convention.hashCode();
     result = prime * result + _maturityDate.hashCode();
     long temp;
@@ -83,6 +92,9 @@ public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
     if (!ObjectUtils.equals(_maturityDate, other._maturityDate)) {
       return false;
     }
+    if (!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
     return ObjectUtils.equals(_convention, other._convention);
   }
 
@@ -102,7 +114,7 @@ public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
     final double tradeTime = actAct.getDayCountFraction(date, zonedStartDate);
     final double paymentTime = actAct.getDayCountFraction(date, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
-    return new Cash(paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
+    return new Cash(_currency, paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
   }
 
   // TODO this only works for following

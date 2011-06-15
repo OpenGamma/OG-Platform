@@ -65,11 +65,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .create();
   }

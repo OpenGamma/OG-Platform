@@ -95,6 +95,7 @@ public class CapFloorIborInArrearsReplicationMethod implements PricingMethod {
     /**
      * The base method for the pricing of standard cap/floors.
      */
+    @SuppressWarnings("hiding")
     private final PricingMethod _baseMethod;
     /**
      * The standard cap/floor used for replication.

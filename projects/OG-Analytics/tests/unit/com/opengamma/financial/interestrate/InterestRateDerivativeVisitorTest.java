@@ -7,8 +7,14 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -19,8 +25,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
@@ -34,6 +39,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -55,8 +61,10 @@ public class InterestRateDerivativeVisitorTest {
   private static final AbstractInterestRateDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInterestRateDerivativeVisitor<Object, Object>() {
   };
   private static final Currency CUR = Currency.USD;
-  private static final Cash CASH = new Cash(1, 0, CURVE_NAME);
-  private static final ForwardRateAgreement FRA = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
+  private static final Cash CASH = new Cash(CUR, 1, 0, CURVE_NAME);
+  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("30/360"),
+      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  private static final ForwardRateAgreement FRA = new ForwardRateAgreement(CUR, 1, CURVE_NAME, 1, 100000, INDEX, 1, 1, 1.25, 0.25, 0.04, CURVE_NAME);
   private static final InterestRateFuture IR_FUTURE = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
   private static final Bond BOND = new Bond(CUR, new double[] {1}, 0, CURVE_NAME);
   private static final BondForward BOND_FORWARD = new BondForward(BOND, .5, 0, 0);
@@ -66,12 +74,11 @@ public class InterestRateDerivativeVisitorTest {
   private static final AnnuityCouponFixed FIXED_LEG = new AnnuityCouponFixed(CUR, new double[] {1}, 0.0, CURVE_NAME, true);
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
   private static final TenorSwap<CouponIbor> TENOR_SWAP = new TenorSwap<CouponIbor>(FLOAT_LEG, FLOAT_LEG_2);
-  //  private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
   private static final PaymentFixed FIXED_PAYMENT = new PaymentFixed(CUR, 1, 1, CURVE_NAME);
   private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
   private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(CUR, 1, -1, CURVE_NAME);
   private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
-  //  (1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
+  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
   private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
   private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
   private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
@@ -122,11 +129,6 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Object anything) {
       return visit(swap, anything);
     }
-
-    //    @Override
-    //    public Class<?> visitFloatingRateNote(final FloatingRateNote frn, final Object anything) {
-    //      return visit(frn, anything);
-    //    }
 
     @Override
     public Class<?> visitFixedPayment(final PaymentFixed payment, final Object anything) {
@@ -274,183 +276,183 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponCMS(CouponCMS payment, Object data) {
+    public Class<?> visitCouponCMS(final CouponCMS payment, final Object data) {
       return visit(payment, data);
     }
 
     @Override
-    public Class<?> visitCouponCMS(CouponCMS payment) {
+    public Class<?> visitCouponCMS(final CouponCMS payment) {
       return visit(payment);
     }
 
     @Override
-    public Class<?> visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, Object data) {
+    public Class<?> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final Object data) {
       return visit(swaption, data);
     }
 
     @Override
-    public Class<?> visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption) {
+    public Class<?> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
       return visit(swaption);
     }
 
     @Override
-    public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, Object data) {
+    public Class<?> visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final Object data) {
       return visit(swaption, data);
     }
 
     @Override
-    public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption) {
+    public Class<?> visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption) {
       return visit(swaption);
     }
 
     @Override
-    public Class<?> visitCapFloorCMS(CapFloorCMS payment, Object data) {
+    public Class<?> visitCapFloorCMS(final CapFloorCMS payment, final Object data) {
       return visit(payment, data);
     }
 
     @Override
-    public Class<?> visitCapFloorCMS(CapFloorCMS payment) {
+    public Class<?> visitCapFloorCMS(final CapFloorCMS payment) {
       return visit(payment);
     }
 
     @Override
-    public Class<?>[] visit(InterestRateDerivative[] derivative, Object data) {
+    public Class<?>[] visit(final InterestRateDerivative[] derivative, final Object data) {
       return visit(derivative, data);
     }
 
     @Override
-    public Class<?>[] visit(InterestRateDerivative[] derivative) {
+    public Class<?>[] visit(final InterestRateDerivative[] derivative) {
       return visit(derivative);
     }
 
     @Override
-    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, Object data) {
-      return visit(fra, data);
-    }
-
-    @Override
-    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra) {
-      return visit(fra);
-    }
-
-    @Override
-    public Class<?> visitCapFloorIbor(CapFloorIbor payment, Object data) {
+    public Class<?> visitCapFloorIbor(final CapFloorIbor payment, final Object data) {
       return visit(payment, data);
     }
 
     @Override
-    public Class<?> visitCapFloorIbor(CapFloorIbor payment) {
+    public Class<?> visitCapFloorIbor(final CapFloorIbor payment) {
       return visit(payment);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureTransaction(InterestRateFutureTransaction future, Object data) {
+    public Class<?> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final Object data) {
       return visit(future, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureTransaction(InterestRateFutureTransaction future) {
+    public Class<?> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
       return visit(future);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity future, Object data) {
+    public Class<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final Object data) {
       return visit(future, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity future) {
+    public Class<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
       return visit(future);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, Object data) {
+    public Class<?> visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option, final Object data) {
       return visit(option, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, Object data) {
+    public Class<?> visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final Object data) {
       return visit(option, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option) {
+    public Class<?> visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
       return visit(option);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option) {
+    public Class<?> visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
       return visit(option);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, Object data) {
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final Object data) {
       return visit(option, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option) {
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
       return visit(option);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, Object data) {
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final Object data) {
       return visit(option, data);
     }
 
     @Override
-    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
       return visit(option);
     }
 
     @Override
-    public Class<?> visitCouponIborGearing(CouponIborGearing payment, Object data) {
+    public Class<?> visitCouponIborGearing(final CouponIborGearing payment, final Object data) {
       return visit(payment, data);
     }
 
     @Override
-    public Class<?> visitCouponIborGearing(CouponIborGearing payment) {
+    public Class<?> visitCouponIborGearing(final CouponIborGearing payment) {
       return visit(payment);
     }
 
     @Override
-    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond, Object data) {
+    public Class<?> visitBondFixedSecurity(final BondFixedSecurity bond, final Object data) {
       return visit(bond, data);
     }
 
     @Override
-    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond, Object data) {
+    public Class<?> visitBondFixedTransaction(final BondFixedTransaction bond, final Object data) {
       return visit(bond, data);
     }
 
     @Override
-    public Class<?> visitBondIborSecurity(BondIborSecurity bond, Object data) {
+    public Class<?> visitBondIborSecurity(final BondIborSecurity bond, final Object data) {
       return visit(bond, data);
     }
 
     @Override
-    public Class<?> visitBondIborTransaction(BondIborTransaction bond, Object data) {
+    public Class<?> visitBondIborTransaction(final BondIborTransaction bond, final Object data) {
       return visit(bond, data);
     }
 
     @Override
-    public Class<?> visitBondFixedSecurity(BondFixedSecurity bond) {
+    public Class<?> visitBondFixedSecurity(final BondFixedSecurity bond) {
       return visit(bond);
     }
 
     @Override
-    public Class<?> visitBondFixedTransaction(BondFixedTransaction bond) {
+    public Class<?> visitBondFixedTransaction(final BondFixedTransaction bond) {
       return visit(bond);
     }
 
     @Override
-    public Class<?> visitBondIborSecurity(BondIborSecurity bond) {
+    public Class<?> visitBondIborSecurity(final BondIborSecurity bond) {
       return visit(bond);
     }
 
     @Override
-    public Class<?> visitBondIborTransaction(BondIborTransaction bond) {
+    public Class<?> visitBondIborTransaction(final BondIborTransaction bond) {
       return visit(bond);
+    }
+
+    @Override
+    public Class<?> visitCouponFloating(final CouponFloating payment, final Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCouponFloating(final CouponFloating payment) {
+      return visit(payment);
     }
   };
 
@@ -467,7 +469,6 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLOAT_LEG.accept(VISITOR, curves), AnnuityCouponIbor.class);
     assertEquals(SWAP.accept(VISITOR, curves), FixedFloatSwap.class);
     assertEquals(TENOR_SWAP.accept(VISITOR, curves), TenorSwap.class);
-    //    assertEquals(FRN.accept(VISITOR, curves), FloatingRateNote.class);
     assertEquals(FIXED_PAYMENT.accept(VISITOR, curves), PaymentFixed.class);
     assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), CouponIbor.class);
     assertEquals(FCA.accept(VISITOR, curves), AnnuityCouponFixed.class);
@@ -487,7 +488,6 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLOAT_LEG.accept(VISITOR), AnnuityCouponIbor.class);
     assertEquals(SWAP.accept(VISITOR), FixedFloatSwap.class);
     assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
-    //    assertEquals(FRN.accept(VISITOR), FloatingRateNote.class);
     assertEquals(FIXED_PAYMENT.accept(VISITOR), PaymentFixed.class);
     assertEquals(LIBOR_PAYMENT.accept(VISITOR), CouponIbor.class);
     assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
@@ -497,6 +497,9 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
     assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
+    assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
+    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
+    assertEquals(FLOATING_COUPON.accept(VISITOR, curves), CouponFloating.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -599,16 +602,6 @@ public class InterestRateDerivativeVisitorTest {
     ABSTRACT_VISITOR.visit(TENOR_SWAP);
   }
 
-  //  @Test(expected = UnsupportedOperationException.class)
-  //  public void testFRN1() {
-  //    ABSTRACT_VISITOR.visit(FRN, CURVE_NAME);
-  //  }
-  //
-  //  @Test(expected = UnsupportedOperationException.class)
-  //  public void testFRN2() {
-  //    ABSTRACT_VISITOR.visit(FRN);
-  //  }
-
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFixedPayment1() {
     ABSTRACT_VISITOR.visit(FIXED_PAYMENT, CURVE_NAME);
@@ -697,5 +690,15 @@ public class InterestRateDerivativeVisitorTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCM2() {
     ABSTRACT_VISITOR.visit(CM);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testCouponFloating1() {
+    ABSTRACT_VISITOR.visit(FLOATING_COUPON, CURVE_NAME);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testCouponFloating2() {
+    ABSTRACT_VISITOR.visit(FLOATING_COUPON);
   }
 }

@@ -78,11 +78,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
+    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .create();
   }
@@ -154,7 +154,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     return Collections.singleton(new ComputedValue(specification, data.getLabelledMatrix()));
   }
 
-  //TODO at some point this needs to deal with more than one curve
+  //TODO at some point this needs to deal with more than two curves
   private Set<ComputedValue> getSensitivitiesForMultipleCurves(final ComputationTarget target, final FinancialSecurity security, final String forwardCurveName, final String fundingCurveName,
       final YieldCurveBundle bundle, final DoubleMatrix1D sensitivitiesForCurves, final Currency currency) {
     final int nForward = bundle.getCurve(forwardCurveName).getCurve().size();

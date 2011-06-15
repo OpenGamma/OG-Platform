@@ -10,12 +10,14 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
  * between the trade date and the maturity in some day count convention.  
  */
 public class Cash implements InterestRateDerivative {
+  private final Currency _currency;
   private final double _tradeTime;
   private final double _maturity;
   private final double _yearFraction;
@@ -24,12 +26,15 @@ public class Cash implements InterestRateDerivative {
 
   /**
    * A cash loan
+   * @param currency The currency
    * @param maturity Time from now (in years) when the loan matures (is repaid)
    * @param rate The loan rate (continuously compounded)
    * @param yieldCurveName Name of yield curve used to price loan
    */
-  public Cash(final double maturity, final double rate, final String yieldCurveName) {
+  public Cash(final Currency currency, final double maturity, final double rate, final String yieldCurveName) {
     checkInputs(maturity, rate, yieldCurveName);
+    Validate.notNull(currency, "currency");
+    _currency = currency;
     _maturity = maturity;
     _curveName = yieldCurveName;
     _tradeTime = 0.0;
@@ -39,17 +44,20 @@ public class Cash implements InterestRateDerivative {
 
   /**
    * A cash loan
+   * @param currency The currency
    * @param maturity Time from now (in years) when the loan matures (is repaid)
    * @param rate Time from now (in years) when the loan matures (is repaid)
    * @param tradeTime Time when the notional amount is borrowed (could be 0, i.e. now)
    * @param yearFraction time (in years) between the trade date and the maturity in some day count convention.
    * @param yieldCurveName Name of yield curve used to price loan
    */
-  public Cash(final double maturity, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
+  public Cash(final Currency currency, final double maturity, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
     checkInputs(maturity, rate, yieldCurveName);
+    Validate.notNull(currency, "currency");
     Validate.isTrue(tradeTime >= 0, "trade time is negative");
     Validate.isTrue(yearFraction >= 0, "year fraction is negative");
     Validate.isTrue(tradeTime < maturity, "Trade time must be less than payment time");
+    _currency = currency;
     _maturity = maturity;
     _curveName = yieldCurveName;
     _tradeTime = tradeTime;
@@ -62,6 +70,10 @@ public class Cash implements InterestRateDerivative {
     Validate.isTrue(maturity >= 0, "maturity is negative");
     Validate.isTrue(rate >= 0, "rate is negative");
     Validate.notNull(yieldCurveName);
+  }
+
+  public Currency getCurrency() {
+    return _currency;
   }
 
   public double getMaturity() {
@@ -98,6 +110,7 @@ public class Cash implements InterestRateDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _currency.hashCode();
     result = prime * result + _curveName.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_maturity);
@@ -123,6 +136,9 @@ public class Cash implements InterestRateDerivative {
       return false;
     }
     final Cash other = (Cash) obj;
+    if (!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_curveName, other._curveName)) {
       return false;
     }
@@ -135,7 +151,10 @@ public class Cash implements InterestRateDerivative {
     if (Double.doubleToLongBits(_tradeTime) != Double.doubleToLongBits(other._tradeTime)) {
       return false;
     }
-    return Double.doubleToLongBits(_yearFraction) == Double.doubleToLongBits(other._yearFraction);
+    if (Double.doubleToLongBits(_yearFraction) != Double.doubleToLongBits(other._yearFraction)) {
+      return false;
+    }
+    return true;
   }
 
   @Override

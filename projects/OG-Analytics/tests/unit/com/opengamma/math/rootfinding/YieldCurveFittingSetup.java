@@ -13,12 +13,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -31,7 +38,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -57,15 +64,17 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class YieldCurveFittingSetup {
   /** Random number generator */
-  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
+  private static final Currency CUR = Currency.USD;
+  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
 
   /** Accuracy */
   protected static final double EPS = 1e-8;
   /** Number of steps */
   protected static final int STEPS = 100;
-  private static final Currency CUR = Currency.USD;
 
   protected abstract Logger getLogger();
 
@@ -96,8 +105,8 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -245,15 +254,16 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate) {
-    return new Cash(time, rate, fundCurveName);
+    return new Cash(CUR, time, rate, fundCurveName);
   }
 
   protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
-    return new Cash(time, rate, indexCurveName);
+    return new Cash(CUR, time, rate, indexCurveName);
   }
 
   protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
-    return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
+    return new ForwardRateAgreement(CUR, time - 0.25, fundCurveName, 0.25, 1, INDEX, time - 0.25, time - 0.25, time, 0.25, rate, indexCurveName);
+    //return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
   }
 
   protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName, final double rate) {

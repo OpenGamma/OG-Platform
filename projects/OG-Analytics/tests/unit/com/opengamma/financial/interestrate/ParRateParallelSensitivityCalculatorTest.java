@@ -11,15 +11,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -60,19 +66,23 @@ public class ParRateParallelSensitivityCalculatorTest {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     final double df = curve.getDiscountFactor(t);
     final double r = 1 / t * (1 / df - 1);
-    final Cash cash = new Cash(t, r, FUNDING_CURVE_NAME);
+    final Cash cash = new Cash(CUR, t, r, FUNDING_CURVE_NAME);
     doTest(cash, CURVES);
   }
 
   @Test
   public void testFRA() {
-    final double settlement = 0.5;
-    final double maturity = 7.0 / 12.0;
-    final double strike = 0.0;
-    final double fixingDate = settlement - 2.0 / 365.0;
-    final double forwardYearFrac = 31.0 / 365.0;
-    final double discountYearFrac = 30.0 / 360;
-    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double paymentTime = 0.5;
+    final double fixingTime = paymentTime - 2.0 / 365.0;
+    final double fixingPeriodEnd = 7.0 / 12.0;
+    final double rate = 0.0;
+    final double fixingPeriodStart = paymentTime;
+    final double fixingYearFraction = 31.0 / 365.0;
+    final double paymentYearFraction = 30.0 / 360;
+    final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, FUNDING_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction,
+        rate, LIBOR_CURVE_NAME);
     doTest(fra, CURVES);
   }
 

@@ -6,10 +6,12 @@
 package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.math.function.Function1D;
@@ -19,12 +21,13 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class MultipleYieldCurveFinderFunctionTest {
-
+  private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME = "Test";
   private static final List<InterestRateDerivative> DERIVATIVES;
   private static final double[] SIMPLE_RATES;
@@ -50,7 +53,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     for (int i = 0; i < n; i++) {
       t = i / 10.;
       SIMPLE_RATES[i] = Math.random() * 0.05;
-      DERIVATIVES.add(new Cash(t, SIMPLE_RATES[i], CURVE_NAME));
+      DERIVATIVES.add(new Cash(CUR, t, SIMPLE_RATES[i], CURVE_NAME));
       CONTINUOUS_RATES[i] = (t == 0 ? SIMPLE_RATES[i] : Math.log(1 + SIMPLE_RATES[i] * t) / t);
       TIMES[i] = t;
     }
@@ -84,8 +87,8 @@ public class MultipleYieldCurveFinderFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
-    list.add(new Cash(1, 0.01, CURVE_NAME));
-    list.add(new Cash(0.5, 0.01, CURVE_NAME));
+    list.add(new Cash(CUR, 1, 0.01, CURVE_NAME));
+    list.add(new Cash(CUR, 0.5, 0.01, CURVE_NAME));
     new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
   }
 

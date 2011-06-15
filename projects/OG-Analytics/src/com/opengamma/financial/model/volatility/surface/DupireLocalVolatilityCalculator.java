@@ -68,6 +68,7 @@ public class DupireLocalVolatilityCalculator {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];
@@ -89,6 +90,7 @@ public class DupireLocalVolatilityCalculator {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];

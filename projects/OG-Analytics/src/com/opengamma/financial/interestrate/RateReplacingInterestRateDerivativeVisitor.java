@@ -9,7 +9,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -48,7 +48,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public Cash visitCash(final Cash cash, final Double rate) {
-    return new Cash(cash.getMaturity(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
+    return new Cash(cash.getCurrency(), cash.getMaturity(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
   }
 
   @Override
@@ -75,8 +75,8 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public ForwardRateAgreement visitForwardRateAgreement(final ForwardRateAgreement fra, final Double rate) {
-    return new ForwardRateAgreement(fra.getSettlementDate(), fra.getMaturity(), fra.getFixingDate(), fra.getForwardYearFraction(), fra.getDiscountingYearFraction(), rate, fra.getFundingCurveName(),
-        fra.getIndexCurveName());
+    return new ForwardRateAgreement(fra.getCurrency(), fra.getPaymentTime(), fra.getFundingCurveName(), fra.getPaymentYearFraction(), fra.getNotional(), fra.getIndex(), fra.getFixingTime(),
+        fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate, fra.getForwardCurveName());
   }
 
   @Override

@@ -79,7 +79,6 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         c = pdeData.getC(t - dt, x[i]);
 
         double rho = a;
-        ;
         // double bdx = (b * dx / 2);
         // if (Math.abs(bdx) > 10 * Math.abs(a)) {
         // rho = Math.abs(bdx);
