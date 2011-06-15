@@ -4,25 +4,16 @@
 package com.opengamma.financial.security.swap;
 public class FloatingInterestRateLeg extends com.opengamma.financial.security.swap.InterestRateLeg implements java.io.Serializable {
   public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }
-<<<<<<< HEAD
-  private static final long serialVersionUID = 56704331065437238l;
+  private static final long serialVersionUID = -847370103773043016l;
   private final com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
-=======
-  private static final long serialVersionUID = -1687373124272353047l;
-  private final com.opengamma.id.UniqueIdentifier _floatingReferenceRateIdentifier;
->>>>>>> beb739e25be7750f53869308e86514cb5977adde
   public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_KEY = "floatingReferenceRateIdentifier";
   private final double _initialFloatingRate;
   public static final String INITIAL_FLOATING_RATE_KEY = "initialFloatingRate";
   private final double _spread;
   public static final String SPREAD_KEY = "spread";
-<<<<<<< HEAD
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread) {
-=======
   private final boolean _isIBOR;
   public static final String IS_IBOR_KEY = "isIBOR";
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.UniqueIdentifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread, boolean isIBOR) {
->>>>>>> beb739e25be7750f53869308e86514cb5977adde
+  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread, boolean isIBOR) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
     else {
