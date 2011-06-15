@@ -23,12 +23,6 @@
 
 {{ class_info['fulltext'] }}
 
-{% for x in class_info['antlr-source'].keys() %}
-<h3>{{ x }}</h3>
-<pre>
-{{ class_info['antlr-source'][x] }}
-</pre>
-{% endfor %}
 
 
 {% if class_info.has_key('constructors') %}
@@ -68,6 +62,10 @@
 {{ method_info['source-html'] }}
 
 {% endfor %}
+
+<h3>Full Class Source</h3>
+{{ class_info['source-html'] }}
+
 {% endfor %}
 {% endfor %}
 <!-- endsplit -->

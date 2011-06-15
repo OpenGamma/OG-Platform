@@ -1,4 +1,5 @@
 <% set j = d['javadoc-data.json|javadocs'] %>
+<% set nested_subclasses = a['javadoc-data.json|javadocs'].filter_class().nested_subclasses %>
 
 \section{Curves}
 
@@ -7,9 +8,9 @@ The abstract Curve and its subclasses represent one-dimensional functions, y = f
 The following classes implement curves.
 
 \begin{fullwidth}
-<% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, 'com.opengamma.math.curve.Curve') %>
+<% for indent, class_name in nested_subclasses(j, 'com.opengamma.math.curve.Curve') %>
 <% set package_name, x, cn = class_name.rpartition(".") %>
-<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
+<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
 <% endfor -%>
 \end{fullwidth}
 
@@ -23,9 +24,9 @@ Classes of surfaces represent two-dimensional functions, z = f(x,y).
 The following classes implement surfaces.
 
 \begin{fullwidth}
-<% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, 'com.opengamma.math.surface.Surface') %>
+<% for indent, class_name in nested_subclasses(j, 'com.opengamma.math.surface.Surface') %>
 <% set package_name, x, cn = class_name.rpartition(".") %>
-<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
+<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
 <% endfor -%>
 \end{fullwidth}
 
@@ -36,9 +37,9 @@ Cubes represent generic functions in 3D, v = f(x,y,z).
 The following classes implement cubes.
 
 \begin{fullwidth}
-<% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, 'com.opengamma.math.cube.Cube') %>
+<% for indent, class_name in nested_subclasses(j, 'com.opengamma.math.cube.Cube') %>
 <% set package_name, x, cn = class_name.rpartition(".") %>
-<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
+<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
 <% endfor -%>
 \end{fullwidth}
 
@@ -50,11 +51,11 @@ The following classes implement matrices.
 
 \begin{fullwidth}
 
-com.opengamma.math.matrix.Matrix \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/com.opengamma.math.matrix.Matrix.html#class-com.opengamma.math.matrix.Matrix}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/javadoc/com/opengamma/math/matrix/Matrix}{(javadoc)}
+com.opengamma.math.matrix.Matrix \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/api/com.opengamma.math.matrix.Matrix.html#class-com.opengamma.math.matrix.Matrix}{(api)} \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/javadoc/com/opengamma/math/matrix/Matrix}{(javadoc)}
 <% for impl_class_name in d['javadoc-data.json|javadocs']['packages']['com.opengamma.math.matrix']['classes']['Matrix'].implementers %>
-<% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, impl_class_name) %>
+<% for indent, class_name in nested_subclasses(j, impl_class_name) %>
 <% set package_name, x, cn = class_name.rpartition(".") %>
-<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
+<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.opengamma.com/{{ OG_VERSION }}/java/javadocs/<< class_name.replace(".","/") >>.html}{(javadoc)}
 <% endfor -%>
 <% endfor -%>
 

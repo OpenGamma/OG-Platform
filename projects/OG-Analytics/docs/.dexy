@@ -2,7 +2,7 @@
     "index.html|hd|ft|jinja|split" : {
         "allinputs" : true,
             "jinjavars" : {
-                "OG_VERSION" : "dev"
+                "OG_VERSION" : "0.8.0"
             }
     },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
@@ -19,12 +19,12 @@
             "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
                 ],
             "jinjavars" : {
-                "OG_VERSION" : "dev"
+                "OG_VERSION" : "0.8.0"
             }
         },
         "sync.sh|jinja" : {
             "jinjavars" : {
-                "OG_VERSION" : "dev"
+                "OG_VERSION" : "0.8.0"
             }
         },
         "debug.txt|jinja" : {
