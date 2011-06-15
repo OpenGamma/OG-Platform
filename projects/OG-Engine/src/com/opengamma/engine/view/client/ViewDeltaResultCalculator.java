@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -16,6 +17,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Produces {@link ViewDeltaResultModel} instances by comparing two {@link ViewComputationResultModel}.
@@ -59,23 +61,23 @@ public class ViewDeltaResultCalculator {
 
   private static void computeDeltaModel(DeltaDefinition deltaDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
       String calcConfigName, ViewCalculationResultModel previousCalcModel, ViewCalculationResultModel resultCalcModel) {
-    final Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
+    final Map<Pair<String, ValueProperties>, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
     if (resultValues != null) {
       if (previousCalcModel == null) {
         // Everything is new/delta because this is a new calculation context.
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+        for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> resultEntry : resultValues.entrySet()) {
           deltaModel.addValue(calcConfigName, resultEntry.getValue());
         }
       } else {
-        final Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
+        final Map<Pair<String, ValueProperties>, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
         if (previousValues == null) {
           // Everything is new/delta because this is a new target.
-          for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-            deltaModel.addValue(calcConfigName, resultEntry.getValue());
+          for (ComputedValue result : resultValues.values()) {
+            deltaModel.addValue(calcConfigName, result);
           }
         } else {
           // Have to individual delta.
-          for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+          for (Map.Entry<Pair<String, ValueProperties>, ComputedValue> resultEntry : resultValues.entrySet()) {
             ComputedValue resultValue = resultEntry.getValue();
             ComputedValue previousValue = previousValues.get(resultEntry.getKey());
             // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
