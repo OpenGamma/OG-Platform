@@ -15,11 +15,13 @@ import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -33,6 +35,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Tenor;
 
@@ -44,6 +47,12 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private RegionSource _regionSource;
   private ConventionBundleSource _conventionBundleSource;
   private SecuritySource _secSource;
+  private static final Map<Currency, Identifier> s_currency2FRAUnderlyings = Maps.newHashMap();
+  
+  static {
+    s_currency2FRAUnderlyings.put(Currency.USD, Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "US0003M Index"));
+    s_currency2FRAUnderlyings.put(Currency.JPY, Identifier.of(SecurityUtils.BLOOMBERG_TICKER, "JY0003M Index"));
+  }
 
   public FixedIncomeStripIdentifierAndMaturityBuilder(RegionSource regionSource, ConventionBundleSource conventionBundleSource, SecuritySource secSource) {
     _regionSource = regionSource;
@@ -144,10 +153,20 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
 //    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
 //                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
+    //REVIEW: yomi 16-jun-2011 How do we get the correct underlying?
+    Identifier underlyingIdentifier = getFRAUnderlyingIdentifier(spec.getCurrency(), spec.getRegion());
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), 
-        startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()), 1.0d);
+        startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier);
   }
   
+  private Identifier getFRAUnderlyingIdentifier(Currency currency, Identifier region) {
+    Identifier identifier = s_currency2FRAUnderlyings.get(currency);
+    if (identifier == null) {
+      throw new OpenGammaRuntimeException("unable to workout underlying identifier for FRA with currency = " + currency);
+    }
+    return identifier;
+  }
+
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
     return (FutureSecurity) _secSource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
   }
@@ -213,7 +232,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
-    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);null
     ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     String counterparty = "";
