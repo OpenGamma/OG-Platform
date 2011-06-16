@@ -18,12 +18,14 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -113,8 +115,8 @@ public class ViewDeltaResultModelMergerTest {
       ViewCalculationResultModel expectedCalcResult = expected.getCalculationResult(calcConfigName);
       ViewCalculationResultModel actualCalcResult = actual.getCalculationResult(calcConfigName);
       for (ComputationTargetSpecification targetSpec : expected.getAllTargets()) {
-        Map<String, ComputedValue> expectedTargetValues = expectedCalcResult.getValues(targetSpec);
-        Map<String, ComputedValue> actualTargetValues = actualCalcResult.getValues(targetSpec);
+        Map<Pair<String, ValueProperties>, ComputedValue> expectedTargetValues = expectedCalcResult.getValues(targetSpec);
+        Map<Pair<String, ValueProperties>, ComputedValue> actualTargetValues = actualCalcResult.getValues(targetSpec);
         assertEquals(expectedTargetValues, actualTargetValues);
       }
     }

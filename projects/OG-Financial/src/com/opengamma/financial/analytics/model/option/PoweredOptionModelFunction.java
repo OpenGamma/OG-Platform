@@ -13,9 +13,7 @@ import com.opengamma.financial.model.option.definition.PoweredOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.PoweredOptionModel;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.financial.security.option.PoweredPayoffStyle;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * 
@@ -30,9 +28,13 @@ public class PoweredOptionModelFunction extends StandardOptionDataAnalyticOption
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     final PoweredPayoffStyle payoff = (PoweredPayoffStyle) option.getPayoffStyle();
     return new PoweredOptionDefinition(option.getStrike(), option.getExpiry(), payoff.getPower(), option.getOptionType() == OptionType.CALL);
+    */
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -40,7 +42,13 @@ public class PoweredOptionModelFunction extends StandardOptionDataAnalyticOption
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof PoweredPayoffStyle) {
+      return true;
+    }
+    */
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;

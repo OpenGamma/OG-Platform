@@ -60,7 +60,6 @@ public class BensoussanCrouhyGalaiOptionOnOptionModel extends AnalyticOptionMode
 
   /**
    * {@inheritDoc}
-   * @throws NotImplementedException If the option is not a call-on-call or put-on-call
    */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanOptionOnEuropeanVanillaOptionDefinition definition) {

@@ -154,13 +154,13 @@ public class CurveDefinitionAndSpecifications {
   }
   
 
-  public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor[] tenorSwaps) {
+  public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] depositStrips, Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (Tenor liborTenor : liborStrips) {
-      if (liborTenor.getPeriod().equals(Period.ofDays(30))) {
+    for (Tenor depositTenor : depositStrips) {
+      if (depositTenor.getPeriod().equals(Period.ofDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, "DEFAULT"));
     }
     for (Tenor tenorSwapTenor : tenorSwaps) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, "DEFAULT"));
@@ -179,8 +179,8 @@ public class CurveDefinitionAndSpecifications {
         strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
       }
     }
-    for (Tenor tenorSwapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, tenorSwapTenor, "DEFAULT"));
+    for (Tenor swapTenor : swaps) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, swapTenor, "DEFAULT"));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
@@ -246,9 +246,9 @@ public class CurveDefinitionAndSpecifications {
     
     Currency eur = Currency.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
-    forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40 })));
-    singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency gbp = Currency.GBP;
     Identifier gbpRegion = RegionUtils.countryRegionId("GB");
@@ -294,9 +294,9 @@ public class CurveDefinitionAndSpecifications {
     
     Currency jpy = Currency.JPY;
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
-    forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
+    forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
-    singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
+    singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     results.put("FORWARD", forwardDefinitions);
@@ -558,7 +558,7 @@ public class CurveDefinitionAndSpecifications {
       {ONE_MONTH, "USDRA Curncy"}, {TWO_MONTHS, "USDRB Curncy"}, {THREE_MONTHS, "USDRC Curncy"},
       {FOUR_MONTHS, "USDRD Curncy"}, {FIVE_MONTHS, "USDRE Curncy"}, {SIX_MONTHS, "USDRF Curncy"},
       {SEVEN_MONTHS, "USDRG Curncy"}, {EIGHT_MONTHS, "USDRH Curncy"}, {NINE_MONTHS, "USDRI Curncy"},
-      {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},  {TWELVE_MONTHS, "USDRL Curncy"},
+      {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},
       {ONE_YEAR, "USDR1 Curncy"}, {TWO_YEARS, "USDR2 Curncy"}, {THREE_YEARS, "USDR3 Curncy"},
       {FOUR_YEARS, "USDR4 Curncy"}, {FIVE_YEARS, "USDR5 Curncy"}
     };

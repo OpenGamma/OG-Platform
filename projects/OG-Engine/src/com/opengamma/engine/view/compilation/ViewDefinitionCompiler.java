@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -57,13 +59,14 @@ public final class ViewDefinitionCompiler {
     ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, Instant.of(atInstant));
 
     long t = -System.nanoTime();
-    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext);
-    t += System.nanoTime();
-    s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
-    t -= System.nanoTime();
-    SpecificRequirementsCompiler.execute(viewCompilationContext);
+    EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
     t += System.nanoTime();
     s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
+    t -= System.nanoTime();
+    boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
+    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, requirePortfolioResolution);
+    t += System.nanoTime();
+    s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
     t -= System.nanoTime();
     Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
     t += System.nanoTime();

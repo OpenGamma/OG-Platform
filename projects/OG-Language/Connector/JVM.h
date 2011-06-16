@@ -27,7 +27,7 @@ public:
 	static CClientJVM *Start ();
 	bool Stop ();
 	bool FirstConnection ();
-	bool IsAlive ();
+	bool IsAlive () const;
 };
 
 #endif /* ifndef __inc_og_language_connector_jvm_h */

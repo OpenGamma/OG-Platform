@@ -12,6 +12,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.testng.annotations.AfterClass;
@@ -79,7 +80,8 @@ public class JmsSenderTest {
   public void simpleScenario() throws Exception {
     ensureStarted();
     
-    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    FudgeContext fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+    MutableFudgeMsg msg = fudgeContext.newMessage();
     msg.add("name", "ruby");
     
     _mdd.distributeLiveData(msg);
@@ -92,9 +94,10 @@ public class JmsSenderTest {
     Thread.sleep(100);
     assertEquals(1, _collectingReceiver.getMessages().size());
     
+    FudgeDeserializationContext fdc = new FudgeDeserializationContext(fudgeContext);
     for (byte[] byteArray : _collectingReceiver.getMessages()) {
-      FudgeMsgEnvelope msgEnvelope = FudgeContext.GLOBAL_DEFAULT.deserialize(byteArray);
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(msgEnvelope.getMessage());
+      FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(byteArray);
+      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fdc, msgEnvelope.getMessage());
       assertEquals(msg, update.getFields());
     }
   }
@@ -103,17 +106,18 @@ public class JmsSenderTest {
   public void reconnectionScenario() throws Exception {
     ensureStarted();
     
-    MutableFudgeMsg msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    FudgeContext fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+    MutableFudgeMsg msg1 = fudgeContext.newMessage();
     msg1.add("name", "olivia");
     
-    MutableFudgeMsg msg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg2 = fudgeContext.newMessage();
     msg2.add("name", "ruby");
     
-    MutableFudgeMsg msg3 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg3 = fudgeContext.newMessage();
     msg3.add("name", "sophie"); // will overwrite ruby
     msg3.add("address", "london");
     
-    MutableFudgeMsg msg4 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg4 = fudgeContext.newMessage();
     msg4.add("name", "chloe");
     
     _mdd.distributeLiveData(msg1);
@@ -131,9 +135,10 @@ public class JmsSenderTest {
     assertEquals(3, _collectingReceiver.getMessages().size());
     LiveDataValueUpdateBean[] updates = new LiveDataValueUpdateBean[3]; 
     
+    FudgeDeserializationContext fdc = new FudgeDeserializationContext(fudgeContext);
     for (int i = 0; i < _collectingReceiver.getMessages().size(); i++) {
-      FudgeMsgEnvelope msgEnvelope = FudgeContext.GLOBAL_DEFAULT.deserialize(_collectingReceiver.getMessages().get(i));
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(msgEnvelope.getMessage());
+      FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(_collectingReceiver.getMessages().get(i));
+      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fdc, msgEnvelope.getMessage());
       updates[i] = update;
     }
     

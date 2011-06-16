@@ -6,21 +6,23 @@
 package com.opengamma.financial.batch;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -236,6 +238,49 @@ public class BatchDocument extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchDocument other = (BatchDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getObservationDate(), other.getObservationDate()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
+          JodaBeanUtils.equal(getMasterProcessHost(), other.getMasterProcessHost()) &&
+          JodaBeanUtils.equal(getCreationInstant(), other.getCreationInstant()) &&
+          JodaBeanUtils.equal(getStartInstant(), other.getStartInstant()) &&
+          JodaBeanUtils.equal(getEndInstant(), other.getEndInstant()) &&
+          JodaBeanUtils.equal(getNumRestarts(), other.getNumRestarts()) &&
+          JodaBeanUtils.equal(getDataPaging(), other.getDataPaging()) &&
+          JodaBeanUtils.equal(getData(), other.getData()) &&
+          JodaBeanUtils.equal(getErrorsPaging(), other.getErrorsPaging()) &&
+          JodaBeanUtils.equal(getErrors(), other.getErrors());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMasterProcessHost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCreationInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumRestarts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorsPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -572,7 +617,7 @@ public class BatchDocument extends DirectBean {
   /**
    * The meta-bean for {@code BatchDocument}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -581,84 +626,131 @@ public class BatchDocument extends DirectBean {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", BatchDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code observationDate} property.
      */
-    private final MetaProperty<LocalDate> _observationDate = DirectMetaProperty.ofReadWrite(this, "observationDate", LocalDate.class);
+    private final MetaProperty<LocalDate> _observationDate = DirectMetaProperty.ofReadWrite(
+        this, "observationDate", BatchDocument.class, LocalDate.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
+        this, "observationTime", BatchDocument.class, String.class);
     /**
      * The meta-property for the {@code status} property.
      */
-    private final MetaProperty<BatchStatus> _status = DirectMetaProperty.ofReadWrite(this, "status", BatchStatus.class);
+    private final MetaProperty<BatchStatus> _status = DirectMetaProperty.ofReadWrite(
+        this, "status", BatchDocument.class, BatchStatus.class);
     /**
      * The meta-property for the {@code masterProcessHost} property.
      */
-    private final MetaProperty<String> _masterProcessHost = DirectMetaProperty.ofReadWrite(this, "masterProcessHost", String.class);
+    private final MetaProperty<String> _masterProcessHost = DirectMetaProperty.ofReadWrite(
+        this, "masterProcessHost", BatchDocument.class, String.class);
     /**
      * The meta-property for the {@code creationInstant} property.
      */
-    private final MetaProperty<Instant> _creationInstant = DirectMetaProperty.ofReadWrite(this, "creationInstant", Instant.class);
+    private final MetaProperty<Instant> _creationInstant = DirectMetaProperty.ofReadWrite(
+        this, "creationInstant", BatchDocument.class, Instant.class);
     /**
      * The meta-property for the {@code startInstant} property.
      */
-    private final MetaProperty<Instant> _startInstant = DirectMetaProperty.ofReadWrite(this, "startInstant", Instant.class);
+    private final MetaProperty<Instant> _startInstant = DirectMetaProperty.ofReadWrite(
+        this, "startInstant", BatchDocument.class, Instant.class);
     /**
      * The meta-property for the {@code endInstant} property.
      */
-    private final MetaProperty<Instant> _endInstant = DirectMetaProperty.ofReadWrite(this, "endInstant", Instant.class);
+    private final MetaProperty<Instant> _endInstant = DirectMetaProperty.ofReadWrite(
+        this, "endInstant", BatchDocument.class, Instant.class);
     /**
      * The meta-property for the {@code numRestarts} property.
      */
-    private final MetaProperty<Integer> _numRestarts = DirectMetaProperty.ofReadWrite(this, "numRestarts", Integer.TYPE);
+    private final MetaProperty<Integer> _numRestarts = DirectMetaProperty.ofReadWrite(
+        this, "numRestarts", BatchDocument.class, Integer.TYPE);
     /**
      * The meta-property for the {@code dataPaging} property.
      */
-    private final MetaProperty<Paging> _dataPaging = DirectMetaProperty.ofReadWrite(this, "dataPaging", Paging.class);
+    private final MetaProperty<Paging> _dataPaging = DirectMetaProperty.ofReadWrite(
+        this, "dataPaging", BatchDocument.class, Paging.class);
     /**
      * The meta-property for the {@code data} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ViewResultEntry>> _data = DirectMetaProperty.ofReadWrite(this, "data", (Class) List.class);
+    private final MetaProperty<List<ViewResultEntry>> _data = DirectMetaProperty.ofReadWrite(
+        this, "data", BatchDocument.class, (Class) List.class);
     /**
      * The meta-property for the {@code errorsPaging} property.
      */
-    private final MetaProperty<Paging> _errorsPaging = DirectMetaProperty.ofReadWrite(this, "errorsPaging", Paging.class);
+    private final MetaProperty<Paging> _errorsPaging = DirectMetaProperty.ofReadWrite(
+        this, "errorsPaging", BatchDocument.class, Paging.class);
     /**
      * The meta-property for the {@code errors} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<BatchError>> _errors = DirectMetaProperty.ofReadWrite(this, "errors", (Class) List.class);
+    private final MetaProperty<List<BatchError>> _errors = DirectMetaProperty.ofReadWrite(
+        this, "errors", BatchDocument.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "observationDate",
+        "observationTime",
+        "status",
+        "masterProcessHost",
+        "creationInstant",
+        "startInstant",
+        "endInstant",
+        "numRestarts",
+        "dataPaging",
+        "data",
+        "errorsPaging",
+        "errors");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("observationDate", _observationDate);
-      temp.put("observationTime", _observationTime);
-      temp.put("status", _status);
-      temp.put("masterProcessHost", _masterProcessHost);
-      temp.put("creationInstant", _creationInstant);
-      temp.put("startInstant", _startInstant);
-      temp.put("endInstant", _endInstant);
-      temp.put("numRestarts", _numRestarts);
-      temp.put("dataPaging", _dataPaging);
-      temp.put("data", _data);
-      temp.put("errorsPaging", _errorsPaging);
-      temp.put("errors", _errors);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public BatchDocument createBean() {
-      return new BatchDocument();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 950748666:  // observationDate
+          return _observationDate;
+        case 951232793:  // observationTime
+          return _observationTime;
+        case -892481550:  // status
+          return _status;
+        case 2095858933:  // masterProcessHost
+          return _masterProcessHost;
+        case -961305086:  // creationInstant
+          return _creationInstant;
+        case 1823123231:  // startInstant
+          return _startInstant;
+        case -2109892474:  // endInstant
+          return _endInstant;
+        case -1329836566:  // numRestarts
+          return _numRestarts;
+        case 1173228502:  // dataPaging
+          return _dataPaging;
+        case 3076010:  // data
+          return _data;
+        case -49547561:  // errorsPaging
+          return _errorsPaging;
+        case -1294635157:  // errors
+          return _errors;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends BatchDocument> builder() {
+      return new DirectBeanBuilder<BatchDocument>(new BatchDocument());
     }
 
     @Override

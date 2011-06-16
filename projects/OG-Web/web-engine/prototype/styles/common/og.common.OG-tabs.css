@@ -1,0 +1,85 @@
+/**
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/**
+ * Tabs
+ */
+.OG-tabs {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.OG-tabs .og-tab {
+  -moz-transform: skew(-20deg);
+  -webkit-transform: skew(-20deg);
+  background-color: #ccc;
+  background-image: -webkit-gradient(linear, left top, left bottom,
+      color-stop(0.0, #f9f9f9),
+      color-stop(0.50, #f2f3f5),
+      color-stop(0.51, #eaebed)
+  );
+  background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #fff;
+  color: #487287;
+  display: inline-block;
+  float: left;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  left: -10px;
+  position: relative;
+  text-decoration: none;
+}
+
+.OG-tabs .og-tab:hover {
+  background-color: #487287;
+  background-image: -webkit-gradient(linear, left top, left bottom,
+      color-stop(0.0, #4d7d94),
+      color-stop(0.50, #4d7d94),
+      color-stop(0.51, #4d7d94)
+  );
+  background-image: -moz-linear-gradient(#4d7d94 50%, #4d7d94 51%, #eaebed 100%);
+  background: #4d7d94;
+  border-left: 1px solid #4d7d94;
+  border-right: 1px solid #4d7d94;
+  color: #fff;
+}
+
+.OG-tabs .og-tab span {
+  -moz-transform: skew(20deg);
+  -webkit-transform: skew(20deg);
+  display: inline-block;
+}
+
+.OG-tabs .og-active, .OG-tabs .og-active:hover {
+    background: #e4e4e5;
+    border-left: 1px solid #fff;
+    border-right: 1px solid transparent;
+    color: #626262;
+    cursor: default;
+}
+
+.OG-tabs .og-active span {
+    text-shadow: 0 1px 0 #fff;
+}
+
+.OG-tabs .og-tab:first-child span {
+    margin-left: 10px
+}
+
+.OG-tabs .og-new {
+    margin-right: 0; border-right: none;
+}
+
+.OG-tabs .og-new:hover {
+    background: none;
+    color: inherit;
+    border-left: 1px solid #fff;
+    border-right: none;
+    color: #64be89;
+
+}

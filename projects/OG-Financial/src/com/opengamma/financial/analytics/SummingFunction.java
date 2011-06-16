@@ -44,7 +44,12 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+    return new String[] {
+      ValuePropertyNames.CURRENCY,
+      ValuePropertyNames.CURVE,
+      ValuePropertyNames.CURVE_CURRENCY,
+      YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+      YieldCurveFunction.PROPERTY_FUNDING_CURVE };
   }
 
   private final String _requirementName;

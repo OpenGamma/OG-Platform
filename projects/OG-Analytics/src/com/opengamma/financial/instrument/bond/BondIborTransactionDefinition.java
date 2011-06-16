@@ -7,7 +7,6 @@ package com.opengamma.financial.instrument.bond;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -17,11 +16,11 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.BondIborDescription;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -29,7 +28,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Describes a transaction on a Ibor coupon bond issue.
  */
 public class BondIborTransactionDefinition extends BondTransactionDefinition<CouponIborDefinition> implements
-    FixedIncomeInstrumentWithDataConverter<BondTransaction<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
+    FixedIncomeInstrumentWithDataConverter<BondTransaction<? extends BondSecurity<? extends Payment>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.
@@ -38,14 +37,13 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
    * @param settlementDate Transaction settlement date.
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondIborTransactionDefinition(final BondIborDescriptionDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
+  public BondIborTransactionDefinition(final BondIborSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     super(underlyingBond, quantity, settlementDate, price);
   }
 
   @Override
   public BondIborTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
-    // TODO: Take the ex-coupon days into account.
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
@@ -65,7 +63,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
       settlementAmount = getPaymentAmount();
     }
-    final PaymentFixed settlement = new PaymentFixed(getUnderlyingBond().getCurrency(), settlementTime, settlementAmount, discountingCurveName);
     final AnnuityPaymentFixed nominal = getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
     @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> coupon = (GenericAnnuity<Payment>) getUnderlyingBond().getCoupon().toDerivative(date, couponCurveName);
@@ -73,8 +70,8 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
     final GenericAnnuity<Payment> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
     final GenericAnnuity<Payment> couponStandard = coupon.trimBefore(spotTime);
-    final BondIborDescription bondPurchase = new BondIborDescription(nominalPurchase, couponPurchase);
-    final BondIborDescription bondStandard = new BondIborDescription(nominalStandard, couponStandard);
+    final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
+    final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
@@ -84,14 +81,13 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlement, bondStandard, spotTime, notionalStandard);
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
     return result;
   }
 
   @Override
   public BondIborTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
-    // TODO: Take the ex-coupon days into account.
     Validate.notNull(date, "date");
     Validate.notNull(indexFixingTS, "index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -112,7 +108,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
       settlementAmount = getPaymentAmount();
     }
-    final PaymentFixed settlement = new PaymentFixed(getUnderlyingBond().getCurrency(), settlementTime, settlementAmount, discountingCurveName);
     final AnnuityPaymentFixed nominal = getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
     @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> coupon = (GenericAnnuity<Payment>) getUnderlyingBond().getCoupon().toDerivative(date, indexFixingTS, couponCurveName);
@@ -120,8 +115,8 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
     final GenericAnnuity<Payment> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
     final GenericAnnuity<Payment> couponStandard = coupon.trimBefore(spotTime);
-    final BondIborDescription bondPurchase = new BondIborDescription(nominalPurchase, couponPurchase);
-    final BondIborDescription bondStandard = new BondIborDescription(nominalStandard, couponStandard);
+    final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
+    final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
@@ -131,18 +126,18 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlement, bondStandard, spotTime, notionalStandard);
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
     return result;
   }
 
   @Override
   public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    throw new NotImplementedException();
+    return visitor.visitBondIborTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    throw new NotImplementedException();
+    return visitor.visitBondIborTransactionDefinition(this);
   }
 
 }

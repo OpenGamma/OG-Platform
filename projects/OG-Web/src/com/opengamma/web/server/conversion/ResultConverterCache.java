@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.util.money.CurrencyAmount;
@@ -24,9 +25,10 @@ public class ResultConverterCache {
   private final DoubleConverter _doubleConverter;
   private final ResultConverter<Object> _fudgeBasedConverter;
   private final Map<Class<?>, ResultConverter<?>> _converterMap;
-  
-  private final Map<String, ResultConverter<?>> _converterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
-  
+
+  private final Map<String, ResultConverter<?>> _valueNameConverterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
+  private final Map<Class<?>, ResultConverter<?>> _typedConverterCache = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
+
   public ResultConverterCache(FudgeContext fudgeContext) {
     _fudgeBasedConverter = new FudgeBasedJsonGeneratorConverter(fudgeContext);
     _doubleConverter = new DoubleConverter();
@@ -41,53 +43,58 @@ public class ResultConverterCache {
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
+    registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
     registerConverter(Tenor.class, new TenorConverter());
   }
-  
+
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
     _converterMap.put(clazz, converter);
   }
-  
+
   @SuppressWarnings("unchecked")
   public <T> ResultConverter<? super T> getAndCacheConverter(String valueName, Class<T> valueType) {
-    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterCache.get(valueName);
+    ResultConverter<? super T> converter = (ResultConverter<? super T>) _valueNameConverterCache.get(valueName);
     if (converter == null) {
-      converter = findConverterForType((Class<T>) valueType);
-      _converterCache.put(valueName, converter);
+      converter = getConverterForType(valueType);
+      _valueNameConverterCache.put(valueName, converter);
     }
-    return converter; 
+    return converter;
   }
-  
+
+  @SuppressWarnings("unchecked")
+  public <T> ResultConverter<? super T> getConverterForType(Class<T> type) {
+    ResultConverter<?> converter = _typedConverterCache.get(type);
+    if (converter == null) {
+      Class<?> searchType = type;
+      while (converter == null && searchType != null) {
+        converter = _converterMap.get(searchType);
+        searchType = searchType.getSuperclass();
+      }
+      if (converter == null) {
+        converter = _fudgeBasedConverter;
+      }
+      _typedConverterCache.put(type, converter);
+    }
+    return (ResultConverter<? super T>) converter;
+  }
+
   @SuppressWarnings("unchecked")
   public <T> Object convert(T value, ConversionMode mode) {
-    ResultConverter<? super T> converter = findConverterForType((Class<T>) value.getClass());
+    ResultConverter<? super T> converter = getConverterForType((Class<T>) value.getClass());
     return converter.convertForDisplay(this, null, value, mode);
   }
-  
+
   public DoubleConverter getDoubleConverter() {
     return _doubleConverter;
   }
-  
-  public String getKnownResultTypeName(String valueRequirementName) {
-    ResultConverter<?> converter = _converterCache.get(valueRequirementName);
+
+  public String getKnownResultTypeName(String valueName) {
+    ResultConverter<?> converter = _valueNameConverterCache.get(valueName);
     return converter != null ? converter.getFormatterName() : null;
   }
-  
+
   public ResultConverter<Object> getFudgeConverter() {
     return _fudgeBasedConverter;
   }
-  
-  @SuppressWarnings("unchecked")
-  private <T> ResultConverter<? super T> findConverterForType(Class<T> type) {
-    Class<?> searchType = type;
-    while (searchType != null) {
-      ResultConverter<?> converter = _converterMap.get(searchType);
-      if (converter != null) {
-        return (ResultConverter<? super T>) converter;
-      }
-      searchType = searchType.getSuperclass();
-    }
-    return _fudgeBasedConverter;
-  }
-  
+
 }

@@ -12,11 +12,15 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.convention.ConventionBundleMaster;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotMaster;
 import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
 import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -66,6 +70,10 @@ public class RemoteClient {
       return notImplemented("heartbeat");
     }
 
+    public RestTarget getMarketDataSnapshotMaster() {
+      return notImplemented("marketDataSnapshotMaster");
+    }
+
   }
 
   /**
@@ -79,6 +87,7 @@ public class RemoteClient {
     private URI _viewDefinitionRepository;
     private RestTarget _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
+    private RestTarget _marketDataSnapshotMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
       _portfolioMaster = portfolioMaster;
@@ -134,6 +143,15 @@ public class RemoteClient {
       return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
     }
 
+    public void setMarketDataSnapshotMaster(final RestTarget marketDataSnapshotMaster) {
+      _marketDataSnapshotMaster = marketDataSnapshotMaster;
+    }
+
+    @Override
+    public RestTarget getMarketDataSnapshotMaster() {
+      return (_marketDataSnapshotMaster != null) ? _marketDataSnapshotMaster : super.getMarketDataSnapshotMaster();
+    }
+
   }
 
   /**
@@ -178,6 +196,11 @@ public class RemoteClient {
       return _baseTarget.resolve(ClientResource.HEARTBEAT_PATH);
     }
 
+    @Override
+    public RestTarget getMarketDataSnapshotMaster() {
+      return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH);
+    }
+
   }
 
   private final String _clientId;
@@ -188,6 +211,9 @@ public class RemoteClient {
   private SecurityMaster _securityMaster;
   private ManageableViewDefinitionRepository _viewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
+  // TODO [PLAT-637] We're using the in memory job as a hack
+  private static ConventionBundleMaster s_conventionBundleMaster;
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
     _clientId = clientId;
@@ -232,6 +258,23 @@ public class RemoteClient {
       _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _targetProvider.getInterpolatedYieldCurveDefinitionMaster());
     }
     return _interpolatedYieldCurveDefinitionMaster;
+  }
+
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    if (_marketDataSnapshotMaster == null) {
+      _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
+    }
+    return _marketDataSnapshotMaster;
+  }
+
+  public ConventionBundleMaster getConventionBundleMaster() {
+    // TODO [PLAT-637] We're using the in memory job as a hack
+    synchronized (RemoteClient.class) {
+      if (s_conventionBundleMaster == null) {
+        s_conventionBundleMaster = new InMemoryConventionBundleMaster();
+      }
+      return s_conventionBundleMaster;
+    }
   }
 
   /**

@@ -25,7 +25,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -68,7 +68,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
   final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
-  final SABRInterestRateParameter SABR_PARAMETER = TestsDataSets.createSABR1();
+  final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
   final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES_BUNDLE);
 
   @Test

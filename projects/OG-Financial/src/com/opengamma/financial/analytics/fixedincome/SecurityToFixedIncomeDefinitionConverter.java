@@ -92,7 +92,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate datedDate = security.getInterestAccrualDate().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final DayCount daycount = security.getDayCountConvention();
     final boolean isEOMConvention = convention.isEOMConvention();
@@ -113,7 +113,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
     final Currency currency = security.getCurrency();
-    final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
+    final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
     //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
     return new CashDefinition(maturityDate, 0, convention);
@@ -126,8 +126,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime startDate = security.getStartDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate().toZonedDateTime()); // just in case
+    final ZonedDateTime startDate = security.getStartDate();
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency + "_FRA_CONVENTION");
     //return new FRADefinition(startDate, maturityDate, fraSecurity.getRate(), convention);
     return new FRADefinition(startDate, maturityDate, 0, convention);
@@ -152,8 +152,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   private SwapFixedIborSpreadDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed) { //FixedIncomeInstrumentDefinition<FixedCouponSwap<Payment>>
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
@@ -168,8 +168,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   }
 
   private SwapIborIborDefinition getTenorSwapDefinition(final SwapSecurity swapSecurity) { //FixedIncomeInstrumentDefinition<TenorSwap<Payment>> 
-    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
-    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
+    final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
+    final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
@@ -199,7 +199,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
     //        conventions.getSwapFloatingLegSettlementDays());
     //    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
-    final double initialRate = floatLeg.getInitialFloatingRate();
+    //final double initialRate = floatLeg.getInitialFloatingRate();
     final double spread = floatLeg.getSpread();
     //    final SwapConvention convention = new SwapConvention(0, conventions.getSwapFloatingLegDayCount(), conventions.getSwapFloatingLegBusinessDayConvention(), calendar, false, currency
     //        + "_FLOATING_LEG_SWAP_CONVENTION");
@@ -233,7 +233,7 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
     LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
-    if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+    if (schedule[0].equals(security.getFirstCouponDate().toLocalDate())) {
       final int n = schedule.length;
       final LocalDate[] temp = new LocalDate[n + 1];
       temp[0] = datedDate;
@@ -242,8 +242,8 @@ public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityV
       }
       schedule = temp;
     }
-    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toLocalDate())) {
+      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toLocalDate());
     }
     return schedule;
   }

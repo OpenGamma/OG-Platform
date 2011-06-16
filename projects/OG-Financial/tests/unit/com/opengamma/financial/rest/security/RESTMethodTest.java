@@ -5,17 +5,15 @@
  */
 package com.opengamma.financial.rest.security;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
 import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -23,12 +21,14 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgFormatter;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -72,8 +72,8 @@ public class RESTMethodTest {
     BondSecurity bondSec = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC)), "", 200,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
-        new DateTimeWithZone(LocalDateTime.of(2011, 2, 1, 12, 0)), new DateTimeWithZone(LocalDateTime.of(2011, 2, 1, 12, 0)),
-        new DateTimeWithZone(LocalDateTime.of(2011, 2, 1, 12, 0)), 100, 100000000, 5000, 1000, 100, 100);
+        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
+        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100, 100000000, 5000, 1000, 100, 100);
     bondSec.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
     securitySource.addSecurity(bondSec);
     

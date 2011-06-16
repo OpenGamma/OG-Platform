@@ -6,9 +6,13 @@
 package com.opengamma.masterdb.position;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +23,10 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -120,7 +127,81 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     expected.setProviderKey(Identifier.of("B", "408"));
     assertEquals(expected, test);
   }
-
+  
+  @Test
+  public void test_getTradePosition_withPremium() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade1.setPremium(1000000.00);
+    trade1.setPremiumCurrency(Currency.USD);
+    trade1.setPremiumDate(tradeDate.plusDays(1));
+    trade1.setPremiumTime(tradeTime);
+    position.getTrades().add(trade1);
+    
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    trade2.setPremium(100.00);
+    trade2.setPremiumCurrency(Currency.GBP);
+    trade2.setPremiumDate(tradeDate.plusDays(10));
+    trade2.setPremiumTime(tradeTime.plusHours(1));
+    position.getTrades().add(trade2);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    _posMaster.add(doc);
+    assertNotNull(trade1.getUniqueId());
+    assertNotNull(trade2.getUniqueId());
+   
+    assertEquals(trade1, _posMaster.getTrade(trade1.getUniqueId()));
+    assertEquals(trade2, _posMaster.getTrade(trade2.getUniqueId()));
+    
+    PositionDocument storedDoc = _posMaster.get(position.getUniqueId());
+    assertNotNull(storedDoc);
+    assertNotNull(storedDoc.getPosition());
+    assertNotNull(storedDoc.getPosition().getTrades());
+    assertEquals(2, storedDoc.getPosition().getTrades().size());
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade1));
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade2));
+  }
+  
+  @Test
+  public void test_getTradePosition_withAttributes() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade1.addAttribute("key11", "Value11");
+    trade1.addAttribute("key12", "Value12");
+    position.getTrades().add(trade1);
+    
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    trade2.addAttribute("key21", "Value21");
+    trade2.addAttribute("key22", "Value22");
+    position.getTrades().add(trade2);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    _posMaster.add(doc);
+    assertNotNull(trade1.getUniqueId());
+    assertNotNull(trade2.getUniqueId());
+   
+    assertEquals(trade1, _posMaster.getTrade(trade1.getUniqueId()));
+    assertEquals(trade2, _posMaster.getTrade(trade2.getUniqueId()));
+    
+    PositionDocument storedDoc = _posMaster.get(position.getUniqueId());
+    assertNotNull(storedDoc);
+    assertNotNull(storedDoc.getPosition());
+    assertNotNull(storedDoc.getPosition().getTrades());
+    assertEquals(2, storedDoc.getPosition().getTrades().size());
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade1));
+    assertTrue(storedDoc.getPosition().getTrades().contains(trade2));
+  }
+  
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

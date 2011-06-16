@@ -50,7 +50,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     
     assertEquals(_totalPortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
-    assert202(test.getDocuments().get(1));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
   }
 
   @Test
@@ -64,7 +65,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     assertEquals(_totalPortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 0);
-    assert202(test.getDocuments().get(1));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
   }
 
   @Test
@@ -78,32 +80,34 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     assertEquals(_totalPortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 1);
-    assert202(test.getDocuments().get(1));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_search_pageOne() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.of(1, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     
-    assertEquals(1, test.getDocuments().size());
+    assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
+    assert102(test.getDocuments().get(1));
   }
 
   @Test
   public void test_search_pageTwo() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.of(2, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(2, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
@@ -231,22 +235,22 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_name_wildcardMatch_one() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setName("TestPortfolio1*");
+    request.setName("TestPortfolio2*");
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0), 999);
+    assert202(test.getDocuments().get(0));
   }
 
   @Test
   public void test_search_name_wildcardMatch_two() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setName("TestPort*");
+    request.setName("TestPortfolio1*");
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
-    assert202(test.getDocuments().get(1));
+    assert102(test.getDocuments().get(1));
   }
 
   @Test
@@ -255,8 +259,9 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setName("TESTPortfolio1*");
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(1, test.getDocuments().size());
+    assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
+    assert102(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -275,9 +280,10 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(2, test.getDocuments().size());
+    assertEquals(_totalPortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
-    assert201(test.getDocuments().get(1));  // old version
+    assert102(test.getDocuments().get(1));
+    assert201(test.getDocuments().get(2));  // old version
   }
 
   @Test
@@ -286,9 +292,10 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(2, test.getDocuments().size());
+    assertEquals(_totalPortfolios, test.getDocuments().size());
     assert101(test.getDocuments().get(0), 999);
-    assert202(test.getDocuments().get(1));  // new version
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));  // new version
   }
 
   //-------------------------------------------------------------------------

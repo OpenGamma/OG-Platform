@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.curve.NodalDoublesCurve;
 
 /**
  * Converter for {@link YieldCurve} objects.
@@ -37,20 +38,8 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
       result.put("summary", data);
       
       if (mode == ConversionMode.FULL) {
-        List<Double[]> detailedData = new ArrayList<Double[]>();
-      
-       // This is a hack for now as it's all about to change
-        Interpolator1DDataBundle interpolatorBundle = interpolatedCurve.getDataBundle();
-        double first = interpolatorBundle.firstKey();
-        double last = interpolatorBundle.lastKey();
-      
-        // Output 100 points equally spaced along the curve
-        double step = (last - first) / 100;
-        for (int i = 1; i <= 100; i++) {
-          double t = step * i;
-          detailedData.add(new Double[] {t, value.getInterestRate(t)});
-        }
-      
+        NodalDoublesCurve detailedCurve = YieldCurveInterpolatingFunction.interpolateCurve(interpolatedCurve);
+        List<Double[]> detailedData = getData(detailedCurve);
         result.put("detailed", detailedData);
       }
       return result;
@@ -77,14 +66,8 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
       }
       result.put("summary", data);
       if (mode == ConversionMode.FULL) {
-        List<Double[]> detailedData = new ArrayList<Double[]>();
-        double first = 1. / 12;
-        double last = 30;
-        double step = (last - first) / 100;
-        for (int i = 1; i <= 100; i++) {
-          double t = step * i;
-          detailedData.add(new Double[]{t, value.getInterestRate(t)});
-        }
+        NodalDoublesCurve detailedCurve = YieldCurveInterpolatingFunction.interpolateCurve(curve);
+        List<Double[]> detailedData = getData(detailedCurve);
         result.put("detailed", detailedData);
       }
       return result;
@@ -93,14 +76,47 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
     return result;
   }
 
-  @Override
-  public String getFormatterName() {
-    return "YIELD_CURVE";
+  private List<Double[]> getData(NodalDoublesCurve detailedCurve) {
+    List<Double[]> detailedData = new ArrayList<Double[]>();
+    
+    Double[] xs = detailedCurve.getXData();
+    Double[] ys = detailedCurve.getYData();
+    for (int i = 0; i < ys.length; i++) {
+      detailedData.add(new Double[]{xs[i], ys[i]});
+    }
+    return detailedData;
   }
 
   @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value) {
     return null;
+  }
+
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value) {
+    if (value.getCurve() instanceof InterpolatedDoublesCurve) {
+      StringBuilder sb = new StringBuilder();
+      InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
+      double[] xData = interpolatedCurve.getXDataAsPrimitive();
+      double[] yData = interpolatedCurve.getYDataAsPrimitive();
+      boolean isFirst = true;
+      for (int i = 0; i < interpolatedCurve.size(); i++) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append("; ");
+        }
+        sb.append(xData[i]).append("=").append(yData[i]);
+      }
+      return sb.length() > 0 ? sb.toString() : null;
+    } else {
+      return value.getClass().getSimpleName();
+    }
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "YIELD_CURVE";
   }
   
 }

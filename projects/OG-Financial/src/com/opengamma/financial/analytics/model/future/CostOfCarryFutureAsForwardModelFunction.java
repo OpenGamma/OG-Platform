@@ -33,6 +33,8 @@ import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurityVisitor;
@@ -201,6 +203,16 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction.No
     @Override
     public Identifier visitStockFutureSecurity(final StockFutureSecurity security) {
       return security.getUnderlyingIdentifier();
+    }
+
+    @Override
+    public Identifier visitEquityFutureSecurity(EquityFutureSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Identifier visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+      return null;
     }
 
   }

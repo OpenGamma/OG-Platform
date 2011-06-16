@@ -22,6 +22,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
@@ -336,8 +337,8 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * Serializes this identifier bundle to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not {@code null}
-   * @param message the message to serialize into, not {@code null}
+   * @param factory  a message creator, not null
+   * @param message  the message to serialize into, not null
    * @return the serialized message
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
@@ -353,7 +354,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * Serializes this identifier bundle to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param factory a message creator, not {@code null}
+   * @param factory  a message creator, not null
    * @return the serialized Fudge message
    */
   public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
@@ -364,16 +365,17 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * Deserializes an identifier bundle from a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
-   * @param msg the Fudge message, not {@code null}
+   * @param fudgeContext  the Fudge context
+   * @param msg  the Fudge message, not null
    * @return the identifier bundle
    */
-  public static IdentifierBundle fromFudgeMsg(FudgeMsg msg) {
+  public static IdentifierBundle fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();
     for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
       if (field.getValue() instanceof FudgeMsg == false) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }
-      identifiers.add(Identifier.fromFudgeMsg((FudgeMsg) field.getValue()));
+      identifiers.add(Identifier.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
     }
     return new IdentifierBundle(identifiers);
   }

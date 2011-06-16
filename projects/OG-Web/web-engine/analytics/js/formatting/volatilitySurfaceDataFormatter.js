@@ -15,13 +15,10 @@
     var self = this;
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      if (!value) {
+      if (!value || !value.v) {
         return;
       }
-      $cell.html("<div class='volatility-surface'>" +
-        "  <span>x=" + value['xs'] + "</span>" +
-        "  <span>y=" + value['ys'] + "</span>" +
-        "</div>");
+      $cell.html("<span class='cell-value'>Volatility Surface (" + value.v['xCount'] + " x " + value.v['yCount'] + ")</span>");
     }
     
     this.createDetail = function($container, rowId, columnStructure, userConfig) {

@@ -35,10 +35,16 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   public static final String YIELD_CURVE = "YieldCurve";
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
+  public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
   public static final String COST_OF_CARRY = "Cost Of Carry";  
+  
+  public static final String VOLATILITY_CUBE = "VolatilityCube";
+  public static final String VOLATILITY_CUBE_DEFN = "VolatilityCubeDefinition";
+  public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
+  public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
   
   //
   public static final String FAIR_VALUE = "FairValue";

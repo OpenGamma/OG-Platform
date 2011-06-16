@@ -20,16 +20,21 @@ import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.master.marketdatasnapshot.ManageableVolatilityCubeSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableYieldCurveSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
+import com.opengamma.util.time.Tenor;
 
 public class DbMarketDataSnapshotMasterTest extends DBTest {
 
@@ -103,11 +108,12 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueIdentifier.of("XXX", "AAA"));
     
     HashMap<String,ValueSnapshot> hashMapA = new HashMap<String,ValueSnapshot>();
-    hashMapA.put("X", new ValueSnapshot(12,null));
-    hashMapA.put("Y", new ValueSnapshot(1,null));
+    hashMapA.put("X", new ValueSnapshot(Double.valueOf(12),null));
+    hashMapA.put("Y", new ValueSnapshot(Double.valueOf(1),null));
+    hashMapA.put("Z", new ValueSnapshot(null,null));
     values.put(specA, hashMapA);
     HashMap<String,ValueSnapshot> hashMapB = new HashMap<String,ValueSnapshot>();
-    hashMapB.put("X", new ValueSnapshot(12,Double.valueOf(11)));
+    hashMapB.put("X", new ValueSnapshot(Double.valueOf(12),Double.valueOf(11)));
     values.put(specB, hashMapB);
     
     
@@ -118,6 +124,16 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     
     globalValues.setValues(values);
     marketDataSnapshot.setYieldCurves(yieldCurves);
+    
+    HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
+    ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
+    
+    volCube.setOtherValues(globalValues);
+    volCube.setValues(new HashMap<VolatilityPoint, ValueSnapshot>());
+    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.MONTH, -1), new ValueSnapshot(null,null));
+    
+    volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);
+    marketDataSnapshot.setVolatilityCubes(volCubes);
     
     MarketDataSnapshotDocument addDoc = new MarketDataSnapshotDocument(marketDataSnapshot);
     MarketDataSnapshotDocument added = _snpMaster.add(addDoc);
@@ -138,6 +154,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     UnstructuredMarketDataSnapshot addedGlobalValues = addedSnapshot.getGlobalValues();
     UnstructuredMarketDataSnapshot loadedGlobalValues = loadedSnapshot.getGlobalValues();
     assertEquivalent(addedGlobalValues, loadedGlobalValues);
+    // TODO check yield curves and vol cubes
   }
 
   private void assertEquivalent(UnstructuredMarketDataSnapshot addedGlobalValues,       UnstructuredMarketDataSnapshot loadedGlobalValues) {

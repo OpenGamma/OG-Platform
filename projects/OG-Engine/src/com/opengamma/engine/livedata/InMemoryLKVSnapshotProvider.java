@@ -136,22 +136,22 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
     ArgumentChecker.notNull(valueName, "valueName");
     
     Security security = null;
-    UniqueIdentifier uniqueIdentifier = identifier.toUniqueIdentifier();
     if (_securitySource != null) {
       // 1 - see if the identifier can be resolved to a security
       security = _securitySource.getSecurity(IdentifierBundle.of(identifier));
       
       // 2 - see if the so-called Identifier is actually the UniqueIdentifier of a security
-      if (security == null) {
-        // Can't do this as the UniqueIdentifier may be the wrong type for the master - does this case really matter?
-        //security = _securitySource.getSecurity(uniqueIdentifier);
-      }
+//      if (security == null) {
+//        // Can't do this as the UniqueIdentifier may be the wrong type for the master - does this case really matter?
+//        //security = _securitySource.getSecurity(uniqueIdentifier);
+//      }
     }
     
     if (security != null) {
       return new ValueRequirement(valueName, ComputationTargetType.SECURITY, security.getUniqueId());
     } else {
       // 3 - treat the identifier as a UniqueIdentifier and assume it's a PRIMITIVE
+      UniqueIdentifier uniqueIdentifier = UniqueIdentifier.of(identifier);
       return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueIdentifier);
     }
 

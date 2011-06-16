@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
@@ -21,10 +22,12 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -68,9 +71,10 @@ public class ViewCalculationResultModelImplTest {
     resultModel.addValue("Default", COMPUTED_VALUE);
     resultModel.addValue("Default", COMPUTED_VALUE);
 
-    HashMap<String, ComputedValue> expectedMap = new HashMap<String, ComputedValue>();
-    expectedMap.put("DATA", COMPUTED_VALUE);
-    assertEquals(expectedMap, calcResult.getValues(SPEC));
+    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResult.getValues(SPEC);
+    assertEquals(1, targetResults.size());
+    assertEquals("DATA", targetResults.keySet().iterator().next().getFirst());
+    assertEquals(COMPUTED_VALUE, targetResults.values().iterator().next());
     assertEquals(Sets.newHashSet(SPEC, new ComputationTargetSpecification(PORTFOLIO_ROOT_NODE)), Sets.newHashSet(calcResult.getAllTargets()));
 
     assertNull(calcResult.getValues(new ComputationTargetSpecification("nonexistent")));

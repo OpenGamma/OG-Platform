@@ -5,17 +5,18 @@
  */
 package com.opengamma.master;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Objects;
 import com.opengamma.id.VersionCorrection;
@@ -110,6 +111,27 @@ public abstract class AbstractSearchRequest extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractSearchRequest other = (AbstractSearchRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the request for paging.
@@ -159,7 +181,7 @@ public abstract class AbstractSearchRequest extends DirectBean {
   /**
    * The meta-bean for {@code AbstractSearchRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -168,26 +190,40 @@ public abstract class AbstractSearchRequest extends DirectBean {
     /**
      * The meta-property for the {@code pagingRequest} property.
      */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
+    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "pagingRequest", AbstractSearchRequest.class, PagingRequest.class);
     /**
      * The meta-property for the {@code versionCorrection} property.
      */
-    private final MetaProperty<VersionCorrection> _versionCorrection = DirectMetaProperty.ofReadWrite(this, "versionCorrection", VersionCorrection.class);
+    private final MetaProperty<VersionCorrection> _versionCorrection = DirectMetaProperty.ofReadWrite(
+        this, "versionCorrection", AbstractSearchRequest.class, VersionCorrection.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "pagingRequest",
+        "versionCorrection");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
-      temp.put("versionCorrection", _versionCorrection);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public AbstractSearchRequest createBean() {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return _pagingRequest;
+        case -2031293866:  // versionCorrection
+          return _versionCorrection;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends AbstractSearchRequest> builder() {
       throw new UnsupportedOperationException("AbstractSearchRequest is an abstract class");
     }
 

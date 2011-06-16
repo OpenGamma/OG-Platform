@@ -1,5 +1,6 @@
-/**
- * view for securities section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.configs',
@@ -27,7 +28,7 @@ $.register_module({
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
-            page_name = 'configs',
+            page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             configs,
@@ -43,7 +44,7 @@ $.register_module({
                         'Ok': function () {
                             api.rest.configs.put({
                                 handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'input', html: r.message});
+                                    if (r.error) return ui.dialog({type: 'error', html: r.message});
                                     ui.dialog({type: 'input', action: 'close'});
                                     routes.go(routes.hash(module.rules.load_new_configs,
                                             $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
@@ -144,14 +145,15 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         details_json = result.data;
                         history.put({
-                            name: details_json.templateData.name,
+                            name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name, handler: function (template) {
-                            var json = details_json.templateData, $warning,
+                        api.text({module: module.name + '.' + args.type, handler: function (template) {
+                            var json = details_json.template_data, $warning,
                                 warning_message = 'This configuration has been deleted';
-                            if (json.configData) json.configData = JSON.stringify(json.configData, null, 4);
+                            json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
+                                    : json.configXML ? json.configXML : '';
                             $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
                             $warning = $('#OG-details .OG-warning-message');
                             if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
@@ -165,6 +167,53 @@ $.register_module({
                                     })));
                                 }
                             });
+                            $('.OG-config .og-js-save-config').click(function () {
+                                var data_obj, data = $('.OG-config [data-og=config-data]').val(),
+                                    rest_obj = {
+                                    handler: function (e) {
+                                        if (e.error) return alert(e.message);
+                                        $('.og-js-msg').html('saved');
+                                        ui.message({location: '#OG-details', message: 'saved'});
+                                        setTimeout(function () {
+                                            ui.message({location: '#OG-details', destroy: true});
+                                            editing = false;
+                                        }, 250);
+                                        routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {
+                                            edit: 'true'
+                                        })));
+                                    },
+                                    id: routes.current().args.id,
+                                    loading: function () {
+                                        $('.og-js-msg').html('saving...');
+                                        ui.message({location: '#OG-details', message: 'saving...'});
+                                    },
+                                    name: $('[data-og-editable=name]').html()
+                                };
+                                data_obj = data.charAt(0) === '<' ? {xml: data} : {json: data};
+                                api.rest.configs.put($.extend(rest_obj, data_obj));
+                            });
+                            /* TMP work on configs form */
+                            /*
+                            var form = new ui.Form({
+                                module: 'og.views.forms.view-definition',
+                                selector: '#OG-details .og-form-container'
+                            });
+                            form.children = [
+                                new form.Block({module: 'og.views.forms.view-definition-main'}),
+                                new form.Block({module: 'og.views.forms.view-definition-result-model-definition'}),
+                                new form.Block({module: 'og.views.forms.view-definition-execution-parameters'}),
+                                new form.Block({module: 'og.views.forms.tabs'}),
+                                new form.Block({module: 'og.views.forms.view-definition-column-set-name'}),
+                                new form.Block({module: 'og.views.forms.view-definition-column-values'}),
+                                new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
+                                new form.Block({module: 'og.views.forms.constraints'}),
+                                new form.Block({module: 'og.views.forms.constraints'}),
+                                new form.Block({
+                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
+                                })
+                            ];
+                            form.dom();
+                            */
                         }});
                     },
                     id: args.id,
@@ -179,8 +228,12 @@ $.register_module({
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
             load_delete: {route: '/' + page_name + '/deleted:/name:?/type:?', method: module.name + '.load_delete'},
             load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
-            load_new_configs:
-                {route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name}
+            load_new_configs: {
+                route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
+            },
+            load_edit_configs: {
+                route: '/' + page_name + '/:id/edit:/name:?/type:?', method: module.name + '.load_edit_' + page_name
+            }
         };
         return configs = {
             load: function (args) {
@@ -219,7 +272,7 @@ $.register_module({
                 configs.details(args);
             },
             search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
-            details: function (args) {details_page(args);},
+            details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

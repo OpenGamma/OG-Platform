@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.function.Function2D;
 import com.opengamma.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
@@ -44,7 +44,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final OptionSecurity option = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final UniqueIdentifier uid = option.getUniqueId();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = option.getExpiry();
@@ -63,7 +63,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
+    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;
@@ -72,7 +72,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(getVolatilitySurfaceRequirement((OptionSecurity) target.getSecurity()));
+      return Sets.newHashSet(getVolatilitySurfaceRequirement((EquityOptionSecurity) target.getSecurity()));
     }
     return null;
   }
@@ -82,7 +82,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
     return "SkewKurtosisFromImpliedVolatilityModel";
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final OptionSecurity option) {
+  private ValueRequirement getVolatilitySurfaceRequirement(final EquityOptionSecurity option) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, option.getUniqueId());
   }
 

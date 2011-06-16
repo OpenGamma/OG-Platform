@@ -5,14 +5,15 @@
  */
 package com.opengamma.master.region;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -90,16 +91,29 @@ public class RegionHistoryRequest extends AbstractHistoryRequest {
 
   @Override
   protected Object propertyGet(String propertyName) {
-    switch (propertyName.hashCode()) {
-    }
     return super.propertyGet(propertyName);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue) {
-    switch (propertyName.hashCode()) {
-    }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -115,17 +129,18 @@ public class RegionHistoryRequest extends AbstractHistoryRequest {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public RegionHistoryRequest createBean() {
-      return new RegionHistoryRequest();
+    public BeanBuilder<? extends RegionHistoryRequest> builder() {
+      return new DirectBeanBuilder<RegionHistoryRequest>(new RegionHistoryRequest());
     }
 
     @Override

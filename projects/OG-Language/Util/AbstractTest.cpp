@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Generic testing abstraction
-
 #include "AbstractTest.h"
 #include "Fudge.h"
 #include <log4cxx/propertyconfigurator.h>
@@ -15,14 +12,27 @@
 
 LOGGING (com.opengamma.language.util.AbstractTest);
 
+/// Makes sure Fudge is initialised when the test starts.
 static CFudgeInitialiser g_oInitialiseFudge;
 
+#ifndef __cplusplus_cli
+
+/// Maximum number of test classes; this must be large enough to allow all tests to be declared.
 #define MAX_TESTS	50
 
+/// Number of declared tests.
 static int g_nTests = 0;
+
+/// Number of tests successfully run.
 static int g_nSuccessfulTests = 0;
+
+/// Declared test class instances.
 static CAbstractTest *g_poTests[MAX_TESTS];
 
+/// Creates a test class instance.
+///
+/// @param[in] bAutomatic true if the test should normally run, false if it is to run 'on request' only
+/// @param[in] pszName name of the test - for logging purposes and selecting ones to run manually 
 CAbstractTest::CAbstractTest (bool bAutomatic, const TCHAR *pszName) {
 	ASSERT (g_nTests < MAX_TESTS);
 	m_pszName = pszName;
@@ -30,15 +40,20 @@ CAbstractTest::CAbstractTest (bool bAutomatic, const TCHAR *pszName) {
 	g_poTests[g_nTests++] = this;
 }
 
+/// Destroys a test instance.
 CAbstractTest::~CAbstractTest () {
 }
 
 #ifndef _WIN32
 
+/// Dummy handler to ignore a signal.
+///
+/// @param[in] signal the signal to ignore
 static void _IgnoreSignal (int signal) {
 	LOGDEBUG (TEXT ("Signal ") << signal << TEXT (" ignored"));
 }
 
+/// Handler for atexit to shutdown any spawned processes (e.g. the JVM service runner).
 static void exitProc () {
 	pid_t grp = getpgid (0);
 	if (grp > 1) {
@@ -49,8 +64,14 @@ static void exitProc () {
 		LOGWARN (TEXT ("Couldn't get process group for termination"));
 	}
 }
+
 #endif /* ifndef _WIN32 */
 
+/// Program entry point implementation. A test harness executable should call this from
+/// its own entry point.
+///
+/// @param[in] argc the number of command line arguments passed
+/// @param[in] argv the command line arguments
 void CAbstractTest::Main (int argc, TCHAR **argv) {
 	int nTest;
 	InitialiseLogs ();
@@ -88,12 +109,19 @@ void CAbstractTest::Main (int argc, TCHAR **argv) {
 	exit (0);
 }
 
+/// Called after each completed test method. A test class may override this to perform any cleanup
+/// actions, but must invoke the superclass method.
 void CAbstractTest::After () {
 	g_nSuccessfulTests++;
 }
 
+#endif /* ifndef __cplusplus_cli */
+
 void LoggingInitImpl (const TCHAR *pszLogConfiguration);
 
+/// Initialises the logging subsystem with a path to the LOG4CXX configuration file taken from the
+/// LOG4CXX_CONFIGURATION environment variable. It is safe to call this multiple times - the first
+/// is acted upon, later calls are ignored.
 void CAbstractTest::InitialiseLogs () {
 	static bool bFirst = true;
 	if (bFirst) {

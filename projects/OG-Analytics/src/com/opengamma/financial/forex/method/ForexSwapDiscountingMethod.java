@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Pricing method for forex transactions by discounting each payment.
+ * Pricing method for Forex swap transactions by discounting each payment.
  */
 public class ForexSwapDiscountingMethod implements ForexPricingMethod {
 
@@ -31,14 +31,18 @@ public class ForexSwapDiscountingMethod implements ForexPricingMethod {
    */
   public MultipleCurrencyAmount presentValue(final ForexSwap fx, final YieldCurveBundle curves) {
     MultipleCurrencyAmount pv = FX_METHOD.presentValue(fx.getNearLeg(), curves);
-    pv.add(FX_METHOD.presentValue(fx.getFarLeg(), curves));
-    return pv;
+    return pv.plus(FX_METHOD.presentValue(fx.getFarLeg(), curves));
   }
 
   @Override
   public MultipleCurrencyAmount presentValue(ForexDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexSwap, "Instrument should be ForexSwap");
     return presentValue((ForexSwap) instrument, curves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+    return presentValue(instrument, curves);
   }
 
   /**

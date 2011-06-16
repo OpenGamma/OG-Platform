@@ -19,13 +19,13 @@
     <many-to-one name="currency3" column="currency3_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
     <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean" />
     <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
-    <many-to-one name="cashRateType" column="cashratetype_id" class="CashRateTypeBean" />
     <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
     <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
       <property name="scheme" column="underlying_scheme" type="string" />
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>
     <property name="unitNumber" column="unitnumber" type="double" />
+    <property name="unitAmount" column="unit_amount" type="double" />
     <component name="firstDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
       <property name="date" column="bondFutureFirstDeliveryDate" type="timestamp" not-null="false" />
       <property name="zone" column="bondFutureFirstDeliveryDate_zone" type="string" not-null="false" />

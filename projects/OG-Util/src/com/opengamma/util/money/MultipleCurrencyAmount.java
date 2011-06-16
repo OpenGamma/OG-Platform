@@ -5,246 +5,351 @@
  */
 package com.opengamma.util.money;
 
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.TreeMap;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class defining a container for currency amounts. It behaves as a set - if an amount is added with the same currency as one of the
- * elements, the amounts are added (i.e. adding EUR 100 to the container (EUR 200, CAD 100) would give (EUR 300, CAD 100)). 
+ * A map of currency amounts keyed by currency.
+ * <p>
+ * This is a container holding multiple {@link CurrencyAmount} instances.
+ * The amounts do not necessarily the same worth or value in each currency.
+ * <p>
+ * This class behaves as a set - if an amount is added with the same currency as one of the
+ * elements, the amounts are added. For example, adding EUR 100 to the container
+ * (EUR 200, CAD 100) would give (EUR 300, CAD 100).
+ * <p>
+ * This class is immutable and thread-safe.
  */
-public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Double>> {
-  //TODO does this need a copy method?
-  private static final double DEFAULT_RETURN_VALUE = Double.MAX_VALUE;
+public final class MultipleCurrencyAmount implements Iterable<CurrencyAmount>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The backing list of amounts.
+   */
+  private final TreeMap<Currency, CurrencyAmount> _amounts;
+
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a currency and amount.
+   * 
+   * @param currency  the currency, not null
+   * @param amount  the amount
+   * @return the amount, not null
+   */
   public static MultipleCurrencyAmount of(final Currency currency, final double amount) {
-    return new MultipleCurrencyAmount(currency, amount);
+    TreeMap<Currency, CurrencyAmount> map = new TreeMap<Currency, CurrencyAmount>();
+    map.put(currency, CurrencyAmount.of(currency, amount));
+    return new MultipleCurrencyAmount(map);
   }
 
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a paired array of currencies and amounts.
+   * 
+   * @param currencies  the currencies, not null
+   * @param amounts  the amounts, not null
+   * @return the amount, not null
+   */
   public static MultipleCurrencyAmount of(final Currency[] currencies, final double[] amounts) {
-    return new MultipleCurrencyAmount(currencies, amounts);
-  }
-
-  public static MultipleCurrencyAmount of(final List<Currency> currencies, final List<Double> amounts) {
-    return new MultipleCurrencyAmount(currencies, amounts);
-  }
-
-  public static MultipleCurrencyAmount of(final Map<Currency, Double> amounts) {
-    return new MultipleCurrencyAmount(amounts);
-  }
-
-  public static MultipleCurrencyAmount of(final CurrencyAmount[] amounts) {
-    return new MultipleCurrencyAmount(amounts);
-  }
-
-  public static MultipleCurrencyAmount of(final List<CurrencyAmount> amounts) {
-    return new MultipleCurrencyAmount(amounts);
-  }
-
-  public static MultipleCurrencyAmount of(final Set<CurrencyAmount> amounts) {
-    return new MultipleCurrencyAmount(amounts);
-  }
-
-  private final Object2DoubleOpenHashMap<Currency> _backingMap; //REVIEW emcleod 23-05-2011 May not be the best choice - it doubles its size as new entries are added.
-
-  public MultipleCurrencyAmount(final Currency currency, final double amount) {
-    Validate.notNull(currency, "currency");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
-    add(currency, amount);
-  }
-
-  public MultipleCurrencyAmount(final Currency[] currencies, final double[] amounts) {
-    Validate.notNull(currencies, "currency array");
-    Validate.notNull(amounts, "amount array");
+    ArgumentChecker.noNulls(currencies, "currencies");
+    ArgumentChecker.notNull(amounts, "amounts");
     final int length = currencies.length;
-    Validate.isTrue(length == amounts.length, "currency array and amount array must be the same length");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
+    ArgumentChecker.isTrue(length == amounts.length, "Currency array and amount array must be the same length");
+    List<CurrencyAmount> list = new ArrayList<CurrencyAmount>(length);
     for (int i = 0; i < length; i++) {
-      Validate.notNull(currencies[i], "currency");
-      add(currencies[i], amounts[i]);
+      list.add(CurrencyAmount.of(currencies[i], amounts[i]));
     }
+    return of(list);
   }
 
-  public MultipleCurrencyAmount(final List<Currency> currencies, final List<Double> amounts) {
-    Validate.notNull(currencies, "currency list");
-    Validate.notNull(amounts, "amount list");
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a paired list of currencies and amounts.
+   * 
+   * @param currencies  the currencies, not null
+   * @param amounts  the amounts, not null
+   * @return the amount, not null
+   */
+  public static MultipleCurrencyAmount of(final List<Currency> currencies, final List<Double> amounts) {
+    ArgumentChecker.noNulls(currencies, "currencies");
+    ArgumentChecker.noNulls(amounts, "amounts");
     final int length = currencies.size();
-    Validate.isTrue(length == amounts.size(), "currency list and amount list must be the same length");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
+    ArgumentChecker.isTrue(length == amounts.size(), "Currency array and amount array must be the same length");
+    List<CurrencyAmount> list = new ArrayList<CurrencyAmount>(length);
     for (int i = 0; i < length; i++) {
-      final Currency ccy = currencies.get(i);
-      Validate.notNull(ccy, "currency");
-      Validate.notNull(amounts.get(i), "amount");
-      add(ccy, amounts.get(i));
+      list.add(CurrencyAmount.of(currencies.get(i), amounts.get(i)));
     }
+    return of(list);
   }
 
-  public MultipleCurrencyAmount(final Map<Currency, Double> amounts) {
-    Validate.notNull(amounts, "amounts");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
-    for (final Map.Entry<Currency, Double> entry : amounts.entrySet()) {
-      final Currency ccy = entry.getKey();
-      final Double amount = entry.getValue();
-      Validate.notNull(ccy, "currency");
-      Validate.notNull(amount, "amount");
-      add(ccy, amount);
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a map of currency to amount.
+   * 
+   * @param amountMap  the amounts, not null
+   * @return the amount, not null
+   */
+  public static MultipleCurrencyAmount of(final Map<Currency, Double> amountMap) {
+    ArgumentChecker.notNull(amountMap, "amountMap");
+    TreeMap<Currency, CurrencyAmount> map = new TreeMap<Currency, CurrencyAmount>();
+    for (Entry<Currency, Double> entry : amountMap.entrySet()) {
+      ArgumentChecker.notNull(entry.getValue(), "amount");
+      map.put(entry.getKey(), CurrencyAmount.of(entry.getKey(), entry.getValue()));
     }
+    return new MultipleCurrencyAmount(map);
   }
 
-  public MultipleCurrencyAmount(final CurrencyAmount[] amounts) {
-    Validate.notNull(amounts, "amounts");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
-    for (final CurrencyAmount ca : amounts) {
-      Validate.notNull(ca, "currency amount");
-      add(ca);
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a list of {@code CurrencyAmount}.
+   * 
+   * @param currencyAmounts  the amounts, not null
+   * @return the amount, not null
+   */
+  public static MultipleCurrencyAmount of(final CurrencyAmount... currencyAmounts) {
+    ArgumentChecker.notNull(currencyAmounts, "currencyAmounts");
+    return of(Arrays.asList(currencyAmounts));
+  }
+
+  /**
+   * Obtains a {@code MultipleCurrencyAmount} from a list of {@code CurrencyAmount}.
+   * 
+   * @param currencyAmounts  the amounts, not null
+   * @return the amount, not null
+   */
+  public static MultipleCurrencyAmount of(final Iterable<CurrencyAmount> currencyAmounts) {
+    ArgumentChecker.notNull(currencyAmounts, "currencyAmounts");
+    TreeMap<Currency, CurrencyAmount> map = new TreeMap<Currency, CurrencyAmount>();
+    for (CurrencyAmount currencyAmount : currencyAmounts) {
+      ArgumentChecker.notNull(currencyAmount, "currencyAmount");
+      CurrencyAmount existing = map.get(currencyAmount.getCurrency());
+      if (existing != null) {
+        map.put(currencyAmount.getCurrency(), existing.plus(currencyAmount));
+      } else {
+        map.put(currencyAmount.getCurrency(), currencyAmount);
+      }
     }
+    return new MultipleCurrencyAmount(map);
   }
 
-  public MultipleCurrencyAmount(final List<CurrencyAmount> amounts) {
-    Validate.notNull(amounts, "amounts");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
-    for (final CurrencyAmount ca : amounts) {
-      Validate.notNull(ca, "currency amount");
-      add(ca);
-    }
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a {@code MultipleCurrencyAmount} from a list of {@code CurrencyAmount}.
+   * 
+   * @param currencyAmounts  the amounts, not null
+   */
+  private MultipleCurrencyAmount(final TreeMap<Currency, CurrencyAmount> currencyAmounts) {
+    _amounts = currencyAmounts;
   }
 
-  public MultipleCurrencyAmount(final Set<CurrencyAmount> amounts) {
-    Validate.notNull(amounts, "amounts");
-    _backingMap = new Object2DoubleOpenHashMap<Currency>();
-    _backingMap.defaultReturnValue(DEFAULT_RETURN_VALUE);
-    for (final CurrencyAmount ca : amounts) {
-      Validate.notNull(ca, "currency amount");
-      add(ca);
-    }
-  }
-
-  @Override
-  public Iterator<Map.Entry<Currency, Double>> iterator() {
-    return _backingMap.entrySet().iterator();
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the number of stored amounts.
+   * 
+   * @return the number of amounts
+   */
   public int size() {
-    return _backingMap.size();
-  }
-
-  public CurrencyAmount[] getCurrencyAmounts() {
-    final CurrencyAmount[] amounts = new CurrencyAmount[_backingMap.size()];
-    int i = 0;
-    for (final Map.Entry<Currency, Double> entry : _backingMap.entrySet()) {
-      amounts[i++] = CurrencyAmount.of(entry.getKey(), entry.getValue());
-    }
-    return amounts;
-  }
-
-  public double getAmountFor(final Currency ccy) {
-    Validate.notNull(ccy, "currency");
-    final double amount = _backingMap.getDouble(ccy);
-    if (amount == DEFAULT_RETURN_VALUE) {
-      throw new IllegalArgumentException("Do not have an amount with currency " + ccy); //REVIEW emcleod 23-05-2011 Too strict?
-    }
-    return amount;
-  }
-
-  public CurrencyAmount getCurrencyAmountFor(final Currency ccy) {
-    Validate.notNull(ccy, "currency");
-    final double amount = _backingMap.getDouble(ccy);
-    if (amount == DEFAULT_RETURN_VALUE) {
-      throw new IllegalArgumentException("Do not have an amount with currency " + ccy);
-    }
-    return CurrencyAmount.of(ccy, amount);
+    return _amounts.size();
   }
 
   /**
-   * Add a given currency amount. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added
-   * to the list with the given amount.
-   * @param amount The currency amount.
+   * Iterates though the currency-amounts.
+   * 
+   * @return the iterator, not null
    */
-  public void add(final CurrencyAmount amount) {
-    Validate.notNull(amount, "currency amount");
-    final Currency ccy = amount.getCurrency();
-    final double a = amount.getAmount();
-    if (_backingMap.containsKey(ccy)) {
-      _backingMap.add(ccy, a);
-    } else {
-      _backingMap.put(ccy, a);
-    }
-  }
-
-  /**
-   * Add an amount in a given currency. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added
-   * to the list with the given amount.
-   * @param currency The currency.
-   * @param amount The amount.
-   */
-  public void add(final Currency currency, final double amount) {
-    Validate.notNull(currency, "currency");
-    if (_backingMap.containsKey(currency)) {
-      _backingMap.add(currency, amount);
-    } else {
-      _backingMap.put(currency, amount);
-    }
-  }
-
-  public void add(final MultipleCurrencyAmount amounts) {
-    Validate.notNull(amounts, "multiple currency amount");
-    for (final Entry<Currency, Double> a : amounts) {
-      add(a.getKey(), a.getValue());
-    }
-  }
-
-  public void remove(final Currency currency) {
-    Validate.notNull(currency);
-    if (_backingMap.containsKey(currency)) {
-      _backingMap.remove(currency);
-      return;
-    }
-    throw new IllegalArgumentException("Could not remove entry for " + currency + "; was not present"); //REVIEW emcleod 23-5-2011 too strict?
-  }
-
-  public void replace(final Currency currency, final double amount) {
-    Validate.notNull(currency, "currency");
-    if (_backingMap.containsKey(currency)) {
-      _backingMap.put(currency, amount);
-      return;
-    }
-    throw new IllegalArgumentException("Could not replace entry for " + currency + "; was not present");
-  }
-
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _backingMap.hashCode();
+  public Iterator<CurrencyAmount> iterator() {
+    return _amounts.values().iterator();
+  }
+
+  /**
+   * Gets the currency amounts as an array.
+   * 
+   * @return the independent, modifiable currency amount array, not null
+   */
+  public CurrencyAmount[] getCurrencyAmounts() {
+    return _amounts.values().toArray(new CurrencyAmount[_amounts.size()]);
+  }
+
+  /**
+   * Gets the amount for the specified currency.
+   * 
+   * @param currency  the currency to find an amount for, not null
+   * @return the amount
+   * @throws IllegalArgumentException if the currency is not present
+   */
+  public double getAmount(final Currency currency) {
+    CurrencyAmount currencyAmount = getCurrencyAmount(currency);
+    if (currencyAmount == null) {
+      throw new IllegalArgumentException("Do not have an amount with currency " + currency);
+    }
+    return currencyAmount.getAmount();
+  }
+
+  /**
+   * Gets the {@code CurrencyAmount} for the specified currency.
+   * 
+   * @param currency  the currency to find an amount for, not null
+   * @return the amount, null if no amount for the currency
+   */
+  public CurrencyAmount getCurrencyAmount(final Currency currency) {
+    ArgumentChecker.notNull(currency, "currency");
+    return _amounts.get(currency);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * If the currency is already present, the amount is added to the existing amount.
+   * If the currency is not yet present, the currency-amount is added to the map.
+   * The addition simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param currencyAmountToAdd  the amount to add, in the same currency, not null
+   * @return an amount based on this with the specified amount added, not null
+   */
+  public MultipleCurrencyAmount plus(final CurrencyAmount currencyAmountToAdd) {
+    ArgumentChecker.notNull(currencyAmountToAdd, "currencyAmountToAdd");
+    return plus(currencyAmountToAdd.getCurrency(), currencyAmountToAdd.getAmount());
+  }
+
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * If the currency is already present, the amount is added to the existing amount.
+   * If the currency is not yet present, the currency-amount is added to the map.
+   * The addition simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param currency  the currency to add to, not null
+   * @param amountToAdd  the amount to add
+   * @return an amount based on this with the specified amount added, not null
+   */
+  public MultipleCurrencyAmount plus(final Currency currency, final double amountToAdd) {
+    ArgumentChecker.notNull(currency, "currency");
+    TreeMap<Currency, CurrencyAmount> copy = new TreeMap<Currency, CurrencyAmount>(_amounts);
+    CurrencyAmount existing = getCurrencyAmount(currency);
+    if (existing != null) {
+      copy.put(currency, existing.plus(amountToAdd));
+    } else {
+      copy.put(currency, CurrencyAmount.of(currency, amountToAdd));
+    }
+    return new MultipleCurrencyAmount(copy);
+  }
+
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * If the currency is already present, the amount is added to the existing amount.
+   * If the currency is not yet present, the currency-amount is added to the map.
+   * The addition simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param multipleCurrencyAmountToAdd  the currency to add to, not null
+   * @return an amount based on this with the specified amount added, not null
+   */
+  public MultipleCurrencyAmount plus(final MultipleCurrencyAmount multipleCurrencyAmountToAdd) {
+    ArgumentChecker.notNull(multipleCurrencyAmountToAdd, "multipleCurrencyAmountToAdd");
+    MultipleCurrencyAmount result = this;
+    for (CurrencyAmount currencyAmount : multipleCurrencyAmountToAdd) {
+      result = result.plus(currencyAmount);
+    }
     return result;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with the specified currency.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * Any previous amount for the specified currency is replaced.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param currency  the currency to replace, not null
+   * @param amount  the new amount
+   * @return an amount based on this with the specified currency replaced, not null
+   */
+  public MultipleCurrencyAmount with(final Currency currency, final double amount) {
+    ArgumentChecker.notNull(currency, "currency");
+    TreeMap<Currency, CurrencyAmount> copy = new TreeMap<Currency, CurrencyAmount>(_amounts);
+    copy.put(currency, CurrencyAmount.of(currency, amount));
+    return new MultipleCurrencyAmount(copy);
+  }
+
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} without the specified currency.
+   * <p>
+   * This removes the specified currency from this monetary amount, returning a new object.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param currency  the currency to replace, not null
+   * @return an amount based on this with the specified currency removed, not null
+   */
+  public MultipleCurrencyAmount without(final Currency currency) {
+    ArgumentChecker.notNull(currency, "currency");
+    TreeMap<Currency, CurrencyAmount> copy = new TreeMap<Currency, CurrencyAmount>(_amounts);
+    if (copy.remove(currency) == null) {
+      return this;
+    }
+    return new MultipleCurrencyAmount(copy);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this amount equals another amount.
+   * <p>
+   * The comparison checks the currency-amount map.
+   * 
+   * @param obj  the other amount, null returns false
+   * @return true if equal
+   */
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
+  public boolean equals(Object obj) {
+    if (obj == this) {
       return true;
     }
-    if (obj == null) {
-      return false;
+    if (obj != null && getClass() == obj.getClass()) {
+      MultipleCurrencyAmount other = (MultipleCurrencyAmount) obj;
+      return _amounts.equals(other._amounts);
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final MultipleCurrencyAmount other = (MultipleCurrencyAmount) obj;
-    return ObjectUtils.equals(_backingMap, other._backingMap);
+    return false;
+  }
+
+  /**
+   * Returns a suitable hash code for the amount.
+   * 
+   * @return the hash code
+   */
+  @Override
+  public int hashCode() {
+    return _amounts.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the amount as a string.
+   * <p>
+   * The format includes each currency-amount.
+   * 
+   * @return the currency amount, not null
+   */
+  @Override
+  public String toString() {
+    return _amounts.values().toString();
   }
 
 }

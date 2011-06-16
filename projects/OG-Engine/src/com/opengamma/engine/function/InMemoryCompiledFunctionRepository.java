@@ -27,6 +27,11 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
     public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
       return null;
     }
+    
+    @Override
+    public boolean canHandleMissingInputs() {
+      return false;
+    }
   };
 
   private final ConcurrentMap<String, CompiledFunctionDefinition> _functionDefinitions = new ConcurrentHashMap<String, CompiledFunctionDefinition>();

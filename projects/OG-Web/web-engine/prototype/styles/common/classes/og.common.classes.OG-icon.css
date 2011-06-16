@@ -1,3 +1,8 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
 /**
  * Generic icon styles
  */
@@ -187,4 +192,60 @@
 .OG-icon.OG-disabled.og-icon-favorites:before {
   background-position: -49px -98px;
   cursor: default;
+}
+
+/**
+ * Remove
+ */
+.OG-icon.og-icon-remove {
+  color: #960505;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 10px;
+  height: 11px;
+  line-height: 9px;
+  text-decoration: underline;
+}
+
+.OG-icon.og-icon-remove:before {
+  content: 'x';
+  height: 11px;
+  width: 11px;
+  margin: 0 3px 0 3px;
+  background: #960505;
+  display: inline-block;
+  color: #fff;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  text-align: center;
+  font-family: Arial;
+  font-size: 10px;
+}
+
+/**
+ * Add
+ */
+.OG-icon.og-icon-add {
+  color: #64be89;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 10px;
+  height: 11px;
+  line-height: 9px;
+  text-decoration: underline;
+}
+
+.OG-icon.og-icon-add:before {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  background: #64be89;
+  color: #fff;
+  content: '+';
+  display: inline-block;
+  font-family: Verdana;
+  font-size: 11px;
+  height: 11px;
+  margin: 0 3px 0 3px;
+  text-align: center;
+  width: 11px;
 }

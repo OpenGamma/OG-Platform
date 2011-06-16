@@ -111,6 +111,12 @@
     </constructor-arg>
   </bean>
 
+  <!-- User Vol Cubes-->
+  <!-- TODO: this properly, user source and cacheing -->
+  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
+    <constructor-arg ref="sharedConfigSource" />
+  </bean>
+  
   <!-- JMS-based LiveDataClient -->
   <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
@@ -150,6 +156,7 @@
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
+    <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
     <property name="currencyMatrixSource" ref="sharedCurrencyMatrixSource" />
   </bean>
   <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">

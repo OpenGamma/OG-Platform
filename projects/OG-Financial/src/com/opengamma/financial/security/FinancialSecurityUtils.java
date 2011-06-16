@@ -14,7 +14,13 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -106,12 +112,45 @@ public class FinancialSecurityUtils {
         }
   
         @Override
-        public Currency visitOptionSecurity(OptionSecurity security) {
+        public Currency visitSwapSecurity(SwapSecurity security) {
+          if (!(security.getPayLeg().getNotional() instanceof InterestRateNotional) || !(security.getReceiveLeg().getNotional() instanceof InterestRateNotional)) {
+            return null;
+          }
+          InterestRateNotional payNotional = (InterestRateNotional) security.getPayLeg().getNotional();
+          InterestRateNotional receiveNotional = (InterestRateNotional) security.getReceiveLeg().getNotional();
+          if (payNotional.getCurrency() != null && payNotional.getCurrency().equals(receiveNotional.getCurrency())) {
+            return payNotional.getCurrency();
+          }
+          return null;
+        }
+
+        @Override
+        public Currency visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitSwapSecurity(SwapSecurity security) {
+        public Currency visitEquityOptionSecurity(EquityOptionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitFXOptionSecurity(FXOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Currency visitSwaptionSecurity(SwaptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Currency visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
           return null;
         }
       });

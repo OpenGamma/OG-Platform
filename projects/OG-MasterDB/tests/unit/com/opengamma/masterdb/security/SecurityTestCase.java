@@ -44,7 +44,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -67,20 +66,20 @@ import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
 import com.opengamma.financial.security.option.BarrierPayoffStyle;
 import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
 import com.opengamma.financial.security.option.FixedStrikeLookbackPayoffStyle;
 import com.opengamma.financial.security.option.FloatingStrikeLookbackPayoffStyle;
-import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.GapPayoffStyle;
-import com.opengamma.financial.security.option.OptionOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
@@ -264,15 +263,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         }
       }
     });
-    s_dataProviders.put(DateTimeWithZone.class, new TestDataProvider<DateTimeWithZone>() {
-      @Override
-      public void getValues(final Collection<DateTimeWithZone> values) {
-        final Collection<ZonedDateTime> dates = getTestObjects(ZonedDateTime.class, null);
-        for (final ZonedDateTime date : dates) {
-          values.add(new DateTimeWithZone(date, date.getZone().getID()));
-        }
-      }
-    });
     s_dataProviders.put(DateProvider.class, new TestDataProvider<DateProvider>() {
       @Override
       public void getValues(final Collection<DateProvider> values) {
@@ -356,8 +346,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(new PoweredPayoffStyle(s_random.nextDouble()));
         values.add(new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
         values.add(new VanillaPayoffStyle());
-        values.add(new ExtremeSpreadPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextBoolean()));
-        values.add(new SimpleChooserPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextDouble(),
+        values.add(new ExtremeSpreadPayoffStyle(ZonedDateTime.now().withNanoOfSecond(0), s_random.nextBoolean()));
+        values.add(new SimpleChooserPayoffStyle(ZonedDateTime.now().withNanoOfSecond(0), s_random.nextDouble(),
             new Expiry(ZonedDateTime.now(Clock.systemDefaultZone()), ExpiryAccuracy.MONTH_YEAR)));
       }
     });
@@ -525,12 +515,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testBondOptionSecurity() {
-    assertSecurities(BondOptionSecurity.class);
-  }
-
-  @Override
-  @Test
   public void testCashSecurity() {
     assertSecurities(CashSecurity.class);
   }
@@ -576,6 +560,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
+  
+  @Override
+  @Test
+  public void testFXBarrierOptionSecurity() {
+    assertSecurities(FXBarrierOptionSecurity.class);
+  }
 
   @Override
   @Test
@@ -585,8 +575,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testFutureOptionSecurity() {
-    assertSecurities(FutureOptionSecurity.class);
+  public void testIRFutureOptionSecurity() {
+    assertSecurities(IRFutureOptionSecurity.class);
   }
 
   @Override
@@ -621,12 +611,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testOptionOptionSecurity() {
-    assertSecurities(OptionOptionSecurity.class);
-  }
-
-  @Override
-  @Test
   public void testStockFutureSecurity() {
     assertSecurities(StockFutureSecurity.class);
   }
@@ -642,5 +626,13 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
+
+  @Override
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    assertSecurities(EquityIndexOptionSecurity.class);
+  }
+  
+  
 
 }

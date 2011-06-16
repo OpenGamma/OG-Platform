@@ -267,11 +267,6 @@ public class DoubleConverter implements ResultConverter<Object> {
     return displayValue;
   }
 
-  @Override
-  public String getFormatterName() {
-    return "PRIMITIVE";
-  }
-
   private DoubleValueConversionSettings getConversion(ValueSpecification valueSpec) {
     DoubleValueConversionSettings conversion = null;
     if (valueSpec != null) {
@@ -296,6 +291,17 @@ public class DoubleConverter implements ResultConverter<Object> {
       doubleValue = 0;
     }
     return doubleValue;
+  }
+
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    // Full value
+    return value.toString();
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "DOUBLE";
   }
 
 }

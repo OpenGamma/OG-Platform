@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.EngineResourceReference;
@@ -251,6 +252,11 @@ public class ViewClientImpl implements ViewClient {
   public LiveDataInjector getLiveDataOverrideInjector() {
     // [PLAT-1174] - this shouldn't be here
     return getViewProcessor().getLiveDataOverrideInjector(getUniqueId());
+  }
+  
+  @Override
+  public ViewDefinition getViewDefinition() {
+    return getViewProcessor().getViewDefinition(getUniqueId());
   }
   
   //-------------------------------------------------------------------------

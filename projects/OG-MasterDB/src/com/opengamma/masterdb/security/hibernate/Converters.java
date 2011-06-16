@@ -17,8 +17,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -37,17 +37,31 @@ public final class Converters {
     return Currency.of(currencyBean.getName());
   }
 
-  public static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {
-    if (identifierBean == null) {
+  //-------------------------------------------------------------------------
+  public static Identifier identifierBeanToIdentifier(IdentifierBean hibernateBean) {
+    if (hibernateBean == null) {
       return null;
     }
-    return Identifier.of(identifierBean.getScheme(), identifierBean.getIdentifier());
+    return Identifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
   }
 
   public static IdentifierBean identifierToIdentifierBean(final Identifier identifier) {
     return new IdentifierBean(identifier.getScheme().getName(), identifier.getValue());
   }
 
+  //-------------------------------------------------------------------------
+  public static UniqueIdentifier uniqueIdentifierBeanToUniqueIdentifier(UniqueIdentifierBean hibernateBean) {
+    if (hibernateBean == null) {
+      return null;
+    }
+    return UniqueIdentifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
+  }
+
+  public static UniqueIdentifierBean uniqueIdentifierToUniqueIdentifierBean(final UniqueIdentifier identifier) {
+    return new UniqueIdentifierBean(identifier.getScheme(), identifier.getValue());
+  }
+
+  //-------------------------------------------------------------------------
   public static Expiry expiryBeanToExpiry(final ExpiryBean bean) {
     if (bean == null) {
       return null;
@@ -79,25 +93,23 @@ public final class Converters {
     return bean;
   }
 
-  public static DateTimeWithZone zonedDateTimeBeanToDateTimeWithZone(final ZonedDateTimeBean date) {
+  public static ZonedDateTime zonedDateTimeBeanToDateTimeWithZone(final ZonedDateTimeBean date) {
     if ((date == null) || (date.getDate() == null)) {
       return null;
     }
     final long epochSeconds = date.getDate().getTime() / 1000;
     if (date.getZone() == null) {
-      return new DateTimeWithZone(ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC));
+      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC);
     } else {
-      final ZonedDateTime zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(date.getZone()));
-      return new DateTimeWithZone(zdt, zdt.getZone().getID());
+      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(date.getZone()));
     }
   }
 
-  public static ZonedDateTimeBean dateTimeWithZoneToZonedDateTimeBean(final DateTimeWithZone date) {
-    if (date == null) {
+  public static ZonedDateTimeBean dateTimeWithZoneToZonedDateTimeBean(final ZonedDateTime zdt) {
+    if (zdt == null) {
       return null;
     }
     final ZonedDateTimeBean bean = new ZonedDateTimeBean();
-    final ZonedDateTime zdt = ZonedDateTime.of(date.getDate(), TimeZone.of(date.getZone()));
     bean.setDate(new Date(zdt.toInstant().toEpochMillisLong()));
     bean.setZone(zdt.getZone().getID());
     return bean;

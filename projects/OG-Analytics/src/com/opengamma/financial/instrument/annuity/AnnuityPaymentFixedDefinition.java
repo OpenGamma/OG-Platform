@@ -27,6 +27,21 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
     super(payments);
   }
 
+  /**
+   * Remove the payments paying on or before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityPaymentFixedDefinition trimBefore(ZonedDateTime trimDate) {
+    List<PaymentFixedDefinition> list = new ArrayList<PaymentFixedDefinition>();
+    for (PaymentFixedDefinition payment : getPayments()) {
+      if (payment.getPaymentDate().isAfter(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityPaymentFixedDefinition(list.toArray(new PaymentFixedDefinition[0]));
+  }
+
   @Override
   public AnnuityPaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<PaymentFixed> resultList = new ArrayList<PaymentFixed>();

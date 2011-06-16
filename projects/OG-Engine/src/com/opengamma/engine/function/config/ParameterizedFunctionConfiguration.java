@@ -8,8 +8,8 @@ public class ParameterizedFunctionConfiguration extends com.opengamma.engine.fun
   public static final String PARAMETER_KEY = "parameter";
   public ParameterizedFunctionConfiguration () {
   }
-  protected ParameterizedFunctionConfiguration (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected ParameterizedFunctionConfiguration (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (PARAMETER_KEY);
     if (fudgeFields.size () > 0)  {
@@ -49,13 +49,13 @@ public class ParameterizedFunctionConfiguration extends com.opengamma.engine.fun
   public ParameterizedFunctionConfiguration clone () {
     return new ParameterizedFunctionConfiguration (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_parameter != null)  {
       for (String fudge1 : _parameter) {
@@ -63,19 +63,19 @@ public class ParameterizedFunctionConfiguration extends com.opengamma.engine.fun
       }
     }
   }
-  public static ParameterizedFunctionConfiguration fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static ParameterizedFunctionConfiguration fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.function.config.ParameterizedFunctionConfiguration".equals (className)) break;
       try {
-        return (com.opengamma.engine.function.config.ParameterizedFunctionConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.engine.function.config.ParameterizedFunctionConfiguration)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new ParameterizedFunctionConfiguration (fudgeMsg);
+    return new ParameterizedFunctionConfiguration (fudgeContext, fudgeMsg);
   }
   public java.util.List<String> getParameter () {
     if (_parameter != null) {

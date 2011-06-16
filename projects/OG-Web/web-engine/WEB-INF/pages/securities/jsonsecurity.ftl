@@ -1,23 +1,38 @@
 <#escape x as x?html>
 {
-    "templateData": {
-      "name":"${security.name}",
-      "objectId":"${security.uniqueId.objectId}",
-      "versionId":"${security.uniqueId.version}",
-<#-- deprecated -->
-      "uniqueId":{"Value":"${security.uniqueId.value}","Scheme":"${security.uniqueId.scheme}","Version":"${security.uniqueId.version}"},
-<#if deleted>
-      "deleted":"${securityDoc.versionToInstant}",
-</#if>
-    	"securityType":"${security.securityType}",
+    "template_data": {
     <#switch security.securityType>
+      <#case "FRA">
+        "amount":"${security.amount}",
+        "currency":"${security.currency}",
+        "endDate": {
+              "date": "${security.endDate.date}",
+              "zone": "${security.endDate.zone}"
+          },
+        "rate":"${security.rate}",
+        "region":"${security.region?replace("_", " ")}",
+        "startDate": {
+              "date": "${security.startDate.date}",
+              "zone": "${security.startDate.zone}"
+         },
+      <#break>
+      <#case "Cash">
+        "amount":"${security.amount}",
+        "currency":"${security.currency}",
+        "maturity": {
+              "date": "${security.maturity.date}",
+              "zone": "${security.maturity.zone}"
+          },
+        "rate":"${security.rate}",
+        "region":"${security.region?replace("_", " ")}",
+      <#break>
       <#case "EQUITY">
-    	"shortName":"${security.shortName}",
-    	"exchange":"${security.exchange}",
-    	"companyName":"${security.companyName}",
-    	"currency":"${security.currency}",
-    	"exchangeCode":"${security.exchangeCode}",
-    	"gicsCode":"${security.gicsCode}"
+        	"shortName":"${security.shortName}",
+        	"exchange":"${security.exchange}",
+        	"companyName":"${security.companyName}",
+        	"currency":"${security.currency}",
+        	"exchangeCode":"${security.exchangeCode}",
+        	"gicsCode":"${security.gicsCode}",
       <#break>
       <#case "BOND"> 
         "issuerName":"${security.issuerName}",
@@ -52,7 +67,7 @@
         "minimumAmount":"${security.minimumAmount}",
         "minimumIncrement":"${security.minimumIncrement}",
         "parAmount":"${security.parAmount}",
-        "redemptionValue":"${security.redemptionValue}"
+        "redemptionValue":"${security.redemptionValue}",
       <#break>
       <#case "FUTURE">
         "expirydate": {
@@ -62,7 +77,7 @@
         "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
-        "redemptionValue":"${security.currency}"
+        "redemptionValue":"${security.currency}",
         <#break>
       <#case "EQUITY_OPTION">
         "exerciseType":"${security.exerciseType}",
@@ -72,7 +87,7 @@
         "expiryDate":"${security.expiry.expiry}",
         "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
         "underlyingIdentifier":"${security.underlyingIdentifier?replace("_", " ")}",
-        "currency":"${security.currency}"
+        "currency":"${security.currency}",
         <#break>
       <#case "SWAP">
         "tradeDate": {
@@ -133,10 +148,16 @@
               "spread":"${security.receiveLeg.spread}"
             <#break>
           </#switch>
-        }
+        },
         <#break>
     </#switch>
-    },
+    "name": "${security.name}",
+    "object_id": "${security.uniqueId.objectId}",
+    "version_id": "${security.uniqueId.version}",
+    <#if deleted>
+    "deleted": "${securityDoc.versionToInstant}",
+    </#if>
+    "securityType":"${security.securityType}" },
     "identifiers": {<#list security.identifiers.identifiers as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
 }
 </#escape>

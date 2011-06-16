@@ -19,7 +19,7 @@ public class InterestRateFuture implements InterestRateDerivative {
   private final double _fixingDate;
   private final double _maturity;
   private final double _indexYearFraction;
-  private final double _valueYearFraction;
+  private final double _valueYearFraction;  /// TODO Consider changing name to _basisPointValue
   private final double _price;
   private final String _curveName;
 

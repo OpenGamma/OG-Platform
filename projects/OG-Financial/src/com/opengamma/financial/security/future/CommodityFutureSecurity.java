@@ -10,13 +10,13 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
   public static final String UNIT_NUMBER_KEY = "unitNumber";
   private String _unitName;
   public static final String UNIT_NAME_KEY = "unitName";
-  public CommodityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String commodityType) {
-    super (expiry, tradingExchange, settlementExchange, currency);
+  public CommodityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (commodityType == null) throw new NullPointerException ("commodityType' cannot be null");
     _commodityType = commodityType;
   }
-  protected CommodityFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected CommodityFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (COMMODITY_TYPE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CommodityFutureSecurity - field 'commodityType' is not present");
@@ -45,8 +45,8 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
       }
     }
   }
-  public CommodityFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String commodityType, Double unitNumber, String unitName) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency);
+  public CommodityFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType, Double unitNumber, String unitName) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (commodityType == null) throw new NullPointerException ("commodityType' cannot be null");
     _commodityType = commodityType;
     _unitNumber = unitNumber;
@@ -59,7 +59,7 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
     _unitNumber = source._unitNumber;
     _unitName = source._unitName;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_commodityType != null)  {
       msg.add (COMMODITY_TYPE_KEY, null, _commodityType);
@@ -71,13 +71,13 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
       msg.add (UNIT_NAME_KEY, null, _unitName);
     }
   }
-  public static CommodityFutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static CommodityFutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.future.CommodityFutureSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.future.CommodityFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.future.CommodityFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

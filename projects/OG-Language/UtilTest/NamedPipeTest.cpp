@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Test the functions and objects in Util/NamedPipe.cpp
-
 #include "Util/NamedPipe.h"
 #include "Util/String.h"
 #include "Util/Thread.h"
@@ -518,6 +515,7 @@ static void ServerReadExclusive () {
 	CThread::Release (poServer);
 }
 
+/// Tests the functions and objects in Util/NamedPipe.cpp
 BEGIN_TESTS (NamedPipeTest)
 	TEST (ClientToServerComplete)
 	TEST (ClientToServerTimeoutConnectServer)

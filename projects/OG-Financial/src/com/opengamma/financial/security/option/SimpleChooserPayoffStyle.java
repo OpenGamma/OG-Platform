@@ -4,17 +4,17 @@
 package com.opengamma.financial.security.option;
 public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.option.PayoffStyle implements java.io.Serializable {
   public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSimpleChooserPayoffStyle(this); }
-  private static final long serialVersionUID = 59099522115609580l;
-  private final com.opengamma.financial.security.DateTimeWithZone _chooseDate;
+  private static final long serialVersionUID = 56347617331757888l;
+  private final javax.time.calendar.ZonedDateTime _chooseDate;
   public static final String CHOOSE_DATE_KEY = "chooseDate";
   private final double _underlyingStrike;
   public static final String UNDERLYING_STRIKE_KEY = "underlyingStrike";
   private final com.opengamma.util.time.Expiry _underlyingExpiry;
   public static final String UNDERLYING_EXPIRY_KEY = "underlyingExpiry";
-  public SimpleChooserPayoffStyle (com.opengamma.financial.security.DateTimeWithZone chooseDate, double underlyingStrike, com.opengamma.util.time.Expiry underlyingExpiry) {
+  public SimpleChooserPayoffStyle (javax.time.calendar.ZonedDateTime chooseDate, double underlyingStrike, com.opengamma.util.time.Expiry underlyingExpiry) {
     if (chooseDate == null) throw new NullPointerException ("'chooseDate' cannot be null");
     else {
-      _chooseDate = (com.opengamma.financial.security.DateTimeWithZone)chooseDate.clone ();
+      _chooseDate = chooseDate;
     }
     _underlyingStrike = underlyingStrike;
     if (underlyingExpiry == null) throw new NullPointerException ("'underlyingExpiry' cannot be null");
@@ -22,16 +22,16 @@ public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.o
       _underlyingExpiry = underlyingExpiry;
     }
   }
-  protected SimpleChooserPayoffStyle (final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeMsg);
+  protected SimpleChooserPayoffStyle (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (CHOOSE_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'chooseDate' is not present");
     try {
-      _chooseDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _chooseDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'chooseDate' is not DateTimeWithZone message", e);
+      throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'chooseDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (UNDERLYING_STRIKE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'underlyingStrike' is not present");
@@ -44,7 +44,7 @@ public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.o
     fudgeField = fudgeMsg.getByName (UNDERLYING_EXPIRY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'underlyingExpiry' is not present");
     try {
-      _underlyingExpiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingExpiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SimpleChooserPayoffStyle - field 'underlyingExpiry' is not Expiry message", e);
@@ -55,7 +55,7 @@ public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.o
     if (source == null) throw new NullPointerException ("'source' must not be null");
     if (source._chooseDate == null) _chooseDate = null;
     else {
-      _chooseDate = (com.opengamma.financial.security.DateTimeWithZone)source._chooseDate.clone ();
+      _chooseDate = source._chooseDate;
     }
     _underlyingStrike = source._underlyingStrike;
     if (source._underlyingExpiry == null) _underlyingExpiry = null;
@@ -63,18 +63,16 @@ public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.o
       _underlyingExpiry = source._underlyingExpiry;
     }
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_chooseDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _chooseDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
-      _chooseDate.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (CHOOSE_DATE_KEY, null, fudge1);
+      fudgeContext.addToMessage (msg, CHOOSE_DATE_KEY, null, _chooseDate);
     }
     msg.add (UNDERLYING_STRIKE_KEY, null, _underlyingStrike);
     if (_underlyingExpiry != null)  {
@@ -83,21 +81,21 @@ public class SimpleChooserPayoffStyle extends com.opengamma.financial.security.o
       msg.add (UNDERLYING_EXPIRY_KEY, null, fudge1);
     }
   }
-  public static SimpleChooserPayoffStyle fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static SimpleChooserPayoffStyle fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.option.SimpleChooserPayoffStyle".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.option.SimpleChooserPayoffStyle)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.option.SimpleChooserPayoffStyle)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new SimpleChooserPayoffStyle (fudgeMsg);
+    return new SimpleChooserPayoffStyle (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.financial.security.DateTimeWithZone getChooseDate () {
+  public javax.time.calendar.ZonedDateTime getChooseDate () {
     return _chooseDate;
   }
   public double getUnderlyingStrike () {

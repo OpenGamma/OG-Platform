@@ -1,12 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Test the functions and objects in Util/Logging.cpp
 
 LOGGING (com.opengamma.language.util.LoggingTest);
 
@@ -17,7 +15,7 @@ public:
 	CLogSettings (const TCHAR *pszLogConfiguration) {
 		m_pszLogConfiguration = pszLogConfiguration;
 	}
-	const TCHAR *GetLogConfiguration () {
+	const TCHAR *GetLogConfiguration () const {
 		return m_pszLogConfiguration;
 	}
 };
@@ -39,6 +37,7 @@ static void DefaultInitialisation () {
 #define BEGIN_TESTS MANUAL_TESTS
 #endif
 
+/// Tests the functions and objects in Util/Logging.cpp
 BEGIN_TESTS (LoggingTest)
 	TEST (InitialisationFromPath)
 	TEST (DefaultInitialisation)

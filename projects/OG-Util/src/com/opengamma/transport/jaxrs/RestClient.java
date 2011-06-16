@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -163,7 +164,7 @@ public class RestClient {
       final HttpResponse resp = getHttpClient().execute(setRequestHeaders(new HttpGet(target.getURI())));
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
-        if (sc == 204) {
+        if (sc == HttpStatus.SC_NO_CONTENT) {
           return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
         } else {
           return decodeResponse(resp);
@@ -171,7 +172,7 @@ public class RestClient {
       } else {
         // Must consume any content so that the response can be released
         resp.getEntity().consumeContent();
-        if (sc == 404) {
+        if (sc == HttpStatus.SC_NOT_FOUND) {
           return null;
         } else {
           throw new RestRuntimeException("GET", target, sc, resp.getStatusLine().getReasonPhrase());
@@ -184,7 +185,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response.
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response.
    * @param target  the RESTful target, not null
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
@@ -194,7 +195,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msgEnvelope  the Fudge message, not null
    * @return the Fudge message, not null
@@ -205,7 +206,7 @@ public class RestClient {
           addFudgePayload(setRequestHeaders(new HttpPut(target.getURI())), msgEnvelope, target.getTaxonomyId()));
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
-        if (sc == 204) {
+        if (sc == HttpStatus.SC_NO_CONTENT) {
           return null;
         } else {
           return decodeResponse(resp);
@@ -221,7 +222,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @return the Fudge message, not null
    */
@@ -231,7 +232,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
@@ -241,7 +242,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msgEnvelope  the Fudge message, not null
    * @return the Fudge message, not null
@@ -255,7 +256,7 @@ public class RestClient {
       final HttpResponse resp = getHttpClient().execute(req);
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
-        if (sc == 204) {
+        if (sc == HttpStatus.SC_NO_CONTENT) {
           return null;
         } else {
           return decodeResponse(resp);
@@ -298,7 +299,7 @@ public class RestClient {
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final String returnFieldName) {
     final FudgeMsg msg = getMsg(target);
     if (msg == null) {
-      throw new RestRuntimeException("GET", target, 404, "Not Found");
+      throw new RestRuntimeException("GET", target, HttpStatus.SC_NOT_FOUND, "Not Found");
     }
     final FudgeField field = msg.getByName(returnFieldName);
     if (field == null) {
@@ -310,7 +311,7 @@ public class RestClient {
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final int returnFieldOrdinal) {
     final FudgeMsg msg = getMsg(target);
     if (msg == null) {
-      throw new RestRuntimeException("GET", target, 404, "Not Found");
+      throw new RestRuntimeException("GET", target, HttpStatus.SC_NOT_FOUND, "Not Found");
     }
     final FudgeField field = msg.getByOrdinal(returnFieldOrdinal);
     if (field == null) {
@@ -321,7 +322,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response.
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response.
    * @param target  the RESTful target, not null
    * @return the Fudge message, not null
    */
@@ -330,7 +331,7 @@ public class RestClient {
       final HttpResponse resp = getHttpClient().execute(setRequestHeaders(new HttpDelete(target.getURI())));
       final int sc = resp.getStatusLine().getStatusCode();
       if (sc >= 200 && sc < 300) {
-        if (sc == 204) {
+        if (sc == HttpStatus.SC_NO_CONTENT) {
           return null;
         } else {
           return decodeResponse(resp);

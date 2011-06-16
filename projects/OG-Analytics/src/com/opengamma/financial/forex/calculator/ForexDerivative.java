@@ -6,7 +6,7 @@
 package com.opengamma.financial.forex.calculator;
 
 /**
- * Interface of Forex derivative accepting a visitor.
+ * Interface to Forex derivative accepting a visitor.
  */
 public interface ForexDerivative {
 

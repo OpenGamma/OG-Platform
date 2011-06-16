@@ -18,13 +18,18 @@ public class PrimitiveConverter implements ResultConverter<Object> {
   }
 
   @Override
-  public String getFormatterName() {
-    return "PRIMITIVE";
-  }
-
-  @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
     return null;
   }
 
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    return value.toString();
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "PRIMITIVE";
+  }
+  
 }

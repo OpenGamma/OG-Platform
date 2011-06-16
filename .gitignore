@@ -5,6 +5,7 @@ common/credentials.properties
 common/tests.properties
 common/db.properties
 projects/Fudge-Java/
+projects/Fudge-Defn/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
 projects/OG-Excel/
@@ -18,7 +19,6 @@ ivy/
 bootstrap/
 tests/output/
 javadoc
-docs/
 lib/
 .idea/
 .DS_Store

@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -20,14 +18,8 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Expiry;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
@@ -35,7 +27,9 @@ import com.opengamma.util.time.Expiry;
 public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonModelFunction {
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+  protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
+  //REVIEW yomi 03-06-2011 Elaine needs to confirm what needs to go here because we cannot deal with FXOptionSecurity here
+    /*
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final FXOptionSecurity fxOption = (FXOptionSecurity) option;
     final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
@@ -52,12 +46,20 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = foreignCurve.getInterestRate(t); //TODO not great but needs an analytics refactor
     return new StandardOptionDataBundle(domesticCurve, b, volatilitySurface, spot, now);
+    */
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+  //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
       return target.getSecurity() instanceof FXOptionSecurity;
+    }
+    */
+    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
+      return true;
     }
     return false;
   }
@@ -65,6 +67,8 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what needs to go here because we cannot deal with FXOptionSecurity here
+      /*
       final FXOptionSecurity option = (FXOptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
       final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
@@ -74,6 +78,8 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
       requirements.add(getYieldCurveMarketDataRequirement(option.getCallCurrency().getUniqueId()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getPutCurrency().getUniqueId()));
       return requirements;
+      */
+      throw new UnsupportedOperationException();
     }
     return null;
   }
@@ -81,7 +87,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final OptionSecurity security = (OptionSecurity) target.getSecurity();
+      final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
         results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));

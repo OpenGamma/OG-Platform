@@ -13,9 +13,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.AsymmetricPowerOptionModel;
-import com.opengamma.financial.security.option.AsymmetricPoweredPayoffStyle;
-import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * 
@@ -30,9 +28,13 @@ public class AsymmetricPowerOptionModelFunction extends StandardOptionDataAnalyt
   }
 
   @Override
-  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected OptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     final AsymmetricPoweredPayoffStyle payoff = (AsymmetricPoweredPayoffStyle) option.getPayoffStyle();
     return new AsymmetricPowerOptionDefinition(option.getStrike(), option.getExpiry(), payoff.getPower(), option.getOptionType() == OptionType.CALL);
+    */
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -40,7 +42,13 @@ public class AsymmetricPowerOptionModelFunction extends StandardOptionDataAnalyt
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    //REVIEW yomi 09-06-2011 OptionSecurity is no more..
+    /*
     if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AsymmetricPoweredPayoffStyle) {
+      return true;
+    }
+    */
+    if (target.getSecurity() instanceof EquityOptionSecurity) {
       return true;
     }
     return false;

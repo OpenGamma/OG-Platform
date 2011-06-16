@@ -22,19 +22,26 @@ import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.option.BondOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.FutureOptionSecurity;
-import com.opengamma.financial.security.option.OptionOptionSecurity;
-import com.opengamma.financial.security.option.OptionSecurityVisitor;
+import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
@@ -59,16 +66,18 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String ENERGY_FUTURES = "Energy Futures";
   /* package */static final String INDEX_FUTURES = "Index Futures";
   /* package */static final String STOCK_FUTURES = "Stock Futures";
-  /* package */static final String BOND_OPTIONS = "Bond Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
-  /* package */static final String FUTURE_OPTIONS = "Future Options";
+  /* package */static final String EQUITY_FUTURES = "Equity Futures";
+  /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
+  /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
-  /* package */static final String OPTION_OPTIONS = "Option Options";
+  /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String CASH = "Cash";
   /* package */static final String FRAS = "FRAs";
   /* package */static final String SWAPS = "Swaps";
   /* package */static final String FORWARD_SWAPS = "Forward Swaps";
+  /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
 
   @Override
   public String classifyPosition(Position position) {
@@ -150,36 +159,15 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
         }
-      }, new OptionSecurityVisitor<String>() {
 
         @Override
-        public String visitBondOptionSecurity(BondOptionSecurity security) {
-          return BOND_OPTIONS;
+        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+          return EQUITY_FUTURES;
         }
 
         @Override
-        public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-          return EQUITY_OPTIONS;
-        }
-
-        @Override
-        public String visitFutureOptionSecurity(FutureOptionSecurity security) {
-          return FUTURE_OPTIONS;
-        }
-
-        @Override
-        public String visitFXOptionSecurity(FXOptionSecurity security) {
-          return FX_OPTIONS;
-        }
-
-        @Override
-        public String visitOptionOptionSecurity(OptionOptionSecurity security) {
-          return OPTION_OPTIONS;
-        }
-
-        @Override
-        public String visitSwaptionSecurity(SwaptionSecurity security) {
-          return SWAPTIONS;
+        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURES;
         }
       }, new SwapSecurityVisitor<String>() {
 
@@ -192,12 +180,49 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitSwapSecurity(SwapSecurity security) {
           return SWAPS;
         }
+      }, new EquityIndexOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+          return EQUITY_INDEX_OPTIONS;
+        }
+      }, new EquityOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitEquityOptionSecurity(EquityOptionSecurity equityOptionSecurity) {
+          return EQUITY_OPTIONS;
+        }
+      }, new FXOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitFXOptionSecurity(FXOptionSecurity fxOptionSecurity) {
+          return FX_OPTIONS;
+        }
+      }, new SwaptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitSwaptionSecurity(SwaptionSecurity swaptionSecurity) {
+          return SWAPTIONS;
+        }
+      }, new IRFutureOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitIRFutureOptionSecurity(IRFutureOptionSecurity irFutureOptionSecurity) {
+          return IRFUTURE_OPTIONS;
+        }
+      }, new FXBarrierOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+          return FX_BARRIER_OPTIONS;
+        }
       }));
     } else {
       return UNKNOWN;
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }

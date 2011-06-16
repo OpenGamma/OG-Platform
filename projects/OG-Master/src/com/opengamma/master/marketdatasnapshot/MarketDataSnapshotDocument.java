@@ -5,15 +5,17 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
@@ -120,6 +122,28 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataSnapshotDocument other = (MarketDataSnapshotDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getSnapshot(), other.getSnapshot()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the snapshot document unique identifier.
@@ -186,27 +210,41 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", MarketDataSnapshotDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code snapshot} property.
      */
-    private final MetaProperty<ManageableMarketDataSnapshot> _snapshot = DirectMetaProperty.ofReadWrite(this, "snapshot", ManageableMarketDataSnapshot.class);
+    private final MetaProperty<ManageableMarketDataSnapshot> _snapshot = DirectMetaProperty.ofReadWrite(
+        this, "snapshot", MarketDataSnapshotDocument.class, ManageableMarketDataSnapshot.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "uniqueId",
+        "snapshot");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("uniqueId", _uniqueId);
-      temp.put("snapshot", _snapshot);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public MarketDataSnapshotDocument createBean() {
-      return new MarketDataSnapshotDocument();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 284874180:  // snapshot
+          return _snapshot;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends MarketDataSnapshotDocument> builder() {
+      return new DirectBeanBuilder<MarketDataSnapshotDocument>(new MarketDataSnapshotDocument());
     }
 
     @Override

@@ -138,6 +138,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return this;
     }
 
+    @Override
+    public boolean canHandleMissingInputs() {
+      return false;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -298,6 +302,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return this;
     }
 
+    @Override
+    public boolean canHandleMissingInputs() {
+      return false;
+    }
   }
 
 }

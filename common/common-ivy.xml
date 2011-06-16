@@ -58,6 +58,7 @@
 			<classpath refid="lib.path.id" />
 		</manifestclasspath>
 		<jar destfile="${lib.path.jar.file}">
+			<path refid="lib.path.id.full"/>
 			<manifest>
 				<attribute name="Class-Path" value="${lib.path.mf}" />
 			</manifest>

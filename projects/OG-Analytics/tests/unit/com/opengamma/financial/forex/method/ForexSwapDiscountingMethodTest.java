@@ -41,7 +41,7 @@ public class ForexSwapDiscountingMethodTest {
 
   private static final ForexSwapDiscountingMethod METHOD = new ForexSwapDiscountingMethod();
   private static final ForexDiscountingMethod METHOD_FX = new ForexDiscountingMethod();
-  private static final com.opengamma.financial.forex.calculator.PresentValueCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueCalculator.getInstance();
+  private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
 
   @Test
   /**
@@ -51,8 +51,8 @@ public class ForexSwapDiscountingMethodTest {
     MultipleCurrencyAmount pv = METHOD.presentValue(FX_SWAP, CURVES);
     MultipleCurrencyAmount pvNear = METHOD_FX.presentValue(FX_SWAP.getNearLeg(), CURVES);
     MultipleCurrencyAmount pvFar = METHOD_FX.presentValue(FX_SWAP.getFarLeg(), CURVES);
-    assertEquals(pvNear.getAmountFor(CUR_1) + pvFar.getAmountFor(CUR_1), pv.getAmountFor(CUR_1));
-    assertEquals(pvNear.getAmountFor(CUR_2) + pvFar.getAmountFor(CUR_2), pv.getAmountFor(CUR_2));
+    assertEquals(pvNear.getAmount(CUR_1) + pvFar.getAmount(CUR_1), pv.getAmount(CUR_1));
+    assertEquals(pvNear.getAmount(CUR_2) + pvFar.getAmount(CUR_2), pv.getAmount(CUR_2));
   }
 
   @Test

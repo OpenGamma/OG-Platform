@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.equity;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 
-import com.opengamma.financial.equity.future.EquityIndexDividendFuture;
-import com.opengamma.financial.equity.PresentValueCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.util.money.Currency;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -19,17 +18,16 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 public class PresentValueCalculatorTest {
 
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final YieldCurveBundle CURVES = new YieldCurveBundle();
 
   @Test
   public void testEquityIndexDividendFuture() {
     final double settlement = 1.45;
     final double fixing = 1.44;
-    final EquityIndexDividendFuture eidf = new EquityIndexDividendFuture(fixing, settlement, 95., 10, "ZX","GBP");
-    
-    double pv = PVC.visitEquityIndexDividendFuture(eidf, CURVES);
+    final EquityIndexDividendFuture eidf = new EquityIndexDividendFuture(fixing, settlement, 95., Currency.JPY, 10);
+
+    final double currentPrice = 100.0;
+    double pv = PVC.visitEquityIndexDividendFuture(eidf, currentPrice);
     assertEquals(50.0, pv, 1e-12);
-    
-    
+
   }
 }

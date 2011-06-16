@@ -95,32 +95,32 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addGBBondFutureConvention();
   }
 
+  protected UniqueIdentifier add(final IdentifierBundle bundle, final ConventionBundleImpl convention) {
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueId(uid);
+    return uid;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays, final double yearFraction) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, yearFraction);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Period period, final int settlementDays) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, period, settlementDays);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
@@ -130,9 +130,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
       final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
         swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
@@ -145,26 +143,20 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         basisSwapPayFloatingLegSettlementDays, basisSwapPayFloatingLegInitialRate, basisSwapPayFloatingLegRegion, basisSwapReceiveFloatingLegDayCount,
         basisSwapReceiveFloatingLegBusinessDayConvention, basisSwapReceiveFloatingLegFrequency, basisSwapReceiveFloatingLegSettlementDays, basisSwapReceiveFloatingLegInitialRate,
         basisSwapReceiveFloatingLegRegion);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final String capmRiskFreeRateName, final String capmMarketName) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, capmRiskFreeRateName, capmMarketName);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
       final int exDividendDays, final int settlementDays, final boolean rollToSettlement) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays, rollToSettlement);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
@@ -172,9 +164,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
       final int exDividendDays, final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final YieldConvention yieldConvention) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays, dayCount, businessDayConvention,
         yieldConvention);
-    final UniqueIdentifier uid = _mapper.add(bundle, convention);
-    convention.setUniqueId(uid);
-    return uid;
+    return add(bundle, convention);
   }
 
   @Override
@@ -279,8 +269,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(10), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following,
         Period.ofMonths(11), 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following,
-        Period.ofMonths(12), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following,
         Period.ofYears(1), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following,
@@ -405,6 +393,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
+    //TODO Check this, it's just copied from the US one.
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_IRFUTURE")), "EUR_IRFUTURE", act360, following, null, 2, 0.25);
     
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360, following, Period.ofDays(1), 0);
@@ -448,6 +438,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO looked at BSYM and the codes seem right but need to check
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR O/N")), "JPY LIBOR O/N", act360, following,
         Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00S/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR S/N")), "JPY LIBOR S/N", act360, following,
+        Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR T/N")), "JPY LIBOR T/N", act360, following,
         Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following,
@@ -483,6 +475,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Identifier jp = RegionUtils.financialRegionId("JP");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
+    //TODO check this, it's just the USD one copied here.
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_IRFUTURE")), "JPY_IRFUTURE", act360, following, null, 2, 0.25);
   }
 
   private void addCAFixedIncomeInstruments() {
@@ -632,6 +626,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
     //TODO check that it's actually libor that we need
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR O/N")), "CHF LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00S/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR S/N")), "CHF LIBOR S/N", act360, following,
         Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR T/N")), "CHF LIBOR T/N", act360, following,
         Period.ofDays(1), 0);
