@@ -29,7 +29,7 @@ public interface ConventionBundleMaster {
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
-  
+
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays,
@@ -54,4 +54,8 @@ public interface ConventionBundleMaster {
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays, DayCount dayCount,
       BusinessDayConvention businessDayConvention, YieldConvention yieldConvention);
 
+  UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM);
+
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isCashSettled);
 }

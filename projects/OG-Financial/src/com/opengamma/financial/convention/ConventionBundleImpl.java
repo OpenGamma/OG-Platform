@@ -70,6 +70,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   private YieldConvention _yieldConvention;
   private boolean _rollToSettlement;
 
+  //swaptions
+  private boolean _isCashSettled;
+
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
       final int settlementDays) {
@@ -100,6 +103,18 @@ public class ConventionBundleImpl implements ConventionBundle {
     _businessDayConvention = businessDayConvention;
     _period = period;
     _settlementDays = settlementDays;
+  }
+
+  // cash/general - with EOM indicated
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _period = period;
+    _settlementDays = settlementDays;
+    _isEOMConvention = isEOM;
   }
 
   // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
@@ -216,6 +231,13 @@ public class ConventionBundleImpl implements ConventionBundle {
     _businessDayConvention = businessDayConvention;
     _yieldConvention = yieldConvention;
     _rollToSettlement = false;
+  }
+
+  //swaptions
+  public ConventionBundleImpl(final String name, final boolean isCashSettled) {
+    Validate.notNull(name, "name");
+    _name = name;
+    _isCashSettled = isCashSettled;
   }
 
   @Override
@@ -475,5 +497,10 @@ public class ConventionBundleImpl implements ConventionBundle {
   @Override
   public Period getPeriod() {
     return _period;
+  }
+
+  @Override
+  public boolean isCashSettled() {
+    return _isCashSettled;
   }
 }

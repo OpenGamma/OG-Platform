@@ -258,4 +258,10 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return The period
    */
   Period getPeriod();
+
+  /**
+   * Field indicating whether a swaption is cash-settled or not (alternative is physically-settled)
+   * @return Whether the swaption is cash-settled
+   */
+  boolean isCashSettled();
 }
