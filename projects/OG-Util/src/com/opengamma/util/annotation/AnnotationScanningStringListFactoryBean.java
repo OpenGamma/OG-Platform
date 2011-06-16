@@ -110,7 +110,7 @@ public class AnnotationScanningStringListFactoryBean extends SingletonFactoryBea
   private List<String> getByScanning(String annotationClassName) {
     URL[] classpathElements = ClasspathUtilities.getClassPathElements();
     Set<String> annotationClasses = ClassNameAnnotationScanner.scan(classpathElements, annotationClassName);
-    s_logger.debug("Found {} classes containing annotation {}", annotationClasses.size(), annotationClassName);
+    s_logger.debug("Found {} classes containing annotation: {}", annotationClasses.size(), annotationClasses);
     return new ArrayList<String>(annotationClasses);
   }
   
