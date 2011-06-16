@@ -122,7 +122,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
         fixedLeg.getBusinessDayConvention(), conventions.isEOMConvention(), notional, fixedRate, isPayer);
   }
 
-  //TODO see above
   private AnnuityCouponIborSpreadDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate,
       final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
       final Calendar calendar, final Currency currency, final boolean isPayer) {

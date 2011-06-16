@@ -31,5 +31,6 @@ public class TradeVisitorAdapter<T, U> {
     }
     final FinancialSecurity financialSecurity = (FinancialSecurity) security;
     final U securityResult = financialSecurity.accept(_securityVisitor);
+    return null;
   }
 }
