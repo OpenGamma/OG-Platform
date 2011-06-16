@@ -439,6 +439,14 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1I2 Curncy"),
             Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following,
         Period.ofMonths(3), 2, true);
+    addConventionBundle(
+        IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR012 Curncy"),
+            Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x24")), "USD FRA 12x24", act360, following,
+        Period.ofMonths(12), 2, true);
+    addConventionBundle(
+        IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0F1 Curncy"),
+            Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x12")), "USD FRA 6x12", act360, following,
+        Period.ofMonths(6), 2, true);
 
     addConventionBundle(
         IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"),
