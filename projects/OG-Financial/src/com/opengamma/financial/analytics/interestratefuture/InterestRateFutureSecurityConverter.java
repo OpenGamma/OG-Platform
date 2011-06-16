@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.interestratefuture;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -52,11 +53,20 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }
     final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
-    final double paymentAccrualFactor = iborConvention.getFutureYearFraction();
+    final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(),
         calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
         iborConvention.isEOMConvention());
     final double notional = security.getUnitAmount();
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor);
+  }
+
+  private double getAccrualFactor(final Period period) {
+    if (period.equals(Period.ofMonths(3))) {
+      return 0.25;
+    } else if (period.equals(Period.ofMonths(1))) {
+      return 1. / 12;
+    }
+    throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");
   }
 }
