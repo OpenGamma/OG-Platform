@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Simple time-series resolver, returns the best match from the time-series info in the data store.
  * <p>
- * This resolver relies on configuration in the config database.
+ * This resolver relies on configuration in the configuration database.
  * 
  * @param <T> the type of the time-series, such as LocalDate/LocalDateTime
  */
@@ -44,10 +44,10 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
   private final ConfigSource _configSource;
 
   /**
-   * Creates an instance from a master and config source.
+   * Creates an instance from a time-series master and configuration source.
    * 
    * @param timeSeriesMaster  the time-series master, not null
-   * @param configSource  the config source, not null
+   * @param configSource  the configuration source, not null
    */
   public DefaultTimeSeriesInfoResolver(TimeSeriesMaster<T> timeSeriesMaster, ConfigSource configSource) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeseries master");
@@ -62,44 +62,56 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
     ArgumentChecker.notNull(securityBundle, "securityBundle");
     ArgumentChecker.notNull(configName, "configName");
     
+    // find time-series
     TimeSeriesSearchRequest<T> searchRequest = new TimeSeriesSearchRequest<T>(securityBundle);
+    searchRequest.setDataField(DEFAULT_DATA_FIELD);
     searchRequest.setLoadTimeSeries(false);
     TimeSeriesSearchResult<T> searchResult = _tsMaster.search(searchRequest);
     
-    // load rules from config datastore
+    // pick best using rules from configuration
     TimeSeriesInfoConfiguration ruleSet = _configSource.getLatestByName(TimeSeriesInfoConfiguration.class, configName);
     if (ruleSet != null) {
       List<TimeSeriesInfo> infos = extractTimeSeriesInfo(searchResult);
       return bestMatch(infos, ruleSet);
     } else {
-      s_logger.warn("can not resolve time-series info because rules set with name {} can not be loaded from config database", configName);
+      s_logger.warn("Unable to resolve time-series info because rules set with name {} can not be loaded from config database", configName);
       return null;
     }
   }
 
+  /**
+   * Converts the time-series results to the simpler info object for matching purposes.
+   * 
+   * @param searchResult  the search result, not null
+   * @return the list of info objects, not null
+   */
   private List<TimeSeriesInfo> extractTimeSeriesInfo(TimeSeriesSearchResult<T> searchResult) {
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     List<TimeSeriesInfo> infoList = new ArrayList<TimeSeriesInfo>(documents.size());
     for (TimeSeriesDocument<T> document : documents) {
-      if (document.getDataField().equals(DEFAULT_DATA_FIELD)) {
-        infoList.add(document.toInfo());
-      }
+      infoList.add(document.toInfo());
     }
     return infoList;
   }
 
+  /**
+   * Choose the best match using the configured rules.
+   * 
+   * @param infoList  the list of info objects, not null
+   * @param ruleSet  the configured rules, not null
+   * @return the best match, null if no match
+   */
   private TimeSeriesInfo bestMatch(List<TimeSeriesInfo> infoList, TimeSeriesInfoRateProvider ruleSet) {
+    if (infoList.isEmpty()) {
+      return null;
+    }
     TreeMap<Integer, TimeSeriesInfo> scores = new TreeMap<Integer, TimeSeriesInfo>();
     for (TimeSeriesInfo info : infoList) {
       int score = ruleSet.rate(info);
-      s_logger.debug("score: {} for info: {} using rules: {} ", new Object[]{score, info, ruleSet});
+      s_logger.debug("Score: {} for info: {} using rules: {} ", new Object[]{score, info, ruleSet});
       scores.put(score, info);
     }
-    if (!scores.isEmpty()) {
-      Integer max = scores.lastKey();
-      return scores.get(max);
-    }
-    return null;
+    return scores.lastEntry().getValue();
   }
 
 }
