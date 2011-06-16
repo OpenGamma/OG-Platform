@@ -22,13 +22,13 @@ import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesGetRequest;
-import com.opengamma.master.timeseries.TimeSeriesInfo;
-import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.master.timeseries.TimeSeriesSearchResult;
+import com.opengamma.master.timeseries.HistoricalDataDocument;
+import com.opengamma.master.timeseries.HistoricalDataGetRequest;
+import com.opengamma.master.timeseries.HistoricalDataInfo;
+import com.opengamma.master.timeseries.HistoricalDataInfoResolver;
+import com.opengamma.master.timeseries.HistoricalDataMaster;
+import com.opengamma.master.timeseries.HistoricalDataSearchRequest;
+import com.opengamma.master.timeseries.HistoricalDataSearchResult;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
@@ -49,14 +49,14 @@ public class MasterHistoricalDataSourceTest {
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
   private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of(Identifier.of("A", "B"));
   
-  private TimeSeriesMaster _mockMaster;
-  private TimeSeriesInfoResolver _mockResolver;
+  private HistoricalDataMaster _mockMaster;
+  private HistoricalDataInfoResolver _mockResolver;
   private MasterHistoricalDataSource _tsSource;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    _mockMaster = mock(TimeSeriesMaster.class);
-    _mockResolver = mock(TimeSeriesInfoResolver.class);
+    _mockMaster = mock(HistoricalDataMaster.class);
+    _mockResolver = mock(HistoricalDataInfoResolver.class);
     _tsSource = new MasterHistoricalDataSource(_mockMaster, _mockResolver);
   }
 
@@ -70,13 +70,13 @@ public class MasterHistoricalDataSourceTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
-    TimeSeriesInfoResolver mock = mock(TimeSeriesInfoResolver.class);
+    HistoricalDataInfoResolver mock = mock(HistoricalDataInfoResolver.class);
     new MasterHistoricalDataSource(null, mock);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith2ArgNull() throws Exception {
-    TimeSeriesMaster mock = mock(TimeSeriesMaster.class);
+    HistoricalDataMaster mock = mock(HistoricalDataMaster.class);
     new MasterHistoricalDataSource(mock, null);
   }
 
@@ -86,7 +86,7 @@ public class MasterHistoricalDataSourceTest {
   }
 
   public void getHistoricalDataByIdentifierWithMetaData() throws Exception {
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    HistoricalDataSearchRequest request = new HistoricalDataSearchRequest();
     request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
@@ -95,8 +95,8 @@ public class MasterHistoricalDataSourceTest {
     request.setEnd(null);
     request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult searchResult = new TimeSeriesSearchResult();
-    TimeSeriesDocument tsDoc = new TimeSeriesDocument();
+    HistoricalDataSearchResult searchResult = new HistoricalDataSearchResult();
+    HistoricalDataDocument tsDoc = new HistoricalDataDocument();
     tsDoc.setTimeSeries(randomTimeSeries());
     tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
@@ -112,7 +112,7 @@ public class MasterHistoricalDataSourceTest {
   }
 
   public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    HistoricalDataSearchRequest request = new HistoricalDataSearchRequest();
     request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
@@ -121,13 +121,13 @@ public class MasterHistoricalDataSourceTest {
     request.setEnd(null);
     request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult searchResult = new TimeSeriesSearchResult();
-    TimeSeriesDocument tsDoc = new TimeSeriesDocument();
+    HistoricalDataSearchResult searchResult = new HistoricalDataSearchResult();
+    HistoricalDataDocument tsDoc = new HistoricalDataDocument();
     tsDoc.setTimeSeries(randomTimeSeries());
     tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
-    TimeSeriesInfo info = new TimeSeriesInfo();
+    HistoricalDataInfo info = new HistoricalDataInfo();
     info.setDataField(CLOSE_DATA_FIELD);
     info.setDataProvider(CMPL_DATA_PROVIDER);
     info.setDataSource(BBG_DATA_SOURCE);
@@ -148,7 +148,7 @@ public class MasterHistoricalDataSourceTest {
     LocalDate end = DateUtil.previousWeekDay();
     LocalDate start = end.minusDays(7);
     
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    HistoricalDataSearchRequest request = new HistoricalDataSearchRequest();
     request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
@@ -156,8 +156,8 @@ public class MasterHistoricalDataSourceTest {
     request.setLoadTimeSeries(true);
     LocalDateDoubleTimeSeries timeSeries = randomTimeSeries();
     
-    TimeSeriesSearchResult searchResult = new TimeSeriesSearchResult();
-    TimeSeriesDocument tsDoc = new TimeSeriesDocument();
+    HistoricalDataSearchResult searchResult = new HistoricalDataSearchResult();
+    HistoricalDataDocument tsDoc = new HistoricalDataDocument();
     tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
@@ -198,13 +198,13 @@ public class MasterHistoricalDataSourceTest {
   }
 
   public void getHistoricalDataByUID() throws Exception {
-    TimeSeriesGetRequest request = new TimeSeriesGetRequest(UID);
+    HistoricalDataGetRequest request = new HistoricalDataGetRequest(UID);
     request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
     request.setStart(null);
     request.setEnd(null);
     
-    TimeSeriesDocument tsDoc = new TimeSeriesDocument();
+    HistoricalDataDocument tsDoc = new HistoricalDataDocument();
     tsDoc.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
     tsDoc.setUniqueId(UID);
     tsDoc.setTimeSeries(randomTimeSeries());

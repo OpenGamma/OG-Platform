@@ -32,8 +32,8 @@ import com.opengamma.web.region.WebRegionData;
 import com.opengamma.web.region.WebRegionUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
-import com.opengamma.web.timeseries.WebTimeSeriesData;
-import com.opengamma.web.timeseries.WebTimeSeriesUris;
+import com.opengamma.web.timeseries.WebHistoricalDataData;
+import com.opengamma.web.timeseries.WebHistoricalDataUris;
 
 /**
  * RESTful resource for the home page.
@@ -89,9 +89,9 @@ public class WebHomeResource extends AbstractWebResource {
     regionData.setUriInfo(uriInfo);
     out.put("regionUris", new WebRegionUris(regionData));
     
-    WebTimeSeriesData timeseriesData = new WebTimeSeriesData();
+    WebHistoricalDataData timeseriesData = new WebHistoricalDataData();
     timeseriesData.setUriInfo(uriInfo);
-    out.put("timeseriesUris", new WebTimeSeriesUris(timeseriesData));
+    out.put("timeseriesUris", new WebHistoricalDataUris(timeseriesData));
     
     WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);

@@ -5,6 +5,6 @@
  */
 
 /**
- * Web resources for time series.
+ * Web resources for historical data.
  */
 package com.opengamma.web.timeseries;

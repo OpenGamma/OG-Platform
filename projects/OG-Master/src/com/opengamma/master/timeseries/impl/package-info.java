@@ -5,6 +5,6 @@
  */
 
 /**
- * Basic building blocks around the time-series master.
+ * Basic building blocks around the historical data master.
  */
 package com.opengamma.master.timeseries.impl;

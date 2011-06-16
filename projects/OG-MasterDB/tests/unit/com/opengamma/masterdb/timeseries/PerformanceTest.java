@@ -19,8 +19,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.timeseries.DataPointDocument;
-import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.HistoricalDataDocument;
+import com.opengamma.master.timeseries.HistoricalDataMaster;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -37,7 +37,7 @@ public class PerformanceTest extends DBTest {
   /**
    * The master.
    */
-  private TimeSeriesMaster _tsMaster;
+  private HistoricalDataMaster _tsMaster;
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
@@ -53,7 +53,7 @@ public class PerformanceTest extends DBTest {
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    TimeSeriesMaster ts = new LocalDateDbTimeSeriesMaster(
+    HistoricalDataMaster ts = new LocalDateDbHistoricalDataMaster(
         getDbSource(), 
         namedSQLMap,
         false);
@@ -68,7 +68,7 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
+      HistoricalDataDocument tsDocument = new HistoricalDataDocument();
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);

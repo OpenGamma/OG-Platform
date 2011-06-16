@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.timeseries.TimeSeriesLoader;
+import com.opengamma.master.timeseries.HistoricalDataLoader;
 
 /**
  * Mock time-series loader to get the example engine server running.
@@ -21,7 +21,7 @@ import com.opengamma.master.timeseries.TimeSeriesLoader;
  * For fully supported implementations supporting major data vendors like Bloomberg and
  * Thomson-Reuters, please contact sales@opengamma.com
  */
-public class MockTimeSeriesLoader implements TimeSeriesLoader {
+public class MockTimeSeriesLoader implements HistoricalDataLoader {
 
   private static final String MESSAGE = "This is a placeholder time-series loader." +
       "\nFor fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters," +

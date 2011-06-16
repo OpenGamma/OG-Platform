@@ -21,13 +21,13 @@ import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesGetRequest;
-import com.opengamma.master.timeseries.TimeSeriesInfo;
-import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.master.timeseries.TimeSeriesSearchResult;
+import com.opengamma.master.timeseries.HistoricalDataDocument;
+import com.opengamma.master.timeseries.HistoricalDataGetRequest;
+import com.opengamma.master.timeseries.HistoricalDataInfo;
+import com.opengamma.master.timeseries.HistoricalDataInfoResolver;
+import com.opengamma.master.timeseries.HistoricalDataMaster;
+import com.opengamma.master.timeseries.HistoricalDataSearchRequest;
+import com.opengamma.master.timeseries.HistoricalDataSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -35,7 +35,7 @@ import com.opengamma.util.PublicSPI;
  * A {@code HistoricalDataSource} implemented using an underlying {@code TimeSeriesMaster}.
  * <p>
  * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
- * This class provides the source on top of a standard {@link TimeSeriesMaster}.
+ * This class provides the source on top of a standard {@link HistoricalDataMaster}.
  */
 @PublicSPI
 public class MasterHistoricalDataSource implements HistoricalDataSource {
@@ -45,11 +45,11 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   /**
    * The time-series master.
    */
-  private final TimeSeriesMaster _timeSeriesMaster;
+  private final HistoricalDataMaster _timeSeriesMaster;
   /**
    * The time-series resolver.
    */
-  private final TimeSeriesInfoResolver _timeSeriesResolver;
+  private final HistoricalDataInfoResolver _timeSeriesResolver;
 
   /**
    * Creates an instance wrapping an underlying time-series master.
@@ -57,7 +57,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
    * @param timeSeriesMaster the time-series master, not null
    * @param timeSeriesResolver the time-series resolver, not null
    */
-  public MasterHistoricalDataSource(TimeSeriesMaster timeSeriesMaster, TimeSeriesInfoResolver timeSeriesResolver) {
+  public MasterHistoricalDataSource(HistoricalDataMaster timeSeriesMaster, HistoricalDataInfoResolver timeSeriesResolver) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
     _timeSeriesMaster = timeSeriesMaster;
@@ -70,7 +70,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
    * 
    * @return the time-series master, not null
    */
-  public TimeSeriesMaster getTimeSeriesMaster() {
+  public HistoricalDataMaster getTimeSeriesMaster() {
     return _timeSeriesMaster;
   }
 
@@ -93,13 +93,13 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   private HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    TimeSeriesGetRequest request = new TimeSeriesGetRequest(uniqueId);
+    HistoricalDataGetRequest request = new HistoricalDataGetRequest(uniqueId);
     request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
     
-    TimeSeriesDocument doc = getTimeSeriesMaster().get(request);
+    HistoricalDataDocument doc = getTimeSeriesMaster().get(request);
     return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
   }
 
@@ -149,7 +149,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "field");
     
-    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
+    HistoricalDataSearchRequest request = new HistoricalDataSearchRequest();
     request.setIdentifiers(identifiers);
     request.setIdentifierValidityDate(identifierValidityDate);
     request.setDataSource(dataSource);
@@ -159,8 +159,8 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     request.setEnd(end);
     request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult searchResult = getTimeSeriesMaster().search(request);
-    List<TimeSeriesDocument> documents = searchResult.getDocuments();
+    HistoricalDataSearchResult searchResult = getTimeSeriesMaster().search(request);
+    List<HistoricalDataDocument> documents = searchResult.getDocuments();
     UniqueIdentifier uniqueId = null;
     if (documents.isEmpty()) {
       return null;
@@ -169,7 +169,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       Object[] param = new Object[]{identifiers, dataSource, dataProvider, dataField, start, end};
       s_logger.warn("multiple timeseries returned for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
     }
-    TimeSeriesDocument doc = documents.get(0);
+    HistoricalDataDocument doc = documents.get(0);
     uniqueId = doc.getUniqueId();
     return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
   }
@@ -217,9 +217,9 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       IdentifierBundle securityBundle, String configDocName, LocalDate identifierValidityDate, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(securityBundle != null && !securityBundle.getIdentifiers().isEmpty(), "Cannot get historical data with null/empty identifiers");
     if (StringUtils.isBlank(configDocName)) {
-      configDocName = TimeSeriesInfoFieldNames.DEFAULT_CONFIG_NAME;
+      configDocName = HistoricalDataInfoFieldNames.DEFAULT_CONFIG_NAME;
     }
-    TimeSeriesInfo info = _timeSeriesResolver.getInfo(securityBundle, configDocName);
+    HistoricalDataInfo info = _timeSeriesResolver.getInfo(securityBundle, configDocName);
     if (info == null) {
       return null;
     }

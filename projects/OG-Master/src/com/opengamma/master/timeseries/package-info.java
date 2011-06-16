@@ -5,6 +5,6 @@
  */
 
 /**
- * Time-series master API providing the ability to query and update time-series.
+ * Historical data master API providing the ability to query and update daily time-series.
  */
 package com.opengamma.master.timeseries;
