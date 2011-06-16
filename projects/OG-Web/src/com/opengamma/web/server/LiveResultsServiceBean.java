@@ -15,6 +15,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
 /**
  * Spring helper for {@link LiveResultsService}.
@@ -24,6 +25,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   private ServletContext _servletContext;
   private Bayeux _bayeux;
   private ViewProcessor _viewProcessor;
+  private MarketDataSnapshotMaster _snapshotMaster;
   private UserPrincipal _user;
   private ExecutorService _executorService;
   private FudgeContext _fudgeContext;
@@ -38,6 +40,14 @@ public class LiveResultsServiceBean implements ServletContextAware {
   
   protected ViewProcessor getViewProcessor() {
     return _viewProcessor;
+  }
+  
+  public void setSnapshotMaster(MarketDataSnapshotMaster snapshotMaster) {
+    _snapshotMaster = snapshotMaster;
+  }
+  
+  public MarketDataSnapshotMaster getSnapshotMaster() {
+    return _snapshotMaster;
   }
   
   protected UserPrincipal getUser() {
@@ -98,7 +108,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public LiveResultsService createLiveResultsService() {
-    return new LiveResultsService(getBayeux(), getViewProcessor(), getUser(), getExecutorService(), getFudgeContext());
+    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext());
   }
  
 }

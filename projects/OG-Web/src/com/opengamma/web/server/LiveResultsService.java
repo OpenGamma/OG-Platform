@@ -5,11 +5,14 @@
  */
 package com.opengamma.web.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.lang.StringUtils;
 import org.cometd.Bayeux;
 import org.cometd.Client;
 import org.cometd.ClientBayeuxListener;
@@ -22,7 +25,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -42,23 +50,27 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private final ExecutorService _executorService;
     
   private final ViewProcessor _viewProcessor;
+  private final MarketDataSnapshotMaster _snapshotMaster;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
   
-  public LiveResultsService(Bayeux bayeux, ViewProcessor viewProcessor, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext) {
+  public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
+      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext) {
     super(bayeux, "processPortfolioRequest");
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(executorService, "executorService");
     
     _viewProcessor = viewProcessor;
+    _snapshotMaster = snapshotMaster;
     _user = user;
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     
     s_logger.info("Subscribing to services");
-    subscribe("/service/views", "processViewsRequest");
+    subscribe("/service/initData", "processInitDataRequest");
     subscribe("/service/initialize", "processInitializeRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
@@ -173,21 +185,51 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     webView.setIncludeDepGraph(gridName, WebGridCell.of((int) jsRowId, (int) jsColId), includeDepGraph);
   }
 
-  public void processViewsRequest(Client remote, Message message) {
-    s_logger.info("processViewsRequest");
-    Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
-    s_logger.info("processViewsRequest:" + availableViewNames);
+  public void processInitDataRequest(Client remote, Message message) {
+    s_logger.info("processInitDataRequest");
     Map<String, Object> reply = new HashMap<String, Object>();
-    reply.put("availableViewNames", availableViewNames.toArray(new String[] {}));
-    remote.deliver(getClient(), "/views", reply, null);
-    s_logger.info("sent reply");
+    
+    List<String> availableViewNames = getViewNames();
+    reply.put("viewNames", availableViewNames);
+    
+    Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
+    reply.put("snapshots", snapshotDetails);
+    
+    remote.deliver(getClient(), "/initData", reply, null);
+  }
+
+  private List<String> getViewNames() {
+    Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
+    s_logger.debug("Available view names: " + availableViewNames);
+    return new ArrayList<String>(availableViewNames);
+  }
+
+  private Map<String, Map<String, String>> getSnapshotDetails() {
+    MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
+    snapshotSearchRequest.setIncludeData(false);
+    MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
+    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getMarketDataSnapshots();
+    
+    Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
+    for (ManageableMarketDataSnapshot snapshot : snapshots) {
+      String basisViewName = snapshot.getBasisViewName() != null ? snapshot.getBasisViewName() : "unknown";
+      Map<String, String> snapshotsForBasisView = snapshotsByBasisView.get(basisViewName);
+      if (snapshotsForBasisView == null) {
+        snapshotsForBasisView = new HashMap<String, String>();
+        snapshotsByBasisView.put(basisViewName, snapshotsForBasisView);
+      }
+      snapshotsForBasisView.put(snapshot.getName(), snapshot.getUniqueId().toString());
+    }
+    return snapshotsByBasisView;
   }
 
   @SuppressWarnings("unchecked")
   public void processInitializeRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
     String viewName = (String) data.get("viewName");
-    s_logger.info("Initializing view '{}' for client '{}'", viewName, remote);
+    String snapshotIdString = (String) data.get("snapshotId");
+    UniqueIdentifier snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueIdentifier.parse(snapshotIdString) : null;
+    s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
     initializeClientView(remote, viewName, getUser(remote));
   }
   
