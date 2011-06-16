@@ -126,14 +126,14 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Abstract class that does all the JDBC template work and provides TimeSeriesMaster
- * implementations for a typical RDMS database
+ * Abstract class that does all the JDBC template work and provides master
+ * implementations for a typical RDMS database.
  * <p>
- * Expects the subclass to provide a map for specific database SQL queries
+ * Expects the subclass to provide a map for specific database SQL queries.
  */
 @Transactional(readOnly = true)
 public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
-  
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalDataMaster.class);
   /**
@@ -760,7 +760,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public HistoricalDataDocument add(HistoricalDataDocument document) {
-    validateTimeSeriesDocument(document);
+    validateDocument(document);
     if (!contains(document)) {
       UniqueIdentifier uniqueId = addTimeSeries(
           document.getIdentifiers(), 
@@ -829,7 +829,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public void appendTimeSeries(HistoricalDataDocument document) {
-    long tsId = validateTimeSeriesId(document.getUniqueId());
+    long tsId = validateId(document.getUniqueId());
     insertDataPoints(document.getTimeSeries(), tsId);
   }
 
@@ -848,8 +848,8 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
 
   private HistoricalDataDocument doGet(HistoricalDataGetRequest request) {
     UniqueIdentifier uniqueId = request.getUniqueId();
-    long tsId = validateTimeSeriesId(uniqueId);
-    MetaData tsInfo = doGetInfo(tsId);
+    long tsId = validateId(uniqueId);
+    Info tsInfo = doGetInfo(tsId);
     HistoricalDataDocument document = new HistoricalDataDocument();
     document.setDataField(tsInfo.getDataField());
     document.setDataProvider(tsInfo.getDataProvider());
@@ -869,7 +869,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     return document;
   }
 
-  private MetaData doGetInfo(long tsId) {
+  private Info doGetInfo(long tsId) {
     final Set<IdentifierWithDates> identifiers = new HashSet<IdentifierWithDates>();
     final Set<String> dataSourceSet = new HashSet<String>();
     final Set<String> dataProviderSet = new HashSet<String>();
@@ -904,7 +904,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
       throw new DataNotFoundException("TimeSeries not found id: " + tsId);
     }
     
-    MetaData result = new MetaData();
+    Info result = new Info();
     result.setIdentifiers(new IdentifierBundleWithDates(identifiers));
     assert (dataFieldSet.size() == 1);
     result.setDataField(dataFieldSet.iterator().next());
@@ -1089,7 +1089,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public void remove(UniqueIdentifier uniqueId) {
-    long tsId = validateTimeSeriesId(uniqueId);
+    long tsId = validateId(uniqueId);
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("tsKey", tsId, Types.BIGINT);
     getJdbcTemplate().update(_namedSQLMap.get(DEACTIVATE_META_DATA), parameters);
@@ -1116,17 +1116,17 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     String metaDataSql = getMetaDataSQL(request, bundleMap.keySet(), parameters);
     
     HistoricalDataInfoRowMapper rowMapper = new HistoricalDataInfoRowMapper(this);
-    rowMapper.setLoadDates(request.isLoadEarliestLatest());
+    rowMapper.setLoadEarliestLatest(request.isLoadEarliestLatest());
     
     String countSql = createTotalCountSql(metaDataSql);
     int count = getJdbcTemplate().queryForInt(countSql, parameters);
     String sqlApplyPaging = getDbSource().getDialect().sqlApplyPaging(metaDataSql, StringUtils.EMPTY, request.getPagingRequest());
     
-    List<MetaData> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
-    for (MetaData tsMetaData : tsMetaDataList) {
+    List<Info> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
+    for (Info tsMetaData : tsMetaDataList) {
       HistoricalDataDocument document = new HistoricalDataDocument();
       Long bundleId = tsMetaData.getIdentifierBundleId();
-      long timeSeriesKey = tsMetaData.getTimeSeriesId();
+      long timeSeriesKey = tsMetaData.getHistoricalDataId();
       document.setDataField(tsMetaData.getDataField());
       document.setDataProvider(tsMetaData.getDataProvider());
       document.setDataSource(tsMetaData.getDataSource());
@@ -1135,7 +1135,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
       
       document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
       document.setObservationTime(tsMetaData.getObservationTime());
-      document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
+      document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getHistoricalDataId())));
       if (request.isLoadEarliestLatest()) {
         document.setEarliest(tsMetaData.getEarliestDate());
         document.setLatest(tsMetaData.getLatestDate());
@@ -1241,7 +1241,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   public HistoricalDataSearchHistoricResult searchHistoric(HistoricalDataSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
     ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
-    UniqueIdentifier uniqueId = request.getTimeSeriesId();
+    UniqueIdentifier uniqueId = request.getHistoricalDataId();
     HistoricalDataSearchHistoricResult  searchResult = new HistoricalDataSearchHistoricResult();
     if (uniqueId == null) {
       validateSearchHistoricRequest(request);
@@ -1256,7 +1256,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
       }
     }
     Instant timeStamp = request.getTimestamp();
-    long tsId = validateTimeSeriesId(uniqueId);
+    long tsId = validateId(uniqueId);
     LocalDateDoubleTimeSeries seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
     HistoricalDataDocument document = new HistoricalDataDocument();
     document.setDataField(request.getDataField());
@@ -1283,8 +1283,8 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public HistoricalDataDocument update(HistoricalDataDocument document) {
     ArgumentChecker.notNull(document, "document");
-    validateTimeSeriesDocument(document);
-    long tsId = validateTimeSeriesId(document.getUniqueId());
+    validateDocument(document);
+    long tsId = validateId(document.getUniqueId());
     // check we have time-series with given Id
     doGetInfo(tsId);
     
@@ -1300,7 +1300,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     ArgumentChecker.notNull(document, "dataPoint document");
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
-    long tsId = validateTimeSeriesId(document.getTimeSeriesId());
+    long tsId = validateId(document.getHistoricalDataId());
     updateDataPoint(document.getDate(), document.getValue(), tsId);
     return document;
   }
@@ -1311,7 +1311,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     ArgumentChecker.notNull(document, "dataPoint document");
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
-    long tsId = validateTimeSeriesId(document.getTimeSeriesId());
+    long tsId = validateId(document.getHistoricalDataId());
     
     String insertSQL = _namedSQLMap.get(INSERT_TIME_SERIES);
     String insertDelta = _namedSQLMap.get(INSERT_TIME_SERIES_DELTA_I);
@@ -1356,7 +1356,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     
     final DataPointDocument result = new DataPointDocument();
     result.setDate(tsIdDatePair.getSecond());
-    result.setTimeSeriesId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
+    result.setHistoricalDataId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
     result.setDataPointId(dataPointId);
     jdbcOperations.query(_namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID), paramSource, new RowCallbackHandler() {
       @Override
@@ -1562,7 +1562,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
 
   @Override
   public void removeDataPoints(UniqueIdentifier timeSeriesUid, LocalDate firstDateToRetain) {
-    long tsId = validateTimeSeriesId(timeSeriesUid);
+    long tsId = validateId(timeSeriesUid);
     
     if (!isTriggerSupported()) {
       
@@ -1585,9 +1585,9 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
   }
 
   //-------------------------------------------------------------------------
-  private long validateTimeSeriesId(UniqueIdentifier uniqueId) {
+  private long validateId(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "timeSeriesId");
-    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "timeSeriesId scheme invalid");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "historicalDataId scheme invalid");
     try {
       return Long.parseLong(uniqueId.getValue());
     } catch (NumberFormatException ex) {
@@ -1596,7 +1596,7 @@ public abstract class DbHistoricalDataMaster implements HistoricalDataMaster {
     }
   }
 
-  private void validateTimeSeriesDocument(HistoricalDataDocument document) {
+  private void validateDocument(HistoricalDataDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getTimeSeries(), "document.timeSeries");
     ArgumentChecker.notNull(document.getIdentifiers(), "document.identifiers");

@@ -88,7 +88,7 @@ public class PerformanceTest extends DBTest {
       
       for (int j = 1; j < NUM_POINTS; j++) {
         DataPointDocument dataPointDocument = new DataPointDocument();
-        dataPointDocument.setTimeSeriesId(tsDocument.getUniqueId());
+        dataPointDocument.setHistoricalDataId(tsDocument.getUniqueId());
         dataPointDocument.setDate(timeSeries.getTime(j));
         dataPointDocument.setValue(timeSeries.getValueAt(j));
         s_logger.debug("adding data points {}", dataPointDocument);

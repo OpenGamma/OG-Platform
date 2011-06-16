@@ -25,7 +25,7 @@ import com.opengamma.master.historicaldata.impl.HistoricalDataInfoRating;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test TimeSeriesInfoConfiguration to/from fudge message.
+ * Test HistoricalDataInfoConfiguration to/from fudge message.
  */
 @Test
 public class HistoricalDataInfoConfigurationTest {

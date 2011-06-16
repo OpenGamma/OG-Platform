@@ -39,7 +39,6 @@ import com.opengamma.master.historicaldata.HistoricalDataGetRequest;
 import com.opengamma.master.historicaldata.HistoricalDataMaster;
 import com.opengamma.master.historicaldata.HistoricalDataSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalDataSearchResult;
-import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -553,7 +552,7 @@ public abstract class AbstractInMemoryHistoricalDataMasterTest {
       String scheme = tsDoc.getUniqueId().getScheme();
       String timeSeriesID = tsDoc.getUniqueId().getValue();
       DataPointDocument dataPointDocument = new DataPointDocument();
-      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+      dataPointDocument.setHistoricalDataId(tsDoc.getUniqueId());
       dataPointDocument.setDate(date);
       dataPointDocument.setValue(value);
       
@@ -566,7 +565,7 @@ public abstract class AbstractInMemoryHistoricalDataMasterTest {
       assertEquals(updatedTS, updatedDoc.getTimeSeries());
       
       DataPointDocument actualDDoc = _tsMaster.getDataPoint(dataPointDocument.getDataPointId());
-      assertEquals(tsDoc.getUniqueId(), actualDDoc.getTimeSeriesId());
+      assertEquals(tsDoc.getUniqueId(), actualDDoc.getHistoricalDataId());
       assertEquals(dataPointDocument.getDataPointId(), actualDDoc.getDataPointId());
       assertEquals(dataPointDocument.getDate(), actualDDoc.getDate());
       assertEquals(dataPointDocument.getValue(), actualDDoc.getValue());
@@ -599,7 +598,7 @@ public abstract class AbstractInMemoryHistoricalDataMasterTest {
       String scheme = tsDoc.getUniqueId().getScheme();
       String timeSeriesID = tsDoc.getUniqueId().getValue();
       DataPointDocument dataPointDocument = new DataPointDocument();
-      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+      dataPointDocument.setHistoricalDataId(tsDoc.getUniqueId());
       dataPointDocument.setDataPointId(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(date)));
       dataPointDocument.setDate(date);
       dataPointDocument.setValue(newValue);
@@ -607,7 +606,7 @@ public abstract class AbstractInMemoryHistoricalDataMasterTest {
       DataPointDocument updated = _tsMaster.updateDataPoint(dataPointDocument);
       assertNotNull(updated);
       assertEquals(dataPointDocument.getDataPointId(), updated.getDataPointId());
-      assertEquals(dataPointDocument.getTimeSeriesId(), updated.getTimeSeriesId());
+      assertEquals(dataPointDocument.getHistoricalDataId(), updated.getHistoricalDataId());
       assertEquals(dataPointDocument.getDate(), updated.getDate());
       assertEquals(dataPointDocument.getValue(), updated.getValue());
       

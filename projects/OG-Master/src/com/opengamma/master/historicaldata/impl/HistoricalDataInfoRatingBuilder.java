@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
- * Builder for converting TimeSeriesInfoRating instances to/from Fudge messages.
+ * Builder for converting object instances to/from Fudge messages.
  */
 @FudgeBuilderFor(HistoricalDataInfoRating.class)
 public class HistoricalDataInfoRatingBuilder implements FudgeBuilder<HistoricalDataInfoRating> {
@@ -31,15 +31,15 @@ public class HistoricalDataInfoRatingBuilder implements FudgeBuilder<HistoricalD
   public HistoricalDataInfoRating buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     String fieldName = message.getString("fieldName");
     if (fieldName == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'fieldName' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalDataInfoRating - field 'fieldName' is not present");
     }
     String fieldValue = message.getString("fieldValue");
     if (fieldValue == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'fieldValue' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalDataInfoRating - field 'fieldValue' is not present");
     }
     Integer rating = message.getInt("rating");
     if (rating == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesInfoRating - field 'rating' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalDataInfoRating - field 'rating' is not present");
     }
     return new HistoricalDataInfoRating(fieldName, fieldValue, rating);
   }

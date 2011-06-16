@@ -23,7 +23,8 @@ import com.opengamma.master.historicaldata.HistoricalDataSearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple time-series resolver, returns the best match from the time-series info in the data store.
+ * Simple historical data time-series resolver, returns the best match from
+ * the info in the data store.
  * <p>
  * This resolver relies on configuration in the configuration database.
  */
@@ -33,7 +34,7 @@ public class DefaultHistoricalDataInfoResolver implements HistoricalDataInfoReso
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalDataInfoResolver.class);
 
   /**
-   * The time-series master.
+   * The master.
    */
   private final HistoricalDataMaster _tsMaster;
   /**
@@ -42,16 +43,16 @@ public class DefaultHistoricalDataInfoResolver implements HistoricalDataInfoReso
   private final ConfigSource _configSource;
 
   /**
-   * Creates an instance from a time-series master and configuration source.
+   * Creates an instance from a master and configuration source.
    * 
-   * @param timeSeriesMaster  the time-series master, not null
+   * @param historicalDataMaster  the historical data master, not null
    * @param configSource  the configuration source, not null
    */
-  public DefaultHistoricalDataInfoResolver(HistoricalDataMaster timeSeriesMaster, ConfigSource configSource) {
-    ArgumentChecker.notNull(timeSeriesMaster, "timeseries master");
+  public DefaultHistoricalDataInfoResolver(HistoricalDataMaster historicalDataMaster, ConfigSource configSource) {
+    ArgumentChecker.notNull(historicalDataMaster, "historicalDataMaster");
     ArgumentChecker.notNull(configSource, "configSource");
     _configSource = configSource;
-    _tsMaster = timeSeriesMaster;
+    _tsMaster = historicalDataMaster;
   }
 
   //-------------------------------------------------------------------------
@@ -69,7 +70,7 @@ public class DefaultHistoricalDataInfoResolver implements HistoricalDataInfoReso
     // pick best using rules from configuration
     HistoricalDataInfoConfiguration ruleSet = _configSource.getLatestByName(HistoricalDataInfoConfiguration.class, configName);
     if (ruleSet != null) {
-      List<HistoricalDataInfo> infos = extractTimeSeriesInfo(searchResult);
+      List<HistoricalDataInfo> infos = extractInfo(searchResult);
       return bestMatch(infos, ruleSet);
     } else {
       s_logger.warn("Unable to resolve time-series info because rules set with name {} can not be loaded from config database", configName);
@@ -83,7 +84,7 @@ public class DefaultHistoricalDataInfoResolver implements HistoricalDataInfoReso
    * @param searchResult  the search result, not null
    * @return the list of info objects, not null
    */
-  private List<HistoricalDataInfo> extractTimeSeriesInfo(HistoricalDataSearchResult searchResult) {
+  private List<HistoricalDataInfo> extractInfo(HistoricalDataSearchResult searchResult) {
     List<HistoricalDataDocument> documents = searchResult.getDocuments();
     List<HistoricalDataInfo> infoList = new ArrayList<HistoricalDataInfo>(documents.size());
     for (HistoricalDataDocument document : documents) {

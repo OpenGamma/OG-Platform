@@ -15,9 +15,10 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Loader for obtaining a time-series.
+ * Loader for obtaining historical data.
  * <p>
- * A time-series is a representation of a value over time, such as the price of an equity.
+ * A historical data time-series is the representation of a value over time,
+ * such as the price of an equity.
  * The series is typically obtained from a major data source.
  */
 @PublicSPI
@@ -26,7 +27,7 @@ public interface HistoricalDataLoader {
   /**
    * Loads a time-series from a data source.
    * <p>
-   * This will typically update an associated {@code TimeSeriesMaster}.
+   * This will typically update an associated {@code HistoricalDataMaster}.
    * 
    * @param identifiers  the identifiers, not null
    * @param dataProvider  the data provider, null should default to a sensible value
@@ -41,7 +42,7 @@ public interface HistoricalDataLoader {
   /**
    * Updates the time-series with the latest data from a data source.
    * <p>
-   * This will typically update an associated {@code TimeSeriesMaster}.
+   * This will typically update an associated {@code HistoricalDataMaster}.
    * 
    * @param uniqueId  the unique identifier, not null
    * @return true if the operation is successful otherwise false 

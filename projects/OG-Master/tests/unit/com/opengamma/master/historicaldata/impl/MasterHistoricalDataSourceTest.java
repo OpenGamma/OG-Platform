@@ -38,7 +38,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 
 /**
  * Test MasterHistoricalDataSource.
- * Ensure it makes the right method calls to the underlying TimeSeriesMaster and TimeSeriesResolver.
+ * Ensure it makes the right method calls to the underlying master and resolver.
  */
 @Test
 public class MasterHistoricalDataSourceTest {

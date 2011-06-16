@@ -24,52 +24,52 @@ import org.springframework.jdbc.core.RowMapper;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Maps returned SQL rows to meta-data objects.
+ * Maps returned SQL rows to info objects.
  */
-/*package*/ class HistoricalDataInfoRowMapper implements RowMapper<MetaData> {
+/*package*/ class HistoricalDataInfoRowMapper implements RowMapper<Info> {
 
   /**
    * The master.
    */
-  private final DbHistoricalDataMaster _rowStoreMaster;
+  private final DbHistoricalDataMaster _master;
   /**
    * Whether to load the dates.
    */
-  private boolean _loadDates;
+  private boolean _loadEarliestLatest;
 
   /**
    * Creates an instance.
    * 
-   * @param rowStoreMaster  the master, not null
+   * @param master  the master, not null
    */
-  public HistoricalDataInfoRowMapper(DbHistoricalDataMaster rowStoreMaster) {
-    ArgumentChecker.notNull(rowStoreMaster, "rowStoreMaster");
-    _rowStoreMaster = rowStoreMaster;    
+  public HistoricalDataInfoRowMapper(DbHistoricalDataMaster master) {
+    ArgumentChecker.notNull(master, "master");
+    _master = master;    
   }
 
   //-------------------------------------------------------------------------
   /**
    * Sets the loadDates field.
    * 
-   * @param loadDates  whether to load the dates
+   * @param loadEarliestLatest  whether to load the dates
    */
-  public void setLoadDates(boolean loadDates) {
-    _loadDates = loadDates;
+  public void setLoadEarliestLatest(boolean loadEarliestLatest) {
+    _loadEarliestLatest = loadEarliestLatest;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public MetaData mapRow(ResultSet rs, int rowNum) throws SQLException {
-    MetaData result = new MetaData();
-    result.setTimeSeriesId(rs.getLong(TS_ID_COLUMN));
+  public Info mapRow(ResultSet rs, int rowNum) throws SQLException {
+    Info result = new Info();
+    result.setHistoricalDataId(rs.getLong(TS_ID_COLUMN));
     result.setDataSource(rs.getString(DATA_SOURCE_COLUMN));
     result.setDataProvider(rs.getString(DATA_PROVIDER_COLUMN));
     result.setDataField(rs.getString(DATA_FIELD_COLUMN));
     result.setObservationTime(rs.getString(OBSERVATION_TIME_COLUMN));
     result.setIdentifierBundleId(rs.getLong(BUNDLE_ID_COLUMN));
-    if (_loadDates) {
-      LocalDate earliestDate = _rowStoreMaster.getDate(rs, EARLIEST_COLUMN);
-      LocalDate latestDate = _rowStoreMaster.getDate(rs, LATEST_COLUMN);
+    if (_loadEarliestLatest) {
+      LocalDate earliestDate = _master.getDate(rs, EARLIEST_COLUMN);
+      LocalDate latestDate = _master.getDate(rs, LATEST_COLUMN);
       result.setEarliestDate(earliestDate);
       result.setLatestDate(latestDate);
     }

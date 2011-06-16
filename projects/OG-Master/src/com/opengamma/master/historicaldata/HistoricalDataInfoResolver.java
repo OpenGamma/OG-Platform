@@ -9,7 +9,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Resolves an identifier, such as a security, to the appropriate time-series information.
+ * Resolves an identifier, such as a security, to the appropriate historical data information.
  * <p>
  * Time-series information includes data source, data provider, data field and observation time.
  * This can be used to lookup the time-series itself.

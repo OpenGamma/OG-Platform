@@ -10,7 +10,7 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Constants for time-series info field names.
+ * Constants for historical data info field names.
  */
 public final class HistoricalDataInfoFieldNames {
 

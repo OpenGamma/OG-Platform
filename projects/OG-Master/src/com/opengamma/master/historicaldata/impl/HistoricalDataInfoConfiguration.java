@@ -20,7 +20,7 @@ import com.opengamma.master.historicaldata.HistoricalDataInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The set of rules to use when loading time-series from a master.
+ * The set of rules to use when loading historical data from a master.
  * <p>
  * This class is immutable and thread-safe.
  */

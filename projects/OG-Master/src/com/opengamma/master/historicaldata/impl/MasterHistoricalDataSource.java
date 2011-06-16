@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A {@code HistoricalDataSource} implemented using an underlying {@code TimeSeriesMaster}.
+ * A {@code HistoricalDataSource} implemented using an underlying {@code HistoricalDataMaster}.
  * <p>
  * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
  * This class provides the source on top of a standard {@link HistoricalDataMaster}.
@@ -43,35 +43,35 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalDataSource.class);
   /**
-   * The time-series master.
+   * The historical data master.
    */
-  private final HistoricalDataMaster _timeSeriesMaster;
+  private final HistoricalDataMaster _master;
   /**
-   * The time-series resolver.
+   * The resolver.
    */
-  private final HistoricalDataInfoResolver _timeSeriesResolver;
+  private final HistoricalDataInfoResolver _resolver;
 
   /**
-   * Creates an instance wrapping an underlying time-series master.
+   * Creates an instance wrapping an underlying historical data master.
    * 
-   * @param timeSeriesMaster the time-series master, not null
-   * @param timeSeriesResolver the time-series resolver, not null
+   * @param master  the historical data master, not null
+   * @param resolver  the resolver, not null
    */
-  public MasterHistoricalDataSource(HistoricalDataMaster timeSeriesMaster, HistoricalDataInfoResolver timeSeriesResolver) {
-    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
-    _timeSeriesMaster = timeSeriesMaster;
-    _timeSeriesResolver = timeSeriesResolver;
+  public MasterHistoricalDataSource(HistoricalDataMaster master, HistoricalDataInfoResolver resolver) {
+    ArgumentChecker.notNull(master, "master");
+    ArgumentChecker.notNull(resolver, "resolver");
+    _master = master;
+    _resolver = resolver;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying time-series master.
+   * Gets the underlying historical data master.
    * 
-   * @return the time-series master, not null
+   * @return the historical data master, not null
    */
-  public HistoricalDataMaster getTimeSeriesMaster() {
-    return _timeSeriesMaster;
+  public HistoricalDataMaster getMaster() {
+    return _master;
   }
 
   //-------------------------------------------------------------------------
@@ -99,7 +99,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     request.setStart(start);
     request.setEnd(end);
     
-    HistoricalDataDocument doc = getTimeSeriesMaster().get(request);
+    HistoricalDataDocument doc = getMaster().get(request);
     return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
   }
 
@@ -159,7 +159,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     request.setEnd(end);
     request.setLoadTimeSeries(true);
     
-    HistoricalDataSearchResult searchResult = getTimeSeriesMaster().search(request);
+    HistoricalDataSearchResult searchResult = getMaster().search(request);
     List<HistoricalDataDocument> documents = searchResult.getDocuments();
     UniqueIdentifier uniqueId = null;
     if (documents.isEmpty()) {
@@ -219,7 +219,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (StringUtils.isBlank(configDocName)) {
       configDocName = HistoricalDataInfoFieldNames.DEFAULT_CONFIG_NAME;
     }
-    HistoricalDataInfo info = _timeSeriesResolver.getInfo(securityBundle, configDocName);
+    HistoricalDataInfo info = _resolver.getInfo(securityBundle, configDocName);
     if (info == null) {
       return null;
     }
@@ -238,7 +238,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "MasterHistoricalDataSource[" + getTimeSeriesMaster() + "]";
+    return "MasterHistoricalDataSource[" + getMaster() + "]";
   }
 
 }

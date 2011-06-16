@@ -37,7 +37,7 @@ public class DataPointDocument extends DirectBean {
    * The parent time-series object identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _timeSeriesId;
+  private UniqueIdentifier _historicalDataId;
   /**
    * The data point unique identifier.
    */
@@ -78,8 +78,8 @@ public class DataPointDocument extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case 1709694943:  // timeSeriesId
-        return getTimeSeriesId();
+      case 1539276751:  // historicalDataId
+        return getHistoricalDataId();
       case -1881813055:  // dataPointId
         return getDataPointId();
       case 3076014:  // date
@@ -93,8 +93,8 @@ public class DataPointDocument extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case 1709694943:  // timeSeriesId
-        setTimeSeriesId((UniqueIdentifier) newValue);
+      case 1539276751:  // historicalDataId
+        setHistoricalDataId((UniqueIdentifier) newValue);
         return;
       case -1881813055:  // dataPointId
         setDataPointId((UniqueIdentifier) newValue);
@@ -116,7 +116,7 @@ public class DataPointDocument extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DataPointDocument other = (DataPointDocument) obj;
-      return JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
+      return JodaBeanUtils.equal(getHistoricalDataId(), other.getHistoricalDataId()) &&
           JodaBeanUtils.equal(getDataPointId(), other.getDataPointId()) &&
           JodaBeanUtils.equal(getDate(), other.getDate()) &&
           JodaBeanUtils.equal(getValue(), other.getValue());
@@ -127,7 +127,7 @@ public class DataPointDocument extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalDataId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataPointId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
@@ -139,24 +139,24 @@ public class DataPointDocument extends DirectBean {
    * Gets the parent time-series object identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getTimeSeriesId() {
-    return _timeSeriesId;
+  public UniqueIdentifier getHistoricalDataId() {
+    return _historicalDataId;
   }
 
   /**
    * Sets the parent time-series object identifier.
-   * @param timeSeriesId  the new value of the property
+   * @param historicalDataId  the new value of the property
    */
-  public void setTimeSeriesId(UniqueIdentifier timeSeriesId) {
-    this._timeSeriesId = timeSeriesId;
+  public void setHistoricalDataId(UniqueIdentifier historicalDataId) {
+    this._historicalDataId = historicalDataId;
   }
 
   /**
-   * Gets the the {@code timeSeriesId} property.
+   * Gets the the {@code historicalDataId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> timeSeriesId() {
-    return metaBean().timeSeriesId().createProperty(this);
+  public final Property<UniqueIdentifier> historicalDataId() {
+    return metaBean().historicalDataId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -245,10 +245,10 @@ public class DataPointDocument extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code timeSeriesId} property.
+     * The meta-property for the {@code historicalDataId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(
-        this, "timeSeriesId", DataPointDocument.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _historicalDataId = DirectMetaProperty.ofReadWrite(
+        this, "historicalDataId", DataPointDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code dataPointId} property.
      */
@@ -269,7 +269,7 @@ public class DataPointDocument extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
-        "timeSeriesId",
+        "historicalDataId",
         "dataPointId",
         "date",
         "value");
@@ -283,8 +283,8 @@ public class DataPointDocument extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1709694943:  // timeSeriesId
-          return _timeSeriesId;
+        case 1539276751:  // historicalDataId
+          return _historicalDataId;
         case -1881813055:  // dataPointId
           return _dataPointId;
         case 3076014:  // date
@@ -312,11 +312,11 @@ public class DataPointDocument extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code timeSeriesId} property.
+     * The meta-property for the {@code historicalDataId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> timeSeriesId() {
-      return _timeSeriesId;
+    public final MetaProperty<UniqueIdentifier> historicalDataId() {
+      return _historicalDataId;
     }
 
     /**

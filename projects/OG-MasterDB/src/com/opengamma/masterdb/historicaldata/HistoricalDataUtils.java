@@ -14,7 +14,7 @@ import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Utility methods used by DbTimeseries Master
+ * Utility methods used by historical data masters.
  */
 /* package */final class HistoricalDataUtils {
   

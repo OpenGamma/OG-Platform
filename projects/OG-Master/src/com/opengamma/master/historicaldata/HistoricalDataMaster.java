@@ -18,7 +18,7 @@ import com.opengamma.util.PublicSPI;
 /**
  * A general-purpose daily historical time-series master.
  * <p>
- * The time-series master provides a uniform view over the time-series database.
+ * The time-series master provides a uniform view over the database.
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
@@ -119,7 +119,7 @@ public interface HistoricalDataMaster {
   /**
    * Gets a data point by unique identifier.
    * <p> 
-   * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
+   * The dataPoint UID is of the format {@code HistoricalDataUID-YYYYMMDD}.
    * 
    * @param dataPointId  the data point unique identifier, not null
    * @return the data point document, not null
@@ -152,7 +152,7 @@ public interface HistoricalDataMaster {
   /**
    * Removes a data point from a time-series in the data store.
    * <p> 
-   * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
+   * The dataPoint UID is of the format {@code HistoricalDataUID-YYYYMMDD}.
    * 
    * @param dataPointId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -178,10 +178,10 @@ public interface HistoricalDataMaster {
    * <p>
    * This is a bulk update method to remove multiple data points from an existing time-series.
    * 
-   * @param timeSeriesId  the time-series to operate on, not null
+   * @param historicalDataId  the historical data to operate on, not null
    * @param firstDateToRetain  remove all data points before this date, not null
    */
-  void removeDataPoints(UniqueIdentifier timeSeriesId, LocalDate firstDateToRetain);
+  void removeDataPoints(UniqueIdentifier historicalDataId, LocalDate firstDateToRetain);
 
   //-------------------------------------------------------------------------
   /**

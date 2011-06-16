@@ -8,15 +8,15 @@ package com.opengamma.master.historicaldata.impl;
 import com.opengamma.master.historicaldata.HistoricalDataInfo;
 
 /**
- * Scores time-series info.
+ * Scores historical data info.
  * <p>
  * This strategy pattern interface allows different rules to be provided for choosing
- * time-series info.
+ * historical data info.
  */
 public interface HistoricalDataInfoRateProvider {
 
   /**
-   * Rates time-series info based on its rules.
+   * Rates historical data info based on its rules.
    * 
    * @param info  the time-series info, not null
    * @return the rating

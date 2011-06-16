@@ -18,7 +18,7 @@ import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.MockDbHelper;
 
 /**
- * Test to check DbTimeSeriesMaster is properly configured.
+ * Test to check master is properly configured.
  */
 public class DbHistoricalDataMasterConfigTest {
 

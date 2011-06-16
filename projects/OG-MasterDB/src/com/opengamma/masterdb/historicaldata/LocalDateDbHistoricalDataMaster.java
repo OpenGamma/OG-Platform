@@ -23,7 +23,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 
 /**
- * A time-series master implementation stores daily points using a {@code LocalDate}.
+ * A historical data master implementation stores daily points using a {@code LocalDate}.
  */
 public class LocalDateDbHistoricalDataMaster extends DbHistoricalDataMaster implements HistoricalDataMaster {
 

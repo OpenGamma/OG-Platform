@@ -18,7 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
- * Builder for converting TimeSeriesMataDataConfiguration instances to/from Fudge messages.
+ * Builder for converting objects to/from Fudge messages.
  */
 @FudgeBuilderFor(HistoricalDataInfoConfiguration.class)
 public class HistoricalDataInfoConfigurationBuilder implements FudgeBuilder<HistoricalDataInfoConfiguration> {

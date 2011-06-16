@@ -35,8 +35,8 @@ public abstract class AbstractWebHistoricalDataResource extends AbstractWebResou
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(loader, "loader");
     _data = new WebHistoricalDataData();
-    data().setTimeSeriesMaster(master);
-    data().setTimeSeriesLoader(loader);
+    data().setHistoricalDataMaster(master);
+    data().setHistoricalDataLoader(loader);
   }
 
   /**

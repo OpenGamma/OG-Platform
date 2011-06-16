@@ -67,7 +67,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Abstract test for time-series masters.
+ * Test DbHistoricalDataMaster.
  */
 @Test
 public class DbHistoricalDataMasterTest extends DBTest {
@@ -865,7 +865,7 @@ public class DbHistoricalDataMasterTest extends DBTest {
     String scheme = tsDoc.getUniqueId().getScheme();
     String timeSeriesID = tsDoc.getUniqueId().getValue();
     DataPointDocument dataPointDocument = new DataPointDocument();
-    dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+    dataPointDocument.setHistoricalDataId(tsDoc.getUniqueId());
     dataPointDocument.setDate(date);
     dataPointDocument.setValue(value);
     
@@ -878,7 +878,7 @@ public class DbHistoricalDataMasterTest extends DBTest {
     assertEquals(updatedTS, updatedDoc.getTimeSeries());
     
     DataPointDocument actualDDoc = _tsMaster.getDataPoint(dataPointDocument.getDataPointId());
-    assertEquals(tsDoc.getUniqueId(), actualDDoc.getTimeSeriesId());
+    assertEquals(tsDoc.getUniqueId(), actualDDoc.getHistoricalDataId());
     assertEquals(dataPointDocument.getDataPointId(), actualDDoc.getDataPointId());
     assertEquals(dataPointDocument.getDate(), actualDDoc.getDate());
     assertEquals(dataPointDocument.getValue(), actualDDoc.getValue());
@@ -912,7 +912,7 @@ public class DbHistoricalDataMasterTest extends DBTest {
     String scheme = tsDoc.getUniqueId().getScheme();
     String timeSeriesID = tsDoc.getUniqueId().getValue();
     DataPointDocument dataPointDocument = new DataPointDocument();
-    dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+    dataPointDocument.setHistoricalDataId(tsDoc.getUniqueId());
     dataPointDocument.setDataPointId(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(date)));
     dataPointDocument.setDate(date);
     dataPointDocument.setValue(newValue);
@@ -920,7 +920,7 @@ public class DbHistoricalDataMasterTest extends DBTest {
     DataPointDocument updated = _tsMaster.updateDataPoint(dataPointDocument);
     assertNotNull(updated);
     assertEquals(dataPointDocument.getDataPointId(), updated.getDataPointId());
-    assertEquals(dataPointDocument.getTimeSeriesId(), updated.getTimeSeriesId());
+    assertEquals(dataPointDocument.getHistoricalDataId(), updated.getHistoricalDataId());
     assertEquals(dataPointDocument.getDate(), updated.getDate());
     assertEquals(dataPointDocument.getValue(), updated.getValue());
     
@@ -1019,7 +1019,7 @@ public class DbHistoricalDataMasterTest extends DBTest {
       currentTimeSeriesMap.put(updateDate, newValue);
       //_tsMaster.updateDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, updateDate, newValue);
       DataPointDocument dataPointDocument = new DataPointDocument();
-      dataPointDocument.setTimeSeriesId(tsDocument.getUniqueId());
+      dataPointDocument.setHistoricalDataId(tsDocument.getUniqueId());
       dataPointDocument.setDate(updateDate);
       dataPointDocument.setValue(newValue);
       _tsMaster.updateDataPoint(dataPointDocument);

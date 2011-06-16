@@ -42,7 +42,7 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test DefaultTimeSeriesResolver.
+ * Test DefaultHistoricalDataInfoResolver.
  */
 @Test
 public class DefaultHistoricalDataInfoResolverTest {

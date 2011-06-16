@@ -117,7 +117,7 @@ public class WebAllHistoricalDataResource extends AbstractWebHistoricalDataResou
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      HistoricalDataSearchResult searchResult = data().getTimeSeriesMaster().search(searchRequest);
+      HistoricalDataSearchResult searchResult = data().getHistoricalDataMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
@@ -237,7 +237,7 @@ public class WebAllHistoricalDataResource extends AbstractWebHistoricalDataResou
   private URI addTimeSeries(String dataProvider, String dataField, String idScheme, String idValue, LocalDate startDate, LocalDate endDate) {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Set<Identifier> identifiers = buildSecurityRequest(scheme, idValue);
-    HistoricalDataLoader loader = data().getTimeSeriesLoader();
+    HistoricalDataLoader loader = data().getHistoricalDataLoader();
     Map<Identifier, UniqueIdentifier> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
       added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
@@ -278,10 +278,10 @@ public class WebAllHistoricalDataResource extends AbstractWebHistoricalDataResou
 
   //-------------------------------------------------------------------------
   @Path("{historicaldataId}")
-  public WebHistoricalDataResource findPortfolio(@PathParam("historicaldataId") String idStr) {
-    data().setUriTimeSeriesId(idStr);
-    HistoricalDataDocument portfolio = data().getTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
-    data().setTimeSeries(portfolio);
+  public WebHistoricalDataResource findSeries(@PathParam("historicaldataId") String idStr) {
+    data().setUriHistoricalDataId(idStr);
+    HistoricalDataDocument series = data().getHistoricalDataMaster().get(UniqueIdentifier.parse(idStr));
+    data().setHistoricalData(series);
     return new WebHistoricalDataResource(this);
   }
 

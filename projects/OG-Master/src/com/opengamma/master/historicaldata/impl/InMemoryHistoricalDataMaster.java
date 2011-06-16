@@ -41,25 +41,26 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * An in-memory implementation of a time-series master.
+ * An in-memory implementation of a historical data master.
  */
 public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
 
   /**
-   * A cache of LocalDate time-series by identifier.
-   */
-  private final ConcurrentHashMap<UniqueIdentifier, HistoricalDataDocument> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, HistoricalDataDocument>();
-  /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
   public static final String DEFAULT_UID_SCHEME = "TssMemory";
+
+  /**
+   * The store of historical data.
+   */
+  private final ConcurrentHashMap<UniqueIdentifier, HistoricalDataDocument> _store = new ConcurrentHashMap<UniqueIdentifier, HistoricalDataDocument>();
   /**
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uniqueIdSupplier;
 
   /**
-   * Creates an empty time-series master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an instance using the default scheme for any {@code UniqueIdentifier} created.
    */
   public InMemoryHistoricalDataMaster() {
     this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
@@ -79,7 +80,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     List<IdentifierBundleWithDates> result = new ArrayList<IdentifierBundleWithDates>();
-    Collection<HistoricalDataDocument> docs = _timeseriesDb.values();
+    Collection<HistoricalDataDocument> docs = _store.values();
     for (HistoricalDataDocument tsDoc : docs) {
       result.add(tsDoc.getIdentifiers());
     }
@@ -91,7 +92,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   public HistoricalDataSearchResult search(final HistoricalDataSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     List<HistoricalDataDocument> list = new ArrayList<HistoricalDataDocument>();
-    for (HistoricalDataDocument doc : _timeseriesDb.values()) {
+    for (HistoricalDataDocument doc : _store.values()) {
       if (request.matches(doc)) {
         list.add(filter(
             doc, request.isLoadEarliestLatest(), request.isLoadTimeSeries(), request.getStart(), request.getEnd()));
@@ -106,16 +107,16 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   //-------------------------------------------------------------------------
   @Override
   public HistoricalDataDocument get(UniqueIdentifier uniqueId) {
-    validateTimeSeriesId(uniqueId);
-    final HistoricalDataDocument document = _timeseriesDb.get(uniqueId);
+    validateId(uniqueId);
+    final HistoricalDataDocument document = _store.get(uniqueId);
     if (document == null) {
-      throw new DataNotFoundException("Time-series not found: " + uniqueId);
+      throw new DataNotFoundException("Historical data not found: " + uniqueId);
     }
     return document;
   }
 
   public HistoricalDataDocument get(HistoricalDataGetRequest request) {
-    final HistoricalDataDocument document = _timeseriesDb.get(request.getUniqueId());
+    final HistoricalDataDocument document = _store.get(request.getUniqueId());
     return filter(document, request.isLoadEarliestLatest(), request.isLoadTimeSeries(), request.getStart(), request.getEnd());
   }
 
@@ -154,7 +155,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   //-------------------------------------------------------------------------
   @Override
   public HistoricalDataDocument add(HistoricalDataDocument document) {
-    validateTimeSeriesDocument(document);
+    validateDocument(document);
     if (!contains(document)) {
       final UniqueIdentifier uniqueId = _uniqueIdSupplier.get();
       final HistoricalDataDocument doc = new HistoricalDataDocument();
@@ -165,7 +166,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
       doc.setIdentifiers(document.getIdentifiers());
       doc.setObservationTime(document.getObservationTime());
       doc.setTimeSeries(document.getTimeSeries());
-      _timeseriesDb.put(uniqueId, doc);  // unique identifier should be unique
+      _store.put(uniqueId, doc);  // unique identifier should be unique
       document.setUniqueId(uniqueId);
       return document;
     } else {
@@ -192,14 +193,14 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   public HistoricalDataDocument update(HistoricalDataDocument document) {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    validateTimeSeriesDocument(document);
+    validateDocument(document);
     
     final UniqueIdentifier uniqueId = document.getUniqueId();
-    final HistoricalDataDocument storedDocument = _timeseriesDb.get(uniqueId);
+    final HistoricalDataDocument storedDocument = _store.get(uniqueId);
     if (storedDocument == null) {
-      throw new DataNotFoundException("Time-series not found: " + uniqueId);
+      throw new DataNotFoundException("Historical data not found: " + uniqueId);
     }
-    if (_timeseriesDb.replace(uniqueId, storedDocument, document) == false) {
+    if (_store.replace(uniqueId, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return document;
@@ -208,18 +209,18 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
   @Override
   public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_timeseriesDb.remove(uniqueId) == null) {
-      throw new DataNotFoundException("Time-series not found: " + uniqueId);
+    if (_store.remove(uniqueId) == null) {
+      throw new DataNotFoundException("Historical data not found: " + uniqueId);
     }
   }
 
   @Override
   public HistoricalDataSearchHistoricResult searchHistoric(final HistoricalDataSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeSeriesId");
+    ArgumentChecker.notNull(request.getHistoricalDataId(), "request.timeSeriesId");
     
     final HistoricalDataSearchHistoricResult result = new HistoricalDataSearchHistoricResult();
-    HistoricalDataDocument doc = get(request.getTimeSeriesId());
+    HistoricalDataDocument doc = get(request.getHistoricalDataId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
@@ -233,10 +234,10 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
     
-    UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
-    validateTimeSeriesId(timeSeriesId);
+    UniqueIdentifier timeSeriesId = document.getHistoricalDataId();
+    validateId(timeSeriesId);
     
-    HistoricalDataDocument storeDoc = _timeseriesDb.get(timeSeriesId);
+    HistoricalDataDocument storeDoc = _store.get(timeSeriesId);
     LocalDateDoubleTimeSeries timeSeries = storeDoc.getTimeSeries();
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries(timeSeries);
     mutableTS.putDataPoint(document.getDate(), document.getValue());
@@ -249,10 +250,10 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     ArgumentChecker.notNull(document, "dataPoint document");
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
-    UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
-    validateTimeSeriesId(timeSeriesId);
+    UniqueIdentifier timeSeriesId = document.getHistoricalDataId();
+    validateId(timeSeriesId);
     
-    HistoricalDataDocument storedDoc = _timeseriesDb.get(timeSeriesId);
+    HistoricalDataDocument storedDoc = _store.get(timeSeriesId);
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries();
     mutableTS.putDataPoint(document.getDate(), document.getValue());
     LocalDateDoubleTimeSeries mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(mutableTS).toLocalDateDoubleTimeSeries();
@@ -273,10 +274,10 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     
     final DataPointDocument result = new DataPointDocument();
     result.setDate(uniqueIdPair.getSecond());
-    result.setTimeSeriesId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
+    result.setHistoricalDataId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     result.setDataPointId(uniqueId);
     
-    HistoricalDataDocument storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
+    HistoricalDataDocument storedDoc = _store.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     Double value = storedDoc.getTimeSeries().getValue(date);
     result.setValue(value);
        
@@ -317,7 +318,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     Pair<Long, LocalDate> uniqueIdPair = validateAndGetDataPointId(uniqueId);
     
     Long tsId = uniqueIdPair.getFirst();
-    HistoricalDataDocument storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
+    HistoricalDataDocument storedDoc = _store.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries(storedDoc.getTimeSeries());
     mutableTS.removeDataPoint(uniqueIdPair.getSecond());
@@ -326,11 +327,11 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
 
   @Override
   public void appendTimeSeries(HistoricalDataDocument document) {
-    validateTimeSeriesDocument(document);
+    validateDocument(document);
     
-    validateTimeSeriesId(document.getUniqueId());
+    validateId(document.getUniqueId());
     UniqueIdentifier uniqueId = document.getUniqueId();
-    HistoricalDataDocument storedDoc = _timeseriesDb.get(uniqueId);
+    HistoricalDataDocument storedDoc = _store.get(uniqueId);
     LocalDateDoubleTimeSeries mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries()).toLocalDateDoubleTimeSeries();
     storedDoc.setTimeSeries(mergedTS);
   }
@@ -347,7 +348,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
     
-    for (Entry<UniqueIdentifier, HistoricalDataDocument> entry : _timeseriesDb.entrySet()) {
+    for (Entry<UniqueIdentifier, HistoricalDataDocument> entry : _store.entrySet()) {
       UniqueIdentifier uniqueId = entry.getKey();
       HistoricalDataDocument tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
@@ -371,17 +372,17 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
 
   @Override
   public void removeDataPoints(UniqueIdentifier timeSeriesUid, LocalDate firstDateToRetain) {
-    validateTimeSeriesId(timeSeriesUid);
-    HistoricalDataDocument storedDoc = _timeseriesDb.get(timeSeriesUid);
+    validateId(timeSeriesUid);
+    HistoricalDataDocument storedDoc = _store.get(timeSeriesUid);
     LocalDateDoubleTimeSeries timeSeries = storedDoc.getTimeSeries();
     LocalDateDoubleTimeSeries subSeries = timeSeries.subSeries(firstDateToRetain, true, timeSeries.getLatestTime(), false).toLocalDateDoubleTimeSeries();
     storedDoc.setTimeSeries(subSeries);
   }
 
   //-------------------------------------------------------------------------
-  private long validateTimeSeriesId(UniqueIdentifier uniqueId) {
+  private long validateId(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "timeSeriesId");
-    ArgumentChecker.isTrue(uniqueId.getScheme().equals(DEFAULT_UID_SCHEME), "timeSeriesId scheme invalid");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(DEFAULT_UID_SCHEME), "historicalDataId scheme invalid");
     try {
       return Long.parseLong(uniqueId.getValue());
     } catch (NumberFormatException ex) {
@@ -389,7 +390,7 @@ public class InMemoryHistoricalDataMaster implements HistoricalDataMaster {
     }
   }
 
-  private void validateTimeSeriesDocument(HistoricalDataDocument document) {
+  private void validateDocument(HistoricalDataDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getTimeSeries(), "document.timeSeries");
     ArgumentChecker.notNull(document.getIdentifiers(), "document.identifiers");

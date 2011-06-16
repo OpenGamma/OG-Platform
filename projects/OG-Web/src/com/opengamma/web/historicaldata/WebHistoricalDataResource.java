@@ -60,7 +60,7 @@ public class WebHistoricalDataResource extends AbstractWebHistoricalDataResource
     StringWriter stringWriter  = new StringWriter();
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
-    for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {
+    for (Map.Entry<?, Double> entry : data().getHistoricalData().getTimeSeries()) {
       csvWriter.writeNext(new String[] {entry.getKey().toString(), entry.getValue().toString()});
     }
     return stringWriter.toString();
@@ -69,7 +69,7 @@ public class WebHistoricalDataResource extends AbstractWebHistoricalDataResource
   @PUT
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON() {
-    HistoricalDataDocument tsDoc = data().getTimeSeries();
+    HistoricalDataDocument tsDoc = data().getHistoricalData();
     Response result = null;
     if (updateTimeseries(tsDoc.getUniqueId())) {
       result =  Response.ok().build();
@@ -80,7 +80,7 @@ public class WebHistoricalDataResource extends AbstractWebHistoricalDataResource
   }
 
   private boolean updateTimeseries(final UniqueIdentifier uniqueId) {
-    HistoricalDataLoader timeSeriesLoader = data().getTimeSeriesLoader();
+    HistoricalDataLoader timeSeriesLoader = data().getHistoricalDataLoader();
     return timeSeriesLoader.updateTimeSeries(uniqueId);
   }
 
@@ -100,8 +100,8 @@ public class WebHistoricalDataResource extends AbstractWebHistoricalDataResource
   }
 
   private URI deleteTimeSeries() {
-    HistoricalDataDocument doc = data().getTimeSeries();
-    data().getTimeSeriesMaster().remove(doc.getUniqueId());
+    HistoricalDataDocument doc = data().getHistoricalData();
+    data().getHistoricalDataMaster().remove(doc.getUniqueId());
     URI uri = WebAllHistoricalDataResource.uri(data());
     return uri;
   }
@@ -113,7 +113,7 @@ public class WebHistoricalDataResource extends AbstractWebHistoricalDataResource
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    HistoricalDataDocument doc = data().getTimeSeries();
+    HistoricalDataDocument doc = data().getHistoricalData();
     out.put("timeseriesDoc", doc);
     out.put("timeseries", doc.getTimeSeries());
     return out;

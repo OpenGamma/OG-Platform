@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Test InMemoryLocalDateTimeSeriesMaster.
+ * Test InMemoryHistoricalDataMaster.
  */
 @Test
 public class InMemoryHistoricalDataMasterTest extends AbstractInMemoryHistoricalDataMasterTest {
