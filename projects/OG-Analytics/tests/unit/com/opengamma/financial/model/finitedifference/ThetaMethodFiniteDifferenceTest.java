@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * Test ThetaMethodFiniteDifference when theta = 0.5 (i.e. A Crank-Nicolson scheme)
@@ -32,8 +36,12 @@ public class ThetaMethodFiniteDifferenceTest {
 
   @Test
   public void testBlackScholesEquation2() {
-    int timeSteps = 20;
-    int priceSteps = 100;
+    int warmups = 1;
+    int benchmarkCycles = 0;
+    final Logger logger = LoggerFactory.getLogger(ThetaMethodFiniteDifferenceTest.class);
+
+    int timeSteps = 5;
+    int priceSteps = 1000;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
     double volTol = 5e-3;
@@ -42,7 +50,16 @@ public class ThetaMethodFiniteDifferenceTest {
     double gammaTol = 2e-2; // 50 times better than with 10 time steps
     boolean print = false; // set to false before pushing
 
-    TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
+    for (int i = 0; i < warmups; i++) {
+      TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
+    }
+    if (benchmarkCycles > 0) {
+      final OperationTimer timer = new OperationTimer(logger, "processing {} cycles on testBlackScholesEquation2", benchmarkCycles);
+      for (int i = 0; i < benchmarkCycles; i++) {
+        TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
+      }
+      timer.finished();
+    }
   }
 
   @Test

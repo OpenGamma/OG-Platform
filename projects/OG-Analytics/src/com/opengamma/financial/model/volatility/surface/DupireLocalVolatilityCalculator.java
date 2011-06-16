@@ -18,7 +18,7 @@ import com.opengamma.math.surface.Surface;
  * 
  */
 public class DupireLocalVolatilityCalculator {
-  private final double _eps = 1e-5;
+  private final double _eps = 1e-4;
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
@@ -88,16 +88,16 @@ public class DupireLocalVolatilityCalculator {
         double t = x[0];
         double k = x[1];
         double vol = impliedVolatilitySurface.getVolatility(t, k);
-        if (t == 0) {
+        if (t == 0 && k == spot) {
           return vol;
         }
-        double rootT = Math.sqrt(t);
+        //  double rootT = Math.sqrt(t);
         double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k);
         double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
         double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
-        double d1 = (Math.log(spot / k) + (rate + vol * vol / 2) * t) / vol / rootT;
-        double d2 = d1 - vol * rootT;
-        double var = (vol * vol + 2 * vol * t * (divT + rate * k * divK)) / (1 + 2 * d1 * k * rootT * divK + k * k * t * (d1 * d2 * divK * divK + vol * divK2));
+        double d1 = (Math.log(spot / k) + (rate + vol * vol / 2) * t) / vol;
+        double d2 = d1 - vol * t;
+        double var = (vol * vol + 2 * vol * t * (divT + rate * k * divK)) / (1 + 2 * d1 * k * divK + k * k * (d1 * d2 * divK * divK + t * vol * divK2));
         return Math.sqrt(var);
       }
     };
@@ -106,6 +106,11 @@ public class DupireLocalVolatilityCalculator {
   }
 
   private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k) {
+    if (t == 0) {
+      double up = surface.getZValue(_eps, k);
+      double mid = surface.getZValue(0.0, k);
+      return (up - mid) / _eps;
+    }
     double up = surface.getZValue(t + _eps, k);
     double down = surface.getZValue(t - _eps, k);
     return (up - down) / 2. / _eps;

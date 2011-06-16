@@ -38,12 +38,14 @@ public class CoupledFiniteDifference {
     _showFullResults = showFullResults;
   }
 
-  public PDEResults1D[] solve(final ConvectionDiffusionPDEDataBundle pdeData1, final ConvectionDiffusionPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary, final double lambda12, final double lambda21, final Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D[] solve(final CoupledPDEDataBundle pdeData1, final CoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
+      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2,
+      final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
 
-    validateSetup(grid, lowerBoundary, upperBoundary);
+    validateSetup(grid, lowerBoundary1, upperBoundary1);
+    validateSetup(grid, lowerBoundary2, upperBoundary2);
 
     int tNodes = grid.getNumTimeNodes();
     int xNodes = grid.getNumSpaceNodes();
@@ -66,6 +68,12 @@ public class CoupledFiniteDifference {
     double[][] b2 = new double[2][xNodes - 2];
     double[][] c1 = new double[2][xNodes - 2];
     double[][] c2 = new double[2][xNodes - 2];
+    double lambda1 = pdeData1.getCoupling();
+    double lambda2 = pdeData2.getCoupling();
+
+    double omega = 1.5;
+    int oldCount = 0;
+    boolean omegaIncrease = false;
 
     double dt, t1, t2, x;
     double[] x1st, x2nd;
@@ -94,6 +102,9 @@ public class CoupledFiniteDifference {
       rho1[1][i] = getFittingParameter(grid, a1[1][i], b1[1][i], i + 1);
     }
 
+    boolean first = true;
+    DecompositionResult decompRes = null;
+
     for (int n = 1; n < tNodes; n++) {
 
       t1 = grid.getTimeNode(n - 1);
@@ -107,15 +118,15 @@ public class CoupledFiniteDifference {
 
         q[i] = f[i];
         q[i] -= (1 - _theta) * dt * (x2nd[0] * rho1[0][i - 1] + x1st[0] * b1[0][i - 1]) * f[i - 1];
-        q[i] -= (1 - _theta) * dt * (x2nd[1] * rho1[0][i - 1] + x1st[1] * b1[0][i - 1] + c1[0][i - 1] /*+ lambda12*/) * f[i];
+        q[i] -= (1 - _theta) * dt * (x2nd[1] * rho1[0][i - 1] + x1st[1] * b1[0][i - 1] + c1[0][i - 1]) * f[i];
         q[i] -= (1 - _theta) * dt * (x2nd[2] * rho1[0][i - 1] + x1st[2] * b1[0][i - 1]) * f[i + 1];
-        q[i] -= (1 - _theta) * dt * lambda12 * f[i + xNodes];
+        q[i] -= (1 - _theta) * dt * lambda1 * f[i + xNodes];
 
         q[xNodes + i] = f[xNodes + i];
         q[xNodes + i] -= (1 - _theta) * dt * (x2nd[0] * rho1[1][i - 1] + x1st[0] * b1[1][i - 1]) * f[xNodes + i - 1];
-        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[1] * rho1[1][i - 1] + x1st[1] * b1[1][i - 1] + c1[1][i - 1] /*+ lambda21*/) * f[xNodes + i];
+        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[1] * rho1[1][i - 1] + x1st[1] * b1[1][i - 1] + c1[1][i - 1]) * f[xNodes + i];
         q[xNodes + i] -= (1 - _theta) * dt * (x2nd[2] * rho1[1][i - 1] + x1st[2] * b1[1][i - 1]) * f[xNodes + i + 1];
-        q[xNodes + i] -= (1 - _theta) * dt * lambda21 * f[i];
+        q[xNodes + i] -= (1 - _theta) * dt * lambda2 * f[i];
 
         a2[0][i - 1] = pdeData1.getA(t2, x);
         b2[0][i - 1] = pdeData1.getB(t2, x);
@@ -127,96 +138,96 @@ public class CoupledFiniteDifference {
         rho2[1][i - 1] = getFittingParameter(grid, a2[1][i - 1], b2[1][i - 1], i);
 
         m[i][i - 1] = _theta * dt * (x2nd[0] * rho2[0][i - 1] + x1st[0] * b2[0][i - 1]);
-        m[i][i] = 1 + _theta * dt * (x2nd[1] * rho2[0][i - 1] + x1st[1] * b2[0][i - 1] + c2[0][i - 1] /*+ lambda12*/);
+        m[i][i] = 1 + _theta * dt * (x2nd[1] * rho2[0][i - 1] + x1st[1] * b2[0][i - 1] + c2[0][i - 1]);
         m[i][i + 1] = _theta * dt * (x2nd[2] * rho2[0][i - 1] + x1st[2] * b2[0][i - 1]);
-        m[i][i + xNodes] = dt * _theta * lambda12;
+        m[i][i + xNodes] = dt * _theta * lambda1;
 
         m[xNodes + i][xNodes + i - 1] = _theta * dt * (x2nd[0] * rho2[1][i - 1] + x1st[0] * b2[1][i - 1]);
-        m[xNodes + i][xNodes + i] = 1 + _theta * dt * (x2nd[1] * rho2[1][i - 1] + x1st[1] * b2[1][i - 1] + c2[1][i - 1] /*+ lambda21*/);
+        m[xNodes + i][xNodes + i] = 1 + _theta * dt * (x2nd[1] * rho2[1][i - 1] + x1st[1] * b2[1][i - 1] + c2[1][i - 1]);
         m[xNodes + i][xNodes + i + 1] = _theta * dt * (x2nd[2] * rho2[1][i - 1] + x1st[2] * b2[1][i - 1]);
-        m[xNodes + i][i] = dt * _theta * lambda21;
+        m[xNodes + i][i] = dt * _theta * lambda2;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData1, grid, t2);
+      double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData1, grid, t2);
+      temp = upperBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getLeftMatrixCondition(pdeData2, grid, t2);
+      temp = lowerBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes][xNodes + k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData2, grid, t2);
+      temp = upperBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[2 * xNodes - 1][2 * xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData1, grid, t1);
+      temp = lowerBoundary1.getRightMatrixCondition(pdeData1, grid, t1);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData1, t2);
+      q[0] = sum + lowerBoundary1.getConstant(pdeData1, t2);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData1, grid, t1);
+      temp = upperBoundary1.getRightMatrixCondition(pdeData1, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData1, t2);
+      q[xNodes - 1] = sum + upperBoundary1.getConstant(pdeData1, t2);
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData2, grid, t1);
+      temp = lowerBoundary2.getRightMatrixCondition(pdeData2, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[xNodes] = sum + lowerBoundary.getConstant(pdeData2, t2);
+      q[xNodes] = sum + lowerBoundary2.getConstant(pdeData2, t2);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData2, grid, t1);
+      temp = upperBoundary2.getRightMatrixCondition(pdeData2, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[2 * xNodes - 1] = sum + upperBoundary.getConstant(pdeData2, t2);
+      q[2 * xNodes - 1] = sum + upperBoundary2.getConstant(pdeData2, t2);
 
-      final DoubleMatrix2D mM = new DoubleMatrix2D(m);
-      final DecompositionResult res = DCOMP.evaluate(mM);
-      f = res.solve(q);
+      //TODO work out why SOR does not converge here
+      //      final DoubleMatrix2D mM = new DoubleMatrix2D(m);
+      //      final DecompositionResult res = DCOMP.evaluate(mM);
+      //      f = res.solve(q);
+
+      //      // SOR
+      //
+      //      int count = sor(omega, grid, freeBoundary, xNodes, f, q, m, t2);
+      //      if (oldCount > 0) {
+      //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
+      //          omega = Math.max(1.0, omega * 0.9);
+      //          omegaIncrease = false;
+      //        } else {
+      //          omega = Math.min(1.99, 1.1 * omega);
+      //          omegaIncrease = true;
+      //        }
+      //      }
+      //      oldCount = count;
+
+      if (first) {
+        final DoubleMatrix2D mM = new DoubleMatrix2D(m);
+        decompRes = DCOMP.evaluate(mM);
+        // first = false;
+      }
+      f = decompRes.solve(q);
 
       a1 = a2;
       b1 = b2;
       c1 = c2;
       rho1 = rho2;
-
-      // SOR
-      // final double omega = 1.0;
-      // double scale = 1.0;
-      // double errorSqr = Double.POSITIVE_INFINITY;
-      // while (errorSqr / (scale + 1e-10) > 1e-18) {
-      // errorSqr = 0.0;
-      // scale = 0.0;
-      // for (int j = 0; j < 2 * xNodes; j++) {
-      // sum = 0;
-      // for (int k = 0; k < 2 * xNodes; k++) {
-      // sum += m[j][k] * f[k];
-      // }
-      // double correction = omega / m[j][j] * (q[j] - sum);
-      // // if (freeBoundary != null) {
-      // // correction = Math.max(correction, freeBoundary.getZValue(timeGrid[n], spaceGrid[j]) - f[j]);
-      // // }
-      // errorSqr += correction * correction;
-      // f[j] += correction;
-      // scale += f[j] * f[j];
-      // }
-      // }
 
       if (_showFullResults) {
         full1[n] = Arrays.copyOfRange(f, 0, xNodes);
@@ -240,6 +251,35 @@ public class CoupledFiniteDifference {
     return res;
   }
 
+  private int sor(final double omega, final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m,
+      final double t2) {
+    double sum;
+    int count = 0;
+    double scale = 1.0;
+    double errorSqr = Double.POSITIVE_INFINITY;
+    while (errorSqr / (scale + 1e-10) > 1e-18) {
+      errorSqr = 0.0;
+      scale = 0.0;
+      for (int j = 0; j < 2 * xNodes; j++) {
+        sum = 0;
+        for (int k = 0; k < 2 * xNodes; k++) {
+          sum += m[j][k] * f[k];
+        }
+        double correction = omega / m[j][j] * (q[j] - sum);
+        if (freeBoundary != null) {
+          correction = Math.max(correction, freeBoundary.getZValue(t2, grid.getSpaceNode(j)) - f[j]);
+        }
+        errorSqr += correction * correction;
+        f[j] += correction;
+        scale += f[j] * f[j];
+      }
+      count++;
+    }
+    //debug
+    //  System.out.println(count + " " + omega);
+    return count;
+  }
+
   /**
    * Checks that the lower and upper boundaries match up with the grid
    * @param grid
@@ -260,7 +300,7 @@ public class CoupledFiniteDifference {
     double bdx2 = (b * grid.getSpaceStep(i));
 
     // convection dominated
-    if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
+    if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a) || a == 0.0) {
       if (b > 0) {
         rho = -b * x1st[0] / x2nd[0];
       } else {

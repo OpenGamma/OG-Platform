@@ -29,8 +29,8 @@ import cern.jet.stat.Probability;
  * <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/Normal.html">Colt</a> implementation of the normal distribution.
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
-  private static final double XMIN = -7.6;
-  private static final double DELTA = 0.05;
+  private static final double XMIN = -7.6; //-7.6
+  private static final double DELTA = 0.6;//0.05
 
   // TODO need a better seed
   private final double _mean;
@@ -74,19 +74,41 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
     Validate.notNull(x);
 
     if (x <= XMIN) {
-      return _normal.pdf(x) / Math.sqrt(1 + x * x);
+      return tailApprox(x);
     }
     if (x < XMIN + DELTA) {
       // smooth the two approximations together
-      final double a = Math.sqrt(-Math.log(getCDF(XMIN)));
-      final double b = Math.sqrt(-Math.log(getCDF(XMIN + DELTA)));
-      final double temp = (a * (XMIN + DELTA - x) + b * (x - XMIN)) / DELTA;
-      return Math.exp(-temp * temp);
+      final double a = tailApprox(x);
+      final double b = _normal.cdf(x);
+      final double w = weight(x);
+      final double temp = w * a + (1 - w) * b;
+      return temp;
     }
     if (x > -(XMIN + DELTA)) {
       return 1.0 - getCDF(-x);
     }
     return _normal.cdf(x);
+  }
+
+  private double tailApprox(final double x) {
+    return _normal.pdf(x) / Math.sqrt(1 + x * x);
+  }
+
+  private double weight(final double x) {
+    if (x < XMIN) {
+      return 1.0;
+    } else if (x > XMIN + DELTA) {
+      return 0.0;
+    } else {
+      return (XMIN + DELTA - x) / DELTA;
+      //      if (x < XMIN + DELTA / 2) {
+      //        double temp = (x - XMIN) / DELTA;
+      //        return 1.0 - 2.0 * temp * temp;
+      //      } else {
+      //        double temp = (x - XMIN - DELTA) / DELTA;
+      //        return 2.0 * temp * temp;
+      //      }
+    }
   }
 
   /**

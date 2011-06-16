@@ -126,7 +126,7 @@ public class FokkerPlankPDETest {
     ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
     int tNodes = 30;
     int xNodes = 101;
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T - 0.01, tNodes, 0.0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T - 0.01, tNodes, 0.0);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
     MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.1);
 

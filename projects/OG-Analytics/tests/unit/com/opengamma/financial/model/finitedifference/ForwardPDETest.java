@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtil;
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
  * spot). Since all strikes and maturities are priced with a single pass of the solver, this is very useful for calibrating to market prices.
  * By contrast the backwards PDE gives the price surface for time-to-maturity and spot (for a fixed maturity and strike), so a separate solver 
- * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read stright off
+ * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read straight off
  * the backwards PDE. 
  */
 public class ForwardPDETest {
@@ -142,7 +142,7 @@ public class ForwardPDETest {
     int tNodes = 51;
     int xNodes = 101;
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, tNodes, 5.0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
     MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 

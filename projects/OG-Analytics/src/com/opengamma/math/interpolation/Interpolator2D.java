@@ -7,13 +7,14 @@ package com.opengamma.math.interpolation;
 
 import java.util.Map;
 
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * A base class for two-dimensional interpolation.
  */
 
-public abstract class Interpolator2D implements Interpolator<Map<DoublesPair, Double>, DoublesPair> {
+public abstract class Interpolator2D<T extends Interpolator1DDataBundle> implements Interpolator<Map<Double, T>, DoublesPair> {
 
   /**
    * @param data
@@ -23,6 +24,9 @@ public abstract class Interpolator2D implements Interpolator<Map<DoublesPair, Do
    *          found.
    * @return The value of z
    */
+
+  //  public abstract Double interpolate(Map<DoublesPair, Double> data, DoublesPair value);
+
   @Override
-  public abstract Double interpolate(Map<DoublesPair, Double> data, DoublesPair value);
+  public abstract Double interpolate(Map<Double, T> dataBundle, DoublesPair value);
 }

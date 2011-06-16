@@ -21,7 +21,9 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
- * 
+ * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values
+ * depending on the state of a hidden Markov chain. Degenerate (both vols the same) and uncoupled cases are tested along with a comparison
+ * to Monte Carlo.  
  */
 @SuppressWarnings("unused")
 public class CoupledFiniteDifferenceTest {
@@ -34,9 +36,9 @@ public class CoupledFiniteDifferenceTest {
   private static final double FORWARD;
   private static final double STRIKE;
   private static final double T = 5.0;
-  private static final double RATE = 0.05;
+  private static final double RATE = 0.0;//0.05;
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
-  private static final double VOL1 = 0.20;
+  private static final double VOL1 = 0.15;//0.2;
   private static final double VOL2 = 0.70;
 
   private static final EuropeanVanillaOption OPTION;
@@ -61,7 +63,7 @@ public class CoupledFiniteDifferenceTest {
 
   }
 
-  private ConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final double vol, final double rate, final double strike, final double lambda) {
+  private CoupledPDEDataBundle getCoupledPDEDataBundle(final double vol, final double rate, final double strike, final double lambda) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -97,7 +99,7 @@ public class CoupledFiniteDifferenceTest {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
+    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda, payoff);
   }
 
   @Test
@@ -105,16 +107,16 @@ public class CoupledFiniteDifferenceTest {
     CoupledFiniteDifference solver = new CoupledFiniteDifference();
     double lambda12 = 0.0;
     double lambda21 = 0.0;
-    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
     int timeNodes = 20;
     int spaceNodes = 150;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 2.5;
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, timeNodes, 0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
+    MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
 
     double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
@@ -128,7 +130,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -163,16 +165,16 @@ public class CoupledFiniteDifferenceTest {
     CoupledFiniteDifference solver = new CoupledFiniteDifference();
     double lambda12 = 0.2;
     double lambda21 = 0.5;
-    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
+    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
     int timeNodes = 10;
     int spaceNodes = 150;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 2.5;
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, timeNodes, 0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
+    MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
 
     double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
@@ -186,7 +188,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -216,24 +218,26 @@ public class CoupledFiniteDifferenceTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
   public void testMCSmile() {
-    double lambda12 = 0.2;
-    double lambda21 = 2.0;
+    double lambda12 = 0.3;//0.2;
+    double lambda21 = 4.0;//2.0;
     double df = YIELD_CURVE.getDiscountFactor(T);
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21);
-    double[] mcSims = mc.simulate(T, 1.0, 10000);
+    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
+
+    double[] mcSims = mc.simulate(T, 1000);
     for (int i = 0; i < 101; i++) {
-      double spot = 0 + 500. * i / 100.0;
-      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
-      double price = mc.price(spot / df, df, STRIKE, T, mcSims);
+      double strike = 0.003 + 0.18 * i / 100.0;
+      BlackFunctionData data = new BlackFunctionData(0.03, 1.0, 0.0);
+      EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, true);
+      double price = mc.price(0.03, 1.0, strike, T, mcSims);
       double impVol1;
       try {
-        impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
+        impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
       } catch (Exception e) {
         impVol1 = 0.0;
       }
-      System.out.println(spot + "\t" + price + "\t" + impVol1);
+      System.out.println(strike + "\t" + price + "\t" + impVol1);
     }
   }
 
@@ -242,19 +246,19 @@ public class CoupledFiniteDifferenceTest {
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
     double lambda12 = 0.2;
     double lambda21 = 2.0;
-    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
     int timeNodes = 20;
     int spaceNodes = 150;
     double lowerMoneyness = 0.0;
     double upperMoneyness = 3.0;
 
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21);
-    double[] mcSims = mc.simulate(T, 1.0, 10000); // simulate the vol path
+    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
+    double[] mcSims = mc.simulate(T, 10000); // simulate the vol path
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, timeNodes, 0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
+    MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
 
     double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
@@ -268,7 +272,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {

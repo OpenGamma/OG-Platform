@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
@@ -18,28 +18,25 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.ShepardInterpolatorND;
-import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
-/**
- * 
- */
-public class CoupledFokkedPlankPDEtest {
+public class CoupledFokkerPlankPDEtest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BoundaryCondition LOWER;
   private static final BoundaryCondition UPPER;
 
-  private static final double SPOT = 100;
+  private static final double SPOT = 1.0;
   private static final double FORWARD;
   private static final double STRIKE;
   private static final double T = 5.0;
-  private static final double RATE = 0.05;
+  private static final double RATE = 0.0;
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double VOL1 = 0.20;
   private static final double VOL2 = 0.70;
@@ -48,8 +45,8 @@ public class CoupledFokkedPlankPDEtest {
   private static final double INITIAL_PROB_STATE1 = 1.0;
 
   private static final EuropeanVanillaOption OPTION;
-  private static final ConvectionDiffusionPDEDataBundle DATA1;
-  private static final ConvectionDiffusionPDEDataBundle DATA2;
+  private static final CoupledPDEDataBundle DATA1;
+  private static final CoupledPDEDataBundle DATA2;
 
   private static final Surface<Double, Double, Double> A1;
   private static final Surface<Double, Double, Double> A2;
@@ -58,7 +55,10 @@ public class CoupledFokkedPlankPDEtest {
   private static final Surface<Double, Double, Double> B2;
   private static final Surface<Double, Double, Double> C2;
 
-  private static final ShepardInterpolatorND INTERPOLATOR = new ShepardInterpolatorND(3.0);
+  private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
+  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
+      INTERPOLATOR_1D,
+      INTERPOLATOR_1D);
 
   static {
 
@@ -178,8 +178,8 @@ public class CoupledFokkedPlankPDEtest {
     C1 = FunctionalDoublesSurface.from(c1);
     C2 = FunctionalDoublesSurface.from(c2);
 
-    DATA1 = new ConvectionDiffusionPDEDataBundle(A1, B1, C1, initialCondition1);
-    DATA2 = new ConvectionDiffusionPDEDataBundle(A2, B2, C2, initialCondition2);
+    DATA1 = new CoupledPDEDataBundle(A1, B1, C1, -LAMBDA21, initialCondition1);
+    DATA2 = new CoupledPDEDataBundle(A2, B2, C2, -LAMBDA12, initialCondition2);
 
   }
 
@@ -189,9 +189,9 @@ public class CoupledFokkedPlankPDEtest {
     int tNodes = 50;
     int xNodes = 150;
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, tNodes, 0);
-    // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    //MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
     double[] timeGrid = new double[tNodes];
     for (int n = 0; n < tNodes; n++) {
@@ -204,46 +204,46 @@ public class CoupledFokkedPlankPDEtest {
     }
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-    PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, -LAMBDA21, -LAMBDA12, null);
+    PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, LOWER, UPPER, null);
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res1.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      System.out.print(res1.getTimeValue(j));
-    //      for (int i = 0; i < xNodes; i++) {
-    //        System.out.print("\t" + res1.getFunctionValue(i, j));
-    //      }
-    //      System.out.print("\n");
-    //    }
-    //    System.out.print("\n");
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res2.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      System.out.print(res2.getTimeValue(j));
-    //      for (int i = 0; i < xNodes; i++) {
-    //        System.out.print("\t" + res2.getFunctionValue(i, j));
-    //      }
-    //      System.out.print("\n");
-    //    }
+    for (int i = 0; i < xNodes; i++) {
+      System.out.print("\t" + res1.getSpaceValue(i));
+    }
+    System.out.print("\n");
+
+    for (int j = 0; j < tNodes; j++) {
+      System.out.print(res1.getTimeValue(j));
+      for (int i = 0; i < xNodes; i++) {
+        System.out.print("\t" + res1.getFunctionValue(i, j));
+      }
+      System.out.print("\n");
+    }
+    System.out.print("\n");
+    for (int i = 0; i < xNodes; i++) {
+      System.out.print("\t" + res2.getSpaceValue(i));
+    }
+    System.out.print("\n");
+
+    for (int j = 0; j < tNodes; j++) {
+      System.out.print(res2.getTimeValue(j));
+      for (int i = 0; i < xNodes; i++) {
+        System.out.print("\t" + res2.getFunctionValue(i, j));
+      }
+      System.out.print("\n");
+    }
+    System.out.print("\n");
 
     //calculated the local vol surface
-    List<Pair<double[], Double>> localVolData = new ArrayList<Pair<double[], Double>>(xNodes * tNodes);
+    Map<DoublesPair, Double> localVolData = new HashMap<DoublesPair, Double>(xNodes * tNodes);
     double norm;
-    double[] x;
+    double t, k;
     double value;
     for (int j = 0; j < tNodes; j++) {
       for (int i = 0; i < xNodes; i++) {
-        x = new double[2];
-        x[0] = res1.getTimeValue(j);
-        x[1] = res1.getSpaceValue(i);
+        t = res1.getTimeValue(j);
+        k = res1.getSpaceValue(i);
         norm = res1.getFunctionValue(i, j) + res2.getFunctionValue(i, j);
         if (norm == 0.0) {
           value = 0.0;
@@ -252,53 +252,68 @@ public class CoupledFokkedPlankPDEtest {
           value /= norm;
           value = Math.sqrt(value);
         }
-        localVolData.add(new ObjectsPair<double[], Double>(x, value));
+        localVolData.put(new DoublesPair(t, k), value);
       }
     }
 
-    final InterpolatorNDDataBundle dataBundle = INTERPOLATOR.getDataBundle(localVolData);
+    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(localVolData);
 
     final Function<Double, Double> localVolFunction = new Function<Double, Double>() {
 
       @Override
       public Double evaluate(Double... x) {
-        double[] tx = new double[2];
-        tx[0] = x[0];
-        tx[1] = x[1];
-        return INTERPOLATOR.interpolate(dataBundle, tx);
+        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(x[0], x[1]));
       }
     };
 
     final FunctionalDoublesSurface localVolSurface = FunctionalDoublesSurface.from(localVolFunction);
 
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        double vol = localVolSurface.getZValue(ts[0], ts[1]);
-        return -s * s * vol * vol / 2;
-      }
-    };
+    for (int i = 0; i < 101; i++) {
+      double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
+      System.out.print("\t" + f);
+    }
+    System.out.print("\n");
 
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        //return RATE;
-        return RATE * s;
-      }
-    };
+    for (int j = 0; j < 101; j++) {
+      t = 0.0 + 5.0 * j / 100.;
+      System.out.print(t);
+      for (int i = 0; i < 101; i++) {
+        double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
+        double[] tf = new double[] {t, f };
 
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        return RATE;
+        System.out.print("\t" + localVolSurface.getZValue(t, f));
       }
-    };
+      System.out.print("\n");
+    }
+
+    //    final Function<Double, Double> a = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double s = ts[1];
+    //        double vol = localVolSurface.getZValue(ts[0], ts[1]);
+    //        return -s * s * vol * vol / 2;
+    //      }
+    //    };
+    //
+    //    final Function<Double, Double> b = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double s = ts[1];
+    //        //return RATE;
+    //        return RATE * s;
+    //      }
+    //    };
+    //
+    //    final Function<Double, Double> c = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double s = ts[1];
+    //        return RATE;
+    //      }
+    //    };
 
   }
 
