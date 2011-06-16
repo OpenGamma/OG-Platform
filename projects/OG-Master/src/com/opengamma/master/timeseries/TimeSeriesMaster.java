@@ -62,6 +62,20 @@ public interface TimeSeriesMaster<T> {
   TimeSeriesDocument<T> get(UniqueIdentifier uniqueId);
 
   /**
+   * Gets a time-series document controlling the amount of data returned.
+   * <p>
+   * This returns a single time-series document by unique identifier.
+   * As the time-series is potentially large, the request allows the returned
+   * data points to be filtered.
+   * 
+   * @param request  the batch data request, not null
+   * @return the document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  TimeSeriesDocument<T> get(TimeSeriesGetRequest<T> request);
+
+  /**
    * Adds a time-series to the data store.
    * <p>
    * The unique identifier will be set in the response.

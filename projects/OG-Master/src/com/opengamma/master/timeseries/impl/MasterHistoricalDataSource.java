@@ -22,6 +22,7 @@ import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesGetRequest;
 import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
@@ -29,7 +30,6 @@ import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -94,22 +94,15 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   private HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.setTimeSeriesId(uniqueId);
+    TimeSeriesGetRequest<LocalDate> request = new TimeSeriesGetRequest<LocalDate>(uniqueId);
+    request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
     
-    LocalDateDoubleTimeSeries result = new ArrayLocalDateDoubleTimeSeries();
-    TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().search(request);
-    List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
-    if (!documents.isEmpty()) {
-      if (documents.size() > 1) {
-        s_logger.warn("multiple timeseries return for uniqueId={}", uniqueId);
-      }
-      result = documents.get(0).getTimeSeries().toLocalDateDoubleTimeSeries();
-    }
-    return new HistoricalTimeSeriesImpl(uniqueId, result);
+    TimeSeriesDocument<LocalDate> doc = getTimeSeriesMaster().get(request);
+    LocalDateDoubleTimeSeries ts = doc.getTimeSeries().toLocalDateDoubleTimeSeries();
+    return new HistoricalTimeSeriesImpl(uniqueId, ts);
   }
 
   //-------------------------------------------------------------------------

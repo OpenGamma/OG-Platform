@@ -30,7 +30,6 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
@@ -54,11 +53,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    */
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
-  /**
-   * The time-series identifier for loading specific data points range.
-   */
-  @PropertyDefinition
-  private UniqueIdentifier _timeSeriesId;
   /**
    * The identifiers to match, empty to not match on identifiers.
    * This will return time-series where at least one complete identifier in the series matches
@@ -105,16 +99,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   @PropertyDefinition
   private String _observationTime;
   /**
-   * The start time, inclusive, null returns data from the earliest valid time.
-   */
-  @PropertyDefinition
-  private T _start; 
-  /**
-   * The end time, inclusive, null returns data up to the latest valid time.
-   */
-  @PropertyDefinition
-  private T _end;
-  /**
    * Set to true to load data points, otherwise return just info.
    */
   @PropertyDefinition
@@ -124,6 +108,16 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    */
   @PropertyDefinition
   private boolean _loadEarliestLatest;
+  /**
+   * The start time, inclusive, null returns data from the earliest valid time.
+   */
+  @PropertyDefinition
+  private T _start; 
+  /**
+   * The end time, inclusive, null returns data up to the latest valid time.
+   */
+  @PropertyDefinition
+  private T _end;
 
   /**
    * Creates an instance.
@@ -208,9 +202,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    * @return true if matches
    */
   public boolean matches(TimeSeriesDocument<?> document) {
-    if (getTimeSeriesId() != null && getTimeSeriesId().equals(document.getUniqueId()) == false) {
-      return false;
-    }    
     if (getDataSource() != null && getDataSource().equals(document.getDataSource()) == false) {
       return false;
     }    
@@ -271,8 +262,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 1709694943:  // timeSeriesId
-        return getTimeSeriesId();
       case 1368189162:  // identifiers
         return getIdentifiers();
       case 2085582408:  // identifierValue
@@ -287,14 +276,14 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         return getDataField();
       case 951232793:  // observationTime
         return getObservationTime();
-      case 109757538:  // start
-        return getStart();
-      case 100571:  // end
-        return getEnd();
       case 1833789738:  // loadTimeSeries
         return isLoadTimeSeries();
       case -771242688:  // loadEarliestLatest
         return isLoadEarliestLatest();
+      case 109757538:  // start
+        return getStart();
+      case 100571:  // end
+        return getEnd();
     }
     return super.propertyGet(propertyName);
   }
@@ -305,9 +294,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
-        return;
-      case 1709694943:  // timeSeriesId
-        setTimeSeriesId((UniqueIdentifier) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((List<Identifier>) newValue);
@@ -330,17 +316,17 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
-      case 109757538:  // start
-        setStart((T) newValue);
-        return;
-      case 100571:  // end
-        setEnd((T) newValue);
-        return;
       case 1833789738:  // loadTimeSeries
         setLoadTimeSeries((Boolean) newValue);
         return;
       case -771242688:  // loadEarliestLatest
         setLoadEarliestLatest((Boolean) newValue);
+        return;
+      case 109757538:  // start
+        setStart((T) newValue);
+        return;
+      case 100571:  // end
+        setEnd((T) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -354,7 +340,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       TimeSeriesSearchRequest<?> other = (TimeSeriesSearchRequest<?>) obj;
       return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
-          JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
           JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
           JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
           JodaBeanUtils.equal(getIdentifierValidityDate(), other.getIdentifierValidityDate()) &&
@@ -362,10 +347,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getStart(), other.getStart()) &&
-          JodaBeanUtils.equal(getEnd(), other.getEnd()) &&
           JodaBeanUtils.equal(isLoadTimeSeries(), other.isLoadTimeSeries()) &&
-          JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest());
+          JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest()) &&
+          JodaBeanUtils.equal(getStart(), other.getStart()) &&
+          JodaBeanUtils.equal(getEnd(), other.getEnd());
     }
     return false;
   }
@@ -374,7 +359,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValidityDate());
@@ -382,10 +366,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
     hash += hash * 31 + JodaBeanUtils.hashCode(isLoadTimeSeries());
     hash += hash * 31 + JodaBeanUtils.hashCode(isLoadEarliestLatest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
     return hash;
   }
 
@@ -415,31 +399,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
    */
   public final Property<PagingRequest> pagingRequest() {
     return metaBean().pagingRequest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the time-series identifier for loading specific data points range.
-   * @return the value of the property
-   */
-  public UniqueIdentifier getTimeSeriesId() {
-    return _timeSeriesId;
-  }
-
-  /**
-   * Sets the time-series identifier for loading specific data points range.
-   * @param timeSeriesId  the new value of the property
-   */
-  public void setTimeSeriesId(UniqueIdentifier timeSeriesId) {
-    this._timeSeriesId = timeSeriesId;
-  }
-
-  /**
-   * Gets the the {@code timeSeriesId} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueIdentifier> timeSeriesId() {
-    return metaBean().timeSeriesId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -636,56 +595,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start time, inclusive, null returns data from the earliest valid time.
-   * @return the value of the property
-   */
-  public T getStart() {
-    return _start;
-  }
-
-  /**
-   * Sets the start time, inclusive, null returns data from the earliest valid time.
-   * @param start  the new value of the property
-   */
-  public void setStart(T start) {
-    this._start = start;
-  }
-
-  /**
-   * Gets the the {@code start} property.
-   * @return the property, not null
-   */
-  public final Property<T> start() {
-    return metaBean().start().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end time, inclusive, null returns data up to the latest valid time.
-   * @return the value of the property
-   */
-  public T getEnd() {
-    return _end;
-  }
-
-  /**
-   * Sets the end time, inclusive, null returns data up to the latest valid time.
-   * @param end  the new value of the property
-   */
-  public void setEnd(T end) {
-    this._end = end;
-  }
-
-  /**
-   * Gets the the {@code end} property.
-   * @return the property, not null
-   */
-  public final Property<T> end() {
-    return metaBean().end().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets set to true to load data points, otherwise return just info.
    * @return the value of the property
    */
@@ -736,6 +645,56 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the start time, inclusive, null returns data from the earliest valid time.
+   * @return the value of the property
+   */
+  public T getStart() {
+    return _start;
+  }
+
+  /**
+   * Sets the start time, inclusive, null returns data from the earliest valid time.
+   * @param start  the new value of the property
+   */
+  public void setStart(T start) {
+    this._start = start;
+  }
+
+  /**
+   * Gets the the {@code start} property.
+   * @return the property, not null
+   */
+  public final Property<T> start() {
+    return metaBean().start().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the end time, inclusive, null returns data up to the latest valid time.
+   * @return the value of the property
+   */
+  public T getEnd() {
+    return _end;
+  }
+
+  /**
+   * Sets the end time, inclusive, null returns data up to the latest valid time.
+   * @param end  the new value of the property
+   */
+  public void setEnd(T end) {
+    this._end = end;
+  }
+
+  /**
+   * Gets the the {@code end} property.
+   * @return the property, not null
+   */
+  public final Property<T> end() {
+    return metaBean().end().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code TimeSeriesSearchRequest}.
    */
   public static class Meta<T> extends DirectMetaBean {
@@ -750,11 +709,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
         this, "pagingRequest", TimeSeriesSearchRequest.class, PagingRequest.class);
-    /**
-     * The meta-property for the {@code timeSeriesId} property.
-     */
-    private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(
-        this, "timeSeriesId", TimeSeriesSearchRequest.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
@@ -792,6 +746,16 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", TimeSeriesSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code loadTimeSeries} property.
+     */
+    private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
+        this, "loadTimeSeries", TimeSeriesSearchRequest.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code loadEarliestLatest} property.
+     */
+    private final MetaProperty<Boolean> _loadEarliestLatest = DirectMetaProperty.ofReadWrite(
+        this, "loadEarliestLatest", TimeSeriesSearchRequest.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code start} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -804,22 +768,11 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     private final MetaProperty<T> _end = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
         this, "end", TimeSeriesSearchRequest.class, Object.class);
     /**
-     * The meta-property for the {@code loadTimeSeries} property.
-     */
-    private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
-        this, "loadTimeSeries", TimeSeriesSearchRequest.class, Boolean.TYPE);
-    /**
-     * The meta-property for the {@code loadEarliestLatest} property.
-     */
-    private final MetaProperty<Boolean> _loadEarliestLatest = DirectMetaProperty.ofReadWrite(
-        this, "loadEarliestLatest", TimeSeriesSearchRequest.class, Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "pagingRequest",
-        "timeSeriesId",
         "identifiers",
         "identifierValue",
         "identifierValidityDate",
@@ -827,10 +780,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         "dataProvider",
         "dataField",
         "observationTime",
-        "start",
-        "end",
         "loadTimeSeries",
-        "loadEarliestLatest");
+        "loadEarliestLatest",
+        "start",
+        "end");
 
     /**
      * Restricted constructor.
@@ -843,8 +796,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       switch (propertyName.hashCode()) {
         case -2092032669:  // pagingRequest
           return _pagingRequest;
-        case 1709694943:  // timeSeriesId
-          return _timeSeriesId;
         case 1368189162:  // identifiers
           return _identifiers;
         case 2085582408:  // identifierValue
@@ -859,14 +810,14 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
           return _dataField;
         case 951232793:  // observationTime
           return _observationTime;
-        case 109757538:  // start
-          return _start;
-        case 100571:  // end
-          return _end;
         case 1833789738:  // loadTimeSeries
           return _loadTimeSeries;
         case -771242688:  // loadEarliestLatest
           return _loadEarliestLatest;
+        case 109757538:  // start
+          return _start;
+        case 100571:  // end
+          return _end;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -894,14 +845,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     public final MetaProperty<PagingRequest> pagingRequest() {
       return _pagingRequest;
-    }
-
-    /**
-     * The meta-property for the {@code timeSeriesId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueIdentifier> timeSeriesId() {
-      return _timeSeriesId;
     }
 
     /**
@@ -961,22 +904,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code start} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<T> start() {
-      return _start;
-    }
-
-    /**
-     * The meta-property for the {@code end} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<T> end() {
-      return _end;
-    }
-
-    /**
      * The meta-property for the {@code loadTimeSeries} property.
      * @return the meta-property, not null
      */
@@ -990,6 +917,22 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     public final MetaProperty<Boolean> loadEarliestLatest() {
       return _loadEarliestLatest;
+    }
+
+    /**
+     * The meta-property for the {@code start} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<T> start() {
+      return _start;
+    }
+
+    /**
+     * The meta-property for the {@code end} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<T> end() {
+      return _end;
     }
 
   }

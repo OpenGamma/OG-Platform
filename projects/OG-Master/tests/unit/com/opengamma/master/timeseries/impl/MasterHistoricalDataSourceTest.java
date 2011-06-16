@@ -23,6 +23,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesGetRequest;
 import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
@@ -200,24 +201,21 @@ public class MasterHistoricalDataSourceTest {
   }
 
   public void getHistoricalDataByUID() throws Exception {
-    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.setTimeSeriesId(UID);
+    TimeSeriesGetRequest<LocalDate> request = new TimeSeriesGetRequest<LocalDate>(UID);
+    request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
     request.setStart(null);
     request.setEnd(null);
-    request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
     TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
     tsDoc.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
     tsDoc.setUniqueId(UID);
     tsDoc.setTimeSeries(randomTimeSeries());
-    searchResult.getDocuments().add(tsDoc);
     
-    when(_mockMaster.search(request)).thenReturn(searchResult);
+    when(_mockMaster.get(request)).thenReturn(tsDoc);
     
     HistoricalTimeSeries hts = _tsSource.getHistoricalData(UID);
-    verify(_mockMaster, times(1)).search(request);
+    verify(_mockMaster, times(1)).get(request);
     
     assertEquals(UID, hts.getUniqueId());
     assertEquals(tsDoc.getTimeSeries().times(), hts.getTimeSeries().times());

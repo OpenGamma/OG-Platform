@@ -62,6 +62,9 @@ public class LocalDateDbTimeSeriesMaster extends DbTimeSeriesMaster<LocalDate> i
   @Override
   protected LocalDate getDate(ResultSet rs, String column) throws SQLException {
     java.sql.Date date = rs.getDate(column);
+    if (date == null) {
+      return null;
+    }
     return DbDateUtils.fromSqlDate(date);
   }
 
