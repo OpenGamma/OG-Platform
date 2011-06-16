@@ -322,7 +322,7 @@
   </bean>
   
   <!-- Time series RESTful service -->
-  <bean id="webHistoricalDataRestBean" class="com.opengamma.web.historicaldata.WebAllHistoricalDataResource" scope="request">
+  <bean id="webHistoricalTimeSeriesRestBean" class="com.opengamma.web.historicaldata.WebAllHistoricalTimeSeriesResource" scope="request">
     <constructor-arg ref="timeseriesMaster" />
     <constructor-arg ref="mockTimeseriesLoader"/>
   </bean>

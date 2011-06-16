@@ -5,8 +5,8 @@
  */
 
 /**
- * Historical data master implementation using an SQL database.
+ * Historical time-series master implementation using an SQL database.
  * <p>
- * This master supplies and manages time-series of historical data.
+ * This master supplies and manages historical time-series.
  */
 package com.opengamma.masterdb.historicaldata;

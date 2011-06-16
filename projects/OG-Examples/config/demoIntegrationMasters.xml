@@ -160,7 +160,7 @@
       <bean class="com.opengamma.master.historicaldata.impl.MasterHistoricalDataSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
-          <bean class="com.opengamma.master.historicaldata.impl.DefaultHistoricalDataInfoResolver">
+          <bean class="com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesInfoResolver">
           	<constructor-arg ref="timeseriesMaster"/>
           	<constructor-arg ref="sharedConfigSource"/>
           </bean>

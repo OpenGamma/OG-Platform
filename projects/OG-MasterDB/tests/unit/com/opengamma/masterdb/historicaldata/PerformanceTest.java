@@ -19,10 +19,10 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.historicaldata.DataPointDocument;
-import com.opengamma.master.historicaldata.HistoricalDataDocument;
-import com.opengamma.master.historicaldata.HistoricalDataMaster;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
-import com.opengamma.masterdb.historicaldata.LocalDateDbHistoricalDataMaster;
+import com.opengamma.masterdb.historicaldata.LocalDateDbHistoricalTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -38,7 +38,7 @@ public class PerformanceTest extends DBTest {
   /**
    * The master.
    */
-  private HistoricalDataMaster _tsMaster;
+  private HistoricalTimeSeriesMaster _tsMaster;
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
@@ -54,7 +54,7 @@ public class PerformanceTest extends DBTest {
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    HistoricalDataMaster ts = new LocalDateDbHistoricalDataMaster(
+    HistoricalTimeSeriesMaster ts = new LocalDateDbHistoricalTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
         false);
@@ -69,7 +69,7 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      HistoricalDataDocument tsDocument = new HistoricalDataDocument();
+      HistoricalTimeSeriesDocument tsDocument = new HistoricalTimeSeriesDocument();
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
@@ -88,7 +88,7 @@ public class PerformanceTest extends DBTest {
       
       for (int j = 1; j < NUM_POINTS; j++) {
         DataPointDocument dataPointDocument = new DataPointDocument();
-        dataPointDocument.setHistoricalDataId(tsDocument.getUniqueId());
+        dataPointDocument.setHistoricalTimeSeriesId(tsDocument.getUniqueId());
         dataPointDocument.setDate(timeSeries.getTime(j));
         dataPointDocument.setValue(timeSeries.getValueAt(j));
         s_logger.debug("adding data points {}", dataPointDocument);

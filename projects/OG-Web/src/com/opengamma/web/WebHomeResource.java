@@ -22,8 +22,8 @@ import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
-import com.opengamma.web.historicaldata.WebHistoricalDataData;
-import com.opengamma.web.historicaldata.WebHistoricalDataUris;
+import com.opengamma.web.historicaldata.WebHistoricalTimeSeriesData;
+import com.opengamma.web.historicaldata.WebHistoricalTimeSeriesUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
 import com.opengamma.web.portfolio.WebPortfoliosData;
@@ -89,9 +89,9 @@ public class WebHomeResource extends AbstractWebResource {
     regionData.setUriInfo(uriInfo);
     out.put("regionUris", new WebRegionUris(regionData));
     
-    WebHistoricalDataData timeseriesData = new WebHistoricalDataData();
+    WebHistoricalTimeSeriesData timeseriesData = new WebHistoricalTimeSeriesData();
     timeseriesData.setUriInfo(uriInfo);
-    out.put("timeseriesUris", new WebHistoricalDataUris(timeseriesData));
+    out.put("timeseriesUris", new WebHistoricalTimeSeriesUris(timeseriesData));
     
     WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);
