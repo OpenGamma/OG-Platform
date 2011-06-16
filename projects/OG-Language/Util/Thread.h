@@ -210,6 +210,13 @@ public:
 	}
 #endif /* ifdef HAVE_PTHREAD */
 
+#ifdef _WIN32
+	/// Gets the underlying Win32 handle for the thread allowing normal O/S calls.
+	operator HANDLE () {
+		return m_hThread;
+	}
+#endif /* ifdef _WIN32 */
+
 };
 
 #endif /* ifndef __inc_og_language_util_thread_h */
