@@ -23,7 +23,6 @@ import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremi
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
@@ -88,8 +87,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
   T visitCash(Cash cash, S data);
-
-  T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
 
@@ -164,8 +161,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
 
   T visitCash(Cash cash);
-
-  T visitInterestRateFuture(InterestRateFuture future);
 
   T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
 

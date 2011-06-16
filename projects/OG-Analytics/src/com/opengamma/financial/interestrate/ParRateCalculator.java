@@ -11,9 +11,9 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
@@ -67,46 +67,30 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return (curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) - 1) / yearFrac;
   }
 
-  //  @Override
-  //  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-  //    final YieldAndDiscountCurve curve = curves.getCurve(fra.getIndexCurveName());
-  //    final double ta = fra.getFixingDate();
-  //    final double tb = fra.getMaturity();
-  //    final double yearFrac = fra.getForwardYearFraction();
-  //    Validate.isTrue(yearFrac > 0, "tenor span must be greater than zero");
-  //    final double pa = curve.getDiscountFactor(ta);
-  //    final double pb = curve.getDiscountFactor(tb);
-  //    return (pa / pb - 1) / yearFrac;
-  //  }
-
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(fra.getForwardCurveName());
-    final double ta = fra.getFixingPeriodStartTime();
-    final double tb = fra.getFixingPeriodEndTime();
-    final double yearFrac = fra.getFixingYearFraction();
-    Validate.isTrue(yearFrac > 0, "tenor span must be greater than zero");
-    final double pa = curve.getDiscountFactor(ta);
-    final double pb = curve.getDiscountFactor(tb);
-    return (pa / pb - 1) / yearFrac;
+    Validate.notNull(curves);
+    Validate.notNull(fra);
+    return ForwardRateAgreementDiscountingMethod.getInstance().parRate(fra, curves);
   }
 
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-    final double pa = curve.getDiscountFactor(ta);
-    final double pb = curve.getDiscountFactor(tb);
-    return (pa / pb - 1) / future.getIndexYearFraction();
-  }
+  //
+  //  @Override
+  //  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  //    final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
+  //    final double ta = future.getFixingDate();
+  //    final double tb = future.getMaturity();
+  //    final double pa = curve.getDiscountFactor(ta);
+  //    final double pb = curve.getDiscountFactor(tb);
+  //    return (pa / pb - 1) / future.getIndexYearFraction();
+  //  }
 
   @Override
   /**
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
     return method.parRate(future, curves);
   }
 
@@ -115,7 +99,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
     return method.parRate(future.getUnderlyingFuture(), curves);
   }
 

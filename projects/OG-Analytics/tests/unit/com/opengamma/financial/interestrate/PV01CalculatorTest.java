@@ -26,7 +26,8 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -64,7 +65,7 @@ public class PV01CalculatorTest {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     final double df = curve.getDiscountFactor(t);
     final double r = 1 / t * (1 / df - 1);
-    final Cash cash = new Cash(CUR, t, r, FUNDING_CURVE_NAME);
+    final Cash cash = new Cash(CUR, t, 1, r, FUNDING_CURVE_NAME);
     doTest(cash, CURVES);
   }
 
@@ -82,26 +83,21 @@ public class PV01CalculatorTest {
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, FUNDING_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction,
         rate, LIBOR_CURVE_NAME);
     doTest(fra, CURVES);
-    //    final double settlement = 0.5;
-    //    final double maturity = 7.0 / 12.0;
-    //    final double strike = 0.15;
-    //    final double fixingDate = settlement - 2.0 / 365.0;
-    //    final double forwardYearFrac = 31.0 / 365.0;
-    //    final double discountYearFrac = 30.0 / 360;
-    //    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, strike, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    //doTest(fra, CURVES);
   }
 
   @Test
   public void testFutures() {
-    final double settlementDate = 1.473;
-    final double fixingDate = 1.467;
-    final double maturity = 1.75;
-    final double indexYearFraction = 0.267;
-    final double valueYearFraction = 0.25;
-    final double price = 97.3;
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
-    doTest(edf, CURVES);
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double lastTradingTime = 1.473;
+    final double fixingPeriodStartTime = 1.467;
+    final double fixingPeriodEndTime = 1.75;
+    final double fixingPeriodAccrualFactor = 0.267;
+    final double paymentAccrualFactor = 0.25;
+    final double price = 0.973;
+    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, 1, paymentAccrualFactor, "K", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME), 1, price);
+    doTest(ir, CURVES);
   }
 
   @Test

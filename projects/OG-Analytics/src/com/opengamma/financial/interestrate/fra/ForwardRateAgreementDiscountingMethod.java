@@ -32,7 +32,15 @@ import com.opengamma.util.tuple.DoublesPair;
  * This approach is valid subject to a independence hypothesis between the discounting curve and some spread.
  * <P> Reference: Henrard, M. (2010). The irony in the derivatives discounting part II: the crisis. Wilmott Journal, 2(6):301-316.
  */
-public class ForwardRateAgreementDiscountingMethod implements PricingMethod {
+public final class ForwardRateAgreementDiscountingMethod implements PricingMethod {
+  private static final ForwardRateAgreementDiscountingMethod INSTANCE = new ForwardRateAgreementDiscountingMethod();
+
+  public static ForwardRateAgreementDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private ForwardRateAgreementDiscountingMethod() {
+  }
 
   /**
    * Compute the present value of a FRA by discounting.

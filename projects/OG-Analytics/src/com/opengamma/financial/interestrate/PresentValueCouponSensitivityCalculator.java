@@ -12,7 +12,8 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -55,18 +56,6 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
     return curve.getDiscountFactor(cash.getMaturity()) * cash.getYearFraction();
   }
 
-  //
-  //  @Override
-  //  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-  //    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-  //    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-  //    final double fwdAlpha = fra.getForwardYearFraction();
-  //    final double discountAlpha = fra.getDiscountingYearFraction();
-  //    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-  //    final double res = -fundingCurve.getDiscountFactor(fra.getSettlementDate()) * fwdAlpha / (1 + forward * discountAlpha);
-  //    return res;
-  //  }
-
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
@@ -79,8 +68,13 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return future.getValueYearFraction();
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return future.getPaymentAccrualFactor();
+  }
+
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return future.getUnderlyingFuture().getPaymentAccrualFactor();
   }
 
   @Override

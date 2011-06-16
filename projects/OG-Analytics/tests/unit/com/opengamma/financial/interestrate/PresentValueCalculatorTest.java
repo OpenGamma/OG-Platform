@@ -24,7 +24,8 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -66,14 +67,14 @@ public class PresentValueCalculatorTest {
     final double t = 7 / 365.0;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     double r = 1 / t * (1 / curve.getDiscountFactor(t) - 1);
-    Cash cash = new Cash(CUR, t, r, FIVE_PC_CURVE_NAME);
+    Cash cash = new Cash(CUR, t, 1, r, FIVE_PC_CURVE_NAME);
     double pv = PVC.visit(cash, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
     r = 1 / yearFrac * (curve.getDiscountFactor(tradeTime) / curve.getDiscountFactor(t) - 1);
-    cash = new Cash(CUR, t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    cash = new Cash(CUR, t, 1, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
     pv = PVC.visit(cash, CURVES);
     assertEquals(0.0, pv, 1e-12);
   }
@@ -113,24 +114,26 @@ public class PresentValueCalculatorTest {
 
   @Test
   public void testFutures() {
-    final double settlementDate = 1.473;
-    final double fixingDate = 1.467;
-    final double maturity = 1.75;
-    final double indexYearFraction = 0.267;
-    final double valueYearFraction = 0.25;
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double lastTradingTime = 1.473;
+    final double fixingPeriodStartTime = 1.467;
+    final double fixingPeriodEndTime = 1.75;
+    final double fixingPeriodAccrualFactor = 0.267;
+    final double paymentAccrualFactor = 0.25;
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
-    final double price = 100 * (1 - rate);
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
-    double pv = PVC.visit(edf, CURVES);
+    final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
+    final double price = 1 - rate;
+    final double notional = 1;
+    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price);
+    double pv = PVC.visit(ir, CURVES);
     assertEquals(0.0, pv, 1e-12);
-
-    final double deltaPrice = 1.0;
-    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price + deltaPrice, FIVE_PC_CURVE_NAME);
-    pv = PVC.visit(edf, CURVES);
-    // NB the market price of a euro dollar future depends on the future rate (strictly the rate is implied from the price) - the test here (fixed rate, but making
-    // a new future with a higher price) is equivalent to a drop in market price (implying an increase in rates), will means a negative p&l
-    assertEquals(-deltaPrice * valueYearFraction / 100, pv, 1e-12);
+    final double deltaPrice = 0.01;
+    ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price + deltaPrice);
+    pv = PVC.visit(ir, CURVES);
+    assertEquals(-deltaPrice * paymentAccrualFactor, pv, 1e-12);
   }
 
   @Test

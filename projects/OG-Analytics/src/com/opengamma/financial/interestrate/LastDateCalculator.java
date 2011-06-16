@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -79,13 +79,13 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future) {
-    return future.getMaturity();
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
+    return future.getFixingPeriodEndTime();
   }
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
-    return future.getFixingPeriodEndTime();
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
+    return future.getUnderlyingFuture().getFixingPeriodEndTime();
   }
 
   @Override

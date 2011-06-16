@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -101,12 +101,12 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final String curveName = future.getCurveName();
+  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    final String curveName = future.getForwardCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getIndexYearFraction();
+    final double ta = future.getFixingPeriodStartTime();
+    final double tb = future.getFixingPeriodEndTime();
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();
@@ -118,20 +118,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    final String curveName = future.getDiscountingCurveName(); //TODO check
-    final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getFixingPeriodStartTime(); //.getFixingDate();
-    final double tb = future.getFixingPeriodEndTime(); //getMaturity();
-    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getPaymentAccrualFactor(); //.getIndexYearFraction();
-    final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
-    final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(s1);
-    temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(curveName, temp);
-    return result;
+  public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return visitInterestRateFutureSecurity(future.getUnderlyingFuture(), curves);
   }
 
   @Override

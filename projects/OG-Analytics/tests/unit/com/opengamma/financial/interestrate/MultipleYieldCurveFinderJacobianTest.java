@@ -91,7 +91,7 @@ public class MultipleYieldCurveFinderJacobianTest {
     }
 
     for (int i = 0; i < M; i++) {
-      final InterestRateDerivative ird = new Cash(CCY, i, 0.0, FUNDING_CURVE_NAME);
+      final InterestRateDerivative ird = new Cash(CCY, i, 1, 0.0, FUNDING_CURVE_NAME);
       CASH.add(ird);
       MIXED_INSTRUMENT.add(ird);
       FUNDING_NODES[i] = i;

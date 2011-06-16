@@ -20,7 +20,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -43,8 +44,8 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testCash() {
-    final Cash c1 = new Cash(CUR, 1, R1, N1);
-    final Cash c2 = new Cash(CUR, 1, R2, N1);
+    final Cash c1 = new Cash(CUR, 1, 1, R1, N1);
+    final Cash c2 = new Cash(CUR, 1, 1, R2, N1);
     assertEquals(VISITOR.visit(c1, R2), c2);
   }
 
@@ -73,9 +74,18 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testIRFuture() {
-    final InterestRateFuture f1 = new InterestRateFuture(1, 2, 1, 100 * (1 - R1), N1);
-    final InterestRateFuture f2 = new InterestRateFuture(1, 2, 1, 100 * (1 - R2), N1);
-    assertEquals(VISITOR.visit(f1, R2), f2);
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double lastTradingTime = 1.473;
+    final double fixingPeriodStartTime = 1.467;
+    final double fixingPeriodEndTime = 1.75;
+    final double fixingPeriodAccrualFactor = 0.267;
+    final double paymentAccrualFactor = 0.25;
+    final InterestRateFutureTransaction ir1 = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, 1, paymentAccrualFactor, "K", N1, N2), 1, 1 - R1);
+    final InterestRateFutureTransaction ir2 = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, 1, paymentAccrualFactor, "K", N1, N2), 1, 1 - R2);
+    assertEquals(VISITOR.visit(ir1, R2), ir2);
   }
 
 }

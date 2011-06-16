@@ -39,7 +39,8 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -244,7 +245,7 @@ public abstract class YieldCurveFittingSetup {
     } else if ("fra".equals(type)) {
       return makeFRA(maturity, fundCurveName, indexCurveName, rate);
     } else if ("future".equals(type)) {
-      return makeFutrure(maturity, indexCurveName, rate);
+      return makeFuture(maturity, fundCurveName, indexCurveName, rate);
     } else if ("swap".equals(type)) {
       return makeSwap(maturity, fundCurveName, indexCurveName, rate);
     } else if ("basisSwap".equals(type)) {
@@ -254,20 +255,20 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate) {
-    return new Cash(CUR, time, rate, fundCurveName);
+    return new Cash(CUR, time, 1, rate, fundCurveName);
   }
 
   protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
-    return new Cash(CUR, time, rate, indexCurveName);
+    return new Cash(CUR, time, 1, rate, indexCurveName);
   }
 
   protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
     return new ForwardRateAgreement(CUR, time - 0.25, fundCurveName, 0.25, 1, INDEX, time - 0.25, time - 0.25, time, 0.25, rate, indexCurveName);
-    //return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName, final double rate) {
-    return new InterestRateFuture(time, time + 0.25, 0.25, rate, indexCurveName);
+  protected static InterestRateDerivative makeFuture(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
+    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, INDEX, time, time + 0.25, 0.25, 1, 0.25, "N", fundCurveName, indexCurveName);
+    return new InterestRateFutureTransaction(underlyingFuture, 1, rate);
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate) {

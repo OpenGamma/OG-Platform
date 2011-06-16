@@ -53,7 +53,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     for (int i = 0; i < n; i++) {
       t = i / 10.;
       SIMPLE_RATES[i] = Math.random() * 0.05;
-      DERIVATIVES.add(new Cash(CUR, t, SIMPLE_RATES[i], CURVE_NAME));
+      DERIVATIVES.add(new Cash(CUR, t, 1, SIMPLE_RATES[i], CURVE_NAME));
       CONTINUOUS_RATES[i] = (t == 0 ? SIMPLE_RATES[i] : Math.log(1 + SIMPLE_RATES[i] * t) / t);
       TIMES[i] = t;
     }
@@ -87,8 +87,8 @@ public class MultipleYieldCurveFinderFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
-    list.add(new Cash(CUR, 1, 0.01, CURVE_NAME));
-    list.add(new Cash(CUR, 0.5, 0.01, CURVE_NAME));
+    list.add(new Cash(CUR, 1, 1, 0.01, CURVE_NAME));
+    list.add(new Cash(CUR, 0.5, 1, 0.01, CURVE_NAME));
     new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
   }
 

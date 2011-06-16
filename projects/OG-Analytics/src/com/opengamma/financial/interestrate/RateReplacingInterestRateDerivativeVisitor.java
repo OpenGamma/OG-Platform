@@ -10,7 +10,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -48,7 +49,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public Cash visitCash(final Cash cash, final Double rate) {
-    return new Cash(cash.getCurrency(), cash.getMaturity(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
+    return new Cash(cash.getCurrency(), cash.getMaturity(), cash.getNotional(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
   }
 
   @Override
@@ -80,12 +81,6 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public InterestRateFuture visitInterestRateFuture(final InterestRateFuture future, final Double rate) {
-    return new InterestRateFuture(future.getSettlementDate(), future.getFixingDate(), future.getMaturity(), future.getIndexYearFraction(), future.getValueYearFraction(), 100 * (1 - rate),
-        future.getCurveName());
-  }
-
-  @Override
   public TenorSwap<? extends Payment> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Double rate) {
     return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
   }
@@ -95,4 +90,11 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
+  @Override
+  public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final Double rate) {
+    final InterestRateFutureSecurity security = future.getUnderlyingFuture();
+    return new InterestRateFutureTransaction(new InterestRateFutureSecurity(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(),
+        security.getFixingPeriodEndTime(), security.getFixingPeriodAccrualFactor(), security.getNotional(), security.getPaymentAccrualFactor(), security.getName(), security.getDiscountingCurveName(),
+        security.getForwardCurveName()), future.getQuantity(), 1 - rate);
+  }
 }
