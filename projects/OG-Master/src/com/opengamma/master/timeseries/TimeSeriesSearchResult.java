@@ -29,12 +29,12 @@ import com.opengamma.util.db.Paging;
  * <p>
  * The returned documents will match the search criteria.
  * See {@link TimeSeriesSearchRequest} for more details.
- * 
- * @param <T> LocalDate/java.util.Date
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 @BeanDefinition
-public class TimeSeriesSearchResult<T> extends DirectBean {
+public class TimeSeriesSearchResult extends DirectBean {
 
   /**
    * The paging information, not null if correctly created.
@@ -45,7 +45,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
    * The matching documents, not null.
    */
   @PropertyDefinition
-  private final List<TimeSeriesDocument<T>> _documents = new ArrayList<TimeSeriesDocument<T>>();
+  private final List<TimeSeriesDocument> _documents = new ArrayList<TimeSeriesDocument>();
 
   /**
    * Creates an instance.
@@ -57,17 +57,14 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code TimeSeriesSearchResult}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R> TimeSeriesSearchResult.Meta<R> meta() {
+  public static TimeSeriesSearchResult.Meta meta() {
     return TimeSeriesSearchResult.Meta.INSTANCE;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public TimeSeriesSearchResult.Meta<T> metaBean() {
+  public TimeSeriesSearchResult.Meta metaBean() {
     return TimeSeriesSearchResult.Meta.INSTANCE;
   }
 
@@ -90,7 +87,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
         setPaging((Paging) newValue);
         return;
       case 943542968:  // documents
-        setDocuments((List<TimeSeriesDocument<T>>) newValue);
+        setDocuments((List<TimeSeriesDocument>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -102,7 +99,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TimeSeriesSearchResult<?> other = (TimeSeriesSearchResult<?>) obj;
+      TimeSeriesSearchResult other = (TimeSeriesSearchResult) obj;
       return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
           JodaBeanUtils.equal(getDocuments(), other.getDocuments());
     }
@@ -147,7 +144,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
    * Gets the matching documents, not null.
    * @return the value of the property
    */
-  public List<TimeSeriesDocument<T>> getDocuments() {
+  public List<TimeSeriesDocument> getDocuments() {
     return _documents;
   }
 
@@ -155,7 +152,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
    * Sets the matching documents, not null.
    * @param documents  the new value of the property
    */
-  public void setDocuments(List<TimeSeriesDocument<T>> documents) {
+  public void setDocuments(List<TimeSeriesDocument> documents) {
     this._documents.clear();
     this._documents.addAll(documents);
   }
@@ -164,7 +161,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
    * Gets the the {@code documents} property.
    * @return the property, not null
    */
-  public final Property<List<TimeSeriesDocument<T>>> documents() {
+  public final Property<List<TimeSeriesDocument>> documents() {
     return metaBean().documents().createProperty(this);
   }
 
@@ -172,11 +169,10 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
   /**
    * The meta-bean for {@code TimeSeriesSearchResult}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -188,7 +184,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
      * The meta-property for the {@code documents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<TimeSeriesDocument<T>>> _documents = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<TimeSeriesDocument>> _documents = DirectMetaProperty.ofReadWrite(
         this, "documents", TimeSeriesSearchResult.class, (Class) List.class);
     /**
      * The meta-properties.
@@ -216,14 +212,13 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
     }
 
     @Override
-    public BeanBuilder<? extends TimeSeriesSearchResult<T>> builder() {
-      return new DirectBeanBuilder<TimeSeriesSearchResult<T>>(new TimeSeriesSearchResult<T>());
+    public BeanBuilder<? extends TimeSeriesSearchResult> builder() {
+      return new DirectBeanBuilder<TimeSeriesSearchResult>(new TimeSeriesSearchResult());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends TimeSeriesSearchResult<T>> beanType() {
-      return (Class) TimeSeriesSearchResult.class;
+    public Class<? extends TimeSeriesSearchResult> beanType() {
+      return TimeSeriesSearchResult.class;
     }
 
     @Override
@@ -244,7 +239,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
      * The meta-property for the {@code documents} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<TimeSeriesDocument<T>>> documents() {
+    public final MetaProperty<List<TimeSeriesDocument>> documents() {
       return _documents;
     }
 

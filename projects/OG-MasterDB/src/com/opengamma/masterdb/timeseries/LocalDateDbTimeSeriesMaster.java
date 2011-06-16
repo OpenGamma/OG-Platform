@@ -13,19 +13,19 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.master.timeseries.LocalDateTimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 
 /**
  * A time-series master implementation stores daily points using a {@code LocalDate}.
  */
-public class LocalDateDbTimeSeriesMaster extends DbTimeSeriesMaster<LocalDate> implements LocalDateTimeSeriesMaster {
+public class LocalDateDbTimeSeriesMaster extends DbTimeSeriesMaster implements TimeSeriesMaster {
 
   /**
    * Creates an instance.
@@ -69,12 +69,12 @@ public class LocalDateDbTimeSeriesMaster extends DbTimeSeriesMaster<LocalDate> i
   }
 
   @Override
-  protected DoubleTimeSeries<LocalDate> getTimeSeries(List<LocalDate> dates, List<Double> values) {
+  protected LocalDateDoubleTimeSeries getTimeSeries(List<LocalDate> dates, List<Double> values) {
     return new ArrayLocalDateDoubleTimeSeries(dates, values);
   }
 
   @Override
-  protected MutableDoubleTimeSeries<LocalDate> getMutableTimeSeries(DoubleTimeSeries<LocalDate> timeSeries) {
+  protected MutableLocalDateDoubleTimeSeries getMutableTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
     return new MapLocalDateDoubleTimeSeries(timeSeries);
   }
 

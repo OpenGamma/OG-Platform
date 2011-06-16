@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -26,10 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  * Simple time-series resolver, returns the best match from the time-series info in the data store.
  * <p>
  * This resolver relies on configuration in the configuration database.
- * 
- * @param <T> the type of the time-series, such as LocalDate/LocalDateTime
  */
-public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver {
+public class DefaultTimeSeriesInfoResolver implements TimeSeriesInfoResolver {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesInfoResolver.class);
@@ -37,7 +35,7 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
   /**
    * The time-series master.
    */
-  private final TimeSeriesMaster<T> _tsMaster;
+  private final TimeSeriesMaster _tsMaster;
   /**
    * The source of configuration.
    */
@@ -49,7 +47,7 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
    * @param timeSeriesMaster  the time-series master, not null
    * @param configSource  the configuration source, not null
    */
-  public DefaultTimeSeriesInfoResolver(TimeSeriesMaster<T> timeSeriesMaster, ConfigSource configSource) {
+  public DefaultTimeSeriesInfoResolver(TimeSeriesMaster timeSeriesMaster, ConfigSource configSource) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeseries master");
     ArgumentChecker.notNull(configSource, "configSource");
     _configSource = configSource;
@@ -63,10 +61,10 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
     ArgumentChecker.notNull(configName, "configName");
     
     // find time-series
-    TimeSeriesSearchRequest<T> searchRequest = new TimeSeriesSearchRequest<T>(securityBundle);
+    TimeSeriesSearchRequest searchRequest = new TimeSeriesSearchRequest(securityBundle);
     searchRequest.setDataField(DEFAULT_DATA_FIELD);
     searchRequest.setLoadTimeSeries(false);
-    TimeSeriesSearchResult<T> searchResult = _tsMaster.search(searchRequest);
+    TimeSeriesSearchResult searchResult = _tsMaster.search(searchRequest);
     
     // pick best using rules from configuration
     TimeSeriesInfoConfiguration ruleSet = _configSource.getLatestByName(TimeSeriesInfoConfiguration.class, configName);
@@ -85,10 +83,10 @@ public class DefaultTimeSeriesInfoResolver<T> implements TimeSeriesInfoResolver 
    * @param searchResult  the search result, not null
    * @return the list of info objects, not null
    */
-  private List<TimeSeriesInfo> extractTimeSeriesInfo(TimeSeriesSearchResult<T> searchResult) {
-    List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+  private List<TimeSeriesInfo> extractTimeSeriesInfo(TimeSeriesSearchResult searchResult) {
+    List<TimeSeriesDocument> documents = searchResult.getDocuments();
     List<TimeSeriesInfo> infoList = new ArrayList<TimeSeriesInfo>(documents.size());
-    for (TimeSeriesDocument<T> document : documents) {
+    for (TimeSeriesDocument document : documents) {
       infoList.add(document.toInfo());
     }
     return infoList;

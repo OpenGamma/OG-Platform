@@ -64,7 +64,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
    * @param timeSeriesMaster  the time series master, not null
    * @param timeSeriesLoader the timeseries loader, not null
    */
-  public WebAllTimeSeriesResource(final TimeSeriesMaster<?> timeSeriesMaster, final TimeSeriesLoader timeSeriesLoader) {
+  public WebAllTimeSeriesResource(final TimeSeriesMaster timeSeriesMaster, final TimeSeriesLoader timeSeriesLoader) {
     super(timeSeriesMaster, timeSeriesLoader);
   }
 
@@ -99,7 +99,6 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
@@ -118,7 +117,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      TimeSeriesSearchResult<?> searchResult = data().getTimeSeriesMaster().search(searchRequest);
+      TimeSeriesSearchResult searchResult = data().getTimeSeriesMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
@@ -281,7 +280,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
   @Path("{timeseriesId}")
   public WebOneTimeSeriesResource findPortfolio(@PathParam("timeseriesId") String idStr) {
     data().setUriTimeSeriesId(idStr);
-    TimeSeriesDocument<?> portfolio = data().getTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
+    TimeSeriesDocument portfolio = data().getTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
     data().setTimeSeries(portfolio);
     return new WebOneTimeSeriesResource(this);
   }
@@ -291,10 +290,9 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
-  @SuppressWarnings("rawtypes")
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    TimeSeriesSearchRequest<?> searchRequest = new TimeSeriesSearchRequest();
+    TimeSeriesSearchRequest searchRequest = new TimeSeriesSearchRequest();
     out.put("searchRequest", searchRequest);
     return out;
   }

@@ -7,8 +7,6 @@ package com.opengamma.masterdb.timeseries;
 
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -39,7 +37,7 @@ public class PerformanceTest extends DBTest {
   /**
    * The master.
    */
-  private TimeSeriesMaster<LocalDate> _tsMaster;
+  private TimeSeriesMaster _tsMaster;
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
@@ -55,7 +53,7 @@ public class PerformanceTest extends DBTest {
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    TimeSeriesMaster<LocalDate> ts = new LocalDateDbTimeSeriesMaster(
+    TimeSeriesMaster ts = new LocalDateDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
         false);
@@ -70,7 +68,7 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      TimeSeriesDocument<LocalDate> tsDocument = new TimeSeriesDocument<LocalDate>();
+      TimeSeriesDocument tsDocument = new TimeSeriesDocument();
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
@@ -88,7 +86,7 @@ public class PerformanceTest extends DBTest {
       timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
-        DataPointDocument<LocalDate> dataPointDocument = new DataPointDocument<LocalDate>();
+        DataPointDocument dataPointDocument = new DataPointDocument();
         dataPointDocument.setTimeSeriesId(tsDocument.getUniqueId());
         dataPointDocument.setDate(timeSeries.getTime(j));
         dataPointDocument.setValue(timeSeries.getValueAt(j));

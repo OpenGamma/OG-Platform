@@ -31,7 +31,7 @@ public abstract class AbstractWebTimeSeriesResource extends AbstractWebResource 
    * @param timeSeriesMaster  the time series master, not null
    * @param timeSeriesLoader the timeseries loader, not null
    */
-  protected AbstractWebTimeSeriesResource(final TimeSeriesMaster<?> timeSeriesMaster, final TimeSeriesLoader timeSeriesLoader) {
+  protected AbstractWebTimeSeriesResource(final TimeSeriesMaster timeSeriesMaster, final TimeSeriesLoader timeSeriesLoader) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
     ArgumentChecker.notNull(timeSeriesLoader, "timeSeriesLoader");
     _data = new WebTimeSeriesData();

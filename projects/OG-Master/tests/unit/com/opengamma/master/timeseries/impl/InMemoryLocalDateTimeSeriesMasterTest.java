@@ -7,51 +7,47 @@ package com.opengamma.master.timeseries.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
+
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
-import com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMaster;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Test InMemoryLocalDateTimeSeriesMaster.
  */
 @Test
-public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMasterTest<LocalDate> {
+public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMasterTest {
 
   @Override
-  protected TimeSeriesMaster<LocalDate> createTimeSeriesMaster() {
-    return new InMemoryLocalDateTimeSeriesMaster();
+  protected TimeSeriesMaster createTimeSeriesMaster() {
+    return new InMemoryHistoricalTimeSeriesMaster();
   }
 
   @Override
-  protected DoubleTimeSeries<LocalDate> getTimeSeries(MapLocalDateDoubleTimeSeries tsMap) {
+  protected LocalDateDoubleTimeSeries getTimeSeries(MapLocalDateDoubleTimeSeries tsMap) {
     return new ArrayLocalDateDoubleTimeSeries(tsMap);
   }
 
   @Override
-  protected DoubleTimeSeries<LocalDate> getEmptyTimeSeries() {
+  protected LocalDateDoubleTimeSeries getEmptyTimeSeries() {
     return new ArrayLocalDateDoubleTimeSeries();
   }
 
   @Override
-  protected DoubleTimeSeries<LocalDate> getTimeSeries(List<LocalDate> dates, List<Double> values) {
+  protected LocalDateDoubleTimeSeries getTimeSeries(List<LocalDate> dates, List<Double> values) {
     return new ArrayLocalDateDoubleTimeSeries(dates, values);
-  }
-
-  @Override
-  protected LocalDate convert(LocalDate date) {
-    return date;
   }
 
   @Override
@@ -60,11 +56,11 @@ public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMas
   }
   
   public void getTimeSeriesWithDateRange() throws Exception {
-    List<TimeSeriesDocument<LocalDate>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<LocalDate> tsDoc : tsList) {
-      DoubleTimeSeries<LocalDate> timeSeries = tsDoc.getTimeSeries();
+    List<TimeSeriesDocument> tsList = addAndTestTimeSeries();
+    for (TimeSeriesDocument tsDoc : tsList) {
+      LocalDateDoubleTimeSeries timeSeries = tsDoc.getTimeSeries();
       
-      TimeSeriesDocument<LocalDate> searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), null, null);
+      TimeSeriesDocument searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), null, null);
       assertNotNull(searchDoc);
       assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
       assertEquals(timeSeries, searchDoc.getTimeSeries());
@@ -91,8 +87,8 @@ public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMas
     }
   }
   
-  private TimeSeriesDocument<LocalDate> getHistoricalTimeSeries(IdentifierBundleWithDates identifierBundleWithDates, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
-    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
+  private TimeSeriesDocument getHistoricalTimeSeries(IdentifierBundleWithDates identifierBundleWithDates, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
+    TimeSeriesSearchRequest request = new TimeSeriesSearchRequest();
     request.setIdentifiers(identifierBundleWithDates.asIdentifierBundle());
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
@@ -101,7 +97,7 @@ public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMas
     request.setEnd(latestDate);
     request.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult<LocalDate> searchResult = getTsMaster().search(request);
+    TimeSeriesSearchResult searchResult = getTsMaster().search(request);
     return searchResult.getDocuments().get(0);
   }
 

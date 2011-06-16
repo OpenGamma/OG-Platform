@@ -7,6 +7,8 @@ package com.opengamma.master.timeseries;
 
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,19 +26,20 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * A document used to pass into and out of the time-series master.
- * 
- * @param <T> the type of time-series 
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 @BeanDefinition
-public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
+public class TimeSeriesDocument extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /**
    * The time-series unique identifier.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -71,20 +74,20 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   @PropertyDefinition
   private String _observationTime;
   /**
-   * The start date of time-series.
+   * The earliest date of time-series.
    */
   @PropertyDefinition
-  private T _latest; 
+  private LocalDate _earliest;
   /**
-   * The end date of time-series.
+   * The latest date of time-series.
    */
   @PropertyDefinition
-  private T _earliest;
+  private LocalDate _latest; 
   /**
    * The time-series.
    */
   @PropertyDefinition
-  private DoubleTimeSeries<T> _timeSeries;
+  private LocalDateDoubleTimeSeries _timeSeries;
 
   /**
    * Creates an instance.
@@ -112,17 +115,14 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code TimeSeriesDocument}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R> TimeSeriesDocument.Meta<R> meta() {
+  public static TimeSeriesDocument.Meta meta() {
     return TimeSeriesDocument.Meta.INSTANCE;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public TimeSeriesDocument.Meta<T> metaBean() {
+  public TimeSeriesDocument.Meta metaBean() {
     return TimeSeriesDocument.Meta.INSTANCE;
   }
 
@@ -141,17 +141,16 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
         return getDataField();
       case 951232793:  // observationTime
         return getObservationTime();
-      case -1109880953:  // latest
-        return getLatest();
       case -809579181:  // earliest
         return getEarliest();
+      case -1109880953:  // latest
+        return getLatest();
       case 779431844:  // timeSeries
         return getTimeSeries();
     }
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -173,14 +172,14 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
-      case -1109880953:  // latest
-        setLatest((T) newValue);
-        return;
       case -809579181:  // earliest
-        setEarliest((T) newValue);
+        setEarliest((LocalDate) newValue);
+        return;
+      case -1109880953:  // latest
+        setLatest((LocalDate) newValue);
         return;
       case 779431844:  // timeSeries
-        setTimeSeries((DoubleTimeSeries<T>) newValue);
+        setTimeSeries((LocalDateDoubleTimeSeries) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -192,15 +191,15 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TimeSeriesDocument<?> other = (TimeSeriesDocument<?>) obj;
+      TimeSeriesDocument other = (TimeSeriesDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getLatest(), other.getLatest()) &&
           JodaBeanUtils.equal(getEarliest(), other.getEarliest()) &&
+          JodaBeanUtils.equal(getLatest(), other.getLatest()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
     }
     return false;
@@ -215,8 +214,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLatest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEarliest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLatest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     return hash;
   }
@@ -224,6 +223,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -232,6 +232,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Sets the time-series unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -240,6 +241,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   /**
    * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {
@@ -388,43 +390,18 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date of time-series.
+   * Gets the earliest date of time-series.
    * @return the value of the property
    */
-  public T getLatest() {
-    return _latest;
-  }
-
-  /**
-   * Sets the start date of time-series.
-   * @param latest  the new value of the property
-   */
-  public void setLatest(T latest) {
-    this._latest = latest;
-  }
-
-  /**
-   * Gets the the {@code latest} property.
-   * @return the property, not null
-   */
-  public final Property<T> latest() {
-    return metaBean().latest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end date of time-series.
-   * @return the value of the property
-   */
-  public T getEarliest() {
+  public LocalDate getEarliest() {
     return _earliest;
   }
 
   /**
-   * Sets the end date of time-series.
+   * Sets the earliest date of time-series.
    * @param earliest  the new value of the property
    */
-  public void setEarliest(T earliest) {
+  public void setEarliest(LocalDate earliest) {
     this._earliest = earliest;
   }
 
@@ -432,8 +409,33 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
    * Gets the the {@code earliest} property.
    * @return the property, not null
    */
-  public final Property<T> earliest() {
+  public final Property<LocalDate> earliest() {
     return metaBean().earliest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the latest date of time-series.
+   * @return the value of the property
+   */
+  public LocalDate getLatest() {
+    return _latest;
+  }
+
+  /**
+   * Sets the latest date of time-series.
+   * @param latest  the new value of the property
+   */
+  public void setLatest(LocalDate latest) {
+    this._latest = latest;
+  }
+
+  /**
+   * Gets the the {@code latest} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> latest() {
+    return metaBean().latest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -441,7 +443,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
    * Gets the time-series.
    * @return the value of the property
    */
-  public DoubleTimeSeries<T> getTimeSeries() {
+  public LocalDateDoubleTimeSeries getTimeSeries() {
     return _timeSeries;
   }
 
@@ -449,7 +451,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
    * Sets the time-series.
    * @param timeSeries  the new value of the property
    */
-  public void setTimeSeries(DoubleTimeSeries<T> timeSeries) {
+  public void setTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
     this._timeSeries = timeSeries;
   }
 
@@ -457,7 +459,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
    * Gets the the {@code timeSeries} property.
    * @return the property, not null
    */
-  public final Property<DoubleTimeSeries<T>> timeSeries() {
+  public final Property<LocalDateDoubleTimeSeries> timeSeries() {
     return metaBean().timeSeries().createProperty(this);
   }
 
@@ -465,11 +467,10 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
   /**
    * The meta-bean for {@code TimeSeriesDocument}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -503,23 +504,20 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", TimeSeriesDocument.class, String.class);
     /**
-     * The meta-property for the {@code latest} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _latest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "latest", TimeSeriesDocument.class, Object.class);
-    /**
      * The meta-property for the {@code earliest} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _earliest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "earliest", TimeSeriesDocument.class, Object.class);
+    private final MetaProperty<LocalDate> _earliest = DirectMetaProperty.ofReadWrite(
+        this, "earliest", TimeSeriesDocument.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code latest} property.
+     */
+    private final MetaProperty<LocalDate> _latest = DirectMetaProperty.ofReadWrite(
+        this, "latest", TimeSeriesDocument.class, LocalDate.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<DoubleTimeSeries<T>> _timeSeries = DirectMetaProperty.ofReadWrite(
-        this, "timeSeries", TimeSeriesDocument.class, (Class) DoubleTimeSeries.class);
+    private final MetaProperty<LocalDateDoubleTimeSeries> _timeSeries = DirectMetaProperty.ofReadWrite(
+        this, "timeSeries", TimeSeriesDocument.class, LocalDateDoubleTimeSeries.class);
     /**
      * The meta-properties.
      */
@@ -531,8 +529,8 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
         "dataProvider",
         "dataField",
         "observationTime",
-        "latest",
         "earliest",
+        "latest",
         "timeSeries");
 
     /**
@@ -556,10 +554,10 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
           return _dataField;
         case 951232793:  // observationTime
           return _observationTime;
-        case -1109880953:  // latest
-          return _latest;
         case -809579181:  // earliest
           return _earliest;
+        case -1109880953:  // latest
+          return _latest;
         case 779431844:  // timeSeries
           return _timeSeries;
       }
@@ -567,14 +565,13 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
     }
 
     @Override
-    public BeanBuilder<? extends TimeSeriesDocument<T>> builder() {
-      return new DirectBeanBuilder<TimeSeriesDocument<T>>(new TimeSeriesDocument<T>());
+    public BeanBuilder<? extends TimeSeriesDocument> builder() {
+      return new DirectBeanBuilder<TimeSeriesDocument>(new TimeSeriesDocument());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends TimeSeriesDocument<T>> beanType() {
-      return (Class) TimeSeriesDocument.class;
+    public Class<? extends TimeSeriesDocument> beanType() {
+      return TimeSeriesDocument.class;
     }
 
     @Override
@@ -632,26 +629,26 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
     }
 
     /**
-     * The meta-property for the {@code latest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<T> latest() {
-      return _latest;
-    }
-
-    /**
      * The meta-property for the {@code earliest} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> earliest() {
+    public final MetaProperty<LocalDate> earliest() {
       return _earliest;
+    }
+
+    /**
+     * The meta-property for the {@code latest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> latest() {
+      return _latest;
     }
 
     /**
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DoubleTimeSeries<T>> timeSeries() {
+    public final MetaProperty<LocalDateDoubleTimeSeries> timeSeries() {
       return _timeSeries;
     }
 

@@ -29,6 +29,8 @@ import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for historic time-series.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 @BeanDefinition

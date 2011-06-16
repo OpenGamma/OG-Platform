@@ -69,7 +69,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   @PUT
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON() {
-    TimeSeriesDocument<?> tsDoc = data().getTimeSeries();
+    TimeSeriesDocument tsDoc = data().getTimeSeries();
     Response result = null;
     if (updateTimeseries(tsDoc.getUniqueId())) {
       result =  Response.ok().build();
@@ -100,7 +100,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   }
 
   private URI deleteTimeSeries() {
-    TimeSeriesDocument<?> doc = data().getTimeSeries();
+    TimeSeriesDocument doc = data().getTimeSeries();
     data().getTimeSeriesMaster().remove(doc.getUniqueId());
     URI uri = WebAllTimeSeriesResource.uri(data());
     return uri;
@@ -113,7 +113,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    TimeSeriesDocument<?> doc = data().getTimeSeries();
+    TimeSeriesDocument doc = data().getTimeSeries();
     out.put("timeseriesDoc", doc);
     out.put("timeseries", doc.getTimeSeries());
     return out;

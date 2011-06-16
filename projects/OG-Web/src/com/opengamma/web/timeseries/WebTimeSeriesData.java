@@ -35,7 +35,7 @@ public class WebTimeSeriesData extends DirectBean {
    * The time series master.
    */
   @PropertyDefinition
-  private TimeSeriesMaster<?> _timeSeriesMaster;
+  private TimeSeriesMaster _timeSeriesMaster;
   /**
    * The time series loader.
    */
@@ -55,7 +55,7 @@ public class WebTimeSeriesData extends DirectBean {
    * The loaded time series.
    */
   @PropertyDefinition
-  private TimeSeriesDocument<?> _timeSeries;
+  private TimeSeriesDocument _timeSeries;
   
   /**
    * Gets the best available security id.
@@ -105,7 +105,7 @@ public class WebTimeSeriesData extends DirectBean {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 1946549030:  // timeSeriesMaster
-        setTimeSeriesMaster((TimeSeriesMaster<?>) newValue);
+        setTimeSeriesMaster((TimeSeriesMaster) newValue);
         return;
       case 1930297559:  // timeSeriesLoader
         setTimeSeriesLoader((TimeSeriesLoader) newValue);
@@ -117,7 +117,7 @@ public class WebTimeSeriesData extends DirectBean {
         setUriTimeSeriesId((String) newValue);
         return;
       case 779431844:  // timeSeries
-        setTimeSeries((TimeSeriesDocument<?>) newValue);
+        setTimeSeries((TimeSeriesDocument) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -155,7 +155,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Gets the time series master.
    * @return the value of the property
    */
-  public TimeSeriesMaster<?> getTimeSeriesMaster() {
+  public TimeSeriesMaster getTimeSeriesMaster() {
     return _timeSeriesMaster;
   }
 
@@ -163,7 +163,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Sets the time series master.
    * @param timeSeriesMaster  the new value of the property
    */
-  public void setTimeSeriesMaster(TimeSeriesMaster<?> timeSeriesMaster) {
+  public void setTimeSeriesMaster(TimeSeriesMaster timeSeriesMaster) {
     this._timeSeriesMaster = timeSeriesMaster;
   }
 
@@ -171,7 +171,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Gets the the {@code timeSeriesMaster} property.
    * @return the property, not null
    */
-  public final Property<TimeSeriesMaster<?>> timeSeriesMaster() {
+  public final Property<TimeSeriesMaster> timeSeriesMaster() {
     return metaBean().timeSeriesMaster().createProperty(this);
   }
 
@@ -255,7 +255,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Gets the loaded time series.
    * @return the value of the property
    */
-  public TimeSeriesDocument<?> getTimeSeries() {
+  public TimeSeriesDocument getTimeSeries() {
     return _timeSeries;
   }
 
@@ -263,7 +263,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Sets the loaded time series.
    * @param timeSeries  the new value of the property
    */
-  public void setTimeSeries(TimeSeriesDocument<?> timeSeries) {
+  public void setTimeSeries(TimeSeriesDocument timeSeries) {
     this._timeSeries = timeSeries;
   }
 
@@ -271,7 +271,7 @@ public class WebTimeSeriesData extends DirectBean {
    * Gets the the {@code timeSeries} property.
    * @return the property, not null
    */
-  public final Property<TimeSeriesDocument<?>> timeSeries() {
+  public final Property<TimeSeriesDocument> timeSeries() {
     return metaBean().timeSeries().createProperty(this);
   }
 
@@ -288,9 +288,8 @@ public class WebTimeSeriesData extends DirectBean {
     /**
      * The meta-property for the {@code timeSeriesMaster} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<TimeSeriesMaster<?>> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(
-        this, "timeSeriesMaster", WebTimeSeriesData.class, (Class) TimeSeriesMaster.class);
+    private final MetaProperty<TimeSeriesMaster> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesMaster", WebTimeSeriesData.class, TimeSeriesMaster.class);
     /**
      * The meta-property for the {@code timeSeriesLoader} property.
      */
@@ -309,9 +308,8 @@ public class WebTimeSeriesData extends DirectBean {
     /**
      * The meta-property for the {@code timeSeries} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<TimeSeriesDocument<?>> _timeSeries = DirectMetaProperty.ofReadWrite(
-        this, "timeSeries", WebTimeSeriesData.class, (Class) TimeSeriesDocument.class);
+    private final MetaProperty<TimeSeriesDocument> _timeSeries = DirectMetaProperty.ofReadWrite(
+        this, "timeSeries", WebTimeSeriesData.class, TimeSeriesDocument.class);
     /**
      * The meta-properties.
      */
@@ -366,7 +364,7 @@ public class WebTimeSeriesData extends DirectBean {
      * The meta-property for the {@code timeSeriesMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TimeSeriesMaster<?>> timeSeriesMaster() {
+    public final MetaProperty<TimeSeriesMaster> timeSeriesMaster() {
       return _timeSeriesMaster;
     }
 
@@ -398,7 +396,7 @@ public class WebTimeSeriesData extends DirectBean {
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TimeSeriesDocument<?>> timeSeries() {
+    public final MetaProperty<TimeSeriesDocument> timeSeries() {
       return _timeSeries;
     }
 

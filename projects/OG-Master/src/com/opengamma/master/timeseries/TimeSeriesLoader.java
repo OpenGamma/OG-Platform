@@ -43,9 +43,9 @@ public interface TimeSeriesLoader {
    * <p>
    * This will typically update an associated {@code TimeSeriesMaster}.
    * 
-   * @param uniqueIdentifier the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return true if the operation is successful otherwise false 
    */
-  boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier);
+  boolean updateTimeSeries(UniqueIdentifier uniqueId);
 
 }

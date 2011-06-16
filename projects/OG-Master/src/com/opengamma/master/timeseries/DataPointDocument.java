@@ -7,6 +7,8 @@ package com.opengamma.master.timeseries;
 
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,13 +26,12 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to update a data point in a time-series.
- * 
- * @param <T> LocalDate/java.util.Date depending on whether this is a
- *  daily or an intraday time series
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 @BeanDefinition
-public class DataPointDocument<T> extends DirectBean {
+public class DataPointDocument extends DirectBean {
 
   /**
    * The parent time-series object identifier.
@@ -46,7 +47,7 @@ public class DataPointDocument<T> extends DirectBean {
    * The date the value refers to.
    */
   @PropertyDefinition
-  private T _date;
+  private LocalDate _date;
   /**
    * The time-series value.
    */
@@ -63,17 +64,14 @@ public class DataPointDocument<T> extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code DataPointDocument}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R> DataPointDocument.Meta<R> meta() {
+  public static DataPointDocument.Meta meta() {
     return DataPointDocument.Meta.INSTANCE;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public DataPointDocument.Meta<T> metaBean() {
+  public DataPointDocument.Meta metaBean() {
     return DataPointDocument.Meta.INSTANCE;
   }
 
@@ -92,7 +90,6 @@ public class DataPointDocument<T> extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -103,7 +100,7 @@ public class DataPointDocument<T> extends DirectBean {
         setDataPointId((UniqueIdentifier) newValue);
         return;
       case 3076014:  // date
-        setDate((T) newValue);
+        setDate((LocalDate) newValue);
         return;
       case 111972721:  // value
         setValue((Double) newValue);
@@ -118,7 +115,7 @@ public class DataPointDocument<T> extends DirectBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DataPointDocument<?> other = (DataPointDocument<?>) obj;
+      DataPointDocument other = (DataPointDocument) obj;
       return JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
           JodaBeanUtils.equal(getDataPointId(), other.getDataPointId()) &&
           JodaBeanUtils.equal(getDate(), other.getDate()) &&
@@ -192,7 +189,7 @@ public class DataPointDocument<T> extends DirectBean {
    * Gets the date the value refers to.
    * @return the value of the property
    */
-  public T getDate() {
+  public LocalDate getDate() {
     return _date;
   }
 
@@ -200,7 +197,7 @@ public class DataPointDocument<T> extends DirectBean {
    * Sets the date the value refers to.
    * @param date  the new value of the property
    */
-  public void setDate(T date) {
+  public void setDate(LocalDate date) {
     this._date = date;
   }
 
@@ -208,7 +205,7 @@ public class DataPointDocument<T> extends DirectBean {
    * Gets the the {@code date} property.
    * @return the property, not null
    */
-  public final Property<T> date() {
+  public final Property<LocalDate> date() {
     return metaBean().date().createProperty(this);
   }
 
@@ -241,11 +238,10 @@ public class DataPointDocument<T> extends DirectBean {
   /**
    * The meta-bean for {@code DataPointDocument}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -261,9 +257,8 @@ public class DataPointDocument<T> extends DirectBean {
     /**
      * The meta-property for the {@code date} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _date = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "date", DataPointDocument.class, Object.class);
+    private final MetaProperty<LocalDate> _date = DirectMetaProperty.ofReadWrite(
+        this, "date", DataPointDocument.class, LocalDate.class);
     /**
      * The meta-property for the {@code value} property.
      */
@@ -301,14 +296,13 @@ public class DataPointDocument<T> extends DirectBean {
     }
 
     @Override
-    public BeanBuilder<? extends DataPointDocument<T>> builder() {
-      return new DirectBeanBuilder<DataPointDocument<T>>(new DataPointDocument<T>());
+    public BeanBuilder<? extends DataPointDocument> builder() {
+      return new DirectBeanBuilder<DataPointDocument>(new DataPointDocument());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends DataPointDocument<T>> beanType() {
-      return (Class) DataPointDocument.class;
+    public Class<? extends DataPointDocument> beanType() {
+      return DataPointDocument.class;
     }
 
     @Override
@@ -337,7 +331,7 @@ public class DataPointDocument<T> extends DirectBean {
      * The meta-property for the {@code date} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> date() {
+    public final MetaProperty<LocalDate> date() {
       return _date;
     }
 

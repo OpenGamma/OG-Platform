@@ -49,7 +49,7 @@ public class WebTimeSeriesUris {
    * @param timeSeries  the time series, not null
    * @return the URI
    */
-  public URI oneTimeSeries(final TimeSeriesDocument<?> timeSeries) {
+  public URI oneTimeSeries(final TimeSeriesDocument timeSeries) {
     return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueId());
   }
 

@@ -36,19 +36,19 @@ import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * An in-memory implementation of a time-series master.
  */
-public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<LocalDate> {
+public class InMemoryHistoricalTimeSeriesMaster implements TimeSeriesMaster {
 
   /**
    * A cache of LocalDate time-series by identifier.
    */
-  private final ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>>();
+  private final ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument>();
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
@@ -61,7 +61,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   /**
    * Creates an empty time-series master using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemoryLocalDateTimeSeriesMaster() {
+  public InMemoryHistoricalTimeSeriesMaster() {
     this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
   }
 
@@ -70,7 +70,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
    * 
    * @param uniqueIdSupplier  the supplier of unique identifiers, not null
    */
-  private InMemoryLocalDateTimeSeriesMaster(final Supplier<UniqueIdentifier> uniqueIdSupplier) {
+  private InMemoryHistoricalTimeSeriesMaster(final Supplier<UniqueIdentifier> uniqueIdSupplier) {
     ArgumentChecker.notNull(uniqueIdSupplier, "uniqueIdSupplier");
     _uniqueIdSupplier = uniqueIdSupplier;
   }
@@ -79,8 +79,8 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     List<IdentifierBundleWithDates> result = new ArrayList<IdentifierBundleWithDates>();
-    Collection<TimeSeriesDocument<LocalDate>> docs = _timeseriesDb.values();
-    for (TimeSeriesDocument<LocalDate> tsDoc : docs) {
+    Collection<TimeSeriesDocument> docs = _timeseriesDb.values();
+    for (TimeSeriesDocument tsDoc : docs) {
       result.add(tsDoc.getIdentifiers());
     }
     return result;
@@ -88,16 +88,16 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
 
   //-------------------------------------------------------------------------
   @Override
-  public TimeSeriesSearchResult<LocalDate> search(final TimeSeriesSearchRequest<LocalDate> request) {
+  public TimeSeriesSearchResult search(final TimeSeriesSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    List<TimeSeriesDocument<LocalDate>> list = new ArrayList<TimeSeriesDocument<LocalDate>>();
-    for (TimeSeriesDocument<LocalDate> doc : _timeseriesDb.values()) {
+    List<TimeSeriesDocument> list = new ArrayList<TimeSeriesDocument>();
+    for (TimeSeriesDocument doc : _timeseriesDb.values()) {
       if (request.matches(doc)) {
         list.add(filter(
             doc, request.isLoadEarliestLatest(), request.isLoadTimeSeries(), request.getStart(), request.getEnd()));
       }
     }
-    final TimeSeriesSearchResult<LocalDate> result = new TimeSeriesSearchResult<LocalDate>();
+    final TimeSeriesSearchResult result = new TimeSeriesSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
@@ -105,23 +105,23 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
 
   //-------------------------------------------------------------------------
   @Override
-  public TimeSeriesDocument<LocalDate> get(UniqueIdentifier uniqueId) {
+  public TimeSeriesDocument get(UniqueIdentifier uniqueId) {
     validateTimeSeriesId(uniqueId);
-    final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(uniqueId);
+    final TimeSeriesDocument document = _timeseriesDb.get(uniqueId);
     if (document == null) {
       throw new DataNotFoundException("Time-series not found: " + uniqueId);
     }
     return document;
   }
 
-  public TimeSeriesDocument<LocalDate> get(TimeSeriesGetRequest<LocalDate> request) {
-    final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(request.getUniqueId());
+  public TimeSeriesDocument get(TimeSeriesGetRequest request) {
+    final TimeSeriesDocument document = _timeseriesDb.get(request.getUniqueId());
     return filter(document, request.isLoadEarliestLatest(), request.isLoadTimeSeries(), request.getStart(), request.getEnd());
   }
 
-  private TimeSeriesDocument<LocalDate> filter(
-      TimeSeriesDocument<LocalDate> original, boolean loadEarliestLatest, boolean loadTimeSeries, LocalDate start, LocalDate end) {
-    TimeSeriesDocument<LocalDate> copy = original;
+  private TimeSeriesDocument filter(
+      TimeSeriesDocument original, boolean loadEarliestLatest, boolean loadTimeSeries, LocalDate start, LocalDate end) {
+    TimeSeriesDocument copy = original;
     if (loadEarliestLatest) {
       copy = clone(original, copy);
       copy.setLatest(copy.getTimeSeries().getLatestTime());
@@ -130,7 +130,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     if (loadTimeSeries) {
       if (start != null && end != null) {
         copy = clone(original, copy);
-        DoubleTimeSeries<LocalDate> subseries = copy.getTimeSeries().subSeries(start, true, end, false);
+        LocalDateDoubleTimeSeries subseries = copy.getTimeSeries().subSeries(start, true, end, false).toLocalDateDoubleTimeSeries();
         copy.setTimeSeries(subseries);
       }
     } else {
@@ -140,11 +140,11 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     return copy;
   }
 
-  private TimeSeriesDocument<LocalDate> clone(TimeSeriesDocument<LocalDate> original, TimeSeriesDocument<LocalDate> copy) {
+  private TimeSeriesDocument clone(TimeSeriesDocument original, TimeSeriesDocument copy) {
     if (copy != original) {
       return copy;
     }
-    copy = new TimeSeriesDocument<LocalDate>();
+    copy = new TimeSeriesDocument();
     for (MetaProperty<Object> mp : original.metaBean().metaPropertyIterable()) {
       mp.set(copy, mp.get(original));
     }
@@ -153,11 +153,11 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
 
   //-------------------------------------------------------------------------
   @Override
-  public TimeSeriesDocument<LocalDate> add(TimeSeriesDocument<LocalDate> document) {
+  public TimeSeriesDocument add(TimeSeriesDocument document) {
     validateTimeSeriesDocument(document);
     if (!contains(document)) {
       final UniqueIdentifier uniqueId = _uniqueIdSupplier.get();
-      final TimeSeriesDocument<LocalDate> doc = new TimeSeriesDocument<LocalDate>();
+      final TimeSeriesDocument doc = new TimeSeriesDocument();
       doc.setUniqueId(uniqueId);
       doc.setDataField(document.getDataField());
       doc.setDataProvider(document.getDataProvider());
@@ -173,7 +173,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     }
   }
 
-  private boolean contains(TimeSeriesDocument<LocalDate> document) {
+  private boolean contains(TimeSeriesDocument document) {
     for (IdentifierWithDates identifierWithDates : document.getIdentifiers()) {
       Identifier identifier = identifierWithDates.asIdentifier();
       UniqueIdentifier uniqueId = resolveIdentifier(
@@ -190,12 +190,12 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public TimeSeriesDocument<LocalDate> update(TimeSeriesDocument<LocalDate> document) {
+  public TimeSeriesDocument update(TimeSeriesDocument document) {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     validateTimeSeriesDocument(document);
     
     final UniqueIdentifier uniqueId = document.getUniqueId();
-    final TimeSeriesDocument<LocalDate> storedDocument = _timeseriesDb.get(uniqueId);
+    final TimeSeriesDocument storedDocument = _timeseriesDb.get(uniqueId);
     if (storedDocument == null) {
       throw new DataNotFoundException("Time-series not found: " + uniqueId);
     }
@@ -214,12 +214,12 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public TimeSeriesSearchHistoricResult<LocalDate> searchHistoric(final TimeSeriesSearchHistoricRequest request) {
+  public TimeSeriesSearchHistoricResult searchHistoric(final TimeSeriesSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeSeriesId");
     
-    final TimeSeriesSearchHistoricResult<LocalDate> result = new TimeSeriesSearchHistoricResult<LocalDate>();
-    TimeSeriesDocument<LocalDate> doc = get(request.getTimeSeriesId());
+    final TimeSeriesSearchHistoricResult result = new TimeSeriesSearchHistoricResult();
+    TimeSeriesDocument doc = get(request.getTimeSeriesId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
@@ -228,7 +228,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public DataPointDocument<LocalDate> updateDataPoint(DataPointDocument<LocalDate> document) {
+  public DataPointDocument updateDataPoint(DataPointDocument document) {
     ArgumentChecker.notNull(document, "dataPoint document");
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
@@ -236,8 +236,8 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
     validateTimeSeriesId(timeSeriesId);
     
-    TimeSeriesDocument<LocalDate> storeDoc = _timeseriesDb.get(timeSeriesId);
-    DoubleTimeSeries<LocalDate> timeSeries = storeDoc.getTimeSeries();
+    TimeSeriesDocument storeDoc = _timeseriesDb.get(timeSeriesId);
+    LocalDateDoubleTimeSeries timeSeries = storeDoc.getTimeSeries();
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries(timeSeries);
     mutableTS.putDataPoint(document.getDate(), document.getValue());
     storeDoc.setTimeSeries(mutableTS);
@@ -245,17 +245,17 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public DataPointDocument<LocalDate> addDataPoint(DataPointDocument<LocalDate> document) {
+  public DataPointDocument addDataPoint(DataPointDocument document) {
     ArgumentChecker.notNull(document, "dataPoint document");
     ArgumentChecker.notNull(document.getDate(), "data point date");
     ArgumentChecker.notNull(document.getValue(), "data point value");
     UniqueIdentifier timeSeriesId = document.getTimeSeriesId();
     validateTimeSeriesId(timeSeriesId);
     
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(timeSeriesId);
+    TimeSeriesDocument storedDoc = _timeseriesDb.get(timeSeriesId);
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries();
     mutableTS.putDataPoint(document.getDate(), document.getValue());
-    DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(mutableTS);
+    LocalDateDoubleTimeSeries mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(mutableTS).toLocalDateDoubleTimeSeries();
     storedDoc.setTimeSeries(mergedTS);
     
     String uniqueId = new StringBuilder(timeSeriesId.getValue()).append("/").append(DateUtil.printYYYYMMDD(document.getDate())).toString();
@@ -265,18 +265,18 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public DataPointDocument<LocalDate> getDataPoint(UniqueIdentifier uniqueId) {
+  public DataPointDocument getDataPoint(UniqueIdentifier uniqueId) {
     Pair<Long, LocalDate> uniqueIdPair = validateAndGetDataPointId(uniqueId);
     
     Long tsId = uniqueIdPair.getFirst();
     LocalDate date = uniqueIdPair.getSecond();
     
-    final DataPointDocument<LocalDate> result = new DataPointDocument<LocalDate>();
+    final DataPointDocument result = new DataPointDocument();
     result.setDate(uniqueIdPair.getSecond());
     result.setTimeSeriesId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     result.setDataPointId(uniqueId);
     
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
+    TimeSeriesDocument storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     Double value = storedDoc.getTimeSeries().getValue(date);
     result.setValue(value);
        
@@ -317,26 +317,24 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     Pair<Long, LocalDate> uniqueIdPair = validateAndGetDataPointId(uniqueId);
     
     Long tsId = uniqueIdPair.getFirst();
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
+    TimeSeriesDocument storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries(storedDoc.getTimeSeries());
     mutableTS.removeDataPoint(uniqueIdPair.getSecond());
     storedDoc.setTimeSeries(mutableTS);
   }
 
-  
-
   @Override
-  public void appendTimeSeries(TimeSeriesDocument<LocalDate> document) {
+  public void appendTimeSeries(TimeSeriesDocument document) {
     validateTimeSeriesDocument(document);
     
     validateTimeSeriesId(document.getUniqueId());
     UniqueIdentifier uniqueId = document.getUniqueId();
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(uniqueId);
-    DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries());
+    TimeSeriesDocument storedDoc = _timeseriesDb.get(uniqueId);
+    LocalDateDoubleTimeSeries mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries()).toLocalDateDoubleTimeSeries();
     storedDoc.setTimeSeries(mergedTS);
   }
-  
+
   @Override
   public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField) {
     return resolveIdentifier(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField);
@@ -349,9 +347,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
     
-    for (Entry<UniqueIdentifier, TimeSeriesDocument<LocalDate>> entry : _timeseriesDb.entrySet()) {
+    for (Entry<UniqueIdentifier, TimeSeriesDocument> entry : _timeseriesDb.entrySet()) {
       UniqueIdentifier uniqueId = entry.getKey();
-      TimeSeriesDocument<LocalDate> tsDoc = entry.getValue();
+      TimeSeriesDocument tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
         for (IdentifierWithDates idWithDates : tsDoc.getIdentifiers()) {
           if (securityKey.contains(idWithDates.asIdentifier())) {
@@ -374,9 +372,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   @Override
   public void removeDataPoints(UniqueIdentifier timeSeriesUid, LocalDate firstDateToRetain) {
     validateTimeSeriesId(timeSeriesUid);
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(timeSeriesUid);
-    DoubleTimeSeries<LocalDate> timeSeries = storedDoc.getTimeSeries();
-    DoubleTimeSeries<LocalDate> subSeries = timeSeries.subSeries(firstDateToRetain, true, timeSeries.getLatestTime(), false);
+    TimeSeriesDocument storedDoc = _timeseriesDb.get(timeSeriesUid);
+    LocalDateDoubleTimeSeries timeSeries = storedDoc.getTimeSeries();
+    LocalDateDoubleTimeSeries subSeries = timeSeries.subSeries(firstDateToRetain, true, timeSeries.getLatestTime(), false).toLocalDateDoubleTimeSeries();
     storedDoc.setTimeSeries(subSeries);
   }
 
@@ -391,7 +389,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     }
   }
 
-  private void validateTimeSeriesDocument(TimeSeriesDocument<LocalDate> document) {
+  private void validateTimeSeriesDocument(TimeSeriesDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getTimeSeries(), "document.timeSeries");
     ArgumentChecker.notNull(document.getIdentifiers(), "document.identifiers");

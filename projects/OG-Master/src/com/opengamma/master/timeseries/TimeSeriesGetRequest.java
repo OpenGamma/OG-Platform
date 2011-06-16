@@ -7,6 +7,8 @@ package com.opengamma.master.timeseries;
 
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,12 +31,10 @@ import com.opengamma.util.PublicSPI;
  * to filter the resulting document.
  * <p>
  * This class is mutable and not thread-safe.
- * 
- * @param <T> LocalDate/Instant
  */
 @PublicSPI
 @BeanDefinition
-public class TimeSeriesGetRequest<T> extends DirectBean {
+public class TimeSeriesGetRequest extends DirectBean {
 
   /**
    * The unique identifier of the time-series.
@@ -55,17 +55,17 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
   @PropertyDefinition
   private boolean _loadEarliestLatest = true;
   /**
-   * The start time, inclusive, null returns data from the earliest valid time.
+   * The start date, inclusive, null returns data from the earliest valid date.
    * This is null by default.
    */
   @PropertyDefinition
-  private T _start; 
+  private LocalDate _start; 
   /**
-   * The end time, inclusive, null returns data up to the latest valid time.
+   * The end date, inclusive, null returns data up to the latest valid date.
    * This is null by default.
    */
   @PropertyDefinition
-  private T _end;
+  private LocalDate _end;
 
   /**
    * Creates an instance.
@@ -86,17 +86,14 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code TimeSeriesGetRequest}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R> TimeSeriesGetRequest.Meta<R> meta() {
+  public static TimeSeriesGetRequest.Meta meta() {
     return TimeSeriesGetRequest.Meta.INSTANCE;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public TimeSeriesGetRequest.Meta<T> metaBean() {
+  public TimeSeriesGetRequest.Meta metaBean() {
     return TimeSeriesGetRequest.Meta.INSTANCE;
   }
 
@@ -117,7 +114,6 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -131,10 +127,10 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
         setLoadEarliestLatest((Boolean) newValue);
         return;
       case 109757538:  // start
-        setStart((T) newValue);
+        setStart((LocalDate) newValue);
         return;
       case 100571:  // end
-        setEnd((T) newValue);
+        setEnd((LocalDate) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -146,7 +142,7 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TimeSeriesGetRequest<?> other = (TimeSeriesGetRequest<?>) obj;
+      TimeSeriesGetRequest other = (TimeSeriesGetRequest) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(isLoadTimeSeries(), other.isLoadTimeSeries()) &&
           JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest()) &&
@@ -253,20 +249,20 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start time, inclusive, null returns data from the earliest valid time.
+   * Gets the start date, inclusive, null returns data from the earliest valid date.
    * This is null by default.
    * @return the value of the property
    */
-  public T getStart() {
+  public LocalDate getStart() {
     return _start;
   }
 
   /**
-   * Sets the start time, inclusive, null returns data from the earliest valid time.
+   * Sets the start date, inclusive, null returns data from the earliest valid date.
    * This is null by default.
    * @param start  the new value of the property
    */
-  public void setStart(T start) {
+  public void setStart(LocalDate start) {
     this._start = start;
   }
 
@@ -275,26 +271,26 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
    * This is null by default.
    * @return the property, not null
    */
-  public final Property<T> start() {
+  public final Property<LocalDate> start() {
     return metaBean().start().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end time, inclusive, null returns data up to the latest valid time.
+   * Gets the end date, inclusive, null returns data up to the latest valid date.
    * This is null by default.
    * @return the value of the property
    */
-  public T getEnd() {
+  public LocalDate getEnd() {
     return _end;
   }
 
   /**
-   * Sets the end time, inclusive, null returns data up to the latest valid time.
+   * Sets the end date, inclusive, null returns data up to the latest valid date.
    * This is null by default.
    * @param end  the new value of the property
    */
-  public void setEnd(T end) {
+  public void setEnd(LocalDate end) {
     this._end = end;
   }
 
@@ -303,7 +299,7 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
    * This is null by default.
    * @return the property, not null
    */
-  public final Property<T> end() {
+  public final Property<LocalDate> end() {
     return metaBean().end().createProperty(this);
   }
 
@@ -311,11 +307,10 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
   /**
    * The meta-bean for {@code TimeSeriesGetRequest}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -336,15 +331,13 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
     /**
      * The meta-property for the {@code start} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _start = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "start", TimeSeriesGetRequest.class, Object.class);
+    private final MetaProperty<LocalDate> _start = DirectMetaProperty.ofReadWrite(
+        this, "start", TimeSeriesGetRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code end} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _end = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "end", TimeSeriesGetRequest.class, Object.class);
+    private final MetaProperty<LocalDate> _end = DirectMetaProperty.ofReadWrite(
+        this, "end", TimeSeriesGetRequest.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -380,14 +373,13 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
     }
 
     @Override
-    public BeanBuilder<? extends TimeSeriesGetRequest<T>> builder() {
-      return new DirectBeanBuilder<TimeSeriesGetRequest<T>>(new TimeSeriesGetRequest<T>());
+    public BeanBuilder<? extends TimeSeriesGetRequest> builder() {
+      return new DirectBeanBuilder<TimeSeriesGetRequest>(new TimeSeriesGetRequest());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends TimeSeriesGetRequest<T>> beanType() {
-      return (Class) TimeSeriesGetRequest.class;
+    public Class<? extends TimeSeriesGetRequest> beanType() {
+      return TimeSeriesGetRequest.class;
     }
 
     @Override
@@ -424,7 +416,7 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
      * The meta-property for the {@code start} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> start() {
+    public final MetaProperty<LocalDate> start() {
       return _start;
     }
 
@@ -432,7 +424,7 @@ public class TimeSeriesGetRequest<T> extends DirectBean {
      * The meta-property for the {@code end} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> end() {
+    public final MetaProperty<LocalDate> end() {
       return _end;
     }
 

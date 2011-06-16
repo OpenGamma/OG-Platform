@@ -6,19 +6,21 @@
 package com.opengamma.master.timeseries.impl;
 
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_PROVIDER_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.DATA_SOURCE_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesInfoFieldNames.STAR_VALUE;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
@@ -28,11 +30,11 @@ import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
-import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesInfo;
 import com.opengamma.master.timeseries.TimeSeriesInfoResolver;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test DefaultTimeSeriesResolver.
@@ -50,14 +52,14 @@ public class DefaultTimeSeriesInfoResolverTest {
   private static final String[] DATA_SOURCES = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
   private static final String CONFIG_DOC_NAME = "TEST";
 
-  private DefaultTimeSeriesInfoResolver<LocalDate> _infoResolver;
-  private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
+  private DefaultTimeSeriesInfoResolver _infoResolver;
+  private TimeSeriesMaster _tsMaster = new InMemoryHistoricalTimeSeriesMaster();
 
   @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
-    _infoResolver = new DefaultTimeSeriesInfoResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
+    _infoResolver = new DefaultTimeSeriesInfoResolver(_tsMaster, new MasterConfigSource(configMaster));
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
@@ -104,8 +106,8 @@ public class DefaultTimeSeriesInfoResolverTest {
     }
   }
 
-  protected List<TimeSeriesDocument<LocalDate>> addAndTestTimeSeries() {
-    List<TimeSeriesDocument<LocalDate>> result = new ArrayList<TimeSeriesDocument<LocalDate>>(); 
+  protected List<TimeSeriesDocument> addAndTestTimeSeries() {
+    List<TimeSeriesDocument> result = new ArrayList<TimeSeriesDocument>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       IdentifierBundle identifiers = IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
       
@@ -113,13 +115,13 @@ public class DefaultTimeSeriesInfoResolverTest {
       for (String dataSource : DATA_SOURCES) {
         for (String dataProvider : DATA_PROVIDERS) {
           for (String datafield : DATA_FIELDS) {
-            TimeSeriesDocument<LocalDate> tsDocument = new TimeSeriesDocument<LocalDate>();
+            TimeSeriesDocument tsDocument = new TimeSeriesDocument();
             tsDocument.setDataField(datafield);
             tsDocument.setDataProvider(dataProvider);
             tsDocument.setDataSource(dataSource);
             tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
             tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
-            DoubleTimeSeries<LocalDate> timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, 7);
+            LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, 7);
             assertTrue(timeSeries.size() == 7);
             assertEquals(start, timeSeries.getEarliestTime());
             tsDocument.setTimeSeries(timeSeries);
@@ -129,7 +131,7 @@ public class DefaultTimeSeriesInfoResolverTest {
             assertNotNull(tsDocument);
             assertNotNull(tsDocument.getUniqueId());
             
-            TimeSeriesDocument<LocalDate> actualDoc = _tsMaster.get(tsDocument.getUniqueId());
+            TimeSeriesDocument actualDoc = _tsMaster.get(tsDocument.getUniqueId());
             assertNotNull(actualDoc);
             assertEquals(timeSeries, actualDoc.getTimeSeries());
             result.add(tsDocument);
@@ -139,4 +141,5 @@ public class DefaultTimeSeriesInfoResolverTest {
     }
     return result;
   }
+
 }

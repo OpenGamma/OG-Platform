@@ -7,6 +7,8 @@ package com.opengamma.masterdb.timeseries;
 
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +29,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
  * This is for the internal use of the data store.
  */
 @BeanDefinition
-/*package*/ class MetaData<T> extends DirectBean {
+/*package*/ class MetaData extends DirectBean {
 
   /**
    * The time series db id.
@@ -68,12 +70,12 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * The start date.
    */
   @PropertyDefinition
-  private T _earliestDate;
+  private LocalDate _earliestDate;
   /**
    * The end date.
    */
   @PropertyDefinition
-  private T _latestDate;
+  private LocalDate _latestDate;
 
   /**
    * Creates an instance.
@@ -85,17 +87,14 @@ import com.opengamma.id.IdentifierBundleWithDates;
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code MetaData}.
-   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
-  public static <R> MetaData.Meta<R> meta() {
+  public static MetaData.Meta meta() {
     return MetaData.Meta.INSTANCE;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public MetaData.Meta<T> metaBean() {
+  public MetaData.Meta metaBean() {
     return MetaData.Meta.INSTANCE;
   }
 
@@ -124,7 +123,6 @@ import com.opengamma.id.IdentifierBundleWithDates;
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -150,10 +148,10 @@ import com.opengamma.id.IdentifierBundleWithDates;
         setIdentifiers((IdentifierBundleWithDates) newValue);
         return;
       case 239226785:  // earliestDate
-        setEarliestDate((T) newValue);
+        setEarliestDate((LocalDate) newValue);
         return;
       case -125315115:  // latestDate
-        setLatestDate((T) newValue);
+        setLatestDate((LocalDate) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -165,7 +163,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MetaData<?> other = (MetaData<?>) obj;
+      MetaData other = (MetaData) obj;
       return JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
           JodaBeanUtils.equal(getIdentifierBundleId(), other.getIdentifierBundleId()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
@@ -374,7 +372,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Gets the start date.
    * @return the value of the property
    */
-  public T getEarliestDate() {
+  public LocalDate getEarliestDate() {
     return _earliestDate;
   }
 
@@ -382,7 +380,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Sets the start date.
    * @param earliestDate  the new value of the property
    */
-  public void setEarliestDate(T earliestDate) {
+  public void setEarliestDate(LocalDate earliestDate) {
     this._earliestDate = earliestDate;
   }
 
@@ -390,7 +388,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Gets the the {@code earliestDate} property.
    * @return the property, not null
    */
-  public final Property<T> earliestDate() {
+  public final Property<LocalDate> earliestDate() {
     return metaBean().earliestDate().createProperty(this);
   }
 
@@ -399,7 +397,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Gets the end date.
    * @return the value of the property
    */
-  public T getLatestDate() {
+  public LocalDate getLatestDate() {
     return _latestDate;
   }
 
@@ -407,7 +405,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Sets the end date.
    * @param latestDate  the new value of the property
    */
-  public void setLatestDate(T latestDate) {
+  public void setLatestDate(LocalDate latestDate) {
     this._latestDate = latestDate;
   }
 
@@ -415,7 +413,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
    * Gets the the {@code latestDate} property.
    * @return the property, not null
    */
-  public final Property<T> latestDate() {
+  public final Property<LocalDate> latestDate() {
     return metaBean().latestDate().createProperty(this);
   }
 
@@ -423,11 +421,10 @@ import com.opengamma.id.IdentifierBundleWithDates;
   /**
    * The meta-bean for {@code MetaData}.
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -468,15 +465,13 @@ import com.opengamma.id.IdentifierBundleWithDates;
     /**
      * The meta-property for the {@code earliestDate} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _earliestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "earliestDate", MetaData.class, Object.class);
+    private final MetaProperty<LocalDate> _earliestDate = DirectMetaProperty.ofReadWrite(
+        this, "earliestDate", MetaData.class, LocalDate.class);
     /**
      * The meta-property for the {@code latestDate} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _latestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "latestDate", MetaData.class, Object.class);
+    private final MetaProperty<LocalDate> _latestDate = DirectMetaProperty.ofReadWrite(
+        this, "latestDate", MetaData.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -524,14 +519,13 @@ import com.opengamma.id.IdentifierBundleWithDates;
     }
 
     @Override
-    public BeanBuilder<? extends MetaData<T>> builder() {
-      return new DirectBeanBuilder<MetaData<T>>(new MetaData<T>());
+    public BeanBuilder<? extends MetaData> builder() {
+      return new DirectBeanBuilder<MetaData>(new MetaData());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends MetaData<T>> beanType() {
-      return (Class) MetaData.class;
+    public Class<? extends MetaData> beanType() {
+      return MetaData.class;
     }
 
     @Override
@@ -600,7 +594,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
      * The meta-property for the {@code earliestDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> earliestDate() {
+    public final MetaProperty<LocalDate> earliestDate() {
       return _earliestDate;
     }
 
@@ -608,7 +602,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
      * The meta-property for the {@code latestDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> latestDate() {
+    public final MetaProperty<LocalDate> latestDate() {
       return _latestDate;
     }
 

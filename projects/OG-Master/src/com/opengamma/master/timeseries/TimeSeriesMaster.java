@@ -16,15 +16,13 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A general-purpose time-series master.
+ * A general-purpose daily historical time-series master.
  * <p>
  * The time-series master provides a uniform view over the time-series database.
  * This interface provides methods that allow the master to be searched and updated.
- * 
- * @param <T> Type of time series (LocalDate/Date) to operate on
  */
 @PublicSPI
-public interface TimeSeriesMaster<T> {
+public interface TimeSeriesMaster {
 
   /**
    * Value for unknown data provider in the database.
@@ -49,7 +47,7 @@ public interface TimeSeriesMaster<T> {
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  TimeSeriesSearchResult<T> search(TimeSeriesSearchRequest<T> request);
+  TimeSeriesSearchResult search(TimeSeriesSearchRequest request);
 
   /**
    * Gets a time-series by unique identifier.
@@ -59,7 +57,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  TimeSeriesDocument<T> get(UniqueIdentifier uniqueId);
+  TimeSeriesDocument get(UniqueIdentifier uniqueId);
 
   /**
    * Gets a time-series document controlling the amount of data returned.
@@ -73,7 +71,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  TimeSeriesDocument<T> get(TimeSeriesGetRequest<T> request);
+  TimeSeriesDocument get(TimeSeriesGetRequest request);
 
   /**
    * Adds a time-series to the data store.
@@ -84,7 +82,7 @@ public interface TimeSeriesMaster<T> {
    * @return the added document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  TimeSeriesDocument<T> add(TimeSeriesDocument<T> document);
+  TimeSeriesDocument add(TimeSeriesDocument document);
 
   /**
    * Updates a time-series in the data store.
@@ -96,7 +94,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no time-series with that unique identifier
    */
-  TimeSeriesDocument<T> update(TimeSeriesDocument<T> document);
+  TimeSeriesDocument update(TimeSeriesDocument document);
 
   /**
    * Removes a time-series from the data store.
@@ -115,7 +113,7 @@ public interface TimeSeriesMaster<T> {
    * @param request  the search request, not null
    * @return the search result, not null
    */
-  TimeSeriesSearchHistoricResult<T> searchHistoric(TimeSeriesSearchHistoricRequest request);
+  TimeSeriesSearchHistoricResult searchHistoric(TimeSeriesSearchHistoricRequest request);
 
   //-------------------------------------------------------------------------
   /**
@@ -128,7 +126,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  DataPointDocument<T> getDataPoint(UniqueIdentifier dataPointId);
+  DataPointDocument getDataPoint(UniqueIdentifier dataPointId);
 
   /**
    * Adds a data point to an existing time-series in the data store.
@@ -137,7 +135,7 @@ public interface TimeSeriesMaster<T> {
    * @return the added document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  DataPointDocument<T> addDataPoint(DataPointDocument<T> document);
+  DataPointDocument addDataPoint(DataPointDocument document);
 
   /**
    * Updates a data point in the data store.
@@ -149,7 +147,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  DataPointDocument<T> updateDataPoint(DataPointDocument<T> document);
+  DataPointDocument updateDataPoint(DataPointDocument document);
 
   /**
    * Removes a data point from a time-series in the data store.
@@ -173,7 +171,7 @@ public interface TimeSeriesMaster<T> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void appendTimeSeries(TimeSeriesDocument<T> document);
+  void appendTimeSeries(TimeSeriesDocument document);
 
   /**
    * Removes all data points before the given date.
@@ -183,7 +181,7 @@ public interface TimeSeriesMaster<T> {
    * @param timeSeriesId  the time-series to operate on, not null
    * @param firstDateToRetain  remove all data points before this date, not null
    */
-  void removeDataPoints(UniqueIdentifier timeSeriesId, T firstDateToRetain);
+  void removeDataPoints(UniqueIdentifier timeSeriesId, LocalDate firstDateToRetain);
 
   //-------------------------------------------------------------------------
   /**
