@@ -22,6 +22,8 @@ import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
+import com.opengamma.web.historicaldata.WebHistoricalDataData;
+import com.opengamma.web.historicaldata.WebHistoricalDataUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
 import com.opengamma.web.portfolio.WebPortfoliosData;
@@ -32,8 +34,6 @@ import com.opengamma.web.region.WebRegionData;
 import com.opengamma.web.region.WebRegionUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
-import com.opengamma.web.timeseries.WebHistoricalDataData;
-import com.opengamma.web.timeseries.WebHistoricalDataUris;
 
 /**
  * RESTful resource for the home page.

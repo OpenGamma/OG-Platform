@@ -157,10 +157,10 @@
   </bean>
   <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
     <constructor-arg>
-      <bean class="com.opengamma.master.timeseries.impl.MasterHistoricalDataSource">
+      <bean class="com.opengamma.master.historicaldata.impl.MasterHistoricalDataSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
-          <bean class="com.opengamma.master.timeseries.impl.DefaultTimeSeriesInfoResolver">
+          <bean class="com.opengamma.master.historicaldata.impl.DefaultHistoricalDataInfoResolver">
           	<constructor-arg ref="timeseriesMaster"/>
           	<constructor-arg ref="sharedConfigSource"/>
           </bean>
