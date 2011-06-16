@@ -64,7 +64,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   //  private static final String[] CURVES = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
       NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD = new InterestRateFutureSecurityDiscountingMethod();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
 
   @Test
@@ -72,10 +72,10 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the price computed from the curves
    */
   public void price() {
-    double price = METHOD.price(ERU2, CURVES);
-    YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
-    double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
-    double expectedPrice = 1.0 - forward;
+    final double price = METHOD.price(ERU2, CURVES);
+    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
+    final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
+    final double expectedPrice = 1.0 - forward;
     assertEquals("Future price from curves", expectedPrice, price);
   }
 
@@ -84,9 +84,9 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the rate computed from the curves
    */
   public void parRate() {
-    double rate = METHOD.parRate(ERU2, CURVES);
-    YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
-    double expectedRate = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
+    final double rate = METHOD.parRate(ERU2, CURVES);
+    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
+    final double expectedRate = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
     assertEquals("Future price from curves", expectedRate, rate, 1.0E-10);
   }
 
@@ -95,9 +95,9 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the rate computed from the method and from the calculator.
    */
   public void parRateMethodVsCalculator() {
-    double rateMethod = METHOD.parRate(ERU2, CURVES);
-    ParRateCalculator calculator = ParRateCalculator.getInstance();
-    double rateCalculator = calculator.visit(ERU2, CURVES);
+    final double rateMethod = METHOD.parRate(ERU2, CURVES);
+    final ParRateCalculator calculator = ParRateCalculator.getInstance();
+    final double rateCalculator = calculator.visit(ERU2, CURVES);
     assertEquals("Future price from curves", rateMethod, rateCalculator, 1.0E-10);
   }
 

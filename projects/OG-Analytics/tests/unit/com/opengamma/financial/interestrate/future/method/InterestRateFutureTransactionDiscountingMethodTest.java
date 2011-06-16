@@ -75,7 +75,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final double TRADE_PRICE = 0.985;
   private static final InterestRateFutureTransaction FUTURE_TRANSACTION = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
   // Method
-  private static final InterestRateFutureTransactionDiscountingMethod METHOD = new InterestRateFutureTransactionDiscountingMethod();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
 
   @Test
@@ -151,7 +151,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
    * Test the rate computed from the method and from the calculator.
    */
   public void parRateMethodVsCalculator() {
-    final InterestRateFutureSecurityDiscountingMethod methodSecurity = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod methodSecurity = InterestRateFutureSecurityDiscountingMethod.getInstance();
     final double rateMethod = methodSecurity.parRate(FUTURE_TRANSACTION.getUnderlyingFuture(), CURVES);
     final ParRateCalculator calculator = ParRateCalculator.getInstance();
     final double rateCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);

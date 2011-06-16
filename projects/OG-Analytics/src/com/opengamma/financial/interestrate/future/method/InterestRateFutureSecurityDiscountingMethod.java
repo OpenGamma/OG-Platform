@@ -15,7 +15,15 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * Method to compute the price for an interest rate future with discounting (like a forward). 
  * No convexity adjustment is done. 
  */
-public class InterestRateFutureSecurityDiscountingMethod {
+public final class InterestRateFutureSecurityDiscountingMethod {
+  private static final InterestRateFutureSecurityDiscountingMethod INSTANCE = new InterestRateFutureSecurityDiscountingMethod();
+
+  public static InterestRateFutureSecurityDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private InterestRateFutureSecurityDiscountingMethod() {
+  }
 
   /**
    * Computes the price of a future from the curves using an estimation of the future rate without convexity adjustment.
@@ -27,8 +35,9 @@ public class InterestRateFutureSecurityDiscountingMethod {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
-    double price = 1.0 - forward;
+    final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
+        / future.getFixingPeriodAccrualFactor();
+    final double price = 1.0 - forward;
     return price;
   }
 
@@ -42,7 +51,8 @@ public class InterestRateFutureSecurityDiscountingMethod {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
+    final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
+        / future.getFixingPeriodAccrualFactor();
     return forward;
 
   }
