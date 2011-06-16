@@ -232,7 +232,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
-    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);null
+    ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     String counterparty = "";
