@@ -323,9 +323,12 @@ public abstract class DbTimeSeriesMasterTest<T> extends DBTest {
     
   }
 
-  private TimeSeriesSearchResult<T> search(LocalDate currentDate, UniqueIdentifier timeSeriesId, IdentifierBundle bundle, String dataField, String dataProvider, String dataSource, String observationTime, boolean loadTimeSeries, boolean loadDates) {    
+  private TimeSeriesSearchResult<T> search(
+      LocalDate identifierValidityDate, UniqueIdentifier timeSeriesId, IdentifierBundle bundle,
+      String dataField, String dataProvider, String dataSource, String observationTime,
+      boolean loadTimeSeries, boolean loadEarliestLatest) {    
     TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
-    request.setCurrentDate(currentDate);
+    request.setIdentifierValidityDate(identifierValidityDate);
     request.setTimeSeriesId(timeSeriesId);
     if (bundle != null) {
       request.setIdentifiers(bundle);
@@ -335,7 +338,7 @@ public abstract class DbTimeSeriesMasterTest<T> extends DBTest {
     request.setDataSource(dataSource);
     request.setObservationTime(observationTime);
     request.setLoadTimeSeries(loadTimeSeries);
-    request.setLoadDates(loadDates);
+    request.setLoadEarliestLatest(loadEarliestLatest);
     TimeSeriesSearchResult<T> searchResult = _tsMaster.search(request);
     return searchResult;
   }

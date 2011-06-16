@@ -60,16 +60,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _timeSeriesId;
   /**
-   * The identifier value, matching against the <b>value</b> of the identifiers,
-   * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
-   * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code identifiers}
-   * search is useful for exact machine searching.
-   */
-  @PropertyDefinition
-  private String _identifierValue;
-  /**
    * The identifiers to match, empty to not match on identifiers.
    * This will return time-series where at least one complete identifier in the series matches
    * at least one complete identifier in this bundle. Note that an empty bundle will not match
@@ -80,50 +70,60 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   @PropertyDefinition(set = "manual")
   private List<Identifier> _identifiers;
   /**
-   * Current date (if applicable for identifiers).
+   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
    */
   @PropertyDefinition
-  private LocalDate _currentDate;
+  private String _identifierValue;
   /**
-   * The data source, null to search all data sources.
+   * The date on which identifiers must be valid.
+   */
+  @PropertyDefinition
+  private LocalDate _identifierValidityDate;
+  /**
+   * The data source, wildcards allowed, null to not match on data source.
    */
   @PropertyDefinition
   private String _dataSource;
   /**
-   * The data provider, null to search all data providers.
+   * The data provider, wildcards allowed, null to not match on data provider.
    */
   @PropertyDefinition
   private String _dataProvider; 
   /**
-   * The data field to search, null to search all data fields.
+   * The data field, wildcards allowed, null to not match on data field.
    */
   @PropertyDefinition
   private String _dataField;
   /**
-   * The observation time, null to search all observation times.
+   * The observation time, wildcards allowed, null to not match on observation time.
    */
   @PropertyDefinition
   private String _observationTime;
   /**
-   * The start date, null to search from start date in data store.
+   * The start time, inclusive, null returns data from the earliest valid time.
    */
   @PropertyDefinition
   private T _start; 
   /**
-   * The end date, null to search until the end date in data store.
+   * The end time, inclusive, null returns data up to the latest valid time.
    */
   @PropertyDefinition
   private T _end;
   /**
-   * Set to true to load data points, otherwise return just meta data.
+   * Set to true to load data points, otherwise return just info.
    */
   @PropertyDefinition
   private boolean _loadTimeSeries;
   /**
-   * Set to true to load the start and end date for time-series.
+   * Set to true to load the earliest and latest date for time-series.
    */
   @PropertyDefinition
-  private boolean _loadDates;
+  private boolean _loadEarliestLatest;
 
   /**
    * Creates an instance.
@@ -227,7 +227,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       success: {  // label used with break statement, CSIGNORE
         IdentifierBundleWithDates docBundle = document.getIdentifiers();
         for (IdentifierWithDates docId : docBundle) {
-          if (getIdentifiers().contains(docId.asIdentifier()) && docId.isValidOn(getCurrentDate())) {
+          if (getIdentifiers().contains(docId.asIdentifier()) && docId.isValidOn(getIdentifierValidityDate())) {
             break success;
           }
         }
@@ -273,12 +273,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         return getPagingRequest();
       case 1709694943:  // timeSeriesId
         return getTimeSeriesId();
-      case 2085582408:  // identifierValue
-        return getIdentifierValue();
       case 1368189162:  // identifiers
         return getIdentifiers();
-      case 600751303:  // currentDate
-        return getCurrentDate();
+      case 2085582408:  // identifierValue
+        return getIdentifierValue();
+      case 48758089:  // identifierValidityDate
+        return getIdentifierValidityDate();
       case 1272470629:  // dataSource
         return getDataSource();
       case 339742651:  // dataProvider
@@ -293,8 +293,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         return getEnd();
       case 1833789738:  // loadTimeSeries
         return isLoadTimeSeries();
-      case 1364095295:  // loadDates
-        return isLoadDates();
+      case -771242688:  // loadEarliestLatest
+        return isLoadEarliestLatest();
     }
     return super.propertyGet(propertyName);
   }
@@ -309,14 +309,14 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       case 1709694943:  // timeSeriesId
         setTimeSeriesId((UniqueIdentifier) newValue);
         return;
-      case 2085582408:  // identifierValue
-        setIdentifierValue((String) newValue);
-        return;
       case 1368189162:  // identifiers
         setIdentifiers((List<Identifier>) newValue);
         return;
-      case 600751303:  // currentDate
-        setCurrentDate((LocalDate) newValue);
+      case 2085582408:  // identifierValue
+        setIdentifierValue((String) newValue);
+        return;
+      case 48758089:  // identifierValidityDate
+        setIdentifierValidityDate((LocalDate) newValue);
         return;
       case 1272470629:  // dataSource
         setDataSource((String) newValue);
@@ -339,8 +339,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       case 1833789738:  // loadTimeSeries
         setLoadTimeSeries((Boolean) newValue);
         return;
-      case 1364095295:  // loadDates
-        setLoadDates((Boolean) newValue);
+      case -771242688:  // loadEarliestLatest
+        setLoadEarliestLatest((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -355,9 +355,9 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       TimeSeriesSearchRequest<?> other = (TimeSeriesSearchRequest<?>) obj;
       return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
           JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
-          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
           JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
-          JodaBeanUtils.equal(getCurrentDate(), other.getCurrentDate()) &&
+          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
+          JodaBeanUtils.equal(getIdentifierValidityDate(), other.getIdentifierValidityDate()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
@@ -365,7 +365,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
           JodaBeanUtils.equal(getStart(), other.getStart()) &&
           JodaBeanUtils.equal(getEnd(), other.getEnd()) &&
           JodaBeanUtils.equal(isLoadTimeSeries(), other.isLoadTimeSeries()) &&
-          JodaBeanUtils.equal(isLoadDates(), other.isLoadDates());
+          JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest());
     }
     return false;
   }
@@ -375,9 +375,9 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValidityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
@@ -385,7 +385,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
     hash += hash * 31 + JodaBeanUtils.hashCode(isLoadTimeSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isLoadDates());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isLoadEarliestLatest());
     return hash;
   }
 
@@ -444,6 +444,33 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the identifiers to match, empty to not match on identifiers.
+   * This will return time-series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
+   * @return the value of the property
+   */
+  public List<Identifier> getIdentifiers() {
+    return _identifiers;
+  }
+
+  /**
+   * Gets the the {@code identifiers} property.
+   * This will return time-series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
+   * @return the property, not null
+   */
+  public final Property<List<Identifier>> identifiers() {
+    return metaBean().identifiers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
    * This matches against the {@link Identifier#getValue() value} of the identifier
@@ -484,59 +511,32 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifiers to match, empty to not match on identifiers.
-   * This will return time-series where at least one complete identifier in the series matches
-   * at least one complete identifier in this bundle. Note that an empty bundle will not match
-   * anything, whereas a null bundle places no restrictions on the result.
-   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
-   * search is useful for human searching.
+   * Gets the date on which identifiers must be valid.
    * @return the value of the property
    */
-  public List<Identifier> getIdentifiers() {
-    return _identifiers;
+  public LocalDate getIdentifierValidityDate() {
+    return _identifierValidityDate;
   }
 
   /**
-   * Gets the the {@code identifiers} property.
-   * This will return time-series where at least one complete identifier in the series matches
-   * at least one complete identifier in this bundle. Note that an empty bundle will not match
-   * anything, whereas a null bundle places no restrictions on the result.
-   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
-   * search is useful for human searching.
+   * Sets the date on which identifiers must be valid.
+   * @param identifierValidityDate  the new value of the property
+   */
+  public void setIdentifierValidityDate(LocalDate identifierValidityDate) {
+    this._identifierValidityDate = identifierValidityDate;
+  }
+
+  /**
+   * Gets the the {@code identifierValidityDate} property.
    * @return the property, not null
    */
-  public final Property<List<Identifier>> identifiers() {
-    return metaBean().identifiers().createProperty(this);
+  public final Property<LocalDate> identifierValidityDate() {
+    return metaBean().identifierValidityDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets current date (if applicable for identifiers).
-   * @return the value of the property
-   */
-  public LocalDate getCurrentDate() {
-    return _currentDate;
-  }
-
-  /**
-   * Sets current date (if applicable for identifiers).
-   * @param currentDate  the new value of the property
-   */
-  public void setCurrentDate(LocalDate currentDate) {
-    this._currentDate = currentDate;
-  }
-
-  /**
-   * Gets the the {@code currentDate} property.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> currentDate() {
-    return metaBean().currentDate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the data source, null to search all data sources.
+   * Gets the data source, wildcards allowed, null to not match on data source.
    * @return the value of the property
    */
   public String getDataSource() {
@@ -544,7 +544,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the data source, null to search all data sources.
+   * Sets the data source, wildcards allowed, null to not match on data source.
    * @param dataSource  the new value of the property
    */
   public void setDataSource(String dataSource) {
@@ -561,7 +561,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data provider, null to search all data providers.
+   * Gets the data provider, wildcards allowed, null to not match on data provider.
    * @return the value of the property
    */
   public String getDataProvider() {
@@ -569,7 +569,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the data provider, null to search all data providers.
+   * Sets the data provider, wildcards allowed, null to not match on data provider.
    * @param dataProvider  the new value of the property
    */
   public void setDataProvider(String dataProvider) {
@@ -586,7 +586,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data field to search, null to search all data fields.
+   * Gets the data field, wildcards allowed, null to not match on data field.
    * @return the value of the property
    */
   public String getDataField() {
@@ -594,7 +594,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the data field to search, null to search all data fields.
+   * Sets the data field, wildcards allowed, null to not match on data field.
    * @param dataField  the new value of the property
    */
   public void setDataField(String dataField) {
@@ -611,7 +611,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the observation time, null to search all observation times.
+   * Gets the observation time, wildcards allowed, null to not match on observation time.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -619,7 +619,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the observation time, null to search all observation times.
+   * Sets the observation time, wildcards allowed, null to not match on observation time.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
@@ -636,7 +636,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date, null to search from start date in data store.
+   * Gets the start time, inclusive, null returns data from the earliest valid time.
    * @return the value of the property
    */
   public T getStart() {
@@ -644,7 +644,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the start date, null to search from start date in data store.
+   * Sets the start time, inclusive, null returns data from the earliest valid time.
    * @param start  the new value of the property
    */
   public void setStart(T start) {
@@ -661,7 +661,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end date, null to search until the end date in data store.
+   * Gets the end time, inclusive, null returns data up to the latest valid time.
    * @return the value of the property
    */
   public T getEnd() {
@@ -669,7 +669,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the end date, null to search until the end date in data store.
+   * Sets the end time, inclusive, null returns data up to the latest valid time.
    * @param end  the new value of the property
    */
   public void setEnd(T end) {
@@ -686,7 +686,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set to true to load data points, otherwise return just meta data.
+   * Gets set to true to load data points, otherwise return just info.
    * @return the value of the property
    */
   public boolean isLoadTimeSeries() {
@@ -694,7 +694,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets set to true to load data points, otherwise return just meta data.
+   * Sets set to true to load data points, otherwise return just info.
    * @param loadTimeSeries  the new value of the property
    */
   public void setLoadTimeSeries(boolean loadTimeSeries) {
@@ -711,27 +711,27 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set to true to load the start and end date for time-series.
+   * Gets set to true to load the earliest and latest date for time-series.
    * @return the value of the property
    */
-  public boolean isLoadDates() {
-    return _loadDates;
+  public boolean isLoadEarliestLatest() {
+    return _loadEarliestLatest;
   }
 
   /**
-   * Sets set to true to load the start and end date for time-series.
-   * @param loadDates  the new value of the property
+   * Sets set to true to load the earliest and latest date for time-series.
+   * @param loadEarliestLatest  the new value of the property
    */
-  public void setLoadDates(boolean loadDates) {
-    this._loadDates = loadDates;
+  public void setLoadEarliestLatest(boolean loadEarliestLatest) {
+    this._loadEarliestLatest = loadEarliestLatest;
   }
 
   /**
-   * Gets the the {@code loadDates} property.
+   * Gets the the {@code loadEarliestLatest} property.
    * @return the property, not null
    */
-  public final Property<Boolean> loadDates() {
-    return metaBean().loadDates().createProperty(this);
+  public final Property<Boolean> loadEarliestLatest() {
+    return metaBean().loadEarliestLatest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -756,21 +756,21 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(
         this, "timeSeriesId", TimeSeriesSearchRequest.class, UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code identifierValue} property.
-     */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
-        this, "identifierValue", TimeSeriesSearchRequest.class, String.class);
-    /**
      * The meta-property for the {@code identifiers} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<Identifier>> _identifiers = DirectMetaProperty.ofReadWrite(
         this, "identifiers", TimeSeriesSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code currentDate} property.
+     * The meta-property for the {@code identifierValue} property.
      */
-    private final MetaProperty<LocalDate> _currentDate = DirectMetaProperty.ofReadWrite(
-        this, "currentDate", TimeSeriesSearchRequest.class, LocalDate.class);
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
+        this, "identifierValue", TimeSeriesSearchRequest.class, String.class);
+    /**
+     * The meta-property for the {@code identifierValidityDate} property.
+     */
+    private final MetaProperty<LocalDate> _identifierValidityDate = DirectMetaProperty.ofReadWrite(
+        this, "identifierValidityDate", TimeSeriesSearchRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
@@ -809,10 +809,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
         this, "loadTimeSeries", TimeSeriesSearchRequest.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code loadDates} property.
+     * The meta-property for the {@code loadEarliestLatest} property.
      */
-    private final MetaProperty<Boolean> _loadDates = DirectMetaProperty.ofReadWrite(
-        this, "loadDates", TimeSeriesSearchRequest.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _loadEarliestLatest = DirectMetaProperty.ofReadWrite(
+        this, "loadEarliestLatest", TimeSeriesSearchRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -820,9 +820,9 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         this, null,
         "pagingRequest",
         "timeSeriesId",
-        "identifierValue",
         "identifiers",
-        "currentDate",
+        "identifierValue",
+        "identifierValidityDate",
         "dataSource",
         "dataProvider",
         "dataField",
@@ -830,7 +830,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         "start",
         "end",
         "loadTimeSeries",
-        "loadDates");
+        "loadEarliestLatest");
 
     /**
      * Restricted constructor.
@@ -845,12 +845,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
           return _pagingRequest;
         case 1709694943:  // timeSeriesId
           return _timeSeriesId;
-        case 2085582408:  // identifierValue
-          return _identifierValue;
         case 1368189162:  // identifiers
           return _identifiers;
-        case 600751303:  // currentDate
-          return _currentDate;
+        case 2085582408:  // identifierValue
+          return _identifierValue;
+        case 48758089:  // identifierValidityDate
+          return _identifierValidityDate;
         case 1272470629:  // dataSource
           return _dataSource;
         case 339742651:  // dataProvider
@@ -865,8 +865,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
           return _end;
         case 1833789738:  // loadTimeSeries
           return _loadTimeSeries;
-        case 1364095295:  // loadDates
-          return _loadDates;
+        case -771242688:  // loadEarliestLatest
+          return _loadEarliestLatest;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -905,14 +905,6 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code identifierValue} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> identifierValue() {
-      return _identifierValue;
-    }
-
-    /**
      * The meta-property for the {@code identifiers} property.
      * @return the meta-property, not null
      */
@@ -921,11 +913,19 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code currentDate} property.
+     * The meta-property for the {@code identifierValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> currentDate() {
-      return _currentDate;
+    public final MetaProperty<String> identifierValue() {
+      return _identifierValue;
+    }
+
+    /**
+     * The meta-property for the {@code identifierValidityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> identifierValidityDate() {
+      return _identifierValidityDate;
     }
 
     /**
@@ -985,11 +985,11 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code loadDates} property.
+     * The meta-property for the {@code loadEarliestLatest} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> loadDates() {
-      return _loadDates;
+    public final MetaProperty<Boolean> loadEarliestLatest() {
+      return _loadEarliestLatest;
     }
 
   }

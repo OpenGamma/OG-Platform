@@ -369,7 +369,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     ArrayList<Object> parametersList = new ArrayList<Object>();
     Collection<Identifier> requestIdentifiers = request.getIdentifiers();
     String identifierValue = request.getIdentifierValue();
-    Date currentDate = toSqlDate(request.getCurrentDate());
+    Date validityDate = toSqlDate(request.getIdentifierValidityDate());
     if ((requestIdentifiers == null || requestIdentifiers.isEmpty()) && identifierValue == null) {
       findIdentifiersSql = _namedSQLMap.get(LOAD_ALL_IDENTIFIERS);
       findIdentifiersSql = findIdentifiersSql.replace(":LOAD_ALL_IDENTIFIERS_WHERE", "TRUE");
@@ -382,11 +382,11 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
           parametersList.add(identifier.getScheme().getName());
           parametersList.add(identifier.getValue());
           
-          if (currentDate != null) {
+          if (validityDate != null) {
             bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
                 "AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
-            parametersList.add(currentDate);
-            parametersList.add(currentDate);
+            parametersList.add(validityDate);
+            parametersList.add(validityDate);
           } 
           
           bundleWhereCondition.append(" )");
@@ -402,10 +402,10 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
         }
         bundleWhereCondition.append(getDbSource().getDialect().sqlWildcardQuery("UPPER(dsi.identifier_value) ", "UPPER(?) ", identifierValue));
         parametersList.add(getDbSource().getDialect().sqlWildcardAdjustValue(identifierValue));
-        if (currentDate != null) {
+        if (validityDate != null) {
           bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL) ");
-          parametersList.add(currentDate);
-          parametersList.add(currentDate);
+          parametersList.add(validityDate);
+          parametersList.add(validityDate);
         }
       }
       bundleWhereCondition.append(" ");
@@ -1162,9 +1162,9 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     
     DbMapSqlParameterSource parameters = new DbMapSqlParameterSource();
     String metaDataSql = getMetaDataSQL(request, bundleMap.keySet(), parameters);
-        
+    
     TimeSeriesMetaDataRowMapper<T> rowMapper = new TimeSeriesMetaDataRowMapper<T>(this);
-    rowMapper.setLoadDates(request.isLoadDates());
+    rowMapper.setLoadDates(request.isLoadEarliestLatest());
     
     String countSql = createTotalCountSql(metaDataSql);
     int count = getJdbcTemplate().queryForInt(countSql, parameters);
@@ -1184,7 +1184,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
       document.setObservationTime(tsMetaData.getObservationTime());
       document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
-      if (request.isLoadDates()) {
+      if (request.isLoadEarliestLatest()) {
         document.setEarliest(tsMetaData.getEarliestDate());
         document.setLatest(tsMetaData.getLatestDate());
       }
@@ -1205,7 +1205,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   private String getMetaDataSQL(final TimeSeriesSearchRequest<T> request, final Set<Long> ids, final DbMapSqlParameterSource parameters) {
     StringBuilder sql = new StringBuilder();
-    if (request.isLoadDates()) {
+    if (request.isLoadEarliestLatest()) {
       if (hasIdentifier(request)) {
         sql.append(_namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS).toUpperCase());
       } else {
@@ -1273,7 +1273,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     document.setIdentifiers(tsMetaData.getIdentifiers());
     document.setObservationTime(tsMetaData.getObservationTime());
     document.setUniqueId(uniqueId);
-    if (request.isLoadDates()) {
+    if (request.isLoadEarliestLatest()) {
       //load timeseries date ranges
       Map<String, T> dates = getTimeSeriesDateRange(tsId);
       tsMetaData.setEarliestDate(dates.get("earliest"));
@@ -1410,16 +1410,16 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public void removeDataPoint(UniqueIdentifier uniqueId) {
-    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uniqueId);
+  public void removeDataPoint(UniqueIdentifier dataPointId) {
+    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(dataPointId);
     Long tsId = tsIdDatePair.getFirst();
     T date = tsIdDatePair.getSecond();
     removeDataPoint(tsId, date);
   }
 
   @Override
-  public DataPointDocument<T> getDataPoint(UniqueIdentifier uniqueId) {
-    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uniqueId);
+  public DataPointDocument<T> getDataPoint(UniqueIdentifier dataPointId) {
+    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(dataPointId);
     
     Long tsId = tsIdDatePair.getFirst();
     T date = tsIdDatePair.getSecond();
@@ -1432,7 +1432,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     final DataPointDocument<T> result = new DataPointDocument<T>();
     result.setDate(tsIdDatePair.getSecond());
     result.setTimeSeriesId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
-    result.setDataPointId(uniqueId);
+    result.setDataPointId(dataPointId);
     jdbcOperations.query(_namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID), paramSource, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -1443,8 +1443,10 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String field) {
+  public UniqueIdentifier resolveIdentifier(
+      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String field) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
@@ -1455,7 +1457,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     request.setDataField(field);
     request.setDataProvider(dataProvider);
     request.setDataSource(dataSource);
-    request.setCurrentDate(currentDate);
+    request.setIdentifierValidityDate(identifierValidityDate);
     request.setLoadTimeSeries(false);
     
     UniqueIdentifier result = null;
@@ -1465,13 +1467,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       if (documents.size() == 1) {
         result = documents.get(0).getUniqueId();
       } else {
-        throw new OpenGammaRuntimeException("multiple timeseries returned for " + identifiers + "currentDate:" + currentDate + " dataSource:" + dataSource + 
+        throw new OpenGammaRuntimeException("multiple timeseries returned for " + identifiers + "currentDate:" + identifierValidityDate + " dataSource:" + dataSource + 
             " dataProvider:" + dataProvider + " dataField:" + field);
       }
     }
     return result;
   }
-  
+
   @Override
   public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return resolveIdentifier(identifiers, null, dataSource, dataProvider, dataField);
@@ -1563,7 +1565,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     }
     return result;
   }
-  
+
   private List<NamedDescriptionBean> loadEnumWithDescription(String sql) {
     List<NamedDescriptionBean> result = new ArrayList<NamedDescriptionBean>();
     SqlParameterSource parameterSource = null;
@@ -1580,9 +1582,8 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     }
     return result;
   }
-    
+  
   private static class IdentifierBundleHandler implements RowCallbackHandler {
-    
     private Map<Long, List<IdentifierWithDates>> _identifierBundleMap = new HashMap<Long, List<IdentifierWithDates>>();
     
     @Override
@@ -1604,7 +1605,6 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     public Map<Long, List<IdentifierWithDates>> getResult() {
       return _identifierBundleMap;
     }
-    
   }
 
   @Override
@@ -1629,9 +1629,6 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       getJdbcTemplate().update(deleteSql, parameters);
     
     }
-
   }
-  
-  
-  
+
 }

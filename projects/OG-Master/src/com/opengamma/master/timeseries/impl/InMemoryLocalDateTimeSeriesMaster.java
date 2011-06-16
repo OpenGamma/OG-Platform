@@ -94,7 +94,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       }
     }
     
-    if (request.isLoadDates()) {
+    if (request.isLoadEarliestLatest()) {
       for (TimeSeriesDocument<LocalDate> tsDocument : list) {
         assert tsDocument.getTimeSeries() != null;
         tsDocument.setLatest(tsDocument.getTimeSeries().getLatestTime());

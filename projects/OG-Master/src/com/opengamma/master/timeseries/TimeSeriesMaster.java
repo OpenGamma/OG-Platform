@@ -109,12 +109,12 @@ public interface TimeSeriesMaster<T> {
    * <p> 
    * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param dataPointId  the data point unique identifier, not null
    * @return the data point document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  DataPointDocument<T> getDataPoint(UniqueIdentifier uniqueId);
+  DataPointDocument<T> getDataPoint(UniqueIdentifier dataPointId);
 
   /**
    * Adds a data point to an existing time-series in the data store.
@@ -142,11 +142,11 @@ public interface TimeSeriesMaster<T> {
    * <p> 
    * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
    * 
-   * @param uniqueId  the unique identifier to remove, not null
+   * @param dataPointId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void removeDataPoint(final UniqueIdentifier uniqueId);
+  void removeDataPoint(final UniqueIdentifier dataPointId);
 
   //-------------------------------------------------------------------------
   /**
@@ -166,14 +166,14 @@ public interface TimeSeriesMaster<T> {
    * <p>
    * This is a bulk update method to remove multiple data points from an existing time-series.
    * 
-   * @param timeSeriesUid  the time-series to operate on, not null
+   * @param timeSeriesId  the time-series to operate on, not null
    * @param firstDateToRetain  remove all data points before this date, not null
    */
-  void removeDataPoints(UniqueIdentifier timeSeriesUid, T firstDateToRetain);
+  void removeDataPoints(UniqueIdentifier timeSeriesId, T firstDateToRetain);
 
   //-------------------------------------------------------------------------
   /**
-   * Searches for a timeseries unique identifier matching specific criteria.
+   * Searches for a time-series unique identifier matching specific criteria.
    * 
    * @param securityBundle  the security identifier bundle, not null
    * @param dataSource  the data source, not null
@@ -184,15 +184,15 @@ public interface TimeSeriesMaster<T> {
   UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField);
 
   /**
-   * Searches for a timeseries unique identifier matching specific criteria.
+   * Searches for a time-series unique identifier matching specific criteria.
    * 
    * @param securityBundle  the security identifier bundle, not null
-   * @param currentDate  the current trade date if applicable
+   * @param identifierValidityDate  the date on which identifiers must be valid, null for no restriction
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the data field, not null
    * @return the unique identifier, null if not found
    */
-  UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField);
+  UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
 
 }
