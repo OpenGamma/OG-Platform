@@ -38,7 +38,8 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilderTest e
     final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), Identifier.of(SecurityUtils.BLOOMBERG_TICKER,
         "AAPL US Equity"), equity);
 
-    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR), "XCSE", "XCSE", Currency.USD, 0, "LIBOR");
+    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR), "XCSE", "XCSE", Currency.USD, 0, Identifier.of(
+        SecurityUtils.BLOOMBERG_TICKER, "US0003M Index"));
     final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2, ZonedDateTime.now(), Identifier.of(
         SecurityUtils.BLOOMBERG_TICKER, "US0003M Index"), future);
 

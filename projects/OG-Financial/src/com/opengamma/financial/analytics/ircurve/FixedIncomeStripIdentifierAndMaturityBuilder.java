@@ -53,7 +53,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<Identifier, Double> marketValues) {
-    //Currency currency = curveSpecification.getCurrency();
     final LocalDate curveDate = curveSpecification.getCurveDate();
     final Collection<FixedIncomeStripWithSecurity> securityStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (final FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
@@ -130,8 +129,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<Identifier, Double> marketValues) {
-    //    CashSecurity sec = new CashSecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
-    //                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
     final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
         marketValues.get(strip.getSecurity()), 1.0d);
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
@@ -142,10 +139,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final LocalDate curveDate = spec.getCurveDate(); // quick hack
     final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
     final LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
-    //    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
-    //                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
-    return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()),
-        1.0d);
+    final Identifier underlyingIdentifier = strip.getSecurity();
+    //TODO this normalization should not be done here
+    return new FRASecurity(spec.getCurrency(), spec.getRegion(),
+        startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
   }
 
   private FutureSecurity getFuture(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {
