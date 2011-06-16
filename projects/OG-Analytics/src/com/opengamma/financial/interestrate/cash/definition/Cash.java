@@ -20,6 +20,7 @@ public class Cash implements InterestRateDerivative {
   private final Currency _currency;
   private final double _tradeTime;
   private final double _maturity;
+  private final double _notional;
   private final double _yearFraction;
   private final double _rate;
   private final String _curveName;
@@ -28,10 +29,11 @@ public class Cash implements InterestRateDerivative {
    * A cash loan
    * @param currency The currency
    * @param maturity Time from now (in years) when the loan matures (is repaid)
+   * @param notional The notional of the loan
    * @param rate The loan rate (continuously compounded)
    * @param yieldCurveName Name of yield curve used to price loan
    */
-  public Cash(final Currency currency, final double maturity, final double rate, final String yieldCurveName) {
+  public Cash(final Currency currency, final double maturity, final double notional, final double rate, final String yieldCurveName) {
     checkInputs(maturity, rate, yieldCurveName);
     Validate.notNull(currency, "currency");
     _currency = currency;
@@ -40,18 +42,20 @@ public class Cash implements InterestRateDerivative {
     _tradeTime = 0.0;
     _yearFraction = maturity;
     _rate = rate;
+    _notional = notional;
   }
 
   /**
    * A cash loan
    * @param currency The currency
    * @param maturity Time from now (in years) when the loan matures (is repaid)
+   * @param notional The notional of the loan
    * @param rate Time from now (in years) when the loan matures (is repaid)
    * @param tradeTime Time when the notional amount is borrowed (could be 0, i.e. now)
    * @param yearFraction time (in years) between the trade date and the maturity in some day count convention.
    * @param yieldCurveName Name of yield curve used to price loan
    */
-  public Cash(final Currency currency, final double maturity, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
+  public Cash(final Currency currency, final double maturity, final double notional, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
     checkInputs(maturity, rate, yieldCurveName);
     Validate.notNull(currency, "currency");
     Validate.isTrue(tradeTime >= 0, "trade time is negative");
@@ -63,7 +67,7 @@ public class Cash implements InterestRateDerivative {
     _tradeTime = tradeTime;
     _yearFraction = yearFraction;
     _rate = rate;
-
+    _notional = notional;
   }
 
   private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
@@ -96,6 +100,10 @@ public class Cash implements InterestRateDerivative {
     return _rate;
   }
 
+  public double getNotional() {
+    return _notional;
+  }
+
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCash(this, data);
@@ -116,6 +124,8 @@ public class Cash implements InterestRateDerivative {
     temp = Double.doubleToLongBits(_maturity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_rate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_tradeTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -148,6 +158,9 @@ public class Cash implements InterestRateDerivative {
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
     }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_tradeTime) != Double.doubleToLongBits(other._tradeTime)) {
       return false;
     }
@@ -159,6 +172,6 @@ public class Cash implements InterestRateDerivative {
 
   @Override
   public String toString() {
-    return "Cash[t = " + _maturity + ", r = " + _rate + ", curve = " + _curveName;
+    return "Cash[t = " + _maturity + ", r = " + _rate + ", notional = " + _notional + "curve = " + _curveName;
   }
 }

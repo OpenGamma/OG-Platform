@@ -36,22 +36,23 @@ public class CashDefinitionTest {
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 25);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2011, 7, 25);
+  private static final double NOTIONAL = 1000;
   private static final double RATE = 0.05;
-  private static final CashDefinition CASH = new CashDefinition(CCY, MATURITY, RATE, CONVENTION);
+  private static final CashDefinition CASH = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, CONVENTION);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new CashDefinition(null, MATURITY, RATE, CONVENTION);
+    new CashDefinition(null, MATURITY, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
-    new CashDefinition(CCY, null, RATE, CONVENTION);
+    new CashDefinition(CCY, null, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
-    new CashDefinition(CCY, MATURITY, RATE, null);
+    new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -75,16 +76,19 @@ public class CashDefinitionTest {
     assertEquals(MATURITY, CASH.getMaturity());
     assertEquals(RATE, CASH.getRate(), 0);
     assertEquals(CONVENTION, CASH.getConvention());
-    CashDefinition other = new CashDefinition(CCY, MATURITY, RATE, CONVENTION);
+    assertEquals(NOTIONAL, CASH.getNotional());
+    CashDefinition other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, CONVENTION);
     assertEquals(other, CASH);
     assertEquals(other.hashCode(), CASH.hashCode());
-    other = new CashDefinition(Currency.CAD, MATURITY, RATE, CONVENTION);
+    other = new CashDefinition(Currency.CAD, MATURITY, NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(CASH));
-    other = new CashDefinition(CCY, MATURITY.plusDays(1), RATE, CONVENTION);
+    other = new CashDefinition(CCY, MATURITY.plusDays(1), NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(CASH));
-    other = new CashDefinition(CCY, MATURITY, RATE + 0.01, CONVENTION);
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL + 100, RATE, CONVENTION);
     assertFalse(other.equals(CASH));
-    other = new CashDefinition(CCY, MATURITY, RATE, new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME));
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE + 0.01, CONVENTION);
+    assertFalse(other.equals(CASH));
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME));
     assertFalse(other.equals(CASH));
   }
 
