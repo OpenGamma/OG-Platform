@@ -17,6 +17,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
@@ -33,20 +34,20 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final SecuritySource _securitySource;
+  private final ConventionBundleSource _conventionSource;
   private final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 
-  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
+  public SwaptionSecurityConverter(final SecuritySource securitySource, final ConventionBundleSource conventionSource, final SwapSecurityConverter swapConverter) {
     Validate.notNull(securitySource, "security source");
     Validate.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;
-    _visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder().swapSecurityVisitor(swapConverter).create();
+    _conventionSource = conventionSource;
+    _visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder().swapSecurityVisitor(swapConverter).create();
   }
 
   @Override
   public FixedIncomeInstrumentConverter<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
     Validate.notNull(swaptionSecurity, "swaption security");
-    final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
-    final boolean isLong = swaptionSecurity.getIsLong();
     final Identifier underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
     final FixedIncomeInstrumentConverter<?> underlyingSwap = ((FinancialSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier))).accept(_visitor);
@@ -54,6 +55,17 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }
     final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
+    //TODO
+    //    final boolean isCashSettled;
+    //    if (swaptionSecurity.getIsCashSettled() == null) {
+    //    final Currency currency = fixedFloat.getCurrency();
+    //      final ConventionBundle swaptionConvention = CONVENTIONS.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAPTION"));
+    //      isCashSettled = swaptionConvention.isSwaptionCashSettled();
+    //    } else {
+    //      isCashSettled = swaptionSecurity.getIsCashSettled();
+    //    }
+    final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
+    final boolean isLong = swaptionSecurity.getIsLong();
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)
         : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedFloat, isLong);
   }
