@@ -162,7 +162,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private Identifier getFRAUnderlyingIdentifier(Currency currency, Identifier region) {
     Identifier identifier = s_currency2FRAUnderlyings.get(currency);
     if (identifier == null) {
-      throw new OpenGammaRuntimeException("unable to workout underlying identifier for FRA with currency = " + currency);
+      throw new OpenGammaRuntimeException("Could not get underlying identifier for FRA with currency = " + currency);
     }
     return identifier;
   }
