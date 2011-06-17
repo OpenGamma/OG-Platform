@@ -239,64 +239,84 @@ public class CurveDefinitionAndSpecifications {
     Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     Currency usd = Currency.USD;
     Identifier usdRegion = RegionUtils.countryRegionId("US");
-    forwardDefinitions.put(usd, buildForwardCurve(usd, usdRegion, makeShortEnd(true, false, true), 
-        Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
-    fundingDefinitions.put(usd, buildFundingCurve(usd, usdRegion, makeShortEnd(true, false, true), makeLongEnd(1, 10, new int[] {12, 15, 20, 25, 30 })));
-    singleDefinitions.put(usd, buildSingleCurve(usd, usdRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    //forwardDefinitions.put(usd, buildForwardCurve(usd, usdRegion, makeShortEnd(true, false, true), 
+    //    Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    //fundingDefinitions.put(usd, buildFundingCurve(usd, usdRegion, makeShortEnd(true, false, true), makeLongEnd(1, 10, new int[] {12, 15, 20, 25, 30 })));
+    singleDefinitions.put(usd, buildSingleCurve(usd, usdRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(usd, buildSingleCurve(usd, usdRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(usd, buildSingleCurve(usd, usdRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency eur = Currency.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
-    forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40 })));
+    //forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    //fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40 })));
     singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency gbp = Currency.GBP;
     Identifier gbpRegion = RegionUtils.countryRegionId("GB");
-    forwardDefinitions.put(gbp, buildForwardCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
-    fundingDefinitions.put(gbp, buildFundingCurve(gbp, gbpRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
-    singleDefinitions.put(gbp, buildSingleCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    //forwardDefinitions.put(gbp, buildForwardCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
+    //fundingDefinitions.put(gbp, buildFundingCurve(gbp, gbpRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
+    singleDefinitions.put(gbp, buildSingleCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(gbp, buildSingleCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(gbp, buildSingleCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency chf = Currency.CHF;
     Identifier chfRegion = RegionUtils.countryRegionId("CH");
-    forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(chf, buildFundingCurve(chf, chfRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    //forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    //fundingDefinitions.put(chf, buildFundingCurve(chf, chfRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency aud = Currency.AUD;
     Identifier audRegion = RegionUtils.countryRegionId("AU");
-    forwardDefinitions.put(aud, buildForwardCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
-    fundingDefinitions.put(aud, buildFundingCurve(aud, audRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    //forwardDefinitions.put(aud, buildForwardCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    //fundingDefinitions.put(aud, buildFundingCurve(aud, audRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(aud, buildSingleCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    forwardDefinitions.put(aud, buildSingleCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    fundingDefinitions.put(aud, buildSingleCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
     
     Currency sek = Currency.of("SEK");
     Identifier sekRegion = RegionUtils.countryRegionId("SE");
-    forwardDefinitions.put(sek, buildForwardCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
-    fundingDefinitions.put(sek, buildFundingCurve(sek, sekRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    //forwardDefinitions.put(sek, buildForwardCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
+    //fundingDefinitions.put(sek, buildFundingCurve(sek, sekRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
+    forwardDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
+    fundingDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     
     Currency nzd = Currency.of("NZD");
     Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
-    forwardDefinitions.put(nzd, buildForwardCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
-    fundingDefinitions.put(nzd, buildFundingCurve(nzd, nzdRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20 })));
+    //forwardDefinitions.put(nzd, buildForwardCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
+    //fundingDefinitions.put(nzd, buildFundingCurve(nzd, nzdRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20 })));
     singleDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
+    forwardDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
+    fundingDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     
     Currency cad = Currency.CAD;
     Identifier cadRegion = RegionUtils.countryRegionId("CA");
-    forwardDefinitions.put(cad, buildForwardCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(cad, buildFundingCurve(cad, cadRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    //forwardDefinitions.put(cad, buildForwardCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    //fundingDefinitions.put(cad, buildFundingCurve(cad, cadRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency dkk = Currency.of("DKK");
     Identifier dkkRegion = RegionUtils.countryRegionId("DK");
-    forwardDefinitions.put(dkk, buildForwardCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(dkk, buildFundingCurve(dkk, dkkRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    //forwardDefinitions.put(dkk, buildForwardCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    //fundingDefinitions.put(dkk, buildFundingCurve(dkk, dkkRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(dkk, buildSingleCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(dkk, buildSingleCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(dkk, buildSingleCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency jpy = Currency.JPY;
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
-    forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
-    fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
+    //forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
+    //fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
+    forwardDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
+    fundingDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     results.put("FORWARD", forwardDefinitions);
