@@ -61,7 +61,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _regionSource;
   }
 
-  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
     _conventionBundleSource = conventionBundleSource;
   }
 
@@ -69,7 +69,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _conventionBundleSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -115,7 +115,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _holidaySource;
   }
 
-  public void setHolidaySource(HolidaySource holidaySource) {
+  public void setHolidaySource(final HolidaySource holidaySource) {
     _holidaySource = holidaySource;
   }
 
@@ -123,7 +123,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _exchangeSource;
   }
 
-  public void setExchangeSource(ExchangeSource exchangeSource) {
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
     _exchangeSource = exchangeSource;
   }
 
