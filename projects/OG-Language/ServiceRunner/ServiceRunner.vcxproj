@@ -59,6 +59,9 @@
       <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)\lib\lib\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;Util.lib;Service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>signtool sign "$(OutDir)$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -80,6 +83,9 @@
       <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)\lib\lib\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;Util.lib;Service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>signtool sign "$(OutDir)$(TargetName)$(TargetExt)"</Command>
+    </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
