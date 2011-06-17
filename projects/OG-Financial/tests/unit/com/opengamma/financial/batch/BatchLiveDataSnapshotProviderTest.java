@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
+import com.opengamma.core.historicaldata.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -40,13 +40,13 @@ public class BatchLiveDataSnapshotProviderTest {
         date);
     job.getParameters().setSnapshotObservationTime("LDN_CLOSE");
     
-    MockHistoricalDataSource historicalDataProvider = new MockHistoricalDataSource();
+    MockHistoricalTimeSeriesSource historicalSource = new MockHistoricalTimeSeriesSource();
     
     Identifier identifier = Identifier.of("mytimeseries", "500");
     IdentifierBundle bundle = IdentifierBundle.of(identifier);
-    historicalDataProvider.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
+    historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
-    HistoricalLiveDataSnapshotProvider snapshotProvider = new HistoricalLiveDataSnapshotProvider(historicalDataProvider, "BLOOMBERG", "CMPL", "PX_LAST");
+    HistoricalLiveDataSnapshotProvider snapshotProvider = new HistoricalLiveDataSnapshotProvider(historicalSource, "BLOOMBERG", "CMPL", "PX_LAST");
     
     BatchLiveDataSnapshotProvider provider = new BatchLiveDataSnapshotProvider(run,
         new DummyBatchMaster(),

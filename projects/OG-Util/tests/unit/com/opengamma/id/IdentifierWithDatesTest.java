@@ -92,6 +92,16 @@ public class IdentifierWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_isValid() {
+    IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
+    assertEquals(true, test.isValidOn(null));
+    assertEquals(false, test.isValidOn(LocalDate.of(1999, 1, 1)));
+    assertEquals(true, test.isValidOn(VALID_FROM));
+    assertEquals(true, test.isValidOn(VALID_TO));
+    assertEquals(false, test.isValidOn(LocalDate.of(2099, 1, 1)));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals() {
     IdentifierWithDates d1a = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     IdentifierWithDates d1b = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);

@@ -173,7 +173,7 @@ const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszV
 #ifdef _WIN32
 /// Fetches a value from the registry, adding it to the cache if found.
 ///
-/// @param[in] hKey the settings key to look under, never NULL
+/// @param[in] hkey the settings key to look under, never NULL
 /// @param[in] pszKey the key value to search for, never NULL
 /// @return the value found, or NULL if none
 PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {

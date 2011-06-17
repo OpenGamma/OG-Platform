@@ -14,6 +14,7 @@ import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.PORTF
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.PORTFOLIO_ROOT_NODE;
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.SPEC;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -22,6 +23,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -52,9 +55,10 @@ public class ViewComputationResultModelImplTest {
     ViewCalculationResultModel calcResult = model.getCalculationResult("configName1");
     assertNotNull(calcResult);
     
-    HashMap<String, ComputedValue> expectedMap = new HashMap<String, ComputedValue>();
-    expectedMap.put("DATA", COMPUTED_VALUE);
-    assertEquals(expectedMap, Maps.newHashMap(calcResult.getValues(SPEC)));
+    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResult.getValues(SPEC);
+    assertEquals(1, targetResults.size());
+    assertEquals("DATA", targetResults.keySet().iterator().next().getFirst());
+    assertEquals(COMPUTED_VALUE, targetResults.values().iterator().next());
   }
 
 }

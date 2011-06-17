@@ -38,6 +38,7 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoConfiguration;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -309,7 +310,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
    * @param className  the class name, not null
    * @return the class object, not null
    */
-  protected Class<?> loadClass(final String className) {
+  protected Class<?> loadClass(String className) {
+    // migrate old data
+    if (className.equals("com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfiguration")) {
+      className = HistoricalTimeSeriesInfoConfiguration.class.getName();
+    }
+    
+    // load class
     Class<?> reifiedType = null;
     try {
       reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);

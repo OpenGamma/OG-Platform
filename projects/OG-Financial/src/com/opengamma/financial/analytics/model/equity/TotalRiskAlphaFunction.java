@@ -13,7 +13,8 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,12 +35,9 @@ import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -80,13 +78,13 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     final ConventionBundle bundle = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     if (marketTSObject == null) {
       throw new NullPointerException("Market time series was null");
     }
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeries riskFreeTSObject = historicalSource.getHistoricalTimeSeries(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (riskFreeTSObject == null) {
       throw new NullPointerException("Risk-free time series was null");
@@ -101,8 +99,8 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     }
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-    DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getSecond());
-    DoubleTimeSeries<?> riskFreeReturnTS = ((DoubleTimeSeries<?>) riskFreeTSObject.getSecond()).divide(DAYS_PER_YEAR * 100);
+    DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getTimeSeries());
+    DoubleTimeSeries<?> riskFreeReturnTS = ((DoubleTimeSeries<?>) riskFreeTSObject.getTimeSeries()).divide(DAYS_PER_YEAR * 100);
     assetReturnTS = assetReturnTS.intersectionFirstValue(marketReturnTS);
     marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
     riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(riskFreeReturnTS);

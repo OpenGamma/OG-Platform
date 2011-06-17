@@ -30,7 +30,6 @@ public class FutureSecurityBean extends SecurityBean {
   private CurrencyBean _currency3;
   private BondFutureTypeBean _bondType;
   private CommodityFutureTypeBean _commodityType;
-  private CashRateTypeBean _cashRateType;
   private Double _unitAmount;
   private UnitBean _unitName;
   private Double _unitNumber;
@@ -160,20 +159,6 @@ public class FutureSecurityBean extends SecurityBean {
    */
   public void setCommodityType(CommodityFutureTypeBean commodityType) {
     _commodityType = commodityType;
-  }
-
-  /**
-   * @return the cashRateType
-   */
-  public CashRateTypeBean getCashRateType() {
-    return _cashRateType;
-  }
-
-  /**
-   * @param cashRateType the cashRateType to set
-   */
-  public void setCashRateType(CashRateTypeBean cashRateType) {
-    _cashRateType = cashRateType;
   }
 
   /**

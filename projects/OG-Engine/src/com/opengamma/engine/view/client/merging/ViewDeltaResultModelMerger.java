@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import java.util.Map;
+import java.util.Collection;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
@@ -41,12 +41,12 @@ public class ViewDeltaResultModelMerger {
     for (ComputationTargetSpecification targetSpec : newResult.getAllTargets()) {
       for (String calcConfigName : newResult.getCalculationConfigurationNames()) {
         ViewCalculationResultModel resultCalcModel = newResult.getCalculationResult(calcConfigName);
-        Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
+        Collection<ComputedValue> resultValues = resultCalcModel.getAllValues(targetSpec);
         if (resultValues == null) {
           continue;
         }
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          _currentMergedResult.addValue(calcConfigName, resultEntry.getValue());
+        for (ComputedValue result : resultValues) {
+          _currentMergedResult.addValue(calcConfigName, result);
         }
       }
     }

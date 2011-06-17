@@ -271,8 +271,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   //-------------------------------------------------------------------------
   public InMemoryLKVSnapshotProvider createSnapshotProvider() {
     InMemoryLKVSnapshotProvider provider;
-    if (getJob().getHistoricalDataProvider() != null) {
-      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalDataProvider());
+    if (getJob().getHistoricalSnapshotProvider() != null) {
+      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalSnapshotProvider());
     } else {
       provider = new InMemoryLKVSnapshotProvider();
     }
@@ -283,7 +283,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     try {
       liveDataValues = getJob().getBatchMaster().getSnapshotValues(getSnapshotId());
     } catch (IllegalArgumentException e) {
-      if (getJob().getHistoricalDataProvider() != null) {
+      if (getJob().getHistoricalSnapshotProvider() != null) {
         // if there is a historical data provider, that provider
         // may potentially provide all market data to run the batch,
         // so no pre-existing snapshot is required
