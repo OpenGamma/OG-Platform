@@ -19,6 +19,10 @@
     </component>
     <property name="rate" type="double" not-null="true"/>
     <property name="amount" type="double" not-null="true"/>
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
   </union-subclass>
 
   <query name="FRASecurityBean.one.bySecurityId"><![CDATA[

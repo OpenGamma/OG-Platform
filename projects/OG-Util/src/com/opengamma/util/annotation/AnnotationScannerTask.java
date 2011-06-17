@@ -8,17 +8,12 @@ package com.opengamma.util.annotation;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.scannotation.AnnotationDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +44,7 @@ public class AnnotationScannerTask extends Task {
   public void setAnnotationClassName(String annotationClassName) {
     _annotationClassName = annotationClassName;
   }
-  
-  private String[] getClasspath() {
-    return _classpath;
-  }
-  
+    
   public void setClasspathref(Reference classpathref) {
     Path classpath = new Path(getProject());
     classpath.setRefid(classpathref);
@@ -74,13 +65,7 @@ public class AnnotationScannerTask extends Task {
     if (getAnnotationClassName() == null) {
       throw new BuildException("annotationClassName must be set");
     }
-    
-    URL[] classpathUrlArray = getClasspathURLs();
-    AnnotationDB annotationDb = getAnnotationDb(classpathUrlArray);
-    Set<String> classNames = annotationDb.getAnnotationIndex().get(getAnnotationClassName());
-    if (classNames == null) {
-      classNames = Collections.emptySet();
-    }
+    Set<String> classNames = ClassNameAnnotationScanner.scan(_classpath, getAnnotationClassName());
     try {
       PrintWriter writer = new PrintWriter(outputFile);
       for (String className : classNames) {
@@ -91,42 +76,7 @@ public class AnnotationScannerTask extends Task {
       s_logger.error("Error writing to output file", e);
       throw new BuildException("Error writing to output file", e);
     }
-  }
 
-  private AnnotationDB getAnnotationDb(URL[] classpathUrlArray) {
-    AnnotationDB annotationDb = new AnnotationDB();
-    annotationDb.setScanClassAnnotations(true);
-    annotationDb.setScanMethodAnnotations(true);
-    annotationDb.setScanFieldAnnotations(true);
-    annotationDb.setScanParameterAnnotations(false);
-    try {
-      annotationDb.scanArchives(classpathUrlArray);
-    } catch (IOException e) {
-      throw new BuildException("Error scanning for annotations", e);
-    }
-    return annotationDb;
-  }
-
-  private URL[] getClasspathURLs() {
-    String[] classpath = getClasspath();
-    if (classpath == null) {
-      return new URL[0];
-    }
-    Set<URL> classpathUrls = new HashSet<URL>();
-    for (String classpathEntry : classpath) {
-      File f = new File(classpathEntry);
-      if (!f.exists()) {
-        s_logger.debug("Skipping non-existent classpath entry '{}'", classpathEntry);
-        continue;
-      }
-      try {
-        classpathUrls.add(f.toURI().toURL());
-      } catch (MalformedURLException e) {
-        throw new BuildException("Error interpreting classpath entry '" + classpathEntry + "' as URL", e);
-      }
-    }
-    URL[] classpathUrlArray = classpathUrls.toArray(new URL[0]);
-    return classpathUrlArray;
   }
   
 }

@@ -37,7 +37,7 @@ public class FixedIncomeStripWithSecurityTest extends FinancialTestBase {
         GICSCode.getInstance(10203040));
     final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), dummyId, equity);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
-    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, "LIBOR");
+    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId);
     final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2, ZonedDateTime.now(), dummyId, future);
     assertEquals(futureStrip, cycleObject(FixedIncomeStripWithSecurity.class, futureStrip));
   }
