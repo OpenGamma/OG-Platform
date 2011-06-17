@@ -173,6 +173,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _quantity = copyFrom.getQuantity();
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
+    _trades.addAll(copyFrom.getTrades());
   }
 
   //-------------------------------------------------------------------------

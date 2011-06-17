@@ -7,8 +7,8 @@ public class StockFutureSecurity extends com.opengamma.financial.security.future
   private static final long serialVersionUID = 11346605593l;
   private com.opengamma.id.Identifier _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  public StockFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency) {
-    super (expiry, tradingExchange, settlementExchange, currency);
+  public StockFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
   }
   protected StockFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -25,8 +25,8 @@ public class StockFutureSecurity extends com.opengamma.financial.security.future
       }
     }
   }
-  public StockFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency);
+  public StockFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;

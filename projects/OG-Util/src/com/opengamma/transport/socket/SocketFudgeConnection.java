@@ -96,7 +96,7 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   /**
    * Creates a connection where received messages are processed inline with socket read operations.
    * 
-   * @param fudgeContext the Fudge context, not {@code null}
+   * @param fudgeContext the Fudge context, not null
    */
   public SocketFudgeConnection(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -108,8 +108,8 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
    * Creates a connection where received messages run out of thread to the socket reader using the given
    * {@link ExecutorService}. 
    * 
-   * @param fudgeContext the Fudge context, not {@code null}
-   * @param executorService an executor service to run received messages via, not {@code null}
+   * @param fudgeContext the Fudge context, not null
+   * @param executorService an executor service to run received messages via, not null
    */
   public SocketFudgeConnection(final FudgeContext fudgeContext, final ExecutorService executorService) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");

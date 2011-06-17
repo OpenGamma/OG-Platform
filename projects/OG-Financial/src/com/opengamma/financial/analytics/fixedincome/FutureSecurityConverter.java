@@ -20,11 +20,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -33,12 +35,13 @@ import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * FIXME 2011-06-01 Case: This seems very specific to creating a FixedIncomeFutureInstrumentDefinition. Should this be renamed?
  */
 public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncomeFutureInstrumentDefinition<?>> {
+
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
-//  private final ExchangeSource _exchangeSource;
+  private final ExchangeSource _exchangeSource;
 
   public FutureSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
       final ExchangeSource exchangeSource) {
@@ -47,7 +50,7 @@ public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncom
     Validate.notNull(exchangeSource, "exchange source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
-//    _exchangeSource = exchangeSource;
+    _exchangeSource = exchangeSource;
   }
 
   @Override
@@ -132,6 +135,40 @@ public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncom
   @Override
   public FixedIncomeFutureInstrumentDefinition<?> visitStockFutureSecurity(final StockFutureSecurity security) {
     throw new OpenGammaRuntimeException("Cannot convert StockFutureSecurity to a FixedIncomeFutureInstrumentDefinition");
+  }
+
+  @Override
+  public FixedIncomeFutureInstrumentDefinition<?> visitEquityFutureSecurity(EquityFutureSecurity security) {
+    throw new OpenGammaRuntimeException("Cannot convert IndexFutureSecurity to an EquityFutureSecurity");
+  }
+
+  @Override
+  public FixedIncomeFutureInstrumentDefinition<?> visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+    throw new OpenGammaRuntimeException("Cannot convert IndexFutureSecurity to an EquityIndexDividendFutureSecurity");
+  }
+
+  /**
+   * Gets the holidaySource.
+   * @return the HolidaySource
+   */
+  public HolidaySource getHolidaySource() {
+    return _holidaySource;
+  }
+
+  /**
+   * Gets the conventionSource.
+   * @return the ConventionBundleSource
+   */
+  public ConventionBundleSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  /**
+   * Gets the exchangeSource.
+   * @return the ExchangeSource
+   */
+  public ExchangeSource getExchangeSource() {
+    return _exchangeSource;
   }
 
 }

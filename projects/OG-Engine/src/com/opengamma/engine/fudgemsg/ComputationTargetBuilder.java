@@ -12,6 +12,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 
@@ -35,7 +39,28 @@ public class ComputationTargetBuilder implements FudgeBuilder<ComputationTarget>
   @Override
   public ComputationTarget buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ComputationTargetType type = context.fieldValueToObject(ComputationTargetType.class, message.getByName(TYPE_FIELD));
-    Object value = context.fieldValueToObject(message.getByName(VALUE_FIELD));
+    
+    // Same type assumptions as made in ComputationTarget itself
+    Class<?> expectedTargetType;
+    switch (type) {
+      case PORTFOLIO_NODE:
+        expectedTargetType = PortfolioNode.class;
+        break;
+      case POSITION:
+        expectedTargetType = Position.class;
+        break;
+      case TRADE:
+        expectedTargetType = Trade.class;
+        break;
+      case SECURITY:
+        expectedTargetType = Security.class;
+        break;
+      default:
+        expectedTargetType = Object.class;
+        break;
+    }
+    
+    Object value = context.fieldValueToObject(expectedTargetType, message.getByName(VALUE_FIELD));
     return new ComputationTarget(type, value);
   }
 

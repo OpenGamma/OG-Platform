@@ -141,6 +141,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     setPremiumCurrency(trade.getPremiumCurrency());
     setPremiumDate(trade.getPremiumDate());
     setPremiumTime(trade.getPremiumTime());
+    setAttributes(trade.getAttributes());
   }
 
   /**
@@ -668,7 +669,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the attributes.
+   * Gets trade attributes used for aggregation
    * @return the value of the property
    */
   public Map<String, String> getAttributes() {
@@ -676,7 +677,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
   }
 
   /**
-   * Sets the attributes.
+   * Sets trade attributes used for aggregation
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {

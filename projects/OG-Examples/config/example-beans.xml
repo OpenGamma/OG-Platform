@@ -121,6 +121,17 @@
     <property name="underlying" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
   </bean>
   
+  <!-- Vol Cubes service -->
+  
+  <bean id="volatilityCubeDefinitionSourceRestBean" class="com.opengamma.financial.analytics.volatility.cube.rest.VolatilityCubeDefinitionSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="combinedVolatilityCubeDefinitionSource" />
+      </map>
+    </property>
+  </bean>
+  
   <!--  User supplied data -->
   <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
     <constructor-arg>
@@ -227,6 +238,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="volatilityCubeDefinitionSource"> 
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/volatilityCubeDefinitionSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="positionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/positionSource/" />
@@ -240,6 +257,30 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="sharedPositionMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/positions" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="sharedPortfolioMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/portfolios" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="sharedSecurityMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/securityMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="sharedMarketDataSnapshotMaster">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/users/" />
@@ -249,7 +290,7 @@
           <entry key="viewProcessor">
             <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
               <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
-              <property name="port" value="${jetty.port}" />
+                <property name="port" value="${jetty.port}" />
             </bean>
           </entry>
           <entry key="activeMQ">
@@ -324,6 +365,7 @@
   <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
     <property name="user" ref="testUser" />
     <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="snapshotMaster" ref="dbSnapshotMaster" />
     <property name="executorService">
       <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
         <property name="styleName" value="CACHED" />
@@ -331,25 +373,13 @@
     </property>
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
-  
-  <!-- MarketDataSnapshot source/master service -->
-  <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
-  <bean id="snapshotSourceRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="combinedSnapshotSource" />
-        <entry key="shared" value-ref="sharedSnapshotSource" />
-        <entry key="user" value-ref="userFinancialSnapshotSource" />
-        <entry key="test">
-          <bean class="com.opengamma.financial.snapshot.MasterFinancialSnapshotSource">
-            <constructor-arg ref="testSnapshotMaster" />
-          </bean>
-        </entry>
-      </map>
-    </property>
+  <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
+    <constructor-arg ref="webInterfaceBean" />
   </bean>
-  <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
+  
+  <!-- MarketDataSnapshot master service -->
+  <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
+  <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>

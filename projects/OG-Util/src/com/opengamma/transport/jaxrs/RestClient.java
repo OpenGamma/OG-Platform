@@ -185,7 +185,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response.
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response.
    * @param target  the RESTful target, not null
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
@@ -195,7 +195,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msgEnvelope  the Fudge message, not null
    * @return the Fudge message, not null
@@ -222,7 +222,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @return the Fudge message, not null
    */
@@ -232,7 +232,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
@@ -242,7 +242,7 @@ public class RestClient {
   }
 
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response
    * @param target  the RESTful target, not null
    * @param msgEnvelope  the Fudge message, not null
    * @return the Fudge message, not null
@@ -322,7 +322,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Throws an exception for anything other than a 200 series. Returns {@code null} if there was no payload response.
+   * Throws an exception for anything other than a 200 series. Returns null if there was no payload response.
    * @param target  the RESTful target, not null
    * @return the Fudge message, not null
    */

@@ -49,7 +49,7 @@ public class ForexDiscountingMethodTest {
 
   private static final ForexDiscountingMethod METHOD = new ForexDiscountingMethod();
   private static final com.opengamma.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
-  private static final com.opengamma.financial.forex.calculator.PresentValueCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueCalculator.getInstance();
+  private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
 
   @Test
@@ -57,9 +57,9 @@ public class ForexDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
-    CurrencyAmount ca1 = CurrencyAmount.of(CUR_1, PVC_IR.visit(PAY_1, CURVES));
-    CurrencyAmount ca2 = CurrencyAmount.of(CUR_2, PVC_IR.visit(PAY_2, CURVES));
+    final MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
+    final CurrencyAmount ca1 = CurrencyAmount.of(CUR_1, PVC_IR.visit(PAY_1, CURVES));
+    final CurrencyAmount ca2 = CurrencyAmount.of(CUR_2, PVC_IR.visit(PAY_2, CURVES));
     assertEquals(ca1, pv.getCurrencyAmount(CUR_1));
     assertEquals(ca2, pv.getCurrencyAmount(CUR_2));
   }
@@ -69,9 +69,9 @@ public class ForexDiscountingMethodTest {
    * Test the present value sensitivity to interest rate.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
-    Map<String, List<DoublesPair>> pvs1 = PVSC.visit(PAY_1, CURVES);
-    Map<String, List<DoublesPair>> pvs2 = PVSC.visit(PAY_2, CURVES);
+    final PresentValueSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final Map<String, List<DoublesPair>> pvs1 = PVSC.visit(PAY_1, CURVES);
+    final Map<String, List<DoublesPair>> pvs2 = PVSC.visit(PAY_2, CURVES);
     assertEquals(pvs1.get(CURVES_NAME[0]), pvs.getSensitivity().get(CURVES_NAME[0]));
     assertEquals(pvs2.get(CURVES_NAME[1]), pvs.getSensitivity().get(CURVES_NAME[1]));
   }
@@ -81,8 +81,8 @@ public class ForexDiscountingMethodTest {
    * Test the present value through the method and through the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX, CURVES);
-    MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX, CURVES);
+    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX, CURVES);
+    final MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX, CURVES);
     assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
   }
 
@@ -93,8 +93,8 @@ public class ForexDiscountingMethodTest {
   public void presentValueReverse() {
     final ForexDefinition fxReverseDefinition = new ForexDefinition(CUR_2, CUR_1, PAYMENT_DATE, -NOMINAL_1 * FX_RATE, 1.0 / FX_RATE);
     final Forex fxReverse = fxReverseDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
-    MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
-    MultipleCurrencyAmount pvReverse = METHOD.presentValue(fxReverse, CURVES);
+    final MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
+    final MultipleCurrencyAmount pvReverse = METHOD.presentValue(fxReverse, CURVES);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), 1.0E-2);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_2), pvReverse.getAmount(CUR_2), 1.0E-2);
   }

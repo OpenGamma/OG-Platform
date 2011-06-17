@@ -11,7 +11,7 @@ namespace com.opengamma.financial.security.future {
    */
   message InterestRateFutureSecurity extends FutureSecurity {
   
-    required string cashRateType; // REVIEW: jim 28-May-2010 -- we might want to make this UniqueIdentifier like FloatingInterestRateLeg...
+    required id.Identifier underlyingIdentifier;
    
     binding Java {
       body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitInterestRateFutureSecurity (this); }";

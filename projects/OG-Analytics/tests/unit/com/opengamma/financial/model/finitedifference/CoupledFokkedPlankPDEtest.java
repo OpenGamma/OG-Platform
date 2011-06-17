@@ -29,6 +29,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
+@SuppressWarnings("unused")
 public class CoupledFokkedPlankPDEtest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
@@ -66,9 +67,9 @@ public class CoupledFokkedPlankPDEtest {
     STRIKE = FORWARD; // ATM option
     OPTION = new EuropeanVanillaOption(FORWARD, T, true); // true option
 
-    Function1D<Double, Double> upper1stDev = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> upper1stDev = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return Math.exp(-RATE * t);
       }
     };
@@ -80,7 +81,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return -s * s * VOL1 * VOL1 / 2;
       }
     };
@@ -89,7 +90,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return -s * s * VOL2 * VOL2 / 2;
       }
     };
@@ -98,7 +99,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         //return RATE;
         return (RATE - 2 * VOL1 * VOL1) * s;
       }
@@ -108,7 +109,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         //return RATE;
         return (RATE - 2 * VOL2 * VOL2) * s;
       }
@@ -142,31 +143,31 @@ public class CoupledFokkedPlankPDEtest {
 
     //using a normal distribution with a very small Standard deviation as a proxy for a Dirac delta
     final Function1D<Double, Double> initialCondition1 = new Function1D<Double, Double>() {
-      double tOffset = 0.05;
+      private final double _tOffset = 0.05;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
 
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / SPOT);
-        NormalDistribution dist = new NormalDistribution((RATE - VOL1 * VOL1 / 2) * tOffset, VOL1 * Math.sqrt(tOffset));
+        final double x = Math.log(s / SPOT);
+        final NormalDistribution dist = new NormalDistribution((RATE - VOL1 * VOL1 / 2) * _tOffset, VOL1 * Math.sqrt(_tOffset));
         return INITIAL_PROB_STATE1 * dist.getPDF(x) / s;
       }
     };
 
     final Function1D<Double, Double> initialCondition2 = new Function1D<Double, Double>() {
-      double tOffset = 0.05;
+      private final double _tOffset = 0.05;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
 
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / SPOT);
-        NormalDistribution dist = new NormalDistribution((RATE - VOL2 * VOL2 / 2) * tOffset, VOL2 * Math.sqrt(tOffset));
+        final double x = Math.log(s / SPOT);
+        final NormalDistribution dist = new NormalDistribution((RATE - VOL2 * VOL2 / 2) * _tOffset, VOL2 * Math.sqrt(_tOffset));
         return (1 - INITIAL_PROB_STATE1) * dist.getPDF(x) / s;
       }
     };
@@ -185,28 +186,28 @@ public class CoupledFokkedPlankPDEtest {
 
   @Test
   public void testDensity() {
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, true);
-    int tNodes = 50;
-    int xNodes = 150;
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, true);
+    final int tNodes = 50;
+    final int xNodes = 150;
 
-    MeshingFunction timeMesh = new ExponentalMeshing(0, T, tNodes, 0);
+    final MeshingFunction timeMesh = new ExponentalMeshing(0, T, tNodes, 0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
+    final MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
-    double[] timeGrid = new double[tNodes];
+    final double[] timeGrid = new double[tNodes];
     for (int n = 0; n < tNodes; n++) {
       timeGrid[n] = timeMesh.evaluate(n);
     }
 
-    double[] spaceGrid = new double[xNodes];
+    final double[] spaceGrid = new double[xNodes];
     for (int i = 0; i < xNodes; i++) {
       spaceGrid[i] = spaceMesh.evaluate(i);
     }
 
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-    PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, -LAMBDA21, -LAMBDA12, null);
-    PDEFullResults1D res1 = (PDEFullResults1D) res[0];
-    PDEFullResults1D res2 = (PDEFullResults1D) res[1];
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, -LAMBDA21, -LAMBDA12, null);
+    final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
+    final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
     //    for (int i = 0; i < xNodes; i++) {
     //      System.out.print("\t" + res1.getSpaceValue(i));
@@ -235,7 +236,7 @@ public class CoupledFokkedPlankPDEtest {
     //    }
 
     //calculated the local vol surface
-    List<Pair<double[], Double>> localVolData = new ArrayList<Pair<double[], Double>>(xNodes * tNodes);
+    final List<Pair<double[], Double>> localVolData = new ArrayList<Pair<double[], Double>>(xNodes * tNodes);
     double norm;
     double[] x;
     double value;
@@ -261,8 +262,8 @@ public class CoupledFokkedPlankPDEtest {
     final Function<Double, Double> localVolFunction = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
-        double[] tx = new double[2];
+      public Double evaluate(final Double... x) {
+        final double[] tx = new double[2];
         tx[0] = x[0];
         tx[1] = x[1];
         return INTERPOLATOR.interpolate(dataBundle, tx);
@@ -275,8 +276,8 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        double vol = localVolSurface.getZValue(ts[0], ts[1]);
+        final double s = ts[1];
+        final double vol = localVolSurface.getZValue(ts[0], ts[1]);
         return -s * s * vol * vol / 2;
       }
     };
@@ -285,7 +286,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         //return RATE;
         return RATE * s;
       }
@@ -295,7 +296,7 @@ public class CoupledFokkedPlankPDEtest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return RATE;
       }
     };

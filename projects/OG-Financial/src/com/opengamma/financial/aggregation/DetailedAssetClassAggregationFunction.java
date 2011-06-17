@@ -22,6 +22,8 @@ import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
@@ -65,6 +67,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String INDEX_FUTURES = "Index Futures";
   /* package */static final String STOCK_FUTURES = "Stock Futures";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
+  /* package */static final String EQUITY_FUTURES = "Equity Futures";
+  /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
@@ -155,6 +159,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
         }
+
+        @Override
+        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+          return EQUITY_FUTURES;
+        }
+
+        @Override
+        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURES;
+        }
       }, new SwapSecurityVisitor<String>() {
 
         @Override
@@ -208,6 +222,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }

@@ -84,89 +84,89 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueFixedMiddle() {
-    AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    final AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_1);
-    double pvNominal = PVC.visit(nominal, CURVES);
-    double pvCoupon = PVC.visit(coupon, CURVES);
-    double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
+    final double pvNominal = PVC.visit(nominal, CURVES);
+    final double pvCoupon = PVC.visit(coupon, CURVES);
+    final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: present value", pvNominal + pvCoupon, pv);
   }
 
   @Test
   public void presentValueFixedOnCoupon() {
-    AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
+    final AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_2);
-    double pvNominal = PVC.visit(nominal, CURVES);
-    double pvCoupon = PVC.visit(coupon, CURVES);
-    double pv = METHOD.presentValue(BOND_FIXED_SECURITY_2, CURVES);
+    final double pvNominal = PVC.visit(nominal, CURVES);
+    final double pvCoupon = PVC.visit(coupon, CURVES);
+    final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_2, CURVES);
     assertEquals("Fixed coupon bond security: present value", pvNominal + pvCoupon, pv);
   }
 
   @Test
   public void presentValueFixedMethodVsCalculator() {
-    double pvMethod = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
-    double pvCalculator = PVC.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double pvMethod = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
+    final double pvCalculator = PVC.visit(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: present value Method vs Calculator", pvMethod, pvCalculator);
   }
 
   @Test
   public void dirtyPriceFixed() {
-    double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
-    double df = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(REFERENCE_TIME_1);
-    double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
+    final double df = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(REFERENCE_TIME_1);
+    final double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves", pv / df / BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getNotional(), dirty);
     assertTrue("Fixed coupon bond security: dirty price is relative price", (0.50 < dirty) & (dirty < 2.0));
   }
 
   @Test
   public void dirtyPriceFixedMethodVsCalculator() {
-    double dirtyMethod = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    DirtyPriceFromCurvesCalculator calculator = DirtyPriceFromCurvesCalculator.getInstance();
-    double dirtyCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double dirtyMethod = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final DirtyPriceFromCurvesCalculator calculator = DirtyPriceFromCurvesCalculator.getInstance();
+    final double dirtyCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves Method vs Calculator", dirtyMethod, dirtyCalculator);
   }
 
   @Test
   public void cleanPriceFixed() {
-    double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    double clean = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double clean = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: clean price from curves", dirty - BOND_FIXED_SECURITY_1.getAccruedInterest() / BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getNotional(), clean);
   }
 
   @Test
   public void cleanPriceFixedMethodVsCalculator() {
-    double cleanMethod = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    CleanPriceFromCurvesCalculator calculator = CleanPriceFromCurvesCalculator.getInstance();
-    double cleanCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double cleanMethod = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final CleanPriceFromCurvesCalculator calculator = CleanPriceFromCurvesCalculator.getInstance();
+    final double cleanCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves Method vs Calculator", cleanMethod, cleanCalculator);
   }
 
   @Test
   public void cleanAndDirtyPriceFixed() {
-    double cleanPrice = 0.90;
-    double accruedInterest = BOND_FIXED_SECURITY_1.getAccruedInterest() / BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getNotional();
+    final double cleanPrice = 0.90;
+    final double accruedInterest = BOND_FIXED_SECURITY_1.getAccruedInterest() / BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getNotional();
     assertEquals("Fixed coupon bond security", cleanPrice + accruedInterest, METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_1, cleanPrice));
-    double dirtyPrice = 0.95;
+    final double dirtyPrice = 0.95;
     assertEquals("Fixed coupon bond security", dirtyPrice - accruedInterest, METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice));
     assertEquals("Fixed coupon bond security", cleanPrice, METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_1, cleanPrice)));
   }
 
   @Test
   public void dirtyPriceFromYieldUSStreet() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double dirtyPriceExpected = 1.04173525; // To be check with another source.
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double dirtyPriceExpected = 1.04173525; // To be check with another source.
     assertEquals("Fixed coupon bond security: dirty price from yield", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
   @Test
   public void cleanPriceFromYieldUSStreet() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double cleanPriceExpected = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
-    double cleanPrice = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double cleanPriceExpected = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double cleanPrice = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yield);
     assertEquals("Fixed coupon bond security: dirty price from yield", cleanPriceExpected, cleanPrice, 1E-8);
   }
 
@@ -174,67 +174,67 @@ public class BondSecurityDiscountingMethodTest {
   public void dirtyPriceFromYieldUSStreetLastPeriod() {
     final ZonedDateTime referenceDate = DateUtil.getUTCDate(2016, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
+    final double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: dirty price from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
   @Test
   public void yieldFromDirtyPriceUSStreet() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
     assertEquals("Fixed coupon bond security: yield from dirty price", yield, yieldComputed, 1E-10);
   }
 
   @Test
   public void yieldFromCurvesUSStreet() {
-    double dirtyPrice = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    double yieldExpected = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
-    double yieldComputed = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double dirtyPrice = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double yieldExpected = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double yieldComputed = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: yield from dirty price", yieldExpected, yieldComputed, 1E-10);
   }
 
   @Test
   public void yieldFromCleanPriceUSStreet() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double cleanPrice = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
-    double yieldComputed = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_1, cleanPrice);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double cleanPrice = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double yieldComputed = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_1, cleanPrice);
     assertEquals("Fixed coupon bond security: yield from clean price", yield, yieldComputed, 1E-10);
-    double cleanPrice2 = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yieldComputed);
+    final double cleanPrice2 = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yieldComputed);
     assertEquals("Fixed coupon bond security: yield from clean price", cleanPrice, cleanPrice2, 1E-10);
   }
 
   @Test
   public void modifiedDurationFromYieldUSStreet() {
-    double yield = 0.04;
-    double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    double modifiedDurationExpected = 4.566199225; // To be check with another source.
+    final double yield = 0.04;
+    final double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double modifiedDurationExpected = 4.566199225; // To be check with another source.
     assertEquals("Fixed coupon bond security: modified duration from yield US Street - hard coded value", modifiedDurationExpected, modifiedDuration, 1E-8);
-    double shift = 1.0E-6;
-    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
-    double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift);
-    double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield - shift);
-    double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
+    final double shift = 1.0E-6;
+    final double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift);
+    final double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield - shift);
+    final double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
     assertEquals("Fixed coupon bond security: modified duration from yield US Street - finite difference", modifiedDurationFD, modifiedDuration, 1E-8);
   }
 
   @Test
   public void modifiedDurationFromCurvesUSStreet() {
-    double yield = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    double modifiedDuration = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double yield = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double modifiedDuration = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: modified duration from curves US Street", modifiedDurationExpected, modifiedDuration, 1E-8);
   }
 
   @Test
   public void modifiedDurationFromDirtyPriceUSStreet() {
-    double dirtyPrice = 0.95;
-    double yield = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
-    double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
-    double modifiedDuration = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double dirtyPrice = 0.95;
+    final double yield = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    final double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    final double modifiedDuration = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
     assertEquals("Fixed coupon bond security: modified duration from curves US Street", modifiedDurationExpected, modifiedDuration, 1E-8);
   }
 
@@ -242,17 +242,17 @@ public class BondSecurityDiscountingMethodTest {
   public void modifiedDurationFromYieldUSStreetLastPeriod() {
     final ZonedDateTime referenceDate = DateUtil.getUTCDate(2016, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
-    double yield = 0.04;
-    double dirtyPrice = METHOD.modifiedDurationFromYield(bondSecurity, yield);
-    double dirtyPriceExpected = bondSecurity.getAccrualFactorToNextCoupon() / COUPON_PER_YEAR_G / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR_G);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.modifiedDurationFromYield(bondSecurity, yield);
+    final double dirtyPriceExpected = bondSecurity.getAccrualFactorToNextCoupon() / COUPON_PER_YEAR_G / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR_G);
     assertEquals("Fixed coupon bond security: modified duration from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
   @Test
   public void modifiedDurationFromCurvesUSStreetMethodVsCalculator() {
-    double mdMethod = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
-    ModifiedDurationFromCurvesCalculator calculator = ModifiedDurationFromCurvesCalculator.getInstance();
-    double mdCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    final double mdMethod = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    final ModifiedDurationFromCurvesCalculator calculator = ModifiedDurationFromCurvesCalculator.getInstance();
+    final double mdCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
     assertEquals("Fixed coupon bond security: modified duration from curves US Street : Method vs Calculator", mdMethod, mdCalculator, 1E-8);
   }
 
@@ -283,30 +283,30 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueFixedExDividend() {
-    double pv = METHOD.presentValue(BOND_FIXED_SECURITY_G, CURVES);
+    final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_G, CURVES);
     final BondFixedSecurityDefinition bondNoExDefinition = BondFixedSecurityDefinition.from(CUR_G, MATURITY_DATE_G, START_ACCRUAL_DATE_G, PAYMENT_TENOR_G, RATE_G, SETTLEMENT_DAYS_G, NOTIONAL_G, 0,
         CALENDAR_G, DAY_COUNT_G, BUSINESS_DAY_G, YIELD_CONVENTION_G, IS_EOM_G, ISSUER, REPO_TYPE);
     final BondFixedSecurity BondNoEx = bondNoExDefinition.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
-    double pvNoEx = METHOD.presentValue(BondNoEx, CURVES);
-    CouponFixedDefinition couponDefinitionEx = BOND_FIXED_SECURITY_DEFINITION_G.getCoupon().getNthPayment(17);
-    double pvCpn = PVC.visit(couponDefinitionEx.toDerivative(REFERENCE_DATE_3, CURVES_NAME), CURVES);
+    final double pvNoEx = METHOD.presentValue(BondNoEx, CURVES);
+    final CouponFixedDefinition couponDefinitionEx = BOND_FIXED_SECURITY_DEFINITION_G.getCoupon().getNthPayment(17);
+    final double pvCpn = PVC.visit(couponDefinitionEx.toDerivative(REFERENCE_DATE_3, CURVES_NAME), CURVES);
     assertEquals("Fixed coupon bond security: present value ex dividend", pvNoEx - pvCpn, pv, 1.0E-6);
   }
 
   @Test
   public void dirtyPriceFixedExDividend() {
-    double pv = METHOD.presentValue(BOND_FIXED_SECURITY_G, CURVES);
-    double df = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(REFERENCE_TIME_3);
-    double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_G, CURVES);
+    final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_G, CURVES);
+    final double df = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(REFERENCE_TIME_3);
+    final double dirty = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_G, CURVES);
     assertEquals("Fixed coupon bond security: dirty price from curves", pv / df / BOND_FIXED_SECURITY_G.getCoupon().getNthPayment(0).getNotional(), dirty);
     assertTrue("Fixed coupon bond security: dirty price is relative price", (0.50 < dirty) & (dirty < 2.0));
   }
 
   @Test
   public void dirtyPriceFromYieldUKExDividend() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
-    double dirtyPriceExpected = 1.0277859038; // To be check with another source.
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
+    final double dirtyPriceExpected = 1.0277859038; // To be check with another source.
     assertEquals("Fixed coupon bond security: dirty price from yield UK", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
@@ -314,31 +314,31 @@ public class BondSecurityDiscountingMethodTest {
   public void dirtyPriceFromYieldUKLastPeriod() {
     final ZonedDateTime referenceDate = DateUtil.getUTCDate(2014, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(referenceDate, CURVES_NAME);
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
+    final double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
     assertEquals("Fixed coupon bond security: dirty price from yield UK - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
   @Test
   public void yieldFromDirtyPriceUKExDividend() {
-    double yield = 0.04;
-    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
-    double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_G, dirtyPrice);
+    final double yield = 0.04;
+    final double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
+    final double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_G, dirtyPrice);
     assertEquals("Fixed coupon bond security: yield from dirty price UK", yield, yieldComputed, 1E-10);
   }
 
   @Test
   public void modifiedDurationFromYieldUKExDividend() {
-    double yield = 0.04;
-    double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_G, yield);
-    double modifiedDurationExpected = 2.7757118292; // To be check with another source.
+    final double yield = 0.04;
+    final double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_G, yield);
+    final double modifiedDurationExpected = 2.7757118292; // To be check with another source.
     assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - hard coded value", modifiedDurationExpected, modifiedDuration, 1E-8);
-    double shift = 1.0E-6;
-    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
-    double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield + shift);
-    double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield - shift);
-    double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
+    final double shift = 1.0E-6;
+    final double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
+    final double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield + shift);
+    final double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield - shift);
+    final double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
     assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - finite difference", modifiedDurationFD, modifiedDuration, 1E-8);
   }
 
@@ -359,26 +359,26 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void dirtyPriceFromCleanPriceUK() {
-    double cleanPrice = 110.20 / 100.00;
-    double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
-    double dirtyPriceExpected = 1.11558696;
+    final double cleanPrice = 110.20 / 100.00;
+    final double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    final double dirtyPriceExpected = 1.11558696;
     assertEquals("Fixed coupon bond security: dirty price from clean price", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
   @Test
   public void yieldPriceFromCleanPriceUK() {
-    double cleanPrice = 110.20 / 100.00;
-    double yield = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
-    double yieldExpected = 0.04870;
+    final double cleanPrice = 110.20 / 100.00;
+    final double yield = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    final double yieldExpected = 0.04870;
     assertEquals("Fixed coupon bond security: dirty price from clean price", yieldExpected, yield, 1E-5);
   }
 
   @Test
   public void modifiedDurationFromCleanPriceUK() {
-    double cleanPrice = 110.20 / 100.00;
-    double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
-    double md = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_G2, dirtyPrice);
-    double mdExpected = 7.039;
+    final double cleanPrice = 110.20 / 100.00;
+    final double dirtyPrice = METHOD.dirtyPriceFromCleanPrice(BOND_FIXED_SECURITY_G2, cleanPrice);
+    final double md = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_G2, dirtyPrice);
+    final double mdExpected = 7.039;
     assertEquals("Fixed coupon bond security: dirty price from clean price", mdExpected, md, 1E-3);
   }
 

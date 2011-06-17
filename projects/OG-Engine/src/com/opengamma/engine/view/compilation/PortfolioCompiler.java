@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -51,22 +52,23 @@ public final class PortfolioCompiler {
    * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
    * 
    * @param compilationContext  the context of the view definition compilation
+   * @param forcePortfolioResolution  {@code true} if there are external portfolio targets, {@code false} otherwise
    * @return the fully-resolved portfolio structure if any portfolio targets were required, {@code null}
    *         otherwise.
    */
-  protected static Portfolio execute(ViewCompilationContext compilationContext) {
+  protected static Portfolio execute(ViewCompilationContext compilationContext, boolean forcePortfolioResolution) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
 
-    if (!hasPortfolioOutput(compilationContext.getViewDefinition())) {
+    if (!isPortfolioOutputEnabled(compilationContext.getViewDefinition())) {
       // Doesn't even matter if the portfolio can't be resolved - we're not outputting anything at the portfolio level
       // (which might be because the user knows the portfolio can't be resolved right now) so there are no portfolio
       // targets to add to the dependency graph.
       return null;
     }
-
-    Portfolio portfolio = null;
+     
+    Portfolio portfolio = forcePortfolioResolution ? getPortfolio(compilationContext) : null;
 
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       if (calcConfig.getAllPortfolioRequirements().size() == 0) {
@@ -92,12 +94,12 @@ public final class PortfolioCompiler {
   // --------------------------------------------------------------------------
   
   /**
-   * Tests whether the view has at least one portfolio target.
+   * Tests whether the view has portfolio outputs enabled.
    * 
    * @param viewDefinition the view definition
    * @return {@code true} if there is at least one portfolio target, {@code false} otherwise
    */
-  private static boolean hasPortfolioOutput(ViewDefinition viewDefinition) {
+  private static boolean isPortfolioOutputEnabled(ViewDefinition viewDefinition) {
     ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
     return resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE || resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
   }
@@ -238,12 +240,17 @@ public final class PortfolioCompiler {
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.setSecurity(security);
       populatedPosition.setParentNodeId(populatedNode.getUniqueId());
-      //set the children trade security as well
-      for (Trade trade : position.getTrades()) {
-        TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
-        populatedTrade.setSecurity(security);
-        populatedPosition.addTrade(populatedTrade);
+      // set the children trade security as well
+      final Set<Trade> origTrades = populatedPosition.getTrades();
+      if (!origTrades.isEmpty()) {
+        final Set<Trade> newTrades = Sets.newHashSetWithExpectedSize(origTrades.size());
+        for (Trade trade : origTrades) {
+          TradeImpl populatedTrade = new TradeImpl(trade);
+          populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
+          populatedTrade.setSecurity(security);
+          newTrades.add(populatedTrade);
+        }
+        populatedPosition.setTrades(newTrades);
       }
       populatedNode.addPosition(populatedPosition);
     }

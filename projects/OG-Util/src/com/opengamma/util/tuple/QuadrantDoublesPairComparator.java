@@ -15,7 +15,7 @@ import java.util.Comparator;
  * If the quadrants differ then the result is returned based on the quadrant value.
  * If the quadrants are equal, {@link FirstThenSecondDoublesPairComparator} is used.
  * <p>
- * This comparator does not support {@code null} elements in the pair.
+ * This comparator does not support null elements in the pair.
  * <p>
  * This class is immutable and thread-safe.
  */

@@ -59,6 +59,8 @@ public class DebugService {
     s_serverSocketConnectionReceiver = new ServerSocketFudgeConnectionReceiver(s_clientContext.getFudgeContext(), new DebugConnectionReceiver());
     s_serverSocketConnectionReceiver.setPortNumber(port);
     s_serverSocketConnectionReceiver.start();
+    
+    System.out.println("================================== READY TO SERVE " + languageId.toUpperCase() + " =======================================");
   }
   // CSON: main method
 
