@@ -9,6 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
@@ -22,6 +23,8 @@ public class SwaptionSecurityBean extends SecurityBean {
   private IdentifierBean _underlying;
   private Boolean _cashSettled;
   private Boolean _long;
+  private Boolean _payer;
+  private CurrencyBean _currency;
   
   public SwaptionSecurityBean() {
     super();
@@ -58,7 +61,7 @@ public class SwaptionSecurityBean extends SecurityBean {
 
 
 
-  public Boolean iscashSettled() {
+  public Boolean isCashSettled() {
     return _cashSettled;
   }
 
@@ -74,6 +77,37 @@ public class SwaptionSecurityBean extends SecurityBean {
     _long = aLong;
   }
   
+  /**
+   * Gets the payer.
+   * @return the payer
+   */
+  public Boolean isPayer() {
+    return _payer;
+  }
+
+  /**
+   * Sets the payer.
+   * @param payer  the payer
+   */
+  public void setPayer(Boolean payer) {
+    _payer = payer;
+  }
+  
+  /**
+   * Gets the currency.
+   * @return the currency
+   */
+  public CurrencyBean getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * Sets the currency.
+   * @param currency  the currency
+   */
+  public void setCurrency(CurrencyBean currency) {
+    _currency = currency;
+  }
 
   @Override
   public boolean equals(final Object other) {
@@ -88,8 +122,10 @@ public class SwaptionSecurityBean extends SecurityBean {
       .append(getId(), option.getId())
       .append(getExpiry(), option.getExpiry())
       .append(getUnderlying(), option.getUnderlying())
-      .append(iscashSettled(), option.iscashSettled())
+      .append(isCashSettled(), option.isCashSettled())
       .append(isLong(), option.isLong())
+      .append(isPayer(), option.isPayer())
+      .append(getCurrency(), getCurrency())
       .isEquals();
   }
 
@@ -98,8 +134,10 @@ public class SwaptionSecurityBean extends SecurityBean {
     return new HashCodeBuilder()
       .append(getExpiry())
       .append(getUnderlying())
-      .append(iscashSettled())
+      .append(isCashSettled())
       .append(isLong())
+      .append(isPayer())
+      .append(getCurrency())
       .toHashCode();
   }
 
