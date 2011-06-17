@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.historicaldata;
 
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -15,7 +16,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * This provides a time-series on a daily basis that is associated with a unique identifier.
  */
 @PublicSPI
-public interface HistoricalTimeSeries {
+public interface HistoricalTimeSeries extends UniqueIdentifiable {
 
   /**
    * Gets the unique identifier of the time-series.

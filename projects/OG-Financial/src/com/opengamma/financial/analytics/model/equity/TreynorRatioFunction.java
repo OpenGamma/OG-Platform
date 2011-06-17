@@ -14,7 +14,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
@@ -66,8 +66,8 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final ConventionBundle bundle = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final HistoricalTimeSeries riskFreeRateTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(IdentifierBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (riskFreeRateTSObject == null) {
       throw new NullPointerException("Risk free rate series was null");

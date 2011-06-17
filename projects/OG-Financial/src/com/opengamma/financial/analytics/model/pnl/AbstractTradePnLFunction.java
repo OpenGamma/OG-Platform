@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -74,8 +74,8 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final Security security = trade.getSecurity();
       LocalDate tradeDate = trade.getTradeDate();
       
-      final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-      final HistoricalTimeSeries markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
+      final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+      final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
       
       final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
@@ -91,7 +91,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       }
       
       double costOfCarry = 0.0;
-      final HistoricalTimeSeries costOfCarryPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _costOfCarryField,
+      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _costOfCarryField,
           tradeDate, true, tradeDate, false);
       if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
         Double storedCostOfCarry = costOfCarryPair.getTimeSeries().getValue(tradeDate);

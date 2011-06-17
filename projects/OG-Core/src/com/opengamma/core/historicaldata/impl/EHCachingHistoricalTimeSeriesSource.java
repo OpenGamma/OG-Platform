@@ -21,7 +21,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -30,23 +30,23 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * A cache decorating a {@code HistoricalDataSource}.
+ * A cache decorating a {@code HistoricalTimeSeriesSource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingHistoricalDataSource implements HistoricalDataSource {
+public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataSource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalTimeSeriesSource.class);
   /**
    * The cache name.
    */
-  private static final String CACHE_NAME = "HistoricalDataCache";
+  private static final String CACHE_NAME = "HistoricalTimeSeriesCache";
 
   /**
    * The underlying source.
    */
-  private final HistoricalDataSource _underlying;
+  private final HistoricalTimeSeriesSource _underlying;
   /**
    * The cache.
    */
@@ -68,12 +68,12 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
    * @param diskExpiryThreadIntervalSeconds  cache configuration
    * @param registeredEventListeners  cache configuration
    */
-  public EHCachingHistoricalDataSource(
-      final HistoricalDataSource underlying, final CacheManager cacheManager, final int maxElementsInMemory,
+  public EHCachingHistoricalTimeSeriesSource(
+      final HistoricalTimeSeriesSource underlying, final CacheManager cacheManager, final int maxElementsInMemory,
       final MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, final boolean overflowToDisk, final String diskStorePath,
       final boolean eternal, final long timeToLiveSeconds, final long timeToIdleSeconds, final boolean diskPersistent,
       final long diskExpiryThreadIntervalSeconds, final RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
@@ -87,8 +87,8 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
    * @param underlying  the underlying source, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingHistoricalDataSource(HistoricalDataSource underlying, CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+  public EHCachingHistoricalTimeSeriesSource(HistoricalTimeSeriesSource underlying, CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "Cache Manager");
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, CACHE_NAME);
@@ -101,7 +101,7 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
    * 
    * @return the underlying source, not null
    */
-  public HistoricalDataSource getUnderlying() {
+  public HistoricalTimeSeriesSource getUnderlying() {
     return _underlying;
   }
 
@@ -116,11 +116,11 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeries hts = getFromCache(uniqueId);
     if (hts == null) {
-      hts = _underlying.getHistoricalData(uniqueId);
+      hts = _underlying.getHistoricalTimeSeries(uniqueId);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
         _cache.put(new Element(uniqueId, hts));
@@ -130,27 +130,27 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    HistoricalTimeSeries hts = getHistoricalData(uniqueId);
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalDataKey key = new HistoricalDataKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
     HistoricalTimeSeries hts = getFromCache(key);
     if (hts == null) {
-      hts = _underlying.getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField);
+      hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
         _cache.put(new Element(key, hts.getUniqueId()));
@@ -161,36 +161,36 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalData(
+    return getHistoricalTimeSeries(
         identifiers, (LocalDate) null, dataSource, dataProvider, dataField,
         start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    HistoricalTimeSeries tsPair = getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField);
+    HistoricalTimeSeries tsPair = getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField);
     return getSubSeries(tsPair, start, inclusiveStart, end, exclusiveEnd);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName) {
-    return getHistoricalData(identifiers, null, configDocName);
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName) {
+    return getHistoricalTimeSeries(identifiers, null, configDocName);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalDataKey key = new HistoricalDataKey(configDocName, currentDate, identifiers, null, null, null);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(configDocName, currentDate, identifiers, null, null, null);
     HistoricalTimeSeries hts = getFromCache(key);
     if (hts == null) {
-      hts = _underlying.getHistoricalData(identifiers, currentDate, configDocName);
+      hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, configDocName);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
         _cache.put(new Element(key, hts.getUniqueId()));
@@ -201,21 +201,21 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalData(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    HistoricalTimeSeries tsPair = getHistoricalData(identifiers, currentDate, configDocName);
+    HistoricalTimeSeries tsPair = getHistoricalTimeSeries(identifiers, currentDate, configDocName);
     return getSubSeries(tsPair, start, inclusiveStart, end, exclusiveEnd);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalData(
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifierSet, "identifierSet");
@@ -223,7 +223,7 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
     Set<IdentifierBundle> remainingIdentifiers = new HashSet<IdentifierBundle>();
     // caching works individually but all misses can be passed to underlying as one request
     for (IdentifierBundle identifiers : identifierSet) {
-      HistoricalDataKey key = new HistoricalDataKey(null, null, identifiers, dataSource, dataProvider, dataField);
+      HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
       HistoricalTimeSeries hts = getFromCache(key);
       if (hts != null) {
         hts = getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
@@ -234,7 +234,7 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
     }
     if (remainingIdentifiers.size() > 0) {
       Map<IdentifierBundle, HistoricalTimeSeries> remainingTsResults =
-        _underlying.getHistoricalData(remainingIdentifiers, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+        _underlying.getHistoricalTimeSeries(remainingIdentifiers, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
       for (Map.Entry<IdentifierBundle, HistoricalTimeSeries> tsResult : remainingTsResults.entrySet()) {
         IdentifierBundle identifiers = tsResult.getKey();
         HistoricalTimeSeries hts = tsResult.getValue();
@@ -252,7 +252,7 @@ public class EHCachingHistoricalDataSource implements HistoricalDataSource {
    * @param key  the key, not null
    * @return the time-series, null if no match
    */
-  private HistoricalTimeSeries getFromCache(HistoricalDataKey key) {
+  private HistoricalTimeSeries getFromCache(HistoricalTimeSeriesKey key) {
     Element element = _cache.get(key);
     if (element == null || element.getValue() instanceof UniqueIdentifier == false) {
       s_logger.debug("Cache miss on {}", key.getIdentifiers());

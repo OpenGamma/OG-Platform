@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -72,8 +72,8 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final Security security = target.getSecurity();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final HistoricalTimeSeries tsObject = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
         .toLocalDate(), false);
     if (tsObject == null) {
       throw new NullPointerException("Could not get time series for " + security.getIdentifiers());

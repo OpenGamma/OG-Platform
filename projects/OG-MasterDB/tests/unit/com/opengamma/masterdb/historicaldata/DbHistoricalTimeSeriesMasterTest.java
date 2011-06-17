@@ -109,7 +109,7 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/masterdb/timeseries/tssQueries.xml");
+    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/masterdb/historicaldata/tssQueries.xml");
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
     _master = getTimeSeriesMaster(namedSQLMap);

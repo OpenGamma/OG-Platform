@@ -16,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
@@ -32,16 +32,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A {@code HistoricalDataSource} implemented using an underlying {@code HistoricalDataMaster}.
+ * A {@code HistoricalTimeSeriesSource} implemented using an underlying {@code HistoricalTimeSeriesMaster}.
  * <p>
- * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
+ * The {@link HistoricalTimeSeriesSource} interface provides time-series to the engine via a narrow API.
  * This class provides the source on top of a standard {@link HistoricalTimeSeriesMaster}.
  */
 @PublicSPI
-public class MasterHistoricalDataSource implements HistoricalDataSource {
+public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalDataSource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalTimeSeriesSource.class);
   /**
    * The historical time-series master.
    */
@@ -57,7 +57,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
    * @param master  the historical time-series master, not null
    * @param resolver  the resolver, not null
    */
-  public MasterHistoricalDataSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesInfoResolver resolver) {
+  public MasterHistoricalTimeSeriesSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesInfoResolver resolver) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(resolver, "resolver");
     _master = master;
@@ -76,22 +76,22 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId) {
-    return getHistoricalData(uniqueId, null, null);
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+    return doGetHistoricalTimeSeries(uniqueId, null, null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
       start = start.plusDays(1);
     }
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(uniqueId, start, end);
+    return doGetHistoricalTimeSeries(uniqueId, start, end);
   }
 
-  private HistoricalTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
+  private HistoricalTimeSeries doGetHistoricalTimeSeries(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeriesGetRequest request = new HistoricalTimeSeriesGetRequest(uniqueId);
     request.setLoadEarliestLatest(false);
@@ -105,19 +105,19 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalData(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
+    return doGetHistoricalTimeSeries(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalData(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
+    return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
@@ -126,11 +126,11 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, end);
+    return doGetHistoricalTimeSeries(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, end);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
@@ -139,10 +139,10 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end);
+    return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end);
   }
 
-  private HistoricalTimeSeries getHistoricalData(
+  private HistoricalTimeSeries doGetHistoricalTimeSeries(
       IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(identifiers, "identifiers");
@@ -176,13 +176,13 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, String configDocName) {
-    return getHistoricalData(securityBundle, configDocName, (LocalDate) null, (LocalDate) null, (LocalDate) null);
+    return doGetHistoricalTimeSeries(securityBundle, configDocName, (LocalDate) null, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
@@ -191,17 +191,17 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(securityBundle, configDocName, (LocalDate) null, start, end);
+    return doGetHistoricalTimeSeries(securityBundle, configDocName, (LocalDate) null, start, end);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, LocalDate identifierValidityDate, String configDocName) {
-    return getHistoricalData(securityBundle, configDocName, identifierValidityDate, null, null);
+    return doGetHistoricalTimeSeries(securityBundle, configDocName, identifierValidityDate, null, null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(
+  public HistoricalTimeSeries getHistoricalTimeSeries(
       IdentifierBundle securityBundle, LocalDate identifierValidityDate, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
@@ -210,10 +210,10 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(securityBundle, configDocName, identifierValidityDate, start, end);
+    return doGetHistoricalTimeSeries(securityBundle, configDocName, identifierValidityDate, start, end);
   }
 
-  private HistoricalTimeSeries getHistoricalData(
+  private HistoricalTimeSeries doGetHistoricalTimeSeries(
       IdentifierBundle securityBundle, String configDocName, LocalDate identifierValidityDate, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(securityBundle != null && !securityBundle.getIdentifiers().isEmpty(), "Cannot get historical time-series with null/empty identifiers");
     if (StringUtils.isBlank(configDocName)) {
@@ -223,12 +223,12 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (info == null) {
       return null;
     }
-    return getHistoricalData(securityBundle, identifierValidityDate, info.getDataSource(), info.getDataProvider(), info.getDataField(), start, end);
+    return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, info.getDataSource(), info.getDataProvider(), info.getDataField(), start, end);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalData(
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     // TODO [PLAT-1046]
@@ -238,7 +238,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "MasterHistoricalDataSource[" + getMaster() + "]";
+    return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
   }
 
 }

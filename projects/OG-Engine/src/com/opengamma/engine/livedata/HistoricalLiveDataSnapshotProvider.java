@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -26,13 +26,13 @@ import com.opengamma.livedata.UserPrincipal;
 public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshotProvider implements LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalLiveDataSnapshotProvider.class);
   private static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
-  private HistoricalDataSource _historicalDataSource;
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private String _dataSource;
   private String _dataProvider;
   private String _field;
   
-  public HistoricalLiveDataSnapshotProvider(HistoricalDataSource historicalDataSource, String dataSource, String dataProvider, String field) {
-    _historicalDataSource = historicalDataSource;
+  public HistoricalLiveDataSnapshotProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource, String dataSource, String dataProvider, String field) {
+    _historicalTimeSeriesSource = historicalTimeSeriesSource;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _field = field;
@@ -56,7 +56,7 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
     LocalDate date = LocalDate.ofEpochDays(snapshot / MILLIS_PER_DAY);
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    HistoricalTimeSeries hts = _historicalDataSource.getHistoricalData(
+    HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(
         IdentifierBundle.of(identifier), 
         _dataSource, 
         _dataProvider, 
@@ -88,11 +88,11 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    HistoricalTimeSeries hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field);
+    HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field);
     if (hts == null) {
-      hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field);
+      hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field);
       if (hts == null) {
-        hts = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field);
+        hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field);
       }
     }
     return (hts != null);

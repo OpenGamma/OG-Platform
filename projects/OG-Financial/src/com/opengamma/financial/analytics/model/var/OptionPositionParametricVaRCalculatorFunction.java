@@ -17,7 +17,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -110,7 +110,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     final Position position = target.getPosition();
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueId());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
@@ -124,7 +124,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
         if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
           final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
           for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-            final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
+            final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _dataSourceName, null, securitySource, underlyingType,
                 position.getSecurity());
             final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
             final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);

@@ -10,9 +10,9 @@ import com.opengamma.util.rest.AbstractResourceService;
 /**
  * 
  */
-public final class HistoricalDataSourceServiceNames {
+public final class HistoricalTimeSeriesSourceServiceNames {
 
-  private HistoricalDataSourceServiceNames() {
+  private HistoricalTimeSeriesSourceServiceNames() {
   }
 
   /**
@@ -23,16 +23,16 @@ public final class HistoricalDataSourceServiceNames {
   /**
    *
    */
-  public static final String DEFAULT_HISTORICALDATASOURCE_NAME = AbstractResourceService.DEFAULT_RESOURCE_NAME;
+  public static final String DEFAULT_HISTORICALTIMESERIESSOURCE_NAME = AbstractResourceService.DEFAULT_RESOURCE_NAME;
 
   /**
-  *
-  */
-  public static final String HISTORICALDATASOURCE_UNIQUEID = "uniqueId";
+   *
+   */
+  public static final String HISTORICALTIMESERIESSOURCE_UNIQUEID = "uniqueId";
   /**
-  *
-  */
-  public static final String HISTORICALDATASOURCE_TIMESERIES = "timeSeries";
+   *
+   */
+  public static final String HISTORICALTIMESERIESSOURCE_TIMESERIES = "timeSeries";
 
   /**
    * 

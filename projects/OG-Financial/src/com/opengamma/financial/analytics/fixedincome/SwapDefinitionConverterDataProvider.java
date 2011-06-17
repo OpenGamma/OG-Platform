@@ -15,7 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -31,13 +31,13 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class SwapDefinitionConverterDataProvider implements
     SwapSecurityVisitor<Map<SwapLeg, DoubleTimeSeries<ZonedDateTime>>> {
-  private final HistoricalDataSource _dataSource;
+  private final HistoricalTimeSeriesSource _dataSource;
   private final String _dataSourceName;
   private final String _fieldName;
   private final LocalDate _now;
   private final TimeZone _timeZone;
 
-  public SwapDefinitionConverterDataProvider(final HistoricalDataSource dataSource,
+  public SwapDefinitionConverterDataProvider(final HistoricalTimeSeriesSource dataSource,
       final String dataSourceName, final String fieldName, final ZonedDateTime now) {
     Validate.notNull(dataSource, "data source");
     Validate.notNull(dataSourceName, "data source name");
@@ -78,7 +78,7 @@ public class SwapDefinitionConverterDataProvider implements
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final UniqueIdentifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id = null; //TODO //IdentifierBundle.of(indexID);
-      final HistoricalTimeSeries hts = _dataSource.getHistoricalData(id,
+      final HistoricalTimeSeries hts = _dataSource.getHistoricalTimeSeries(id,
           _dataSourceName, null, _fieldName, swapStartDate.toLocalDate(), true, _now, false);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());

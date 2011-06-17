@@ -5,18 +5,18 @@
  */
 package com.opengamma.financial.historicaldata.rest;
 
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_TIMESERIES;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_EXCLUSIVE_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_TIMESERIES;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_UNIQUEID;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.NULL_VALUE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -47,9 +47,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * REST resource wrapper for a {@link HistoricalDataSource}.
+ * REST resource wrapper for a {@link HistoricalTimeSeriesSource}.
  */
-public class HistoricalDataSourceResource {
+public class HistoricalTimeSeriesSourceResource {
+
   /**
    * The Fudge context.
    */
@@ -57,23 +58,24 @@ public class HistoricalDataSourceResource {
   /**
    * The underlying data source.
    */
-  private final HistoricalDataSource _dataSource;
+  private final HistoricalTimeSeriesSource _source;
 
   /**
-   * Creates a resource to expose a data source over REST.
+   * Creates a resource to expose a source over REST.
    * @param fudgeContext  the context, not null
-   * @param dataSource  the data source, not null
+   * @param source  the historical time-series source, not null
    */
-  public HistoricalDataSourceResource(final FudgeContext fudgeContext, final HistoricalDataSource dataSource) {
+  public HistoricalTimeSeriesSourceResource(final FudgeContext fudgeContext, final HistoricalTimeSeriesSource source) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(source, "source");
     _fudgeContext = fudgeContext;
-    _dataSource = dataSource;
+    _source = source;
   }
 
   // -------------------------------------------------------------------------
   /**
    * Gets the Fudge context.
+   * 
    * @return the context, not null
    */
   protected FudgeContext getFudgeContext() {
@@ -81,14 +83,15 @@ public class HistoricalDataSourceResource {
   }
 
   /**
-   * Gets the data source.
-   * @return the data source, not null
+   * Gets the source.
+   * 
+   * @return the source, not null
    */
-  protected HistoricalDataSource getHistoricalDataSource() {
-    return _dataSource;
+  protected HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _source;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the serialization context derived from the main Fudge context.
    * @return the context, not null
@@ -111,8 +114,8 @@ public class HistoricalDataSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEID, null, result.getUniqueId(), UniqueIdentifier.class);
-    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
 
@@ -124,7 +127,7 @@ public class HistoricalDataSourceResource {
       @PathParam("dataProvider") String dataProvider, 
       @PathParam("dataField") String dataField,
       @QueryParam("id") List<String> identifiers) {
-    return encodeMessage(getHistoricalDataSource().getHistoricalData(
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
         NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField));
   }
@@ -141,20 +144,20 @@ public class HistoricalDataSourceResource {
       @PathParam("excludeEnd") String excludeEnd,
       @QueryParam("id") List<String> identifiers) {
     
-    HistoricalTimeSeries historicalData = getHistoricalDataSource().getHistoricalData(
+    HistoricalTimeSeries hts = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
         NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField,
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd));
-    return encodeMessage(historicalData);
+    return encodeMessage(hts);
   }
-  
+
   @GET
   @Path("default/{currentDate}/{configDocName}")
   public FudgeMsgEnvelope getDefault(@PathParam("currentDate") String currentDate, 
       @PathParam("configDocName") String configDocName, 
       @QueryParam("id") List<String> identifiers) {
-    return encodeMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers),
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(identifiersToBundle(identifiers),
         NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), NULL_VALUE.equals(configDocName) ? null : configDocName));
   }
 
@@ -167,7 +170,7 @@ public class HistoricalDataSourceResource {
       @PathParam("end") String end, 
       @PathParam("excludeEnd") String excludeEnd,
       @QueryParam("id") List<String> identifiers) {
-    return encodeMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers),
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(identifiersToBundle(identifiers),
         NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
         NULL_VALUE.equals(configDocName) ? null : configDocName,
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
@@ -177,7 +180,7 @@ public class HistoricalDataSourceResource {
   @GET
   @Path("uid/{uid}")
   public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
-    return encodeMessage(getHistoricalDataSource().getHistoricalData(UniqueIdentifier.parse(uid)));
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueIdentifier.parse(uid)));
   }
 
   @GET
@@ -187,12 +190,12 @@ public class HistoricalDataSourceResource {
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end,
       @PathParam("excludeEnd") String excludeEnd) {
-    return encodeMessage(getHistoricalDataSource().getHistoricalData(
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         UniqueIdentifier.parse(uid), 
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
   }
-  
+
   @POST
   @Path(REQUEST_MULTIPLE)
   @SuppressWarnings("unchecked")
@@ -212,11 +215,11 @@ public class HistoricalDataSourceResource {
     LocalDate end = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_END));
     boolean exclusiveEnd = msg.getBoolean(REQUEST_EXCLUSIVE_END);
     
-    Map<IdentifierBundle, HistoricalTimeSeries> result = _dataSource.getHistoricalData(
+    Map<IdentifierBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, Map.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result, Map.class);
     return new FudgeMsgEnvelope(message); 
   }
 
@@ -230,7 +233,7 @@ public class HistoricalDataSourceResource {
   public FudgeMsgEnvelope getDebugInfo() {
     final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
-    message.add("historicalDataSource", getHistoricalDataSource().toString());
+    message.add("historicalTimeSeriesSource", getHistoricalTimeSeriesSource().toString());
     return new FudgeMsgEnvelope(message);
   }
 

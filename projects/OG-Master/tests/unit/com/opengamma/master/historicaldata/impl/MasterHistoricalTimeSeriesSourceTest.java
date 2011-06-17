@@ -29,7 +29,7 @@ import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
-import com.opengamma.master.historicaldata.impl.MasterHistoricalDataSource;
+import com.opengamma.master.historicaldata.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
@@ -37,11 +37,11 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 
 /**
- * Test MasterHistoricalDataSource.
+ * Test MasterHistoricalTimeSeriesSource.
  * Ensure it makes the right method calls to the underlying master and resolver.
  */
 @Test
-public class MasterHistoricalDataSourceTest {
+public class MasterHistoricalTimeSeriesSourceTest {
 
   private static final String TEST_CONFIG = "TEST_CONFIG";
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "1");
@@ -52,13 +52,13 @@ public class MasterHistoricalDataSourceTest {
   
   private HistoricalTimeSeriesMaster _mockMaster;
   private HistoricalTimeSeriesInfoResolver _mockResolver;
-  private MasterHistoricalDataSource _tsSource;
+  private MasterHistoricalTimeSeriesSource _tsSource;
 
   @BeforeMethod
   public void setUp() throws Exception {
     _mockMaster = mock(HistoricalTimeSeriesMaster.class);
     _mockResolver = mock(HistoricalTimeSeriesInfoResolver.class);
-    _tsSource = new MasterHistoricalDataSource(_mockMaster, _mockResolver);
+    _tsSource = new MasterHistoricalTimeSeriesSource(_mockMaster, _mockResolver);
   }
 
   @AfterMethod
@@ -72,21 +72,21 @@ public class MasterHistoricalDataSourceTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
     HistoricalTimeSeriesInfoResolver mock = mock(HistoricalTimeSeriesInfoResolver.class);
-    new MasterHistoricalDataSource(null, mock);
+    new MasterHistoricalTimeSeriesSource(null, mock);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith2ArgNull() throws Exception {
     HistoricalTimeSeriesMaster mock = mock(HistoricalTimeSeriesMaster.class);
-    new MasterHistoricalDataSource(mock, null);
+    new MasterHistoricalTimeSeriesSource(mock, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWithNull() throws Exception {
-    new MasterHistoricalDataSource(null, null);
+    new MasterHistoricalTimeSeriesSource(null, null);
   }
 
-  public void getHistoricalDataByIdentifierWithMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByIdentifierWithMetaData() throws Exception {
     HistoricalTimeSeriesSearchRequest request = new HistoricalTimeSeriesSearchRequest();
     request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
@@ -104,7 +104,7 @@ public class MasterHistoricalDataSourceTest {
     
     when(_mockMaster.search(request)).thenReturn(searchResult);
     
-    HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     verify(_mockMaster, times(1)).search(request);
     
     assertEquals(UID, hts.getUniqueId());
@@ -112,7 +112,7 @@ public class MasterHistoricalDataSourceTest {
     assertEquals(tsDoc.getTimeSeries().values(), hts.getTimeSeries().values());
   }
 
-  public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByIdentifierWithoutMetaData() throws Exception {
     HistoricalTimeSeriesSearchRequest request = new HistoricalTimeSeriesSearchRequest();
     request.setIdentifiers(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
@@ -136,7 +136,7 @@ public class MasterHistoricalDataSourceTest {
     when(_mockMaster.search(request)).thenReturn(searchResult);
     when(_mockResolver.getInfo(IDENTIFIERS, TEST_CONFIG)).thenReturn(info);
     
-    HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, TEST_CONFIG);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).search(request);
     
     assertEquals(UID, hts.getUniqueId());
@@ -178,7 +178,7 @@ public class MasterHistoricalDataSourceTest {
         tsDoc.setTimeSeries(subSeries);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
-        HistoricalTimeSeries hts = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
+        HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
         verify(_mockMaster, times(1)).search(request);
         assertEquals(UID, hts.getUniqueId());
         assertEquals(tsDoc.getTimeSeries(), hts.getTimeSeries());
@@ -198,7 +198,7 @@ public class MasterHistoricalDataSourceTest {
     return dts;
   }
 
-  public void getHistoricalDataByUID() throws Exception {
+  public void getHistoricalTimeSeriesByUID() throws Exception {
     HistoricalTimeSeriesGetRequest request = new HistoricalTimeSeriesGetRequest(UID);
     request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
@@ -212,7 +212,7 @@ public class MasterHistoricalDataSourceTest {
     
     when(_mockMaster.get(request)).thenReturn(tsDoc);
     
-    HistoricalTimeSeries hts = _tsSource.getHistoricalData(UID);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(UID);
     verify(_mockMaster, times(1)).get(request);
     
     assertEquals(UID, hts.getUniqueId());

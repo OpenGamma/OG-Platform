@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -74,9 +74,9 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
-    final HistoricalTimeSeries tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName,
+    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSourceName, null, _fieldName,
         _startDate, true, now, false);
     if (tsPair == null) {
       throw new NullPointerException("Could not get identifier / price series pair for security " + security);

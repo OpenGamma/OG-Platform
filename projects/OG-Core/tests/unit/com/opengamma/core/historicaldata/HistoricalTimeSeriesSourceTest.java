@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource;
-import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
+import com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaldata.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -31,12 +31,12 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test HistoricalDataSource.
+ * Test HistoricalTimeSeriesSource.
  */
 @Test
-public class HistoricalDataSourceTest {
+public class HistoricalTimeSeriesSourceTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataSourceTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesSourceTest.class);
   private static final String ALPHAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private Set<String> _usedIds = new HashSet<String>();
 
@@ -90,8 +90,8 @@ public class HistoricalDataSourceTest {
     return IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId(makeUniqueRandomId()), SecurityUtils.bloombergBuidSecurityId(makeUniqueRandomId()));
   }
 
-  private Pair<HistoricalDataSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
-    MockHistoricalDataSource inMemoryHistoricalDataProvider = new MockHistoricalDataSource();
+  private Pair<HistoricalTimeSeriesSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
+    MockHistoricalTimeSeriesSource inMemoryHistoricalSource = new MockHistoricalTimeSeriesSource();
     Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i = 0; i < 100; i++) {
       IdentifierBundle ids = makeDomainSpecificIdentifiers();
@@ -115,7 +115,7 @@ public class HistoricalDataSourceTest {
           for (String field : new String[] {"PX_LAST", "VOLUME"}) {
             LocalDateDoubleTimeSeries randomTimeSeries = randomTimeSeries();
             dataProviderSubMap.put(field, randomTimeSeries);
-            inMemoryHistoricalDataProvider.storeHistoricalTimeSeries(ids, dataSource, dataProvider, field, randomTimeSeries);
+            inMemoryHistoricalSource.storeHistoricalTimeSeries(ids, dataSource, dataProvider, field, randomTimeSeries);
           }
         }
       }
@@ -125,24 +125,24 @@ public class HistoricalDataSourceTest {
         for (String dataProvider : new String[] {"UNKNOWN", "CMPL", "CMPT"}) {
           for (String field : new String[] {"PX_LAST", "VOLUME"}) {
             LocalDateDoubleTimeSeries expectedTS = map.get(dsids).get(dataSource).get(dataProvider).get(field);
-            HistoricalTimeSeries hts = inMemoryHistoricalDataProvider.getHistoricalData(dsids, dataSource, dataProvider, field);
+            HistoricalTimeSeries hts = inMemoryHistoricalSource.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
             assertEquals(expectedTS, hts.getTimeSeries());
-            assertEquals(hts, inMemoryHistoricalDataProvider.getHistoricalData(hts.getUniqueId()));
+            assertEquals(hts, inMemoryHistoricalSource.getHistoricalTimeSeries(hts.getUniqueId()));
           }
         }
       }
     }
-    return Pair.of((HistoricalDataSource) inMemoryHistoricalDataProvider, map.keySet());
+    return Pair.of((HistoricalTimeSeriesSource) inMemoryHistoricalSource, map.keySet());
   }
 
   public void testInMemoryProvider() {
     buildAndTestInMemoryProvider();
   }
 
-  public void testEHCachingHistoricalDataProvider() {
-    Pair<HistoricalDataSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
-    HistoricalDataSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
-    EHCachingHistoricalDataSource cachedProvider = new EHCachingHistoricalDataSource(inMemoryHistoricalDataProvider, EHCacheUtils.createCacheManager());
+  public void testEHCachingHistoricalTimeSeriesSource() {
+    Pair<HistoricalTimeSeriesSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
+    HistoricalTimeSeriesSource inMemoryHistoricalSource = providerAndDsids.getFirst();
+    EHCachingHistoricalTimeSeriesSource cachedProvider = new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, EHCacheUtils.createCacheManager());
     Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
     IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
     String[] dataSources = new String[] {"BLOOMBERG", "REUTERS", "JPM"};
@@ -153,12 +153,12 @@ public class HistoricalDataSourceTest {
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];
-      HistoricalTimeSeries inMemSeries = inMemoryHistoricalDataProvider.getHistoricalData(ids, dataSource, dataProvider, field);
-      HistoricalTimeSeries cachedSeries = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field);
+      HistoricalTimeSeries inMemSeries = inMemoryHistoricalSource.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
+      HistoricalTimeSeries cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
       assertEquals(inMemSeries, cachedSeries);
-      assertEquals(inMemoryHistoricalDataProvider.getHistoricalData(inMemSeries.getUniqueId()), cachedProvider.getHistoricalData(cachedSeries.getUniqueId()));
+      assertEquals(inMemoryHistoricalSource.getHistoricalTimeSeries(inMemSeries.getUniqueId()), cachedProvider.getHistoricalTimeSeries(cachedSeries.getUniqueId()));
       
-      cachedSeries = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
+      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
       assertEquals(inMemSeries, cachedSeries);
     }
   }

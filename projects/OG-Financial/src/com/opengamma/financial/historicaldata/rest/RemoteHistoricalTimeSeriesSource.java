@@ -5,24 +5,24 @@
  */
 package com.opengamma.financial.historicaldata.rest;
 
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_TIMESERIES;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DEFAULT;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DEFAULT_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_EXCLUSIVE_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_TIMESERIES;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_UNIQUEID;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.NULL_VALUE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DEFAULT;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DEFAULT_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +37,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
@@ -48,9 +48,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * A HistoricalDataSource implementation that connects to a remote one with REST calls.
+ * A {@code HistoricalTimeSeriesSource} implementation that connects to a remote one with REST calls.
  */
-public class RemoteHistoricalDataSource implements HistoricalDataSource {
+public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
 
   /**
    * The RESTful client instance.
@@ -67,7 +67,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
    * @param fudgeContext  the Fudge context, not null
    * @param baseTarget  the base target URI to call, not null
    */
-  public RemoteHistoricalDataSource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+  public RemoteHistoricalTimeSeriesSource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(baseTarget, "baseTarget");
     _restClient = RestClient.getInstance(fudgeContext, null);
@@ -95,13 +95,13 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     if (message == null) {
       return null;
     }
-    final FudgeField uniqueIdField = message.getByName(HISTORICALDATASOURCE_UNIQUEID);
+    final FudgeField uniqueIdField = message.getByName(HISTORICALTIMESERIESSOURCE_UNIQUEID);
     if (uniqueIdField == null) {
-      throw new IllegalArgumentException(HISTORICALDATASOURCE_UNIQUEID + " not present in message");
+      throw new IllegalArgumentException(HISTORICALTIMESERIESSOURCE_UNIQUEID + " not present in message");
     }
-    final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
+    final FudgeField timeSeriesField = message.getByName(HISTORICALTIMESERIESSOURCE_TIMESERIES);
     if (timeSeriesField == null) {
-      throw new IllegalArgumentException(HISTORICALDATASOURCE_TIMESERIES + " not present in message");
+      throw new IllegalArgumentException(HISTORICALTIMESERIESSOURCE_TIMESERIES + " not present in message");
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
     UniqueIdentifier uniqueId = context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField);
@@ -111,14 +111,14 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uid) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uid.toString());
     return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(uid, "uid");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
@@ -133,7 +133,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -145,12 +145,12 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
   
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
@@ -160,12 +160,12 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName) {
-    return getHistoricalData(identifiers, (LocalDate) null, configDocName);
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName) {
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName);
   }
   
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(start, "start");
@@ -183,13 +183,13 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
   
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalData(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
       String dataProvider, String dataField, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -209,14 +209,14 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalData(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
@@ -232,7 +232,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     
     FudgeMsgEnvelope result = getRestClient().post(target, msg);
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALDATASOURCE_TIMESERIES));
+    return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }
 
 }
