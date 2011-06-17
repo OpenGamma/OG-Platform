@@ -16,8 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 /**
- * TODO Case 2011.06.07 - Add Javadoc description
- * See http://en.wikipedia.org/wiki/Variance_swap
+ * A Variance Swap is a forward contract on the realized variance of an underlying security. 
+ * The floaing leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
  */
 public class VarianceSwapDefinition {
 

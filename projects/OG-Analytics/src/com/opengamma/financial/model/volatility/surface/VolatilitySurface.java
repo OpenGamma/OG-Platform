@@ -5,19 +5,27 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.volatility.VolatilityModel;
+import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.math.Axis;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
+import com.opengamma.math.surface.SurfaceSliceFunction;
 import com.opengamma.util.tuple.DoublesPair;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
 public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   private final Surface<Double, Double, Double> _surface;
+  public static final Axis EXPIRY_AXIS = Axis.X; // TODO Review
+  public static final Axis STRIKE_AXIS = Axis.Y;
 
   public VolatilitySurface(final Surface<Double, Double, Double> surface) {
     Validate.notNull(surface, "surface");
@@ -28,6 +36,27 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   public Double getVolatility(final DoublesPair xy) {
     Validate.notNull(xy, "xy pair");
     return _surface.getZValue(xy);
+  }
+
+  public VolatilityCurve getSlice(Axis axis, double here, Interpolator1D<Interpolator1DDataBundle> interpolator) {
+    Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
+    return new VolatilityCurve(curve);
+  }
+
+  /**
+   * Gets the underlying Axis representing Expiry (X)
+   * @return the ExpiryAxis
+   */
+  public static Axis getExpiryAxis() {
+    return EXPIRY_AXIS;
+  }
+
+  /**
+   * Gets the underlying Axis representing Strike (Y).
+   * @return the StrikeAxis
+   */
+  public static Axis getStrikeAxis() {
+    return STRIKE_AXIS;
   }
 
   public Surface<Double, Double, Double> getSurface() {
@@ -69,4 +98,10 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return ObjectUtils.equals(_surface, other._surface);
   }
 
+  /**
+   * @param expiry
+   * @param expiryAxis
+   * @param interpExtrap
+   * @return
+   */
 }

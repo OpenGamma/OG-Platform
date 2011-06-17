@@ -10,7 +10,11 @@ import com.opengamma.financial.equity.EquityDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- *  TODO Case 2011-06-07 - Add Javadoc description
+ * A Variance Swap is a forward contract on the realized variance of an underlying security. 
+ * The floating leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
+ * 
+ * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
+ * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ] 
  */
 public class VarianceSwap implements EquityDerivative {
   private final double _timeToObsStart;
@@ -25,6 +29,8 @@ public class VarianceSwap implements EquityDerivative {
 
   private final double _varStrike; // volStrike^2 
   private final double _varNotional; // := 0.5 * _volNotional / _volStrike
+
+  // TODO Add the following: annualizationFactor (typically 252)
 
   /**
    * @param timeToObsStart Time of first observation. Negative if observations have begun.
