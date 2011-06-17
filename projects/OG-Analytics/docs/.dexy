@@ -10,7 +10,10 @@
             "title" : "Yield Curve Maths"
         },
         "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "allinputs" : true
+            "allinputs" : true,
+            "jinjavars" : {
+                "OG_VERSION" : "0.8.0"
+            }
         },
         "*.md|markdown|hd|ft|jinja" : {
             "allinputs" : true,
