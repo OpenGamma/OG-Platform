@@ -117,7 +117,7 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount(),
-                bean.getCashRateType().getName());
+                identifierBeanToIdentifier(bean.getUnderlying()));
           }
 
           @Override
@@ -473,8 +473,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitInterestRateFutureSecurity(
           InterestRateFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setCashRateType(secMasterSession
-            .getOrCreateCashRateTypeBean(security.getCashRateType()));
+        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
         return bean;
       }
 

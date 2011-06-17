@@ -61,6 +61,7 @@ public final class SwapLegBeanOperation {
         bean.setRate(swapLeg.getInitialFloatingRate());
         bean.setRateIdentifier(uniqueIdentifierToUniqueIdentifierBean(swapLeg.getFloatingReferenceRateIdentifier()));
         bean.setSpread(swapLeg.getSpread());
+        bean.setIBOR(swapLeg.getIsIBOR());
         return bean;
       }
     });
@@ -90,7 +91,8 @@ public final class SwapLegBeanOperation {
             NotionalBeanOperation.createNotional(bean.getNotional()),
             uniqueIdentifierBeanToUniqueIdentifier(bean.getRateIdentifier()),
             bean.getRate(),
-            bean.getSpread());
+            bean.getSpread(),
+            bean.isIBOR());
       }
     });
   }

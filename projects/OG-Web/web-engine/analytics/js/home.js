@@ -18,11 +18,12 @@
     _create: function() {
       var self = this,
         select = this.element,
-        selectWidth = select.width() + 10,
+        selectWidth = select.width() + 15,
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "";
       select.hide();
       var input = $("<input style='width:" + selectWidth + "px'>")
+        .val(self.options.initialVal ? self.options.initialVal : "")
         .insertAfter(select)
         .autocomplete({
           delay: 0,
@@ -105,29 +106,73 @@
     }
   });
   
-  function onViewListReceived(viewList) {
+  function onInitDataReceived(initData) {
+    $('#viewcontrols').show();
+    
+    viewList = initData.viewNames;
     var $views = $('#views');
-    $views.empty();
-    var $backingList = $("<select></select>").appendTo($views);
+    var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
+    $('<option value=""></option>').appendTo($backingViewList);
     $.each(viewList, function() {
       var $opt = $('<option value="' + this + '">' + this + '</option>');
-      $opt.appendTo($backingList);
+      $opt.appendTo($backingViewList);
     });
-    $backingList.combobox();
+    $backingViewList.combobox();
+
+    $("<span class='viewlabel'>using</span>").appendTo($views);
+    var $backingSnapshotList = $("<select id='snapshotlist'></select>").appendTo($views);
+    $('<option value=""></option>').appendTo($backingSnapshotList);
+    $('<option value="null">Live market data</option>').appendTo($backingSnapshotList);
+    $backingSnapshotList.combobox({initialVal: "Live market data"});
+    
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
       .css('position', 'relative')
       .keydown(function(e) {
         if (e.keyCode === 13) {
           this.blur();
-          $('#changeView').trigger('click');
+          $('#changeView').focus();
+          
+          // The error dialog fails from the event handler
+          setTimeout(function() { initializeView(); }, 0);
         }
-      })
-      .focus();
+      });
+    $backingViewList.next().focus();
+    
+    $('#changeView').button({ label: 'Load View' })
+    .click(function(event) {
+        initializeView();
+      });
+    
+    $('#sparklines').click(function(event) {
+      var sparklinesEnabled = !_userConfig.getSparklinesEnabled();
+      toggleSparklines(sparklinesEnabled);
+      _userConfig.setSparklinesEnabled(sparklinesEnabled);
+    });
+    
+    $('#viewcontrols').hide().show(500);
+    $('#loadingviews').remove();
   }
   
-  function initializeView(name) {
+  function initializeView() {
     if (!_liveResultsClient) {
+      return;
+    }
+    
+    var view = $('#viewlist option:selected').attr('value');
+    var dataSource = $('#snapshotlist option:selected').attr('value');
+    
+    if (!view || view == "") {
+      $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>A view must be chosen from the list before it can be loaded.</div></div>").dialog({
+        modal: true,
+        buttons: {
+          Ok: function() {
+            $(this).dialog("close");
+            $('#viewlist').next().focus();
+          }
+        },
+        resizable: false
+      });
       return;
     }
     
@@ -150,12 +195,12 @@
     }
     
     setStatusTitle('Loading');
-    setResultTitle('initializing ' + name);
+    setResultTitle('initializing ' + view);
     updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
     
-    _liveResultsClient.changeView(name);
+    _liveResultsClient.changeView(view);
   }
   
   function onViewInitialized(gridStructures) {
@@ -236,7 +281,7 @@
   // Messaging connection
   
   function onConnected() {    
-    _liveResultsClient.getViews();
+    _liveResultsClient.getInitData();
   }
   
   function onDisconnected() {
@@ -246,14 +291,7 @@
   
   //-------------------------------------------------------------------------
   
-  $(document).ready(function() {
-    
-    $('#changeView').button({ label: 'Select View' })
-                    .click(function(event) {
-                        var name = $('option:selected').attr('value');
-                        initializeView(name);
-                      });
-    
+  $(document).ready(function() {    
     $('#pause').click(function(event) {
       if (_liveResultsClient) {
         _liveResultsClient.pause();
@@ -265,13 +303,7 @@
         _liveResultsClient.resume();
       }
     });
-    
-    $('#sparklines').click(function(event) {
-      var sparklinesEnabled = !_userConfig.getSparklinesEnabled();
-      toggleSparklines(sparklinesEnabled);
-      _userConfig.setSparklinesEnabled(sparklinesEnabled);
-    });
-    
+   
     _userConfig = new UserConfig();
     toggleSparklines(_userConfig.getSparklinesEnabled());
     disablePauseResumeButtons();
@@ -279,7 +311,7 @@
     _liveResultsClient = new LiveResultsClient();
     _liveResultsClient.onConnected.subscribe(onConnected);
     _liveResultsClient.onDisconnected.subscribe(onDisconnected);
-    _liveResultsClient.onViewListReceived.subscribe(onViewListReceived);
+    _liveResultsClient.onInitDataReceived.subscribe(onInitDataReceived);
     _liveResultsClient.onViewInitialized.subscribe(onViewInitialized);
     _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);
     _liveResultsClient.afterUpdateReceived.subscribe(afterUpdateReceived);
@@ -289,7 +321,9 @@
       _liveResultsClient.disconnect();
     });
     
-    _liveResultsClient.connect();
+    // Timeout fools Chrome into thinking the page has loaded to stop the loading indicator from spinning and to
+    // prevent escape from stopping CometD. 
+    setTimeout(function() { _liveResultsClient.connect(); }, 0);
   });
   
 })(jQuery);

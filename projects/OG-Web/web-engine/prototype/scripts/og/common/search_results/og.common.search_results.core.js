@@ -64,9 +64,7 @@ $.register_module({
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 filter_type: (last && last.args.filter_type) || '',
-                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
-                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time,
-                                observation_date: slick_manager.data[$(e.currentTarget).attr('row')].observation_date
+                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter
                             };
                         delete obj_url.node;
                         routes.go(routes.hash(
