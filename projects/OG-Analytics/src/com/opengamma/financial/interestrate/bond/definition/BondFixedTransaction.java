@@ -18,10 +18,9 @@ public class BondFixedTransaction extends BondTransaction<BondFixedSecurity> {
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementAmount Transaction settlement amount.
    * @param bondStandard Description of the underlying bond with standard settlement date.
-   * @param accruedInterestAtSpot The accrued interest at the standard settlement date (spot).
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondFixedTransaction(BondFixedSecurity bondTransaction, double quantity, double settlementAmount, BondFixedSecurity bondStandard, double accruedInterestAtSpot, double notionalStandard) {
+  public BondFixedTransaction(BondFixedSecurity bondTransaction, double quantity, double settlementAmount, BondFixedSecurity bondStandard, double notionalStandard) {
     super(bondTransaction, quantity, settlementAmount, bondStandard, notionalStandard);
   }
 
