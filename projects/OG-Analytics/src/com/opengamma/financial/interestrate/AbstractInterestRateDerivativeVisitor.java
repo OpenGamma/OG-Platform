@@ -135,7 +135,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureTransaction()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
   }
 
   @Override

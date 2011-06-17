@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
+import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -81,10 +82,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     _visitor =
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .create();
+            .futureSecurityVisitor(irFutureConverter).create();
   }
 
   @Override
@@ -119,6 +121,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
     final FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
+    }
     final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
             fundingCurveName, forwardCurveName), dataSource);

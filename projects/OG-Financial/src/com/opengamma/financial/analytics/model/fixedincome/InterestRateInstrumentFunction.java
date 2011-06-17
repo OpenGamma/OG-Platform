@@ -34,6 +34,7 @@ import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
@@ -68,10 +69,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     _visitor =
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .create();
+            .futureSecurityVisitor(irFutureConverter).create();
   }
 
   @Override
@@ -104,6 +106,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {forwardCurveName, fundingCurveName},
         new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
     final FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
+    }
     final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         fundingCurveName, forwardCurveName), dataSource);
     return getComputedValues(derivative, bundle, security, forwardCurveName, fundingCurveName);

@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
@@ -43,13 +44,14 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime())
-        / forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime()) - 1)
-        / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
+    InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(underlyingFuture.getForwardCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodStartTime())
+        / forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodEndTime()) - 1)
+        / underlyingFuture.getFixingPeriodAccrualFactor();
     final double futurePrice = 1 - forward;
     final double pv = presentValueFromPrice(future, futurePrice);
-    return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
+    return CurrencyAmount.of(underlyingFuture.getCurrency(), pv);
   }
 
   @Override
@@ -67,19 +69,20 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
-    final double dfForwardStart = forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime());
-    final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime());
+    InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(underlyingFuture.getForwardCurveName());
+    final double dfForwardStart = forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodStartTime());
+    final double dfForwardEnd = forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodEndTime());
     // Backward sweep
     final double pvBar = 1.0;
-    final double forwardBar = -future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity() * pvBar;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getUnderlyingFuture().getFixingPeriodAccrualFactor() * forwardBar;
-    final double dfForwardStartBar = 1.0 / (future.getUnderlyingFuture().getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
+    final double forwardBar = -underlyingFuture.getPaymentAccrualFactor() * underlyingFuture.getNotional() * future.getQuantity() * pvBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / underlyingFuture.getFixingPeriodAccrualFactor() * forwardBar;
+    final double dfForwardStartBar = 1.0 / (underlyingFuture.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
-    listForward.add(new DoublesPair(future.getUnderlyingFuture().getFixingPeriodStartTime(), -future.getUnderlyingFuture().getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(future.getUnderlyingFuture().getFixingPeriodEndTime(), -future.getUnderlyingFuture().getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(future.getUnderlyingFuture().getForwardCurveName(), listForward);
+    listForward.add(new DoublesPair(underlyingFuture.getFixingPeriodStartTime(), -underlyingFuture.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(new DoublesPair(underlyingFuture.getFixingPeriodEndTime(), -underlyingFuture.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    resultMap.put(underlyingFuture.getForwardCurveName(), listForward);
     final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
     return result;
   }
