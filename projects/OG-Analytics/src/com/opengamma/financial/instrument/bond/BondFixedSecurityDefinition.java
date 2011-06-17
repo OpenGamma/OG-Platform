@@ -40,7 +40,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
    */
   private static final double DEFAULT_NOTIONAL = 1.0;
   /**
-   * The default ex-coupn number of days.
+   * The default ex-coupon number of days.
    */
   private static final int DEFAULT_EX_COUPON_DAYS = 0;
   /**
@@ -248,9 +248,10 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     ZonedDateTime previousAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualStartDate();
     ZonedDateTime nextAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualEndDate();
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate, getCoupon()
-        .getNthPayment(couponIndex).getRate(), getCouponPerYear(), isEOM());
+        .getNthPayment(couponIndex).getRate(), getCouponPerYear(), isEOM())
+        * getCoupon().getNthPayment(couponIndex).getNotional();
     if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
-      result = accruedInterest - getCoupon().getNthPayment(couponIndex).getRate();
+      result = accruedInterest - getCoupon().getNthPayment(couponIndex).getAmount();
     } else {
       result = accruedInterest;
     }
@@ -288,6 +289,12 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
 
   @Override
   public BondFixedSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
+    return toDerivative(date, spot, yieldCurveNames);
+  }
+
+  public BondFixedSecurity toDerivative(ZonedDateTime date, ZonedDateTime settlementDate, String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -295,8 +302,13 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     final String creditCurveName = yieldCurveNames[0];
     final String riskFreeCurveName = yieldCurveNames[1];
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getCalendar(), getSettlementDays());
-    final double spotTime = actAct.getDayCountFraction(date, spot);
+    final ZonedDateTime spot = settlementDate;
+    double spotTime;
+    if (spot.isBefore(date)) {
+      spotTime = 0.0;
+    } else {
+      spotTime = actAct.getDayCountFraction(date, spot);
+    }
     final AnnuityPaymentFixed nominal = getNominal().toDerivative(date, creditCurveName);
     AnnuityCouponFixedDefinition couponDefinition = getCoupon();
     couponDefinition = getCoupon().trimBefore(spot);
@@ -312,7 +324,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     AnnuityCouponFixedDefinition couponDefinitionExPeriod = new AnnuityCouponFixedDefinition(couponExPeriodArray);
     final AnnuityCouponFixed couponStandard = couponDefinitionExPeriod.toDerivative(date, yieldCurveNames);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
-    final double accruedInterestAtSpot = accruedInterest(spot) * couponStandard.getNthPayment(0).getNotional();
+    final double accruedInterestAtSpot = accruedInterest(spot); // * couponStandard.getNthPayment(0).getNotional()
     final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), spot, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
         _couponPerYear);
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
@@ -320,6 +332,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, spotTime, accruedInterestAtSpot, factor, getYieldConvention(), _couponPerYear, riskFreeCurveName);
     return bondStandard;
+
   }
 
   @Override

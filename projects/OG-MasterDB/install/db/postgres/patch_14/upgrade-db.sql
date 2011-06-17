@@ -1,5 +1,6 @@
-ALTER TABLE sec_future drop COLUMN cashratetype_id;
 ALTER TABLE sec_future drop constraint sec_fk_future2cashrate;
+ALTER TABLE sec_future drop COLUMN cashratetype_id;
+
 
 BEGIN;
 ALTER TABLE sec_fra ADD COLUMN underlying_scheme varchar(255);

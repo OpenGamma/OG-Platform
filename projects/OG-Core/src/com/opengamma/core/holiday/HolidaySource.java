@@ -25,11 +25,11 @@ public interface HolidaySource {
   /**
    * Finds a specific holiday by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the holiday, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Holiday getHoliday(UniqueIdentifier uid);
+  Holiday getHoliday(UniqueIdentifier uniqueId);
 
   /**
    * Checks if a date is a holiday for a CURRENCY type.

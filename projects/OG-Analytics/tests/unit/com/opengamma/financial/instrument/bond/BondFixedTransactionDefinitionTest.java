@@ -20,6 +20,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -37,13 +39,19 @@ public class BondFixedTransactionDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final double RATE = 0.0325;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final BondFixedSecurityDefinition BOND_DESCRIPTION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR,
+  private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR,
       DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
   // Transaction
   private static final double PRICE = 0.90;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 8, 18);
   private static final double QUANTITY = 100000000; //100m
-  private static final BondFixedTransactionDefinition BOND_TRANSACTION = new BondFixedTransactionDefinition(BOND_DESCRIPTION, QUANTITY, SETTLEMENT_DATE, PRICE);
+  private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION = new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, PRICE);
+  // to derivatives: common
+  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final String CREDIT_CURVE_NAME = "Credit";
+  private static final String REPO_CURVE_NAME = "Repo";
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
+  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtil.getUTCDate(2011, 8, 17);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -52,19 +60,31 @@ public class BondFixedTransactionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettle() {
-    new BondFixedTransactionDefinition(BOND_DESCRIPTION, QUANTITY, null, PRICE);
+    new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, null, PRICE);
   }
 
   @Test
   public void testGetters() {
-    assertEquals(PRICE, BOND_TRANSACTION.getPrice());
-    assertEquals(QUANTITY, BOND_TRANSACTION.getQuantity());
-    assertEquals(SETTLEMENT_DATE, BOND_TRANSACTION.getSettlementDate());
-    assertEquals(BOND_DESCRIPTION, BOND_TRANSACTION.getUnderlyingBond());
+    assertEquals(PRICE, BOND_TRANSACTION_DEFINITION.getPrice());
+    assertEquals(QUANTITY, BOND_TRANSACTION_DEFINITION.getQuantity());
+    assertEquals(SETTLEMENT_DATE, BOND_TRANSACTION_DEFINITION.getSettlementDate());
+    assertEquals(BOND_SECURITY_DEFINITION, BOND_TRANSACTION_DEFINITION.getUnderlyingBond());
     double expectedAccrued = 0.195652174 * RATE / 2; //36 days out of 184 in Actual/Actual ICMA.
-    assertEquals(expectedAccrued, BOND_TRANSACTION.getAccruedInterestAtSettlement(), 1E-6);
-    assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION.getPreviousAccrualDate());
-    assertEquals(DateUtil.getUTCDate(2012, 1, 13), BOND_TRANSACTION.getNextAccrualDate());
-    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
+    assertEquals(expectedAccrued, BOND_TRANSACTION_DEFINITION.getAccruedInterestAtSettlement(), 1E-6);
+    assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION_DEFINITION.getPreviousAccrualDate());
+    assertEquals(DateUtil.getUTCDate(2012, 1, 13), BOND_TRANSACTION_DEFINITION.getNextAccrualDate());
+    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION_DEFINITION.getPaymentAmount());
   }
+
+  @Test
+  public void toDerivatives() {
+    BondFixedSecurity bondSecurityStandard = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    BondFixedTransaction bondTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    assertEquals("Bond transaction: toDerivative", bondSecurityStandard, bondTransaction.getBondStandard());
+    BondFixedSecurity bondSecurityPurchase = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE, CURVES_NAME);
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getAccruedInterest(), bondTransaction.getBondTransaction().getAccruedInterest());
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getCouponPerYear(), bondTransaction.getBondTransaction().getCouponPerYear());
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getYieldConvention(), bondTransaction.getBondTransaction().getYieldConvention());
+  }
+
 }

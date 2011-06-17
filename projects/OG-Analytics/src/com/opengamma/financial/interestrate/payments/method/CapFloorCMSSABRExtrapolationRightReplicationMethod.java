@@ -12,10 +12,13 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -26,6 +29,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.SABRExtrapo
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -34,7 +38,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
-public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
+public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements PricingMethod {
 
   /**
    * The par rate calculator.
@@ -79,7 +83,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
    * @param sabrData The SABR data bundle.
    * @return The present value.
    */
-  public double presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cmsCapFloor);
     Validate.notNull(sabrData);
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
@@ -104,7 +108,14 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       throw new RuntimeException(e);
     }
     final double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
-    return priceCMS;
+    return CurrencyAmount.of(cmsCapFloor.getCurrency(), priceCMS);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof CapFloorCMS, "CMS cap/floor");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    return presentValue((CapFloorCMS) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**

@@ -7,7 +7,7 @@ package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
@@ -22,7 +22,7 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<FunctionExecutionContext> {
 
-  private HistoricalDataSource _historicalDataSource;
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private RegionSource _regionSource;
@@ -31,12 +31,12 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
 
-  public HistoricalDataSource getHistoricalDataSource() {
-    return _historicalDataSource;
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _historicalTimeSeriesSource;
   }
 
-  public void setHistoricalDataSource(HistoricalDataSource historicalDataSource) {
-    _historicalDataSource = historicalDataSource;
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource source) {
+    _historicalTimeSeriesSource = source;
   }
 
   public SecuritySource getSecuritySource() {
@@ -100,7 +100,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     FunctionExecutionContext context = new FunctionExecutionContext();
     context.setSecuritySource(_securitySource);
     context.setPortfolioStructure(new PortfolioStructure(_positionSource));
-    OpenGammaExecutionContext.setHistoricalDataSource(context, _historicalDataSource);
+    OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, _historicalTimeSeriesSource);
     OpenGammaExecutionContext.setRegionSource(context, _regionSource);
     OpenGammaExecutionContext.setExchangeSource(context, _exchangeSource);
     OpenGammaExecutionContext.setHolidaySource(context, _holidaySource);

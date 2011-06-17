@@ -87,7 +87,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final double MU = 8.00;
   private static final CapFloorIborSABRExtrapolationRightMethod METHOD_SABREXTRA_STD = new CapFloorIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
   private static final CouponIborInArrearsReplicationMethod METHOD_SABREXTRA_COUPON_IA = new CouponIborInArrearsReplicationMethod(METHOD_SABREXTRA_STD);
-  private static final CapFloorIborInArrearsReplicationMethod METHOD_SABREXTRA_CAP_IA = new CapFloorIborInArrearsReplicationMethod(METHOD_SABREXTRA_STD);
+  private static final CapFloorIborInArrearsGenericReplicationMethod METHOD_SABREXTRA_CAP_IA = new CapFloorIborInArrearsGenericReplicationMethod(METHOD_SABREXTRA_STD);
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
@@ -164,7 +164,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       CapFloorIborSABRExtrapolationRightMethod methodSABRExtraStd = new CapFloorIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU); //To start with a "clean" method
-      CapFloorIborInArrearsReplicationMethod methodSABRExtraIA = new CapFloorIborInArrearsReplicationMethod(methodSABRExtraStd);
+      CapFloorIborInArrearsGenericReplicationMethod methodSABRExtraIA = new CapFloorIborInArrearsGenericReplicationMethod(methodSABRExtraStd);
       prices[looptest] = methodSABRExtraIA.presentValue(CAP_LONG, SABR_BUNDLE).getAmount();
       sum += prices[looptest];
     }

@@ -137,7 +137,7 @@ public class CommandLineBatchJob {
    * Optional. If not given, you need to pre-populate the
    * batch DB with all necessary market data.   
    */
-  private HistoricalLiveDataSnapshotProvider _historicalDataProvider;
+  private HistoricalLiveDataSnapshotProvider _historicalSnapshotProvider;
   
   /**
    * This is used to determine the name of the property file from
@@ -303,12 +303,12 @@ public class CommandLineBatchJob {
     _holidayCurrency = holidayCurrency;
   }
   
-  public HistoricalLiveDataSnapshotProvider getHistoricalDataProvider() {
-    return _historicalDataProvider;
+  public HistoricalLiveDataSnapshotProvider getHistoricalSnapshotProvider() {
+    return _historicalSnapshotProvider;
   }
 
-  public void setHistoricalDataProvider(HistoricalLiveDataSnapshotProvider historicalDataProvider) {
-    _historicalDataProvider = historicalDataProvider;
+  public void setHistoricalSnapshotProvider(HistoricalLiveDataSnapshotProvider historicalSnapshotProvider) {
+    _historicalSnapshotProvider = historicalSnapshotProvider;
   }
 
   public UserPrincipal getUser() {
