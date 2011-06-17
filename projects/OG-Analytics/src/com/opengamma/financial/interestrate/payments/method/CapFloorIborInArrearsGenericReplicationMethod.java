@@ -21,7 +21,7 @@ import com.opengamma.util.money.CurrencyAmount;
  *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
  */
 //TODO: Add a reference to Libor-with-delay pricing method when available.
-public class CapFloorIborInArrearsReplicationMethod implements PricingMethod {
+public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMethod {
 
   /**
    * Base method for the pricing of standard cap/floors.
@@ -41,7 +41,7 @@ public class CapFloorIborInArrearsReplicationMethod implements PricingMethod {
    * Constructor of the in-arrears pricing method.
    * @param baseMethod The base method for the pricing of standard cap/floors.
    */
-  public CapFloorIborInArrearsReplicationMethod(PricingMethod baseMethod) {
+  public CapFloorIborInArrearsGenericReplicationMethod(PricingMethod baseMethod) {
     super();
     this._baseMethod = baseMethod;
   }

@@ -17,14 +17,15 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
@@ -60,6 +61,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitBondForward(BondForward bondForward, S data);
 
   T visitBondFuture(BondFuture bondFuture, S data);
+
+  T visitBondFutureSecurity(BondFutureSecurity bondFuture, S data);
 
   T visitBondFixedSecurity(BondFixedSecurity bond, S data);
 
@@ -136,6 +139,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitBondForward(BondForward bondForward);
 
   T visitBondFuture(BondFuture bondFuture);
+
+  T visitBondFutureSecurity(BondFutureSecurity bondFuture);
 
   T visitBondFixedSecurity(BondFixedSecurity bond);
 

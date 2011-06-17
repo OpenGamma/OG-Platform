@@ -41,6 +41,7 @@ import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
@@ -478,6 +479,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitBondIborSecurityDefinition(BondIborSecurityDefinition bond) {
       return "BondIborSecurity2";
+    }
+
+    @Override
+    public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond, T data) {
+      return "BondFutureSecurity1";
+    }
+
+    @Override
+    public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond) {
+      return "BondFutureSecurity2";
     }
   }
 }
