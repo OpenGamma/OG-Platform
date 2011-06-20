@@ -16,7 +16,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
@@ -28,10 +28,10 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This resolver relies on configuration in the configuration database.
  */
-public class DefaultHistoricalTimeSeriesInfoResolver implements HistoricalTimeSeriesInfoResolver {
+public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeriesResolver {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesInfoResolver.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesResolver.class);
 
   /**
    * The master.
@@ -48,7 +48,7 @@ public class DefaultHistoricalTimeSeriesInfoResolver implements HistoricalTimeSe
    * @param historicalTimeSeriesMaster  the historical time-series master, not null
    * @param configSource  the configuration source, not null
    */
-  public DefaultHistoricalTimeSeriesInfoResolver(HistoricalTimeSeriesMaster historicalTimeSeriesMaster, ConfigSource configSource) {
+  public DefaultHistoricalTimeSeriesResolver(HistoricalTimeSeriesMaster historicalTimeSeriesMaster, ConfigSource configSource) {
     ArgumentChecker.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     ArgumentChecker.notNull(configSource, "configSource");
     _configSource = configSource;

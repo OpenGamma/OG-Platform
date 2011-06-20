@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
@@ -51,13 +51,13 @@ public class MasterHistoricalTimeSeriesSourceTest {
   private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of(Identifier.of("A", "B"));
   
   private HistoricalTimeSeriesMaster _mockMaster;
-  private HistoricalTimeSeriesInfoResolver _mockResolver;
+  private HistoricalTimeSeriesResolver _mockResolver;
   private MasterHistoricalTimeSeriesSource _tsSource;
 
   @BeforeMethod
   public void setUp() throws Exception {
     _mockMaster = mock(HistoricalTimeSeriesMaster.class);
-    _mockResolver = mock(HistoricalTimeSeriesInfoResolver.class);
+    _mockResolver = mock(HistoricalTimeSeriesResolver.class);
     _tsSource = new MasterHistoricalTimeSeriesSource(_mockMaster, _mockResolver);
   }
 
@@ -71,7 +71,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
-    HistoricalTimeSeriesInfoResolver mock = mock(HistoricalTimeSeriesInfoResolver.class);
+    HistoricalTimeSeriesResolver mock = mock(HistoricalTimeSeriesResolver.class);
     new MasterHistoricalTimeSeriesSource(null, mock);
   }
 

@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
@@ -49,7 +49,7 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   /**
    * The resolver.
    */
-  private final HistoricalTimeSeriesInfoResolver _resolver;
+  private final HistoricalTimeSeriesResolver _resolver;
 
   /**
    * Creates an instance wrapping an underlying historical time-series master.
@@ -57,7 +57,7 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
    * @param master  the historical time-series master, not null
    * @param resolver  the resolver, not null
    */
-  public MasterHistoricalTimeSeriesSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesInfoResolver resolver) {
+  public MasterHistoricalTimeSeriesSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesResolver resolver) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(resolver, "resolver");
     _master = master;

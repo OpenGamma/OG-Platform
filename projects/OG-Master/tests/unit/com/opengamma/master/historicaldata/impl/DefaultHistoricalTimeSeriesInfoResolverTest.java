@@ -31,9 +31,9 @@ import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesInfoResolver;
+import com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoConfiguration;
 import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoRating;
 import com.opengamma.master.historicaldata.impl.InMemoryHistoricalTimeSeriesMaster;
@@ -52,19 +52,19 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
   private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
   private static final String DEFAULT_DATA_PROVIDER = "CMPL";
   
-  private static final String[] DATA_FIELDS = new String[] { HistoricalTimeSeriesInfoResolver.DEFAULT_DATA_FIELD, "VOLUME" };
+  private static final String[] DATA_FIELDS = new String[] { HistoricalTimeSeriesResolver.DEFAULT_DATA_FIELD, "VOLUME" };
   private static final String[] DATA_PROVIDERS = new String[] { "UNKNOWN", "CMPL", "CMPT" };
   private static final String[] DATA_SOURCES = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
   private static final String CONFIG_DOC_NAME = "TEST";
 
-  private DefaultHistoricalTimeSeriesInfoResolver _infoResolver;
+  private DefaultHistoricalTimeSeriesResolver _infoResolver;
   private HistoricalTimeSeriesMaster _tsMaster = new InMemoryHistoricalTimeSeriesMaster();
 
   @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
-    _infoResolver = new DefaultHistoricalTimeSeriesInfoResolver(_tsMaster, new MasterConfigSource(configMaster));
+    _infoResolver = new DefaultHistoricalTimeSeriesResolver(_tsMaster, new MasterConfigSource(configMaster));
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
@@ -107,7 +107,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
       assertNotNull(defaultMetaData);
       assertEquals(DEFAULT_DATA_SOURCE, defaultMetaData.getDataSource());
       assertEquals(DEFAULT_DATA_PROVIDER, defaultMetaData.getDataProvider());
-      assertEquals(HistoricalTimeSeriesInfoResolver.DEFAULT_DATA_FIELD, defaultMetaData.getDataField());
+      assertEquals(HistoricalTimeSeriesResolver.DEFAULT_DATA_FIELD, defaultMetaData.getDataField());
     }
   }
 

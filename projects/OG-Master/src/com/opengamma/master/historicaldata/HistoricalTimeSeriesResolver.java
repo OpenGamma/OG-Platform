@@ -15,7 +15,7 @@ import com.opengamma.util.PublicSPI;
  * This can be used to lookup the time-series itself.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesInfoResolver {
+public interface HistoricalTimeSeriesResolver {
 
   /**
    * Default data field value.
