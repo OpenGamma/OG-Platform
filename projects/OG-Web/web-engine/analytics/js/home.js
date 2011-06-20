@@ -4,6 +4,7 @@
   
   var _liveResultsClient;
   
+  var _init = false;
   var _isRunning = false;
   var _statusTitle = '';
   var _resultTitle = '';
@@ -23,7 +24,6 @@
         value = selected.val() ? selected.text() : "";
       select.hide();
       var input = $("<input style='width:" + selectWidth + "px'>")
-        .val(self.options.initialVal ? self.options.initialVal : "")
         .insertAfter(select)
         .autocomplete({
           delay: 0,
@@ -50,14 +50,20 @@
             self._trigger("selected", event, {
               item: ui.item.option
             });
+            if (self.options.change) {
+              self.options.change(ui.item.option);
+            }
           },
           change: function(event, ui) {
             if (!ui.item) {
-              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i"),
-                valid = false;
+              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i");
+              var valid = false;
               select.children("option").each(function() {
                 if (this.value.match(matcher)) {
                   this.selected = valid = true;
+                  if (self.options.change) {
+                    self.options.change(this);
+                  }
                   return false;
                 }
               });
@@ -66,6 +72,10 @@
                 $(this).val("");
                 select.val("");
                 return false;
+              }
+            } else {
+              if (self.options.change) {
+                self.options.change(ui.item.option);
               }
             }
           }
@@ -76,6 +86,7 @@
         return $("<li></li>")
           .data("item.autocomplete", item )
           .append("<a>" + item.label + "</a>")
+          .attr("class", $(item.option).attr("class"))
           .appendTo(ul);
       };
 
@@ -107,23 +118,29 @@
   });
   
   function onInitDataReceived(initData) {
+    if (_init) {
+      return;
+    }
+    
     $('#viewcontrols').show();
     
     viewList = initData.viewNames;
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
+    var $backingSnapshotList = $("<select id='snapshotlist'></select>")
     $('<option value=""></option>').appendTo($backingViewList);
     $.each(viewList, function() {
       var $opt = $('<option value="' + this + '">' + this + '</option>');
       $opt.appendTo($backingViewList);
     });
-    $backingViewList.combobox();
+    $backingViewList.combobox({
+      change: function(item) { populateSnapshots($backingSnapshotList, initData.snapshots, $(item).val()); }
+    });
 
     $("<span class='viewlabel'>using</span>").appendTo($views);
-    var $backingSnapshotList = $("<select id='snapshotlist'></select>").appendTo($views);
-    $('<option value=""></option>').appendTo($backingSnapshotList);
-    $('<option value="null">Live market data</option>').appendTo($backingSnapshotList);
-    $backingSnapshotList.combobox({initialVal: "Live market data"});
+    $backingSnapshotList.appendTo($views);
+    $backingSnapshotList.combobox();
+    populateSnapshots($backingSnapshotList, initData.snapshots, null);
     
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
@@ -152,6 +169,54 @@
     
     $('#viewcontrols').hide().show(500);
     $('#loadingviews').remove();
+    _init = true;
+  }
+  
+  function populateSnapshots($snapshotSelect, snapshots, selectedView) {
+    var $input = $snapshotSelect.next();
+    var currentVal = $input.val();
+    var currentValExists = false;
+    var selectedViewSnapshots = snapshots[selectedView];
+    
+    $snapshotSelect.empty();
+    $('<option value=""></option>').appendTo($snapshotSelect);
+    var $liveMarketData = $('<option value="live">Live market data</option>')
+        .addClass("live-market-data");
+    $liveMarketData.appendTo($snapshotSelect);
+
+    if (selectedView) {
+      if (selectedViewSnapshots) {
+        $.each(selectedViewSnapshots, function(snapshotId, snapshotName) {
+          $('<option value="' + snapshotId + '">' + snapshotName + '</option>').appendTo($snapshotSelect);
+          if (!currentValExists && snapshotName == currentVal) {
+            currentValExists = true;
+          }
+        });
+      }
+      
+      if ($snapshotSelect.children().size() > 2) {
+        $liveMarketData.addClass("autocomplete-divider");
+      }
+
+      var isFirst = true;
+      $.each(snapshots, function(viewName, viewSnapshots) {
+        if (viewName == selectedView) {
+          return;
+        }
+        $.each(viewSnapshots, function(snapshotId, snapshotName) {
+          if (isFirst) {
+            $snapshotSelect.children().last().addClass("autocomplete-divider");
+            isFirst = false;
+          }
+          $('<option value="' + snapshotId + '">' + snapshotName + '</option>').appendTo($snapshotSelect);
+        });
+      });
+    }
+        
+    $input.width($snapshotSelect.width() + 15);
+    if (!currentValExists) {
+      $input.val("Live market data");
+    }
   }
   
   function initializeView() {
@@ -160,7 +225,6 @@
     }
     
     var view = $('#viewlist option:selected').attr('value');
-    var dataSource = $('#snapshotlist option:selected').attr('value');
     
     if (!view || view == "") {
       $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>A view must be chosen from the list before it can be loaded.</div></div>").dialog({
@@ -174,6 +238,11 @@
         resizable: false
       });
       return;
+    }
+    
+    var snapshotId = $('#snapshotlist option:selected').attr('value');
+    if (!snapshotId || snapshotId == "" || snapshotId == "live") {
+      snapshotId = null;
     }
     
     document.body.style.cursor = "wait";
@@ -200,7 +269,7 @@
     _isRunning = false;
     disablePauseResumeButtons();
     
-    _liveResultsClient.changeView(view);
+    _liveResultsClient.changeView(view, snapshotId);
   }
   
   function onViewInitialized(gridStructures) {

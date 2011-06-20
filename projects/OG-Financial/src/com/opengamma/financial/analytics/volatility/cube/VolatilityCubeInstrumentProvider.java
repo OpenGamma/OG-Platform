@@ -22,6 +22,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -33,6 +35,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public final class VolatilityCubeInstrumentProvider {
 
+  //TODO: other ATM surfaces
+  private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+  
   /**
    * Generates Bloomberg codes for volatilities given points.
    */
@@ -82,6 +89,9 @@ public final class VolatilityCubeInstrumentProvider {
           }
 
           Double relativeStrikeRaw = Double.valueOf(relativeStrike);
+          if (relativeStrikeRaw == 0.0 && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+            continue; // We use ATM_INSTRUMENT_PROVIDER for these
+          }
           double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
           Double relativeStrikeBps = sign * normalizedStrike;
           VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
@@ -115,7 +125,11 @@ public final class VolatilityCubeInstrumentProvider {
   }
 
   public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
-    return _idsByPoint.get(Pair.of(currency, point));
+    if (point.getRelativeStrike() == 0 && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      return Sets.newHashSet(ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry()));
+    } else {
+      return _idsByPoint.get(Pair.of(currency, point));
+    }
   }
 
   public Set<Currency> getAllCurrencies() {

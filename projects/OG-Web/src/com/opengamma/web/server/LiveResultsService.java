@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.cometd.Bayeux;
@@ -41,6 +42,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
+  private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
 
   private Map<String, WebView> _clientViews = new HashMap<String, WebView>();
   
@@ -71,7 +73,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
     s_logger.info("Subscribing to services");
     subscribe("/service/initData", "processInitDataRequest");
-    subscribe("/service/initialize", "processInitializeRequest");
+    subscribe("/service/changeView", "processChangeViewRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
     subscribe("/service/updates/depgraph", "processDepGraphRequest");
@@ -102,11 +104,11 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final String viewDefinitionName, final UserPrincipal user) {
+  private void initializeClientView(final Client remote, final String viewDefinitionName, final UniqueIdentifier snapshotId, final UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
-        if (webView.getViewDefinitionName().equals(viewDefinitionName)) {
+        if (webView.matches(viewDefinitionName, snapshotId)) {
           // Already initialized
           webView.reconnected();
           return;
@@ -118,7 +120,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, snapshotId, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
@@ -212,25 +214,37 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
     Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
     for (ManageableMarketDataSnapshot snapshot : snapshots) {
+      if (snapshot.getUniqueId() == null) {
+        s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
+        continue;
+      }
+      if (StringUtils.isBlank(snapshot.getName())) {
+        s_logger.warn("Ignoring snapshot {} with no name", snapshot.getUniqueId());
+        continue;
+      }
+      if (s_guidPattern.matcher(snapshot.getName()).find()) {
+        s_logger.debug("Ignoring snapshot which appears to have an auto-generated name: {}", snapshot.getName());
+        continue;
+      }
       String basisViewName = snapshot.getBasisViewName() != null ? snapshot.getBasisViewName() : "unknown";
       Map<String, String> snapshotsForBasisView = snapshotsByBasisView.get(basisViewName);
       if (snapshotsForBasisView == null) {
         snapshotsForBasisView = new HashMap<String, String>();
         snapshotsByBasisView.put(basisViewName, snapshotsForBasisView);
       }
-      snapshotsForBasisView.put(snapshot.getName(), snapshot.getUniqueId().toString());
+      snapshotsForBasisView.put(snapshot.getUniqueId().toString(), snapshot.getName());
     }
     return snapshotsByBasisView;
   }
 
   @SuppressWarnings("unchecked")
-  public void processInitializeRequest(Client remote, Message message) {
+  public void processChangeViewRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
     String viewName = (String) data.get("viewName");
     String snapshotIdString = (String) data.get("snapshotId");
     UniqueIdentifier snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueIdentifier.parse(snapshotIdString) : null;
     s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
-    initializeClientView(remote, viewName, getUser(remote));
+    initializeClientView(remote, viewName, snapshotId, getUser(remote));
   }
   
   public void processPauseRequest(Client remote, Message message) {
