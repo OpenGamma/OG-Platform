@@ -48,7 +48,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "TssMemory";
+  public static final String DEFAULT_UID_SCHEME = "MemHTS";
 
   /**
    * The store of historical time-series.
