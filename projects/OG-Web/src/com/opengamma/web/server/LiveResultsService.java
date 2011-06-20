@@ -214,7 +214,16 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
     Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
     for (ManageableMarketDataSnapshot snapshot : snapshots) {
+      if (snapshot.getUniqueId() == null) {
+        s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
+        continue;
+      }
+      if (StringUtils.isBlank(snapshot.getName())) {
+        s_logger.warn("Ignoring snapshot {} with no name", snapshot.getUniqueId());
+        continue;
+      }
       if (s_guidPattern.matcher(snapshot.getName()).find()) {
+        s_logger.debug("Ignoring snapshot which appears to have an auto-generated name: {}", snapshot.getName());
         continue;
       }
       String basisViewName = snapshot.getBasisViewName() != null ? snapshot.getBasisViewName() : "unknown";

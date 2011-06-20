@@ -182,9 +182,6 @@
     $('<option value=""></option>').appendTo($snapshotSelect);
     var $liveMarketData = $('<option value="live">Live market data</option>')
         .addClass("live-market-data");
-    if (selectedView) {
-      $liveMarketData.addClass("autocomplete-divider");
-    }
     $liveMarketData.appendTo($snapshotSelect);
 
     if (selectedView) {
@@ -195,6 +192,10 @@
             currentValExists = true;
           }
         });
+      }
+      
+      if ($snapshotSelect.children().size() > 2) {
+        $liveMarketData.addClass("autocomplete-divider");
       }
 
       var isFirst = true;
