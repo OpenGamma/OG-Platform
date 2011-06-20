@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.cometd.Client;
 import org.cometd.Message;
 import org.slf4j.Logger;
@@ -28,7 +29,9 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -46,6 +49,7 @@ public class WebView {
   private final Client _remote;
   private final ViewClient _client;
   private final String _viewDefinitionName;
+  private final UniqueIdentifier _snapshotId;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
   
@@ -64,11 +68,13 @@ public class WebView {
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
-      final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {    
+      final UniqueIdentifier snapshotId, final UserPrincipal user, final ExecutorService executorService,
+      final ResultConverterCache resultConverterCache) {    
     _local = local;
     _remote = remote;
     _client = client;
     _viewDefinitionName = viewDefinitionName;
+    _snapshotId = snapshotId;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
     _gridsByName = new HashMap<String, WebViewGrid>();
@@ -98,7 +104,13 @@ public class WebView {
 
     });
     
-    client.attachToViewProcess(viewDefinitionName, ExecutionOptions.realTime());
+    ViewExecutionOptions executionOptions;
+    if (snapshotId == null) {
+      executionOptions = ExecutionOptions.realTime();
+    } else {
+      executionOptions = ExecutionOptions.snapshot(snapshotId);
+    }
+    client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   
   //-------------------------------------------------------------------------
@@ -130,7 +142,7 @@ public class WebView {
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getInitialJsonGridStructures(), null);
+    getRemote().deliver(getLocal(), "/changeView", getInitialJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -159,6 +171,14 @@ public class WebView {
   
   public String getViewDefinitionName() {
     return _viewDefinitionName;
+  }
+  
+  public UniqueIdentifier getSnapshotId() {
+    return _snapshotId;
+  }
+  
+  public boolean matches(String viewDefinitionName, UniqueIdentifier snapshotId) {
+    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getSnapshotId(), snapshotId);
   }
   
   public WebViewGrid getGridByName(String name) {
