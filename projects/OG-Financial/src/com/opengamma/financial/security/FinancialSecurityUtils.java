@@ -35,36 +35,36 @@ public class FinancialSecurityUtils {
    * @param target the computation target being examined.
    * @return ValueProperties containing a constraint of the CurrencyUnit or empty if not possible
    */
-  public static ValueProperties getCurrencyConstraint(ComputationTarget target) {
+  public static ValueProperties getCurrencyConstraint(final ComputationTarget target) {
     switch (target.getType()) {
       case PORTFOLIO_NODE:
         break;
       case POSITION: {
-        Security security = target.getPosition().getSecurity();
-        Currency ccy = getCurrency(security);
+        final Security security = target.getPosition().getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
         break;
       case PRIMITIVE: {
-        UniqueIdentifier uid = target.getUniqueId();
+        final UniqueIdentifier uid = target.getUniqueId();
         if (uid.getScheme().equals(Currency.OBJECT_IDENTIFIER_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
         break;
       case SECURITY: {
-        Security security = target.getSecurity();
-        Currency ccy = getCurrency(security);
+        final Security security = target.getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
         break;
       case TRADE: {
-        Security security = target.getTrade().getSecurity();
-        Currency ccy = getCurrency(security);
+        final Security security = target.getTrade().getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
@@ -78,40 +78,40 @@ public class FinancialSecurityUtils {
    * @param security the security to be examined.
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
-  public static Currency getCurrency(Security security) {
+  public static Currency getCurrency(final Security security) {
     if (security instanceof FinancialSecurity) {
-      FinancialSecurity finSec = (FinancialSecurity) security;
-      Currency ccy = finSec.accept(new FinancialSecurityVisitor<Currency>() {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final Currency ccy = finSec.accept(new FinancialSecurityVisitor<Currency>() {
         @Override
-        public Currency visitBondSecurity(BondSecurity security) {
+        public Currency visitBondSecurity(final BondSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitCashSecurity(CashSecurity security) {
+        public Currency visitCashSecurity(final CashSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitEquitySecurity(EquitySecurity security) {
+        public Currency visitEquitySecurity(final EquitySecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFRASecurity(FRASecurity security) {
+        public Currency visitFRASecurity(final FRASecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFutureSecurity(FutureSecurity security) {
+        public Currency visitFutureSecurity(final FutureSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitSwapSecurity(SwapSecurity security) {
+        public Currency visitSwapSecurity(final SwapSecurity security) {
           if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
-            InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
-            InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
             if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
               return payLeg.getCurrency();
             }
@@ -120,32 +120,32 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+        public Currency visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitEquityOptionSecurity(EquityOptionSecurity security) {
+        public Currency visitEquityOptionSecurity(final EquityOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFXOptionSecurity(FXOptionSecurity security) {
+        public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
           return null;
         }
 
         @Override
-        public Currency visitSwaptionSecurity(SwaptionSecurity security) {
-          return null;
+        public Currency visitSwaptionSecurity(final SwaptionSecurity security) {
+          return Currency.USD;
         }
 
         @Override
-        public Currency visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+        public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+        public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return null;
         }
       });
