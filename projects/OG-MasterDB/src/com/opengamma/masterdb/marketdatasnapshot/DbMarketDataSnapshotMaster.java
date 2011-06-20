@@ -66,13 +66,22 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
-  /**
-   * SQL select.
-   */
-  protected static final String SELECT = "SELECT " + "main.id AS doc_id, " + "main.oid AS doc_oid, "
+  
+  private static final String SELECT_TEMPLATE = "SELECT " + "main.id AS doc_id, " + "main.oid AS doc_oid, "
       + "main.ver_from_instant AS ver_from_instant, " + "main.ver_to_instant AS ver_to_instant, "
-      + "main.corr_from_instant AS corr_from_instant, " + "main.corr_to_instant AS corr_to_instant, "
-      + "main.detail AS detail ";
+      + "main.corr_from_instant AS corr_from_instant, " + "main.corr_to_instant AS corr_to_instant ";
+  
+  /**
+   * SQL select to be used when details aren't required
+   * see PLAT-1378
+   */
+  protected static final String SELECT_NO_DETAILS = SELECT_TEMPLATE + ", main.name AS name ";
+  
+  /**
+   * SQL select to be used when details are required
+   */
+  protected static final String SELECT_DETAILS = SELECT_NO_DETAILS + ", main.detail AS detail ";
+  
   /**
    * SQL from.
    */
@@ -123,7 +132,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
 
     String selectFromWhereInner = "SELECT id FROM snp_snapshot " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    String search = sqlSelectFrom(request.isIncludeData()) + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM snp_snapshot " + where;
     return new String[] {search, count };
   }
@@ -194,9 +203,14 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
   //-------------------------------------------------------------------------
   @Override
   protected String sqlSelectFrom() {
-    return SELECT + FROM;
+    //TODO: this should never be called with !includeDetail, but it still is at the moment for history requests
+    return SELECT_DETAILS + FROM;
   }
 
+  protected String sqlSelectFrom(boolean includeDetail) {
+    return (includeDetail ? SELECT_DETAILS : SELECT_NO_DETAILS) + FROM;
+  }
+  
   @Override
   protected String mainTableName() {
     return "snp_snapshot";
@@ -230,13 +244,20 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      LobHandler lob = getDbHelper().getLobHandler();
-      byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
-      ManageableMarketDataSnapshot marketDataSnapshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
-          new ByteArrayInputStream(bytes));
-      if (!_includeData) {
-        marketDataSnapshot.setGlobalValues(null);
-        marketDataSnapshot.setYieldCurves(null);
+      ManageableMarketDataSnapshot marketDataSnapshot;
+      //PLAT-1378
+      if (_includeData) {
+        LobHandler lob = getDbHelper().getLobHandler();
+        byte[] bytes = lob.getBlobAsBytes(rs, "DETAIL");
+        marketDataSnapshot = FUDGE_CONTEXT.readObject(ManageableMarketDataSnapshot.class,
+            new ByteArrayInputStream(bytes));
+        if (!_includeData) {
+          marketDataSnapshot.setGlobalValues(null);
+          marketDataSnapshot.setYieldCurves(null);
+        }
+      } else {
+        marketDataSnapshot = new ManageableMarketDataSnapshot();
+        marketDataSnapshot.setName(rs.getString("NAME"));
       }
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
       doc.setUniqueId(createUniqueIdentifier(docOid, docId));
