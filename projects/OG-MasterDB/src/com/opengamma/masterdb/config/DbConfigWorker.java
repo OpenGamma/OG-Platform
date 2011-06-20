@@ -309,7 +309,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
    * @param className  the class name, not null
    * @return the class object, not null
    */
-  protected Class<?> loadClass(final String className) {
+  protected Class<?> loadClass(String className) {
     Class<?> reifiedType = null;
     try {
       reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);

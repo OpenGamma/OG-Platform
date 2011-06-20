@@ -20,8 +20,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.util.money.Currency;
 
 /**

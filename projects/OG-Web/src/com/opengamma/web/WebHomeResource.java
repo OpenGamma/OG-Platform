@@ -22,6 +22,8 @@ import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
+import com.opengamma.web.historicaldata.WebHistoricalTimeSeriesData;
+import com.opengamma.web.historicaldata.WebHistoricalTimeSeriesUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
 import com.opengamma.web.portfolio.WebPortfoliosData;
@@ -32,8 +34,6 @@ import com.opengamma.web.region.WebRegionData;
 import com.opengamma.web.region.WebRegionUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
-import com.opengamma.web.timeseries.WebTimeSeriesData;
-import com.opengamma.web.timeseries.WebTimeSeriesUris;
 
 /**
  * RESTful resource for the home page.
@@ -89,9 +89,9 @@ public class WebHomeResource extends AbstractWebResource {
     regionData.setUriInfo(uriInfo);
     out.put("regionUris", new WebRegionUris(regionData));
     
-    WebTimeSeriesData timeseriesData = new WebTimeSeriesData();
+    WebHistoricalTimeSeriesData timeseriesData = new WebHistoricalTimeSeriesData();
     timeseriesData.setUriInfo(uriInfo);
-    out.put("timeseriesUris", new WebTimeSeriesUris(timeseriesData));
+    out.put("timeseriesUris", new WebHistoricalTimeSeriesUris(timeseriesData));
     
     WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);

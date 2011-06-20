@@ -104,7 +104,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
         final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
         final CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValue(payment, sabr);
+        return replication.presentValue(payment, sabr).getAmount();
       }
     }
     throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateExtrapolationParameter as data.");

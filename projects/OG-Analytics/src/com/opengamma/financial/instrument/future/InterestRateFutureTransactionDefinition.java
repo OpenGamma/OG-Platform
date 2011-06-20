@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 
 /**
  * Description of transaction on an interest rate future security.

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 

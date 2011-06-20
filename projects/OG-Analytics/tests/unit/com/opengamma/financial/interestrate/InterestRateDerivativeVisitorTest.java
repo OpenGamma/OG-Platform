@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import javax.time.calendar.Period;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -26,13 +25,14 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
@@ -441,50 +441,60 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitCouponFloating(final CouponFloating payment) {
       return visit(payment);
     }
+
+    @Override
+    public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture, final Object data) {
+      return visit(bondFuture, data);
+    }
+
+    @Override
+    public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
+      return visit(bondFuture);
+    }
   };
 
   @Test
   public void test() {
     final Object curves = null;
-    assertEquals(VISITOR.visit(CASH, curves), Cash.class);
-    assertEquals(FRA.accept(VISITOR, curves), ForwardRateAgreement.class);
-    assertEquals(BOND.accept(VISITOR, curves), Bond.class);
-    assertEquals(BOND_FORWARD.accept(VISITOR, curves), BondForward.class);
-    assertEquals(BOND_FUTURE.accept(VISITOR, curves), BondFuture.class);
-    assertEquals(FIXED_LEG.accept(VISITOR, curves), AnnuityCouponFixed.class);
-    assertEquals(FLOAT_LEG.accept(VISITOR, curves), AnnuityCouponIbor.class);
-    assertEquals(SWAP.accept(VISITOR, curves), FixedFloatSwap.class);
-    assertEquals(TENOR_SWAP.accept(VISITOR, curves), TenorSwap.class);
-    assertEquals(FIXED_PAYMENT.accept(VISITOR, curves), PaymentFixed.class);
-    assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), CouponIbor.class);
-    assertEquals(FCA.accept(VISITOR, curves), AnnuityCouponFixed.class);
-    assertEquals(FLA.accept(VISITOR, curves), AnnuityCouponIbor.class);
-    assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
-    assertEquals(FCP.accept(VISITOR, curves), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR, curves), ContinuouslyMonitoredAverageRatePayment.class);
-    assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
-    assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
-    assertEquals(VISITOR.visit(CASH), Cash.class);
-    assertEquals(FRA.accept(VISITOR), ForwardRateAgreement.class);
-    assertEquals(BOND.accept(VISITOR), Bond.class);
-    assertEquals(BOND_FORWARD.accept(VISITOR), BondForward.class);
-    assertEquals(BOND_FUTURE.accept(VISITOR), BondFuture.class);
-    assertEquals(FIXED_LEG.accept(VISITOR), AnnuityCouponFixed.class);
-    assertEquals(FLOAT_LEG.accept(VISITOR), AnnuityCouponIbor.class);
-    assertEquals(SWAP.accept(VISITOR), FixedFloatSwap.class);
-    assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
-    assertEquals(FIXED_PAYMENT.accept(VISITOR), PaymentFixed.class);
-    assertEquals(LIBOR_PAYMENT.accept(VISITOR), CouponIbor.class);
-    assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
-    assertEquals(FCA.accept(VISITOR), AnnuityCouponFixed.class);
-    assertEquals(FLA.accept(VISITOR), AnnuityCouponIbor.class);
-    assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
-    assertEquals(FCP.accept(VISITOR), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
-    assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
-    assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
-    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
-    assertEquals(FLOATING_COUPON.accept(VISITOR, curves), CouponFloating.class);
+    AssertJUnit.assertEquals(VISITOR.visit(CASH, curves), Cash.class);
+    AssertJUnit.assertEquals(FRA.accept(VISITOR, curves), ForwardRateAgreement.class);
+    AssertJUnit.assertEquals(BOND.accept(VISITOR, curves), Bond.class);
+    AssertJUnit.assertEquals(BOND_FORWARD.accept(VISITOR, curves), BondForward.class);
+    AssertJUnit.assertEquals(BOND_FUTURE.accept(VISITOR, curves), BondFuture.class);
+    AssertJUnit.assertEquals(FIXED_LEG.accept(VISITOR, curves), AnnuityCouponFixed.class);
+    AssertJUnit.assertEquals(FLOAT_LEG.accept(VISITOR, curves), AnnuityCouponIbor.class);
+    AssertJUnit.assertEquals(SWAP.accept(VISITOR, curves), FixedFloatSwap.class);
+    AssertJUnit.assertEquals(TENOR_SWAP.accept(VISITOR, curves), TenorSwap.class);
+    AssertJUnit.assertEquals(FIXED_PAYMENT.accept(VISITOR, curves), PaymentFixed.class);
+    AssertJUnit.assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), CouponIbor.class);
+    AssertJUnit.assertEquals(FCA.accept(VISITOR, curves), AnnuityCouponFixed.class);
+    AssertJUnit.assertEquals(FLA.accept(VISITOR, curves), AnnuityCouponIbor.class);
+    AssertJUnit.assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
+    AssertJUnit.assertEquals(FCP.accept(VISITOR, curves), CouponFixed.class);
+    AssertJUnit.assertEquals(CM.accept(VISITOR, curves), ContinuouslyMonitoredAverageRatePayment.class);
+    AssertJUnit.assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
+    AssertJUnit.assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
+    AssertJUnit.assertEquals(VISITOR.visit(CASH), Cash.class);
+    AssertJUnit.assertEquals(FRA.accept(VISITOR), ForwardRateAgreement.class);
+    AssertJUnit.assertEquals(BOND.accept(VISITOR), Bond.class);
+    AssertJUnit.assertEquals(BOND_FORWARD.accept(VISITOR), BondForward.class);
+    AssertJUnit.assertEquals(BOND_FUTURE.accept(VISITOR), BondFuture.class);
+    AssertJUnit.assertEquals(FIXED_LEG.accept(VISITOR), AnnuityCouponFixed.class);
+    AssertJUnit.assertEquals(FLOAT_LEG.accept(VISITOR), AnnuityCouponIbor.class);
+    AssertJUnit.assertEquals(SWAP.accept(VISITOR), FixedFloatSwap.class);
+    AssertJUnit.assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
+    AssertJUnit.assertEquals(FIXED_PAYMENT.accept(VISITOR), PaymentFixed.class);
+    AssertJUnit.assertEquals(LIBOR_PAYMENT.accept(VISITOR), CouponIbor.class);
+    AssertJUnit.assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
+    AssertJUnit.assertEquals(FCA.accept(VISITOR), AnnuityCouponFixed.class);
+    AssertJUnit.assertEquals(FLA.accept(VISITOR), AnnuityCouponIbor.class);
+    AssertJUnit.assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
+    AssertJUnit.assertEquals(FCP.accept(VISITOR), CouponFixed.class);
+    AssertJUnit.assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
+    AssertJUnit.assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
+    AssertJUnit.assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
+    AssertJUnit.assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
+    AssertJUnit.assertEquals(FLOATING_COUPON.accept(VISITOR, curves), CouponFloating.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

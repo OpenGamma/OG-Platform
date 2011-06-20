@@ -15,8 +15,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -44,7 +44,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
+    final InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(underlyingFuture.getForwardCurveName());
     final double forward = (forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodStartTime())
         / forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodEndTime()) - 1)
@@ -69,7 +69,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
+    final InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(underlyingFuture.getForwardCurveName());
     final double dfForwardStart = forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(underlyingFuture.getFixingPeriodEndTime());

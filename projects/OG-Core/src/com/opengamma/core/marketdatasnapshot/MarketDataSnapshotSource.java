@@ -22,33 +22,34 @@ public interface MarketDataSnapshotSource {
    * <p>
    * Since a unique identifier is unique, there are no complex matching issues.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the snapshot, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid);
-  
+  StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uniqueId);
+
   /**
   * Adds a listener to the source.
   * <p>
   * The listener will receive events for the source which change the result of:
   * 
   * <code>
-  * getSnapshot({@link uid});
+  * getSnapshot(uniqueId);
   * </code>
   * 
   * @param listener  the listener to add, not null
-  * @param uid the identifier to register interest in
+  * @param uniqueId the identifier to register interest in
   * */
-  void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener);
-  
+  void addChangeListener(UniqueIdentifier uniqueId, MarketDataSnapshotChangeListener listener);
+
   /**
    * Removes a listener from the source.
    * <p>
    * The listener will cease receiving events for this {@link UniqueIdentifier} on the source
    * 
    * @param listener  the listener to remove, not null
-   * @param uid the identifier to unregister interest in
+   * @param uniqueId the identifier to unregister interest in
    * */
-  void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener);
+  void removeChangeListener(UniqueIdentifier uniqueId, MarketDataSnapshotChangeListener listener);
+
 }

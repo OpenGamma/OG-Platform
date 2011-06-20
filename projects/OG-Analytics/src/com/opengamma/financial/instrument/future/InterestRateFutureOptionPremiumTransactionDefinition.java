@@ -15,8 +15,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 
 /**
  * Description of transaction on an interest rate future option security with premium paid up-front (CME type).

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;

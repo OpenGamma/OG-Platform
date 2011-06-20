@@ -162,7 +162,7 @@
     <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
   <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
-    <property name="historicalDataSource" ref="sharedHistoricalDataProvider" />
+    <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="regionSource" ref="regionSource"/>
