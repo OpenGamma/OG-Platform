@@ -46,7 +46,7 @@ public class CouponCMSSABRReplicationMethod {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
     CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
-    double priceCMSCoupon = method.presentValue(cap0, sabrData);
+    double priceCMSCoupon = method.presentValue(cap0, sabrData).getAmount();
     return priceCMSCoupon;
   }
 

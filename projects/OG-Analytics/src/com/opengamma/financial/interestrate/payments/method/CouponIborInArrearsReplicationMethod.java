@@ -45,7 +45,7 @@ public class CouponIborInArrearsReplicationMethod implements PricingMethod {
     Validate.notNull(coupon);
     Validate.notNull(sabrData);
     CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
-    CapFloorIborInArrearsReplicationMethod method = new CapFloorIborInArrearsReplicationMethod(_baseMethod);
+    CapFloorIborInArrearsGenericReplicationMethod method = new CapFloorIborInArrearsGenericReplicationMethod(_baseMethod);
     return method.presentValue(cap0, sabrData);
   }
 

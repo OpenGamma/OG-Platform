@@ -8,6 +8,7 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Year;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeField;
@@ -16,6 +17,7 @@ import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
+import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,15 +41,15 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    */
   public static final String VALID_TO_FUDGE_FIELD_NAME = "ValidTo";
   /**
-   * The identifier
+   * The identifier.
    */
   private final Identifier _identifier;
   /**
-   * The valid start date
+   * The valid start date, inclusive.
    */
   private final LocalDate _validFrom;
   /**
-   * The valid end date
+   * The valid end date, inclusive.
    */
   private final LocalDate _validTo;
 
@@ -55,8 +57,8 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * Obtains an identifier with dates from an identifier and dates.
    * 
    * @param identifier  the identifier, not empty, not null
-   * @param validFrom  the valid from date, may be null
-   * @param validTo  the valid to date, may be null
+   * @param validFrom  the valid from date, inclusive, may be null
+   * @param validTo  the valid to date, inclusive, may be null
    * @return the identifier, not null
    */
   public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
@@ -136,6 +138,22 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    */
   public LocalDate getValidTo() {
     return _validTo;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the identifier is valid on the specified date.
+   * 
+   * @param date  the date to check for validity on, null returns true
+   * @return true if valid on the specified date
+   */
+  public boolean isValidOn(LocalDate date) {
+    if (date == null) {
+      return true;
+    }
+    LocalDate from = Objects.firstNonNull(getValidFrom(), LocalDate.of(Year.MIN_YEAR, 1, 1));  // TODO: JSR-310 far past/future
+    LocalDate to = Objects.firstNonNull(getValidTo(), LocalDate.of(Year.MAX_YEAR, 12, 31));
+    return date.isBefore(from) == false && date.isAfter(to) == false;
   }
 
   //-------------------------------------------------------------------------

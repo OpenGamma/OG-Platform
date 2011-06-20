@@ -76,8 +76,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
     CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
     double cmsCoupon1Price = METHOD_CMS_COUPON.presentValue(cmsCoupon1, sabrData);
     double cmsCoupon2Price = METHOD_CMS_COUPON.presentValue(cmsCoupon2, sabrData);
-    double cmsCap1Price = METHOD_CMS_CAP.presentValue(cmsCap1, sabrData);
-    double cmsCap2Price = METHOD_CMS_CAP.presentValue(cmsCap2, sabrData);
+    double cmsCap1Price = METHOD_CMS_CAP.presentValue(cmsCap1, sabrData).getAmount();
+    double cmsCap2Price = METHOD_CMS_CAP.presentValue(cmsCap2, sabrData).getAmount();
     double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
     BlackFunctionData dataCap1 = new BlackFunctionData(cmsCoupon1Price / (discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction()), discountFactorPayment
         * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction(), 0.0);

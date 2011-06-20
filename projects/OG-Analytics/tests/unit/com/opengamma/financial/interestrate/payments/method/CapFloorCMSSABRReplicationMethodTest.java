@@ -123,6 +123,16 @@ public class CapFloorCMSSABRReplicationMethodTest {
 
   @Test
   /**
+   * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
+   */
+  public void presentValueMethodVsCalculator() {
+    double pvMethod = METHOD.presentValue(CMS_CAP, SABR_BUNDLE).getAmount();
+    double pvCalculator = PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+    assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
    * Tests the present value SABR parameters sensitivity: Method vs Calculator.
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {

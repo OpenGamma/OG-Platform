@@ -16,7 +16,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -87,12 +87,12 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (final Pair<UnderlyingType, String> underlying : _underlyings) {
       final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueId());
-      final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataSource, _dataSourceName, null, securitySource,
+      final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _dataSourceName, null, securitySource,
           underlying.getFirst(), security);
       if (ts == null) {
         throw new NullPointerException("Could not get price series for security " + security);
