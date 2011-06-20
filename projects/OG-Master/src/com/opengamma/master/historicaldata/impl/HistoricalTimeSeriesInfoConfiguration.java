@@ -20,11 +20,11 @@ import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The set of rules to use when loading a historical time-series from a master.
+ * The set of configured rules used to choose the best matching time-series.
  * <p>
  * This class is immutable and thread-safe.
  */
-public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeriesInfoRateProvider {
+public class HistoricalTimeSeriesInfoConfiguration {
 
   /**
    * The set of rules.
@@ -74,7 +74,12 @@ public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeri
   }
 
   //-------------------------------------------------------------------------
-  @Override
+  /**
+   * Rates historical time-series info based on its rules.
+   * 
+   * @param info  the time-series info, not null
+   * @return the rating
+   */
   public int rate(HistoricalTimeSeriesInfo info) {
     String dataSource = info.getDataSource();
     Map<String, Integer> dataSourceMap = _rulesByFieldType.get(HistoricalTimeSeriesInfoFieldNames.DATA_SOURCE_NAME);

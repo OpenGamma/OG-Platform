@@ -100,7 +100,7 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
    * @param ruleSet  the configured rules, not null
    * @return the best match, null if no match
    */
-  private HistoricalTimeSeriesInfo bestMatch(List<HistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesInfoRateProvider ruleSet) {
+  private HistoricalTimeSeriesInfo bestMatch(List<HistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesInfoConfiguration ruleSet) {
     if (infoList.isEmpty()) {
       return null;
     }
