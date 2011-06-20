@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 
 /**

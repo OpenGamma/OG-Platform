@@ -42,25 +42,25 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
    * The provider of historical data.
    * In practice, this is the time series database.
    */
-  private final HistoricalLiveDataSnapshotProvider _historicalDataProvider;
+  private final HistoricalLiveDataSnapshotProvider _snapshotProvider;
 
   /**
    * Creates an instance.
    * 
    * @param run  the run data, not null
    * @param batchRunMaster  the batch master, not null
-   * @param historicalDataProvider  the historical data provider, not null
+   * @param snapshotProvider  the historical snapshot provider, not null
    */
   public BatchLiveDataSnapshotProvider(
       BatchJobRun run,
       BatchRunMaster batchRunMaster,
-      HistoricalLiveDataSnapshotProvider historicalDataProvider) {
+      HistoricalLiveDataSnapshotProvider snapshotProvider) {
     ArgumentChecker.notNull(run, "run");
     ArgumentChecker.notNull(batchRunMaster, "batchMaster");
-    ArgumentChecker.notNull(historicalDataProvider, "historicalDataProvider");
+    ArgumentChecker.notNull(snapshotProvider, "snapshotProvider");
     _run = run;
     _batchRunMaster = batchRunMaster;
-    _historicalDataProvider = historicalDataProvider;
+    _snapshotProvider = snapshotProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -74,7 +74,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
       return valueInBatchDb;
     }
     
-    Object valueInTimeSeriesDb = _historicalDataProvider.querySnapshot(snapshot, requirement);
+    Object valueInTimeSeriesDb = _snapshotProvider.querySnapshot(snapshot, requirement);
     if (valueInTimeSeriesDb == null) {
       return null;
     }
@@ -98,7 +98,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     if (super.isAvailable(requirement)) {
       return true;
     }
-    return _historicalDataProvider.isAvailable(requirement);
+    return _snapshotProvider.isAvailable(requirement);
   }
 
 }

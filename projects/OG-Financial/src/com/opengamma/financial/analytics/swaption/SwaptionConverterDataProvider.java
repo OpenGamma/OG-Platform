@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -33,7 +33,7 @@ public class SwaptionConverterDataProvider {
 
   @SuppressWarnings("unused")
   public InterestRateDerivative convert(final SwaptionSecurity security, final FixedIncomeInstrumentConverter<?> definition, final ZonedDateTime now, final String[] curveNames,
-      final HistoricalDataSource dataSource) {
+      final HistoricalTimeSeriesSource dataSource) {
     if (definition instanceof SwaptionCashFixedIborDefinition) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;
       final SwapSecurity swapSecurity = null; //TODO
