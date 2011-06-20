@@ -127,10 +127,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
       } else {
         Double previous = dataPoints.put(volatilityPoint, dValue);
-        /*if (previous != null) {
-          throw new NotImplementedException("Don't know which of these points is the right one to use");
-        }*/
         if (previous != null && previous > dValue) {
+          //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
           dataPoints.put(volatilityPoint, previous);
         }
       }
