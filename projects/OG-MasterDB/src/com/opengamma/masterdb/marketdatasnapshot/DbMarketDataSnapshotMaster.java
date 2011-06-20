@@ -244,6 +244,8 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
+      UniqueIdentifier uid = createUniqueIdentifier(docOid, docId);
+      
       ManageableMarketDataSnapshot marketDataSnapshot;
       //PLAT-1378
       if (_includeData) {
@@ -258,9 +260,10 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       } else {
         marketDataSnapshot = new ManageableMarketDataSnapshot();
         marketDataSnapshot.setName(rs.getString("NAME"));
+        marketDataSnapshot.setUniqueId(uid);
       }
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-      doc.setUniqueId(createUniqueIdentifier(docOid, docId));
+      doc.setUniqueId(uid);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
