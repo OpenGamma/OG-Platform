@@ -33,6 +33,7 @@ import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoConfiguration;
 import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoRating;
@@ -120,16 +121,17 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
       for (String dataSource : DATA_SOURCES) {
         for (String dataProvider : DATA_PROVIDERS) {
           for (String datafield : DATA_FIELDS) {
-            HistoricalTimeSeriesDocument tsDocument = new HistoricalTimeSeriesDocument();
-            tsDocument.setDataField(datafield);
-            tsDocument.setDataProvider(dataProvider);
-            tsDocument.setDataSource(dataSource);
-            tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-            tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+            ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+            series.setDataField(datafield);
+            series.setDataProvider(dataProvider);
+            series.setDataSource(dataSource);
+            series.setObservationTime(LCLOSE_OBSERVATION_TIME);
+            series.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
             LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, 7);
             assertTrue(timeSeries.size() == 7);
             assertEquals(start, timeSeries.getEarliestTime());
-            tsDocument.setTimeSeries(timeSeries);
+            series.setTimeSeries(timeSeries);
+            HistoricalTimeSeriesDocument tsDocument = new HistoricalTimeSeriesDocument(series);
             
             tsDocument = _tsMaster.add(tsDocument);
             
@@ -138,7 +140,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
             
             HistoricalTimeSeriesDocument actualDoc = _tsMaster.get(tsDocument.getUniqueId());
             assertNotNull(actualDoc);
-            assertEquals(timeSeries, actualDoc.getTimeSeries());
+            assertEquals(timeSeries, actualDoc.getSeries().getTimeSeries());
             result.add(tsDocument);
           }
         }

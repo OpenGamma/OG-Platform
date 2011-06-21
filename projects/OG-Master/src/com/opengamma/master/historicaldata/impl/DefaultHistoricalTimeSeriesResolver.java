@@ -88,7 +88,7 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
     List<HistoricalTimeSeriesDocument> documents = searchResult.getDocuments();
     List<HistoricalTimeSeriesInfo> infoList = new ArrayList<HistoricalTimeSeriesInfo>(documents.size());
     for (HistoricalTimeSeriesDocument document : documents) {
-      infoList.add(document.toInfo());
+      infoList.add(new HistoricalTimeSeriesInfo(document));
     }
     return infoList;
   }

@@ -16,16 +16,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -98,9 +97,8 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
-    
     HistoricalTimeSeriesDocument doc = getMaster().get(request);
-    return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
+    return doc.getSeries();
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +159,6 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     
     HistoricalTimeSeriesSearchResult searchResult = getMaster().search(request);
     List<HistoricalTimeSeriesDocument> documents = searchResult.getDocuments();
-    UniqueIdentifier uniqueId = null;
     if (documents.isEmpty()) {
       return null;
     }
@@ -170,8 +167,7 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       s_logger.warn("multiple timeseries returned for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
     }
     HistoricalTimeSeriesDocument doc = documents.get(0);
-    uniqueId = doc.getUniqueId();
-    return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
+    return doc.getSeries();
   }
 
   //-------------------------------------------------------------------------
