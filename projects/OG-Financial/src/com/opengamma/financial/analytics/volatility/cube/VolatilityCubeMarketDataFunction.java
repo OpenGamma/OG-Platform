@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.cube;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
@@ -48,6 +49,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   private final VolatilityCubeFunctionHelper _helper;
   private VolatilityCubeDefinition _definition;
 
+  private Map<Identifier, VolatilityPoint> _pointsById;
+  
   public VolatilityCubeMarketDataFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
@@ -75,6 +78,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
   
   private Set<ValueRequirement> buildRequirements(VolatilityCubeSpecification third, FunctionCompilationContext context) {
+    _pointsById =  new HashMap<Identifier, VolatilityPoint>();
     HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (VolatilityPoint point : allPoints) {
@@ -93,6 +97,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   private Set<ValueRequirement> getValueRequirements(VolatilityPoint point) {
     Set<Identifier> instruments = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstruments(_helper.getKey()
         .getCurrency(), point);
+    if (instruments != null) {
+      for (Identifier identifier : instruments) {
+        _pointsById.put(identifier, point);
+      }
+    }
     return getMarketValueReqs(instruments);
   }
 
@@ -110,7 +119,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
       return null;
     }
-    return VolatilityCubeInstrumentProvider.BLOOMBERG.getPoint(_helper.getKey().getCurrency(), spec.getTargetSpecification().getIdentifier());
+    return _pointsById.get(spec.getTargetSpecification().getIdentifier());
   }
 
   private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
