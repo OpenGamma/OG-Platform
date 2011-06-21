@@ -30,13 +30,16 @@ public class VolatilityCubeData {
   private Map<VolatilityPoint, Double> _dataPoints;
   
   /**
-   * The other market data needed (spot rates etc.)
+   * The other market data needed
    */
   private SnapshotDataBundle _otherData;
 
+  /**
+   * The ATM strikes
+   */
+  private Map<Pair<Tenor, Tenor>, Double> _strikes;
   
   private Map<Tenor, Map<Tenor, Pair<double[], double[]>>> _smiles;
-  
   
   
   /**
@@ -56,7 +59,7 @@ public class VolatilityCubeData {
   }
   
     /**
-   * Gets The other market data needed (spot rates etc.)
+   * Gets The other market data needed
    * @return the otherData
    */
   public SnapshotDataBundle getOtherData() {
@@ -64,11 +67,28 @@ public class VolatilityCubeData {
   }
 
   /**
-   * Sets The other market data needed (spot rates etc.)
+   * Sets The other market data needed
    * @param otherData  the otherData
    */
   public void setOtherData(SnapshotDataBundle otherData) {
     _otherData = otherData;
+  }
+
+  
+  /**
+   * Gets The ATM strikes
+   * @return the strikes
+   */
+  public Map<Pair<Tenor, Tenor>, Double> getStrikes() {
+    return _strikes;
+  }
+
+  /**
+   * Sets tThe ATM strikes
+   * @param strikes  the strikes
+   */
+  public void setStrikes(Map<Pair<Tenor, Tenor>, Double> strikes) {
+    _strikes = strikes;
   }
 
   /**
@@ -95,16 +115,22 @@ public class VolatilityCubeData {
 
       @Override
       public int compare(Entry<VolatilityPoint, Double> o1, Entry<VolatilityPoint, Double> o2) {
-        int compareTo = o1.getKey().getSwapTenor().compareTo(o2.getKey().getSwapTenor());
+        int compareTo = compare(o1.getKey().getSwapTenor(), o2.getKey().getSwapTenor());
         if (compareTo != 0) {
           return compareTo;
         }
-        compareTo = o1.getKey().getOptionExpiry().compareTo(o2.getKey().getOptionExpiry());
+        compareTo = compare(o1.getKey().getOptionExpiry(), o2.getKey().getOptionExpiry());
         if (compareTo != 0) {
           return compareTo;
         }
 
         return Double.compare(o1.getKey().getRelativeStrike(), o2.getKey().getRelativeStrike());
+      }
+
+      private int compare(Tenor a, Tenor b) {
+        //TODO [PLAT-1013] Tenors should be comparable, but they're not
+        int compareTo = a.getPeriod().toString().compareTo(b.getPeriod().toString());
+        return compareTo;
       }
     });
     

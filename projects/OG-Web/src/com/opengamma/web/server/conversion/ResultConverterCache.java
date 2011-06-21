@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
@@ -41,6 +42,7 @@ public class ResultConverterCache {
     registerConverter(Double.class, _doubleConverter);
     registerConverter(CurrencyAmount.class, _doubleConverter);
     registerConverter(YieldCurve.class, new YieldCurveConverter());
+    registerConverter(VolatilityCubeData.class, new VolatilityCubeDataConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
     registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
