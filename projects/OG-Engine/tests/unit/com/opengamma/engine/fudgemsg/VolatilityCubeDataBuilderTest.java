@@ -63,6 +63,12 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     otherDataMap.put(UniqueIdentifier.of("Test", "Test"), 0.0);
     bundle.setDataPoints(otherDataMap);
     data.setOtherData(bundle);
+    
+    Map<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor,Tenor>, Double>();
+    strikes.put(Pair.of(Tenor.DAY, Tenor.DAY), 1.0);
+    strikes.put(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK), 50.0);
+    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), 150.0);
+    data.setStrikes(strikes);
     return data;
   }
   
@@ -94,6 +100,12 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     assertMatches(smile, expectedStrikes, expectedVols);
     
     assertEquals(1, data.getOtherData().getDataPoints().size());
+    
+    Map<Pair<Tenor, Tenor>, Double> strikes = data.getStrikes();
+    assertEquals(3, strikes.size());
+    assertEquals(1.0, strikes.get(Pair.of(Tenor.DAY, Tenor.DAY)));
+    assertEquals(50.0, strikes.get(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK)));
+    assertEquals(150.0, strikes.get(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK)));
   }
 
   
