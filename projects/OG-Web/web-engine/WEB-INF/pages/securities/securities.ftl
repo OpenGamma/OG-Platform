@@ -14,7 +14,7 @@
         <option value="EQUITY" <#if searchRequest.securityType = 'EQUITY'>selected</#if>>Equity</option>
         <option value="FRA" <#if searchRequest.securityType = 'FRA'>selected</#if>>FRA</option>
         <option value="FUTURE" <#if searchRequest.securityType = 'FUTURE'>selected</#if>>Future</option>
-        <option value="EQUITY_OPTION" <#if searchRequest.securityType = 'EQUITY_OPTION'>selected</#if>>Option</option>
+        <option value="EQUITY_OPTION" <#if searchRequest.securityType = 'EQUITY_OPTION'>selected</#if>>Equity Option</option>
         <option value="SWAP" <#if searchRequest.securityType = 'SWAP'>selected</#if>>Swap</option>
       </select>
     </@rowin>

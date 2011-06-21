@@ -102,7 +102,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   public void comparisonDiscounting() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final InterestRateFutureSecurityDiscountingMethod methodDiscounting = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    final double priceDiscounting = methodDiscounting.price(ERU2, curves);
+    final double priceDiscounting = methodDiscounting.priceFromCurves(ERU2, curves);
     final double priceHullWhite = METHOD.price(ERU2, curves);
     assertTrue("Future price comparison with no convexity adjustment", priceDiscounting > priceHullWhite);
 

@@ -62,28 +62,6 @@ public class BondSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the clean price of a bond security from curves.
-   * @param bond The bond security.
-   * @param curves The curve bundle.
-   * @return The clean price.
-   */
-  public double cleanPriceFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double dirtyPrice = dirtyPriceFromCurves(bond, curves);
-    return cleanPriceFromDirtyPrice(bond, dirtyPrice);
-  }
-
-  /**
-   * Computes the clean price of a bond security from a dirty price.
-   * @param bond The bond security.
-   * @param dirtyPrice The dirty price.
-   * @return The clean price.
-   */
-  public double cleanPriceFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    return dirtyPrice - bond.getAccruedInterest() / notional;
-  }
-
-  /**
    * Computes the dirty price of a bond security from a clean price.
    * @param bond The bond security.
    * @param cleanPrice The clean price.
@@ -126,6 +104,28 @@ public class BondSecurityDiscountingMethod {
       return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+  }
+
+  /**
+   * Computes the clean price of a bond security from curves.
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The clean price.
+   */
+  public double cleanPriceFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    double dirtyPrice = dirtyPriceFromCurves(bond, curves);
+    return cleanPriceFromDirtyPrice(bond, dirtyPrice);
+  }
+
+  /**
+   * Computes the clean price of a bond security from a dirty price.
+   * @param bond The bond security.
+   * @param dirtyPrice The dirty price.
+   * @return The clean price.
+   */
+  public double cleanPriceFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
+    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    return dirtyPrice - bond.getAccruedInterest() / notional;
   }
 
   /**
