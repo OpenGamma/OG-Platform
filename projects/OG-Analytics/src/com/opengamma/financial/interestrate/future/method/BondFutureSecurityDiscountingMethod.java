@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.stat.descriptive.rank.Min;
 
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
@@ -46,6 +47,30 @@ public class BondFutureSecurityDiscountingMethod {
     Min minFunction = new Min();
     double priceFuture = minFunction.evaluate(priceFromBond);
     return priceFuture;
+  }
+
+  /**
+   * Computes the future price curve sensitivity.
+   * @param future The future security.
+   * @param curves The curves.
+   * @return The curve sensitivity.
+   */
+  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    Validate.notNull(curves, "Curves");
+    final double[] priceFromBond = new double[future.getDeliveryBasket().length];
+    int indexCTD = 0;
+    double priceMin = 2.0;
+    for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
+      priceFromBond[loopbasket] = (BOND_METHOD.cleanPriceFromCurves(future.getDeliveryBasket()[loopbasket], curves)) / future.getConversionFactor()[loopbasket];
+      if (priceFromBond[loopbasket] < priceMin) {
+        priceMin = priceFromBond[loopbasket];
+        indexCTD = loopbasket;
+      }
+    }
+    PresentValueSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
+    result = result.multiply(1.0 / future.getConversionFactor()[indexCTD]);
+    return result;
   }
 
   /**
