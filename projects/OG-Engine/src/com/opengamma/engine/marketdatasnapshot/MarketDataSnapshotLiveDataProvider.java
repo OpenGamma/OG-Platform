@@ -189,7 +189,6 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   
   
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
-    VolatilityCubeData ret = new VolatilityCubeData();
     HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
       ValueSnapshot value = entry.getValue();
@@ -198,8 +197,11 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
         dataPoints.put(entry.getKey(), query);
       }
     }
+    SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
+    VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
-    ret.setOtherData(buildBundle(volCubeSnapshot.getOtherValues()));
+    
+    ret.setOtherData(otherData);
     return ret;
   }
 

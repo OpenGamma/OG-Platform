@@ -23,7 +23,7 @@ public class InterestRateFutureSecurityDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public double priceFromCurves(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());

@@ -78,6 +78,13 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "redemptionValue":"${security.currency}",
+        
+        <#if futureSecurityType == "BondFuture">
+            "underlying Bond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
+        <#else>
+            "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        </#if>
+        
         <#break>
       <#case "EQUITY_OPTION">
         "exerciseType":"${security.exerciseType}",
@@ -86,7 +93,7 @@
         "strike":"${security.strike}",
         "expiryDate":"${security.expiry.expiry}",
         "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
-        "underlyingIdentifier":"${security.underlyingIdentifier?replace("_", " ")}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
         "currency":"${security.currency}",
         <#break>
       <#case "SWAP">
