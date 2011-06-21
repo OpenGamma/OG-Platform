@@ -22,7 +22,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
@@ -213,13 +212,13 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       IdentifierBundle securityBundle, String configDocName, LocalDate identifierValidityDate, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(securityBundle != null && !securityBundle.getIdentifiers().isEmpty(), "Cannot get historical time-series with null/empty identifiers");
     if (StringUtils.isBlank(configDocName)) {
-      configDocName = HistoricalTimeSeriesInfoFieldNames.DEFAULT_CONFIG_NAME;
+      configDocName = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     }
-    HistoricalTimeSeriesInfo info = _resolver.getInfo(securityBundle, configDocName);
-    if (info == null) {
+    UniqueIdentifier uniqueId = _resolver.resolve("PX_LAST", securityBundle, configDocName);
+    if (uniqueId == null) {
       return null;
     }
-    return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, info.getDataSource(), info.getDataProvider(), info.getDataField(), start, end);
+    return doGetHistoricalTimeSeries(uniqueId, start, end);
   }
 
   //-------------------------------------------------------------------------

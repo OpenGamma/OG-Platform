@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.historicaldata.impl;
 
-import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -20,25 +20,25 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.testng.annotations.Test;
 
-import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoConfiguration;
-import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesInfoRating;
+import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRating;
+import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingRule;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test HistoricalTimeSeriesInfoConfiguration to/from fudge message.
+ * Test HistoricalTimeSeriesRating to/from fudge message.
  */
 @Test
-public class HistoricalTimeSeriesInfoConfigurationTest {
+public class HistoricalTimeSeriesRatingTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void fudgeEncoding() {
-    List<HistoricalTimeSeriesInfoRating> rules = new ArrayList<HistoricalTimeSeriesInfoRating>();
-    rules.add(new HistoricalTimeSeriesInfoRating(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new HistoricalTimeSeriesInfoRating(DATA_SOURCE_NAME, "REUTERS", 1));
-    rules.add(new HistoricalTimeSeriesInfoRating(DATA_PROVIDER_NAME, "CMPL", 3));
+    List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "REUTERS", 1));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 3));
     
-    HistoricalTimeSeriesInfoConfiguration inputConfig = new HistoricalTimeSeriesInfoConfiguration(rules);
+    HistoricalTimeSeriesRating inputConfig = new HistoricalTimeSeriesRating(rules);
     
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputConfig);
@@ -47,7 +47,7 @@ public class HistoricalTimeSeriesInfoConfigurationTest {
     assertEquals(3, outputMsg.getNumFields());
     
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
-    HistoricalTimeSeriesInfoConfiguration outputConfig = deserializationContext.fudgeMsgToObject(HistoricalTimeSeriesInfoConfiguration.class, outputMsg);
+    HistoricalTimeSeriesRating outputConfig = deserializationContext.fudgeMsgToObject(HistoricalTimeSeriesRating.class, outputMsg);
     
     assertEquals(inputConfig, outputConfig);
   }

@@ -5,26 +5,24 @@
  */
 package com.opengamma.master.historicaldata.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple historical time-series resolver, returns the best match from
- * the info in the data store.
+ * Time-series resolver using configuration to interpret the resolution key.
  * <p>
  * This resolver relies on configuration in the configuration database.
  */
@@ -57,60 +55,53 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeriesInfo getInfo(IdentifierBundle securityBundle, String configName) {
-    ArgumentChecker.notNull(securityBundle, "securityBundle");
-    ArgumentChecker.notNull(configName, "configName");
+  public UniqueIdentifier resolve(String type, IdentifierBundle identifiers, String resolutionKey) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
-    // find time-series
-    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest(securityBundle);
-    searchRequest.setDataField(DEFAULT_DATA_FIELD);
+    // find all matching time-series
+    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest(identifiers);
+    searchRequest.setDataField(type);
+    searchRequest.setLoadEarliestLatest(false);
     searchRequest.setLoadTimeSeries(false);
     HistoricalTimeSeriesSearchResult searchResult = _master.search(searchRequest);
-    
-    // pick best using rules from configuration
-    HistoricalTimeSeriesInfoConfiguration ruleSet = _configSource.getLatestByName(HistoricalTimeSeriesInfoConfiguration.class, configName);
-    if (ruleSet != null) {
-      List<HistoricalTimeSeriesInfo> infos = extractInfo(searchResult);
-      return bestMatch(infos, ruleSet);
-    } else {
-      s_logger.warn("Unable to resolve time-series info because rules set with name {} can not be loaded from config database", configName);
+    if (searchResult.getDocuments().isEmpty()) {
+      s_logger.warn("Resolver failed to find any time-series: {} {}", type, identifiers);
       return null;
     }
-  }
-
-  /**
-   * Converts the time-series results to the simpler info object for matching purposes.
-   * 
-   * @param searchResult  the search result, not null
-   * @return the list of info objects, not null
-   */
-  private List<HistoricalTimeSeriesInfo> extractInfo(HistoricalTimeSeriesSearchResult searchResult) {
-    List<HistoricalTimeSeriesDocument> documents = searchResult.getDocuments();
-    List<HistoricalTimeSeriesInfo> infoList = new ArrayList<HistoricalTimeSeriesInfo>(documents.size());
-    for (HistoricalTimeSeriesDocument document : documents) {
-      infoList.add(new HistoricalTimeSeriesInfo(document));
+    
+    // pick best using rules from configuration
+    HistoricalTimeSeriesRating ruleSet = _configSource.getLatestByName(HistoricalTimeSeriesRating.class, resolutionKey);
+    if (ruleSet == null) {
+      s_logger.warn("Resolver failed to find configuration: {}", resolutionKey);
+      return null;
     }
-    return infoList;
+    return bestMatch(searchResult.getSeriesList(), ruleSet);
   }
 
   /**
    * Choose the best match using the configured rules.
    * 
-   * @param infoList  the list of info objects, not null
-   * @param ruleSet  the configured rules, not null
+   * @param seriesList  the list of series objects, not null
+   * @param rating  the configured rules, not null
    * @return the best match, null if no match
    */
-  private HistoricalTimeSeriesInfo bestMatch(List<HistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesInfoConfiguration ruleSet) {
-    if (infoList.isEmpty()) {
-      return null;
+  private UniqueIdentifier bestMatch(List<ManageableHistoricalTimeSeries> seriesList, HistoricalTimeSeriesRating rating) {
+    s_logger.debug("Find best match using rules: {}", rating);
+    
+    // pick the highest score
+    int currentScore = Integer.MIN_VALUE;
+    UniqueIdentifier result = null;
+    for (ManageableHistoricalTimeSeries series : seriesList) {
+      int score = rating.rate(series);
+      s_logger.debug("Score: {} for info: {}", score, series);
+      if (score > currentScore) {
+        currentScore = score;
+        result = series.getUniqueId();
+      }
     }
-    TreeMap<Integer, HistoricalTimeSeriesInfo> scores = new TreeMap<Integer, HistoricalTimeSeriesInfo>();
-    for (HistoricalTimeSeriesInfo info : infoList) {
-      int score = ruleSet.rate(info);
-      s_logger.debug("Score: {} for info: {} using rules: {} ", new Object[]{score, info, ruleSet});
-      scores.put(score, info);
-    }
-    return scores.lastEntry().getValue();
+    return result;
   }
 
 }

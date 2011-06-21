@@ -6,6 +6,7 @@
 package com.opengamma.master.historicaldata;
 
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,19 +19,19 @@ import com.opengamma.util.PublicSPI;
 public interface HistoricalTimeSeriesResolver {
 
   /**
-   * Default data field value.
-   */
-  String DEFAULT_DATA_FIELD = "PX_LAST";
-
-  /**
-   * Find the time-series info for a security.
+   * Find the best matching time-series for an identifier and data field.
    * <p>
-   * This returns suitable time-series information for the specified security.
+   * The desired series is specified by identifier bundle, typically a security,
+   * and the data type, such as "price" or "volume".
+   * However, the underlying sources of data may contain multiple matching time-series.
+   * The resolver allows the preferred series to be chosen based on a key.
+   * The meaning of the key is resolver specific, and it might be treated as a DSL or a configuration key.
    * 
-   * @param securityKey  the bundle of identifiers for the security, not null
-   * @param configName  the name of the configuration rules to use for resolving info, not null
-   * @return the matched info, null if unable to find a match
+   * @param identifierBundle  the bundle of identifiers to resolve, not null
+   * @param type  the type of data that the time-series represents, not null
+   * @param resolutionKey  a key defining how the resolution is to occur, null for the default best match
+   * @return the best matching time-series unique identifier, null if unable to find a match
    */
-  HistoricalTimeSeriesInfo getInfo(IdentifierBundle securityKey, String configName);
+  UniqueIdentifier resolve(String type, IdentifierBundle identifierBundle, String resolutionKey);
 
 }

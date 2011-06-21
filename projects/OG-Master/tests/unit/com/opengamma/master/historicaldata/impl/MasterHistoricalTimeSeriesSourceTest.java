@@ -24,12 +24,10 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
-import com.opengamma.master.historicaldata.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
@@ -128,13 +126,8 @@ public class MasterHistoricalTimeSeriesSourceTest {
     doc.setUniqueId(UID);
     searchResult.getDocuments().add(doc);
     
-    HistoricalTimeSeriesInfo info = new HistoricalTimeSeriesInfo();
-    info.setDataField(CLOSE_DATA_FIELD);
-    info.setDataProvider(CMPL_DATA_PROVIDER);
-    info.setDataSource(BBG_DATA_SOURCE);
-    
     when(_mockMaster.search(request)).thenReturn(searchResult);
-    when(_mockResolver.getInfo(IDENTIFIERS, TEST_CONFIG)).thenReturn(info);
+    when(_mockResolver.resolve("PX_LAST", IDENTIFIERS, TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).search(request);
@@ -145,7 +138,6 @@ public class MasterHistoricalTimeSeriesSourceTest {
   }
 
   public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
-    
     LocalDate end = DateUtil.previousWeekDay();
     LocalDate start = end.minusDays(7);
     
