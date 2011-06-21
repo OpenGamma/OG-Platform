@@ -28,6 +28,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -89,10 +91,11 @@ public class VolatilityCubeFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        @SuppressWarnings("unused")
+
         final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
-        //TODO this is where the data should be sorted into useable form
-        return Sets.newHashSet(new ComputedValue(_cubeResult, 0xdeadbeef));
+        final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
+        //TODO this
+        return Sets.newHashSet(new ComputedValue(_cubeResult, smiles.size()));
       }
     };
   }
