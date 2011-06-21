@@ -39,6 +39,8 @@ public final class VolatilityCubeInstrumentProvider {
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
     new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy");
   
   /**
    * Generates Bloomberg codes for volatilities given points.
@@ -135,5 +137,17 @@ public final class VolatilityCubeInstrumentProvider {
       }
     }
     return ret;
+  }
+
+  public Identifier getStrikeInstrument(Currency currency, VolatilityPoint point) {
+    return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
+  }
+  public Identifier getStrikeInstrument(Currency currency, Tenor swapTenor, Tenor optionExpiry) {
+    if (currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      return ATM_STRIKE_INSTRUMENT_PROVIDER.getInstrument(swapTenor, optionExpiry);
+    } else {
+      //TODO other currencies
+      return null;
+    }
   }
 }

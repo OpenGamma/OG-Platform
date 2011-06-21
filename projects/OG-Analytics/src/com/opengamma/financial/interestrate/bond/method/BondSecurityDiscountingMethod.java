@@ -5,10 +5,17 @@
  */
 package com.opengamma.financial.interestrate.bond.method;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
@@ -17,6 +24,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.
@@ -27,6 +35,10 @@ public class BondSecurityDiscountingMethod {
    * The present value calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  /**
+   * The present value curve sensitivity calculator (for the different parts of the bond transaction).
+   */
+  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
    */
@@ -46,6 +58,18 @@ public class BondSecurityDiscountingMethod {
     double pvNominal = PVC.visit(bond.getNominal(), curves);
     double pvCoupon = PVC.visit(bond.getCoupon(), curves);
     return pvNominal + pvCoupon;
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a bond security (without settlement amount payment).
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The present value curve sensitivity.
+   */
+  public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
+    PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    return pvcsNominal.add(pvcsCoupon);
   }
 
   /**
@@ -104,6 +128,27 @@ public class BondSecurityDiscountingMethod {
       return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+  }
+
+  /**
+   * Computes the dirty price sensitivity to the curves.
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The price curve sensitivity.
+   */
+  public PresentValueSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    double pv = presentValue(bond, curves);
+    PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
+    double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
+    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    List<DoublesPair> listDf = new ArrayList<DoublesPair>();
+    listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
+    resultMap.put(bond.getRepoCurveName(), listDf);
+    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    result = result.multiply(pv / notional);
+    result = result.add(sensiPv.multiply(1 / (df * notional)));
+    return result;
   }
 
   /**

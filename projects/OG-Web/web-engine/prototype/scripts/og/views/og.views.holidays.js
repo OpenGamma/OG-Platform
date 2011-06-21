@@ -30,7 +30,6 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             holidays,
             options = {
                 slickgrid: {
@@ -88,7 +87,7 @@ $.register_module({
                 api.rest.holidays.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        var details_json = result.data;
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.holidays.recent',
@@ -120,7 +119,7 @@ $.register_module({
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
             load_holidays:
-                {route: '/' + page_name + '/:id/type:/name:?/type:?', method: module.name + '.load_' + page_name}
+                {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name}
         };
         return holidays = {
             load: function (args) {
