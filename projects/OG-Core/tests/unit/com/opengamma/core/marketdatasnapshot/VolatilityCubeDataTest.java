@@ -13,15 +13,17 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
-@Test
+
 public class VolatilityCubeDataTest {
 
+  @Test
   public void smilesAsExpected()
   {
     VolatilityCubeData data = getSimpleData();
     checkSimpleData(data);
   }
 
+  @Test
   public void nullSmilesAsExpected() {
     VolatilityCubeData data = getNullData();
     checkNulldata(data);
