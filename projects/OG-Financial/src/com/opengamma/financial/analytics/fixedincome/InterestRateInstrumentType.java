@@ -29,6 +29,8 @@ public enum InterestRateInstrumentType {
   /** A swap, one fixed leg, one floating referenced to an ibor rate */
   SWAP_FIXED_IBOR,
   /** A swap, one fixed leg, one floating referenced to an ibor rate and spread, paying fixed */
+  SWAP_FIXED_IBOR_WITH_SPREAD,
+  /** A swap, one fixed leg, one floating referenced to an ibor rate and spread, paying fixed */
   SWAP_IBOR_IBOR,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
@@ -41,15 +43,15 @@ public enum InterestRateInstrumentType {
 
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
-  public static InterestRateInstrumentType getInstrumentTypeFromSecurity(FinancialSecurity security) {
+  public static InterestRateInstrumentType getInstrumentTypeFromSecurity(final FinancialSecurity security) {
     return security.accept(TYPE_IDENTIFIER);
   }
 
-  public static boolean isFixedIncomeInstrumentType(FinancialSecurity security) {
+  public static boolean isFixedIncomeInstrumentType(final FinancialSecurity security) {
     try {
       security.accept(TYPE_IDENTIFIER);
       return true;
-    } catch (OpenGammaRuntimeException e) {
+    } catch (final OpenGammaRuntimeException e) {
       // a bit nasty but ensures consistency with the other method
       return false;
     }
@@ -58,27 +60,27 @@ public enum InterestRateInstrumentType {
   private static class TypeIdentifier implements FinancialSecurityVisitor<InterestRateInstrumentType> {
 
     @Override
-    public InterestRateInstrumentType visitBondSecurity(BondSecurity security) {
+    public InterestRateInstrumentType visitBondSecurity(final BondSecurity security) {
       return COUPON_BOND;
     }
 
     @Override
-    public InterestRateInstrumentType visitCashSecurity(CashSecurity security) {
+    public InterestRateInstrumentType visitCashSecurity(final CashSecurity security) {
       return CASH;
     }
 
     @Override
-    public InterestRateInstrumentType visitEquitySecurity(EquitySecurity security) {
+    public InterestRateInstrumentType visitEquitySecurity(final EquitySecurity security) {
       throw new OpenGammaRuntimeException("EquitySecurity is not an interest rate instrument");
     }
 
     @Override
-    public InterestRateInstrumentType visitFRASecurity(FRASecurity security) {
+    public InterestRateInstrumentType visitFRASecurity(final FRASecurity security) {
       return FRA;
     }
 
     @Override
-    public InterestRateInstrumentType visitFutureSecurity(FutureSecurity security) {
+    public InterestRateInstrumentType visitFutureSecurity(final FutureSecurity security) {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
       }
@@ -86,37 +88,37 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitSwapSecurity(SwapSecurity security) {
+    public InterestRateInstrumentType visitSwapSecurity(final SwapSecurity security) {
       return SwapSecurityUtils.getSwapType(security);
     }
 
     @Override
-    public InterestRateInstrumentType visitSwaptionSecurity(SwaptionSecurity security) {
+    public InterestRateInstrumentType visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this SwaptionSecurity");
     }
 
     @Override
-    public InterestRateInstrumentType visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+    public InterestRateInstrumentType visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this EquityIndexOptionSecurity");
     }
 
     @Override
-    public InterestRateInstrumentType visitEquityOptionSecurity(EquityOptionSecurity security) {
+    public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this EquityOptionSecurity");
     }
 
     @Override
-    public InterestRateInstrumentType visitFXOptionSecurity(FXOptionSecurity security) {
+    public InterestRateInstrumentType visitFXOptionSecurity(final FXOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this FXOptionSecurity");
     }
 
     @Override
-    public InterestRateInstrumentType visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+    public InterestRateInstrumentType visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this IRFutureOptionSecurity");
     }
 
     @Override
-    public InterestRateInstrumentType visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+    public InterestRateInstrumentType visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle this FXBarrierOptionSecurity");
     }
 

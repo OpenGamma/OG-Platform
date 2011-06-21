@@ -20,11 +20,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.financial.instrument.swap.SwapDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -65,8 +67,11 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
     switch (swapType) {
       case SWAP_FIXED_IBOR:
-        return SwapSecurityUtils.payFixed(security) ? getFixedFloatSwapDefinition(security, true)
-            : getFixedFloatSwapDefinition(security, false);
+        return SwapSecurityUtils.payFixed(security) ? getFixedFloatSwapDefinition(security, true, false)
+            : getFixedFloatSwapDefinition(security, false, false);
+      case SWAP_FIXED_IBOR_WITH_SPREAD:
+        return SwapSecurityUtils.payFixed(security) ? getFixedFloatSwapDefinition(security, true, true)
+            : getFixedFloatSwapDefinition(security, false, true);
       case SWAP_IBOR_IBOR:
         return getTenorSwapDefinition(security);
       default:
@@ -74,8 +79,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     }
   }
 
-  private SwapFixedIborSpreadDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity,
-      final boolean payFixed) {
+  private SwapDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity,
+      final boolean payFixed, final boolean hasSpread) {
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
@@ -90,9 +95,11 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyString + "_SWAP"));
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate,
         fixedLeg, calendar, currency, conventions, payFixed);
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = getFloatingSwapLegDefinition(
-        effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
-    return new SwapFixedIborSpreadDefinition(fixedLegDefinition, floatingLegDefinition);
+
+    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ?
+        getFloatingSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed)
+        : getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
+    return new SwapFixedIborDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 
   private SwapIborIborDefinition getTenorSwapDefinition(final SwapSecurity swapSecurity) {
@@ -105,9 +112,9 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
-    final AnnuityCouponIborSpreadDefinition payLegDefinition = getFloatingSwapLegDefinition(effectiveDate,
+    final AnnuityCouponIborSpreadDefinition payLegDefinition = getFloatingSwapLegWithSpreadDefinition(effectiveDate,
         maturityDate, floatPayLeg, calendar, currency, true);
-    final AnnuityCouponIborSpreadDefinition receiveLegDefinition = getFloatingSwapLegDefinition(effectiveDate,
+    final AnnuityCouponIborSpreadDefinition receiveLegDefinition = getFloatingSwapLegWithSpreadDefinition(effectiveDate,
         maturityDate, floatReceiveLeg, calendar, currency, false);
     return new SwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
   }
@@ -122,7 +129,24 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
         fixedLeg.getBusinessDayConvention(), conventions.isEOMConvention(), notional, fixedRate, isPayer);
   }
 
-  private AnnuityCouponIborSpreadDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate,
+  private AnnuityCouponIborDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate,
+      final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
+      final Calendar calendar, final Currency currency, final boolean isPayer) {
+    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
+    // TODO: index period can be different from leg period
+    // FIXME: convert frequency to period in a better way
+    final Frequency freq = floatLeg.getFrequency();
+    final Period tenor = getTenor(freq);
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateIdentifier());
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
+    }
+    final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
+        indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
+    return AnnuityCouponIborDefinition.from(effectiveDate, maturityDate, notional, index, isPayer);
+  }
+
+  private AnnuityCouponIborSpreadDefinition getFloatingSwapLegWithSpreadDefinition(final ZonedDateTime effectiveDate,
       final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
       final Calendar calendar, final Currency currency, final boolean isPayer) {
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();

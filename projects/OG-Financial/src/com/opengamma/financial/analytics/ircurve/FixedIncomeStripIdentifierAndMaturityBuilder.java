@@ -237,7 +237,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 payLegFloatRateBloombergTicker,
-                                                0,
+                                                0.,
                                                 0,
                                                 true),
                                             new FloatingInterestRateLeg(
@@ -247,7 +247,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 receiveLegFloatRateBloombergTicker,
-                                                0,
+                                                0.,
                                                 spread,
                                                 true));
     swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));

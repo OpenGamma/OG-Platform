@@ -136,7 +136,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitSwaptionSecurity(final SwaptionSecurity security) {
-          return Currency.USD;
+          return security.getCurrency();
         }
 
         @Override
