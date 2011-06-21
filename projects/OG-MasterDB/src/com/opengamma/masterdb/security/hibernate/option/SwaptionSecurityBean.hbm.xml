@@ -16,7 +16,9 @@
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>
     <property name="cashSettled" column="cash_settled" type="boolean" not-null="true" />
+    <property name="payer" column="is_payer" type="boolean" not-null="true" />
     <property name="long" column="is_long" type="boolean" not-null="true" />
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true"/>
   </union-subclass>
 
   <query name="SwaptionSecurityBean.one.bySecurityId"><![CDATA[

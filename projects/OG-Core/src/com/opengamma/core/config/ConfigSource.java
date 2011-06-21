@@ -24,10 +24,10 @@ public interface ConfigSource {
    * 
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the configuration element, null if not found
    */
-  <T> T get(Class<T> clazz, UniqueIdentifier uid);
+  <T> T get(Class<T> clazz, UniqueIdentifier uniqueId);
 
   /**
    * Searches for the latest version of a configuration element matching the specified name.

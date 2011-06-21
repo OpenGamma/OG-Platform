@@ -10,11 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -28,6 +33,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -35,7 +41,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  */
-public class CapFloorCMSSABRReplicationMethod {
+public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
 
   /**
    * The par rate calculator.
@@ -92,7 +98,7 @@ public class CapFloorCMSSABRReplicationMethod {
    * @param sabrData The SABR data bundle.
    * @return The present value.
    */
-  public double presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
@@ -115,7 +121,14 @@ public class CapFloorCMSSABRReplicationMethod {
       throw new RuntimeException(e);
     }
     final double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
-    return priceCMS;
+    return CurrencyAmount.of(cmsCapFloor.getCurrency(), priceCMS);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof CapFloorCMS, "CMS cap/floor");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    return presentValue((CapFloorCMS) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**
@@ -261,7 +274,6 @@ public class CapFloorCMSSABRReplicationMethod {
       _tau = 1.0 / _nbFixedPaymentYear;
       _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
       _eta = -_delta;
-      //      _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCap.getFixingTime();
       // TODO: A better notion of maturity may be required (using period?)
       final AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();

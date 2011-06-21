@@ -393,6 +393,8 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 		SetLastError (EINVAL);
 		return false;
 	}
+	unsigned long lStartTime = GetTickCount ();
+retryCall:
 	CCall *poOverlapped = Call (msgPayload);
 	if (!poOverlapped) {
 		int error = GetLastError ();
@@ -409,6 +411,15 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 			} else {
 				LOGWARN (TEXT ("Couldn't initiate call - not connected"));
 				SetLastError (error);
+				return false;
+			}
+		} else if (error == ETIMEDOUT) {
+			if (GetTickCount () - lStartTime < lTimeout) {
+				LOGINFO (TEXT ("Retrying call initiation after intermediate timeout"));
+				goto retryCall;
+			} else {
+				LOGWARN (TEXT ("Timeout elapsed during call initiation"));
+				SetLastError (ETIMEDOUT);
 				return false;
 			}
 		} else {

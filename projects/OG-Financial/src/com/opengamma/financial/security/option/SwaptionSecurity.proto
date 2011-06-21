@@ -12,11 +12,12 @@ namespace com.opengamma.financial.security.option {
   message SwaptionSecurity extends FinancialSecurity {
    
     required string securityType [default = "SWAPTION"];
-    
+    required boolean isPayer;
     required id.Identifier underlyingIdentifier;
+    required boolean isLong;
     required util.time.Expiry expiry;
     required boolean isCashSettled;
-    required boolean isLong;
+    required com.opengamma.util.money.Currency currency;
     
     binding Java {
       body <<<JAVA

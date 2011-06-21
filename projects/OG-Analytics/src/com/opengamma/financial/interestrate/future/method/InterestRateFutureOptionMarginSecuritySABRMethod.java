@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -53,7 +53,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @return The security price.
    */
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
-    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
+    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
   }
 

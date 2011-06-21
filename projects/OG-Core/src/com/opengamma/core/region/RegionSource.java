@@ -22,11 +22,11 @@ public interface RegionSource {
   /**
    * Finds a specific region by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the region, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Region getRegion(UniqueIdentifier uid);
+  Region getRegion(UniqueIdentifier uniqueId);
 
   /**
    * Get the region with a matching identifier that is highest up the
