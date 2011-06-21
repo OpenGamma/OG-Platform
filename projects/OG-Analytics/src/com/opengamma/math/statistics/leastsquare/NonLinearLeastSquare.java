@@ -295,7 +295,7 @@ public class NonLinearLeastSquare {
       //non standard convergence
       if (Math.abs(newChiSqr - oldChiSqr) / oldChiSqr < _eps) {
         beta = getChiSqrGrad(error, jacobian);
-        System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
+        //System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
         return finish(newChiSqr, jacobian, newTheta);
       }
 
@@ -311,8 +311,8 @@ public class NonLinearLeastSquare {
           return finish(newChiSqr, jacobian, newTheta);
         }
 
-        System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " grad: " + _algebra.getNorm2(beta) +
-              " Position: " + newTheta.toString());
+        //        System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " grad: " + _algebra.getNorm2(beta) +
+        //              " Position: " + newTheta.toString());
 
         oldChiSqr = newChiSqr;
       } else {
@@ -320,9 +320,9 @@ public class NonLinearLeastSquare {
           lambda = 0.01;
         }
         lambda *= 10;
-        if (lambda > 1e10) {
-          System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " Position: " + newTheta.toString());
-        }
+        //        if (lambda > 1e10) {
+        //          System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " Position: " + newTheta.toString());
+        //        }
       }
     }
     throw new MathException("Could not converge in " + MAX_ATTEMPTS + " attempts");

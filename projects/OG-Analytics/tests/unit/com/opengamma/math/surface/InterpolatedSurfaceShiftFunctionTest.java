@@ -12,7 +12,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.Interpolator2D;
+import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -23,13 +24,14 @@ public class InterpolatedSurfaceShiftFunctionTest {
   private static final double[] X = new double[] {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 };
   private static final double[] Y = new double[] {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4 };
   private static final double[] Z = new double[] {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
-  private static final Interpolator2D<Interpolator1DDataBundle> INTERPOLATOR = new Interpolator2D<Interpolator1DDataBundle>() {
+  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR =
+      new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(new LinearInterpolator1D(), new LinearInterpolator1D()) {
 
-    @Override
-    public Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value) {
-      return value.getFirst() + value.getSecond();
-    }
-  };
+        @Override
+        public Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value) {
+          return value.getFirst() + value.getSecond();
+        }
+      };
   private static final String NAME = "K";
   private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(X, Y, Z, INTERPOLATOR, NAME);
   private static final InterpolatedSurfaceShiftFunction F = new InterpolatedSurfaceShiftFunction();
