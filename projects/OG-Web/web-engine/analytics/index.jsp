@@ -386,6 +386,16 @@
         margin: 0 0.5em;
       }
       
+      .live-market-data {
+        font-style: italic;
+      }
+      
+      .autocomplete-divider {
+        border-width: 0 0 1px 0;
+        border-style: inherit;
+        border-color: inherit;
+      }
+      
       /* JQuery UI theme overrides */
 
       .ui-tabs {
@@ -408,6 +418,12 @@
 
       .ui-button .ui-button-text {
         display: inline;
+      }
+      
+      .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: scroll;
+        overflow-x: hidden;
       }
 
       .ui-autocomplete-input {

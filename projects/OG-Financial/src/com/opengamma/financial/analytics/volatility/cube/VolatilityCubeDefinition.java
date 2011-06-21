@@ -230,7 +230,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strikes relative to at the monet, in Bps
+   * Gets the strikes relative to at the money, in Basis points
    * @return the value of the property
    */
   public List<Double> getRelativeStrikes() {
@@ -238,7 +238,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   }
 
   /**
-   * Sets the strikes relative to at the monet, in Bps
+   * Sets the strikes relative to at the money, in Basis points
    * @param relativeStrikes  the new value of the property
    */
   public void setRelativeStrikes(List<Double> relativeStrikes) {
