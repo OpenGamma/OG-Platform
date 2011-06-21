@@ -22,6 +22,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -33,6 +35,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public final class VolatilityCubeInstrumentProvider {
 
+  //TODO: other ATM surfaces
+  private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+  
   /**
    * Generates Bloomberg codes for volatilities given points.
    */
@@ -41,13 +48,10 @@ public final class VolatilityCubeInstrumentProvider {
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
   private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> _idsByPoint;
-  private final HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint> _pointsById;
-
+  
   private VolatilityCubeInstrumentProvider() {
     //TODO not here
-
     _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>>();
-    _pointsById = new HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint>();
 
     InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
@@ -94,10 +98,6 @@ public final class VolatilityCubeInstrumentProvider {
           } else {
             _idsByPoint.put(key, Sets.newHashSet(identifier));
           }
-
-          if (_pointsById.put(Pair.of(currency, identifier), point) != null) {
-            throw new IllegalArgumentException();
-          }
         }
       }
       csvReader.close();
@@ -110,12 +110,13 @@ public final class VolatilityCubeInstrumentProvider {
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker);
   }
 
-  public VolatilityPoint getPoint(Currency currency, Identifier instrument) {
-    return _pointsById.get(Pair.of(currency, instrument));
-  }
-
   public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
-    return _idsByPoint.get(Pair.of(currency, point));
+    if ((point.getRelativeStrike() == 0.0 || point.getRelativeStrike() == -0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      Identifier instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
+      return Sets.newHashSet(instrument);
+    } else {
+      return _idsByPoint.get(Pair.of(currency, point));
+    }
   }
 
   public Set<Currency> getAllCurrencies() {
