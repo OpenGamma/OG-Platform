@@ -165,4 +165,29 @@ public class VolatilityCubeData {
   public Set<Tenor> getSwapTenors() {
     return getSmiles().keySet();
   }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = getSmiles();
+    for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> e1 : smiles.entrySet()) {
+      sb.append("Swap tenor = " + e1.getKey() + "\n");
+      for (final Map.Entry<Tenor, Pair<double[], double[]>> e2 : e1.getValue().entrySet()) {
+        sb.append("\t" + e2.getKey() + "\t");
+        final double[] strikes = e2.getValue().getFirst();
+        final double[] vols = e2.getValue().getSecond();
+        for (double strike : strikes) {
+          sb.append("\t" + strike);
+        }        
+        sb.append("\n");
+        sb.append("\t\t\t\t");
+        for (double vol : vols) {
+          sb.append("\t" + vol);
+        }
+        sb.append("\n");
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
 }
