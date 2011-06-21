@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -142,7 +143,7 @@ public class CoupledFokkerPlankPDEtest {
 
     //using a normal distribution with a very small Standard deviation as a proxy for a Dirac delta
     final Function1D<Double, Double> initialCondition1 = new Function1D<Double, Double>() {
-      double tOffset = 0.05;
+      private final double tOffset = 0.05;
 
       @Override
       public Double evaluate(Double s) {
@@ -157,7 +158,7 @@ public class CoupledFokkerPlankPDEtest {
     };
 
     final Function1D<Double, Double> initialCondition2 = new Function1D<Double, Double>() {
-      double tOffset = 0.05;
+      private final double tOffset = 0.05;
 
       @Override
       public Double evaluate(Double s) {
@@ -183,7 +184,9 @@ public class CoupledFokkerPlankPDEtest {
 
   }
 
-  @Test
+  //TODO quantitative test here (rather than printing surfaces)
+  //TODO Use the PDEDATABundleProvider
+  @Test(enabled = false)
   public void testDensity() {
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, true);
     int tNodes = 50;
@@ -208,32 +211,8 @@ public class CoupledFokkerPlankPDEtest {
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
-    for (int i = 0; i < xNodes; i++) {
-      System.out.print("\t" + res1.getSpaceValue(i));
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < tNodes; j++) {
-      System.out.print(res1.getTimeValue(j));
-      for (int i = 0; i < xNodes; i++) {
-        System.out.print("\t" + res1.getFunctionValue(i, j));
-      }
-      System.out.print("\n");
-    }
-    System.out.print("\n");
-    for (int i = 0; i < xNodes; i++) {
-      System.out.print("\t" + res2.getSpaceValue(i));
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < tNodes; j++) {
-      System.out.print(res2.getTimeValue(j));
-      for (int i = 0; i < xNodes; i++) {
-        System.out.print("\t" + res2.getFunctionValue(i, j));
-      }
-      System.out.print("\n");
-    }
-    System.out.print("\n");
+    PDEUtilityTools.printSurface("State 1 density", res1);
+    PDEUtilityTools.printSurface("State 2 density", res2);
 
     //calculated the local vol surface
     Map<DoublesPair, Double> localVolData = new HashMap<DoublesPair, Double>(xNodes * tNodes);
@@ -268,53 +247,7 @@ public class CoupledFokkerPlankPDEtest {
 
     final FunctionalDoublesSurface localVolSurface = FunctionalDoublesSurface.from(localVolFunction);
 
-    for (int i = 0; i < 101; i++) {
-      double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-      System.out.print("\t" + f);
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < 101; j++) {
-      t = 0.0 + 5.0 * j / 100.;
-      System.out.print(t);
-      for (int i = 0; i < 101; i++) {
-        double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-        double[] tf = new double[] {t, f };
-
-        System.out.print("\t" + localVolSurface.getZValue(t, f));
-      }
-      System.out.print("\n");
-    }
-
-    //    final Function<Double, Double> a = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double s = ts[1];
-    //        double vol = localVolSurface.getZValue(ts[0], ts[1]);
-    //        return -s * s * vol * vol / 2;
-    //      }
-    //    };
-    //
-    //    final Function<Double, Double> b = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double s = ts[1];
-    //        //return RATE;
-    //        return RATE * s;
-    //      }
-    //    };
-    //
-    //    final Function<Double, Double> c = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double s = ts[1];
-    //        return RATE;
-    //      }
-    //    };
-
+    PDEUtilityTools.printSurface("LV surface", localVolSurface, 0, 5.0, SPOT / 4.0, 4.0 * SPOT);
   }
 
 }

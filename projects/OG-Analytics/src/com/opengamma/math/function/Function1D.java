@@ -27,7 +27,8 @@ public abstract class Function1D<S, T> implements Function<S, T> {
     Validate.noNullElements(x, "Parameter list");
     Validate.notEmpty(x, "parameter list");
     if (x.length > 1) {
-      s_logger.info("Array had more than one element; only using the first");
+      throw new IllegalArgumentException("Array had more than one element");
+      // s_logger.info("Array had more than one element; only using the first");
     }
     return evaluate(x[0]);
   }

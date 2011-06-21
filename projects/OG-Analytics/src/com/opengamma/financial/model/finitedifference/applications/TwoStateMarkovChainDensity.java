@@ -27,7 +27,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  *  of being in state X at time t, and (p(t,s,state1)+p(t,s,state2))*ds is the probability that the asset with be between s and s + ds at time t.   
  */
 public class TwoStateMarkovChainDensity {
-  private final static double THETA = 0.55;
+  private final static double THETA = 1.0;
 
   private final CoupledPDEDataBundle _data1;
   private final CoupledPDEDataBundle _data2;

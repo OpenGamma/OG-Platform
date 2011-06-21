@@ -10,6 +10,17 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.BoundaryCondition;
+import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition;
+import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
+import com.opengamma.financial.model.finitedifference.ExtendedThetaMethodFiniteDifference;
+import com.opengamma.financial.model.finitedifference.HyperbolicMeshing;
+import com.opengamma.financial.model.finitedifference.MeshingFunction;
+import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -33,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
 public class TwoStateMarkovChainSABRFitterTest {
 
   private static final Function1D<Double, Double> ALPHA;
-  private static final double BETA = 1.0;
+  private static final double BETA = 0.5;
   private static final double RHO = -0.0;
   private static final Function1D<Double, Double> NU;
   private static final double T = 5.0;
@@ -65,38 +76,6 @@ public class TwoStateMarkovChainSABRFitterTest {
     EXPIRY_AND_STRIKES.add(new double[] {2, 1.4 });
     EXPIRY_AND_STRIKES.add(new double[] {3, 1.0 });
     EXPIRY_AND_STRIKES.add(new double[] {4, 1.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 0.4 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 0.6 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 0.8 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 1.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 1.5 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 2.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1. / 12., 3.0 });
-    //
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 0.4 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 0.6 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 0.8 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 1.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 1.5 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 2.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {1., 3.0 });
-    //
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 0.4 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 0.6 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 0.8 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 1.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 1.5 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 2.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {2., 3.0 });
-    //
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 0.4 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 0.6 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 0.8 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 1.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 1.5 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 2.0 });
-    //    EXPIRY_AND_STRIKES.add(new double[] {3., 3.0 });
-
     EXPIRY_AND_STRIKES.add(new double[] {5, 0.4 });
     EXPIRY_AND_STRIKES.add(new double[] {5, 0.6 });
     EXPIRY_AND_STRIKES.add(new double[] {5, 0.8 });
@@ -167,28 +146,13 @@ public class TwoStateMarkovChainSABRFitterTest {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void dumpSurfaceTest() {
 
-    for (int i = 0; i < 101; i++) {
-      double k = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-      System.out.print("\t" + k);
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < 101; j++) {
-      double t = 0.0 + 5.0 * j / 100.;
-      System.out.print(t);
-      for (int i = 0; i < 101; i++) {
-        double k = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-
-        System.out.print("\t" + SABR_VOL_FUNCTION.evaluate(t, k));
-      }
-      System.out.print("\n");
-    }
+    PDEUtilityTools.printSurface("dumpSurfaceTest", FunctionalDoublesSurface.from(SABR_VOL_FUNCTION), 0, 5.0, SPOT / 4.0, 4.0 * SPOT);
   }
 
-  @Test
+  @Test(enabled = false)
   public void test() {
     DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
@@ -196,37 +160,52 @@ public class TwoStateMarkovChainSABRFitterTest {
     System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
   }
 
-  @Test
+  @Test(enabled = false)
+  public void FokkerPlankTest() {
+    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
+
+    BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
+
+    LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+
+    ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+    ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+
+    int tNodes = 50;
+    int xNodes = 100;
+    BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);
+    BoundaryCondition upper = new DirichletBoundaryCondition(0.0, 10 * FORWARD_CURVE.getForward(T));
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, upper.getLevel(), SPOT, xNodes, 0.01);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+
+    ThetaMethodFiniteDifference thetaMethod = new ThetaMethodFiniteDifference(0.55, true);
+    ExtendedThetaMethodFiniteDifference eThetaMethod = new ExtendedThetaMethodFiniteDifference(0.55, true);
+
+    PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1, grid, lower, upper);
+    PDEFullResults1D res2 = eThetaMethod.solve(db2, grid, lower, upper);
+
+    PDEUtilityTools.printSurface("State 1 density", res1);
+    PDEUtilityTools.printSurface("State 2 density", res2);
+  }
+
+  //TODO need to have real tests here rather than print a lot of surfaces 
+  @Test(enabled = false)
   public void localVolFitTest() {
-    DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.8, 0.2, 2.0, 0.6, 1.0 });
-    TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter();
+    DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
+    TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
     fitter.fit(FORWARD_CURVE, new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);
     // System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
   }
 
-  @Test
+  @Test(enabled = false)
   public void localVolTest() {
     DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
     BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
     LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
 
-    for (int i = 0; i < 101; i++) {
-      double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-      System.out.print("\t" + f);
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < 101; j++) {
-      double t = 0.0 + 5.0 * j / 100.;
-      System.out.print(t);
-      for (int i = 0; i < 101; i++) {
-        double f = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-
-        System.out.print("\t" + localVol.getVolatility(t, f));
-      }
-      System.out.print("\n");
-    }
-
+    PDEUtilityTools.printSurface("localVolTest", localVol.getSurface(), 0, 5.0, SPOT / 4.0, SPOT * 4.0);
   }
+
 }

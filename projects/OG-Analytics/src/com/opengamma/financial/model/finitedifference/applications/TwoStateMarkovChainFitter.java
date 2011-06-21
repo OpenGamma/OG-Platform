@@ -7,7 +7,6 @@ package com.opengamma.financial.model.finitedifference.applications;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +66,16 @@ public class TwoStateMarkovChainFitter {
     TRANSFORMS = new TransformParameters(new DoubleMatrix1D(new double[6]), trans, new BitSet());
   }
 
+  private final double _theta;
+
+  public TwoStateMarkovChainFitter() {
+    _theta = 0.5;
+  }
+
+  public TwoStateMarkovChainFitter(final double theta) {
+    _theta = theta;
+  }
+
   public LeastSquareResults fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, DoubleMatrix1D initialGuess) {
 
     Validate.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfFunctionParameters());
@@ -103,7 +112,8 @@ public class TwoStateMarkovChainFitter {
     int tNodes = 20;
     int xNodes = 100;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, tmaxT, tNodes, 7.5);
+    //TODO remove hard coded grid
+    MeshingFunction timeMesh = new ExponentialMeshing(0, tmaxT, tNodes, 5.0);
     MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10.0 * forward.getForward(maxT), forward.getSpot(), xNodes, 0.01);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
@@ -117,8 +127,7 @@ public class TwoStateMarkovChainFitter {
         double lambda12 = y.getEntry(2);
         double lambda21 = y.getEntry(3);
         double p0 = y.getEntry(4);
-        double beta1 = y.getEntry(5);
-        double beta2 = beta1;//y.getEntry(6);
+        double beta = y.getEntry(5);
 
         double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
@@ -128,7 +137,7 @@ public class TwoStateMarkovChainFitter {
           EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
           BlackFunctionData data = new BlackFunctionData(forward.getForward(t), 1.0, 0.0);
           MarkovChainApprox mca = new MarkovChainApprox(vol1, vol1 + deltaVol, lambda12, lambda21, p0, t);
-          double price = mca.priceCEV(data.getForward(), data.getDiscountFactor(), k, beta1);
+          double price = mca.priceCEV(data.getForward(), data.getDiscountFactor(), k, beta);
           try {
             modVols[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
           } catch (Exception e) {
@@ -151,11 +160,11 @@ public class TwoStateMarkovChainFitter {
         double lambda12 = y.getEntry(2);
         double lambda21 = y.getEntry(3);
         double p0 = y.getEntry(4);
-        double beta1 = y.getEntry(5);
-        double beta2 = beta1;//y.getEntry(6);
-        TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta1, beta2);
-        PDEFullResults1D res = mc.solve(grid);
-        Map<DoublesPair, Double> data = transformData2(forward, res, minT, maxT, minK, maxK);
+        double beta = y.getEntry(5);
+        TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta, beta);
+        TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
+        PDEFullResults1D res = mc.solve(grid, _theta);
+        Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
         Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
         double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
@@ -245,41 +254,41 @@ public class TwoStateMarkovChainFitter {
     return out;
   }
 
-  private Map<DoublesPair, Double> transformData2(final ForwardCurve forward, final PDEFullResults1D prices,
-      final double minT, final double maxT, final double minK, final double maxK) {
-    int xNodes = prices.getNumberSpaceNodes();
-    int tNodes = prices.getNumberTimeNodes();
-    int n = xNodes * tNodes;
-    Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
-    int count = tNodes * xNodes;
-
-    for (int i = 0; i < tNodes; i++) {
-      double t = prices.getTimeValue(i);
-      if (t >= minT && t <= maxT) {
-        BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
-        for (int j = 0; j < xNodes; j++) {
-          double k = prices.getSpaceValue(j);
-          if (k >= minK && k <= maxK) {
-            double price = prices.getFunctionValue(j, i);
-            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-            try {
-              double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-              if (Math.abs(impVol) > 1e-15) {
-                DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
-                out.put(pair, impVol);
-                count--;
-              }
-            } catch (Exception e) {
-              // System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
-            }
-          }
-        }
-      }
-    }
-    //    if (count > 0) {
-    //      System.err.println(count + " out of " + xNodes * tNodes + " data points removed");
-    //    }
-    return out;
-  }
+  //  protected Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forward, final PDEFullResults1D prices,
+  //      final double minT, final double maxT, final double minK, final double maxK) {
+  //    int xNodes = prices.getNumberSpaceNodes();
+  //    int tNodes = prices.getNumberTimeNodes();
+  //    int n = xNodes * tNodes;
+  //    Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+  //    int count = tNodes * xNodes;
+  //
+  //    for (int i = 0; i < tNodes; i++) {
+  //      double t = prices.getTimeValue(i);
+  //      if (t >= minT && t <= maxT) {
+  //        BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
+  //        for (int j = 0; j < xNodes; j++) {
+  //          double k = prices.getSpaceValue(j);
+  //          if (k >= minK && k <= maxK) {
+  //            double price = prices.getFunctionValue(j, i);
+  //            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+  //            try {
+  //              double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+  //              if (Math.abs(impVol) > 1e-15) {
+  //                DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+  //                out.put(pair, impVol);
+  //                count--;
+  //              }
+  //            } catch (Exception e) {
+  //              // System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //    //    if (count > 0) {
+  //    //      System.err.println(count + " out of " + xNodes * tNodes + " data points removed");
+  //    //    }
+  //    return out;
+  //  }
 
 }

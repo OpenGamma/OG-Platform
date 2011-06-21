@@ -40,8 +40,8 @@ public class ThetaMethodFiniteDifferenceTest {
     int benchmarkCycles = 0;
     final Logger logger = LoggerFactory.getLogger(ThetaMethodFiniteDifferenceTest.class);
 
-    int timeSteps = 5;
-    int priceSteps = 1000;
+    int timeSteps = 20;
+    int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
     double volTol = 5e-3;

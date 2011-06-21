@@ -9,23 +9,25 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * 
  */
 public class CoupledForwardFiniteDifferenceTest {
+
+  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static BoundaryCondition LOWER1;
@@ -36,14 +38,13 @@ public class CoupledForwardFiniteDifferenceTest {
 
   private static final double T = 5.0;
   private static final double RATE = 0.04;
+  private static final ForwardCurve FORWARD = new ForwardCurve(SPOT, RATE);
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double VOL1 = 0.15;
   private static final double VOL2 = 0.70;
   private static final double LAMBDA12 = 0.3;
   private static final double LAMBDA21 = 4.0;
   private static final double PROB_STATE1 = 1.0;
-
-  //  private static final EuropeanVanillaOption OPTION;
 
   private static final boolean ISCALL = true;
 
@@ -84,46 +85,6 @@ public class CoupledForwardFiniteDifferenceTest {
       UPPER = new NeumannBoundaryCondition(1.0, 5.0 * SPOT * Math.exp(T * RATE), false);
     }
 
-  }
-
-  private CoupledPDEDataBundle getCoupledPDEDataBundle(final double vol, final double rate, final double spot, final double lambda1, final double lambda2,
-      final double initialProb) {
-
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        double k = tk[1];
-        return -k * k * vol * vol / 2;
-      }
-    };
-
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        double k = tk[1];
-        return k * rate;
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return lambda1;
-      }
-    };
-
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double k) {
-        return initialProb * Math.max(0, SPOT - k);
-      }
-    };
-
-    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2, initialCondition);
   }
 
   @Test(enabled = false)
@@ -222,11 +183,11 @@ public class CoupledForwardFiniteDifferenceTest {
 
   @Test
   public void testDegenerate() {
-
+    //NOT vols equal 
+    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, LAMBDA12, LAMBDA21, PROB_STATE1);
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(new ForwardCurve(SPOT, RATE), mcData);
 
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, SPOT, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL1, RATE, SPOT, LAMBDA21, LAMBDA12, 1 - PROB_STATE1);
     int tNodes = 50;
     int xNodes = 150;
 
@@ -236,7 +197,7 @@ public class CoupledForwardFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
@@ -275,8 +236,9 @@ public class CoupledForwardFiniteDifferenceTest {
 
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, SPOT, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, SPOT, LAMBDA21, LAMBDA12, 1 - PROB_STATE1);
+    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+
     int tNodes = 51;
     int xNodes = 151;
 
@@ -300,7 +262,7 @@ public class CoupledForwardFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
@@ -343,8 +305,9 @@ public class CoupledForwardFiniteDifferenceTest {
     final boolean print = true;
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, SPOT, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, SPOT, LAMBDA21, LAMBDA12, 1 - PROB_STATE1);
+    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+
     int tNodes = 51;
     int xNodes = 151;
     double lowerMoneyness = 0.0;
@@ -359,7 +322,7 @@ public class CoupledForwardFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
@@ -398,54 +361,6 @@ public class CoupledForwardFiniteDifferenceTest {
     }
     System.out.print("\n");
 
-    //single price 1
-
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res1.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      t = res1.getTimeValue(j);
-    //      double df = YIELD_CURVE.getDiscountFactor(t);
-    //      BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
-    //      System.out.print(t);
-    //
-    //      for (int i = 0; i < xNodes; i++) {
-    //        k = res1.getSpaceValue(i);
-    //        price = res1.getFunctionValue(i, j);
-    //        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
-    //        System.out.print("\t" + price);
-    //      }
-    //      System.out.print("\n");
-    //    }
-    //    System.out.print("\n");
-    //
-    //    //single price 2
-    //
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res1.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      t = res2.getTimeValue(j);
-    //      double df = YIELD_CURVE.getDiscountFactor(t);
-    //      BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
-    //      //  lowerK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t - ATM_VOL * Math.sqrt(t) * 3);
-    //      //   upperK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t + ATM_VOL * Math.sqrt(t) * 3);
-    //      if (print) {
-    //        System.out.print(t);
-    //      }
-    //      for (int i = 0; i < xNodes; i++) {
-    //        k = res2.getSpaceValue(i);
-    //        price = res2.getFunctionValue(i, j);
-    //        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
-    //        System.out.print("\t" + price);
-    //      }
-    //      System.out.print("\n");
-    //
-    //    }
   }
 
   private static double probState1(final double lambda12, final double lambda21, final double pState1T0, final double t) {

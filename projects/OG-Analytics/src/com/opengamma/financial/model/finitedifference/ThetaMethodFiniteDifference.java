@@ -20,7 +20,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
-  private final double _theta;
+  protected final double _theta;
   private final boolean _showFullResults;
 
   /**
@@ -207,7 +207,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param lowerBoundary
    * @param upperBoundary
    */
-  private void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+  protected void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
     Validate.isTrue(Math.abs(grid.getSpaceNode(0) - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
     Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
@@ -222,7 +222,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param m
    * @param t2
    */
-  private int sor(final double omega, final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m,
+  protected int sor(final double omega, final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m,
       final double t2) {
     double sum;
     int count = 0;

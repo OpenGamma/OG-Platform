@@ -21,11 +21,9 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.time.DateUtil;
@@ -58,13 +56,10 @@ public class ForwardPDETest {
   private static Surface<Double, Double, Double> C;
   @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
-  private static VolatilitySurface VOL_SURFACE;
 
   private static boolean ISCALL = true;
 
   static {
-
-    VOL_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(ATM_VOL));
 
     Function1D<Double, Double> strikeZeroPrice = new Function1D<Double, Double>() {
       @Override

@@ -19,9 +19,9 @@ import com.opengamma.math.surface.Surface;
  * 
  */
 public class CoupledFiniteDifference {
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  protected static final Decomposition<?> DCOMP = new LUDecompositionCommons();
 
-  private final double _theta;
+  protected final double _theta;
   private final boolean _showFullResults;
 
   /**
@@ -155,7 +155,7 @@ public class CoupledFiniteDifference {
 
       temp = upperBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
-        m[xNodes - 1][xNodes - 1 - k] = temp[k];
+        m[xNodes - 1][xNodes - temp.length + k] = temp[k];
       }
 
       temp = lowerBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
@@ -165,7 +165,7 @@ public class CoupledFiniteDifference {
 
       temp = upperBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
       for (int k = 0; k < temp.length; k++) {
-        m[2 * xNodes - 1][2 * xNodes - 1 - k] = temp[k];
+        m[2 * xNodes - 1][2 * xNodes - temp.length + k] = temp[k];
       }
 
       temp = lowerBoundary1.getRightMatrixCondition(pdeData1, grid, t1);
@@ -286,7 +286,7 @@ public class CoupledFiniteDifference {
    * @param lowerBoundary
    * @param upperBoundary
    */
-  private void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+  protected void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
     Validate.isTrue(Math.abs(grid.getSpaceNode(0) - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
     Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");

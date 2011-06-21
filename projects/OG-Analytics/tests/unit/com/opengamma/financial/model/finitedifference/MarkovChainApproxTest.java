@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -40,10 +43,14 @@ public class MarkovChainApproxTest {
   }
 
   @Test
-  public void test() {
+  public void momentTest() {
 
-    CHAIN.debug(T, SIMS);
-    CHAIN_APPROX.debug(T);
+    double[] res1 = CHAIN.getMoments(T, SIMS);
+    double[] res2 = CHAIN_APPROX.getMoments(T);
+    Validate.isTrue(res1.length == res2.length);
+    for (int i = 0; i < res1.length; i++) {
+      assertEquals(res1[i], res2[i], 5e-3 * res1[i]);
+    }
   }
 
   @Test
@@ -71,7 +78,11 @@ public class MarkovChainApproxTest {
       } catch (Exception e) {
         mcImpVol = 0;
       }
-      System.out.println(strike + "\t" + price + "\t" + mcPrice + "\t" + impVol + "\t" + mcImpVol);
+      // System.out.println(strike + "\t" + price + "\t" + mcPrice + "\t" + impVol + "\t" + mcImpVol);
+
+      if (strike > 0.01 && strike < 0.2) {
+        assertEquals(impVol, mcImpVol, 1e-2);
+      }
     }
 
   }

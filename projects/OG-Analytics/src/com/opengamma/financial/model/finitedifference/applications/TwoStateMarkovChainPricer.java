@@ -16,20 +16,32 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.function.Function;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * Solves a coupled forward PDE for the price of a call option when the process is CEV with vol levels determined by a two state Markov chain.  
  */
 public class TwoStateMarkovChainPricer {
-  private final CoupledPDEDataBundle _data1;
-  private final CoupledPDEDataBundle _data2;
+  private static final PDEDataBundleProvider BUNDLE_PROVIDER = new PDEDataBundleProvider();
+
+  private final CoupledPDEDataBundle _data[];
+
   private final ForwardCurve _forward;
-  private final double _lambda12;
-  private final double _lambda21;
-  private final double _p0;
+  private final TwoStateMarkovChainDataBundle _chainDB;
+
+  //  private final double _lambda12;
+  //  private final double _lambda21;
+  //  private final double _p0;
+
+  public TwoStateMarkovChainPricer(final ForwardCurve forward, TwoStateMarkovChainDataBundle chainDB) {
+    Validate.notNull(forward, "null forward curve");
+    Validate.notNull(chainDB, "null MC DB");
+
+    _forward = forward;
+    _chainDB = chainDB;
+    _data = BUNDLE_PROVIDER.getCoupledForwardPair(forward, chainDB);
+  }
 
   /**
    * Solves a coupled forward PDE for the price of a call option when the process is CEV with vol levels determined by a two state Markov chain
@@ -42,26 +54,19 @@ public class TwoStateMarkovChainPricer {
    * @param beta1 CEV parameter in 'normal' state
    * @param beta2 CEV parameter in 'excited' state
    */
-  public TwoStateMarkovChainPricer(final ForwardCurve forward, final double vol1, final double vol2,
-      final double lambda12, final double lambda21, final double probS1, final double beta1, final double beta2) {
+  public TwoStateMarkovChainPricer(final ForwardCurve forward, TwoStateMarkovChainDataBundle chainDB, AbsoluteLocalVolatilitySurface localVolOverlay) {
     Validate.notNull(forward, "null forward curve");
-
-    Validate.isTrue(vol1 >= 0.0, "vol1 < 0");
-    Validate.isTrue(vol2 >= 0.0, "vol2 < 0");
-    Validate.isTrue(lambda12 >= 0.0, "lambda12 < 0");
-    Validate.isTrue(lambda21 >= 0.0, "lambda21 < 0");
-    Validate.isTrue(probS1 >= 0.0 && probS1 <= 1.0, "Need 0 <= probS1 <= 1.0");
+    Validate.notNull(chainDB, "null MC DB");
+    Validate.notNull(localVolOverlay, "null local vol");
 
     _forward = forward;
-    _lambda12 = lambda12;
-    _lambda21 = lambda21;
-    _p0 = probS1;
-    //TODO treat rates
-    _data1 = getCoupledPDEDataBundle(forward, vol1, lambda12, lambda21, probS1, beta1);
-    _data2 = getCoupledPDEDataBundle(forward, vol2, lambda21, lambda12, 1.0 - probS1, beta2);
+    _chainDB = chainDB;
+    _data = BUNDLE_PROVIDER.getCoupledForwardPair(forward, chainDB, localVolOverlay);
   }
 
-  PDEFullResults1D solve(PDEGrid1D grid) {
+  PDEFullResults1D solve(final PDEGrid1D grid, final double theta) {
+    Validate.notNull(grid, "null grid");
+    Validate.isTrue(0 <= theta && theta <= 1.0, "theta must be in range 0 to 1");
 
     Validate.isTrue(grid.getSpaceNode(0) == 0.0, "space grid must start at zero");
 
@@ -85,8 +90,8 @@ public class TwoStateMarkovChainPricer {
     double kMax = grid.getSpaceNode(grid.getNumSpaceNodes() - 1);
 
     BoundaryCondition upper = new NeumannBoundaryCondition(0, kMax, false);
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
-    PDEResults1D[] res = solver.solve(_data1, _data2, grid, lower1, upper, lower2, upper, null);
+    CoupledFiniteDifference solver = new CoupledFiniteDifference(theta, true);
+    PDEResults1D[] res = solver.solve(_data[0], _data[1], grid, lower1, upper, lower2, upper, null);
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
@@ -101,53 +106,8 @@ public class TwoStateMarkovChainPricer {
   }
 
   private double probState1(final double t) {
-    double sum = _lambda12 + _lambda21;
-    if (sum == 0) {
-      return _p0;
-    }
-    double pi1 = _lambda21 / sum;
-    return pi1 + (_p0 - pi1) * Math.exp(-sum * t);
-  }
-
-  private CoupledPDEDataBundle getCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2,
-      final double initialProb, final double beta) {
-
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        double k = tk[1];
-        return -Math.pow(k, 2 * beta) * vol * vol / 2;
-      }
-    };
-
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        double t = tk[0];
-        double k = tk[1];
-        return k * forward.getDrift(t);
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return lambda1;
-      }
-    };
-
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double k) {
-        return initialProb * Math.max(0, forward.getSpot() - k);
-      }
-    };
-
-    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2, initialCondition);
+    double sum = _chainDB.getLambda12() + _chainDB.getLambda21();
+    return _chainDB.getSteadyStateProb() + (_chainDB.getP0() - _chainDB.getSteadyStateProb()) * Math.exp(-sum * t);
   }
 
 }

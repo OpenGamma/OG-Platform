@@ -17,8 +17,32 @@ public class TwoStateMarkovChainDataBundle {
   private final double _beta2;
   private final double _lambda12;
   private final double _lambda21;
+  private final double _pi1;
   private final double _p0;
 
+  /**
+   * 
+  * @param vol1 Volatility of state 1 
+   * @param vol2  Volatility of state 1 
+   * @param lambda12 Transition rate from state 1 to 2 
+   * @param lambda21 Transition rate from state 2 to 1 
+   * @param probS1 Probability of starting in state 1 
+   */
+  public TwoStateMarkovChainDataBundle(final double vol1, final double vol2,
+      final double lambda12, final double lambda21, final double probS1) {
+    this(vol1, vol2, lambda12, lambda21, probS1, 1.0, 1.0);
+  }
+
+  /**
+   * 
+   * @param vol1 Volatility of state 1 
+   * @param vol2  Volatility of state 1 
+   * @param lambda12 Transition rate from state 1 to 2 
+   * @param lambda21 Transition rate from state 2 to 1 
+   * @param probS1 Probability of starting in state 1 
+   * @param beta1 CEV parameter in state 1
+   * @param beta2 CEV parameter in state 2
+   */
   public TwoStateMarkovChainDataBundle(final double vol1, final double vol2,
       final double lambda12, final double lambda21, final double probS1, final double beta1, final double beta2) {
 
@@ -37,6 +61,13 @@ public class TwoStateMarkovChainDataBundle {
     _lambda12 = lambda12;
     _lambda21 = lambda21;
     _p0 = probS1;
+
+    double sum = lambda12 + lambda21;
+    if (sum == 0) {
+      _pi1 = probS1;
+    } else {
+      _pi1 = lambda21 / sum;
+    }
   }
 
   /**
@@ -93,6 +124,10 @@ public class TwoStateMarkovChainDataBundle {
    */
   public double getP0() {
     return _p0;
+  }
+
+  public double getSteadyStateProb() {
+    return _pi1;
   }
 
   @Override

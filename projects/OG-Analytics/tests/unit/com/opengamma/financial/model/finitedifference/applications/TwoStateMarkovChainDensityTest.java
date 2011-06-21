@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.finitedifference.applications;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
@@ -31,18 +33,17 @@ public class TwoStateMarkovChainDensityTest {
 
     double vol1 = 0.4;
     double vol2 = 0.8;
-    double lambda12 = 0.0;
+    double lambda12 = 0.2;
     double lambda21 = 2.0;
-    double p0 = 1.0;
+    double p0 = 0.9;
     double beta1 = 1.0;
-    double beta2 = 1.0;
+    double beta2 = 0.0;
 
     DATA = new TwoStateMarkovChainDataBundle(vol1, vol2, lambda12, lambda21, p0, beta1, beta2);
-
     DENSITY_CAL = new TwoStateMarkovChainDensity(FORWARD, DATA);
   }
 
-  @Test
+  @Test(enabled = false)
   public void test() {
     int tNodes = 100;
     int xNodes = 200;
@@ -55,34 +56,28 @@ public class TwoStateMarkovChainDensityTest {
 
     PDEFullResults1D[] res = DENSITY_CAL.solve(grid);
 
-    printResults(res[0]);
-    // printResults(res[1]);
+    PDEUtilityTools.printSurface("state 1 density", res[0]);
+    PDEUtilityTools.printSurface("state 2 density", res[1]);
   }
 
-  private PDEFullResults1D reflect(PDEFullResults1D in) {
-    int xNodes = in.getNumberSpaceNodes();
-    int tNodes = in.getNumberTimeNodes();
+  @Test
+  public void degenerateTest() {
+    int tNodes = 20;
+    int xNodes = 100;
+    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(-0.0 * FORWARD.getForward(T), 6.0 * FORWARD.getForward(T), FORWARD.getSpot(), xNodes, 0.01);
+    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    return null;
-  }
+    double l12 = 0.3;
+    double l21 = 2.0;
+    double pi1 = l21 / (l12 + l21);
 
-  private void printResults(PDEFullResults1D results) {
-    int xNodes = results.getNumberSpaceNodes();
-    int tNodes = results.getNumberTimeNodes();
-
+    TwoStateMarkovChainDataBundle data = new TwoStateMarkovChainDataBundle(0.2, 0.2, l12, l21, pi1, 0.5, 0.5);
+    TwoStateMarkovChainDensity cal = new TwoStateMarkovChainDensity(FORWARD, data);
+    PDEFullResults1D[] res = cal.solve(grid);
     for (int i = 0; i < xNodes; i++) {
-      System.out.print("\t" + results.getSpaceValue(i));
+      assertEquals(res[0].getFunctionValue(i, tNodes - 1) / pi1, res[1].getFunctionValue(i, tNodes - 1) / (1 - pi1), 1e-6);
     }
-    System.out.print("\n");
 
-    for (int j = 0; j < tNodes; j++) {
-      System.out.print(results.getTimeValue(j));
-      for (int i = 0; i < xNodes; i++) {
-        System.out.print("\t" + results.getFunctionValue(i, j));
-      }
-      System.out.print("\n");
-    }
-    System.out.print("\n");
   }
-
 }

@@ -62,7 +62,6 @@ public class FokkerPlankPDETest {
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         double s = ts[1];
-        // return -0.5 * 100;
         return -s * s * ATM_VOL * ATM_VOL / 2;
       }
     };
@@ -72,7 +71,6 @@ public class FokkerPlankPDETest {
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         double s = ts[1];
-        //return RATE;
         return (RATE - 2 * ATM_VOL * ATM_VOL) * s;
       }
     };
@@ -81,32 +79,25 @@ public class FokkerPlankPDETest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        //return 0.0;
         return RATE - ATM_VOL * ATM_VOL;
       }
     };
 
     //using a normal distribution with a very small Standard deviation as a proxy for a Dirac delta
     final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      // double eta = SPOT / 100;
+;
       double tOffset = 0.05;
 
       @Override
       public Double evaluate(Double s) {
 
+        if (s == 0.0) {
+          return 0.0;
+        }
         double x = Math.log(s / SPOT);
         NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * tOffset, ATM_VOL * Math.sqrt(tOffset));
         return dist.getPDF(x) / s;
 
-        // return NORMAL.getPDF((x - SPOT) / eta) / eta;
-        //        if (x < 90 || x > 110) {
-        //          return 0.0;
-        //        }
-        //        if (x < 100) {
-        //          return x - 90;
-        //        }
-        //        return 110 - x;
       }
     };
 
@@ -143,13 +134,19 @@ public class FokkerPlankPDETest {
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
     PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
 
+    NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
+    double pdf;
+    double s;
     for (int i = 0; i < xNodes; i++) {
-      double x = Math.log(res.getSpaceValue(i) / SPOT);
-
-      NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
-      double pdf = dist.getPDF(x) / res.getSpaceValue(i);
-      //System.out.println(res.getSpaceValue(i) + "\t" + pdf + "\t" + res.getFunctionValue(i));
-      assertEquals(pdf, res.getFunctionValue(i), 1e-4);
+      s = res.getSpaceValue(i);
+      if (s == 0.0) {
+        pdf = 0.0;
+      } else {
+        double x = Math.log(s / SPOT);
+        pdf = dist.getPDF(x) / s;
+        //System.out.println(res.getSpaceValue(i) + "\t" + pdf + "\t" + res.getFunctionValue(i));
+        assertEquals(pdf, res.getFunctionValue(i), 1e-4);
+      }
     }
 
     double k = STRIKE;
@@ -179,17 +176,5 @@ public class FokkerPlankPDETest {
     double bs_price = pricer.evaluate(data);
     assertEquals(bs_price, price, 2e-2 * bs_price);
 
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      System.out.print(res.getTimeValue(j));
-    //      for (int i = 0; i < xNodes; i++) {
-    //        System.out.print("\t" + res.getFunctionValue(i, j));
-    //      }
-    //      System.out.print("\n");
-    //    }
   }
 }

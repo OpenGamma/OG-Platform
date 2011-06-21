@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -26,7 +26,7 @@ public class TwoStateMarkovChainLocalVolCalculator {
       INTERPOLATOR_1D,
       INTERPOLATOR_1D);
 
-  public LocalVolatilitySurface calc(PDEFullResults1D[] denRes, TwoStateMarkovChainDataBundle chainData, LocalVolatilitySurface lvOverlay) {
+  public AbsoluteLocalVolatilitySurface calc(PDEFullResults1D[] denRes, TwoStateMarkovChainDataBundle chainData, AbsoluteLocalVolatilitySurface lvOverlay) {
 
     Map<DoublesPair, Double> lv = getLocalVolMap(denRes, chainData, lvOverlay);
     final Map<Double, Interpolator1DDoubleQuadraticDataBundle> interpolatorDB = GRID_INTERPOLATOR2D.getDataBundle(lv);
@@ -38,18 +38,18 @@ public class TwoStateMarkovChainLocalVolCalculator {
       }
     };
 
-    return new LocalVolatilitySurface(FunctionalDoublesSurface.from(lvFunc));
+    return new AbsoluteLocalVolatilitySurface(FunctionalDoublesSurface.from(lvFunc));
   }
 
-  private Map<DoublesPair, Double> getLocalVolMap(PDEFullResults1D[] denRes, TwoStateMarkovChainDataBundle chainData, LocalVolatilitySurface lvOverlay) {
+  private Map<DoublesPair, Double> getLocalVolMap(PDEFullResults1D[] denRes, TwoStateMarkovChainDataBundle chainData, AbsoluteLocalVolatilitySurface lvOverlay) {
     int tNodes = denRes[0].getNumberTimeNodes();
     int xNodes = denRes[0].getNumberSpaceNodes();
     Map<DoublesPair, Double> lv = new HashMap<DoublesPair, Double>(tNodes * xNodes);
     double s;
     for (int j = 0; j < xNodes; j++) {
       s = denRes[0].getSpaceValue(j);
-      double nu1 = chainData.getVol1() * chainData.getVol1() * Math.pow(s, 2 * chainData.getBeta1() - 2.0);
-      double nu2 = chainData.getVol2() * chainData.getVol2() * Math.pow(s, 2 * chainData.getBeta2() - 2.0);
+      double nu1 = chainData.getVol1() * chainData.getVol1() * Math.pow(s, 2 * chainData.getBeta1());
+      double nu2 = chainData.getVol2() * chainData.getVol2() * Math.pow(s, 2 * chainData.getBeta2());
 
       for (int i = 0; i < tNodes; i++) {
         double t = denRes[0].getTimeValue(i);

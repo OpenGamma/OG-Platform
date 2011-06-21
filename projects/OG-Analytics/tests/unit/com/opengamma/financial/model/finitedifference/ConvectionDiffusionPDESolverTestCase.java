@@ -12,10 +12,9 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -44,6 +43,8 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ConvectionDiffusionPDESolverTestCase {
+
+  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
@@ -75,8 +76,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static Surface<Double, Double, Double> LN_B;
   private static Surface<Double, Double, Double> BETA_A;
   private static Surface<Double, Double, Double> C;
-  @SuppressWarnings("unused")
-  private static Surface<Double, Double, Double> ZERO_SURFACE;
+
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;
   private static Set<Greek> GREEKS;
@@ -150,113 +150,106 @@ public class ConvectionDiffusionPDESolverTestCase {
     LN_LOWER = new DirichletBoundaryCondition(logSpotZeroPrice, logGridLow);
     LN_UPPER = new DirichletBoundaryCondition(0.0, logGridHi); // put only
 
-    final Function<Double, Double> a = new Function<Double, Double>() {
+    //    final Function<Double, Double> a = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double s = ts[1];
+    //        return -s * s * ATM_VOL * ATM_VOL / 2;
+    //      }
+    //    };
+    //
+    //    final Function<Double, Double> b = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double s = ts[1];
+    //        return -s * RATE;
+    //      }
+    //    };
+
+    //    final Function<Double, Double> ln_a = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        return -ATM_VOL * ATM_VOL / 2;
+    //      }
+    //    };
+    //
+    //    final Function<Double, Double> ln_b = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        return ATM_VOL * ATM_VOL / 2 - RATE;
+    //      }
+    //    };
+
+    //    final Function<Double, Double> beta_a = new Function<Double, Double>() {
+    //      @SuppressWarnings("synthetic-access")
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        double t = ts[0];
+    //        double s = ts[1];
+    //        return -Math.exp(2. * RATE * (BETA - 1) * t) * VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
+    //        // return -VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
+    //      }
+    //    };
+
+    //    final Function<Double, Double> c = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        return RATE;
+    //      }
+    //    };
+
+    //    final Function<Double, Double> zero = new Function<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        Validate.isTrue(ts.length == 2);
+    //        return 0.0;
+    //      }
+    //    };
+
+    final Function<Double, Double> payoff = new Function<Double, Double>() {
+
       @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
+      public Double evaluate(Double... ts) {
         double s = ts[1];
-        return -s * s * ATM_VOL * ATM_VOL / 2;
-      }
-    };
-
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        return -s * RATE;
-      }
-    };
-
-    final Function<Double, Double> ln_a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return -ATM_VOL * ATM_VOL / 2;
-      }
-    };
-
-    final Function<Double, Double> ln_b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return ATM_VOL * ATM_VOL / 2 - RATE;
-      }
-    };
-
-    final Function<Double, Double> beta_a = new Function<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        return -Math.exp(2. * RATE * (BETA - 1) * t) * VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
-        // return -VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return RATE;
-      }
-    };
-
-    final Function<Double, Double> zero = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return 0.0;
-      }
-    };
-
-    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double x) {
         if (ISCALL) {
-          return Math.max(0, x - STRIKE);
+          return Math.max(0, s - STRIKE);
         } else {
-          return Math.max(0, STRIKE - x);
+          return Math.max(0, STRIKE - s);
         }
       }
+
     };
 
-    final Function1D<Double, Double> lnPayoff = new Function1D<Double, Double>() {
+    //    final Function1D<Double, Double> lnPayoff = new Function1D<Double, Double>() {
+    //
+    //      @Override
+    //      public Double evaluate(Double x) {
+    //        double s = Math.exp(x);
+    //        return payoff.evaluate(s);
+    //      }
+    //    };
 
-      @Override
-      public Double evaluate(Double x) {
-        double s = Math.exp(x);
-        return payoff.evaluate(s);
-      }
-    };
+    //    A = FunctionalDoublesSurface.from(a);
+    //    B = FunctionalDoublesSurface.from(b);
+    // LN_A = FunctionalDoublesSurface.from(ln_a);
+    //  BETA_A = FunctionalDoublesSurface.from(beta_a);
+    // LN_B = FunctionalDoublesSurface.from(ln_b);
 
-    final Function<Double, Double> americanPayoff = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        return payoff.evaluate(s);
-      }
-    };
+    //    C = FunctionalDoublesSurface.from(c);
 
-    A = FunctionalDoublesSurface.from(a);
-    B = FunctionalDoublesSurface.from(b);
-    LN_A = FunctionalDoublesSurface.from(ln_a);
-    BETA_A = FunctionalDoublesSurface.from(beta_a);
-    LN_B = FunctionalDoublesSurface.from(ln_b);
+    AMERICAN_PAYOFF = FunctionalDoublesSurface.from(payoff);
 
-    C = FunctionalDoublesSurface.from(c);
+    //   ZERO_SURFACE = FunctionalDoublesSurface.from(zero);
 
-    AMERICAN_PAYOFF = FunctionalDoublesSurface.from(americanPayoff);
-
-    ZERO_SURFACE = FunctionalDoublesSurface.from(zero);
-
-    DATA = new ConvectionDiffusionPDEDataBundle(A, B, C, payoff);
-    LN_DATA = new ConvectionDiffusionPDEDataBundle(LN_A, LN_B, C, lnPayoff);
-    BETA_DATA = new ConvectionDiffusionPDEDataBundle(BETA_A, B, C, payoff);
+    DATA = PDE_DATA_PROVIDER.getBackwardsBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
+    LN_DATA = PDE_DATA_PROVIDER.getBackwardsLogBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
+    BETA_DATA = PDE_DATA_PROVIDER.getBackwardsCEV(VOL_BETA, RATE, STRIKE, BETA, ISCALL);
   }
 
   /**

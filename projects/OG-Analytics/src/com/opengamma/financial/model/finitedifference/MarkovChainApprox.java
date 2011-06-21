@@ -119,12 +119,13 @@ public class MarkovChainApprox {
     }
   }
 
-  public void debug(final double expiry) {
+  public double[] getMoments(final double expiry) {
     double m1 = getM1(expiry);
     double m2 = getM2(expiry);
     double m3 = getM3(expiry);
 
-    System.out.println("cal m1: " + m1 + " m2: " + m2 + " m3: " + m3);
+    //System.out.println("cal m1: " + m1 + " m2: " + m2 + " m3: " + m3);
+    return new double[] {m1, m2, m3 };
   }
 
   /**

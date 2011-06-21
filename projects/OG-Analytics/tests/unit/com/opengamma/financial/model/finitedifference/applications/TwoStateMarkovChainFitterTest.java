@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.model.finitedifference.applications;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,11 +21,6 @@ import com.opengamma.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
@@ -39,12 +35,13 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class TwoStateMarkovChainFitterTest {
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  //  private static final ShepardInterpolatorND INTERPOLATOR = new ShepardInterpolatorND(2.0);
+
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
       INTERPOLATOR_1D,
       INTERPOLATOR_1D);
+
+  private static final double THETA = 0.55;
 
   private static final double SPOT = 1.0;
   private static final double RATE = 0.0;
@@ -53,12 +50,11 @@ public class TwoStateMarkovChainFitterTest {
   private static final double DELTA_VOL = 0.55;
   private static final double LAMBDA12 = 0.2;
   private static final double LAMBDA21 = 2.5;
-  private static final double P0 = 1.0;//1.0;
-  private static final double BETA1 = 0.5;
-  private static final double BETA2 = 0.5;
+  private static final double P0 = 1.0;
+  private static final double BETA = 0.5;
+
   private static final ForwardCurve FORWARD_CURVE;
-  private static final YieldCurve YIELD_CURVE;
-  // private static final InterpolatorNDDataBundle DATABUNDLE;
+  private static final TwoStateMarkovChainDataBundle MARKOV_CHAIN_DATA;
   private static final PDEFullResults1D PDE_RESULTS;
   private static final Map<DoublesPair, Double> DATA;
   private static Map<Double, Interpolator1DDoubleQuadraticDataBundle> DATABUNDLE;
@@ -94,20 +90,19 @@ public class TwoStateMarkovChainFitterTest {
     EXPIRY_AND_STRIKES.add(new double[] {5, 1.7 });
     EXPIRY_AND_STRIKES.add(new double[] {5, 2.0 });
 
-    FORWARD_CURVE = new ForwardCurve(SPOT);
-    YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+    FORWARD_CURVE = new ForwardCurve(SPOT, RATE);
+    MARKOV_CHAIN_DATA = new TwoStateMarkovChainDataBundle(VOL1, VOL1 + DELTA_VOL, LAMBDA12, LAMBDA21, P0, BETA, BETA);
 
-    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, VOL1, VOL1 + DELTA_VOL, LAMBDA12, LAMBDA21, P0, BETA1, BETA2);
+    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
 
     int tNodes = 20;
     int xNodes = 100;
-    MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 6 * SPOT, SPOT, xNodes, 0.01);
+    MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 5.0);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10 * SPOT, SPOT, xNodes, 0.01);
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDE_RESULTS = mc.solve(grid);
+    PDE_RESULTS = mc.solve(grid, THETA);
 
-    //DATABUNDLE = INTERPOLATOR.getDataBundle(transformData(res));
-    DATA = transformData2(PDE_RESULTS);
+    DATA = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, PDE_RESULTS, 0.01, 5.0, SPOT / 10, 6 * SPOT);
     DATABUNDLE = GRID_INTERPOLATOR2D.getDataBundle(DATA);
 
     MARKET_VOLS = new ArrayList<Pair<double[], Double>>(EXPIRY_AND_STRIKES.size());
@@ -119,13 +114,13 @@ public class TwoStateMarkovChainFitterTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void timeTest() {
     int warmups = 3;
     int benchmarkCycles = 10;
     final Logger logger = LoggerFactory.getLogger(TwoStateMarkovChainFitterTest.class);
 
-    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, VOL1, VOL1 + DELTA_VOL, LAMBDA12, LAMBDA21, P0, BETA1, BETA2);
+    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
 
     int tNodes = 20;
     int xNodes = 100;
@@ -134,136 +129,41 @@ public class TwoStateMarkovChainFitterTest {
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
     for (int i = 0; i < warmups; i++) {
-      PDEFullResults1D res = mc.solve(grid);
+      mc.solve(grid, 0.5);
     }
     if (benchmarkCycles > 0) {
       final OperationTimer timer = new OperationTimer(logger, "processing {} cycles on timeTest", benchmarkCycles);
       for (int i = 0; i < benchmarkCycles; i++) {
-        PDEFullResults1D res = mc.solve(grid);
+        mc.solve(grid, 0.5);
       }
       timer.finished();
     }
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void dumpPDESurfaceTest() {
-    int xNodes = PDE_RESULTS.getNumberSpaceNodes();
-    int tNodes = PDE_RESULTS.getNumberTimeNodes();
-
-    for (int i = 0; i < xNodes; i++) {
-      System.out.print("\t" + PDE_RESULTS.getSpaceValue(i));
-    }
-    System.out.print("\n");
-
-    double t, k;
-
-    for (int j = 0; j < tNodes; j++) {
-      t = PDE_RESULTS.getTimeValue(j);
-      double df = YIELD_CURVE.getDiscountFactor(t);
-      BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
-
-      System.out.print(t);
-
-      for (int i = 0; i < xNodes; i++) {
-        k = PDE_RESULTS.getSpaceValue(i);
-        double price = PDE_RESULTS.getFunctionValue(i, j);
-        double impVol;
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        try {
-          impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-        } catch (Exception e) {
-          impVol = 0.0;
-        }
-        System.out.print("\t" + impVol);
-      }
-      System.out.print("\n");
-    }
-    System.out.print("\n");
+    PDEUtilityTools.printSurface("dumpPDESurfaceTest", PDE_RESULTS);
   }
 
-  @Test
+  @Test(enabled = false)
   public void dumpSurfaceTest() {
-
-    for (int i = 0; i < 101; i++) {
-      double k = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-      System.out.print("\t" + k);
-    }
-    System.out.print("\n");
-
-    for (int j = 0; j < 101; j++) {
-      double t = 0.2 + 4.8 * j / 100.;
-      System.out.print(t);
-      for (int i = 0; i < 101; i++) {
-        double k = SPOT / 4.0 + 4.0 * SPOT * i / 100.;
-        // System.out.print("\t" + INTERPOLATOR.interpolate(DATABUNDLE, new double[] {t, k }));
-        System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(DATABUNDLE, new DoublesPair(t, k)));
-      }
-      System.out.print("\n");
-    }
+    PDEUtilityTools.printSurface("dumpSurfaceTest", DATABUNDLE, 0, 5, SPOT / 10, SPOT * 6, 100, 100);
   }
 
   @Test
   public void test() {
     DoubleMatrix1D initalGuess = new DoubleMatrix1D(new double[] {0.2, 0.8, 0.3, 2.0, 0.9, 0.9 });
-    TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
+    TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter(THETA);
     LeastSquareResults res = fitter.fit(FORWARD_CURVE, MARKET_VOLS, initalGuess);
-    System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
-  }
+    //System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
 
-  private static List<Pair<double[], Double>> transformData(final PDEFullResults1D prices) {
-    int xNodes = prices.getNumberSpaceNodes();
-    int tNodes = prices.getNumberTimeNodes();
-    int n = xNodes * tNodes;
-    List<Pair<double[], Double>> out = new ArrayList<Pair<double[], Double>>(n);
-    BlackFunctionData data = new BlackFunctionData(SPOT, 1.0, 0);
-    for (int i = 0; i < tNodes; i++) {
-      for (int j = 0; j < xNodes; j++) {
-        double price = prices.getFunctionValue(j, i);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(prices.getSpaceValue(j), prices.getTimeValue(i), true);
-        try {
-          double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-          if (Math.abs(impVol) > 1e-15 && Math.abs(impVol) < 1.0) {
-            Pair<double[], Double> pair = new ObjectsPair<double[], Double>(
-                new double[] {prices.getTimeValue(i), prices.getSpaceValue(j) }, impVol);
-            out.add(pair);
-          }
-        } catch (Exception e) {
-          System.out.println("Test: can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
-        }
-      }
-    }
-    return out;
+    assertEquals(0.0, res.getChiSq(), 1e-3);
+    assertEquals(VOL1, res.getParameters().getEntry(0), 1e-3);
+    assertEquals(DELTA_VOL, res.getParameters().getEntry(1), 2e-3);
+    assertEquals(LAMBDA12, res.getParameters().getEntry(2), 2e-3);
+    assertEquals(LAMBDA21, res.getParameters().getEntry(3), 2e-3);
+    assertEquals(P0, res.getParameters().getEntry(4), 1e-3);
+    assertEquals(BETA, res.getParameters().getEntry(5), 1e-3);
   }
-
-  private static Map<DoublesPair, Double> transformData2(final PDEFullResults1D prices) {
-    int xNodes = prices.getNumberSpaceNodes();
-    int tNodes = prices.getNumberTimeNodes();
-    int n = xNodes * tNodes;
-    Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
-    BlackFunctionData data = new BlackFunctionData(SPOT, 1.0, 0);
-    int count = 0;
-    for (int i = 0; i < tNodes; i++) {
-      for (int j = 0; j < xNodes; j++) {
-        double price = prices.getFunctionValue(j, i);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(prices.getSpaceValue(j), prices.getTimeValue(i), true);
-        double impVol = 0.0;
-        try {
-          impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-          if (Math.abs(impVol) > 1e-15 && Math.abs(impVol) < 1.0) {
-            DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
-            out.put(pair, impVol);
-          }
-        } catch (Exception e) {
-          count++;
-          //System.out.println("Test: can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
-        }
-      }
-    }
-    if (count > 0) {
-      System.err.println("TEST " + count + " out of " + xNodes * tNodes + " data points removed");
-    }
-    return out;
-  }
-
 }

@@ -8,13 +8,16 @@ package com.opengamma.financial.model.finitedifference.applications;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.financial.model.finitedifference.CoupledFiniteDifference;
 import com.opengamma.financial.model.finitedifference.CoupledPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition;
+import com.opengamma.financial.model.finitedifference.ExtendedCoupledFiniteDifference;
+import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
+import com.opengamma.financial.model.finitedifference.NeumannBoundaryCondition;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -26,10 +29,10 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public class TwoStateMarkovChainWithLocalVolDensity {
 
-  private final static double THETA = 0.55;
+  private final static double THETA = 1.0;
 
-  private final CoupledPDEDataBundle _data1;
-  private final CoupledPDEDataBundle _data2;
+  private final ExtendedCoupledPDEDataBundle _data1;
+  private final ExtendedCoupledPDEDataBundle _data2;
 
   /**
    * @param forward
@@ -42,21 +45,24 @@ public class TwoStateMarkovChainWithLocalVolDensity {
    * @param beta2
    */
   public TwoStateMarkovChainWithLocalVolDensity(ForwardCurve forward, final TwoStateMarkovChainDataBundle data,
-      LocalVolatilitySurface localVol) {
+      AbsoluteLocalVolatilitySurface localVolOverlay) {
     Validate.notNull(forward, "null forward");
     Validate.notNull(data, "null data");
-    Validate.notNull(localVol, "null localVol");
-    _data1 = getCoupledPDEDataBundle(forward, data.getVol1(), data.getLambda12(), data.getLambda21(), data.getP0(), data.getBeta1(), localVol);
-    _data2 = getCoupledPDEDataBundle(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), 1.0 - data.getP0(), data.getBeta2(), localVol);
+    Validate.notNull(localVolOverlay, "null localVolOverlay");
+    //    _data1 = getCoupledPDEDataBundle(forward, data.getVol1(), data.getLambda12(), data.getLambda21(), data.getP0(), data.getBeta1(), localVol);
+    //    _data2 = getCoupledPDEDataBundle(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), 1.0 - data.getP0(), data.getBeta2(), localVol);
+    _data1 = getExtendedCoupledPDEDataBundle(forward, data.getVol1(), data.getLambda12(), data.getLambda21(), data.getP0(), data.getBeta1(), localVolOverlay);
+    _data2 = getExtendedCoupledPDEDataBundle(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), 1.0 - data.getP0(), data.getBeta2(), localVolOverlay);
   }
 
   PDEFullResults1D[] solve(PDEGrid1D grid) {
 
-    BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);//TODO for beta < 0.5 zero is accessible and thus there will be non-zero 
+    BoundaryCondition lower = new NeumannBoundaryCondition(0.0, grid.getSpaceNode(0), true);
+    //BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);//TODO for beta < 0.5 zero is accessible and thus there will be non-zero 
     //density there
     BoundaryCondition upper = new DirichletBoundaryCondition(0.0, grid.getSpaceNode(grid.getNumSpaceNodes() - 1));
 
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(THETA, true);
+    ExtendedCoupledFiniteDifference solver = new ExtendedCoupledFiniteDifference(THETA);
     PDEResults1D[] res = solver.solve(_data1, _data2, grid, lower, upper, lower, upper, null);
     //handle this with generics  
     PDEFullResults1D res1 = (PDEFullResults1D) res[0];
@@ -122,6 +128,77 @@ public class TwoStateMarkovChainWithLocalVolDensity {
     };
 
     return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2, initialCondition);
+  }
+
+  private ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2,
+      final double initialProb, final double beta, final AbsoluteLocalVolatilitySurface localVol) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        return -1.0;
+      }
+    };
+
+    final Function<Double, Double> aStar = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        double t = ts[0];
+        double s = ts[1];
+        double temp = localVol.getVolatility(t, s) * vol * Math.pow(s, beta);
+
+        return 0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        double t = ts[0];
+        double s = ts[1];
+        return s * forward.getDrift(t);
+      }
+    };
+
+    final Function<Double, Double> bStar = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        return 1.0;
+      }
+    };
+
+    final Function<Double, Double> c = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        double t = ts[0];
+
+        return forward.getDrift(t) + lambda1;
+      }
+    };
+
+    //using a log-normal distribution with a very small Standard deviation as a proxy for a Dirac delta
+    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
+      private final double _volRootTOffset = 0.01;
+
+      @Override
+      public Double evaluate(Double s) {
+        if (s == 0) {
+          return 0.0;
+        }
+        double x = Math.log(s / forward.getSpot());
+        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        return initialProb * dist.getPDF(x) / s;
+      }
+    };
+
+    return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c),
+        FunctionalDoublesSurface.from(aStar), FunctionalDoublesSurface.from(bStar), -lambda2, initialCondition);
+
   }
 
   //TODO handle with a central calculator
