@@ -22,7 +22,12 @@ public class VolatilityCubeDataTest {
     checkSimpleData(data);
   }
 
-  public static VolatilityCubeData getSimpleData() {
+  public void nullSmilesAsExpected() {
+    VolatilityCubeData data = getNullData();
+    checkNulldata(data);
+  }
+
+  private static VolatilityCubeData getSimpleData() {
     VolatilityCubeData data = new VolatilityCubeData();
     HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     dataPoints.put(new VolatilityPoint(Tenor.DAY, Tenor.DAY, 0), 0.0);
@@ -47,7 +52,7 @@ public class VolatilityCubeDataTest {
     return data;
   }
   
-  public static void checkSimpleData(VolatilityCubeData data) {
+  private static void checkSimpleData(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(2, smiles.size());
     
@@ -77,18 +82,13 @@ public class VolatilityCubeDataTest {
     assertEquals(1, data.getOtherData().getDataPoints().size());
   }
 
-
-  public void nullSmilesAsExpected() {
-    VolatilityCubeData data = getNullData();
-    checkNulldata(data);
-  }
-
-  public static void checkNulldata(VolatilityCubeData data) {
+  
+  private static void checkNulldata(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(null, smiles);
   }
 
-  public static VolatilityCubeData getNullData() {
+  private static VolatilityCubeData getNullData() {
     VolatilityCubeData data = new VolatilityCubeData();
     HashMap<VolatilityPoint, Double> dataPoints = null;
 
@@ -96,7 +96,6 @@ public class VolatilityCubeDataTest {
     return data;
   }
   
-
   private static void assertMatches(Pair<double[], double[]> smile, double[] expectedStrikes, double[] expectedVols) {
     assertTrue(Arrays.equals(smile.getFirst(), expectedStrikes));
     assertTrue(Arrays.equals(smile.getSecond(), expectedVols));
