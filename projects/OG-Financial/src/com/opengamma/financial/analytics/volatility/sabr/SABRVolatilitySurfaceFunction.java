@@ -34,7 +34,9 @@ public final class SABRVolatilitySurfaceFunction {
   }
 
   public static ValueRequirement getSABRSurfaceRequirement(final Currency currency) {
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
+        ComputationTargetType.PRIMITIVE,
+        currency.getUniqueId(),
         ValueProperties.with(PROPERTY_SABR_SURFACES, PROPERTY_SABR_SURFACES).get());
   }
 

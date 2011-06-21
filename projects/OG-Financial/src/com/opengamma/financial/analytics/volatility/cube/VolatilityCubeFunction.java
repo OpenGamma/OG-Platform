@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.volatility.cube;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
@@ -28,8 +27,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -67,12 +64,6 @@ public class VolatilityCubeFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
-          final Map<ValueSpecification, ValueRequirement> inputs) {
-        return _results;
-      }
-
-      @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         return _results;
       }
@@ -93,9 +84,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
           final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
         final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
-        final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
-        //TODO this
-        return Sets.newHashSet(new ComputedValue(_cubeResult, smiles.size()));
+        //TODO this should return the whole cube data, not just the smiles
+        return Sets.newHashSet(new ComputedValue(_cubeResult, data.getSmiles()));
       }
     };
   }

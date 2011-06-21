@@ -120,12 +120,13 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
     return requirements;
   }
 
-  //TODO do we need the more detailed results specification?
   //TODO the value property for the cube is wrong - we're actually using the fitted SABR surface
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
-        createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        createValueProperties()
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
+            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
             .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
             .withAny(ValuePropertyNames.CUBE).get()));
   }
