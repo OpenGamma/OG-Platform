@@ -12,7 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -25,16 +26,13 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -50,7 +48,7 @@ public class DefinitionConverterDataProvider {
   }
 
   public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentConverter<?> definition,
-      final ZonedDateTime now, final String[] curveNames, final HistoricalDataSource dataSource) {
+      final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
     }
@@ -65,24 +63,24 @@ public class DefinitionConverterDataProvider {
   }
 
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
-      final String[] curveNames, final HistoricalDataSource dataSource) {
+      final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final IdentifierBundle id = security.getIdentifiers();
     final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource
-          .getHistoricalData(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
-    if (tsPair.getKey() == null) {
+    final HistoricalTimeSeries ts = dataSource
+          .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
+    if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
-    final int length = tsPair.getSecond().size();
-    final double lastMarginPrice = tsPair.getValue().getValueAt(length - 2);
-    final double price = tsPair.getValue().getValueAt(length - 1); //TODO this is wrong need margin data and previous close for lastMarginPrice
+    final int length = ts.getTimeSeries().size();
+    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2);
+    final double price = ts.getTimeSeries().getValueAt(length - 1); //TODO this is wrong need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
     return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
   }
 
   @SuppressWarnings("unchecked")
   public InterestRateDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now,
-      final String[] curveNames, final HistoricalDataSource dataSource) {
+      final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     Validate.notNull(security, "security");
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -104,19 +102,19 @@ public class DefinitionConverterDataProvider {
   }
 
   private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg,
-      final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalDataSource dataSource) {
+      final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
-      final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource
-          .getHistoricalData(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
-      if (tsPair.getKey() == null) {
+      final HistoricalTimeSeries ts = dataSource
+          .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
+      if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
-      FastBackedDoubleTimeSeries<LocalDate> localDateTS = tsPair.getSecond();
+      FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR) {
         localDateTS = localDateTS.divide(100);
@@ -133,5 +131,4 @@ public class DefinitionConverterDataProvider {
     }
     return null;
   }
-
 }

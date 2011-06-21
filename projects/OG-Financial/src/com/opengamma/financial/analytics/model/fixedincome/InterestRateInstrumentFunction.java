@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -82,8 +82,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalDataSource dataSource = OpenGammaExecutionContext
-        .getHistoricalDataSource(executionContext);
+    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     final String forwardCurveName = curveNames.getFirst();
     final String fundingCurveName = curveNames.getSecond();

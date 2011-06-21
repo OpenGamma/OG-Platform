@@ -34,8 +34,6 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.util.tuple.Pair;
@@ -61,9 +59,8 @@ public class SwaptionDummyPresentValueFunction extends AbstractFunction.NonCompi
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurityVisitor<FixedIncomeInstrumentConverter<?>> swaptionVisitor = new SwaptionSecurityConverter(securitySource, conventionSource, _swapConverter);
-    final FinancialSecurityVisitor<FixedIncomeInstrumentConverter<?>> visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder().swaptionVisitor(swaptionVisitor).create();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
-    final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(visitor);
+    final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(swaptionVisitor);
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties()

@@ -46,6 +46,7 @@ public final class ValueRequirementNames {
   public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
   public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
   
+  public static final String STANDARD_VOLATILITY_CUBE_DATA = "StandardVolatilityCubeData";
   //
   public static final String FAIR_VALUE = "FairValue";
   public static final String POSITION_FAIR_VALUE = "PositionFairValue";
@@ -268,6 +269,12 @@ public final class ValueRequirementNames {
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
 
+  //SABR fitted surface parameters
+  public static final String SABR_SURFACES = "SABR Surfaces";
+  public static final String SABR_ALPHA_SURFACE = "SABR Alpha Surface";
+  public static final String SABR_BETA_SURFACE = "SABR Beta Surface";
+  public static final String SABR_NU_SURFACE = "SABR Nu Surface";
+  public static final String SABR_RHO_SURFACE = "SABR Rho Surface";
   //CSON
 
 }

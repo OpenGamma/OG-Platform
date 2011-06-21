@@ -33,7 +33,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class VolatilityCubeFunction extends AbstractFunction {
-
+  //TODO use this class to get data in useable form
   private final VolatilityCubeFunctionHelper _helper;
   private ValueSpecification _cubeResult;
   private HashSet<ValueSpecification> _results;
@@ -42,57 +42,56 @@ public class VolatilityCubeFunction extends AbstractFunction {
     this(Currency.of(currency), definitionName);
   }
 
-  public VolatilityCubeFunction(Currency currency, String definitionName) {
+  public VolatilityCubeFunction(final Currency currency, final String definitionName) {
     _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
   }
-  
+
   @Override
-  public void init(FunctionCompilationContext context) {
-    
-    ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getKey().getCurrency());
-    _cubeResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE, currencyTargetSpec,
+  public void init(final FunctionCompilationContext context) {
+    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getKey().getCurrency());
+    _cubeResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, currencyTargetSpec,
         createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
     _results = Sets.newHashSet(_cubeResult);
   }
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Set<ValueRequirement> requirements = Sets.newHashSet(getMarketDataRequirement());
     return new AbstractFunction.AbstractInvokingCompiledFunction() {
-      
+
       @Override
       public ComputationTargetType getTargetType() {
         return ComputationTargetType.PRIMITIVE;
       }
-      
+
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target,
-          Map<ValueSpecification, ValueRequirement> inputs) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
+          final Map<ValueSpecification, ValueRequirement> inputs) {
         return _results;
       }
-      
+
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         return _results;
       }
-      
+
       @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-          ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+          final ValueRequirement desiredValue) {
         return requirements;
       }
-      
+
       @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         return _helper.getKey().getCurrency().getUniqueId().equals(target.getUniqueId());
       }
 
       @Override
-      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-          ComputationTarget target, Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+          final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         @SuppressWarnings("unused")
-        VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
-        //TODO this
+        final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
+        //TODO this is where the data should be sorted into useable form
         return Sets.newHashSet(new ComputedValue(_cubeResult, 0xdeadbeef));
       }
     };

@@ -34,6 +34,7 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final SecuritySource _securitySource;
+  @SuppressWarnings("unused")
   private final ConventionBundleSource _conventionSource;
   private final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 

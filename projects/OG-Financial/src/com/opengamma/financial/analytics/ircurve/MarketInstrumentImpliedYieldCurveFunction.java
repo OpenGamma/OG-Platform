@@ -18,7 +18,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -222,8 +222,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
       final Clock snapshotClock = executionContext.getSnapshotClock();
       final ZonedDateTime now = snapshotClock.zonedDateTime();
-      final HistoricalDataSource dataSource = OpenGammaExecutionContext
-          .getHistoricalDataSource(executionContext);
+      final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
         final Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
         return getSingleCurveResult(marketDataMap, builder, now, dataSource);
@@ -382,7 +381,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
     private Set<ComputedValue> getSingleCurveResult(final Map<Identifier, Double> marketDataMap,
         final FixedIncomeStripIdentifierAndMaturityBuilder builder,
-        final ZonedDateTime now, final HistoricalDataSource dataSource) {
+        final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
       // TODO going to arbitrarily use funding curve - will give the same result as forward curve
       final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, marketDataMap);
