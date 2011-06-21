@@ -40,7 +40,7 @@ namespace com.opengamma.financial.security.swap {
    */
   message FloatingInterestRateLeg extends InterestRateLeg {
     required readonly id.Identifier floatingReferenceRateIdentifier;
-    required readonly double initialFloatingRate;
+    optional readonly double initialFloatingRate;
     required readonly double spread;
     required readonly boolean isIBOR;
 

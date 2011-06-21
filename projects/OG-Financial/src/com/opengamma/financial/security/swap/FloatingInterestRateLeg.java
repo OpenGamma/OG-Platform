@@ -4,71 +4,125 @@
 package com.opengamma.financial.security.swap;
 public class FloatingInterestRateLeg extends com.opengamma.financial.security.swap.InterestRateLeg implements java.io.Serializable {
   public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }
-<<<<<<< HEAD
-  private static final long serialVersionUID = -847370103773043016l;
+  private static final long serialVersionUID = -844249679190015272l;
   private final com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
-=======
-  private static final long serialVersionUID = -1684252699689325303l;
-  private final com.opengamma.id.UniqueIdentifier _floatingReferenceRateIdentifier;
->>>>>>> master
   public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_KEY = "floatingReferenceRateIdentifier";
-  private Double _initialFloatingRate;
+  private final Double _initialFloatingRate;
   public static final String INITIAL_FLOATING_RATE_KEY = "initialFloatingRate";
   private final double _spread;
   public static final String SPREAD_KEY = "spread";
   private final boolean _isIBOR;
   public static final String IS_IBOR_KEY = "isIBOR";
-<<<<<<< HEAD
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double initialFloatingRate, double spread, boolean isIBOR) {
-=======
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.UniqueIdentifier floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
->>>>>>> master
-    super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
-    if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
-    else {
-      _floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
+  public static class Builder {
+    private com.opengamma.financial.convention.daycount.DayCount _dayCount;
+    private com.opengamma.financial.convention.frequency.Frequency _frequency;
+    private com.opengamma.id.Identifier _regionIdentifier;
+    private com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
+    private com.opengamma.financial.security.swap.Notional _notional;
+    private org.fudgemsg.mapping.FudgeDeserializationContext _fudgeContext;
+    protected org.fudgemsg.mapping.FudgeDeserializationContext getFudgeContext () {
+      return _fudgeContext;
     }
-    _spread = spread;
-    _isIBOR = isIBOR;
-  }
-  protected FloatingInterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
-    try {
-      _floatingReferenceRateIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+    private org.fudgemsg.FudgeMsg _fudgeRoot;
+    protected org.fudgemsg.FudgeMsg getFudgeRoot () {
+      return _fudgeRoot;
     }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not Identifier message", e);
+    private com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
+    private Double _initialFloatingRate;
+    private double _spread;
+    private boolean _isIBOR;
+    public Builder (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
+      _dayCount = dayCount;
+      _frequency = frequency;
+      _regionIdentifier = regionIdentifier;
+      _businessDayConvention = businessDayConvention;
+      _notional = notional;
+      floatingReferenceRateIdentifier (floatingReferenceRateIdentifier);
+      spread (spread);
+      isIBOR (isIBOR);
     }
-    fudgeField = fudgeMsg.getByName (SPREAD_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not present");
-    try {
-      _spread = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (IS_IBOR_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not present");
-    try {
-      _isIBOR = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not boolean", e);
-    }
-    fudgeField = fudgeMsg.getByName (INITIAL_FLOATING_RATE_KEY);
-    if (fudgeField != null)  {
+    protected Builder (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+      _fudgeRoot = fudgeMsg;
+      _fudgeContext = fudgeContext;
+      org.fudgemsg.FudgeField fudgeField;
+      fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
+      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
       try {
-        setInitialFloatingRate (fudgeMsg.getFieldValue (Double.class, fudgeField));
+        _floatingReferenceRateIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'initialFloatingRate' is not double", e);
+        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not Identifier message", e);
+      }
+      fudgeField = fudgeMsg.getByName (SPREAD_KEY);
+      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not present");
+      try {
+        _spread = fudgeMsg.getFieldValue (Double.class, fudgeField);
+      }
+      catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not double", e);
+      }
+      fudgeField = fudgeMsg.getByName (IS_IBOR_KEY);
+      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not present");
+      try {
+        _isIBOR = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
+      }
+      catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not boolean", e);
+      }
+      fudgeField = fudgeMsg.getByName (INITIAL_FLOATING_RATE_KEY);
+      if (fudgeField != null)  {
+        try {
+          initialFloatingRate (fudgeMsg.getFieldValue (Double.class, fudgeField));
+        }
+        catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'initialFloatingRate' is not double", e);
+        }
       }
     }
+    public Builder floatingReferenceRateIdentifier (com.opengamma.id.Identifier floatingReferenceRateIdentifier) {
+      if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
+      else {
+        _floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
+      }
+      return this;
+    }
+    public Builder initialFloatingRate (Double initialFloatingRate) {
+      _initialFloatingRate = initialFloatingRate;
+      return this;
+    }
+    public Builder spread (double spread) {
+      _spread = spread;
+      return this;
+    }
+    public Builder isIBOR (boolean isIBOR) {
+      _isIBOR = isIBOR;
+      return this;
+    }
+    public FloatingInterestRateLeg build () {
+      return (getFudgeRoot () != null) ? new FloatingInterestRateLeg (getFudgeContext (), getFudgeRoot (), this) : new FloatingInterestRateLeg (this);
+    }
   }
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.UniqueIdentifier floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
+  protected FloatingInterestRateLeg (final Builder builder) {
+    super (builder._dayCount, builder._frequency, builder._regionIdentifier, builder._businessDayConvention, builder._notional);
+    if (builder._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
+    else {
+      _floatingReferenceRateIdentifier = builder._floatingReferenceRateIdentifier;
+    }
+    _initialFloatingRate = builder._initialFloatingRate;
+    _spread = builder._spread;
+    _isIBOR = builder._isIBOR;
+  }
+  protected FloatingInterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg, final Builder builder) {
+    super (fudgeContext, fudgeMsg);
+    if (builder._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
+    else {
+      _floatingReferenceRateIdentifier = builder._floatingReferenceRateIdentifier;
+    }
+    _initialFloatingRate = builder._initialFloatingRate;
+    _spread = builder._spread;
+    _isIBOR = builder._isIBOR;
+  }
+  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
     else {
@@ -88,9 +142,6 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _initialFloatingRate = source._initialFloatingRate;
     _spread = source._spread;
     _isIBOR = source._isIBOR;
-  }
-  public FloatingInterestRateLeg clone () {
-    return new FloatingInterestRateLeg (this);
   }
   public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
@@ -123,16 +174,13 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
         // no-action
       }
     }
-    return new FloatingInterestRateLeg (fudgeContext, fudgeMsg);
+    return new Builder (fudgeContext, fudgeMsg).build ();
   }
   public com.opengamma.id.Identifier getFloatingReferenceRateIdentifier () {
     return _floatingReferenceRateIdentifier;
   }
   public Double getInitialFloatingRate () {
     return _initialFloatingRate;
-  }
-  public void setInitialFloatingRate (Double initialFloatingRate) {
-    _initialFloatingRate = initialFloatingRate;
   }
   public double getSpread () {
     return _spread;
