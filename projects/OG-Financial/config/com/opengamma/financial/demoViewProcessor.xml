@@ -14,7 +14,7 @@
   </bean>
   
   <import resource="classpath:com/opengamma/financial/common.xml" />
-  <import resource="com/opengamma/financial/demoIntegrationMasters.xml" />
+  <import resource="classpath:com/opengamma/financial/demoIntegrationMasters.xml" />
   
   <!-- Active MQ -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
@@ -139,7 +139,7 @@
   </bean>
   
   <!-- LiveData Snapshot/Availability Provider -->
-  <import resource="classpath:liveData-${opengamma.platform.runmode}.xml" />
+  <import resource="liveData-${opengamma.platform.runmode}.xml" />
   
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
