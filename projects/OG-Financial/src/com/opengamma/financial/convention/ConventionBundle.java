@@ -54,6 +54,12 @@ public interface ConventionBundle extends UniqueIdentifiable {
   BusinessDayConvention getBusinessDayConvention();
 
   /**
+   * Get the region.
+   * @return the region identifier
+   */
+  Identifier getRegion();
+
+  /**
    * Get the frequency.
    * @return the frequency
    */
