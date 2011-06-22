@@ -22,6 +22,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesFields;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
@@ -98,7 +99,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
     addAndTestTimeSeries();
     List<IdentifierBundleWithDates> identifiers = _tsMaster.getAllIdentifiers();
     for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
-      UniqueIdentifier uniqueId = _infoResolver.resolve("PX_LAST", identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
+      UniqueIdentifier uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
       assertNotNull(uniqueId);
       HistoricalTimeSeriesDocument doc = _tsMaster.get(uniqueId);
       assertEquals(DEFAULT_DATA_SOURCE, doc.getSeries().getDataSource());

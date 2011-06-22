@@ -19,6 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesFields;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -127,9 +128,9 @@ public class MasterHistoricalTimeSeriesSourceTest {
     searchResult.getDocuments().add(doc);
     
     when(_mockMaster.search(request)).thenReturn(searchResult);
-    when(_mockResolver.resolve("PX_LAST", IDENTIFIERS, TEST_CONFIG)).thenReturn(UID);
+    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG)).thenReturn(UID);
     
-    HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, TEST_CONFIG);
+    HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).search(request);
     
     assertEquals(UID, hts.getUniqueId());

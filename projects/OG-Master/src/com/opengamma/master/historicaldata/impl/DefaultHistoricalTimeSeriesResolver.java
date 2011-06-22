@@ -55,19 +55,19 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier resolve(String type, IdentifierBundle identifiers, String resolutionKey) {
-    ArgumentChecker.notNull(type, "type");
+  public UniqueIdentifier resolve(String dataField, IdentifierBundle identifiers, String resolutionKey) {
+    ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(identifiers, "identifiers");
     resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
     // find all matching time-series
     HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest(identifiers);
-    searchRequest.setDataField(type);
+    searchRequest.setDataField(dataField);
     searchRequest.setLoadEarliestLatest(false);
     searchRequest.setLoadTimeSeries(false);
     HistoricalTimeSeriesSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {
-      s_logger.warn("Resolver failed to find any time-series: {} {}", type, identifiers);
+      s_logger.warn("Resolver failed to find any time-series: {} {}", dataField, identifiers);
       return null;
     }
     

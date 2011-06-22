@@ -13,8 +13,8 @@ import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSo
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DEFAULT;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DEFAULT_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
+import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
 import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
@@ -111,19 +111,20 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uid.toString());
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uniqueId.toString());
     return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    ArgumentChecker.notNull(uid, "uid");
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
     
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uid.toString())
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uniqueId.toString())
       .resolveBase(start.toString())
       .resolveBase(String.valueOf(inclusiveStart))
       .resolveBase(end.toString())
@@ -133,65 +134,36 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+    return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      IdentifierBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
-      .resolveBase(dataField).resolveQuery("id", identifiers.toStringList());
+      .resolveBase(dataField).resolveQuery("id", identifierBundle.toStringList());
     return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
-  }
-  
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase((configDocName != null) ? configDocName : NULL_VALUE)
-      .resolveQuery("id", identifiers.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName);
-  }
-  
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    ArgumentChecker.notNull(start, "start");
-    ArgumentChecker.notNull(end, "end");
-    
-    final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT_BY_DATE)
-      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
-      .resolveBase((configDocName != null) ? configDocName : NULL_VALUE)
-      .resolveBase(start.toString())
-      .resolveBase(String.valueOf(inclusiveStart))
-      .resolveBase(end.toString())
-      .resolveBase(String.valueOf(exclusiveEnd))
-      .resolveQuery("id", identifiers.toStringList());
-    return decodeMessage(getRestClient().getMsg(target));
-  }
-  
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
-  }
-
-  @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      IdentifierBundle identifierBundle, LocalDate currentDate, String dataSource, 
       String dataProvider, String dataField, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(start, "start");
@@ -204,19 +176,63 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       .resolveBase(String.valueOf(inclusiveStart))
       .resolveBase(end.toString())
       .resolveBase(String.valueOf(exclusiveEnd))
-      .resolveQuery("id", identifiers.toStringList());
+      .resolveQuery("id", identifierBundle.toStringList());
+    return decodeMessage(getRestClient().getMsg(target));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
+    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey);
+  }
+
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, LocalDate currentDate, String resolutionKey) {
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED)
+      .resolveBase(dataField)
+      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+      .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
+      .resolveQuery("id", identifierBundle.toStringList());
     return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, inclusiveStart, end, exclusiveEnd);
   }
 
+  @Override
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, LocalDate currentDate, String resolutionKey, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.notNull(end, "end");
+    
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED_BY_DATE)
+      .resolveBase(dataField)
+      .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+      .resolveBase((resolutionKey != null) ? resolutionKey : NULL_VALUE)
+      .resolveBase(start.toString())
+      .resolveBase(String.valueOf(inclusiveStart))
+      .resolveBase(end.toString())
+      .resolveBase(String.valueOf(exclusiveEnd))
+      .resolveQuery("id", identifierBundle.toStringList());
+    return decodeMessage(getRestClient().getMsg(target));
+  }
+
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
