@@ -66,7 +66,11 @@ public final class PlatformConfigUtils {
     /**
      * Shared development mode.
      */
-    SHAREDDEV;
+    SHAREDDEV,
+    /**
+     * Example mode.
+     */
+    EXAMPLE;
   }
 
   //-------------------------------------------------------------------------

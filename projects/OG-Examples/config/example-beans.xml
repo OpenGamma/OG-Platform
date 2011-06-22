@@ -27,6 +27,10 @@
   
   <import resource="classpath:demoViewProcessor.xml" />
   
+  <!-- example data providers -->
+  <bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
+  <bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
+  
   <!-- Historical data source service -->
   <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceService">
     <constructor-arg ref="fudgeContext" />

@@ -14,7 +14,7 @@
   </bean>
   
   <import resource="classpath:com/opengamma/financial/common.xml" />
-  <import resource="demoIntegrationMasters.xml" />
+  <import resource="com/opengamma/financial/demoIntegrationMasters.xml" />
   
   <!-- Active MQ -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
@@ -133,18 +133,15 @@
   <!-- JMS-based LiveDataClient -->
   <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="subscriptionTopic" value="MockSubscriptionRequestTopic" />
-    <property name="entitlementTopic" value="MockEntitlementRequestTopic" />
-    <property name="heartbeatTopic" value="MockHeartbeatTopic" />
+    <property name="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+    <property name="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+    <property name="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
   </bean>
   
   <!-- LiveData Snapshot/Availability Provider -->
-  <import resource="liveData-${opengamma.platform.runmode}.xml" />
-  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.livedata.MockLiveDataAvailabilityProviderFactoryBean" />
-   
-  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.livedata.MockLiveDataSnapshotProviderFactoryBean" />
-    
-  <bean id="testUser" class="com.opengamma.examples.server.MockUserFactoryBean" />  
+  <import resource="classpath:liveData-${opengamma.platform.runmode}.xml" />
+  
+  <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
   <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
   	<constructor-arg ref="sharedConfigMaster"/>
@@ -427,9 +424,4 @@
       </list>
     </property>
   </bean>
-
-	<!-- example data providers -->
-	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
-	<bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
-
 </beans>
