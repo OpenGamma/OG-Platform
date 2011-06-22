@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swaption;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -31,26 +33,26 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.swaption.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.sabr.SABRVolatilitySurfaceData;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -58,11 +60,25 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
       .getCalculator(VolatilityFunctionFactory.HAGAN);
-  private FinancialSecurityVisitor<FixedIncomeInstrumentConverter<?>> _swaptionConverter;
+  private final PresentValueCalculator _calculator;
+  private final boolean _useSABRExtrapolation;
+  private SwaptionSecurityConverter _swaptionVisitor;
+  private final VolatilityCubeFunctionHelper _helper;
+  private static final double CUT_OFF = 0.1;
+  private static final double MU = 5;
+
+  public SwaptionSABRPresentValueFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
+    this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation));
+  }
+
+  public SwaptionSABRPresentValueFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation) {
+    _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
+    _calculator = useSABRExtrapolation ? PresentValueSABRExtrapolationCalculator.getInstance() : PresentValueSABRCalculator.getInstance();
+    _useSABRExtrapolation = useSABRExtrapolation;
+  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -71,8 +87,7 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
-    final SwaptionSecurityVisitor<FixedIncomeInstrumentConverter<?>> swaptionVisitor = new SwaptionSecurityConverter(securitySource, conventionSource, swapConverter);
-    _swaptionConverter = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder().swaptionVisitor(swaptionVisitor).create();
+    _swaptionVisitor = new SwaptionSecurityConverter(securitySource, conventionSource, swapConverter);
   }
 
   @Override
@@ -80,21 +95,47 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
-    final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(_swaptionConverter);
+    final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(_swaptionVisitor);
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
-    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
-    final double presentValue = CALCULATOR.visit(swaption, data);
-    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
-        createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-            .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .withAny(ValuePropertyNames.CUBE).get());
+    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
+    final double presentValue = _calculator.visit(swaption, data);
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
+        .with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
     return Sets.newHashSet(new ComputedValue(specification, presentValue));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
+    final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.add(getCubeRequirement(target));
+    if (forwardCurveName.equals(fundingCurveName)) {
+      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+      return requirements;
+    }
+    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+    return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
+        createValueProperties()
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
+            .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+            .with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get()));
   }
 
   @Override
@@ -105,46 +146,17 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
     return target.getSecurity() instanceof SwaptionSecurity;
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
-    final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (forwardCurveName.equals(fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
-    } else {
-      requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
-      requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
-    }
-    requirements.add(getSurfaceRequirement(target));
-    return requirements;
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
+      final String advisoryForward, final String advisoryFunding) {
+    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName,
+        advisoryForward, advisoryFunding);
   }
 
-  //TODO the value property for the cube is wrong - we're actually using the fitted SABR surface
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
-        createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-            .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .withAny(ValuePropertyNames.CUBE).get()));
+  protected ValueRequirement getCubeRequirement(final ComputationTarget target) {
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get();
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 
-  @Override
-  public String getShortName() {
-    return "SwaptionSABRPresentValueFunction";
-  }
-
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), curveName, advisoryForward, advisoryFunding);
-  }
-
-  protected ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
-    return SABRVolatilitySurfaceData.getSABRSurfaceRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()));
-  }
-
-  //TODO this is used everywhere - extract to a helper class
   private YieldCurveBundle getYieldCurves(final String forwardCurveName, final String fundingCurveName, final ComputationTarget target, final FunctionInputs inputs) {
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
@@ -168,7 +180,7 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
 
   private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement surfacesRequirement = SABRVolatilitySurfaceData.getSABRSurfaceRequirement(currency);
+    final ValueRequirement surfacesRequirement = getCubeRequirement(target);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
@@ -182,6 +194,7 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
     final VolatilitySurface nuSurface = surfaces.getNuSurface();
     final VolatilitySurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+    return _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
+        new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
 }
