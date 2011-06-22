@@ -15,11 +15,11 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 /**
  * Builder for converting object instances to/from Fudge messages.
  */
-@FudgeBuilderFor(HistoricalTimeSeriesInfoRating.class)
-public class HistoricalTimeSeriesInfoRatingBuilder implements FudgeBuilder<HistoricalTimeSeriesInfoRating> {
+@FudgeBuilderFor(HistoricalTimeSeriesRatingRule.class)
+public class HistoricalTimeSeriesRatingRuleBuilder implements FudgeBuilder<HistoricalTimeSeriesRatingRule> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, HistoricalTimeSeriesInfoRating object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, HistoricalTimeSeriesRatingRule object) {
     MutableFudgeMsg message = context.newMessage();
     message.add("fieldName", object.getFieldName());
     message.add("fieldValue", object.getFieldValue());
@@ -28,20 +28,20 @@ public class HistoricalTimeSeriesInfoRatingBuilder implements FudgeBuilder<Histo
   }
 
   @Override
-  public HistoricalTimeSeriesInfoRating buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public HistoricalTimeSeriesRatingRule buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     String fieldName = message.getString("fieldName");
     if (fieldName == null) {
-      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesInfoRating - field 'fieldName' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesRatingRule - field 'fieldName' is not present");
     }
     String fieldValue = message.getString("fieldValue");
     if (fieldValue == null) {
-      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesInfoRating - field 'fieldValue' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesRatingRule - field 'fieldValue' is not present");
     }
     Integer rating = message.getInt("rating");
     if (rating == null) {
-      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesInfoRating - field 'rating' is not present");
+      throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesRatingRule - field 'rating' is not present");
     }
-    return new HistoricalTimeSeriesInfoRating(fieldName, fieldValue, rating);
+    return new HistoricalTimeSeriesRatingRule(fieldName, fieldValue, rating);
   }
 
 }

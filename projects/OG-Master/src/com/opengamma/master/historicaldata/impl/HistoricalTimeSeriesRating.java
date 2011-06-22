@@ -16,20 +16,22 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The set of rules to use when loading a historical time-series from a master.
+ * A set of rating rules that allow a time-series to be rated.
+ * <p>
+ * This is stored as configuration to choose the best matching time-series.
  * <p>
  * This class is immutable and thread-safe.
  */
-public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeriesInfoRateProvider {
+public class HistoricalTimeSeriesRating {
 
   /**
    * The set of rules.
    */
-  private final Set<HistoricalTimeSeriesInfoRating> _rules = new HashSet<HistoricalTimeSeriesInfoRating>();
+  private final Set<HistoricalTimeSeriesRatingRule> _rules = new HashSet<HistoricalTimeSeriesRatingRule>();
   /**
    * The rules grouped by field type.
    */
@@ -44,7 +46,7 @@ public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeri
    * 
    * @param rules  the rules, not null and not empty
    */
-  public HistoricalTimeSeriesInfoConfiguration(Collection<HistoricalTimeSeriesInfoRating> rules) {
+  public HistoricalTimeSeriesRating(Collection<HistoricalTimeSeriesRatingRule> rules) {
     ArgumentChecker.notEmpty(rules, "rules");
     _rules.addAll(rules);
     buildRuleDb();
@@ -52,7 +54,7 @@ public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeri
   }
 
   private void buildRuleDb() {
-    for (HistoricalTimeSeriesInfoRating rule : _rules) {
+    for (HistoricalTimeSeriesRatingRule rule : _rules) {
       String fieldName = rule.getFieldName();
       Map<String, Integer> ruleDb = _rulesByFieldType.get(fieldName);
       if (ruleDb == null) {
@@ -69,27 +71,32 @@ public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeri
    * 
    * @return the rules, not null
    */
-  public Collection<HistoricalTimeSeriesInfoRating> getRules() {
+  public Collection<HistoricalTimeSeriesRatingRule> getRules() {
     return Collections.unmodifiableCollection(_rules);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public int rate(HistoricalTimeSeriesInfo info) {
-    String dataSource = info.getDataSource();
-    Map<String, Integer> dataSourceMap = _rulesByFieldType.get(HistoricalTimeSeriesInfoFieldNames.DATA_SOURCE_NAME);
+  /**
+   * Rates historical time-series info based on the stored rules.
+   * 
+   * @param series  the series to rate, not null
+   * @return the rating
+   */
+  public int rate(ManageableHistoricalTimeSeries series) {
+    String dataSource = series.getDataSource();
+    Map<String, Integer> dataSourceMap = _rulesByFieldType.get(HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME);
     Integer dsRating = dataSourceMap.get(dataSource);
     if (dsRating == null) {
-      dsRating = dataSourceMap.get(HistoricalTimeSeriesInfoFieldNames.STAR_VALUE);
+      dsRating = dataSourceMap.get(HistoricalTimeSeriesRatingFieldNames.STAR_VALUE);
       if (dsRating == null) {
         throw new OpenGammaRuntimeException("There must be a star match if no match with given dataSource: " + dataSource);
       }
     }
-    String dataProvider = info.getDataProvider();
-    Map<String, Integer> dataProviderMap = _rulesByFieldType.get(HistoricalTimeSeriesInfoFieldNames.DATA_PROVIDER_NAME);
+    String dataProvider = series.getDataProvider();
+    Map<String, Integer> dataProviderMap = _rulesByFieldType.get(HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME);
     Integer dpRating = dataProviderMap.get(dataProvider);
     if (dpRating == null) {
-      dpRating = dataProviderMap.get(HistoricalTimeSeriesInfoFieldNames.STAR_VALUE);
+      dpRating = dataProviderMap.get(HistoricalTimeSeriesRatingFieldNames.STAR_VALUE);
       if (dpRating == null) {
         throw new OpenGammaRuntimeException("There must be a star match if no match with given dataProvider: " + dataProvider);
       }
@@ -103,8 +110,8 @@ public class HistoricalTimeSeriesInfoConfiguration implements HistoricalTimeSeri
     if (this == obj) {
       return true;
     }
-    if (obj instanceof HistoricalTimeSeriesInfoConfiguration) {
-      HistoricalTimeSeriesInfoConfiguration other = (HistoricalTimeSeriesInfoConfiguration) obj;
+    if (obj instanceof HistoricalTimeSeriesRating) {
+      HistoricalTimeSeriesRating other = (HistoricalTimeSeriesRating) obj;
       return _rules.equals(other._rules);
     }
     return false;

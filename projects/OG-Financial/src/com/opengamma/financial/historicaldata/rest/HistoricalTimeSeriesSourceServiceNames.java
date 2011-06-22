@@ -45,11 +45,11 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
-  public static final String REQUEST_DEFAULT = "default";
+  public static final String REQUEST_RESOLVED = "resolved";
   /**
    * 
    */
-  public static final String REQUEST_DEFAULT_BY_DATE = "defaultByDate";
+  public static final String REQUEST_RESOLVED_BY_DATE = "resolvedByDate";
   /**
    * 
    */

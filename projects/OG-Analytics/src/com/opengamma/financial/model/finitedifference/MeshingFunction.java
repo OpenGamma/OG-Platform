@@ -21,6 +21,10 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
     _nPoints = nPoints;
   }
 
+  public int getNumberOfPoints() {
+    return _nPoints;
+  }
+
   public double[] getPoints() {
     double[] res = new double[_nPoints];
     for (int i = 0; i < _nPoints; i++) {

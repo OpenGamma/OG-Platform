@@ -10,9 +10,9 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Constants for historical time-series info field names.
+ * Constants for historical time-series rating field names.
  */
-public final class HistoricalTimeSeriesInfoFieldNames {
+public final class HistoricalTimeSeriesRatingFieldNames {
 
   /**
    * Field name for data source.
@@ -23,17 +23,13 @@ public final class HistoricalTimeSeriesInfoFieldNames {
    */
   public static final String DATA_PROVIDER_NAME = "dataProvider";
   /**
-   * Field name for security type.
-   */
-  public static final String SECURITY_TYPE_NAME = "securityType";
-  /**
    * Field value for star(*).
    */
   public static final String STAR_VALUE = "*";
   /**
    * Valid field names
    */
-  public static final Collection<String> VALID_FIELD_NAMES = ImmutableSet.of(DATA_SOURCE_NAME, DATA_PROVIDER_NAME, SECURITY_TYPE_NAME);
+  public static final Collection<String> VALID_FIELD_NAMES = ImmutableSet.of(DATA_SOURCE_NAME, DATA_PROVIDER_NAME);
   /**
    * Default name for the default configuration
    */
@@ -42,7 +38,7 @@ public final class HistoricalTimeSeriesInfoFieldNames {
   /**
    * Restricted constructor.
    */
-  private HistoricalTimeSeriesInfoFieldNames() {
+  private HistoricalTimeSeriesRatingFieldNames() {
   }
 
 }

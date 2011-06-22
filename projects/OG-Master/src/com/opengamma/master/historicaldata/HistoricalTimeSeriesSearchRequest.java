@@ -202,21 +202,22 @@ public class HistoricalTimeSeriesSearchRequest extends DirectBean {
    * @return true if matches
    */
   public boolean matches(HistoricalTimeSeriesDocument document) {
-    if (getDataSource() != null && getDataSource().equals(document.getDataSource()) == false) {
+    ManageableHistoricalTimeSeries series = document.getSeries();
+    if (getDataSource() != null && getDataSource().equals(series.getDataSource()) == false) {
       return false;
     }    
-    if (getDataProvider() != null && getDataProvider().equals(document.getDataProvider()) == false) {
+    if (getDataProvider() != null && getDataProvider().equals(series.getDataProvider()) == false) {
       return false;
     }    
-    if (getDataField() != null && getDataField().equals(document.getDataField()) == false) {
+    if (getDataField() != null && getDataField().equals(series.getDataField()) == false) {
       return false;
     }    
-    if (getObservationTime() != null && getObservationTime().equals(document.getObservationTime()) == false) {
+    if (getObservationTime() != null && getObservationTime().equals(series.getObservationTime()) == false) {
       return false;
     }    
     if (getIdentifiers() != null) {
       success: {  // label used with break statement, CSIGNORE
-        IdentifierBundleWithDates docBundle = document.getIdentifiers();
+        IdentifierBundleWithDates docBundle = series.getIdentifiers();
         for (IdentifierWithDates docId : docBundle) {
           if (getIdentifiers().contains(docId.asIdentifier()) && docId.isValidOn(getIdentifierValidityDate())) {
             break success;
@@ -227,7 +228,7 @@ public class HistoricalTimeSeriesSearchRequest extends DirectBean {
     }
     if (getIdentifierValue() != null) {
       success: {  // label used with break statement, CSIGNORE
-        IdentifierBundle docBundle = document.getIdentifiers().asIdentifierBundle();
+        IdentifierBundle docBundle = series.getIdentifiers().asIdentifierBundle();
         for (Identifier identifier : docBundle.getIdentifiers()) {
           if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue())) {
             break success;

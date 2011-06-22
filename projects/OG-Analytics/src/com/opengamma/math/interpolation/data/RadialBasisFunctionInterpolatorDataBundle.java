@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.DistanceCalculator;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.linearalgebra.DecompositionResult;
@@ -26,7 +27,7 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
   private final double[] _weights;
   private final Decomposition<?> _decomp = DecompositionFactory.LU_COMMONS;
 
-  public RadialBasisFunctionInterpolatorDataBundle(List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
+  public RadialBasisFunctionInterpolatorDataBundle(final List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
     super(data);
     Validate.notNull(basisFunction, "basis function");
     _basisFunction = basisFunction;
@@ -55,14 +56,14 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
   }
 
   private double[] calculateWeights() {
-    List<Pair<double[], Double>> data = getData();
+    final List<Pair<double[], Double>> data = getData();
     final int n = data.size();
     double sum;
     final double[][] radii = new double[n][n];
     final double[] y = new double[n];
     double phi;
     double[] x1, x2;
-    double zeroValue = _basisFunction.evaluate(0.0);
+    final double zeroValue = _basisFunction.evaluate(0.0);
 
     for (int i = 0; i < n; i++) {
 
@@ -71,7 +72,7 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
 
       for (int j = i + 1; j < n; j++) {
         x2 = data.get(j).getFirst();
-        phi = _basisFunction.evaluate(getDistance(x1, x2));
+        phi = _basisFunction.evaluate(DistanceCalculator.getDistance(x1, x2));
         Validate.isTrue(!Double.isNaN(phi) || !Double.isInfinite(phi), "basis function return invalide number");
         radii[i][j] = phi;
         radii[j][i] = phi; // matrix symmetric since basis function depends on distance only
@@ -87,8 +88,8 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
       }
     }
 
-    DecompositionResult decompRes = _decomp.evaluate(new com.opengamma.math.matrix.DoubleMatrix2D(radii));
-    DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
+    final DecompositionResult decompRes = _decomp.evaluate(new com.opengamma.math.matrix.DoubleMatrix2D(radii));
+    final DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
 
     return res.toArray();
   }

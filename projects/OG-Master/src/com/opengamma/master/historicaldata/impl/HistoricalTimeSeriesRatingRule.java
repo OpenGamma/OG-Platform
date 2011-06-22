@@ -12,11 +12,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A rating for a field name and value.
+ * An individual rule for rating for a field name and value.
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class HistoricalTimeSeriesInfoRating {
+public final class HistoricalTimeSeriesRatingRule {
 
   /**
    * The field name
@@ -39,9 +39,9 @@ public final class HistoricalTimeSeriesInfoRating {
    * @param rating  the rating, zero or greater
    * @throws IllegalArgumentException if the input is invalid
    */
-  public HistoricalTimeSeriesInfoRating(String fieldName, String fieldValue, int rating) {
+  public HistoricalTimeSeriesRatingRule(String fieldName, String fieldValue, int rating) {
     ArgumentChecker.notNull(fieldName, "fieldName");
-    ArgumentChecker.isTrue(HistoricalTimeSeriesInfoFieldNames.VALID_FIELD_NAMES.contains(fieldName), "invalid field name");
+    ArgumentChecker.isTrue(HistoricalTimeSeriesRatingFieldNames.VALID_FIELD_NAMES.contains(fieldName), "invalid field name");
     ArgumentChecker.notNull(fieldValue, "fieldValue");
     ArgumentChecker.isTrue(rating >= 0, "rating cannot be negative");
     _fieldName = fieldName;
@@ -83,8 +83,8 @@ public final class HistoricalTimeSeriesInfoRating {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof HistoricalTimeSeriesInfoRating) {
-      HistoricalTimeSeriesInfoRating other = (HistoricalTimeSeriesInfoRating) obj;
+    if (obj instanceof HistoricalTimeSeriesRatingRule) {
+      HistoricalTimeSeriesRatingRule other = (HistoricalTimeSeriesRatingRule) obj;
       return ObjectUtils.equals(_fieldName, other._fieldName) && ObjectUtils.equals(_fieldValue, other._fieldValue) && _rating == other._rating;
     }
     return false;
