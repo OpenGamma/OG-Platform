@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.DistanceCalculator;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.linearalgebra.DecompositionResult;
@@ -68,7 +69,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
         dataPoint = data.get(j);
         x2 = dataPoint.getFirst();
         y2 = dataPoint.getSecond();
-        rBeta = Math.pow(getDistance(x1, x2), beta);
+        rBeta = Math.pow(DistanceCalculator.getDistance(x1, x2), beta);
         sum += (y1 - y2) * (y1 - y2) * rBeta;
         normSum += rBeta * rBeta;
       }
@@ -99,7 +100,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
       for (int j = i + 1; j < n; j++) {
         dataPoint = data.get(j);
         x2 = dataPoint.getFirst();
-        final double temp = variogram.evaluate(getDistance(x1, x2));
+        final double temp = variogram.evaluate(DistanceCalculator.getDistance(x1, x2));
         v[i][j] = temp;
         v[j][i] = temp;
       }

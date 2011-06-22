@@ -22,10 +22,12 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.future.calculator.PriceCurveSensitivityDiscountingCalculator;
 import com.opengamma.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -90,6 +92,7 @@ public class BondFutureSecurityDiscountingMethodTest {
   private static final BondFutureSecurityDiscountingMethod METHOD = new BondFutureSecurityDiscountingMethod();
   private static final BondSecurityDiscountingMethod METHOD_BOND = new BondSecurityDiscountingMethod();
   private static final PriceFromCurvesDiscountingCalculator PRICE_CALCULATOR = PriceFromCurvesDiscountingCalculator.getInstance();
+  private static final PriceCurveSensitivityDiscountingCalculator PRICE_SENSI_CALCULATOR = PriceCurveSensitivityDiscountingCalculator.getInstance();
 
   @Test
   public void price() {
@@ -103,6 +106,46 @@ public class BondFutureSecurityDiscountingMethodTest {
       priceExpected = Math.min(priceExpected, bondForwardPriceAdjusted[loopbasket]);
     }
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the computation of the price curve sensitivity.
+   */
+  public void priceCurveSensitivity() {
+    PresentValueSensitivity sensiFuture = METHOD.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
+    double[] bondForwardPrice = new double[NB_BOND];
+    double[] bondFuturePrice = new double[NB_BOND];
+    double minPrice = 100.0;
+    int minIndex = 0;
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      bondForwardPrice[loopbasket] = METHOD_BOND.dirtyPriceFromCurves(BASKET[loopbasket], CURVES);
+      bondFuturePrice[loopbasket] = (bondForwardPrice[loopbasket] - BASKET[loopbasket].getAccruedInterest()) / CONVERSION_FACTOR[loopbasket];
+      if (bondFuturePrice[loopbasket] < minPrice) {
+        minPrice = (bondForwardPrice[loopbasket] - BASKET[loopbasket].getAccruedInterest()) / CONVERSION_FACTOR[loopbasket];
+        minIndex = loopbasket;
+      }
+    }
+    PresentValueSensitivity sensiBond = METHOD_BOND.dirtyPriceCurveSensitivity(BASKET[minIndex], CURVES);
+    sensiBond = sensiBond.multiply(1.0 / CONVERSION_FACTOR[minIndex]);
+    sensiFuture = sensiFuture.clean();
+    sensiBond = sensiBond.clean();
+    for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivity().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).first,
+          sensiFuture.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).second, sensiFuture.getSensitivity()
+          .get(CREDIT_CURVE_NAME).get(loopsensi).second, 1.0E-10);
+    }
+  }
+
+  @Test
+  /**
+   * Tests the computation of the price curve sensitivity.
+   */
+  public void priceCurveSensitivityMethodVsCalculator() {
+    PresentValueSensitivity sensiMethod = METHOD.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
+    PresentValueSensitivity sensiCalculator = PRICE_SENSI_CALCULATOR.visit(BOND_FUTURE_SECURITY, CURVES);
+    assertEquals("Bond future security Discounting Method: curve sensitivity Method versus Calculator", sensiMethod, sensiCalculator);
   }
 
   @Test

@@ -83,4 +83,9 @@ public class PDETerminalResults1D implements PDEResults1D {
     return _grid.getNumSpaceNodes();
   }
 
+  @Override
+  public PDEGrid1D getGrid() {
+    return _grid;
+  }
+
 }

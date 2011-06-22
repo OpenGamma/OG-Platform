@@ -120,12 +120,12 @@ public class CapFloorIborSABRMethodTest {
    * Test the present value using the method and the calculator.
    */
   public void presentValueMethodVsCalculator() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    double expectedPv = METHOD.presentValue(CAP_LONG, sabrBundle).getAmount();
-    PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
-    double pv = PVC.visit(CAP_LONG, sabrBundle);
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final double expectedPv = METHOD.presentValue(CAP_LONG, sabrBundle).getAmount();
+    final PresentValueSABRCalculator pvc = PresentValueSABRCalculator.getInstance();
+    final double pv = pvc.visit(CAP_LONG, sabrBundle);
     assertEquals("Cap/floor SABR pricing: method and calculator", expectedPv, pv, 1E-2);
   }
 
