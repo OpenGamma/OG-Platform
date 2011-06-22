@@ -86,6 +86,7 @@ public class ForexSwapDefinitionTest {
    * Tests the class equal and hashCode
    */
   public void equalHash() {
+    assertTrue(FX_SWAP_DEFINITION_LEG.equals(FX_SWAP_DEFINITION_LEG));
     ForexSwapDefinition newFxSwap = new ForexSwapDefinition(FX_NEAR_DEFINITION, FX_FAR_DEFINITION);
     assertTrue(FX_SWAP_DEFINITION_LEG.equals(newFxSwap));
     assertTrue(FX_SWAP_DEFINITION_FIN.equals(newFxSwap));
@@ -95,6 +96,8 @@ public class ForexSwapDefinitionTest {
     assertFalse(FX_SWAP_DEFINITION_LEG.equals(modifiedFxSwap));
     modifiedFxSwap = new ForexSwapDefinition(FX_NEAR_DEFINITION, FX_NEAR_DEFINITION);
     assertFalse(FX_SWAP_DEFINITION_LEG.equals(modifiedFxSwap));
+    assertFalse(FX_SWAP_DEFINITION_LEG.equals(CUR_1));
+    assertFalse(FX_SWAP_DEFINITION_LEG.equals(null));
   }
 
   @Test

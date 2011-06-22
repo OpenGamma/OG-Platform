@@ -81,7 +81,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
   }
 
   @Override
-  public ForexDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public ForexOptionVanilla toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);

@@ -50,7 +50,7 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_underlyingForex == null) ? 0 : _underlyingForex.hashCode());
+    result = prime * result + _underlyingForex.hashCode();
     return result;
   }
 
@@ -62,9 +62,9 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
+    //    if (getClass() != obj.getClass()) {
+    //      return false;
+    //    }
     ForexOptionVanilla other = (ForexOptionVanilla) obj;
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {
       return false;
