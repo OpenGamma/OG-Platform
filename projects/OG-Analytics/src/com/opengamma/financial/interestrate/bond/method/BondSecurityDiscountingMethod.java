@@ -67,8 +67,8 @@ public class BondSecurityDiscountingMethod {
    * @return The present value curve sensitivity.
    */
   public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
-    PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    final PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
     return pvcsNominal.add(pvcsCoupon);
   }
 
@@ -115,12 +115,7 @@ public class BondSecurityDiscountingMethod {
         }
         pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
         return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
-<<<<<<< HEAD
-      } 
-      // In the last period: simple rate
-=======
       } // In the last period: simple rate
->>>>>>> master
       return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
@@ -141,12 +136,12 @@ public class BondSecurityDiscountingMethod {
    * @return The price curve sensitivity.
    */
   public PresentValueSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double pv = presentValue(bond, curves);
-    PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
-    double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listDf = new ArrayList<DoublesPair>();
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double pv = presentValue(bond, curves);
+    final PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
+    final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
     PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
@@ -257,12 +252,7 @@ public class BondSecurityDiscountingMethod {
         final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
         final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
         return md;
-<<<<<<< HEAD
-      } 
-      // In the last period: simple rate
-=======
       } // In the last period: simple rate
->>>>>>> master
       return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
       final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
