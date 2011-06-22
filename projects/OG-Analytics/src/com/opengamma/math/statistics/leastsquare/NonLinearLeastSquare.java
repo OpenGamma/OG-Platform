@@ -35,8 +35,8 @@ public class NonLinearLeastSquare {
   public NonLinearLeastSquare() {
     this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
   }
-  
-  public NonLinearLeastSquare(Decomposition<?> decomposition, MatrixAlgebra algebra, double eps) {
+
+  public NonLinearLeastSquare(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
     _decomposition = decomposition;
     _algebra = algebra;
     _eps = eps;
@@ -282,7 +282,6 @@ public class NonLinearLeastSquare {
       } catch (final Exception e) {
         throw new MathException(e);
       }
-
       final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
       newError = getError(func, observedValues, sigma, newTheta);
       newChiSqr = getChiSqr(newError);

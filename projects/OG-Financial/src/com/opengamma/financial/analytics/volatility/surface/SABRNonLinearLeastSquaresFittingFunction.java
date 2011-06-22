@@ -5,14 +5,19 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.BitSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.time.calendar.Period;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -89,23 +94,20 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     if (objectCubeData == null) {
       throw new OpenGammaRuntimeException("Could not get volatility cube data");
     }
-    @SuppressWarnings("unchecked")
-    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = (Map<Tenor, Map<Tenor, Pair<double[], double[]>>>) objectCubeData;
-    final int totalDataPoints = smiles.size();
-    final double[] swapMaturities = new double[totalDataPoints];
-    final double[] swaptionExpiries = new double[totalDataPoints];
-    final double[] alpha = new double[totalDataPoints];
-    final double[] beta = new double[totalDataPoints];
-    final double[] nu = new double[totalDataPoints];
-    final double[] rho = new double[totalDataPoints];
-    //TODO convert relative strikes into absolute   
-    int count = 0;
+    final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;
+    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
+    final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
+    final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
+    final DoubleArrayList alphaList = new DoubleArrayList();
+    final DoubleArrayList betaList = new DoubleArrayList();
+    final DoubleArrayList nuList = new DoubleArrayList();
+    final DoubleArrayList rhoList = new DoubleArrayList();
     for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
-      final double maturity = swapMaturityEntry.getKey().getPeriod().getYears();
-      for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionMaturityEntry : swapMaturityEntry.getValue().entrySet()) {
-        final double swaptionExpiry = swaptionMaturityEntry.getKey().getPeriod().getYears();
-        final double[] strikes = swaptionMaturityEntry.getValue().getFirst();
-        final double[] blackVols = swaptionMaturityEntry.getValue().getSecond();
+      final double maturity = getTime(swapMaturityEntry.getKey());
+      for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {
+        final double swaptionExpiry = getTime(swaptionExpiryEntry.getKey());
+        final double[] strikes = swaptionExpiryEntry.getValue().getFirst();
+        final double[] blackVols = swaptionExpiryEntry.getValue().getSecond();
         final int n = strikes.length;
         if (n != blackVols.length) {
           throw new OpenGammaRuntimeException("Strike and black volatility arrays were not the same length; should never happen");
@@ -113,25 +115,34 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
         final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
         final BlackFunctionData[] data = new BlackFunctionData[n];
         final double[] errors = new double[n];
-        final double forward = 0; //TODO
-        for (int k = 0; k < n; k++) {
-          options[k] = new EuropeanVanillaOption(strikes[k], swaptionExpiry, true);
-          data[k] = new BlackFunctionData(forward, 1, blackVols[k] / 100);
-          errors[k] = ERROR;
-        }
-        final double atmVol = .20;
-        if (options.length > 4) { //don't fit those smiles with insufficient data 
-          final LeastSquareResults fittedResult = FITTER.getFitResult(options, data, errors, SABR_INITIAL_VALUES, FIXED, atmVol, RECOVER_ATM_VOL);
-          final DoubleMatrix1D parameters = fittedResult.getParameters();
-          swapMaturities[count] = maturity;
-          swaptionExpiries[count] = swaptionExpiry;
-          alpha[count] = parameters.getEntry(0);
-          beta[count] = parameters.getEntry(1);
-          nu[count] = parameters.getEntry(2);
-          rho[count++] = parameters.getEntry(3);
+        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
+        if (volatilityCubeData.getStrikes() != null && volatilityCubeData.getStrikes().containsKey(tenorPair)) {
+          final double forward = volatilityCubeData.getStrikes().get(tenorPair);
+          final double atmVol = volatilityCubeData.getATMVolatilities().get(tenorPair);
+          for (int k = 0; k < n; k++) {
+            options[k] = new EuropeanVanillaOption(strikes[k], swaptionExpiry, true);
+            data[k] = new BlackFunctionData(forward, 1, blackVols[k]);
+            errors[k] = ERROR;
+          }
+          if (options.length > 4 && forward > 0) { //don't fit those smiles with insufficient data 
+            final LeastSquareResults fittedResult = FITTER.getFitResult(options, data, errors, SABR_INITIAL_VALUES, FIXED, atmVol, RECOVER_ATM_VOL);
+            final DoubleMatrix1D parameters = fittedResult.getParameters();
+            swapMaturitiesList.add(maturity);
+            swaptionExpiriesList.add(swaptionExpiry);
+            alphaList.add(parameters.getEntry(0));
+            betaList.add(parameters.getEntry(1));
+            nuList.add(parameters.getEntry(2));
+            rhoList.add(parameters.getEntry(3));
+          }
         }
       }
     }
+    final double[] swapMaturities = swapMaturitiesList.toDoubleArray();
+    final double[] swaptionExpiries = swaptionExpiriesList.toDoubleArray();
+    final double[] alpha = alphaList.toDoubleArray();
+    final double[] beta = betaList.toDoubleArray();
+    final double[] nu = nuList.toDoubleArray();
+    final double[] rho = rhoList.toDoubleArray();
     final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, alpha, INTERPOLATOR, "SABR alpha surface"));
     final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, beta, INTERPOLATOR, "SABR beta surface"));
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, nu, INTERPOLATOR, "SABR nu surface"));
@@ -161,5 +172,11 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(_resultSpecification);
+  }
+
+  private double getTime(final Tenor tenor) {
+    final Period period = tenor.getPeriod();
+    final double months = period.totalMonths();
+    return months / 12.;
   }
 }

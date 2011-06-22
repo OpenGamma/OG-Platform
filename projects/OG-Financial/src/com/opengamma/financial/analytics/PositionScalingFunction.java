@@ -35,6 +35,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
   protected String[] getPreservedProperties() {
     // TODO [PLAT-1356] PositionScalingFunction should propagate everything
     return new String[] {
+      ValuePropertyNames.CUBE,
       ValuePropertyNames.CURRENCY,
       ValuePropertyNames.CURVE,
       ValuePropertyNames.CURVE_CURRENCY,

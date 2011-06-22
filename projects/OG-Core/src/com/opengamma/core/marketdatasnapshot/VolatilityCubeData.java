@@ -39,6 +39,11 @@ public class VolatilityCubeData {
    */
   private Map<Pair<Tenor, Tenor>, Double> _strikes;
   
+  /**
+   * The ATM vols
+   */
+  private Map<Pair<Tenor, Tenor>, Double> _atmVolatilities;
+  
   private Map<Tenor, Map<Tenor, Pair<double[], double[]>>> _smiles;
   
   
@@ -91,6 +96,22 @@ public class VolatilityCubeData {
     _strikes = strikes;
   }
 
+  /**
+   * Gets The ATM volatilities
+   * @return the volatilities
+   */
+  public Map<Pair<Tenor, Tenor>, Double> getATMVolatilities() {
+    return _atmVolatilities;
+  }
+
+  /**
+   * Sets The ATM volatilities
+   * @param atmVolatilities the volatilities
+   */
+  public void setATMVolatilities(Map<Pair<Tenor, Tenor>, Double> atmVolatilities) {
+    _atmVolatilities = atmVolatilities;
+  }
+  
   /**
    * Gets the smiles field.
    * Swap Tenor -> Option Expiry -> (relative strikes in bps[], volatility[])

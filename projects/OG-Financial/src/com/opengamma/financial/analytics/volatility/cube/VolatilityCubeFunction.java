@@ -5,13 +5,16 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,6 +30,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -82,10 +87,33 @@ public class VolatilityCubeFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-
         final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
-        //TODO this should return the whole cube data, not just the smiles
-        return Sets.newHashSet(new ComputedValue(_cubeResult, data.getSmiles()));
+        final VolatilityCubeData normalizedData = new VolatilityCubeData();
+        final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
+        final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
+        final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getStrikes();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<Pair<Tenor, Tenor>, Double>();
+        for (final Map.Entry<VolatilityPoint, Double> entry : volatilityPoints.entrySet()) {
+          final VolatilityPoint oldPoint = entry.getKey();
+          final Tenor swapTenor = oldPoint.getSwapTenor();
+          final Tenor swaptionExpiry = oldPoint.getOptionExpiry();
+          final double relativeStrike = oldPoint.getRelativeStrike();
+          if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
+            final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
+            final double absoluteStrike = atmStrikes.get(tenorPair) / 100 + relativeStrike / 10000;
+            final double vol = entry.getValue() / 100;
+            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
+            normalizedATMStrikes.put(tenorPair, absoluteStrike);
+            normalizedATMVols.put(tenorPair, vol);
+            normalizedVolatilityPoints.put(newPoint, vol); //TODO this normalization should not be performed here
+          }
+        }
+        normalizedData.setDataPoints(normalizedVolatilityPoints);
+        normalizedData.setOtherData(data.getOtherData());
+        normalizedData.setStrikes(normalizedATMStrikes);
+        normalizedData.setATMVolatilities(normalizedATMVols);
+        return Sets.newHashSet(new ComputedValue(_cubeResult, normalizedData));
       }
     };
   }
