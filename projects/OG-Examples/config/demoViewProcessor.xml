@@ -79,7 +79,6 @@
   </bean>
   
   <!-- Market data snapshots -->
-
   <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
@@ -113,8 +112,22 @@
 
   <!-- User Vol Cubes-->
   <!-- TODO: this properly, user source and cacheing -->
-  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
+  
+  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource">
+    <constructor-arg>
+      <list>
+        <ref bean="bloombergVolatilityCubeDefinitionSource" />
+        <ref bean="sharedVolatilityCubeDefinitionSource" />
+      </list>
+    </constructor-arg>
+  </bean>
+  
+  
+  <bean id="sharedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
+  </bean>
+  
+  <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
   </bean>
   
   <!-- JMS-based LiveDataClient -->
