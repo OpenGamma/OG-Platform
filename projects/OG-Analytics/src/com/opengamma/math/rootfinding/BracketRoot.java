@@ -48,7 +48,7 @@ public class BracketRoot {
         x2 += RATIO * (x2 - x1);
       }
     }
-    throw new MathException("Failed to bracket root: " + x1 + " " + x2 + " " + f1 + " " + f2);
+    throw new MathException("Failed to bracket root");
   }
 
 }
