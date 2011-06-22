@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public final class SABRVolatilitySurfaceFunction {
+public final class SABRVolatilitySurfaceData {
   /** Name for all SABR parameters contained in bundle */
   //shouldn't be needed once the constraints are working 
   public static final String PROPERTY_SABR_SURFACES = "SABR_SURFACES";
@@ -30,7 +30,7 @@ public final class SABRVolatilitySurfaceFunction {
 
   //TODO eventually need information and constraints showing how it was calculated and what the underlying data set is
 
-  private SABRVolatilitySurfaceFunction() {
+  private SABRVolatilitySurfaceData() {
   }
 
   public static ValueRequirement getSABRSurfaceRequirement(final Currency currency) {

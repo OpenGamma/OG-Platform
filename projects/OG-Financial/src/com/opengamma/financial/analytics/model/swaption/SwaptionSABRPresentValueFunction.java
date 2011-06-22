@@ -32,7 +32,7 @@ import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.swaption.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.sabr.SABRVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.sabr.SABRVolatilitySurfaceData;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
@@ -141,7 +141,7 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
   }
 
   protected ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
-    return SABRVolatilitySurfaceFunction.getSABRSurfaceRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()));
+    return SABRVolatilitySurfaceData.getSABRSurfaceRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()));
   }
 
   //TODO this is used everywhere - extract to a helper class
@@ -168,7 +168,7 @@ public class SwaptionSABRPresentValueFunction extends AbstractFunction.NonCompil
 
   private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement surfacesRequirement = SABRVolatilitySurfaceFunction.getSABRSurfaceRequirement(currency);
+    final ValueRequirement surfacesRequirement = SABRVolatilitySurfaceData.getSABRSurfaceRequirement(currency);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
