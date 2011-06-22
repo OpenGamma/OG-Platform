@@ -37,6 +37,9 @@
 	    <fileset dir="${lib.dir}/resource/com.opengamma/og-financial">
 	      <include name="*.zip" />
 	    </fileset>
+	    <fileset dir="${lib.dir}/resource/com.opengamma/og-web">
+	      <include name="*.zip" />
+		  </fileset>
 	</path>
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">

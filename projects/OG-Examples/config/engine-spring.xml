@@ -6,7 +6,7 @@
   <bean id="engineSpringProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="location">
-      <value>classpath:engine-spring.properties</value>
+      <value>classpath:com/opengamma/web/engine-spring.properties</value>
     </property>
   </bean>
 

@@ -12,7 +12,7 @@
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
-        <value>classpath:engine-spring.properties</value>
+        <value>classpath:com/opengamma/web/engine-spring.properties</value>
       </list>
     </property>
   </bean>
