@@ -33,8 +33,7 @@ public abstract class TimeCalculator {
     if (!timeIsNegative) {
       final double time = ACT_ACT.getDayCountFraction(date1, date2);
       return time;
-    } else {
-      return -1.0 * ACT_ACT.getDayCountFraction(date2, date1);
     }
+    return -1.0 * ACT_ACT.getDayCountFraction(date2, date1);
   }
 }

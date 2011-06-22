@@ -5,10 +5,12 @@
  */
 package com.opengamma.math.interpolation;
 
-import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -23,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
  */
 //FIXME this test does nothing - either delete or add some real tests
 public class SmoothSurfaceTest {
-  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, RANDOM);
   //private static final double EPS = 1e-5;
   private static final RadialBasisFunction SMOOTHER = new RadialBasisFunction();
@@ -89,15 +91,15 @@ public class SmoothSurfaceTest {
     // printSurface(basisFunction, weights, isNormalized);
   }
 
-//  private static List<Pair<double[], Double>> combineWeightsAndPos(final List<double[]> nodePos, final DoubleMatrix1D weights) {
-//    final int n = nodePos.size();
-//    Validate.isTrue(n == weights.getNumberOfElements());
-//    final List<Pair<double[], Double>> weightsAndPos = new ArrayList<Pair<double[], Double>>(n);
-//    for (int i = 0; i < n; i++) {
-//      weightsAndPos.add(new ObjectsPair<double[], Double>(nodePos.get(i), weights.getEntry(i)));
-//    }
-//    return weightsAndPos;
-//  }
+  //  private static List<Pair<double[], Double>> combineWeightsAndPos(final List<double[]> nodePos, final DoubleMatrix1D weights) {
+  //    final int n = nodePos.size();
+  //    Validate.isTrue(n == weights.getNumberOfElements());
+  //    final List<Pair<double[], Double>> weightsAndPos = new ArrayList<Pair<double[], Double>>(n);
+  //    for (int i = 0; i < n; i++) {
+  //      weightsAndPos.add(new ObjectsPair<double[], Double>(nodePos.get(i), weights.getEntry(i)));
+  //    }
+  //    return weightsAndPos;
+  //  }
 
   @SuppressWarnings("unused")
   private void printSurface(final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final boolean isNormalized) {
@@ -138,17 +140,17 @@ public class SmoothSurfaceTest {
     return sum;
   }
 
-//  private double getPlenty(final List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final boolean isNormalized) {
-//
-//    double sum = 0;
-//    for (final Pair<double[], Double> pair : data) {
-//      final double[] x = pair.getFirst();
-//      final double[][] hessian = getHessian(basisFunction, weights, x, isNormalized);
-//      final double temp = getMatrixMaxValue(hessian);
-//      sum += temp * temp;
-//    }
-//    return sum;
-//  }
+  //  private double getPlenty(final List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final boolean isNormalized) {
+  //
+  //    double sum = 0;
+  //    for (final Pair<double[], Double> pair : data) {
+  //      final double[] x = pair.getFirst();
+  //      final double[][] hessian = getHessian(basisFunction, weights, x, isNormalized);
+  //      final double temp = getMatrixMaxValue(hessian);
+  //      sum += temp * temp;
+  //    }
+  //    return sum;
+  //  }
 
   double getMatrixMaxValue(final double[][] matrix) {
     double res = 0;
@@ -161,36 +163,36 @@ public class SmoothSurfaceTest {
     return Math.sqrt(res);
   }
 
-//  private double[][] getHessian(final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final double[] x, final boolean isNormalized) {
-//
-//    final int n = x.length;
-//
-//    final double[][] res = new double[n][n];
-//    for (int i = 0; i < n; i++) {
-//      for (int j = i; j < n; j++) {
-//        res[i][j] = getSecondDev(basisFunction, weights, x, isNormalized, i, j);
-//      }
-//      for (int j = i + 1; j < n; j++) {
-//        res[j][i] = res[i][j];
-//      }
-//    }
-//
-//    return res;
-//  }
+  //  private double[][] getHessian(final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final double[] x, final boolean isNormalized) {
+  //
+  //    final int n = x.length;
+  //
+  //    final double[][] res = new double[n][n];
+  //    for (int i = 0; i < n; i++) {
+  //      for (int j = i; j < n; j++) {
+  //        res[i][j] = getSecondDev(basisFunction, weights, x, isNormalized, i, j);
+  //      }
+  //      for (int j = i + 1; j < n; j++) {
+  //        res[j][i] = res[i][j];
+  //      }
+  //    }
+  //
+  //    return res;
+  //  }
 
-//  private double getSecondDev(final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final double[] x, final boolean isNormalized, final int i, final int j) {
-//    if (i == j) {
-//      final double f_x = SMOOTHER.evaluate(basisFunction, weights, x, isNormalized);
-//      final double[] temp = Arrays.copyOf(x, x.length);
-//      temp[i] += EPS;
-//      final double f_p = SMOOTHER.evaluate(basisFunction, weights, temp, isNormalized);
-//      temp[i] -= 2 * EPS;
-//      final double f_m = SMOOTHER.evaluate(basisFunction, weights, temp, isNormalized);
-//
-//      return (f_p + f_m - 2 * f_x) / EPS / EPS;
-//    }
-//
-//    return 0;
-//  }
+  //  private double getSecondDev(final Function1D<Double, Double> basisFunction, final List<Pair<double[], Double>> weights, final double[] x, final boolean isNormalized, final int i, final int j) {
+  //    if (i == j) {
+  //      final double f_x = SMOOTHER.evaluate(basisFunction, weights, x, isNormalized);
+  //      final double[] temp = Arrays.copyOf(x, x.length);
+  //      temp[i] += EPS;
+  //      final double f_p = SMOOTHER.evaluate(basisFunction, weights, temp, isNormalized);
+  //      temp[i] -= 2 * EPS;
+  //      final double f_m = SMOOTHER.evaluate(basisFunction, weights, temp, isNormalized);
+  //
+  //      return (f_p + f_m - 2 * f_x) / EPS / EPS;
+  //    }
+  //
+  //    return 0;
+  //  }
 
 }

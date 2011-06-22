@@ -20,19 +20,19 @@ public class ExponentalMeshingTest {
   private static final int N = 21;
   private static final double LAMBDA = 0.7;
 
-  private static final MeshingFunction EXP_MESH = new ExponentalMeshing(A, B, N, LAMBDA);
-  private static final MeshingFunction LINEAR_MESH = new ExponentalMeshing(A, B, N, 0.0);
+  private static final MeshingFunction EXP_MESH = new ExponentialMeshing(A, B, N, LAMBDA);
+  private static final MeshingFunction LINEAR_MESH = new ExponentialMeshing(A, B, N, 0.0);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEqualPoints() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new ExponentalMeshing(A, A, N, LAMBDA);
+    final MeshingFunction mesh = new ExponentialMeshing(A, A, N, LAMBDA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoPoints() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new ExponentalMeshing(A, B, 1, LAMBDA);
+    final MeshingFunction mesh = new ExponentialMeshing(A, B, 1, LAMBDA);
   }
 
   @Test

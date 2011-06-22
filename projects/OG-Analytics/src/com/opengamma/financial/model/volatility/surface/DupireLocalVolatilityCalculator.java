@@ -18,30 +18,39 @@ import com.opengamma.math.surface.Surface;
  * 
  */
 public class DupireLocalVolatilityCalculator {
-  private final double _eps = 1e-5;
+  private final double _eps;
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+
+  public DupireLocalVolatilityCalculator() {
+    _eps = 1e-5;
+  }
+
+  public DupireLocalVolatilityCalculator(final double tol) {
+    _eps = tol;
+  }
 
   /**
    * @deprecated As its name suggests this is purely for debugging and will be removed
-   * @param price The price surface
+   * @param priceSurface The price surface
    * @param impliedVolatilitySurface The implied volatility surface
-   * @param spot The spot
-   * @param rate The interest rate
+   * @param spot The spot value
+   * @param rate The rate
    * @param t The time
    * @param k The strike
    */
   @Deprecated
-  public void debug(final PriceSurface price, final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate, final double t, final double k) {
-
-    final double cdT = getFirstTimeDev(price.getSurface(), t, k);
-    final double cdK = getFirstStrikeDev(price.getSurface(), t, k);
-    final double cdKK = getSecondStrikeDev(price.getSurface(), t, k);
-
-    final double sigmadT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k);
-    final double sigmadK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
-    final double sigmadKK = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
+  public void debug(final PriceSurface priceSurface, final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate, final double t, final double k) {
 
     final double vol = impliedVolatilitySurface.getVolatility(t, k);
+    final double price = priceSurface.getPrice(t, k);
+    final double cdT = getFirstTimeDev(priceSurface.getSurface(), t, k, price);
+    final double cdK = getFirstStrikeDev(priceSurface.getSurface(), t, k, price, spot);
+    final double cdKK = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
+
+    final double sigmadT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k, vol);
+    final double sigmadK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, spot);
+    final double sigmadKK = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, spot);
+
     final double d1 = (Math.log(spot / k) + (rate + vol * vol / 2) * t) / vol / Math.sqrt(t);
     final double d2 = d1 - vol * Math.sqrt(t);
     final double nd2 = NORMAL.getCDF(d2);
@@ -64,7 +73,7 @@ public class DupireLocalVolatilityCalculator {
 
   }
 
-  public LocalVolatilitySurface getLocalVolatility(final PriceSurface price, final double spot, final double rate) {
+  public LocalVolatilitySurface getLocalVolatility(final PriceSurface priceSurface, final double spot, final double rate) {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
@@ -74,9 +83,10 @@ public class DupireLocalVolatilityCalculator {
         final double t = x[0];
         final double k = x[1];
 
-        final double divT = getFirstTimeDev(price.getSurface(), t, k);
-        final double divK = getFirstStrikeDev(price.getSurface(), t, k);
-        final double divK2 = getSecondStrikeDev(price.getSurface(), t, k);
+        final double price = priceSurface.getPrice(t, k);
+        final double divT = getFirstTimeDev(priceSurface.getSurface(), t, k, price);
+        final double divK = getFirstStrikeDev(priceSurface.getSurface(), t, k, price, spot);
+        final double divK2 = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
 
         final double var = 2. * (divT + rate * k * divK) / (k * k * divK2);
         return Math.sqrt(var);
@@ -84,6 +94,43 @@ public class DupireLocalVolatilityCalculator {
     };
 
     return new LocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
+  }
+
+  public AbsoluteLocalVolatilitySurface getAbsoluteLocalVolatilitySurface(final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate) {
+
+    final Function<Double, Double> locVol = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double s = x[1];
+
+        final double vol = impliedVolatilitySurface.getVolatility(t, s);
+        if (t == 0 && s == spot) {
+          return vol;
+        }
+        //  double rootT = Math.sqrt(t);
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
+        double var;
+        if (s == 0) {
+          var = vol * vol + 2 * vol * t * (divT);
+        } else {
+          final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
+          final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
+          final double d1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
+          final double d2 = d1 - vol * t;
+          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * d1 * s * divK + s * s * (d1 * d2 * divK * divK + t * vol * divK2));
+          if (var < 0.0) {
+            var = 0.0;
+            //TODO log error
+          }
+        }
+        return s * Math.sqrt(var);
+      }
+    };
+
+    return new AbsoluteLocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
   }
 
   public LocalVolatilitySurface getLocalVolatility(final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate) {
@@ -94,18 +141,28 @@ public class DupireLocalVolatilityCalculator {
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];
-        final double k = x[1];
-        final double vol = impliedVolatilitySurface.getVolatility(t, k);
-        if (t == 0) {
+        final double s = x[1];
+
+        final double vol = impliedVolatilitySurface.getVolatility(t, s);
+        if (t == 0 && s == spot) {
           return vol;
         }
-        final double rootT = Math.sqrt(t);
-        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k);
-        final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
-        final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k);
-        final double d1 = (Math.log(spot / k) + (rate + vol * vol / 2) * t) / vol / rootT;
-        final double d2 = d1 - vol * rootT;
-        final double var = (vol * vol + 2 * vol * t * (divT + rate * k * divK)) / (1 + 2 * d1 * k * rootT * divK + k * k * t * (d1 * d2 * divK * divK + vol * divK2));
+        //  double rootT = Math.sqrt(t);
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
+        double var;
+        if (s == 0) {
+          var = vol * vol + 2 * vol * t * (divT);
+        } else {
+          final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
+          final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
+          final double d1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
+          final double d2 = d1 - vol * t;
+          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * d1 * s * divK + s * s * (d1 * d2 * divK * divK + t * vol * divK2));
+          if (var < 0.0) {
+            var = 0.0;
+            //TODO log error
+          }
+        }
         return Math.sqrt(var);
       }
     };
@@ -113,23 +170,40 @@ public class DupireLocalVolatilityCalculator {
     return new LocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
   }
 
-  private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k) {
+  private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid) {
+    if (t == 0) {
+      final double up = surface.getZValue(_eps, k);
+      return (up - mid) / _eps;
+    }
     final double up = surface.getZValue(t + _eps, k);
     final double down = surface.getZValue(t - _eps, k);
     return (up - down) / 2. / _eps;
   }
 
-  private double getFirstStrikeDev(final Surface<Double, Double, Double> surface, final double t, final double k) {
-    final double up = surface.getZValue(t, k + _eps);
-    final double down = surface.getZValue(t, k - _eps);
-    return (up - down) / 2. / _eps;
+  private double getFirstStrikeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid, final double spot) {
+    final double eps = spot * _eps;
+    if (k <= eps) {
+      final double up = surface.getZValue(t, k + eps);
+      return (up - mid) / eps;
+    }
+    final double up = surface.getZValue(t, k + eps);
+    final double down = surface.getZValue(t, k - eps);
+    return (up - down) / 2. / eps;
   }
 
-  private double getSecondStrikeDev(final Surface<Double, Double, Double> surface, final double t, final double k) {
-    final double up = surface.getZValue(t, k + _eps);
-    final double cent = surface.getZValue(t, k);
-    final double down = surface.getZValue(t, k - _eps);
-    return (up + down - 2 * cent) / _eps / _eps;
+  private double getSecondStrikeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid, final double spot) {
+    final double eps = spot * _eps;
+    double offset = 0;
+    double cent;
+    if (k <= eps) {
+      offset = eps - k;
+      cent = surface.getZValue(t, k + offset);
+    } else {
+      cent = mid;
+    }
+    final double up = surface.getZValue(t, k + eps + offset);
+    final double down = surface.getZValue(t, k - eps + offset);
+    return (up + down - 2 * cent) / eps / eps;
   }
 
 }

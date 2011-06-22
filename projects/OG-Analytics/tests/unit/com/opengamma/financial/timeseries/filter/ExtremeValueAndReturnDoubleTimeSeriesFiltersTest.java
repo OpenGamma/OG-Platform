@@ -6,10 +6,13 @@
 package com.opengamma.financial.timeseries.filter;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -25,7 +28,7 @@ import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
  * 
  */
 public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final double MAX = 10;
   private static final double MIN = -1;
   private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);

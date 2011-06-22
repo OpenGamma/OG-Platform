@@ -21,4 +21,6 @@ public interface PDEResults1D {
 
   double getSecondSpatialDerivative(int spaceIndex);
 
+  PDEGrid1D getGrid();
+
 }
