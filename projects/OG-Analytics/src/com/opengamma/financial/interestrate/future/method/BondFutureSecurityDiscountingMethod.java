@@ -18,6 +18,9 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity
  */
 public class BondFutureSecurityDiscountingMethod {
 
+  /**
+   * The method to compute bond security figures.
+   */
   private static final BondSecurityDiscountingMethod BOND_METHOD = new BondSecurityDiscountingMethod();
 
   /**

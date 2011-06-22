@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future security (derivative version).
@@ -140,6 +141,14 @@ public class BondFutureSecurity implements InterestRateDerivative {
    */
   public double[] getConversionFactor() {
     return _conversionFactor;
+  }
+
+  /**
+   * Gets the future currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _deliveryBasket[0].getCurrency();
   }
 
   @Override
