@@ -31,21 +31,21 @@ import com.opengamma.util.time.DateUtil;
  * Tests related to bond futures security Definition construction.
  */
 public class BondFutureSecurityDefinitionTest {
-
-  // 10-Year U.S. Treasury Note Futures: TYU1
+  // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
-  private static final int SETTLEMENT_DAYS = 2;
+  private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final int NB_BOND = 3;
-  //TODO: change to an actual basket.
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(10), Period.ofYears(10), Period.ofYears(10)};
-  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 7, 13), DateUtil.getUTCDate(2010, 7, 13), DateUtil.getUTCDate(2009, 7, 13)};
-  private static final double[] RATE = new double[] {0.0325, 0.0325, 0.0325};
+  private static final int NB_BOND = 7;
+  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
+  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtil.getUTCDate(2010, 11, 30), DateUtil.getUTCDate(2010, 12, 31), DateUtil.getUTCDate(2011, 1, 31),
+      DateUtil.getUTCDate(2008, 2, 29), DateUtil.getUTCDate(2011, 3, 31), DateUtil.getUTCDate(2011, 4, 30), DateUtil.getUTCDate(2011, 5, 31)};
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
+  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   static {
@@ -55,12 +55,10 @@ public class BondFutureSecurityDefinitionTest {
           DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
     }
   }
-  private static final double[] CONVERSION_FACTOR = new double[] {0.90, 0.91, 0.92};
   private static final ZonedDateTime LAST_TRADING_DATE = DateUtil.getUTCDate(2011, 9, 21);
   private static final ZonedDateTime FIRST_NOTICE_DATE = DateUtil.getUTCDate(2011, 8, 31);
   private static final ZonedDateTime LAST_NOTICE_DATE = DateUtil.getUTCDate(2011, 9, 29);
   private static final double NOTIONAL = 100000;
-
   private static final BondFutureSecurityDefinition FUTURE_DEFINITION = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION,
       CONVERSION_FACTOR);
 
@@ -101,6 +99,9 @@ public class BondFutureSecurityDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the getter methods.
+   */
   public void getter() {
     assertEquals("Bond future security definition: last trading date", LAST_TRADING_DATE, FUTURE_DEFINITION.getTradingLastDate());
     assertEquals("Bond future security definition: first notice date", FIRST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeFirstDate());
@@ -114,6 +115,9 @@ public class BondFutureSecurityDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the toDerivative method.
+   */
   public void toDerivative() {
     ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
     ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);

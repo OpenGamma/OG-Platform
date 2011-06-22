@@ -10,12 +10,14 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class ExponentalMeshing extends MeshingFunction {
+public class ExponentialMeshing extends MeshingFunction {
 
   private final double _theta;
   private final double _eta;
   private final double _lambda;
   private final boolean _linear;
+  private final double _l;
+  private final double _r;
 
   /**
    * creates a non-uniform set of points according to the formula x_i = theta * eta*Exp(i/N*lambda), where the points run from 
@@ -26,9 +28,11 @@ public class ExponentalMeshing extends MeshingFunction {
    * @param lambda Bunching parameter. lambda = 0 is uniform, lambda > 0 gives a high density of points near X_0 and lambda < 0 gives a high density
    * of points near x_N
    */
-  public ExponentalMeshing(final double lowerBound, final double upperBound, final int nPoints, final double lambda) {
+  public ExponentialMeshing(final double lowerBound, final double upperBound, final int nPoints, final double lambda) {
     super(nPoints);
     Validate.isTrue(upperBound > lowerBound, "need upperBound>lowerBound");
+    _l = lowerBound;
+    _r = upperBound;
 
     if (lambda == 0.0) {
       _linear = true;
@@ -46,6 +50,13 @@ public class ExponentalMeshing extends MeshingFunction {
 
   @Override
   public Double evaluate(final Integer i) {
+    Validate.isTrue(i >= 0 && i < getNumberOfPoints(), "i out of range");
+    if (i == 0) {
+      return _l;
+    }
+    if (i == getNumberOfPoints() - 1) {
+      return _r;
+    }
     if (_linear) {
       return _theta + _eta * i;
     }

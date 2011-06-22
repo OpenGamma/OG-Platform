@@ -35,7 +35,7 @@ public class NonLinearLeastSquare {
   public NonLinearLeastSquare() {
     this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
   }
-  
+
   public NonLinearLeastSquare(Decomposition<?> decomposition, MatrixAlgebra algebra, double eps) {
     _decomposition = decomposition;
     _algebra = algebra;
@@ -259,22 +259,28 @@ public class NonLinearLeastSquare {
     final int n = observedValues.getNumberOfElements();
     Validate.isTrue(n == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
     Validate.isTrue(n >= startPos.getNumberOfElements(), "must have data points greater or equal to number of parameters");
-
+    DoubleMatrix2D alpha;
+    DecompositionResult decmp;
     DoubleMatrix1D theta = startPos;
 
     double lambda = 0.0; // if the model is linear, it will be solved in 1 step
     double newChiSqr, oldChiSqr;
     DoubleMatrix1D error = getError(func, observedValues, sigma, theta);
+
     DoubleMatrix1D newError;
     DoubleMatrix2D jacobian = getJacobian(jac, sigma, theta);
-
     oldChiSqr = getChiSqr(error);
+
+    //If we start at the solution we are done
+    if (oldChiSqr == 0.0) {
+      return finish(oldChiSqr, jacobian, theta);
+    }
+
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
     final double g0 = _algebra.getNorm2(beta);
     for (int count = 0; count < MAX_ATTEMPTS; count++) {
-      DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, lambda);
+      alpha = getModifiedCurvatureMatrix(jacobian, lambda);
 
-      DecompositionResult decmp;
       final DoubleMatrix1D deltaTheta;
       try {
         decmp = _decomposition.evaluate(alpha);
@@ -286,6 +292,13 @@ public class NonLinearLeastSquare {
       final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
       newError = getError(func, observedValues, sigma, newTheta);
       newChiSqr = getChiSqr(newError);
+      //non standard convergence
+      if (Math.abs(newChiSqr - oldChiSqr) / oldChiSqr < _eps) {
+        beta = getChiSqrGrad(error, jacobian);
+        //System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
+        return finish(newChiSqr, jacobian, newTheta);
+      }
+
       if (newChiSqr < oldChiSqr) {
         lambda /= 10;
         theta = newTheta;
@@ -295,20 +308,39 @@ public class NonLinearLeastSquare {
 
         // check for convergence
         if (_algebra.getNorm2(beta) < _eps * g0) {
-          alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
-          decmp = _decomposition.evaluate(alpha);
-          final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
-          return new LeastSquareResults(newChiSqr, newTheta, covariance);
+          return finish(newChiSqr, jacobian, newTheta);
         }
+
+        //        System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " grad: " + _algebra.getNorm2(beta) +
+        //              " Position: " + newTheta.toString());
+
         oldChiSqr = newChiSqr;
       } else {
         if (lambda == 0.0) { // this will happen the first time a full quadratic step fails
           lambda = 0.01;
         }
         lambda *= 10;
+        //        if (lambda > 1e10) {
+        //          System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " Position: " + newTheta.toString());
+        //        }
       }
     }
     throw new MathException("Could not converge in " + MAX_ATTEMPTS + " attempts");
+  }
+
+  /**
+   * @param newChiSqr
+   * @param jacobian
+   * @param newTheta
+   * @return
+   */
+  private LeastSquareResults finish(double newChiSqr, DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta) {
+    DoubleMatrix2D alpha;
+    DecompositionResult decmp;
+    alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
+    decmp = _decomposition.evaluate(alpha);
+    final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
+    return new LeastSquareResults(newChiSqr, newTheta, covariance);
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {

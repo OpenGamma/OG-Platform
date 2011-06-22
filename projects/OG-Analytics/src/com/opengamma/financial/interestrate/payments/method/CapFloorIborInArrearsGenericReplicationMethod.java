@@ -95,7 +95,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
     /**
      * The base method for the pricing of standard cap/floors.
      */
-    private final PricingMethod _baseMethod;
+    private final PricingMethod _basePricingMethod;
     /**
      * The standard cap/floor used for replication.
      */
@@ -112,7 +112,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
      * @param sabrData The SABR data bundle used in the standard cap/floor pricing.
      */
     public InArrearsIntegrant(final PricingMethod baseMethod, final CapFloorIbor capStandard, final SABRInterestRateDataBundle sabrData) {
-      this._baseMethod = baseMethod;
+      this._basePricingMethod = baseMethod;
       this._capStandard = capStandard;
       this._sabrData = sabrData;
     }
@@ -120,7 +120,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
     @Override
     public Double evaluate(final Double x) {
       CapFloorIbor capStrike = _capStandard.withStrike(x);
-      return _baseMethod.presentValue(capStrike, _sabrData).getAmount();
+      return _basePricingMethod.presentValue(capStrike, _sabrData).getAmount();
     }
   }
 

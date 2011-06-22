@@ -53,7 +53,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @return The security price.
    */
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
-    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
+    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
   }
 

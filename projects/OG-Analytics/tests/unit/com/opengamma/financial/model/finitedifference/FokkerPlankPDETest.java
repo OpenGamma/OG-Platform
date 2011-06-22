@@ -15,7 +15,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -26,14 +25,13 @@ import com.opengamma.math.surface.Surface;
 /**
  * 
  */
-@SuppressWarnings("unused")
 public class FokkerPlankPDETest {
 
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
+  //private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final EuropeanVanillaOption OPTION;
 
-  private static NormalDistribution NORMAL;
+ // private static NormalDistribution NORMAL;
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
 
@@ -56,14 +54,13 @@ public class FokkerPlankPDETest {
 
     OPTION = new EuropeanVanillaOption(STRIKE, T, true);
 
-    NORMAL = new NormalDistribution(0, 1);
+    //NORMAL = new NormalDistribution(0, 1);
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         final double s = ts[1];
-        // return -0.5 * 100;
         return -s * s * ATM_VOL * ATM_VOL / 2;
       }
     };
@@ -73,7 +70,6 @@ public class FokkerPlankPDETest {
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         final double s = ts[1];
-        //return RATE;
         return (RATE - 2 * ATM_VOL * ATM_VOL) * s;
       }
     };
@@ -82,32 +78,25 @@ public class FokkerPlankPDETest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        //return 0.0;
         return RATE - ATM_VOL * ATM_VOL;
       }
     };
 
     //using a normal distribution with a very small Standard deviation as a proxy for a Dirac delta
     final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      // double eta = SPOT / 100;
+;
       double tOffset = 0.05;
 
       @Override
       public Double evaluate(final Double s) {
 
+        if (s == 0.0) {
+          return 0.0;
+        }
         final double x = Math.log(s / SPOT);
         final NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * tOffset, ATM_VOL * Math.sqrt(tOffset));
         return dist.getPDF(x) / s;
 
-        // return NORMAL.getPDF((x - SPOT) / eta) / eta;
-        //        if (x < 90 || x > 110) {
-        //          return 0.0;
-        //        }
-        //        if (x < 100) {
-        //          return x - 90;
-        //        }
-        //        return 110 - x;
       }
     };
 
@@ -127,7 +116,7 @@ public class FokkerPlankPDETest {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
     final int tNodes = 30;
     final int xNodes = 101;
-    final MeshingFunction timeMesh = new ExponentalMeshing(0, T - 0.01, tNodes, 0.0);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T - 0.01, tNodes, 0.0);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.1);
 
@@ -144,13 +133,19 @@ public class FokkerPlankPDETest {
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
     final PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
 
+    final NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
+    double pdf;
+    double s;
     for (int i = 0; i < xNodes; i++) {
-      final double x = Math.log(res.getSpaceValue(i) / SPOT);
-
-      final NormalDistribution dist = new NormalDistribution((RATE - ATM_VOL * ATM_VOL / 2) * T, ATM_VOL * Math.sqrt(T));
-      final double pdf = dist.getPDF(x) / res.getSpaceValue(i);
-      //System.out.println(res.getSpaceValue(i) + "\t" + pdf + "\t" + res.getFunctionValue(i));
-      assertEquals(pdf, res.getFunctionValue(i), 1e-4);
+      s = res.getSpaceValue(i);
+      if (s == 0.0) {
+        pdf = 0.0;
+      } else {
+        final double x = Math.log(s / SPOT);
+        pdf = dist.getPDF(x) / s;
+        //System.out.println(res.getSpaceValue(i) + "\t" + pdf + "\t" + res.getFunctionValue(i));
+        assertEquals(pdf, res.getFunctionValue(i), 1e-4);
+      }
     }
 
     final double k = STRIKE;
@@ -180,17 +175,5 @@ public class FokkerPlankPDETest {
     final double bs_price = pricer.evaluate(data);
     assertEquals(bs_price, price, 2e-2 * bs_price);
 
-    //    for (int i = 0; i < xNodes; i++) {
-    //      System.out.print("\t" + res.getSpaceValue(i));
-    //    }
-    //    System.out.print("\n");
-    //
-    //    for (int j = 0; j < tNodes; j++) {
-    //      System.out.print(res.getTimeValue(j));
-    //      for (int i = 0; i < xNodes; i++) {
-    //        System.out.print("\t" + res.getFunctionValue(i, j));
-    //      }
-    //      System.out.print("\n");
-    //    }
   }
 }

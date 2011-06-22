@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
@@ -47,7 +49,7 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);
     final Triple<Double, Double, Double>[][] result = tree.getNodes();
     @SuppressWarnings("unchecked")
-    final Triple<Double, Double, Double>[][] expected = (Triple<Double, Double, Double>[][])new Triple[4][4];
+    final Triple<Double, Double, Double>[][] expected = new Triple[4][4];
     expected[0][0] = new Triple<Double, Double, Double>(0.05, 0.9524, 1.0);
     expected[1][0] = new Triple<Double, Double, Double>(0.045, 0.9569, 0.4762);
     expected[1][1] = new Triple<Double, Double, Double>(0.055, 0.9479, 0.4762);
@@ -70,9 +72,9 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
         } else {
           final Triple<Double, Double, Double> triple1 = result[i][j];
           final Triple<Double, Double, Double> triple2 = expected[i][j];
-          assertEquals((Double) triple1.getFirst(), triple2.getFirst(), 1e-4);
-          assertEquals((Double) triple1.getSecond(), triple2.getSecond(), 1e-4);
-          assertEquals((Double) triple1.getThird(), triple2.getThird(), 1e-4);
+          assertEquals(triple1.getFirst(), triple2.getFirst(), 1e-4);
+          assertEquals(triple1.getSecond(), triple2.getSecond(), 1e-4);
+          assertEquals(triple1.getThird(), triple2.getThird(), 1e-4);
         }
       }
     }

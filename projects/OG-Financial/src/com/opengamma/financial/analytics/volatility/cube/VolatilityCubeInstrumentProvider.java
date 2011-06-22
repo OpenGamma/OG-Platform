@@ -39,6 +39,8 @@ public final class VolatilityCubeInstrumentProvider {
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
     new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy");
   
   /**
    * Generates Bloomberg codes for volatilities given points.
@@ -48,13 +50,10 @@ public final class VolatilityCubeInstrumentProvider {
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
   private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> _idsByPoint;
-  private final HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint> _pointsById;
-
+  
   private VolatilityCubeInstrumentProvider() {
     //TODO not here
-
     _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>>();
-    _pointsById = new HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint>();
 
     InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
@@ -89,9 +88,6 @@ public final class VolatilityCubeInstrumentProvider {
           }
 
           Double relativeStrikeRaw = Double.valueOf(relativeStrike);
-          if (relativeStrikeRaw == 0.0 && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-            continue; // We use ATM_INSTRUMENT_PROVIDER for these
-          }
           double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
           Double relativeStrikeBps = sign * normalizedStrike;
           VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
@@ -103,10 +99,6 @@ public final class VolatilityCubeInstrumentProvider {
             _idsByPoint.get(key).add(identifier);
           } else {
             _idsByPoint.put(key, Sets.newHashSet(identifier));
-          }
-
-          if (_pointsById.put(Pair.of(currency, identifier), point) != null) {
-            throw new IllegalArgumentException();
           }
         }
       }
@@ -120,13 +112,10 @@ public final class VolatilityCubeInstrumentProvider {
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker);
   }
 
-  public VolatilityPoint getPoint(Currency currency, Identifier instrument) {
-    return _pointsById.get(Pair.of(currency, instrument));
-  }
-
   public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
-    if (point.getRelativeStrike() == 0 && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-      return Sets.newHashSet(ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry()));
+    if ((point.getRelativeStrike() == 0.0 || point.getRelativeStrike() == -0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      Identifier instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
+      return Sets.newHashSet(instrument);
     } else {
       return _idsByPoint.get(Pair.of(currency, point));
     }
@@ -148,5 +137,17 @@ public final class VolatilityCubeInstrumentProvider {
       }
     }
     return ret;
+  }
+
+  public Identifier getStrikeInstrument(Currency currency, VolatilityPoint point) {
+    return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
+  }
+  public Identifier getStrikeInstrument(Currency currency, Tenor swapTenor, Tenor optionExpiry) {
+    if (currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      return ATM_STRIKE_INSTRUMENT_PROVIDER.getInstrument(swapTenor, optionExpiry);
+    } else {
+      //TODO other currencies
+      return null;
+    }
   }
 }

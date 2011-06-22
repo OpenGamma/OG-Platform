@@ -8,6 +8,7 @@ package com.opengamma.math.interpolation.data;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.tuple.Pair;
@@ -16,7 +17,6 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class InterpolatorNDDataBundle {
-
   private final List<Pair<double[], Double>> _data;
 
   public InterpolatorNDDataBundle(final List<Pair<double[], Double>> data) {
@@ -38,17 +38,26 @@ public class InterpolatorNDDataBundle {
     }
   }
 
-  //TODO why is this in here?
-  public static double getDistance(final double[] x1, final double[] x2) {
-    final int dim = x1.length;
-    Validate.isTrue(dim == x2.length, "different dimensions");
-    double sum = 0;
-    double diff;
-    for (int i = 0; i < dim; i++) {
-      diff = x1[i] - x2[i];
-      sum += diff * diff;
-    }
-    return Math.sqrt(sum);
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+    return result;
   }
 
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof InterpolatorNDDataBundle)) {
+      return false;
+    }
+    final InterpolatorNDDataBundle other = (InterpolatorNDDataBundle) obj;
+    if (!ObjectUtils.equals(_data, other._data)) {
+      return false;
+    }
+    return true;
+  }
 }

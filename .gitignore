@@ -22,7 +22,7 @@ javadoc
 lib/
 .idea/
 .DS_Store
-*.sw*
+.*.sw?
 logs/
 artifacts/
 output/

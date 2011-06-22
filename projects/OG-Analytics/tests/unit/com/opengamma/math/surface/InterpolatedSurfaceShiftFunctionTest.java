@@ -5,29 +5,33 @@
  */
 package com.opengamma.math.surface;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Map;
 
-import com.opengamma.math.interpolation.Interpolator2D;
+import org.testng.annotations.Test;
+
+import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class InterpolatedSurfaceShiftFunctionTest {
-  private static final double[] X = new double[] {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4};
-  private static final double[] Y = new double[] {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4};
-  private static final double[] Z = new double[] {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
-  private static final Interpolator2D INTERPOLATOR = new Interpolator2D() {
+  private static final double[] X = new double[] {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 };
+  private static final double[] Y = new double[] {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4 };
+  private static final double[] Z = new double[] {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
+  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR =
+      new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(new LinearInterpolator1D(), new LinearInterpolator1D()) {
 
-    @Override
-    public Double interpolate(final Map<DoublesPair, Double> data, final DoublesPair value) {
-      return value.getFirst() + value.getSecond();
-    }
-
-  };
+        @Override
+        public Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value) {
+          return value.getFirst() + value.getSecond();
+        }
+      };
   private static final String NAME = "K";
   private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(X, Y, Z, INTERPOLATOR, NAME);
   private static final InterpolatedSurfaceShiftFunction F = new InterpolatedSurfaceShiftFunction();
@@ -54,32 +58,32 @@ public class InterpolatedSurfaceShiftFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
-    F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5});
+    F.evaluate(null, new double[] {3 }, new double[] {4 }, new double[] {5 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
-    F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5}, NAME);
+    F.evaluate(null, new double[] {3 }, new double[] {4 }, new double[] {5 }, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY1() {
-    F.evaluate(SURFACE, new double[] {1}, new double[] {2, 3}, new double[] {4});
+    F.evaluate(SURFACE, new double[] {1 }, new double[] {2, 3 }, new double[] {4 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY2() {
-    F.evaluate(SURFACE, new double[] {1}, new double[] {2, 3}, new double[] {4}, "M");
+    F.evaluate(SURFACE, new double[] {1 }, new double[] {2, 3 }, new double[] {4 }, "M");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ1() {
-    F.evaluate(SURFACE, new double[] {1}, new double[] {2}, new double[] {3, 4});
+    F.evaluate(SURFACE, new double[] {1 }, new double[] {2 }, new double[] {3, 4 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ2() {
-    F.evaluate(SURFACE, new double[] {1}, new double[] {2}, new double[] {3, 4}, "L");
+    F.evaluate(SURFACE, new double[] {1 }, new double[] {2 }, new double[] {3, 4 }, "L");
   }
 
   @Test
@@ -188,9 +192,9 @@ public class InterpolatedSurfaceShiftFunctionTest {
 
   @Test
   public void testMultipleOnPoints() {
-    final double[] x = new double[] {1, 2};
-    final double[] y = new double[] {0, 3};
-    final double[] shift = new double[] {0.34, 0.56};
+    final double[] x = new double[] {1, 2 };
+    final double[] y = new double[] {0, 3 };
+    final double[] shift = new double[] {0.34, 0.56 };
     InterpolatedDoublesSurface surface = F.evaluate(SURFACE, x, y, shift);
     assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
     assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
@@ -224,9 +228,9 @@ public class InterpolatedSurfaceShiftFunctionTest {
 
   @Test
   public void testMultipleOneOnPoint() {
-    final double[] x = new double[] {1, 2.3};
-    final double[] y = new double[] {0, 3.9};
-    final double[] shift = new double[] {0.34, 0.56};
+    final double[] x = new double[] {1, 2.3 };
+    final double[] y = new double[] {0, 3.9 };
+    final double[] shift = new double[] {0.34, 0.56 };
     InterpolatedDoublesSurface surface = F.evaluate(SURFACE, x, y, shift);
     final int n = X.length + 1;
     double[] newX = surface.getXDataAsPrimitive();
@@ -269,9 +273,9 @@ public class InterpolatedSurfaceShiftFunctionTest {
 
   @Test
   public void testMultiple() {
-    final double[] x = new double[] {1.67, 2.3};
-    final double[] y = new double[] {0.15, 3.9};
-    final double[] shift = new double[] {0.34, 0.56};
+    final double[] x = new double[] {1.67, 2.3 };
+    final double[] y = new double[] {0.15, 3.9 };
+    final double[] shift = new double[] {0.34, 0.56 };
     InterpolatedDoublesSurface surface = F.evaluate(SURFACE, x, y, shift);
     final int n = X.length + 2;
     double[] newX = surface.getXDataAsPrimitive();

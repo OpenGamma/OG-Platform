@@ -30,7 +30,6 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             configs,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -143,13 +142,13 @@ $.register_module({
                 api.rest.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        var details_json = result.data, template = details_json.template_data.type.toLowerCase();
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + args.type, handler: function (template) {
+                        api.text({module: module.name + '.' + template, handler: function (template) {
                             var json = details_json.template_data, $warning,
                                 warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)

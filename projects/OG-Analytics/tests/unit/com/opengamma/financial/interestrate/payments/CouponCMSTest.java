@@ -217,11 +217,11 @@ public class CouponCMSTest {
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x, _forward);
     }
 
-    private double h(final double x) {
+    public double h(final double x) {
       return Math.pow(1.0 + _tau * x, _eta);
     }
 
-    private double G(final double x) {
+    public double G(final double x) {
       if (x >= EPS) {
         final double periodFactor = 1 + x / _nbFixedPaymentYear;
         final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
@@ -230,7 +230,7 @@ public class CouponCMSTest {
       return ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
     }
 
-    private double k(final double x) {
+    public double k(final double x) {
       double G;
       double h;
       if (x >= EPS) {
@@ -245,7 +245,7 @@ public class CouponCMSTest {
       return h / G;
     }
 
-    private double[] kpkpp(final double x) {
+    public double[] kpkpp(final double x) {
       final double periodFactor = 1 + x / _nbFixedPaymentYear;
       final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
       double G, Gp, Gpp;
@@ -268,7 +268,7 @@ public class CouponCMSTest {
       return new double[] {kp, kpp};
     }
 
-    double bs(final double strike, final double forward) {
+    public double bs(final double strike, final double forward) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, true);
       final double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, forward);
       final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
