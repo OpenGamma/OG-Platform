@@ -273,6 +273,34 @@ public class BondSecurityDiscountingMethodTest {
         * BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getSensitivity().get(CREDIT_CURVE_NAME).get(0).second, 1E-8);
   }
 
+  @Test
+  /**
+   * Tests that the clean price for consecutive dates in the future are relatively smooth (no jump die to miscalculated accrued or missing coupon).
+   */
+  public void cleanPriceSmoothness() {
+    int nbDateForward = 150;
+    ZonedDateTime[] forwardDate = new ZonedDateTime[nbDateForward];
+    forwardDate[0] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, CALENDAR, SETTLEMENT_DAYS); //Spot
+    long[] jumpDays = new long[nbDateForward - 1];
+    for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {
+      forwardDate[loopdate] = ScheduleCalculator.getAdjustedDate(forwardDate[loopdate - 1], CALENDAR, 1);
+      jumpDays[loopdate - 1] = forwardDate[loopdate].toLocalDate().toModifiedJulianDays() - forwardDate[loopdate - 1].toLocalDate().toModifiedJulianDays();
+    }
+    double[] cleanPriceForward = new double[nbDateForward];
+    for (int loopdate = 0; loopdate < nbDateForward; loopdate++) {
+      BondFixedSecurity bondForward = BOND_FIXED_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_2, forwardDate[loopdate], CURVES_NAME);
+      cleanPriceForward[loopdate] = METHOD.cleanPriceFromCurves(bondForward, CURVES);
+    }
+    //Test note: 0.005 is roughly the difference between the coupon and the repo rate. The clean price is decreasing naturally by this amount divided by (roughly) 365 every day.
+    //Test note: On the coupon date there is a jump in the clean price: If the coupon is included the clean price due to coupon is 0.04625/2*exp(-t*0.05)*exp(t*0.04) - 0.04625/2 = 7.94738E-05; 
+    //           if the coupon is not included the impact is 0. The clean price is thus expected to jump by the above amount when the settlement is on the coupon date 15-May-2012.
+    double couponJump = 7.94738E-05;
+    for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {
+      assertEquals("Fixed coupon bond security: clean price smoothness " + loopdate, cleanPriceForward[loopdate] - (loopdate == 87 ? couponJump : 0.0), cleanPriceForward[loopdate - 1]
+          - jumpDays[loopdate - 1] * (0.005 / 365.0), 2.0E-5);
+    }
+  }
+
   // UKT 5 09/07/14 - ISIN-GB0031829509 To check figures in the ex-dividend period
   private static final String ISSUER_G = "UK";
   private static final String REPO_TYPE_G = "General collateral";

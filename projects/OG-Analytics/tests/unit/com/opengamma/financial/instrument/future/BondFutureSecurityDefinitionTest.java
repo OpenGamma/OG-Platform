@@ -31,7 +31,6 @@ import com.opengamma.util.time.DateUtil;
  * Tests related to bond futures security Definition construction.
  */
 public class BondFutureSecurityDefinitionTest {
-
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
@@ -60,7 +59,6 @@ public class BondFutureSecurityDefinitionTest {
   private static final ZonedDateTime FIRST_NOTICE_DATE = DateUtil.getUTCDate(2011, 8, 31);
   private static final ZonedDateTime LAST_NOTICE_DATE = DateUtil.getUTCDate(2011, 9, 29);
   private static final double NOTIONAL = 100000;
-
   private static final BondFutureSecurityDefinition FUTURE_DEFINITION = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION,
       CONVERSION_FACTOR);
 
@@ -101,6 +99,9 @@ public class BondFutureSecurityDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the getter methods.
+   */
   public void getter() {
     assertEquals("Bond future security definition: last trading date", LAST_TRADING_DATE, FUTURE_DEFINITION.getTradingLastDate());
     assertEquals("Bond future security definition: first notice date", FIRST_NOTICE_DATE, FUTURE_DEFINITION.getNoticeFirstDate());
@@ -114,6 +115,9 @@ public class BondFutureSecurityDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the toDerivative method.
+   */
   public void toDerivative() {
     ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
     ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
