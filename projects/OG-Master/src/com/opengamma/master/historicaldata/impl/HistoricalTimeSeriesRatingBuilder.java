@@ -20,27 +20,27 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 /**
  * Builder for converting objects to/from Fudge messages.
  */
-@FudgeBuilderFor(HistoricalTimeSeriesInfoConfiguration.class)
-public class HistoricalTimeSeriesInfoConfigurationBuilder implements FudgeBuilder<HistoricalTimeSeriesInfoConfiguration> {
+@FudgeBuilderFor(HistoricalTimeSeriesRating.class)
+public class HistoricalTimeSeriesRatingBuilder implements FudgeBuilder<HistoricalTimeSeriesRating> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final HistoricalTimeSeriesInfoConfiguration object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final HistoricalTimeSeriesRating object) {
     MutableFudgeMsg message = context.newMessage();
-    for (HistoricalTimeSeriesInfoRating rule : object.getRules()) {
+    for (HistoricalTimeSeriesRatingRule rule : object.getRules()) {
       context.addToMessage(message, "rules", null, rule);
     }
     return message;
   }
 
   @Override
-  public HistoricalTimeSeriesInfoConfiguration buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public HistoricalTimeSeriesRating buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     Collection<FudgeField> fields = message.getAllByName("rules");
-    final List<HistoricalTimeSeriesInfoRating> rules = new ArrayList<HistoricalTimeSeriesInfoRating>(fields.size());
+    final List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>(fields.size());
     for (FudgeField field : fields) {
-      HistoricalTimeSeriesInfoRating rule = context.fudgeMsgToObject(HistoricalTimeSeriesInfoRating.class, (FudgeMsg) field.getValue());
+      HistoricalTimeSeriesRatingRule rule = context.fudgeMsgToObject(HistoricalTimeSeriesRatingRule.class, (FudgeMsg) field.getValue());
       rules.add(rule);
     }
-    return new HistoricalTimeSeriesInfoConfiguration(rules);
+    return new HistoricalTimeSeriesRating(rules);
   }
 
 }

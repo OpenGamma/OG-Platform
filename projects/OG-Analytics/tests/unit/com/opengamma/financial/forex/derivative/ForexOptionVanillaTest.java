@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -73,6 +74,7 @@ public class ForexOptionVanillaTest {
 
   @Test
   public void equalHash() {
+    assertTrue(FX_OPTION.equals(FX_OPTION));
     ForexOptionVanilla otherOption = new ForexOptionVanilla(FX, EXPIRATION_TIME, IS_CALL);
     assertTrue(otherOption.equals(FX_OPTION));
     assertEquals(FX_OPTION.hashCode(), otherOption.hashCode());
@@ -85,6 +87,9 @@ public class ForexOptionVanillaTest {
     Forex modifiedFx = modifiedFxDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     modifiedOption = new ForexOptionVanilla(modifiedFx, EXPIRATION_TIME, IS_CALL);
     assertFalse(modifiedOption.equals(FX_OPTION));
+    EuropeanVanillaOption option = new EuropeanVanillaOption(FX_OPTION.getStrike(), FX_OPTION.getTimeToExpiry(), FX_OPTION.isCall());
+    assertFalse(FX_OPTION.equals(option));
+    assertFalse(modifiedOption.equals(null));
   }
 
 }

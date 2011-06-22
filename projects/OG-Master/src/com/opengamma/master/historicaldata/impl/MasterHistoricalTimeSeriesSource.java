@@ -16,16 +16,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesInfoResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -49,7 +47,7 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   /**
    * The resolver.
    */
-  private final HistoricalTimeSeriesInfoResolver _resolver;
+  private final HistoricalTimeSeriesResolver _resolver;
 
   /**
    * Creates an instance wrapping an underlying historical time-series master.
@@ -57,7 +55,7 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
    * @param master  the historical time-series master, not null
    * @param resolver  the resolver, not null
    */
-  public MasterHistoricalTimeSeriesSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesInfoResolver resolver) {
+  public MasterHistoricalTimeSeriesSource(HistoricalTimeSeriesMaster master, HistoricalTimeSeriesResolver resolver) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(resolver, "resolver");
     _master = master;
@@ -98,9 +96,8 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
-    
     HistoricalTimeSeriesDocument doc = getMaster().get(request);
-    return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
+    return doc.getSeries();
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +158,6 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     
     HistoricalTimeSeriesSearchResult searchResult = getMaster().search(request);
     List<HistoricalTimeSeriesDocument> documents = searchResult.getDocuments();
-    UniqueIdentifier uniqueId = null;
     if (documents.isEmpty()) {
       return null;
     }
@@ -170,20 +166,19 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       s_logger.warn("multiple timeseries returned for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
     }
     HistoricalTimeSeriesDocument doc = documents.get(0);
-    uniqueId = doc.getUniqueId();
-    return new HistoricalTimeSeriesImpl(uniqueId, doc.getTimeSeries());
+    return doc.getSeries();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle securityBundle, String configDocName) {
-    return doGetHistoricalTimeSeries(securityBundle, configDocName, (LocalDate) null, (LocalDate) null, (LocalDate) null);
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, (LocalDate) null, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle securityBundle, String configDocName, 
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
       start = start.plusDays(1);
@@ -191,18 +186,18 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(securityBundle, configDocName, (LocalDate) null, start, end);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, (LocalDate) null, start, end);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle securityBundle, LocalDate identifierValidityDate, String configDocName) {
-    return doGetHistoricalTimeSeries(securityBundle, configDocName, identifierValidityDate, null, null);
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, identifierValidityDate, null, null);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle securityBundle, LocalDate identifierValidityDate, String configDocName, 
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
       start = start.plusDays(1);
@@ -210,20 +205,22 @@ public class MasterHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(securityBundle, configDocName, identifierValidityDate, start, end);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, identifierValidityDate, start, end);
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
-      IdentifierBundle securityBundle, String configDocName, LocalDate identifierValidityDate, LocalDate start, LocalDate end) {
-    ArgumentChecker.isTrue(securityBundle != null && !securityBundle.getIdentifiers().isEmpty(), "Cannot get historical time-series with null/empty identifiers");
-    if (StringUtils.isBlank(configDocName)) {
-      configDocName = HistoricalTimeSeriesInfoFieldNames.DEFAULT_CONFIG_NAME;
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey, LocalDate identifierValidityDate,
+      LocalDate start, LocalDate end) {
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
+    if (StringUtils.isBlank(resolutionKey)) {
+      resolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     }
-    HistoricalTimeSeriesInfo info = _resolver.getInfo(securityBundle, configDocName);
-    if (info == null) {
+    UniqueIdentifier uniqueId = _resolver.resolve(dataField, identifierBundle, resolutionKey);
+    if (uniqueId == null) {
       return null;
     }
-    return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, info.getDataSource(), info.getDataProvider(), info.getDataField(), start, end);
+    return doGetHistoricalTimeSeries(uniqueId, start, end);
   }
 
   //-------------------------------------------------------------------------

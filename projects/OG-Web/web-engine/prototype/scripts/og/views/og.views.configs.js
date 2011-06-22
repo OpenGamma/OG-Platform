@@ -85,7 +85,7 @@ $.register_module({
                                 'CurrencyMatrix',
                                 'CurveSpecificationBuilderConfiguration',
                                 'SimpleCurrencyMatrix',
-                                'HistoricalTimeSeriesInfoConfiguration',
+                                'HistoricalTimeSeriesRating',
                                 'ViewDefinition',
                                 'VolatilitySurfaceSpecification',
                                 'VolatilitySurfaceDefinition',

@@ -79,6 +79,8 @@ public class ForexDefinitionTest {
     assertFalse(FX.equals(modifiedFx));
     modifiedFx = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, 1.1 * FX_RATE);
     assertFalse(FX.equals(modifiedFx));
+    assertFalse(FX.equals(CUR_1));
+    assertFalse(FX.equals(null));
   }
 
   @Test
@@ -104,6 +106,17 @@ public class ForexDefinitionTest {
     PaymentFixed pay2 = PAY_2.toDerivative(referenceDate, discountingUSD);
     Forex fxComparison = new Forex(pay1, pay2);
     assertEquals(fxComparison, fxConverted);
+  }
+
+  @Test
+  /**
+   * Tests the to string method.
+   */
+  public void testToString() {
+    String fxToString = FX.toString();
+    String expected = "Forex transaction:\nCurrency 1 payment: \nPayment Currency = EUR, Date = 2011-05-24T00:00Z[UTC]Amount = 1.0E8"
+        + "\nCurrency 2 payment: \nPayment Currency = USD, Date = 2011-05-24T00:00Z[UTC]Amount = -1.4177E8";
+    assertEquals(expected, fxToString);
   }
 
 }

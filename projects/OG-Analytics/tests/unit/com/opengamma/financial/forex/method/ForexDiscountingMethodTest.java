@@ -14,6 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -51,6 +52,7 @@ public class ForexDiscountingMethodTest {
   private static final com.opengamma.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
   private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
 
   @Test
   /**
@@ -97,6 +99,18 @@ public class ForexDiscountingMethodTest {
     final MultipleCurrencyAmount pvReverse = METHOD.presentValue(fxReverse, CURVES);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), 1.0E-2);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_2), pvReverse.getAmount(CUR_2), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the currency exposure computation.
+   */
+  public void currencyExposure() {
+    MultipleCurrencyAmount exposureMethod = METHOD.currencyExposure(FX, CURVES);
+    MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
+    assertEquals("Currency exposure", pv, exposureMethod);
+    MultipleCurrencyAmount exposureCalculator = CEC_FX.visit(FX, CURVES);
+    assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 
 }
