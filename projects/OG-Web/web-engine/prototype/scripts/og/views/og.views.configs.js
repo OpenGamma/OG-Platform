@@ -143,7 +143,6 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var details_json = result.data, template = details_json.template_data.type.toLowerCase();
-                        console.log(details_json.template_data.type);
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.configs.recent',
