@@ -30,6 +30,14 @@
 		</path>
 		<property name="jetty.start" value="${toString:jetty.start.path}" />
 	</target>
+	
+	<path id="jetty.run.path">
+	    <pathelement path="${basedir}/config" />
+	    <path refid="run.path.id" />
+	    <fileset dir="${lib.dir}/resource/com.opengamma/og-financial">
+	      <include name="*.zip" />
+	    </fileset>
+	</path>
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">
 		<java jar="${jetty.start}" fork="true" spawn="false">
@@ -43,7 +51,7 @@
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
-			<arg value="path=${basedir}${file.separator}config${path.separator}${toString:run.path.id}" />
+			<arg value="path=${toString:jetty.run.path}" />
 		</java>
 	</target>
 
@@ -59,7 +67,7 @@
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
-			<arg value="path=${basedir}${file.separator}config${path.separator}${toString:run.path.id}" />
+			<arg value="path=${toString:jetty.run.path}" />
 		</java>
 	</target>
 

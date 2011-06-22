@@ -10,7 +10,7 @@
     </property>
   </bean>
 
-  <import resource="common.xml" />
+  <import resource="classpath:com/opengamma/financial/common.xml" />
 
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />

@@ -13,7 +13,7 @@
     </property>
   </bean>
   
-  <import resource="common.xml" />
+  <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="demoIntegrationMasters.xml" />
   
   <!-- Active MQ -->
