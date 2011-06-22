@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 import com.opengamma.util.tuple.Pair;
 
@@ -37,7 +36,7 @@ public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDat
     double sum = 0.0;
     double r;
     for (int i = 0; i < n; i++) {
-      r = InterpolatorNDDataBundle.getDistance(x, rawData.get(i).getFirst());
+      r = DistanceCalculator.getDistance(x, rawData.get(i).getFirst());
       sum += variogram.evaluate(r) * w[i];
     }
     sum += w[n];

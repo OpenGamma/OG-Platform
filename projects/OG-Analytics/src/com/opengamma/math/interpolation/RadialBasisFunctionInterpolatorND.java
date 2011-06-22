@@ -11,7 +11,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 import com.opengamma.util.tuple.Pair;
 
@@ -41,7 +40,7 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND<RadialBasi
     double phi;
     for (int i = 0; i < n; i++) {
       xi = rawData.get(i).getFirst();
-      phi = basisFunction.evaluate(InterpolatorNDDataBundle.getDistance(x, xi));
+      phi = basisFunction.evaluate(DistanceCalculator.getDistance(x, xi));
       sum += w[i] * phi;
       normSum += phi;
     }
