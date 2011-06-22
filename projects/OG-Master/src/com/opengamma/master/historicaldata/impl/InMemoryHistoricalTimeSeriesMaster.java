@@ -379,11 +379,13 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   private <T extends Bean> T clone(T original) {
     BeanBuilder<? extends Bean> builder = original.metaBean().builder();
     for (MetaProperty<Object> mp : original.metaBean().metaPropertyIterable()) {
-      Object value = mp.get(original);
-      if (value instanceof DirectBean) {
-        value = clone((DirectBean) value);
+      if (mp.readWrite().isWritable()) {
+        Object value = mp.get(original);
+        if (value instanceof DirectBean) {
+          value = clone((DirectBean) value);
+        }
+        builder.set(mp.name(), value);
       }
-      builder.set(mp.name(), value);
     }
     return (T) builder.build();
   }

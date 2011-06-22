@@ -112,26 +112,17 @@ public class MasterHistoricalTimeSeriesSourceTest {
   }
 
   public void getHistoricalTimeSeriesByIdentifierWithoutMetaData() throws Exception {
-    HistoricalTimeSeriesSearchRequest request = new HistoricalTimeSeriesSearchRequest();
-    request.setIdentifiers(IDENTIFIERS);
-    request.setDataSource(BBG_DATA_SOURCE);
-    request.setDataProvider(CMPL_DATA_PROVIDER);
-    request.setDataField(CLOSE_DATA_FIELD);
-    request.setStart(null);
-    request.setEnd(null);
+    HistoricalTimeSeriesGetRequest request = new HistoricalTimeSeriesGetRequest(UID);
+    request.setLoadEarliestLatest(false);
     request.setLoadTimeSeries(true);
-    
-    HistoricalTimeSeriesSearchResult searchResult = new HistoricalTimeSeriesSearchResult();
     HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument();
     doc.getSeries().setTimeSeries(randomTimeSeries());
     doc.setUniqueId(UID);
-    searchResult.getDocuments().add(doc);
-    
-    when(_mockMaster.search(request)).thenReturn(searchResult);
+    when(_mockMaster.get(request)).thenReturn(doc);
     when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries hts = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
-    verify(_mockMaster, times(1)).search(request);
+    verify(_mockMaster, times(1)).get(request);
     
     assertEquals(UID, hts.getUniqueId());
     assertEquals(doc.getSeries().getTimeSeries().times(), hts.getTimeSeries().times());

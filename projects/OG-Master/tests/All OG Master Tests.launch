@@ -11,12 +11,12 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.master.config.impl"/>
 <listEntry value="com.opengamma.master.exchange.impl"/>
+<listEntry value="com.opengamma.master.historicaldata.impl"/>
 <listEntry value="com.opengamma.master.holiday.impl"/>
 <listEntry value="com.opengamma.master.listener"/>
 <listEntry value="com.opengamma.master.position.impl"/>
 <listEntry value="com.opengamma.master.region.impl"/>
 <listEntry value="com.opengamma.master.security.impl"/>
-<listEntry value="com.opengamma.master.timeseries.impl"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>
