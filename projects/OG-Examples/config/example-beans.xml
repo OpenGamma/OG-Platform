@@ -21,7 +21,7 @@
   <bean id="bundleProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="location">
-      <value>classpath:bundle.properties</value>
+      <value>classpath:com/opengamma/web/bundle.properties</value>
     </property>
   </bean>
   
