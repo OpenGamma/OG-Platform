@@ -9,10 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.analytics.TestsDataSets;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.money.Currency;
