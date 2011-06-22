@@ -16,13 +16,16 @@ public class ExtendedCoupledPDEDataBundle extends ExtendedConvectionDiffusionPDE
   private final double _lambda;
 
   /**
-   * @param a
-   * @param b
-   * @param c
-   * @param initialCondition
+   * @param a a
+   * @param b b
+   * @param c c
+   * @param alpha alpha
+   * @param beta beta
+   * @param lambda lambda
+   * @param initialCondition initial condition
    */
-  public ExtendedCoupledPDEDataBundle(Surface<Double, Double, Double> a, Surface<Double, Double, Double> b,
-      Surface<Double, Double, Double> c, Surface<Double, Double, Double> alpha, Surface<Double, Double, Double> beta, double lambda, Function1D<Double, Double> initialCondition) {
+  public ExtendedCoupledPDEDataBundle(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c,
+      final Surface<Double, Double, Double> alpha, final Surface<Double, Double, Double> beta, final double lambda, final Function1D<Double, Double> initialCondition) {
     super(a, b, c, alpha, beta, initialCondition);
     _lambda = lambda;
   }

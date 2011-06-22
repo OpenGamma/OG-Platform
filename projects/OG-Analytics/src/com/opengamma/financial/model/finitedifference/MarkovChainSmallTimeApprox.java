@@ -42,27 +42,29 @@ public class MarkovChainSmallTimeApprox {
 
   public double price(final double forward, final double df, final double strike, final double expiry) {
 
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
     final Function1D<BlackFunctionData, Double> priceFunc = _black.getPriceFunction(option);
 
-    Function1D<Double, Double> fun1 = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fun1 = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double tau) {
+      public Double evaluate(final Double tau) {
         double sigma = _vol1 * _vol1 * tau / expiry + _vol2 * _vol2 * (1 - tau / expiry);
         sigma = Math.sqrt(sigma);
-        BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
+        final BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
         return _lambda12 * priceFunc.evaluate(data) * Math.exp(-_lambda12 * tau);
       }
     };
 
-    Function1D<Double, Double> fun2 = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fun2 = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double tau) {
+      public Double evaluate(final Double tau) {
         double sigma = _vol1 * _vol1 * (1 - tau / expiry) + _vol2 * _vol2 * tau / expiry;
         sigma = Math.sqrt(sigma);
-        BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
+        final BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
         return _lambda21 * priceFunc.evaluate(data) * Math.exp(-_lambda21 * tau);
       }
     };
@@ -71,12 +73,12 @@ public class MarkovChainSmallTimeApprox {
     double p2 = 0;
 
     if (_probState1 > 0.0) {
-      BlackFunctionData data = new BlackFunctionData(forward, df, _vol1);
+      final BlackFunctionData data = new BlackFunctionData(forward, df, _vol1);
       p1 = _integrator.integrate(fun1, 0.0, expiry) + priceFunc.evaluate(data) * Math.exp(-_lambda12 * expiry);
     }
 
     if (_probState1 < 1.0) {
-      BlackFunctionData data = new BlackFunctionData(forward, df, _vol2);
+      final BlackFunctionData data = new BlackFunctionData(forward, df, _vol2);
       p2 = _integrator.integrate(fun2, 0.0, expiry) + priceFunc.evaluate(data) * Math.exp(-_lambda21 * expiry);
     }
     return _probState1 * p1 + (1 - _probState1) * p2;

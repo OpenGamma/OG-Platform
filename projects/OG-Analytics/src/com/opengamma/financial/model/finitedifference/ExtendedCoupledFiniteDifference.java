@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.surface.Surface;
@@ -23,40 +24,41 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
   }
 
   public PDEFullResults1D[] solve(final ExtendedCoupledPDEDataBundle pdeData1, final ExtendedCoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
-      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2,
-      final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
+      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
 
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
     validateSetup(grid, lowerBoundary1, upperBoundary1);
     validateSetup(grid, lowerBoundary2, upperBoundary2);
-    int tNodes = grid.getNumTimeNodes();
-    int xNodes = grid.getNumSpaceNodes();
+    final int tNodes = grid.getNumTimeNodes();
+    final int xNodes = grid.getNumSpaceNodes();
+    final double theta = getTheta();
+    final Decomposition<?> dcomp = getDecomposition();
 
     double[] f = new double[2 * xNodes];
-    double[][] full1 = new double[tNodes][xNodes];
-    double[][] full2 = new double[tNodes][xNodes];
+    final double[][] full1 = new double[tNodes][xNodes];
+    final double[][] full2 = new double[tNodes][xNodes];
 
     final double[] q = new double[2 * xNodes];
     final double[][] m = new double[2 * xNodes][2 * xNodes];
 
-    double[][] a1 = new double[2][xNodes - 2];
-    double[][] a2 = new double[2][xNodes - 2];
-    double[][] b1 = new double[2][xNodes - 2];
-    double[][] b2 = new double[2][xNodes - 2];
-    double[][] c1 = new double[2][xNodes - 2];
-    double[][] c2 = new double[2][xNodes - 2];
-    double[][] alpha1 = new double[2][xNodes];
-    double[][] alpha2 = new double[2][xNodes];
-    double[][] beta1 = new double[2][xNodes];
-    double[][] beta2 = new double[2][xNodes];
+    final double[][] a1 = new double[2][xNodes - 2];
+    final double[][] a2 = new double[2][xNodes - 2];
+    final double[][] b1 = new double[2][xNodes - 2];
+    final double[][] b2 = new double[2][xNodes - 2];
+    final double[][] c1 = new double[2][xNodes - 2];
+    final double[][] c2 = new double[2][xNodes - 2];
+    final double[][] alpha1 = new double[2][xNodes];
+    final double[][] alpha2 = new double[2][xNodes];
+    final double[][] beta1 = new double[2][xNodes];
+    final double[][] beta2 = new double[2][xNodes];
 
-    double lambda1 = pdeData1.getCoupling();
-    double lambda2 = pdeData2.getCoupling();
+    final double lambda1 = pdeData1.getCoupling();
+    final double lambda2 = pdeData2.getCoupling();
 
-    double omega = 1.5;
-    int oldCount = 0;
-    boolean omegaIncrease = false;
+    //    final double omega = 1.5;
+    //    final int oldCount = 0;
+    //    final boolean omegaIncrease = false;
 
     double dt, t1, t2, x;
     double[] x1st, x2nd;
@@ -89,7 +91,7 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
       beta1[1][i] = pdeData2.getBeta(0, x);
     }
 
-    boolean first = true;
+    final boolean first = true;
     DecompositionResult decompRes = null;
 
     for (int n = 1; n < tNodes; n++) {
@@ -112,16 +114,16 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
         x2nd = grid.getSecondDerivativeCoefficients(i);
 
         q[i] = f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[0] * a1[0][i - 1] * alpha1[0][i - 1] + x1st[0] * b1[0][i - 1] * beta1[0][i - 1]) * f[i - 1];
-        q[i] -= (1 - _theta) * dt * (x2nd[1] * a1[0][i - 1] * alpha1[0][i] + x1st[1] * b1[0][i - 1] * beta1[0][i] + c1[0][i - 1]) * f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[2] * a1[0][i - 1] * alpha1[0][i + 1] + x1st[2] * b1[0][i - 1] * beta1[0][i + 1]) * f[i + 1];
-        q[i] -= (1 - _theta) * dt * lambda1 * f[i + xNodes];
+        q[i] -= (1 - theta) * dt * (x2nd[0] * a1[0][i - 1] * alpha1[0][i - 1] + x1st[0] * b1[0][i - 1] * beta1[0][i - 1]) * f[i - 1];
+        q[i] -= (1 - theta) * dt * (x2nd[1] * a1[0][i - 1] * alpha1[0][i] + x1st[1] * b1[0][i - 1] * beta1[0][i] + c1[0][i - 1]) * f[i];
+        q[i] -= (1 - theta) * dt * (x2nd[2] * a1[0][i - 1] * alpha1[0][i + 1] + x1st[2] * b1[0][i - 1] * beta1[0][i + 1]) * f[i + 1];
+        q[i] -= (1 - theta) * dt * lambda1 * f[i + xNodes];
 
         q[xNodes + i] = f[xNodes + i];
-        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[0] * a1[1][i - 1] * alpha1[1][i - 1] + x1st[0] * b1[1][i - 1] * beta1[1][i - 1]) * f[xNodes + i - 1];
-        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[1] * a1[1][i - 1] * alpha1[1][i] + x1st[1] * b1[1][i - 1] * beta1[1][i] + c1[1][i - 1]) * f[xNodes + i];
-        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[2] * a1[1][i - 1] * alpha1[1][i + 1] + x1st[2] * b1[1][i - 1] * beta1[1][i + 1]) * f[xNodes + i + 1];
-        q[xNodes + i] -= (1 - _theta) * dt * lambda2 * f[i];
+        q[xNodes + i] -= (1 - theta) * dt * (x2nd[0] * a1[1][i - 1] * alpha1[1][i - 1] + x1st[0] * b1[1][i - 1] * beta1[1][i - 1]) * f[xNodes + i - 1];
+        q[xNodes + i] -= (1 - theta) * dt * (x2nd[1] * a1[1][i - 1] * alpha1[1][i] + x1st[1] * b1[1][i - 1] * beta1[1][i] + c1[1][i - 1]) * f[xNodes + i];
+        q[xNodes + i] -= (1 - theta) * dt * (x2nd[2] * a1[1][i - 1] * alpha1[1][i + 1] + x1st[2] * b1[1][i - 1] * beta1[1][i + 1]) * f[xNodes + i + 1];
+        q[xNodes + i] -= (1 - theta) * dt * lambda2 * f[i];
 
         a2[0][i - 1] = pdeData1.getA(t2, x);
         b2[0][i - 1] = pdeData1.getB(t2, x);
@@ -130,15 +132,15 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
         b2[1][i - 1] = pdeData2.getB(t2, x);
         c2[1][i - 1] = pdeData2.getC(t2, x);
 
-        m[i][i - 1] = _theta * dt * (x2nd[0] * a2[0][i - 1] * alpha2[0][i - 1] + x1st[0] * b2[0][i - 1] * beta2[0][i - 1]);
-        m[i][i] = 1 + _theta * dt * (x2nd[1] * a2[0][i - 1] * alpha2[0][i] + x1st[1] * b2[0][i - 1] * beta2[0][i] + c2[0][i - 1]);
-        m[i][i + 1] = _theta * dt * (x2nd[2] * a2[0][i - 1] * alpha2[0][i + 1] + x1st[2] * b2[0][i - 1] * beta2[0][i + 1]);
-        m[i][i + xNodes] = dt * _theta * lambda1;
+        m[i][i - 1] = theta * dt * (x2nd[0] * a2[0][i - 1] * alpha2[0][i - 1] + x1st[0] * b2[0][i - 1] * beta2[0][i - 1]);
+        m[i][i] = 1 + theta * dt * (x2nd[1] * a2[0][i - 1] * alpha2[0][i] + x1st[1] * b2[0][i - 1] * beta2[0][i] + c2[0][i - 1]);
+        m[i][i + 1] = theta * dt * (x2nd[2] * a2[0][i - 1] * alpha2[0][i + 1] + x1st[2] * b2[0][i - 1] * beta2[0][i + 1]);
+        m[i][i + xNodes] = dt * theta * lambda1;
 
-        m[xNodes + i][xNodes + i - 1] = _theta * dt * (x2nd[0] * a2[1][i - 1] * alpha2[1][i - 1] + x1st[0] * b2[1][i - 1] * beta2[1][i - 1]);
-        m[xNodes + i][xNodes + i] = 1 + _theta * dt * (x2nd[1] * a2[1][i - 1] * alpha2[1][i] + x1st[1] * b2[1][i - 1] * beta2[1][i] + c2[1][i - 1]);
-        m[xNodes + i][xNodes + i + 1] = _theta * dt * (x2nd[2] * a2[1][i - 1] * alpha2[1][i + 1] + x1st[2] * b2[1][i - 1] * beta2[1][i + 1]);
-        m[xNodes + i][i] = dt * _theta * lambda2;
+        m[xNodes + i][xNodes + i - 1] = theta * dt * (x2nd[0] * a2[1][i - 1] * alpha2[1][i - 1] + x1st[0] * b2[1][i - 1] * beta2[1][i - 1]);
+        m[xNodes + i][xNodes + i] = 1 + theta * dt * (x2nd[1] * a2[1][i - 1] * alpha2[1][i] + x1st[1] * b2[1][i - 1] * beta2[1][i] + c2[1][i - 1]);
+        m[xNodes + i][xNodes + i + 1] = theta * dt * (x2nd[2] * a2[1][i - 1] * alpha2[1][i + 1] + x1st[2] * b2[1][i - 1] * beta2[1][i + 1]);
+        m[xNodes + i][i] = dt * theta * lambda2;
       }
 
       double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
@@ -212,7 +214,7 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
 
       if (first) {
         final DoubleMatrix2D mM = new DoubleMatrix2D(m);
-        decompRes = DCOMP.evaluate(mM);
+        decompRes = dcomp.evaluate(mM);
         // first = false;
       }
       f = decompRes.solve(q);

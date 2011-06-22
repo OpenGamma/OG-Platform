@@ -29,23 +29,12 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public class TwoStateMarkovChainWithLocalVolDensity {
 
-  private final static double THETA = 1.0;
+  private static final double THETA = 1.0;
 
   private final ExtendedCoupledPDEDataBundle _data1;
   private final ExtendedCoupledPDEDataBundle _data2;
 
-  /**
-   * @param forward
-   * @param vol1
-   * @param deltaVol
-   * @param lambda12
-   * @param lambda21
-   * @param probS1
-   * @param beta1
-   * @param beta2
-   */
-  public TwoStateMarkovChainWithLocalVolDensity(ForwardCurve forward, final TwoStateMarkovChainDataBundle data,
-      AbsoluteLocalVolatilitySurface localVolOverlay) {
+  public TwoStateMarkovChainWithLocalVolDensity(final ForwardCurve forward, final TwoStateMarkovChainDataBundle data, final AbsoluteLocalVolatilitySurface localVolOverlay) {
     Validate.notNull(forward, "null forward");
     Validate.notNull(data, "null data");
     Validate.notNull(localVolOverlay, "null localVolOverlay");
@@ -55,58 +44,61 @@ public class TwoStateMarkovChainWithLocalVolDensity {
     _data2 = getExtendedCoupledPDEDataBundle(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), 1.0 - data.getP0(), data.getBeta2(), localVolOverlay);
   }
 
-  PDEFullResults1D[] solve(PDEGrid1D grid) {
+  PDEFullResults1D[] solve(final PDEGrid1D grid) {
 
-    BoundaryCondition lower = new NeumannBoundaryCondition(0.0, grid.getSpaceNode(0), true);
+    final BoundaryCondition lower = new NeumannBoundaryCondition(0.0, grid.getSpaceNode(0), true);
     //BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);//TODO for beta < 0.5 zero is accessible and thus there will be non-zero 
     //density there
-    BoundaryCondition upper = new DirichletBoundaryCondition(0.0, grid.getSpaceNode(grid.getNumSpaceNodes() - 1));
+    final BoundaryCondition upper = new DirichletBoundaryCondition(0.0, grid.getSpaceNode(grid.getNumSpaceNodes() - 1));
 
-    ExtendedCoupledFiniteDifference solver = new ExtendedCoupledFiniteDifference(THETA);
-    PDEResults1D[] res = solver.solve(_data1, _data2, grid, lower, upper, lower, upper, null);
+    final ExtendedCoupledFiniteDifference solver = new ExtendedCoupledFiniteDifference(THETA);
+    final PDEResults1D[] res = solver.solve(_data1, _data2, grid, lower, upper, lower, upper, null);
     //handle this with generics  
-    PDEFullResults1D res1 = (PDEFullResults1D) res[0];
-    PDEFullResults1D res2 = (PDEFullResults1D) res[1];
-    return new PDEFullResults1D[] {res1, res2 };
+    final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
+    final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
+    return new PDEFullResults1D[] {res1, res2};
   }
 
-  private CoupledPDEDataBundle getCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2,
-      final double initialProb, final double beta, final LocalVolatilitySurface localVol) {
+  @SuppressWarnings("unused")
+  private CoupledPDEDataBundle getCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2, final double initialProb, final double beta,
+      final LocalVolatilitySurface localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double sigma = localVol.getVolatility(t, s) * vol * Math.pow(s, beta);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double sigma = localVol.getVolatility(t, s) * vol * Math.pow(s, beta);
         return -sigma * sigma / 2;
       }
     };
 
     final Function<Double, Double> b = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double lvDiv = getLocalVolFirstDiv(localVol, t, s);
-        double lv = localVol.getVolatility(t, s);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double lvDiv = getLocalVolFirstDiv(localVol, t, s);
+        final double lv = localVol.getVolatility(t, s);
         return s * (forward.getDrift(t) - 2 * vol * vol * lv * Math.pow(s, 2 * beta - 2) * (s * lvDiv + lv * beta));
       }
     };
 
     final Function<Double, Double> c = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double lv1Div = getLocalVolFirstDiv(localVol, t, s);
-        double lv2Div = getLocalVolSecondDiv(localVol, t, s);
-        double lv = localVol.getVolatility(t, s);
-        double temp1 = vol * Math.pow(s, beta - 1) * (beta * lv + s * lv1Div);
-        double temp2 = vol * vol * lv * Math.pow(s, 2 * (beta - 1)) * (s * s * lv2Div + 2 * beta * s * lv1Div + beta * (beta - 1) * lv);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double lv1Div = getLocalVolFirstDiv(localVol, t, s);
+        final double lv2Div = getLocalVolSecondDiv(localVol, t, s);
+        final double lv = localVol.getVolatility(t, s);
+        final double temp1 = vol * Math.pow(s, beta - 1) * (beta * lv + s * lv1Div);
+        final double temp2 = vol * vol * lv * Math.pow(s, 2 * (beta - 1)) * (s * s * lv2Div + 2 * beta * s * lv1Div + beta * (beta - 1) * lv);
 
         return lambda1 + forward.getDrift(t) - temp1 * temp1 - temp2;
       }
@@ -117,12 +109,12 @@ public class TwoStateMarkovChainWithLocalVolDensity {
       private final double _volRootTOffset = 0.01;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
         if (s == 0 || initialProb == 0) {
           return 0.0;
         }
-        double x = Math.log(s / forward.getSpot());
-        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        final double x = Math.log(s / forward.getSpot());
+        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
         return initialProb * dist.getPDF(x) / s;
       }
     };
@@ -130,8 +122,8 @@ public class TwoStateMarkovChainWithLocalVolDensity {
     return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2, initialCondition);
   }
 
-  private ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2,
-      final double initialProb, final double beta, final AbsoluteLocalVolatilitySurface localVol) {
+  private ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2, final double initialProb,
+      final double beta, final AbsoluteLocalVolatilitySurface localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -145,9 +137,9 @@ public class TwoStateMarkovChainWithLocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double temp = localVol.getVolatility(t, s) * vol * Math.pow(s, beta);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double temp = localVol.getVolatility(t, s) * vol * Math.pow(s, beta);
 
         return 0.5 * temp * temp;
       }
@@ -157,8 +149,8 @@ public class TwoStateMarkovChainWithLocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
+        final double t = ts[0];
+        final double s = ts[1];
         return s * forward.getDrift(t);
       }
     };
@@ -175,7 +167,7 @@ public class TwoStateMarkovChainWithLocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
+        final double t = ts[0];
 
         return forward.getDrift(t) + lambda1;
       }
@@ -186,34 +178,34 @@ public class TwoStateMarkovChainWithLocalVolDensity {
       private final double _volRootTOffset = 0.01;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / forward.getSpot());
-        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        final double x = Math.log(s / forward.getSpot());
+        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
         return initialProb * dist.getPDF(x) / s;
       }
     };
 
-    return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c),
-        FunctionalDoublesSurface.from(aStar), FunctionalDoublesSurface.from(bStar), -lambda2, initialCondition);
+    return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(aStar),
+        FunctionalDoublesSurface.from(bStar), -lambda2, initialCondition);
 
   }
 
   //TODO handle with a central calculator
   private double getLocalVolFirstDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
     final double eps = 1e-4;
-    double up = localVol.getVolatility(t, s + eps);
-    double down = localVol.getVolatility(t, s - eps);
+    final double up = localVol.getVolatility(t, s + eps);
+    final double down = localVol.getVolatility(t, s - eps);
     return (up - down) / 2 / eps;
   }
 
   private double getLocalVolSecondDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
     final double eps = 1e-4;
-    double up = localVol.getVolatility(t, s + eps);
-    double mid = localVol.getVolatility(t, s);
-    double down = localVol.getVolatility(t, s - eps);
+    final double up = localVol.getVolatility(t, s + eps);
+    final double mid = localVol.getVolatility(t, s);
+    final double down = localVol.getVolatility(t, s - eps);
     return (up + down - 2 * mid) / eps / eps;
   }
 

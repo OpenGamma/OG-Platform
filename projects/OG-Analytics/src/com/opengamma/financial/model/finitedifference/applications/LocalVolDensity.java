@@ -28,36 +28,38 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double sigma = localVol.getVolatility(t, s) * s;
+        final double t = ts[0];
+        final double s = ts[1];
+        final double sigma = localVol.getVolatility(t, s) * s;
         return -0.5 * sigma * sigma;
       }
     };
 
     final Function<Double, Double> b = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double lvDiv = getLocalVolFirstDiv(localVol, t, s);
-        double lv = localVol.getVolatility(t, s);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double lvDiv = getLocalVolFirstDiv(localVol, t, s);
+        final double lv = localVol.getVolatility(t, s);
         return s * (forward.getDrift(t) - 2 * lv * (s * lvDiv + lv));
       }
     };
 
     final Function<Double, Double> c = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double lv1Div = getLocalVolFirstDiv(localVol, t, s);
-        double lv2Div = getLocalVolSecondDiv(localVol, t, s);
-        double lv = localVol.getVolatility(t, s);
-        double temp1 = (lv + s * lv1Div);
-        double temp2 = lv * s * (s * lv2Div + 2 * lv1Div);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double lv1Div = getLocalVolFirstDiv(localVol, t, s);
+        final double lv2Div = getLocalVolSecondDiv(localVol, t, s);
+        final double lv = localVol.getVolatility(t, s);
+        final double temp1 = (lv + s * lv1Div);
+        final double temp2 = lv * s * (s * lv2Div + 2 * lv1Div);
 
         return forward.getDrift(t) - temp1 * temp1 - temp2;
       }
@@ -68,12 +70,12 @@ public class LocalVolDensity {
       private final double _volRootTOffset = 0.01;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / forward.getSpot());
-        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        final double x = Math.log(s / forward.getSpot());
+        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
         return dist.getPDF(x) / s;
       }
     };
@@ -96,9 +98,9 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double temp = s * localVol.getVolatility(t, s);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double temp = s * localVol.getVolatility(t, s);
 
         return 0.5 * temp * temp;
       }
@@ -108,8 +110,8 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
+        final double t = ts[0];
+        final double s = ts[1];
         return s * forward.getDrift(t);
       }
     };
@@ -126,7 +128,7 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
+        final double t = ts[0];
 
         return forward.getDrift(t);
       }
@@ -137,22 +139,22 @@ public class LocalVolDensity {
       private final double _volRootTOffset = 0.01;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / forward.getSpot());
-        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        final double x = Math.log(s / forward.getSpot());
+        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
         return dist.getPDF(x) / s;
       }
     };
 
-    return new ExtendedConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c),
-        FunctionalDoublesSurface.from(alpha), FunctionalDoublesSurface.from(beta), initialCondition);
+    return new ExtendedConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(alpha),
+        FunctionalDoublesSurface.from(beta), initialCondition);
   }
 
-  public static ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurface localVol,
-      final double lambda1, final double lambda2, final double initialProb) {
+  public static ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurface localVol, final double lambda1, final double lambda2,
+      final double initialProb) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -166,9 +168,9 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
-        double temp = s * localVol.getVolatility(t, s);
+        final double t = ts[0];
+        final double s = ts[1];
+        final double temp = s * localVol.getVolatility(t, s);
 
         return 0.5 * temp * temp;
       }
@@ -178,8 +180,8 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
-        double s = ts[1];
+        final double t = ts[0];
+        final double s = ts[1];
         return s * forward.getDrift(t);
       }
     };
@@ -196,7 +198,7 @@ public class LocalVolDensity {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double t = ts[0];
+        final double t = ts[0];
 
         return forward.getDrift(t) + lambda1;
       }
@@ -207,34 +209,34 @@ public class LocalVolDensity {
       private final double _volRootTOffset = 0.01;
 
       @Override
-      public Double evaluate(Double s) {
+      public Double evaluate(final Double s) {
         if (s == 0) {
           return 0.0;
         }
-        double x = Math.log(s / forward.getSpot());
-        NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+        final double x = Math.log(s / forward.getSpot());
+        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
         return initialProb * dist.getPDF(x) / s;
       }
     };
 
-    return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c),
-        FunctionalDoublesSurface.from(alpha), FunctionalDoublesSurface.from(beta), lambda2, initialCondition);
+    return new ExtendedCoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(alpha),
+        FunctionalDoublesSurface.from(beta), lambda2, initialCondition);
 
   }
 
   //TODO handle with a central calculator
   private static double getLocalVolFirstDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
     final double eps = 1e-4;
-    double up = localVol.getVolatility(t, s + eps);
-    double down = localVol.getVolatility(t, s - eps);
+    final double up = localVol.getVolatility(t, s + eps);
+    final double down = localVol.getVolatility(t, s - eps);
     return (up - down) / 2 / eps;
   }
 
   private static double getLocalVolSecondDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
     final double eps = 1e-4;
-    double up = localVol.getVolatility(t, s + eps);
-    double mid = localVol.getVolatility(t, s);
-    double down = localVol.getVolatility(t, s - eps);
+    final double up = localVol.getVolatility(t, s + eps);
+    final double mid = localVol.getVolatility(t, s);
+    final double down = localVol.getVolatility(t, s - eps);
     return (up + down - 2 * mid) / eps / eps;
   }
 

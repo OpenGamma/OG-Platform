@@ -62,7 +62,7 @@ public class CoupledFiniteDifferenceTest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return -s * s * vol * vol / 2;
       }
     };
@@ -71,7 +71,7 @@ public class CoupledFiniteDifferenceTest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        double s = ts[1];
+        final double s = ts[1];
         return -s * rate;
       }
     };
@@ -86,8 +86,9 @@ public class CoupledFiniteDifferenceTest {
 
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return Math.max(0, x - STRIKE);
       }
     };
@@ -98,52 +99,52 @@ public class CoupledFiniteDifferenceTest {
   @Test
   public void testNoCoupling() {
     //making theta 0.55 (rather than 0.5 Crank-Nicolson) cuts down ATm oscillations 
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
-    double lambda12 = 0.0;
-    double lambda21 = 0.0;
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
-    int timeNodes = 20;
-    int spaceNodes = 150;
-    double lowerMoneyness = 0.4;
-    double upperMoneyness = 2.5;
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
+    final double lambda12 = 0.0;
+    final double lambda21 = 0.0;
+    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+    final int timeNodes = 20;
+    final int spaceNodes = 150;
+    final double lowerMoneyness = 0.4;
+    final double upperMoneyness = 2.5;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spaceNodes, 0.1);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spaceNodes, 0.1);
     // MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
 
-    double[] timeGrid = new double[timeNodes];
+    final double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
       timeGrid[n] = timeMesh.evaluate(n);
     }
 
-    double[] spaceGrid = new double[spaceNodes];
+    final double[] spaceGrid = new double[spaceNodes];
     for (int i = 0; i < spaceNodes; i++) {
       spaceGrid[i] = spaceMesh.evaluate(i);
     }
 
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
-    double df = YIELD_CURVE.getDiscountFactor(T);
-    int n = res[0].getNumberSpaceNodes();
+    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final double df = YIELD_CURVE.getDiscountFactor(T);
+    final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
-      double spot = res[0].getSpaceValue(i);
-      double price1 = res[0].getFunctionValue(i);
-      double price2 = res[1].getFunctionValue(i);
-      double moneyness = spot / OPTION.getStrike();
+      final double spot = res[0].getSpaceValue(i);
+      final double price1 = res[0].getFunctionValue(i);
+      final double price2 = res[1].getFunctionValue(i);
+      final double moneyness = spot / OPTION.getStrike();
 
-      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+      final BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
       double impVol1;
       try {
         impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price1);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol1 = 0.0;
       }
       double impVol2;
       try {
         impVol2 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price2);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol2 = 0.0;
       }
       //  System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
@@ -156,52 +157,52 @@ public class CoupledFiniteDifferenceTest {
 
   @Test
   public void testDegenerate() {
-    CoupledFiniteDifference solver = new CoupledFiniteDifference();
-    double lambda12 = 0.2;
-    double lambda21 = 0.5;
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
-    int timeNodes = 20;
-    int spaceNodes = 150;
-    double lowerMoneyness = 0.4;
-    double upperMoneyness = 2.5;
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference();
+    final double lambda12 = 0.2;
+    final double lambda21 = 0.5;
+    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
+    final int timeNodes = 20;
+    final int spaceNodes = 150;
+    final double lowerMoneyness = 0.4;
+    final double upperMoneyness = 2.5;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spaceNodes, 0.1);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spaceNodes, 0.1);
     // MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
     //
-    double[] timeGrid = new double[timeNodes];
+    final double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
       timeGrid[n] = timeMesh.evaluate(n);
     }
 
-    double[] spaceGrid = new double[spaceNodes];
+    final double[] spaceGrid = new double[spaceNodes];
     for (int i = 0; i < spaceNodes; i++) {
       spaceGrid[i] = spaceMesh.evaluate(i);
     }
 
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
-    double df = YIELD_CURVE.getDiscountFactor(T);
-    int n = res[0].getNumberSpaceNodes();
+    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final double df = YIELD_CURVE.getDiscountFactor(T);
+    final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
-      double spot = res[0].getSpaceValue(i);
-      double price1 = res[0].getFunctionValue(i);
-      double price2 = res[1].getFunctionValue(i);
-      double moneyness = spot / OPTION.getStrike();
+      final double spot = res[0].getSpaceValue(i);
+      final double price1 = res[0].getFunctionValue(i);
+      final double price2 = res[1].getFunctionValue(i);
+      final double moneyness = spot / OPTION.getStrike();
 
-      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+      final BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
       double impVol1;
       try {
         impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price1);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol1 = 0.0;
       }
       double impVol2;
       try {
         impVol2 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price2);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol2 = 0.0;
       }
       //      System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
@@ -217,21 +218,21 @@ public class CoupledFiniteDifferenceTest {
    */
   @Test(enabled = false)
   public void testMCSmile() {
-    double lambda12 = 0.3;//0.2;
-    double lambda21 = 4.0;//2.0;
-    double df = YIELD_CURVE.getDiscountFactor(T);
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
+    final double lambda12 = 0.3;//0.2;
+    final double lambda21 = 4.0;//2.0;
+    final double df = YIELD_CURVE.getDiscountFactor(T);
+    final MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
 
-    double[] mcSims = mc.simulate(T, 1000);
+    final double[] mcSims = mc.simulate(T, 1000);
     for (int i = 0; i < 101; i++) {
-      double strike = 0.003 + 0.18 * i / 100.0;
-      BlackFunctionData data = new BlackFunctionData(0.03, 1.0, 0.0);
-      EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, true);
-      double price = mc.price(0.03, 1.0, strike, T, mcSims);
+      final double strike = 0.003 + 0.18 * i / 100.0;
+      final BlackFunctionData data = new BlackFunctionData(0.03, 1.0, 0.0);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, true);
+      final double price = mc.price(0.03, 1.0, strike, T, mcSims);
       double impVol1;
       try {
         impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol1 = 0.0;
       }
       System.out.println(strike + "\t" + price + "\t" + impVol1);
@@ -240,66 +241,66 @@ public class CoupledFiniteDifferenceTest {
 
   @Test
   public void testSmile() {
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
-    double lambda12 = 0.2;
-    double lambda21 = 2.0;
-    CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
-    int timeNodes = 20;
-    int spaceNodes = 150;
-    double lowerMoneyness = 0.0;
-    double upperMoneyness = 3.0;
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
+    final double lambda12 = 0.2;
+    final double lambda21 = 2.0;
+    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+    final int timeNodes = 20;
+    final int spaceNodes = 150;
+    final double lowerMoneyness = 0.0;
+    final double upperMoneyness = 3.0;
 
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
-    double[] mcSims = mc.simulate(T, 10000); // simulate the vol path
+    final MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
+    final double[] mcSims = mc.simulate(T, 10000); // simulate the vol path
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 0);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, timeNodes, 0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spaceNodes);
-    MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
+    final MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceNodes, 0.0);
 
-    double[] timeGrid = new double[timeNodes];
+    final double[] timeGrid = new double[timeNodes];
     for (int n = 0; n < timeNodes; n++) {
       timeGrid[n] = timeMesh.evaluate(n);
     }
 
-    double[] spaceGrid = new double[spaceNodes];
+    final double[] spaceGrid = new double[spaceNodes];
     for (int i = 0; i < spaceNodes; i++) {
       spaceGrid[i] = spaceMesh.evaluate(i);
     }
 
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
-    double df = YIELD_CURVE.getDiscountFactor(T);
-    int n = res[0].getNumberSpaceNodes();
+    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final double df = YIELD_CURVE.getDiscountFactor(T);
+    final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
-      double spot = res[0].getSpaceValue(i);
-      double price1 = res[0].getFunctionValue(i);
-      double price2 = res[1].getFunctionValue(i);
-      double delta = res[0].getFirstSpatialDerivative(i);
-      double gamma = res[0].getSecondSpatialDerivative(i);
-      double moneyness = spot / OPTION.getStrike();
+      final double spot = res[0].getSpaceValue(i);
+      final double price1 = res[0].getFunctionValue(i);
+      final double price2 = res[1].getFunctionValue(i);
+      final double delta = res[0].getFirstSpatialDerivative(i);
+      final double gamma = res[0].getSecondSpatialDerivative(i);
+      final double moneyness = spot / OPTION.getStrike();
 
-      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+      final BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
 
-      double mc_price = mc.price(spot / df, df, STRIKE, T, mcSims);
+      final double mc_price = mc.price(spot / df, df, STRIKE, T, mcSims);
 
       double impVol1;
       try {
         impVol1 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price1);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol1 = 0.0;
       }
       double impVol2;
       try {
         impVol2 = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price2);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol2 = 0.0;
       }
       double impVol_mc;
       try {
         impVol_mc = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, mc_price);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         impVol_mc = 0.0;
       }
       // System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2 + "\t" + delta + "\t" + gamma);

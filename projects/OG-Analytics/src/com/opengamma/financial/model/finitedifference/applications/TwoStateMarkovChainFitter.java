@@ -45,9 +45,8 @@ import com.opengamma.util.tuple.Pair;
 public class TwoStateMarkovChainFitter {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
-      INTERPOLATOR_1D,
-      INTERPOLATOR_1D);
+  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
+    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final TransformParameters TRANSFORMS;
 
   static {
@@ -58,7 +57,7 @@ public class TwoStateMarkovChainFitter {
     //trans[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
     //    trans[0] = new DoubleRangeLimitTransform(0.1, 0.5);
     //trans[1] = new DoubleRangeLimitTransform(0.0, 0.7);
-    trans[2] = new DoubleRangeLimitTransform(0.1, 5.0);//try to keep transition rates physical 
+    trans[2] = new DoubleRangeLimitTransform(0.1, 5.0); //try to keep transition rates physical 
     trans[3] = new DoubleRangeLimitTransform(0.1, 5.0);
     trans[4] = new DoubleRangeLimitTransform(0.0, 1.0);
     trans[5] = new DoubleRangeLimitTransform(0.0, 2.0);
@@ -76,7 +75,7 @@ public class TwoStateMarkovChainFitter {
     _theta = theta;
   }
 
-  public LeastSquareResults fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, DoubleMatrix1D initialGuess) {
+  public LeastSquareResults fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
 
     Validate.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfFunctionParameters());
     TRANSFORMS.transform(initialGuess);
@@ -88,7 +87,7 @@ public class TwoStateMarkovChainFitter {
     double tmaxK = 0;
 
     for (int i = 0; i < nMarketValues; i++) {
-      double[] tk = marketVols.get(i).getFirst();
+      final double[] tk = marketVols.get(i).getFirst();
 
       if (tk[0] > tmaxT) {
         tmaxT = tk[0];
@@ -109,38 +108,39 @@ public class TwoStateMarkovChainFitter {
     final double maxT = 1.0 * tmaxT;
     final double maxK = 1.1 * tmaxK;
 
-    int tNodes = 20;
-    int xNodes = 100;
+    final int tNodes = 20;
+    final int xNodes = 100;
 
     //TODO remove hard coded grid
-    MeshingFunction timeMesh = new ExponentialMeshing(0, tmaxT, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10.0 * forward.getForward(maxT), forward.getSpot(), xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, tmaxT, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10.0 * forward.getForward(maxT), forward.getSpot(), xNodes, 0.01);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> funcAppox = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> funcAppox = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-        double vol1 = y.getEntry(0);
-        double deltaVol = y.getEntry(1);
-        double lambda12 = y.getEntry(2);
-        double lambda21 = y.getEntry(3);
-        double p0 = y.getEntry(4);
-        double beta = y.getEntry(5);
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        final DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
+        final double vol1 = y.getEntry(0);
+        final double deltaVol = y.getEntry(1);
+        final double lambda12 = y.getEntry(2);
+        final double lambda21 = y.getEntry(3);
+        final double p0 = y.getEntry(4);
+        final double beta = y.getEntry(5);
 
-        double[] modVols = new double[nMarketValues];
+        final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
-          double[] temp = marketVols.get(i).getFirst();
-          double t = temp[0];
-          double k = temp[1];
-          EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-          BlackFunctionData data = new BlackFunctionData(forward.getForward(t), 1.0, 0.0);
-          MarkovChainApprox mca = new MarkovChainApprox(vol1, vol1 + deltaVol, lambda12, lambda21, p0, t);
-          double price = mca.priceCEV(data.getForward(), data.getDiscountFactor(), k, beta);
+          final double[] temp = marketVols.get(i).getFirst();
+          final double t = temp[0];
+          final double k = temp[1];
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+          final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), 1.0, 0.0);
+          final MarkovChainApprox mca = new MarkovChainApprox(vol1, vol1 + deltaVol, lambda12, lambda21, p0, t);
+          final double price = mca.priceCEV(data.getForward(), data.getDiscountFactor(), k, beta);
           try {
             modVols[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             modVols[i] = 0.0;
             //System.out.println("arrrgggg");
           }
@@ -150,29 +150,30 @@ public class TwoStateMarkovChainFitter {
       }
     };
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-        double vol1 = y.getEntry(0);
-        double deltaVol = y.getEntry(1);
-        double lambda12 = y.getEntry(2);
-        double lambda21 = y.getEntry(3);
-        double p0 = y.getEntry(4);
-        double beta = y.getEntry(5);
-        TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta, beta);
-        TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
-        PDEFullResults1D res = mc.solve(grid, _theta);
-        Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
-        Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
-        double[] modVols = new double[nMarketValues];
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        final DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
+        final double vol1 = y.getEntry(0);
+        final double deltaVol = y.getEntry(1);
+        final double lambda12 = y.getEntry(2);
+        final double lambda21 = y.getEntry(3);
+        final double p0 = y.getEntry(4);
+        final double beta = y.getEntry(5);
+        final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(vol1, vol1 + deltaVol, lambda12, lambda21, p0, beta, beta);
+        final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
+        final PDEFullResults1D res = mc.solve(grid, _theta);
+        final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
+        final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
+        final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
-          double[] temp = marketVols.get(i).getFirst();
-          DoublesPair tk = new DoublesPair(temp[0], temp[1]);
+          final double[] temp = marketVols.get(i).getFirst();
+          final DoublesPair tk = new DoublesPair(temp[0], temp[1]);
           try {
             modVols[i] = GRID_INTERPOLATOR2D.interpolate(dataBundle, tk);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             System.out.println("arrrgggg");
           }
         }
@@ -182,14 +183,14 @@ public class TwoStateMarkovChainFitter {
 
     };
 
-    double[] mrkVols = new double[nMarketValues];
-    double[] sigma = new double[nMarketValues];
+    final double[] mrkVols = new double[nMarketValues];
+    final double[] sigma = new double[nMarketValues];
     for (int i = 0; i < nMarketValues; i++) {
       mrkVols[i] = marketVols.get(i).getSecond();
       sigma[i] = 0.01; //1% error
     }
 
-    NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     //solve approx first
     LeastSquareResults solverRes = ls.solve(new DoubleMatrix1D(mrkVols), new DoubleMatrix1D(sigma), funcAppox, TRANSFORMS.transform(initialGuess));
     // now solve pde model
@@ -197,18 +198,18 @@ public class TwoStateMarkovChainFitter {
     return new LeastSquareResults(solverRes.getChiSq(), TRANSFORMS.inverseTransform(solverRes.getParameters()), solverRes.getCovariance());
   }
 
-  public void debug(Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle) {
+  public void debug(final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle) {
     for (int i = 0; i < 101; i++) {
-      double k = 0. + 4.0 * i / 100.;
+      final double k = 0. + 4.0 * i / 100.;
       System.out.print("\t" + k);
     }
     System.out.print("\n");
 
     for (int j = 0; j < 101; j++) {
-      double t = 0.2 + 4.8 * j / 100.;
+      final double t = 0.2 + 4.8 * j / 100.;
       System.out.print(t);
       for (int i = 0; i < 101; i++) {
-        double k = 0. + 4.0 * i / 100.;
+        final double k = 0. + 4.0 * i / 100.;
         // System.out.print("\t" + INTERPOLATOR.interpolate(DATABUNDLE, new double[] {t, k }));
         System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(t, k)));
       }
@@ -223,28 +224,28 @@ public class TwoStateMarkovChainFitter {
    * @param prices
    * @return
    */
-  private List<Pair<double[], Double>> transformData(final ForwardCurve forward, final YieldCurve yield, final PDEFullResults1D prices,
-      final double minT, final double maxT, final double minK, final double maxK) {
-    int xNodes = prices.getNumberSpaceNodes();
-    int tNodes = prices.getNumberTimeNodes();
-    int n = xNodes * tNodes;
-    List<Pair<double[], Double>> out = new ArrayList<Pair<double[], Double>>(n);
+  @SuppressWarnings("unused")
+  private List<Pair<double[], Double>> transformData(final ForwardCurve forward, final YieldCurve yield, final PDEFullResults1D prices, final double minT, final double maxT, final double minK,
+      final double maxK) {
+    final int xNodes = prices.getNumberSpaceNodes();
+    final int tNodes = prices.getNumberTimeNodes();
+    final int n = xNodes * tNodes;
+    final List<Pair<double[], Double>> out = new ArrayList<Pair<double[], Double>>(n);
 
     for (int i = 0; i < tNodes; i++) {
-      double t = prices.getTimeValue(i);
+      final double t = prices.getTimeValue(i);
       if (t >= minT && t <= maxT) {
-        BlackFunctionData data = new BlackFunctionData(forward.getForward(t), yield.getDiscountFactor(t), 0);
+        final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), yield.getDiscountFactor(t), 0);
         for (int j = 0; j < xNodes; j++) {
-          double k = prices.getSpaceValue(j);
+          final double k = prices.getSpaceValue(j);
           if (k >= minK && k <= maxK) {
-            double price = prices.getFunctionValue(j, i);
-            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+            final double price = prices.getFunctionValue(j, i);
+            final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
             try {
-              double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-              Pair<double[], Double> pair = new ObjectsPair<double[], Double>(
-                  new double[] {prices.getTimeValue(i), prices.getSpaceValue(j) }, impVol);
+              final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j)}, impVol);
               out.add(pair);
-            } catch (Exception e) {
+            } catch (final Exception e) {
               System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
             }
           }

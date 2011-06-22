@@ -28,67 +28,65 @@ public class PDEUtilityTools {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
-      INTERPOLATOR_1D,
-      INTERPOLATOR_1D);
+  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
+    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
-  public static Map<Double, Interpolator1DDoubleQuadraticDataBundle> getInterpolatorDataBundle(PDEFullResults1D res) {
-    int tNodes = res.getNumberTimeNodes();
-    int xNodes = res.getNumberSpaceNodes();
+  public static Map<Double, Interpolator1DDoubleQuadraticDataBundle> getInterpolatorDataBundle(final PDEFullResults1D res) {
+    final int tNodes = res.getNumberTimeNodes();
+    final int xNodes = res.getNumberSpaceNodes();
 
-    int n = xNodes * tNodes;
-    Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    final int n = xNodes * tNodes;
+    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
 
     for (int i = 0; i < tNodes; i++) {
-      double t = res.getTimeValue(i);
+      final double t = res.getTimeValue(i);
 
       for (int j = 0; j < xNodes; j++) {
-        double k = res.getSpaceValue(j);
-        DoublesPair tk = new DoublesPair(t, k);
+        final double k = res.getSpaceValue(j);
+        final DoublesPair tk = new DoublesPair(t, k);
         out.put(tk, res.getFunctionValue(j, i));
       }
     }
 
-    Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(out);
+    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(out);
     return dataBundle;
   }
 
   /**
    * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
    * the Black implied volatility 
-   * @param forward
-   * @param prices
+   * @param forward The forward
+   * @param prices The prices
    * @param minT Data before this time is ignored (not included in map)
    * @param maxT Data after this time is ignored (not included in map)
    * @param minK Strikes less than this are ignored (not included in map)
    * @param maxK Strikes greater than this are ignored (not included in map)
-   * @return
+   * @return The price to implied volatility map
    */
-  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forward, final PDEFullResults1D prices,
-      final double minT, final double maxT, final double minK, final double maxK) {
-    int xNodes = prices.getNumberSpaceNodes();
-    int tNodes = prices.getNumberTimeNodes();
-    int n = xNodes * tNodes;
-    Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forward, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK) {
+    final int xNodes = prices.getNumberSpaceNodes();
+    final int tNodes = prices.getNumberTimeNodes();
+    final int n = xNodes * tNodes;
+    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
     int count = tNodes * xNodes;
 
     for (int i = 0; i < tNodes; i++) {
-      double t = prices.getTimeValue(i);
+      final double t = prices.getTimeValue(i);
       if (t >= minT && t <= maxT) {
-        BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
+        final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
         for (int j = 0; j < xNodes; j++) {
-          double k = prices.getSpaceValue(j);
+          final double k = prices.getSpaceValue(j);
           if (k >= minK && k <= maxK) {
-            double price = prices.getFunctionValue(j, i);
-            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+            final double price = prices.getFunctionValue(j, i);
+            final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
             try {
-              double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+              final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
               if (Math.abs(impVol) > 1e-15) {
-                DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
                 count--;
               }
-            } catch (Exception e) {
+            } catch (final Exception e) {
               // System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
             }
           }
@@ -101,19 +99,19 @@ public class PDEUtilityTools {
     return out;
   }
 
-  public static void printSurface(String name, PDEFullResults1D res) {
-    int tNodes = res.getNumberTimeNodes();
-    int xNodes = res.getNumberSpaceNodes();
+  public static void printSurface(final String name, final PDEFullResults1D res) {
+    final int tNodes = res.getNumberTimeNodes();
+    final int xNodes = res.getNumberSpaceNodes();
 
     System.out.println(name);
     for (int i = 0; i < xNodes; i++) {
-      double k = res.getSpaceValue(i);
+      final double k = res.getSpaceValue(i);
       System.out.print("\t" + k);
     }
     System.out.print("\n");
 
     for (int j = 0; j < tNodes; j++) {
-      double t = res.getTimeValue(j);
+      final double t = res.getTimeValue(j);
       System.out.print(t);
       for (int i = 0; i < xNodes; i++) {
         System.out.print("\t" + res.getFunctionValue(i, j));
@@ -123,11 +121,12 @@ public class PDEUtilityTools {
     System.out.print("\n");
   }
 
-  public static void printSurface(String name, Surface<Double, Double, Double> surface, double xMin, double xMax, double yMin, double yMax) {
+  public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double xMin, final double xMax, final double yMin, final double yMax) {
     printSurface(name, surface, xMin, xMax, yMin, yMax, 100, 100);
   }
 
-  public static void printSurface(String name, Surface<Double, Double, Double> surface, double xMin, double xMax, double yMin, double yMax, int xSteps, int ySteps) {
+  public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double xMin, final double xMax, final double yMin, final double yMax, final int xSteps,
+      final int ySteps) {
 
     Validate.isTrue(xMax > xMin, "need xMax > xMin");
     Validate.isTrue(yMax > yMin, "need yMax > yMin");
@@ -136,16 +135,16 @@ public class PDEUtilityTools {
 
     System.out.println(name);
     for (int i = 0; i <= ySteps; i++) {
-      double y = yMin + ((yMax - yMin) * i) / ySteps;
+      final double y = yMin + ((yMax - yMin) * i) / ySteps;
       System.out.print("\t" + y);
     }
     System.out.print("\n");
 
     for (int j = 0; j <= xSteps; j++) {
-      double t = xMin + ((xMax - xMin) * j) / xSteps;
+      final double t = xMin + ((xMax - xMin) * j) / xSteps;
       System.out.print(t);
       for (int i = 0; i <= ySteps; i++) {
-        double k = yMin + ((yMax - yMin) * i) / ySteps;
+        final double k = yMin + ((yMax - yMin) * i) / ySteps;
         System.out.print("\t" + surface.getZValue(t, k));
       }
       System.out.print("\n");
@@ -153,32 +152,32 @@ public class PDEUtilityTools {
     System.out.print("\n");
   }
 
-  public static void printSurfaceInterpolate(String name, PDEFullResults1D res) {
+  public static void printSurfaceInterpolate(final String name, final PDEFullResults1D res) {
 
-    Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = getInterpolatorDataBundle(res);
-    double tMin = res.getTimeValue(0);
-    double tMax = res.getTimeValue(res.getNumberTimeNodes() - 1);
-    double kMin = res.getSpaceValue(0);
-    double kMax = res.getSpaceValue(res.getNumberSpaceNodes() - 1);
+    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = getInterpolatorDataBundle(res);
+    final double tMin = res.getTimeValue(0);
+    final double tMax = res.getTimeValue(res.getNumberTimeNodes() - 1);
+    final double kMin = res.getSpaceValue(0);
+    final double kMax = res.getSpaceValue(res.getNumberSpaceNodes() - 1);
     printSurface(name, dataBundle, tMin, tMax, kMin, kMax, 100, 100);
   }
 
-  public static void printSurface(String name, Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle, double tMin, double tMax, double kMin, double kMax,
-      int xSteps, int ySteps) {
+  public static void printSurface(final String name, final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle, final double tMin, final double tMax, final double kMin, final double kMax,
+      final int xSteps, final int ySteps) {
 
     System.out.println(name);
     for (int i = 0; i <= ySteps; i++) {
-      double k = kMin + ((kMax - kMin) * i) / ySteps;
+      final double k = kMin + ((kMax - kMin) * i) / ySteps;
       System.out.print("\t" + k);
     }
     System.out.print("\n");
 
     for (int j = 0; j <= xSteps; j++) {
-      double t = tMin + ((tMax - tMin) * j) / xSteps;
+      final double t = tMin + ((tMax - tMin) * j) / xSteps;
       System.out.print(t);
       for (int i = 0; i <= ySteps; i++) {
-        double k = kMin + ((kMax - kMin) * i) / ySteps;
-        DoublesPair tk = new DoublesPair(t, k);
+        final double k = kMin + ((kMax - kMin) * i) / ySteps;
+        final DoublesPair tk = new DoublesPair(t, k);
 
         System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(dataBundle, tk));
       }

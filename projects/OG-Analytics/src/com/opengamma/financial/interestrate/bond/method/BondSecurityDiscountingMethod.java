@@ -43,8 +43,8 @@ public class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public double presentValue(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
-    double pvNominal = PVC.visit(bond.getNominal(), curves);
-    double pvCoupon = PVC.visit(bond.getCoupon(), curves);
+    final double pvNominal = PVC.visit(bond.getNominal(), curves);
+    final double pvCoupon = PVC.visit(bond.getCoupon(), curves);
     return pvNominal + pvCoupon;
   }
 
@@ -55,9 +55,9 @@ public class BondSecurityDiscountingMethod {
    * @return The dirty price.
    */
   public double dirtyPriceFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double pv = presentValue(bond, curves);
-    double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double pv = presentValue(bond, curves);
+    final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     return pv / df / notional;
   }
 
@@ -68,7 +68,7 @@ public class BondSecurityDiscountingMethod {
    * @return The dirty price.
    */
   public double dirtyPriceFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     return cleanPrice + bond.getAccruedInterest() / notional;
   }
 
@@ -80,22 +80,21 @@ public class BondSecurityDiscountingMethod {
    */
   public double dirtyPriceFromYield(final BondFixedSecurity bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
-    int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
-        double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
         double pvAtFirstCoupon = 0;
         for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
           pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
         }
         pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
         return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
-      } else { // In the last period: simple rate
-        return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
-      }
+      } // In the last period: simple rate
+      return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
-      double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+      final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double pvAtFirstCoupon = 0;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
         pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
@@ -113,7 +112,7 @@ public class BondSecurityDiscountingMethod {
    * @return The clean price.
    */
   public double cleanPriceFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double dirtyPrice = dirtyPriceFromCurves(bond, curves);
+    final double dirtyPrice = dirtyPriceFromCurves(bond, curves);
     return cleanPriceFromDirtyPrice(bond, dirtyPrice);
   }
 
@@ -124,7 +123,7 @@ public class BondSecurityDiscountingMethod {
    * @return The clean price.
    */
   public double cleanPriceFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     return dirtyPrice - bond.getAccruedInterest() / notional;
   }
 
@@ -135,8 +134,8 @@ public class BondSecurityDiscountingMethod {
    * @return The clean price.
    */
   public double cleanPriceFromYield(final BondFixedSecurity bond, final double yield) {
-    double dirtyPrice = dirtyPriceFromYield(bond, yield);
-    double cleanPrice = cleanPriceFromDirtyPrice(bond, dirtyPrice);
+    final double dirtyPrice = dirtyPriceFromYield(bond, yield);
+    final double cleanPrice = cleanPriceFromDirtyPrice(bond, dirtyPrice);
     return cleanPrice;
   }
 
@@ -157,7 +156,7 @@ public class BondSecurityDiscountingMethod {
       }
     };
     final double[] range = BRACKETER.getBracketedPoints(priceResidual, 0.00, 0.20);
-    double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
+    final double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
     return yield;
   }
 
@@ -168,8 +167,8 @@ public class BondSecurityDiscountingMethod {
    * @return The yield.
    */
   public double yieldFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double dirtyPrice = dirtyPriceFromCurves(bond, curves);
-    double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    final double dirtyPrice = dirtyPriceFromCurves(bond, curves);
+    final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
     return yield;
   }
 
@@ -180,8 +179,8 @@ public class BondSecurityDiscountingMethod {
    * @return The yield.
    */
   public double yieldFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
-    double dirtyPrice = dirtyPriceFromCleanPrice(bond, cleanPrice);
-    double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    final double dirtyPrice = dirtyPriceFromCleanPrice(bond, cleanPrice);
+    final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
     return yield;
   }
 
@@ -192,11 +191,11 @@ public class BondSecurityDiscountingMethod {
    * @return The modified duration.
    */
   public double modifiedDurationFromYield(final BondFixedSecurity bond, final double yield) {
-    int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) {
       if (nbCoupon > 1) { // More than one coupon left
-        double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+        final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
         double mdAtFirstCoupon = 0;
         double pvAtFirstCoupon = 0;
         for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
@@ -205,14 +204,13 @@ public class BondSecurityDiscountingMethod {
         }
         mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
         pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-        double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
-        double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+        final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
+        final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
         return md;
-      } else { // In the last period: simple rate
-        return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
-      }
+      } // In the last period: simple rate
+      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
     } else if (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) {
-      double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+      final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double mdAtFirstCoupon = 0;
       double pvAtFirstCoupon = 0;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
@@ -221,8 +219,8 @@ public class BondSecurityDiscountingMethod {
       }
       mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getAccrualFactorToNextCoupon()) / bond.getCouponPerYear();
       pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-      double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
-      double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
+      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon());
+      final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
       return md;
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
@@ -235,7 +233,7 @@ public class BondSecurityDiscountingMethod {
    * @return The modified duration.
    */
   public double modifiedDurationFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double yield = yieldFromCurves(bond, curves);
+    final double yield = yieldFromCurves(bond, curves);
     return modifiedDurationFromYield(bond, yield);
   }
 
@@ -246,7 +244,7 @@ public class BondSecurityDiscountingMethod {
    * @return The modified duration.
    */
   public double modifiedDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
-    double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
     return modifiedDurationFromYield(bond, yield);
   }
 

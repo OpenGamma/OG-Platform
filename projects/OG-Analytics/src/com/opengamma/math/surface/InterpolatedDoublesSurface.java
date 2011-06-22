@@ -440,14 +440,14 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   // TODO this logic should be in the interpolator
   @SuppressWarnings("unchecked")
   private void init() {
-    Map<DoublesPair, Double> map = new TreeMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> map = new TreeMap<DoublesPair, Double>();
     final double[] x = getXDataAsPrimitive();
     final double[] y = getYDataAsPrimitive();
     final double[] z = getZDataAsPrimitive();
     for (int i = 0; i < size(); i++) {
       map.put(DoublesPair.of(x[i], y[i]), z[i]);
     }
-    _data = _interpolator.getDataBundle(_data);
+    _data = _interpolator.getDataBundle(map);
   }
 
   /**

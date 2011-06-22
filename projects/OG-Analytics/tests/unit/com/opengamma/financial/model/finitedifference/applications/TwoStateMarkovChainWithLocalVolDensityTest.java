@@ -13,9 +13,7 @@ import com.opengamma.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
@@ -32,40 +30,40 @@ public class TwoStateMarkovChainWithLocalVolDensityTest {
 
   private static final double BETA = 0.5;
 
-  private static final double T = 5.0;
+  //private static final double T = 5.0;
   private static final double SPOT = 1.0;
   private static final ForwardCurve FORWARD_CURVE;
-  private static final YieldCurve YIELD_CURVE;
+  //private static final YieldCurve YIELD_CURVE;
   private static final double RATE = 0.0;
   private static final TwoStateMarkovChainDataBundle DATA = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, P0, BETA, BETA);
 
   static {
 
-    Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * Math.exp(t * RATE);
       }
     };
 
     FORWARD_CURVE = new ForwardCurve(fwd);
-    YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+    //YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
 
   }
 
   @Test(enabled = false)
   public void test() {
-    double t = 5.0;
-    int tNodes = 50;
-    int xNodes = 100;
+    final double t = 5.0;
+    final int tNodes = 50;
+    final int xNodes = 100;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, t, tNodes, 2.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 6.0 * FORWARD_CURVE.getForward(t), FORWARD_CURVE.getSpot(), xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, t, tNodes, 2.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, 6.0 * FORWARD_CURVE.getForward(t), FORWARD_CURVE.getSpot(), xNodes, 0.01);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     //TwoStateMarkovChainDensity densityCal = new TwoStateMarkovChainDensity(forward, chainData);
-    TwoStateMarkovChainWithLocalVolDensity densityCal = new TwoStateMarkovChainWithLocalVolDensity(FORWARD_CURVE, DATA, new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(1.0)));
-    PDEFullResults1D[] denRes = densityCal.solve(grid);
+    final TwoStateMarkovChainWithLocalVolDensity densityCal = new TwoStateMarkovChainWithLocalVolDensity(FORWARD_CURVE, DATA, new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(1.0)));
+    final PDEFullResults1D[] denRes = densityCal.solve(grid);
     System.out.println("Densities ");
     PDEUtilityTools.printSurface("state 1 density", denRes[0]);
     PDEUtilityTools.printSurface("state 2 density", denRes[1]);

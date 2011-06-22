@@ -40,37 +40,36 @@ public class TwoStateMarkovChainPricerTest {
 
   static {
     FORWARD_CURVE = new ForwardCurve(SPOT, RATE);
-    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, P0, BETA, BETA);
+    final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, P0, BETA, BETA);
     PRICER = new TwoStateMarkovChainPricer(FORWARD_CURVE, chainData);
     CHAIN = new MarkovChain(VOL1, VOL2, LAMBDA12, LAMBDA21, P0);
   }
 
   @Test
   public void test() {
-    double theta = 0.55;
-    int tNodes = 51;
-    int xNodes = 151;
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10 * SPOT, SPOT, xNodes, 0.01);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDEFullResults1D res = PRICER.solve(grid, theta);
+    final double theta = 0.55;
+    final int tNodes = 51;
+    final int xNodes = 151;
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10 * SPOT, SPOT, xNodes, 0.01);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEFullResults1D res = PRICER.solve(grid, theta);
 
-    double[] expiries = timeMesh.getPoints();
-    double[] strikes = spaceMesh.getPoints();
-    double[] forwards = new double[tNodes];
-    double[] df = new double[tNodes];
+    final double[] expiries = timeMesh.getPoints();
+    final double[] strikes = spaceMesh.getPoints();
+    final double[] forwards = new double[tNodes];
+    // double[] df = new double[tNodes];
     for (int i = 0; i < tNodes; i++) {
 
       forwards[i] = FORWARD_CURVE.getForward(expiries[i]);
     }
 
-    double[] sims = CHAIN.simulate(T, 1000);
+    final double[] sims = CHAIN.simulate(T, 1000);
     for (int i = 0; i < xNodes; i++) {
 
       if (strikes[i] < 0.08) {
-        double mcPrice = CHAIN.priceCEV(FORWARD_CURVE.getForward(T), FORWARD_CURVE.getSpot() / FORWARD_CURVE.getForward(T),
-            strikes[i], T, BETA, sims);
-        double price = res.getFunctionValue(i, tNodes - 1);
+        final double mcPrice = CHAIN.priceCEV(FORWARD_CURVE.getForward(T), FORWARD_CURVE.getSpot() / FORWARD_CURVE.getForward(T), strikes[i], T, BETA, sims);
+        final double price = res.getFunctionValue(i, tNodes - 1);
         // System.out.println(strikes[i] + "\t" + mcPrice + "\t" + price);
         assertEquals(mcPrice, price, 1e-2 * mcPrice);
       }

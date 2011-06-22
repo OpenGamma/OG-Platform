@@ -22,14 +22,12 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -50,53 +48,53 @@ public class TwoStateMarkovChainSABRFitterTest {
   private static final double T = 5.0;
   private static final double SPOT = 1.0;
   private static final ForwardCurve FORWARD_CURVE;
-  private static final YieldCurve YIELD_CURVE;
+  //private static final YieldCurve YIELD_CURVE;
   private static final double RATE = 0.0;
   private static final Function<Double, Double> SABR_VOL_FUNCTION;
   private static final List<double[]> EXPIRY_AND_STRIKES = new ArrayList<double[]>();
   private static final List<Pair<double[], Double>> SABR_VOLS;
 
   static {
-    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 0.925 });
-    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 1.075 });
-    EXPIRY_AND_STRIKES.add(new double[] {0.5, 0.9 });
-    EXPIRY_AND_STRIKES.add(new double[] {0.5, 0.95 });
-    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.05 });
-    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.1 });
-    EXPIRY_AND_STRIKES.add(new double[] {1, 0.8 });
-    EXPIRY_AND_STRIKES.add(new double[] {1, 0.9 });
-    EXPIRY_AND_STRIKES.add(new double[] {1, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {1, 1.1 });
-    EXPIRY_AND_STRIKES.add(new double[] {2, 0.7 });
-    EXPIRY_AND_STRIKES.add(new double[] {2, 0.9 });
-    EXPIRY_AND_STRIKES.add(new double[] {2, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {2, 1.2 });
-    EXPIRY_AND_STRIKES.add(new double[] {2, 1.4 });
-    EXPIRY_AND_STRIKES.add(new double[] {3, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {4, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 0.4 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 0.6 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 0.8 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 0.9 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 1.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 2.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 2.5 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 3.0 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 3.5 });
-    EXPIRY_AND_STRIKES.add(new double[] {5, 4.0 });
+    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 0.925});
+    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {1. / 12, 1.075});
+    EXPIRY_AND_STRIKES.add(new double[] {0.5, 0.9});
+    EXPIRY_AND_STRIKES.add(new double[] {0.5, 0.95});
+    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.05});
+    EXPIRY_AND_STRIKES.add(new double[] {0.5, 1.1});
+    EXPIRY_AND_STRIKES.add(new double[] {1, 0.8});
+    EXPIRY_AND_STRIKES.add(new double[] {1, 0.9});
+    EXPIRY_AND_STRIKES.add(new double[] {1, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {1, 1.1});
+    EXPIRY_AND_STRIKES.add(new double[] {2, 0.7});
+    EXPIRY_AND_STRIKES.add(new double[] {2, 0.9});
+    EXPIRY_AND_STRIKES.add(new double[] {2, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {2, 1.2});
+    EXPIRY_AND_STRIKES.add(new double[] {2, 1.4});
+    EXPIRY_AND_STRIKES.add(new double[] {3, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {4, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 0.4});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 0.6});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 0.8});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 0.9});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 1.0});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 2.0});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 2.5});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 3.0});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 3.5});
+    EXPIRY_AND_STRIKES.add(new double[] {5, 4.0});
 
-    Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * Math.exp(t * RATE);
       }
     };
 
     FORWARD_CURVE = new ForwardCurve(fwd);
-    YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+    //    YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
 
     ALPHA = new Function1D<Double, Double>() {
       double a = 0.0;
@@ -105,8 +103,8 @@ public class TwoStateMarkovChainSABRFitterTest {
       double d = 0.2;
 
       @Override
-      public Double evaluate(Double t) {
-        double atmVol = (a + b * t) * Math.exp(-c * t) + d;
+      public Double evaluate(final Double t) {
+        final double atmVol = (a + b * t) * Math.exp(-c * t) + d;
         return atmVol * Math.pow(SPOT, 1 - BETA);
       }
     };
@@ -118,7 +116,7 @@ public class TwoStateMarkovChainSABRFitterTest {
       double d = 0.3;
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return (a + b * t) * Math.exp(-c * t) + d;
       }
     };
@@ -126,21 +124,22 @@ public class TwoStateMarkovChainSABRFitterTest {
     SABR_VOL_FUNCTION = new Function<Double, Double>() {
       SABRHaganVolatilityFunction hagan = new SABRHaganVolatilityFunction();
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<SABRFormulaData, Double> func = hagan.getVolatilityFunction(option);
-        SABRFormulaData data = new SABRFormulaData(FORWARD_CURVE.getForward(t), ALPHA.evaluate(t), BETA, NU.evaluate(t), RHO);
+      public Double evaluate(final Double... tk) {
+        final double t = tk[0];
+        final double k = tk[1];
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<SABRFormulaData, Double> func = hagan.getVolatilityFunction(option);
+        final SABRFormulaData data = new SABRFormulaData(FORWARD_CURVE.getForward(t), ALPHA.evaluate(t), BETA, NU.evaluate(t), RHO);
         return func.evaluate(data);
       }
     };
 
     SABR_VOLS = new ArrayList<Pair<double[], Double>>(EXPIRY_AND_STRIKES.size());
     for (int i = 0; i < EXPIRY_AND_STRIKES.size(); i++) {
-      double[] tk = EXPIRY_AND_STRIKES.get(i);
-      Pair<double[], Double> pair = new ObjectsPair<double[], Double>(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
+      final double[] tk = EXPIRY_AND_STRIKES.get(i);
+      final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
       SABR_VOLS.add(pair);
     }
 
@@ -154,36 +153,36 @@ public class TwoStateMarkovChainSABRFitterTest {
 
   @Test(enabled = false)
   public void test() {
-    DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
-    TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
-    LeastSquareResults res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
+    final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8});
+    final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
+    final LeastSquareResults res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
     System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
   }
 
   @Test(enabled = false)
   public void FokkerPlankTest() {
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
 
-    BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
+    final BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
 
-    LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
 
-    ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
-    ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+    final ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+    final ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
 
-    int tNodes = 50;
-    int xNodes = 100;
-    BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);
-    BoundaryCondition upper = new DirichletBoundaryCondition(0.0, 10 * FORWARD_CURVE.getForward(T));
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, upper.getLevel(), SPOT, xNodes, 0.01);
+    final int tNodes = 50;
+    final int xNodes = 100;
+    final BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);
+    final BoundaryCondition upper = new DirichletBoundaryCondition(0.0, 10 * FORWARD_CURVE.getForward(T));
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, upper.getLevel(), SPOT, xNodes, 0.01);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    ThetaMethodFiniteDifference thetaMethod = new ThetaMethodFiniteDifference(0.55, true);
-    ExtendedThetaMethodFiniteDifference eThetaMethod = new ExtendedThetaMethodFiniteDifference(0.55, true);
+    final ThetaMethodFiniteDifference thetaMethod = new ThetaMethodFiniteDifference(0.55, true);
+    final ExtendedThetaMethodFiniteDifference eThetaMethod = new ExtendedThetaMethodFiniteDifference(0.55, true);
 
-    PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1, grid, lower, upper);
-    PDEFullResults1D res2 = eThetaMethod.solve(db2, grid, lower, upper);
+    final PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1, grid, lower, upper);
+    final PDEFullResults1D res2 = eThetaMethod.solve(db2, grid, lower, upper);
 
     PDEUtilityTools.printSurface("State 1 density", res1);
     PDEUtilityTools.printSurface("State 2 density", res2);
@@ -192,18 +191,18 @@ public class TwoStateMarkovChainSABRFitterTest {
   //TODO need to have real tests here rather than print a lot of surfaces 
   @Test(enabled = false)
   public void localVolFitTest() {
-    DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
-    TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
+    final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8});
+    final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
     fitter.fit(FORWARD_CURVE, new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);
     // System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
   }
 
   @Test(enabled = false)
   public void localVolTest() {
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
-    BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
-    LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
+    final LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
 
     PDEUtilityTools.printSurface("localVolTest", localVol.getSurface(), 0, 5.0, SPOT / 4.0, SPOT * 4.0);
   }

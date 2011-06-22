@@ -36,21 +36,21 @@ public class ForwardCurve {
     Validate.notNull(fwdCurve, "curve");
     _fwdCurve = fwdCurve;
 
-    Function1D<Double, Double> drift = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
       private final double _eps = 1e-5;
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
 
-        double mid = _fwdCurve.getYValue(t);
-        double up = _fwdCurve.getYValue(t + _eps);
+        final double mid = _fwdCurve.getYValue(t);
+        final double up = _fwdCurve.getYValue(t + _eps);
 
         if (t < _eps) {
           return (up - mid) / mid / _eps;
-        } else {
-          double down = _fwdCurve.getYValue(t - _eps);
-          return (up - down) / mid / 2 / _eps;
         }
+        final double down = _fwdCurve.getYValue(t - _eps);
+        return (up - down) / mid / 2 / _eps;
       }
     };
 
@@ -60,7 +60,7 @@ public class ForwardCurve {
 
   /**
    * Forward curve with zero drift (i.e. curve is constant)
-   * @param spot
+   * @param spot The spot rate
    */
   public ForwardCurve(final double spot) {
     _fwdCurve = ConstantDoublesCurve.from(spot);
@@ -70,14 +70,14 @@ public class ForwardCurve {
 
   /**
    * Forward curve with constant drift 
-   * @param spot 
-   * @param drift
+   * @param spot  The spot
+   * @param drift The drift
    */
   public ForwardCurve(final double spot, final double drift) {
     _drift = ConstantDoublesCurve.from(drift);
-    Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return spot * Math.exp(drift * t);
       }
     };
@@ -88,24 +88,25 @@ public class ForwardCurve {
   /**
    * Forward curve with functional drift.
    * <b>Warning</b> This will be slow if you want access to the forward at many times 
-   * @param spot
-   * @param driftCurve
+   * @param spot The spot rate
+   * @param driftCurve The drift curve
    */
   public ForwardCurve(final double spot, final Curve<Double, Double> driftCurve) {
     Validate.notNull(driftCurve, "null driftCurve");
     _drift = driftCurve;
     final Function1D<Double, Double> driftFunc = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return driftCurve.getYValue(t);
       }
     };
 
-    //TODO cache integration results 
-    Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+    //TODO cache integration results. REVIEW emcleod 22-6-2011 There's no point in thinking about caching until we know that this is a bottleneck
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
-        double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
+      public Double evaluate(final Double t) {
+        @SuppressWarnings("synthetic-access")
+        final double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
         return spot * Math.exp(temp);
       }
     };

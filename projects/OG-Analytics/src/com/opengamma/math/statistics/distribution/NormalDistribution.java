@@ -30,7 +30,7 @@ import cern.jet.stat.Probability;
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
   private static final double XMIN = -7.6; //-7.6
-  private static final double DELTA = 0.6;//0.05
+  private static final double DELTA = 0.6; //0.05
 
   // TODO need a better seed
   private final double _mean;

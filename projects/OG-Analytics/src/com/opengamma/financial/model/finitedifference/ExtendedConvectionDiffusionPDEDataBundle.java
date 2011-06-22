@@ -18,13 +18,15 @@ public class ExtendedConvectionDiffusionPDEDataBundle extends ConvectionDiffusio
   private final Surface<Double, Double, Double> _beta;
 
   /**
-   * @param a
-   * @param b
-   * @param c
-   * @param initialCondition
+   * @param a a
+   * @param b b
+   * @param c c
+   * @param alpha alpha
+   * @param beta beta
+   * @param initialCondition The initial condition
    */
-  public ExtendedConvectionDiffusionPDEDataBundle(Surface<Double, Double, Double> a, Surface<Double, Double, Double> b,
-      Surface<Double, Double, Double> c, Surface<Double, Double, Double> alpha, Surface<Double, Double, Double> beta, Function1D<Double, Double> initialCondition) {
+  public ExtendedConvectionDiffusionPDEDataBundle(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c,
+      final Surface<Double, Double, Double> alpha, final Surface<Double, Double, Double> beta, final Function1D<Double, Double> initialCondition) {
     super(a, b, c, initialCondition);
     Validate.notNull(alpha, "null alpha");
     Validate.notNull(beta, "null beta");

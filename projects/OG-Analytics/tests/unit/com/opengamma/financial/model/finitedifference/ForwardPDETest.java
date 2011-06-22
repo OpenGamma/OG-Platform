@@ -7,17 +7,11 @@ package com.opengamma.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
@@ -26,7 +20,6 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
@@ -38,7 +31,7 @@ import com.opengamma.util.time.DateUtil;
 public class ForwardPDETest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
+  //private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
 
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
@@ -48,7 +41,7 @@ public class ForwardPDETest {
   private static final double RATE = 0.05;// TODO change back to 5%
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final ConvectionDiffusionPDEDataBundle DATA;
 
   private static Surface<Double, Double, Double> A;
@@ -61,14 +54,14 @@ public class ForwardPDETest {
 
   static {
 
-    Function1D<Double, Double> strikeZeroPrice = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> strikeZeroPrice = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         if (ISCALL) {
           return SPOT;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
     };
 
@@ -85,7 +78,7 @@ public class ForwardPDETest {
       @Override
       public Double evaluate(final Double... tk) {
         Validate.isTrue(tk.length == 2);
-        double k = tk[1];
+        final double k = tk[1];
         return -k * k * ATM_VOL * ATM_VOL / 2;
       }
     };
@@ -94,7 +87,7 @@ public class ForwardPDETest {
       @Override
       public Double evaluate(final Double... tk) {
         Validate.isTrue(tk.length == 2);
-        double k = tk[1];
+        final double k = tk[1];
         return k * RATE;
       }
     };
@@ -109,13 +102,13 @@ public class ForwardPDETest {
 
     final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double k) {
+      public Double evaluate(final Double k) {
         if (ISCALL) {
           return Math.max(0, SPOT - k);
-        } else {
-          return Math.max(0, k - SPOT);
         }
+        return Math.max(0, k - SPOT);
       }
     };
 
@@ -131,25 +124,25 @@ public class ForwardPDETest {
   public void testBlackScholes() {
 
     final boolean print = false;
-    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
     // ConvectionDiffusionPDESolver solver = new RichardsonExtrapolationFiniteDifference(base);
 
-    int tNodes = 51;
-    int xNodes = 101;
+    final int tNodes = 51;
+    final int xNodes = 101;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
 
     double t, k;
     double price;
     double impVol;
     double lowerK, upperK;
-    double tMin = 0.02;
+    final double tMin = 0.02;
 
     if (print) {
       for (int i = 0; i < xNodes; i++) {
@@ -160,8 +153,8 @@ public class ForwardPDETest {
 
     for (int j = 0; j < tNodes; j++) {
       t = res.getTimeValue(j);
-      double df = YIELD_CURVE.getDiscountFactor(t);
-      BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
+      final double df = YIELD_CURVE.getDiscountFactor(t);
+      final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
       lowerK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t - ATM_VOL * Math.sqrt(t) * 3);
       upperK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t + ATM_VOL * Math.sqrt(t) * 3);
       if (print) {
@@ -170,11 +163,11 @@ public class ForwardPDETest {
       for (int i = 0; i < xNodes; i++) {
         k = res.getSpaceValue(i);
         price = res.getFunctionValue(i, j);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
         if (k > lowerK && k < upperK && t > tMin) {
           try {
             impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             impVol = 0.0;
           }
           assertEquals(ATM_VOL, impVol, 1e-2);

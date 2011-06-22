@@ -9,8 +9,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.linearalgebra.DecompositionResult;
-
 /**
  * 
  */
@@ -28,9 +26,9 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
 
     final int tNodes = grid.getNumTimeNodes();
     final int xNodes = grid.getNumSpaceNodes();
-
-    double[] f = new double[xNodes];
-    double[][] full = new double[tNodes][xNodes];
+    final double theta = getTheta();
+    final double[] f = new double[xNodes];
+    final double[][] full = new double[tNodes][xNodes];
 
     final double[] q = new double[xNodes];
     final double[][] m = new double[xNodes][xNodes];
@@ -42,9 +40,9 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
     double[] c1 = new double[xNodes - 2];
     final double[] c2 = new double[xNodes - 2];
     double[] alpha1 = new double[xNodes];
-    double[] alpha2 = new double[xNodes];
+    final double[] alpha2 = new double[xNodes];
     double[] beta1 = new double[xNodes];
-    double[] beta2 = new double[xNodes];
+    final double[] beta2 = new double[xNodes];
 
     double dt, t1, t2, x;
     double[] x1st, x2nd;
@@ -72,8 +70,8 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
       beta1[i] = pdeData.getBeta(0, x);
     }
 
-    DecompositionResult decompRes = null;
-    boolean first = true;
+    //    DecompositionResult decompRes = null;
+    //    boolean first = true;
 
     for (int n = 1; n < tNodes; n++) {
       t1 = grid.getTimeNode(n - 1);
@@ -92,17 +90,17 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
         x2nd = grid.getSecondDerivativeCoefficients(i);
 
         q[i] = f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[0] * a1[i - 1] * alpha1[i - 1] + x1st[0] * b1[i - 1] * beta1[i - 1]) * f[i - 1];
-        q[i] -= (1 - _theta) * dt * (x2nd[1] * a1[i - 1] * alpha1[i] + x1st[1] * b1[i - 1] * beta1[i] + c1[i - 1]) * f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[2] * a1[i - 1] * alpha1[i + 1] + x1st[2] * b1[i - 1] * beta1[i + 1]) * f[i + 1];
+        q[i] -= (1 - theta) * dt * (x2nd[0] * a1[i - 1] * alpha1[i - 1] + x1st[0] * b1[i - 1] * beta1[i - 1]) * f[i - 1];
+        q[i] -= (1 - theta) * dt * (x2nd[1] * a1[i - 1] * alpha1[i] + x1st[1] * b1[i - 1] * beta1[i] + c1[i - 1]) * f[i];
+        q[i] -= (1 - theta) * dt * (x2nd[2] * a1[i - 1] * alpha1[i + 1] + x1st[2] * b1[i - 1] * beta1[i + 1]) * f[i + 1];
 
         a2[i - 1] = pdeData.getA(t2, x);
         b2[i - 1] = pdeData.getB(t2, x);
         c2[i - 1] = pdeData.getC(t2, x);
 
-        m[i][i - 1] = _theta * dt * (x2nd[0] * a2[i - 1] * alpha2[i - 1] + x1st[0] * b2[i - 1] * beta2[i - 1]);
-        m[i][i] = 1 + _theta * dt * (x2nd[1] * a2[i - 1] * alpha2[i] + x1st[1] * b2[i - 1] * beta2[i] + c2[i - 1]);
-        m[i][i + 1] = _theta * dt * (x2nd[2] * a2[i - 1] * alpha2[i + 1] + x1st[2] * b2[i - 1] * beta2[i + 1]);
+        m[i][i - 1] = theta * dt * (x2nd[0] * a2[i - 1] * alpha2[i - 1] + x1st[0] * b2[i - 1] * beta2[i - 1]);
+        m[i][i] = 1 + theta * dt * (x2nd[1] * a2[i - 1] * alpha2[i] + x1st[1] * b2[i - 1] * beta2[i] + c2[i - 1]);
+        m[i][i + 1] = theta * dt * (x2nd[2] * a2[i - 1] * alpha2[i + 1] + x1st[2] * b2[i - 1] * beta2[i + 1]);
       }
 
       double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, grid, t2);
@@ -130,7 +128,7 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
 
       q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, t2);
 
-      int count = sor(omega, grid, null, xNodes, f, q, m, t2);
+      final int count = sor(omega, grid, null, xNodes, f, q, m, t2);
       if (oldCount > 0) {
         if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
           omega = Math.max(1.0, omega * 0.9);
@@ -159,7 +157,7 @@ public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDiffer
 
     }
 
-    PDEFullResults1D res = new PDEFullResults1D(grid, full);
+    final PDEFullResults1D res = new PDEFullResults1D(grid, full);
 
     return res;
 

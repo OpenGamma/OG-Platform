@@ -19,9 +19,9 @@ import com.opengamma.math.surface.Surface;
  * 
  */
 public class CoupledFiniteDifference {
-  protected static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
 
-  protected final double _theta;
+  private final double _theta;
   private final boolean _showFullResults;
 
   /**
@@ -32,23 +32,33 @@ public class CoupledFiniteDifference {
     _showFullResults = true;
   }
 
-  public CoupledFiniteDifference(final double theta,
-      final boolean showFullResults) {
+  public CoupledFiniteDifference(final double theta, final boolean showFullResults) {
     _theta = theta;
     _showFullResults = showFullResults;
   }
 
+  public double getTheta() {
+    return _theta;
+  }
+
+  public boolean showFullResults() {
+    return false;
+  }
+
+  public Decomposition<?> getDecomposition() {
+    return DCOMP;
+  }
+
   public PDEResults1D[] solve(final CoupledPDEDataBundle pdeData1, final CoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
-      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2,
-      final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
+      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
 
     validateSetup(grid, lowerBoundary1, upperBoundary1);
     validateSetup(grid, lowerBoundary2, upperBoundary2);
 
-    int tNodes = grid.getNumTimeNodes();
-    int xNodes = grid.getNumSpaceNodes();
+    final int tNodes = grid.getNumTimeNodes();
+    final int xNodes = grid.getNumSpaceNodes();
 
     double[] f = new double[2 * xNodes];
     double[][] full1 = null;
@@ -61,19 +71,19 @@ public class CoupledFiniteDifference {
     final double[][] m = new double[2 * xNodes][2 * xNodes];
 
     double[][] rho1 = new double[2][xNodes - 2];
-    double[][] rho2 = new double[2][xNodes - 2];
+    final double[][] rho2 = new double[2][xNodes - 2];
     double[][] a1 = new double[2][xNodes - 2];
-    double[][] a2 = new double[2][xNodes - 2];
+    final double[][] a2 = new double[2][xNodes - 2];
     double[][] b1 = new double[2][xNodes - 2];
-    double[][] b2 = new double[2][xNodes - 2];
+    final double[][] b2 = new double[2][xNodes - 2];
     double[][] c1 = new double[2][xNodes - 2];
-    double[][] c2 = new double[2][xNodes - 2];
-    double lambda1 = pdeData1.getCoupling();
-    double lambda2 = pdeData2.getCoupling();
+    final double[][] c2 = new double[2][xNodes - 2];
+    final double lambda1 = pdeData1.getCoupling();
+    final double lambda2 = pdeData2.getCoupling();
 
-    double omega = 1.5;
-    int oldCount = 0;
-    boolean omegaIncrease = false;
+    //    final double omega = 1.5;
+    //    final int oldCount = 0;
+    //    final boolean omegaIncrease = false;
 
     double dt, t1, t2, x;
     double[] x1st, x2nd;
@@ -102,7 +112,7 @@ public class CoupledFiniteDifference {
       rho1[1][i] = getFittingParameter(grid, a1[1][i], b1[1][i], i + 1);
     }
 
-    boolean first = true;
+    final boolean first = true;
     DecompositionResult decompRes = null;
 
     for (int n = 1; n < tNodes; n++) {
@@ -242,8 +252,8 @@ public class CoupledFiniteDifference {
       res[0] = new PDEFullResults1D(grid, full1);
       res[1] = new PDEFullResults1D(grid, full2);
     } else {
-      double[] res1 = Arrays.copyOfRange(f, 0, xNodes);
-      double[] res2 = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
+      final double[] res1 = Arrays.copyOfRange(f, 0, xNodes);
+      final double[] res2 = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
       res[0] = new PDETerminalResults1D(grid, res1);
       res[1] = new PDETerminalResults1D(grid, res2);
     }
@@ -251,6 +261,7 @@ public class CoupledFiniteDifference {
     return res;
   }
 
+  @SuppressWarnings("unused")
   private int sor(final double omega, final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m,
       final double t2) {
     double sum;
@@ -282,9 +293,9 @@ public class CoupledFiniteDifference {
 
   /**
    * Checks that the lower and upper boundaries match up with the grid
-   * @param grid
-   * @param lowerBoundary
-   * @param upperBoundary
+   * @param grid The grid
+   * @param lowerBoundary The lower boundary
+   * @param upperBoundary The upper boundary
    */
   protected void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
@@ -292,12 +303,12 @@ public class CoupledFiniteDifference {
     Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
   }
 
-  private double getFittingParameter(final PDEGrid1D grid, double a, double b, int i) {
+  private double getFittingParameter(final PDEGrid1D grid, final double a, final double b, final int i) {
     double rho;
-    double[] x1st = grid.getFirstDerivativeCoefficients(i);
-    double[] x2nd = grid.getSecondDerivativeCoefficients(i);
-    double bdx1 = (b * grid.getSpaceStep(i - 1));
-    double bdx2 = (b * grid.getSpaceStep(i));
+    final double[] x1st = grid.getFirstDerivativeCoefficients(i);
+    final double[] x2nd = grid.getSecondDerivativeCoefficients(i);
+    final double bdx1 = (b * grid.getSpaceStep(i - 1));
+    final double bdx2 = (b * grid.getSpaceStep(i));
 
     // convection dominated
     if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a) || a == 0.0) {
@@ -309,8 +320,8 @@ public class CoupledFiniteDifference {
     } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
       rho = a; // diffusion dominated
     } else {
-      double expo1 = Math.exp(bdx1 / a);
-      double expo2 = Math.exp(-bdx2 / a);
+      final double expo1 = Math.exp(bdx1 / a);
+      final double expo2 = Math.exp(-bdx2 / a);
       rho = -b * (x1st[0] * expo1 + x1st[1] + x1st[2] * expo2) / (x2nd[0] * expo1 + x2nd[1] + x2nd[2] * expo2);
     }
     return rho;

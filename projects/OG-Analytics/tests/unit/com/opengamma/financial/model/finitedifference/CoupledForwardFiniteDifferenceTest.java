@@ -50,25 +50,25 @@ public class CoupledForwardFiniteDifferenceTest {
 
   static {
 
-    Function1D<Double, Double> strikeZeroPrice1 = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> strikeZeroPrice1 = new Function1D<Double, Double>() {
+      @SuppressWarnings({"synthetic-access", "unused"})
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         if (ISCALL) {
           return probState1(LAMBDA12, LAMBDA21, PROB_STATE1, t) * SPOT;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
     };
 
-    Function1D<Double, Double> strikeZeroPrice2 = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> strikeZeroPrice2 = new Function1D<Double, Double>() {
+      @SuppressWarnings({"synthetic-access", "unused"})
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         if (ISCALL) {
           return (1 - probState1(LAMBDA12, LAMBDA21, PROB_STATE1, t)) * SPOT;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
     };
 
@@ -89,44 +89,44 @@ public class CoupledForwardFiniteDifferenceTest {
 
   @Test(enabled = false)
   public void testMCSmile() {
-    int timeNodes = 51;
-    int spaceNodes = 151;
+    final int timeNodes = 51;
+    final int spaceNodes = 151;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.00, T, timeNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, spaceNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.00, T, timeNodes, 7.5);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, spaceNodes, 0.01);
     // MeshingFunction spaceMesh = new ExponentialMeshing(SPOT / 10., SPOT * 5, spaceNodes, 0.0);
 
-    double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 0, timeNodes);
-    double[] strikes = spaceMesh.getPoints();
-    double[] forwards = new double[timeNodes];
-    double[] df = new double[timeNodes];
+    final double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 0, timeNodes);
+    final double[] strikes = spaceMesh.getPoints();
+    final double[] forwards = new double[timeNodes];
+    final double[] df = new double[timeNodes];
     for (int i = 0; i < timeNodes; i++) {
       df[i] = YIELD_CURVE.getDiscountFactor(expiries[i]);
       forwards[i] = SPOT / df[i];
     }
 
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final MarkovChain mc = new MarkovChain(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
     double impVol;
 
-    double weight = Math.exp(-LAMBDA12 * 0.004);
+    final double weight = Math.exp(-LAMBDA12 * 0.004);
     double[][] mcSims = mc.simulate(expiries, 10000, 0.0, weight);
-    double[][] pricesA = mc.price(forwards, df, strikes, expiries, mcSims);
+    final double[][] pricesA = mc.price(forwards, df, strikes, expiries, mcSims);
 
     mcSims = mc.simulate(expiries, 1000, weight, 1.0);
-    double[][] pricesB = mc.price(forwards, df, strikes, expiries, mcSims);
+    final double[][] pricesB = mc.price(forwards, df, strikes, expiries, mcSims);
 
     for (int i = 0; i < spaceNodes; i++) {
       System.out.print("\t" + strikes[i]);
     }
     System.out.print("\n");
     for (int j = 0; j < timeNodes; j++) {
-      BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], 0.0);
+      final BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], 0.0);
       System.out.print(expiries[j]);
       for (int i = 0; i < spaceNodes; i++) {
         try {
-          EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], expiries[j], true);
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], expiries[j], true);
           impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, weight * pricesA[j][i] + (1 - weight) * pricesB[j][i]);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           impVol = 0.0;
         }
         System.out.print("\t" + impVol);
@@ -138,23 +138,23 @@ public class CoupledForwardFiniteDifferenceTest {
 
   @Test(enabled = false)
   public void testApproxSmile() {
-    int timeNodes = 11;
-    int spaceNodes = 151;
+    final int timeNodes = 11;
+    final int spaceNodes = 151;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, 0.04, timeNodes, 0.0);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, 0.04, timeNodes, 0.0);
     // MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, spaceNodes, 0.1);
-    MeshingFunction spaceMesh = new ExponentialMeshing(SPOT / 10., SPOT * 5, spaceNodes, 0.0);
+    final MeshingFunction spaceMesh = new ExponentialMeshing(SPOT / 10., SPOT * 5, spaceNodes, 0.0);
 
-    double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 0, timeNodes);
-    double[] strikes = spaceMesh.getPoints();
-    double[] forwards = new double[timeNodes];
-    double[] df = new double[timeNodes];
+    final double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 0, timeNodes);
+    final double[] strikes = spaceMesh.getPoints();
+    final double[] forwards = new double[timeNodes];
+    final double[] df = new double[timeNodes];
     for (int i = 0; i < timeNodes; i++) {
       df[i] = YIELD_CURVE.getDiscountFactor(expiries[i]);
       forwards[i] = SPOT / df[i];
     }
 
-    MarkovChainSmallTimeApprox mc = new MarkovChainSmallTimeApprox(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final MarkovChainSmallTimeApprox mc = new MarkovChainSmallTimeApprox(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
 
     double impVol;
 
@@ -163,15 +163,15 @@ public class CoupledForwardFiniteDifferenceTest {
     }
     System.out.print("\n");
     for (int j = 0; j < timeNodes; j++) {
-      BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], 0.0);
+      final BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], 0.0);
       System.out.print(expiries[j]);
       for (int i = 0; i < spaceNodes; i++) {
-        double price = mc.price(forwards[j], df[j], strikes[i], expiries[j]);
+        final double price = mc.price(forwards[j], df[j], strikes[i], expiries[j]);
         try {
 
-          EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], expiries[j], true);
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], expiries[j], true);
           impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           impVol = 0.0;
         }
         System.out.print("\t" + impVol);
@@ -184,43 +184,43 @@ public class CoupledForwardFiniteDifferenceTest {
   @Test
   public void testDegenerate() {
     //NOT vols equal 
-    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(new ForwardCurve(SPOT, RATE), mcData);
+    final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
+    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(new ForwardCurve(SPOT, RATE), mcData);
 
-    int tNodes = 50;
-    int xNodes = 150;
+    final int tNodes = 50;
+    final int xNodes = 150;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER1.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
-    PDEFullResults1D res1 = (PDEFullResults1D) res[0];
-    PDEFullResults1D res2 = (PDEFullResults1D) res[1];
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
+    final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
     double price;
     double impVol;
-    double tMin = 0.03;
+    final double tMin = 0.03;
 
     for (int j = 0; j < tNodes; j++) {
       t = res1.getTimeValue(j);
       if (t > tMin) {
-        double rootT = Math.sqrt(t);
-        double df = YIELD_CURVE.getDiscountFactor(t);
-        BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
+        final double rootT = Math.sqrt(t);
+        final double df = YIELD_CURVE.getDiscountFactor(t);
+        final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
 
         for (int i = 0; i < xNodes; i++) {
           k = res1.getSpaceValue(i);
-          double z = (Math.log(k / SPOT) - (RATE - VOL1 * VOL1 / 2) * t) / VOL1 / rootT;
+          final double z = (Math.log(k / SPOT) - (RATE - VOL1 * VOL1 / 2) * t) / VOL1 / rootT;
           if (z > -2.6 && z < 3.2) {
             price = res1.getFunctionValue(i, j) + res2.getFunctionValue(i, j);
-            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
+            final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
             try {
               impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-            } catch (Exception e) {
+            } catch (final Exception e) {
               impVol = 0.0;
             }
             //System.out.println(t + "\t" + k);
@@ -234,63 +234,63 @@ public class CoupledForwardFiniteDifferenceTest {
   @Test
   public void testSmile() {
 
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
-    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+    final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
 
-    int tNodes = 51;
-    int xNodes = 151;
+    final int tNodes = 51;
+    final int xNodes = 151;
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER1.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
-    double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 1, tNodes);
-    double[] strikes = spaceMesh.getPoints();
-    double[] forwards = new double[tNodes - 1];
-    double[] df = new double[tNodes - 1];
+    final double[] expiries = Arrays.copyOfRange(timeMesh.getPoints(), 1, tNodes);
+    final double[] strikes = spaceMesh.getPoints();
+    final double[] forwards = new double[tNodes - 1];
+    final double[] df = new double[tNodes - 1];
     for (int i = 0; i < tNodes - 1; i++) {
       df[i] = YIELD_CURVE.getDiscountFactor(expiries[i]);
       forwards[i] = SPOT / df[i];
     }
 
-    MarkovChain mc = new MarkovChain(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final MarkovChain mc = new MarkovChain(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
 
-    double[][] mcSims = mc.simulate(expiries, 1000);
-    double[][] mcPrices = mc.price(forwards, df, strikes, expiries, mcSims);
+    final double[][] mcSims = mc.simulate(expiries, 1000);
+    final double[][] mcPrices = mc.price(forwards, df, strikes, expiries, mcSims);
 
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
-    PDEFullResults1D res1 = (PDEFullResults1D) res[0];
-    PDEFullResults1D res2 = (PDEFullResults1D) res[1];
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
+    final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
     double price;
     double impVol, mcImpVol = 0;
-    double tMin = 0.5;
-    double zMax = 2.0;
+    final double tMin = 0.5;
+    final double zMax = 2.0;
     double mcPrice;
 
     for (int j = 1; j < tNodes; j++) {
       t = res1.getTimeValue(j);
       if (t > tMin) {
-        double rootT = Math.sqrt(t);
-        BlackFunctionData data = new BlackFunctionData(forwards[j - 1], df[j - 1], 0.0);
+        final double rootT = Math.sqrt(t);
+        final BlackFunctionData data = new BlackFunctionData(forwards[j - 1], df[j - 1], 0.0);
 
         for (int i = 0; i < xNodes; i++) {
           k = res1.getSpaceValue(i);
-          double z = (Math.log(k / SPOT) - (RATE - VOL1 * VOL1 / 2) * t) / VOL1 / rootT;
+          final double z = (Math.log(k / SPOT) - (RATE - VOL1 * VOL1 / 2) * t) / VOL1 / rootT;
           if (Math.abs(z) < zMax) {
             price = res1.getFunctionValue(i, j) + res2.getFunctionValue(i, j);
             mcPrice = mcPrices[j - 1][i];
             //  System.out.println(t + "\t" + k);
             assertEquals(mcPrice, price, 1e-1 * mcPrice);
-            EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
+            final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
             try {
               impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
               mcImpVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, mcPrice);
-            } catch (Exception e) {
+            } catch (final Exception e) {
               impVol = 0.0;
             }
             assertEquals(impVol, mcImpVol, 4e-3);
@@ -302,34 +302,34 @@ public class CoupledForwardFiniteDifferenceTest {
 
   @Test(enabled = false)
   public void testSmilePrint() {
-    final boolean print = true;
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
+    //final boolean print = true;
+    final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
-    TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+    final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
+    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
 
-    int tNodes = 51;
-    int xNodes = 151;
-    double lowerMoneyness = 0.0;
-    double upperMoneyness = 3.0;
+    final int tNodes = 51;
+    final int xNodes = 151;
+    //final double lowerMoneyness = 0.0;
+    //final double upperMoneyness = 3.0;
 
     //  MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
     // double[] mcSims = mc.simulate(T, 10000); // simulate the vol path
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 7.5);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER1.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     //MeshingFunction spaceMesh = new ExponentialMeshing(LOWER1.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
-    PDEFullResults1D res1 = (PDEFullResults1D) res[0];
-    PDEFullResults1D res2 = (PDEFullResults1D) res[1];
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
+    final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
     double price;
     double impVol;
-    double lowerK, upperK;
-    double tMin = 0.02;
+    //final double lowerK, upperK;
+    //final double tMin = 0.02;
 
     //Combined price
 
@@ -340,19 +340,19 @@ public class CoupledForwardFiniteDifferenceTest {
 
     for (int j = 0; j < tNodes; j++) {
       t = res1.getTimeValue(j);
-      double p1 = probState1(LAMBDA12, LAMBDA21, 1.0, t);
-      double df = YIELD_CURVE.getDiscountFactor(t);
-      BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
+      //final double p1 = probState1(LAMBDA12, LAMBDA21, 1.0, t);
+      final double df = YIELD_CURVE.getDiscountFactor(t);
+      final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
 
       System.out.print(t);
 
       for (int i = 0; i < xNodes; i++) {
         k = res1.getSpaceValue(i);
         price = res1.getFunctionValue(i, j) + res2.getFunctionValue(i, j);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
         try {
           impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           impVol = 0.0;
         }
         System.out.print("\t" + impVol);
@@ -364,11 +364,11 @@ public class CoupledForwardFiniteDifferenceTest {
   }
 
   private static double probState1(final double lambda12, final double lambda21, final double pState1T0, final double t) {
-    double sum = lambda12 + lambda21;
+    final double sum = lambda12 + lambda21;
     if (sum == 0) {
       return pState1T0;
     }
-    double pi1 = lambda21 / sum;
+    final double pi1 = lambda21 / sum;
     return pi1 + (pState1T0 - pi1) * Math.exp(-sum * t);
   }
 
