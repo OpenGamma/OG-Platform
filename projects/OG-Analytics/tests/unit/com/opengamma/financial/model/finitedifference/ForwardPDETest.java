@@ -7,41 +7,31 @@ package com.opengamma.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
  * spot). Since all strikes and maturities are priced with a single pass of the solver, this is very useful for calibrating to market prices.
  * By contrast the backwards PDE gives the price surface for time-to-maturity and spot (for a fixed maturity and strike), so a separate solver 
- * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read stright off
+ * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read straight off
  * the backwards PDE. 
  */
-@SuppressWarnings("unused")
 public class ForwardPDETest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
+  //private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
 
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
@@ -51,29 +41,27 @@ public class ForwardPDETest {
   private static final double RATE = 0.05;// TODO change back to 5%
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final ConvectionDiffusionPDEDataBundle DATA;
 
   private static Surface<Double, Double, Double> A;
   private static Surface<Double, Double, Double> B;
   private static Surface<Double, Double, Double> C;
+  @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
-  private static VolatilitySurface VOL_SURFACE;
 
   private static boolean ISCALL = true;
 
   static {
 
-    VOL_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(ATM_VOL));
-
     final Function1D<Double, Double> strikeZeroPrice = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double t) {
         if (ISCALL) {
           return SPOT;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
     };
 
@@ -114,13 +102,13 @@ public class ForwardPDETest {
 
     final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double k) {
         if (ISCALL) {
           return Math.max(0, SPOT - k);
-        } else {
-          return Math.max(0, k - SPOT);
         }
+        return Math.max(0, k - SPOT);
       }
     };
 
@@ -142,7 +130,7 @@ public class ForwardPDETest {
     final int tNodes = 51;
     final int xNodes = 101;
 
-    final MeshingFunction timeMesh = new ExponentalMeshing(0, T, tNodes, 5.0);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 

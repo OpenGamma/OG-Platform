@@ -30,12 +30,12 @@ public class BracketRoot {
    * @return The bracketed points as an array, where the first element is the lower bracket and the second the upper bracket.
    * @throws MathException If a root is not bracketed in 50 attempts.
    */
-  public double[] getBracketedPoints(final Function1D<Double, Double> f, final double xLower, final double xUpper) {    
-    Validate.notNull(f, "f");  
+  public double[] getBracketedPoints(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
+    Validate.notNull(f, "f");
     double x1 = xLower;
     double x2 = xUpper;
-    double f1;
-    double f2;
+    double f1 = 0;
+    double f2 = 0;
     for (int count = 0; count < MAX_STEPS; count++) {
       f1 = f.evaluate(x1);
       f2 = f.evaluate(x2);
@@ -48,7 +48,7 @@ public class BracketRoot {
         x2 += RATIO * (x2 - x1);
       }
     }
-    throw new MathException("Failed to bracket root");
+    throw new MathException("Failed to bracket root: " + x1 + " " + x2 + " " + f1 + " " + f2);
   }
 
 }

@@ -20,7 +20,7 @@ public class LeastSquareResults {
   private final DoubleMatrix2D _covariance;
 
   public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
-    Validate.isTrue(chiSq > 0, "chi square < 0");
+    Validate.isTrue(chiSq >= 0, "chi square < 0");
     Validate.notNull(parameters, "parameters");
     Validate.notNull(covariance, "covariance");
     final int n = parameters.getNumberOfElements();

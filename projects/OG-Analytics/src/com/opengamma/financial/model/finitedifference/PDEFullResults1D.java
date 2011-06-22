@@ -72,4 +72,9 @@ public class PDEFullResults1D implements PDEResults1D {
     return _grid.getTimeNode(timeIndex);
   }
 
+  @Override
+  public PDEGrid1D getGrid() {
+    return _grid;
+  }
+
 }

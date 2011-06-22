@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
@@ -20,7 +23,7 @@ import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
  */
 public class VolatilitySurfaceTest {
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
-  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
+  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR);
   private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(new double[] {0, 1, 2, 0, 1, 2, 0, 1, 2}, new double[] {0, 0, 0, 1, 1, 1, 2, 2, 2}, new double[] {4, 5, 6,
       4, 5, 6, 4, 5, 6}, INTERPOLATOR, "S");
   private static final VolatilitySurface VOL = new VolatilitySurface(SURFACE);

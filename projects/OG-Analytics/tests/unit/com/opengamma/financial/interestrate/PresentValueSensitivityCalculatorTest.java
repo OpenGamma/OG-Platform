@@ -223,9 +223,9 @@ public class PresentValueSensitivityCalculatorTest {
     final boolean isPayer = true;
     final double notional = 100000000.0;
     final ZonedDateTime settleDate = DateUtil.getUTCDate(2014, 3, 20);
-    final Period INDEX_TENOR = Period.ofMonths(3);
+    final Period indexTenor = Period.ofMonths(3);
     final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, settlementDays, CALENDAR, dayCount, businessDayConvention, isEOM);
+    final IborIndex INDEX = new IborIndex(CUR, indexTenor, settlementDays, CALENDAR, dayCount, businessDayConvention, isEOM);
     final AnnuityCouponIborDefinition iborAnnuityDefinition = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(5), notional, INDEX, !isPayer);
 
     final YieldCurveBundle curves = TestsDataSets.createCurves1();

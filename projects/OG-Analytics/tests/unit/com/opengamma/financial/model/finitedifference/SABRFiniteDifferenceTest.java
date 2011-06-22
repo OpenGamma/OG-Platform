@@ -34,6 +34,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
+@Test
 @SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
 
@@ -73,6 +74,7 @@ public class SABRFiniteDifferenceTest {
 
     final Function<Double, Double> sabrSurface = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];
@@ -88,6 +90,7 @@ public class SABRFiniteDifferenceTest {
 
     final Function<Double, Double> priceSurface = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];
@@ -115,6 +118,7 @@ public class SABRFiniteDifferenceTest {
     UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * SPOT, false);
 
     final Function<Double, Double> a = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
@@ -148,6 +152,7 @@ public class SABRFiniteDifferenceTest {
 
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
 
@@ -159,7 +164,6 @@ public class SABRFiniteDifferenceTest {
     DATA = new ConvectionDiffusionPDEDataBundle(A, B, C, payoff);
   }
 
-  @Test
   public void test() {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 20;
