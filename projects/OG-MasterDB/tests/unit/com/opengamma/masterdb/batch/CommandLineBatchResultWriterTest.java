@@ -76,7 +76,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
   
   private HibernateTemplate _hibernateTemplate;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public CommandLineBatchResultWriterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

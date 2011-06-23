@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.fra;
+package com.opengamma.financial.interestrate.fra.definition;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -145,9 +145,6 @@ public class ZZZForwardRateAgreement extends CouponFloating {
       return true;
     }
     if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
       return false;
     }
     final ZZZForwardRateAgreement other = (ZZZForwardRateAgreement) obj;
