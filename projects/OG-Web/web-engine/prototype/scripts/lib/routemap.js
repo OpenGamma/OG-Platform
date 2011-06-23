@@ -129,34 +129,39 @@
          * @see RouteMap.hash
          * @see RouteMap.remove
          */
-        compile = (function () {
-            var memo = {}; // compile is slow so cache compiled objects here
-            return function (route) {
-                var self = 'compile', param, compiled_route, orig = route, index;
-                route = route[0] === SL ? route : ~(index = route.indexOf(SL)) ? route.slice(index) : null;
-                if (!route) throw new SyntaxError(self + ': the route "' + orig + '" was not understood');
+        compile = (function (memo) { // compile is slow so cache compiled objects in a memo
+            return function (orig) {
+                var self = 'compile', compiled, index, names = {},
+                    route = orig[0] === SL ? orig : ~(index = orig.indexOf(SL)) ? orig.slice(index) : 0,
+                    /** @ignore */
+                    valid_name = function (name) {
+                        if (names[has](name) || (names[name] = 0))
+                            throw new SyntaxError(self + ': "' + name + '" is repeated in: ' + orig);
+                    };
+                if (!route) throw new SyntaxError(self + ': the route ' + orig + ' was not understood');
                 if (memo[route]) return memo[route];
-                compiled_route = route.split(SL).reduce(function (acc, val) {
+                compiled = route.split(SL).reduce(function (acc, val) {
                     var rules = acc.rules, scalars = rules.scalars, keyvals = rules.keyvals;
-                    if (rules.star) throw new SyntaxError(self + ': no rules can follow a * directive');
+                    if (rules.star) throw new SyntaxError(self + ': no rules can follow a * directive in: ' + orig);
                     // construct the name of the page
                     if (!~val.search(token_exp) && !scalars.length && !keyvals.length) return acc.page.push(val), acc;
                     // construct the parameters
-                    if (val.match(star_exp)) return (rules.star = RegExp.$2 || RegExp.$3), acc;
+                    if (val.match(star_exp)) return (rules.star = RegExp.$2 || RegExp.$3), valid_name(rules.star), acc;
                     if (val.match(scalar_exp)) {
                         if (acc.has_optional_scalar) // no scalars can follow optional scalars
-                            throw new SyntaxError(self + ': "' + val + '" cannot follow an optional rule');
+                            throw new SyntaxError(self + ': "' + val + '" cannot follow an optional rule in: ' + orig);
                         if (!!RegExp.$2) acc.has_optional_scalar = val;
-                        return scalars.push({name: RegExp.$1, required: !RegExp.$2}), acc;
+                        return scalars.push({name: RegExp.$1, required: !RegExp.$2}), valid_name(RegExp.$1), acc;
                     }
-                    if (val.match(keyval_exp)) return keyvals.push({name: RegExp.$1, required: !RegExp.$2}), acc;
-                    throw new SyntaxError(self + ': the rule "' + val + '" was not understood');
+                    if (val.match(keyval_exp))
+                        return keyvals.push({name: RegExp.$1, required: !RegExp.$2}), valid_name(RegExp.$1), acc;
+                    throw new SyntaxError(self + ': the rule "' + val + '" was not understood in: ' + orig);
                 }, {page: [], rules: {scalars: [], keyvals: [], star: false}, has_optional_scalar: ''});
-                delete compiled_route.has_optional_scalar; // this is just a temporary value and should not be exposed
-                compiled_route.page = compiled_route.page.join(SL).replace(new RegExp(SL + '$'), '') || SL;
-                return memo[route] = compiled_route;
+                delete compiled.has_optional_scalar; // this is just a temporary value and should not be exposed
+                compiled.page = compiled.page.join(SL).replace(new RegExp(SL + '$'), '') || SL;
+                return memo[route] = compiled;
             };
-        })();
+        })({});
     pub[namespace] = (routes) = { // parens around routes to satisfy JSDoc's caprice
         /**
          * adds a rule to the internal table of routes and methods
@@ -304,12 +309,14 @@
             hash = compiled.page + (compiled.page === SL ? '' : SL) + // 1. start with page, then add params
                 compiled.rules.scalars.map(function (val) { // 2. add scalar values next
                     var value = encode(params[val.name]), bad_param = params[val.name] === void 0 || invalid_str(value);
-                    if (val.required && bad_param) throw new TypeError(self + ': params.' + val.name + ' is undefined');
+                    if (val.required && bad_param)
+                        throw new TypeError(self + ': params.' + val.name + ' is undefined, route: ' + rule.route);
                     return bad_param ? 0 : value;
                 })
                 .concat(compiled.rules.keyvals.map(function (val) { // 3. then concat keyval values
                     var value = encode(params[val.name]), bad_param = params[val.name] === void 0 || invalid_str(value);
-                    if (val.required && bad_param) throw new TypeError(self + ': params.' + val.name + ' is undefined');
+                    if (val.required && bad_param)
+                        throw new TypeError(self + ': params.' + val.name + ' is undefined, route: ' + rule.route);
                     return bad_param ? 0 : val.name + EQ + value;
                 }))
                 .filter(Boolean).join(SL); // remove empty (0) values

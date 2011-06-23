@@ -7,11 +7,13 @@ package com.opengamma.financial.analytics.volatility.cube;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
@@ -35,6 +37,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -43,11 +47,16 @@ import com.opengamma.util.tuple.Triple;
  */
 public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
+  private static final VolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = VolatilityCubeInstrumentProvider.BLOOMBERG;
+  
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;
   private final VolatilityCubeFunctionHelper _helper;
   private VolatilityCubeDefinition _definition;
 
+  private Map<Identifier, VolatilityPoint> _pointsById;
+  private Map<Identifier, Pair<Tenor, Tenor>> _strikesById;
+  
   public VolatilityCubeMarketDataFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
@@ -75,6 +84,9 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
   
   private Set<ValueRequirement> buildRequirements(VolatilityCubeSpecification third, FunctionCompilationContext context) {
+    _pointsById =  new HashMap<Identifier, VolatilityPoint>();
+    _strikesById = new HashMap<Identifier, Pair<Tenor, Tenor>>();
+    
     HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (VolatilityPoint point : allPoints) {
@@ -91,8 +103,26 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Set<ValueRequirement> getValueRequirements(VolatilityPoint point) {
-    Set<Identifier> instruments = VolatilityCubeInstrumentProvider.BLOOMBERG.getInstruments(_helper.getKey()
+    Set<Identifier> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getKey()
         .getCurrency(), point);
+    if (instruments != null) {
+      for (Identifier identifier : instruments) {
+        _pointsById.put(identifier, point);
+      }
+      
+      Identifier strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getKey().getCurrency(), point);
+      if (strikeInstruments != null) {
+        Set<Identifier> instrumentsWithStrike = new HashSet<Identifier>(instruments);
+        ObjectsPair<Tenor, Tenor> strikePoint = Pair.of(point.getSwapTenor(), point.getOptionExpiry());
+        Pair<Tenor, Tenor> previous = _strikesById.put(strikeInstruments, strikePoint);
+        if (previous != null && !previous.equals(strikePoint)) {
+          throw new OpenGammaRuntimeException("Mismatched volatility strike rate instrument");
+        }
+        instrumentsWithStrike.add(strikeInstruments);
+        instruments = instrumentsWithStrike;
+      }
+    }
+    
     return getMarketValueReqs(instruments);
   }
 
@@ -110,27 +140,44 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
       return null;
     }
-    return VolatilityCubeInstrumentProvider.BLOOMBERG.getPoint(_helper.getKey().getCurrency(), spec.getTargetSpecification().getIdentifier());
+    return _pointsById.get(spec.getTargetSpecification().getIdentifier());
   }
 
+  private Pair<Tenor, Tenor> getStrikePoint(ValueSpecification spec) {
+    if (spec.getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+      return null;
+    }
+    return _strikesById.get(spec.getTargetSpecification().getIdentifier());
+  }
   private VolatilityCubeData buildMarketDataMap(final FunctionInputs inputs) {
     HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+    
     HashMap<UniqueIdentifier, Double> otherData = new HashMap<UniqueIdentifier, Double>();
     
     for (ComputedValue value : inputs.getAllValues()) {
-      VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
       if (!(value.getValue() instanceof Double)) {
         continue;
       }
       Double dValue = (Double) value.getValue();
-      if (volatilityPoint == null) {
+      VolatilityPoint volatilityPoint = getVolatilityPoint(value.getSpecification());
+      Pair<Tenor, Tenor> strikePoint = getStrikePoint(value.getSpecification());
+      if (volatilityPoint == null && strikePoint == null) {
+
         otherData.put(value.getSpecification().getTargetSpecification().getUniqueId(), dValue);
-      } else {
+      } else if (volatilityPoint != null && strikePoint == null) {
         Double previous = dataPoints.put(volatilityPoint, dValue);
         if (previous != null && previous > dValue) {
           //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
           dataPoints.put(volatilityPoint, previous);
         }
+      } else if (volatilityPoint == null && strikePoint != null) {
+        Double previous = strikes.put(strikePoint, dValue);
+        if (previous != null) {
+          throw new OpenGammaRuntimeException("Got two values for strike ");
+        }
+      } else {
+        throw new OpenGammaRuntimeException("Instrument is both a volatility and a strike");
       }
     }
         
@@ -139,6 +186,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     SnapshotDataBundle bundle = new SnapshotDataBundle();
     bundle.setDataPoints(otherData);
     volatilityCubeData.setOtherData(bundle);
+    
+    volatilityCubeData.setStrikes(strikes);
     return volatilityCubeData;
   }
   

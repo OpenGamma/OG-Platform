@@ -56,41 +56,41 @@ public interface HistoricalTimeSeriesSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Finds a time-series from identifiers, source, provider and field.
+   * Finds a time-series from identifierBundle, source, provider and field.
    * <p>
    * This returns all the available data points.
    * 
-   * @param identifiers  the identifier bundle, not null
+   * @param identifierBundle  the identifier bundle, not null
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField);
+      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField);
 
   /**
-   * Finds a time-series from identifiers, source, provider and field checking
-   * the validity of the identifiers by date.
+   * Finds a time-series from identifierBundle, source, provider and field checking
+   * the validity of the identifierBundle by date.
    * <p>
    * This returns all the available data points.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
+      IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
 
   /**
-   * Finds a time-series from identifiers, source, provider and field.
+   * Finds a time-series from identifierBundle, source, provider and field.
    * <p>
    * This returns a subset of the data points filtered by the dates provided.
    * 
-   * @param identifiers  the identifier bundle, not null
+   * @param identifierBundle  the identifier bundle, not null
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
@@ -101,17 +101,17 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField,
+      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   /**
-   * Finds a time-series from identifiers, source, provider and field checking
-   * the validity of the identifiers by date.
+   * Finds a time-series from identifierBundle, source, provider and field checking
+   * the validity of the identifierBundle by date.
    * <p>
    * This returns a subset of the data points filtered by the dates provided.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
+   * @param identifierBundle  the identifier bundle, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
@@ -122,42 +122,45 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
+      IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   //-------------------------------------------------------------------------
   /**
-   * Finds a time-series from identifiers using configuration.
+   * Finds a time-series from identifierBundle using configuration.
    * <p>
    * This returns all the available data points.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param configDocName  the name of a configuration document to use for additional parameters
+   * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null
+   * @param identifierBundle  the identifier bundle to retrieve a time-series for, not null
+   * @param resolutionKey  the key to resolve the correct time-series, null to use default rules
    * @return the historical time-series, null if not found
    */
-  HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName);
+  HistoricalTimeSeries getHistoricalTimeSeries(String dataField, IdentifierBundle identifierBundle, String resolutionKey);
 
   /**
-   * Finds a time-series from identifiers using configuration checking
-   * the validity of the identifiers by date.
+   * Finds a time-series from identifierBundle using configuration checking
+   * the validity of the identifierBundle by date.
    * <p>
    * This returns all the available data points.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
-   * @param configDocName  the name of a configuration document to use for additional parameters
+   * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null
+   * @param identifierBundle  the identifier bundle to retrieve a time-series for, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param resolutionKey  the key to resolve the correct time-series, null to use default rules
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String configDocName);
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey);
 
   /**
-   * Finds a time-series from identifiers using configuration.
+   * Finds a time-series from identifierBundle using configuration.
    * <p>
    * This returns a subset of the data points filtered by the dates provided.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param configDocName  the name of a configuration document to use for additional parameters
+   * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null
+   * @param identifierBundle  the identifier bundle to retrieve a time-series for, not null
+   * @param resolutionKey  the key to resolve the correct time-series, null to use default rules
    * @param start  the start date, null will load the earliest date 
    * @param inclusiveStart  whether or not the start date is included in the result
    * @param end  the end date, null will load the latest date
@@ -165,18 +168,19 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String configDocName,
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   /**
-   * Finds a time-series from identifiers using configuration checking
-   * the validity of the identifiers by date.
+   * Finds a time-series from identifierBundle using configuration checking
+   * the validity of the identifierBundle by date.
    * <p>
    * This returns a subset of the data points filtered by the dates provided.
    * 
-   * @param identifiers  the identifier bundle, not null
-   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
-   * @param configDocName  the name of a configuration document to use for additional parameters
+   * @param dataField  the type of data required, see {@code HistoricalTimeSeriesFields}, not null
+   * @param identifierBundle  the identifier bundle to retrieve a time-series for, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifierBundle
+   * @param resolutionKey  the key to resolve the correct time-series, null to use default rules
    * @param start  the start date, null will load the earliest date 
    * @param inclusiveStart  whether or not the start date is included in the result
    * @param end  the end date, null will load the latest date
@@ -184,7 +188,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String configDocName, 
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   //-------------------------------------------------------------------------

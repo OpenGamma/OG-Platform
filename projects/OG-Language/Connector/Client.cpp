@@ -135,7 +135,7 @@ public:
 				}
 				LOGERROR (TEXT ("Java framework is not responding"));
 				CAlert::Bad (TEXT ("Service is not responding"));
-				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user cloicks on the bubble?
+				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user clicks on the bubble?
 				// TODO: [XLS-43] (needs a hook to implement) What about a "retry" button to force Excel to unload and re-load the plugin
 				bStatus = false;
 				break;
@@ -589,14 +589,14 @@ retrySend:
 				bResult = false;
 			}
 		} else {
-			LOGWARN (TEXT ("Pipes not available for message"));
+			LOGWARN (TEXT ("Pipes not available for message, not connected"));
 			bResult = false;
 			SetLastError (ENOTCONN);
 		}
 		m_oPipesSemaphore.Signal ();
 	} else {
 		int ec = GetLastError ();
-		LOGWARN (TEXT ("Pipes not available for message"));
+		LOGWARN (TEXT ("Pipes not available for message, error ") << ec);
 		SetLastError (ec);
 		bResult = false;
 	}

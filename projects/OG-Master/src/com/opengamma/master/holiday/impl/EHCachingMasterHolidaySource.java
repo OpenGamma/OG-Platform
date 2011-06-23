@@ -67,7 +67,10 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
       return isHoliday(doc, dateToCheck);
     } else {
       HolidayDocument doc = getMaster().search(request).getFirstDocument();
-      _holidayCache.put(new Element(request, doc));
+      
+      Element element = new Element(request, doc);
+      element.setTimeToLive(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
+      _holidayCache.put(element);
       return isHoliday(doc, dateToCheck);
     }
   }

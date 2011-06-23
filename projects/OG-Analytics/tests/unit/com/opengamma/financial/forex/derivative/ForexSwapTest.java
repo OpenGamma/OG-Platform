@@ -67,6 +67,7 @@ public class ForexSwapTest {
    * Tests the class equal and hashCode
    */
   public void equalHash() {
+    assertTrue(FX_SWAP.equals(FX_SWAP));
     ForexSwap newFxSwap = new ForexSwap(FX_NEAR, FX_FAR);
     assertTrue(FX_SWAP.equals(newFxSwap));
     assertTrue(FX_SWAP.hashCode() == newFxSwap.hashCode());
@@ -75,6 +76,8 @@ public class ForexSwapTest {
     assertFalse(FX_SWAP.equals(modifiedFxSwap));
     modifiedFxSwap = new ForexSwap(FX_NEAR, FX_NEAR);
     assertFalse(FX_SWAP.equals(modifiedFxSwap));
+    assertFalse(FX_SWAP.equals(FX_NEAR));
+    assertFalse(FX_SWAP.equals(null));
   }
 
 }

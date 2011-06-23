@@ -5,21 +5,26 @@
  */
 package com.opengamma.math.surface;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.GridInterpolator2D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
-  private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(new LinearInterpolator1D(), new LinearInterpolator1D());
+  private static final LinearInterpolator1D INTERPOLATOR_1D = Interpolator1DFactory.LINEAR_INSTANCE;
+  private static final Interpolator2D<Interpolator1DDataBundle> INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(XYZ_LIST, INTERPOLATOR);
 
   @Test
@@ -34,7 +39,8 @@ public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
     assertFalse(other.equals(surface));
     other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Y_PRIMITIVE, INTERPOLATOR, NAME);
     assertFalse(other.equals(surface));
-    other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, new GridInterpolator2D(new LinearInterpolator1D(), new StepInterpolator1D()), NAME);
+    other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE,
+        new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, new StepInterpolator1D()), NAME);
     assertFalse(other.equals(surface));
     other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, INTERPOLATOR, "P");
     assertFalse(other.equals(surface));

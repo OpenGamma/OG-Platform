@@ -133,9 +133,6 @@ public class CMSIndex {
       return false;
     }
     CMSIndex other = (CMSIndex) obj;
-    if (!ObjectUtils.equals(_name, other._name)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_swapGenerator, other._swapGenerator)) {
       return false;
     }

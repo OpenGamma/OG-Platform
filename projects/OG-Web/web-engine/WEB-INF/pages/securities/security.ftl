@@ -82,6 +82,16 @@
         <@rowout label="Trading exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement exchange">${security.settlementExchange}</@rowout>
         <@rowout label="Redemption value">${security.currency}</@rowout>
+        
+        <#if futureSecurityType == "BondFuture">
+            <@rowout label="Underlying Bond"></@rowout>
+            <#list basket?keys as key>
+              <@rowout label="">${key} - ${basket[key]}</@rowout>
+            </#list>
+        <#else>
+            <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        </#if>
+        
         <#break>
       <#case "EQUITY_OPTION">
         <@rowout label="Exercise type">${security.exerciseType}</@rowout>
@@ -90,7 +100,7 @@
         <@rowout label="Strike">${security.strike}</@rowout>
         <@rowout label="Expiry date">${security.expiry.expiry}</@rowout>
         <@rowout label="Expiry accuracy">${security.expiry.accuracy?replace("_", " ")}</@rowout>
-        <@rowout label="Underlying identifier">${security.underlyingIdentifier?replace("_", " ")}</@rowout>
+        <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
         <#break>
       <#case "SWAP">

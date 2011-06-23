@@ -107,6 +107,7 @@ import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricReq
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.masterdb.historicaldata.hibernate.DataFieldBean;
 import com.opengamma.masterdb.historicaldata.hibernate.DataProviderBean;
 import com.opengamma.masterdb.historicaldata.hibernate.DataSourceBean;
@@ -295,17 +296,13 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     return result;
   }
 
-  private UniqueIdentifier addTimeSeries(IdentifierBundleWithDates identifierBundleWithDates,
-      String dataSource, String dataProvider, String field,
-      String observationTime, final LocalDateDoubleTimeSeries timeSeries) {
-
-    s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{identifierBundleWithDates, dataSource, dataProvider, field, observationTime});
+  private UniqueIdentifier addTimeSeries(ManageableHistoricalTimeSeries series) {
+    s_logger.debug("adding timeseries for {}", series);
     
-    String bundleName = makeUniqueBundleName(identifierBundleWithDates);
-    long bundleId = getOrCreateIdentifierBundle(bundleName, bundleName, identifierBundleWithDates);
-    long tsKey = createTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
-    insertDataPoints(timeSeries, tsKey);
+    String bundleName = makeUniqueBundleName(series.getIdentifiers());
+    long bundleId = getOrCreateIdentifierBundle(bundleName, bundleName, series.getIdentifiers());
+    long tsKey = createTimeSeriesKey(bundleId, series);
+    insertDataPoints(series.getTimeSeries(), tsKey);
     return UniqueIdentifier.of(_identifierScheme, String.valueOf(tsKey));
   }
 
@@ -494,16 +491,13 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     return getSchemeId(scheme);
   }
   
-  private long createTimeSeriesKey(long bundleId, String dataSource,
-      String dataProvider, String dataField, String observationTime) {
+  private long createTimeSeriesKey(long bundleId, ManageableHistoricalTimeSeries series) {
+    s_logger.debug("creating timeSeriesKey with quotedObjId={}, series={}", bundleId, series);
     
-    s_logger.debug("creating timeSeriesKey with quotedObjId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{bundleId, dataSource, dataProvider, dataField, observationTime});
-    
-    DataSourceBean dataSourceBean = getOrCreateDataSource(dataSource, null);
-    DataProviderBean dataProviderBean = getOrCreateDataProvider(dataProvider, null);
-    DataFieldBean dataFieldBean = getOrCreateDataField(dataField, null);
-    ObservationTimeBean observationTimeBean = getOrCreateObservationTime(observationTime, null);
+    DataSourceBean dataSourceBean = getOrCreateDataSource(series.getDataSource(), null);
+    DataProviderBean dataProviderBean = getOrCreateDataProvider(series.getDataProvider(), null);
+    DataFieldBean dataFieldBean = getOrCreateDataField(series.getDataField(), null);
+    ObservationTimeBean observationTimeBean = getOrCreateObservationTime(series.getObservationTime(), null);
     
     String sql = _namedSQLMap.get(INSERT_TIME_SERIES_KEY);
     
@@ -540,20 +534,19 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     return result;
   }
   
-  private long getActiveTimeSeriesKey(long bundleId, final String dataSource, final String dataProvider, final String dataField, final String observationTime) {
+  private long getActiveTimeSeriesKey(long bundleId, final ManageableHistoricalTimeSeries series) {
     long result = INVALID_KEY;
-    s_logger.debug("looking up timeSeriesKey bundleId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{bundleId, dataSource, dataProvider, dataField, observationTime});
+    s_logger.debug("looking up timeSeriesKey bundleId={}, series={}", bundleId, series);
     StringBuilder sql = new StringBuilder(_namedSQLMap.get(GET_ACTIVE_TIME_SERIES_KEY));
     sql.append(" AND DS.NAME = :").append(DATA_SOURCE_COLUMN).append(" AND DP.NAME = :").append(DATA_PROVIDER_COLUMN).append(" AND DF.NAME = :").append(DATA_FIELD_COLUMN);
     sql.append(" AND OT.NAME = :").append(OBSERVATION_TIME_COLUMN).append(" AND tskey.bundle_id = :").append(BUNDLE_ID_COLUMN)
     ;
     SqlParameterSource parameters = new MapSqlParameterSource()
         .addValue(BUNDLE_ID_COLUMN, bundleId, Types.BIGINT)
-        .addValue(DATA_SOURCE_COLUMN, dataSource, Types.VARCHAR)
-        .addValue(DATA_PROVIDER_COLUMN, dataProvider, Types.VARCHAR)
-        .addValue(DATA_FIELD_COLUMN, dataField, Types.VARCHAR)
-        .addValue(OBSERVATION_TIME_COLUMN, observationTime, Types.VARCHAR);
+        .addValue(DATA_SOURCE_COLUMN, series.getDataSource(), Types.VARCHAR)
+        .addValue(DATA_PROVIDER_COLUMN, series.getDataProvider(), Types.VARCHAR)
+        .addValue(DATA_FIELD_COLUMN, series.getDataField(), Types.VARCHAR)
+        .addValue(OBSERVATION_TIME_COLUMN, series.getObservationTime(), Types.VARCHAR);
     s_logger.debug("parameters {}", parameters);
     try {
       result = getJdbcTemplate().queryForInt(sql.toString(), parameters);
@@ -762,22 +755,16 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   public HistoricalTimeSeriesDocument add(HistoricalTimeSeriesDocument document) {
     validateDocument(document);
     if (!contains(document)) {
-      UniqueIdentifier uniqueId = addTimeSeries(
-          document.getIdentifiers(), 
-          document.getDataSource(), 
-          document.getDataProvider(), 
-          document.getDataField(), 
-          document.getObservationTime(),
-          document.getTimeSeries());
+      UniqueIdentifier uniqueId = addTimeSeries(document.getSeries());
       document.setUniqueId(uniqueId);
       return document;
     } else {
-      throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
+      throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getSeries().getIdentifiers());
     }
   }
  
   private boolean contains(final HistoricalTimeSeriesDocument document) {
-    for (final IdentifierWithDates identifierWithDates : document.getIdentifiers()) {
+    for (final IdentifierWithDates identifierWithDates : document.getSeries().getIdentifiers()) {
       Identifier identifier = identifierWithDates.asIdentifier();
       
       String sql = _namedSQLMap.get(LOAD_ALL_IDENTIFIERS);
@@ -795,20 +782,12 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
         Long bundleID = entry.getKey();
         for (IdentifierWithDates loadedIdentifier : entry.getValue()) {
           if (isWithoutDates(identifierWithDates) && isWithoutDates(loadedIdentifier)) {
-            if (getActiveTimeSeriesKey(bundleID, 
-                document.getDataSource(), 
-                document.getDataProvider(), 
-                document.getDataField(), 
-                document.getObservationTime()) != INVALID_KEY) {
+            if (getActiveTimeSeriesKey(bundleID, document.getSeries()) != INVALID_KEY) {
               return true;
             }
           } else {
             if (HistoricalTimeSeriesUtils.isIdenticalRange(loadedIdentifier, identifierWithDates)) {
-              if (getActiveTimeSeriesKey(bundleID, 
-                  document.getDataSource(), 
-                  document.getDataProvider(), 
-                  document.getDataField(), 
-                  document.getObservationTime()) != INVALID_KEY) {
+              if (getActiveTimeSeriesKey(bundleID, document.getSeries()) != INVALID_KEY) {
                 return true;
               }
             } else if (HistoricalTimeSeriesUtils.intersects(loadedIdentifier, identifierWithDates)) {
@@ -830,7 +809,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public void appendTimeSeries(HistoricalTimeSeriesDocument document) {
     long tsId = validateId(document.getUniqueId());
-    insertDataPoints(document.getTimeSeries(), tsId);
+    insertDataPoints(document.getSeries().getTimeSeries(), tsId);
   }
 
   //-------------------------------------------------------------------------
@@ -850,13 +829,14 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     UniqueIdentifier uniqueId = request.getUniqueId();
     long tsId = validateId(uniqueId);
     Info tsInfo = doGetInfo(tsId);
-    HistoricalTimeSeriesDocument document = new HistoricalTimeSeriesDocument();
-    document.setDataField(tsInfo.getDataField());
-    document.setDataProvider(tsInfo.getDataProvider());
-    document.setDataSource(tsInfo.getDataSource());
-    document.setIdentifiers(tsInfo.getIdentifiers());
-    document.setObservationTime(tsInfo.getObservationTime());
-    document.setUniqueId(uniqueId);
+    ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+    HistoricalTimeSeriesDocument document = new HistoricalTimeSeriesDocument(series);
+    series.setDataField(tsInfo.getDataField());
+    series.setDataProvider(tsInfo.getDataProvider());
+    series.setDataSource(tsInfo.getDataSource());
+    series.setIdentifiers(tsInfo.getIdentifiers());
+    series.setObservationTime(tsInfo.getObservationTime());
+    series.setUniqueId(uniqueId);
     if (request.isLoadEarliestLatest()) {
       Map<String, LocalDate> dates = getTimeSeriesDateRange(tsId);
       tsInfo.setEarliestDate(dates.get("earliest"));
@@ -864,7 +844,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     }
     if (request.isLoadTimeSeries()) {
       LocalDateDoubleTimeSeries timeSeries = loadTimeSeries(tsId, request.getStart(), request.getEnd());
-      document.setTimeSeries(timeSeries);
+      series.setTimeSeries(timeSeries);
     }
     return document;
   }
@@ -1122,27 +1102,28 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     int count = getJdbcTemplate().queryForInt(countSql, parameters);
     String sqlApplyPaging = getDbSource().getDialect().sqlApplyPaging(metaDataSql, StringUtils.EMPTY, request.getPagingRequest());
     
-    List<Info> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
-    for (Info tsMetaData : tsMetaDataList) {
-      HistoricalTimeSeriesDocument document = new HistoricalTimeSeriesDocument();
-      Long bundleId = tsMetaData.getIdentifierBundleId();
-      long timeSeriesKey = tsMetaData.getHistoricalTimeSeriesId();
-      document.setDataField(tsMetaData.getDataField());
-      document.setDataProvider(tsMetaData.getDataProvider());
-      document.setDataSource(tsMetaData.getDataSource());
+    List<Info> tsInfoList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
+    for (Info info : tsInfoList) {
+      ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+      HistoricalTimeSeriesDocument document = new HistoricalTimeSeriesDocument(series);
+      Long bundleId = info.getIdentifierBundleId();
+      long timeSeriesKey = info.getHistoricalTimeSeriesId();
+      series.setDataField(info.getDataField());
+      series.setDataProvider(info.getDataProvider());
+      series.setDataSource(info.getDataSource());
       
       List<IdentifierWithDates> identifiers = bundleMap.get(bundleId);
       
-      document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
-      document.setObservationTime(tsMetaData.getObservationTime());
-      document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getHistoricalTimeSeriesId())));
+      series.setIdentifiers(new IdentifierBundleWithDates(identifiers));
+      series.setObservationTime(info.getObservationTime());
+      series.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(info.getHistoricalTimeSeriesId())));
       if (request.isLoadEarliestLatest()) {
-        document.setEarliest(tsMetaData.getEarliestDate());
-        document.setLatest(tsMetaData.getLatestDate());
+        document.setEarliest(info.getEarliestDate());
+        document.setLatest(info.getLatestDate());
       }
       if (request.isLoadTimeSeries()) {
         LocalDateDoubleTimeSeries loadTimeSeries = loadTimeSeries(timeSeriesKey, request.getStart(), request.getEnd());
-        document.setTimeSeries(loadTimeSeries);
+        series.setTimeSeries(loadTimeSeries);
       }
       result.getDocuments().add(document);
     }
@@ -1258,15 +1239,15 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     Instant timeStamp = request.getTimestamp();
     long tsId = validateId(uniqueId);
     LocalDateDoubleTimeSeries seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
-    HistoricalTimeSeriesDocument document = new HistoricalTimeSeriesDocument();
-    document.setDataField(request.getDataField());
-    document.setDataProvider(request.getDataProvider());
-    document.setDataSource(request.getDataSource());
-    document.setIdentifiers(IdentifierBundleWithDates.of(request.getIdentifiers()));
-    document.setObservationTime(request.getObservationTime());
-    document.setUniqueId(uniqueId);
-    document.setTimeSeries(seriesSnapshot);
-    searchResult.getDocuments().add(document);
+    ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+    series.setDataField(request.getDataField());
+    series.setDataProvider(request.getDataProvider());
+    series.setDataSource(request.getDataSource());
+    series.setIdentifiers(IdentifierBundleWithDates.of(request.getIdentifiers()));
+    series.setObservationTime(request.getObservationTime());
+    series.setUniqueId(uniqueId);
+    series.setTimeSeries(seriesSnapshot);
+    searchResult.getDocuments().add(new HistoricalTimeSeriesDocument(series));
     return searchResult;
   }
 
@@ -1289,7 +1270,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     doGetInfo(tsId);
     
     deleteDataPoints(tsId);
-    insertDataPoints(document.getTimeSeries(), tsId);
+    insertDataPoints(document.getSeries().getTimeSeries(), tsId);
     return document;
   }
 
@@ -1598,13 +1579,14 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
 
   private void validateDocument(HistoricalTimeSeriesDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getTimeSeries(), "document.timeSeries");
-    ArgumentChecker.notNull(document.getIdentifiers(), "document.identifiers");
-    ArgumentChecker.isTrue(document.getIdentifiers().asIdentifierBundle().getIdentifiers().size() > 0, "document.identifiers must not be empty");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataSource()), "document.dataSource must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataProvider()), "document.dataProvider must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getDataField()), "document.dataField must not be blank");
-    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getObservationTime()), "document.observationTime must not be blank");
+    ArgumentChecker.notNull(document.getSeries(), "document.series");
+    ArgumentChecker.notNull(document.getSeries().getTimeSeries(), "document.series.timeSeries");
+    ArgumentChecker.notNull(document.getSeries().getIdentifiers(), "document.series.identifiers");
+    ArgumentChecker.isTrue(document.getSeries().getIdentifiers().asIdentifierBundle().getIdentifiers().size() > 0, "document.series.identifiers must not be empty");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getSeries().getDataSource()), "document.series.dataSource must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getSeries().getDataProvider()), "document.series.dataProvider must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getSeries().getDataField()), "document.series.dataField must not be blank");
+    ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getSeries().getObservationTime()), "document.series.observationTime must not be blank");
   }
 
 }
