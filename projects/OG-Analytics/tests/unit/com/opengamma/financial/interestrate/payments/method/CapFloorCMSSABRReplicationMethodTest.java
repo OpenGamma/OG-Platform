@@ -101,7 +101,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD = new CapFloorCMSSABRReplicationMethod();
+  private static final CapFloorCMSSABRReplicationMethod METHOD = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
   @Test
   /**
@@ -126,8 +126,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
    */
   public void presentValueMethodVsCalculator() {
-    double pvMethod = METHOD.presentValue(CMS_CAP, SABR_BUNDLE).getAmount();
-    double pvCalculator = PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
+    final double pvMethod = METHOD.presentValue(CMS_CAP, SABR_BUNDLE).getAmount();
+    final double pvCalculator = PVC_SABR.visit(CMS_CAP, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvMethod, pvCalculator);
   }
 

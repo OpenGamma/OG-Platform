@@ -14,11 +14,11 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  * Menu of functions used in the tutorials
  */
 public class ExampleFunctions {
+
   /**
    * Computes a 1D Matrix by computing the square of each element of another
    */
-  //TODO fix checkstyle
-  public static Function1D<DoubleMatrix1D, DoubleMatrix1D> SQUARES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SQUARES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       final int n = x.getNumberOfElements();
@@ -30,4 +30,5 @@ public class ExampleFunctions {
       return new DoubleMatrix1D(y);
     }
   };
+
 }

@@ -122,8 +122,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
     final double cmsSpreadPrice = method.presentValue(CMS_SPREAD, sabrBundle);
     final double discountFactorPayment = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(PAYMENT_TIME);
-    final CouponCMSSABRReplicationMethod methodCms = new CouponCMSSABRReplicationMethod();
-    final CapFloorCMSSABRReplicationMethod methodCmsCap = new CapFloorCMSSABRReplicationMethod();
+    final CouponCMSSABRReplicationMethod methodCms = CouponCMSSABRReplicationMethod.getDefaultInstance();
+    final CapFloorCMSSABRReplicationMethod methodCmsCap = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
     final NormalImpliedVolatilityFormula impliedVolatility = new NormalImpliedVolatilityFormula();
     final NormalPriceFunction normalPrice = new NormalPriceFunction();
     final ParRateCalculator parRate = ParRateCalculator.getInstance();
