@@ -47,7 +47,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final double TRADE_PRICE = 0.985;
   private static final double LAST_MARGIN_PRICE = 0.99;
   // Derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 5, 13);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
