@@ -5,13 +5,15 @@ package com.opengamma.financial.security.fx;
 public class FXForwardSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
     	    public <T> T accept(FXForwardSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
   	    public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
-  private static final long serialVersionUID = 21480513195454281l;
+  private static final long serialVersionUID = 2196029087135799784l;
   private com.opengamma.id.Identifier _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   private javax.time.calendar.ZonedDateTime _forwardDate;
   public static final String FORWARD_DATE_KEY = "forwardDate";
+  private String _tradeCountry;
+  public static final String TRADE_COUNTRY_KEY = "tradeCountry";
   public static final String SECURITY_TYPE = "FX FORWARD";
-  public FXForwardSecurity (com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate) {
+  public FXForwardSecurity (com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, String tradeCountry) {
     super (SECURITY_TYPE);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
@@ -21,6 +23,8 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     else {
       _forwardDate = forwardDate;
     }
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
   }
   protected FXForwardSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -41,8 +45,16 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'forwardDate' is not ZonedDateTime typedef", e);
     }
+    fudgeField = fudgeMsg.getByName (TRADE_COUNTRY_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'tradeCountry' is not present");
+    try {
+      _tradeCountry = fudgeField.getValue ().toString ();
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'tradeCountry' is not string", e);
+    }
   }
-  public FXForwardSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate) {
+  public FXForwardSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, String tradeCountry) {
     super (uniqueId, name, securityType, identifiers);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
@@ -52,6 +64,8 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     else {
       _forwardDate = forwardDate;
     }
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
   }
   protected FXForwardSecurity (final FXForwardSecurity source) {
     super (source);
@@ -64,6 +78,7 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     else {
       _forwardDate = source._forwardDate;
     }
+    _tradeCountry = source._tradeCountry;
   }
   public FXForwardSecurity clone () {
     return new FXForwardSecurity (this);
@@ -83,6 +98,9 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     }
     if (_forwardDate != null)  {
       fudgeContext.addToMessage (msg, FORWARD_DATE_KEY, null, _forwardDate);
+    }
+    if (_tradeCountry != null)  {
+      msg.add (TRADE_COUNTRY_KEY, null, _tradeCountry);
     }
   }
   public static FXForwardSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -117,6 +135,13 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
       _forwardDate = forwardDate;
     }
   }
+  public String getTradeCountry () {
+    return _tradeCountry;
+  }
+  public void setTradeCountry (String tradeCountry) {
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
+  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof FXForwardSecurity)) return false;
@@ -135,6 +160,13 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
       else return false;
     }
     else if (msg._forwardDate != null) return false;
+    if (_tradeCountry != null) {
+      if (msg._tradeCountry != null) {
+        if (!_tradeCountry.equals (msg._tradeCountry)) return false;
+      }
+      else return false;
+    }
+    else if (msg._tradeCountry != null) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -143,6 +175,8 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
     if (_underlyingIdentifier != null) hc += _underlyingIdentifier.hashCode ();
     hc *= 31;
     if (_forwardDate != null) hc += _forwardDate.hashCode ();
+    hc *= 31;
+    if (_tradeCountry != null) hc += _tradeCountry.hashCode ();
     return hc;
   }
   public String toString () {

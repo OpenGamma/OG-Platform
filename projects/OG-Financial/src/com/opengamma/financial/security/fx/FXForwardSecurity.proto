@@ -14,6 +14,7 @@
   	required string securityType [default = "FX FORWARD"];
   	required id.Identifier underlyingIdentifier;
   	required javax.time.calendar.ZonedDateTime forwardDate;
+    required string tradeCountry; 
   	
   	binding Java {
   	  body <<<JAVA

@@ -17,7 +17,8 @@
      required com.opengamma.util.money.Currency receiveCurrency;
      required double payAmount;
      required double receiveAmount;
-     
+     required string tradeCountry;
+
      binding Java {
        body <<<JAVA
          public <T> T accept (FXSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }

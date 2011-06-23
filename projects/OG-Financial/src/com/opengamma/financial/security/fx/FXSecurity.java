@@ -5,7 +5,7 @@ package com.opengamma.financial.security.fx;
 public class FXSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
            public <T> T accept (FXSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
          public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-  private static final long serialVersionUID = 6478705721272744812l;
+  private static final long serialVersionUID = -8963298790706894517l;
   private com.opengamma.util.money.Currency _payCurrency;
   public static final String PAY_CURRENCY_KEY = "payCurrency";
   private com.opengamma.util.money.Currency _receiveCurrency;
@@ -14,8 +14,10 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
   public static final String PAY_AMOUNT_KEY = "payAmount";
   private double _receiveAmount;
   public static final String RECEIVE_AMOUNT_KEY = "receiveAmount";
+  private String _tradeCountry;
+  public static final String TRADE_COUNTRY_KEY = "tradeCountry";
   public static final String SECURITY_TYPE = "FX";
-  public FXSecurity (com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount) {
+  public FXSecurity (com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, String tradeCountry) {
     super (SECURITY_TYPE);
     if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
     _payCurrency = payCurrency;
@@ -23,6 +25,8 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     _receiveCurrency = receiveCurrency;
     _payAmount = payAmount;
     _receiveAmount = receiveAmount;
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
   }
   protected FXSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -59,8 +63,16 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'receiveAmount' is not double", e);
     }
+    fudgeField = fudgeMsg.getByName (TRADE_COUNTRY_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'tradeCountry' is not present");
+    try {
+      _tradeCountry = fudgeField.getValue ().toString ();
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'tradeCountry' is not string", e);
+    }
   }
-  public FXSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount) {
+  public FXSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, String tradeCountry) {
     super (uniqueId, name, securityType, identifiers);
     if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
     _payCurrency = payCurrency;
@@ -68,6 +80,8 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     _receiveCurrency = receiveCurrency;
     _payAmount = payAmount;
     _receiveAmount = receiveAmount;
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
   }
   protected FXSecurity (final FXSecurity source) {
     super (source);
@@ -76,6 +90,7 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     _receiveCurrency = source._receiveCurrency;
     _payAmount = source._payAmount;
     _receiveAmount = source._receiveAmount;
+    _tradeCountry = source._tradeCountry;
   }
   public FXSecurity clone () {
     return new FXSecurity (this);
@@ -96,6 +111,9 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     }
     msg.add (PAY_AMOUNT_KEY, null, _payAmount);
     msg.add (RECEIVE_AMOUNT_KEY, null, _receiveAmount);
+    if (_tradeCountry != null)  {
+      msg.add (TRADE_COUNTRY_KEY, null, _tradeCountry);
+    }
   }
   public static FXSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -137,6 +155,13 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
   public void setReceiveAmount (double receiveAmount) {
     _receiveAmount = receiveAmount;
   }
+  public String getTradeCountry () {
+    return _tradeCountry;
+  }
+  public void setTradeCountry (String tradeCountry) {
+    if (tradeCountry == null) throw new NullPointerException ("tradeCountry' cannot be null");
+    _tradeCountry = tradeCountry;
+  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof FXSecurity)) return false;
@@ -157,6 +182,13 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     else if (msg._receiveCurrency != null) return false;
     if (_payAmount != msg._payAmount) return false;
     if (_receiveAmount != msg._receiveAmount) return false;
+    if (_tradeCountry != null) {
+      if (msg._tradeCountry != null) {
+        if (!_tradeCountry.equals (msg._tradeCountry)) return false;
+      }
+      else return false;
+    }
+    else if (msg._tradeCountry != null) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -167,6 +199,8 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     if (_receiveCurrency != null) hc += _receiveCurrency.hashCode ();
     hc = (hc * 31) + (int)_payAmount;
     hc = (hc * 31) + (int)_receiveAmount;
+    hc *= 31;
+    if (_tradeCountry != null) hc += _tradeCountry.hashCode ();
     return hc;
   }
   public String toString () {
