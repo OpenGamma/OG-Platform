@@ -62,9 +62,6 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
     if (!super.equals(obj)) {
       return false;
     }
-    //    if (getClass() != obj.getClass()) {
-    //      return false;
-    //    }
     ForexOptionVanilla other = (ForexOptionVanilla) obj;
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {
       return false;
