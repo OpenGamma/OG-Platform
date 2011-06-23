@@ -7,6 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import java.util.EnumSet;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -54,16 +55,16 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   public ExecutionOptions buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ViewCycleExecutionSequence executionSequence = context.fudgeMsgToObject(ViewCycleExecutionSequence.class, message.getMessage(EXECUTION_SEQUENCE_FIELD));
     EnumSet<ViewExecutionFlags> flags = EnumSet.noneOf(ViewExecutionFlags.class);
-    if (message.getBoolean(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD) ==  Boolean.TRUE) {
+    if (BooleanUtils.isTrue(message.getBoolean(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD))) {
       flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED);
     }
-    if (message.getBoolean(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD) == Boolean.TRUE) {
+    if (BooleanUtils.isTrue(message.getBoolean(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD))) {
       flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
     }
-    if (message.getBoolean(RUN_AS_FAST_AS_POSSIBLE_FIELD) == Boolean.TRUE) {
+    if (BooleanUtils.isTrue(message.getBoolean(RUN_AS_FAST_AS_POSSIBLE_FIELD))) {
       flags.add(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE);
     }
-    if (message.getBoolean(COMPILE_ONLY_FIELD) == Boolean.TRUE) {
+    if (BooleanUtils.isTrue(message.getBoolean(COMPILE_ONLY_FIELD))) {
       flags.add(ViewExecutionFlags.COMPILE_ONLY);
     }
     Integer maxSuccessiveDeltaCycles = null;
