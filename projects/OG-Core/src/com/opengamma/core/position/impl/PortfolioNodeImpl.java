@@ -178,7 +178,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   @Override
   public List<PortfolioNode> getChildNodes() {
     if (DEBUG_FLAG) {
-      if (_childNodes.size() > 1) {
+      if (_childNodes.size() > DEBUG_MAX_NODES) {
         return Collections.unmodifiableList(_childNodes.subList(0, DEBUG_MAX_NODES));
       }
     }

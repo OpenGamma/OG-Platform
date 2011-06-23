@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument.fra;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
@@ -127,6 +129,7 @@ public class ForwardRateAgreementDefinitionTest {
 
   @Test
   public void equalHash() {
+    assertTrue(FRA_DEFINITION_1.equals(FRA_DEFINITION_1));
     final ForwardRateAgreementDefinition newFRA = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
         INDEX, FRA_RATE);
     assertEquals(newFRA.equals(FRA_DEFINITION_1), true);
@@ -146,6 +149,11 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(modifiedFRA.equals(FRA_DEFINITION_1), false);
     modifiedFRA = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX, FRA_RATE + 0.10);
     assertEquals(modifiedFRA.equals(FRA_DEFINITION_1), false);
+    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFRA = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, otherIndex, FRA_RATE);
+    assertEquals(modifiedFRA.equals(FRA_DEFINITION_1), false);
+    assertFalse(FRA_DEFINITION_1.equals(CUR));
+    assertFalse(FRA_DEFINITION_1.equals(null));
   }
 
   @Test
@@ -163,6 +171,11 @@ public class ForwardRateAgreementDefinitionTest {
         FRA_DEFINITION_1.getFixingPeriodAccrualFactor(), FRA_RATE, forwardCurve);
     final ForwardRateAgreement convertedFra = (ForwardRateAgreement) FRA_DEFINITION_1.toDerivative(REFERENCE_DATE, curves);
     assertEquals(convertedFra, fra);
+    assertEquals(fra, convertedFra);
+    final double shift = 0.01;
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
+    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_2.toDerivative(REFERENCE_DATE, fixingTS, curves);
+    assertEquals(fra, convertedFra2);
   }
 
   @Test
@@ -182,5 +195,4 @@ public class ForwardRateAgreementDefinitionTest {
     final Payment convertedFra = fraFixed.toDerivative(referenceFixed, fixingTS, curves);
     assertEquals(convertedFra.equals(fra), true);
   }
-
 }

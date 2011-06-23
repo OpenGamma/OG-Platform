@@ -35,7 +35,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
   private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

@@ -11,7 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
@@ -73,17 +73,6 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     Validate.notNull(fra);
     return ForwardRateAgreementDiscountingMethod.getInstance().parRate(fra, curves);
   }
-
-  //
-  //  @Override
-  //  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-  //    final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
-  //    final double ta = future.getFixingDate();
-  //    final double tb = future.getMaturity();
-  //    final double pa = curve.getDiscountFactor(ta);
-  //    final double pb = curve.getDiscountFactor(tb);
-  //    return (pa / pb - 1) / future.getIndexYearFraction();
-  //  }
 
   @Override
   /**

@@ -25,7 +25,7 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
     int width = value.getXKeys().length;
     result.put("summary", length * width);
     
-    String tabs = "              ";
+    String tabs = "\t\t\t\t\t";
     if (mode == ConversionMode.FULL) {
       Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
       for (int i = 0; i < length; i++) {

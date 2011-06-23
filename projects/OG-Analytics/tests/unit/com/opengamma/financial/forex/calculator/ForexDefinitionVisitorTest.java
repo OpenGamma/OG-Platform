@@ -18,9 +18,9 @@ import com.opengamma.financial.forex.definition.ForexSwapDefinition;
  */
 public class ForexDefinitionVisitorTest {
 
-  private static final ForexDefinition FX_DEFINITION = ForexInstrumentsDescriptionDataSets.createForexDefinition();
-  private static final ForexSwapDefinition FX_SWAP_DEFINITION = ForexInstrumentsDescriptionDataSets.createForexSwapDefinition();
-  private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = ForexInstrumentsDescriptionDataSets.createForexOptionVanillaDefinition();
+  private static final ForexDefinition FX_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexDefinition();
+  private static final ForexSwapDefinition FX_SWAP_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexSwapDefinition();
+  private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionVanillaDefinition();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();

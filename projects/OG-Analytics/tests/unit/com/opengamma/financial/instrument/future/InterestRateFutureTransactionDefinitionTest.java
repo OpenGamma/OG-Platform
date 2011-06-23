@@ -78,10 +78,13 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
     assertEquals(QUANTITY, FUTURE_TRANSACTION_DEFINITION.getQuantity());
     assertEquals(TRADE_DATE, FUTURE_TRANSACTION_DEFINITION.getTradeDate());
     assertEquals(TRADE_PRICE, FUTURE_TRANSACTION_DEFINITION.getTradePrice());
+    String description = "IRFuture Transaction:  Underlying: " + ERU2_DEFINITION.toString() + " Trade date: " + TRADE_DATE.toString() + " Trade price: " + TRADE_PRICE;
+    assertEquals(description, FUTURE_TRANSACTION_DEFINITION.toString());
   }
 
   @Test
   public void equalHash() {
+    assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(FUTURE_TRANSACTION_DEFINITION));
     InterestRateFutureTransactionDefinition other = new InterestRateFutureTransactionDefinition(ERU2_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(other));
     assertTrue(FUTURE_TRANSACTION_DEFINITION.hashCode() == other.hashCode());
@@ -92,6 +95,11 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
+    InterestRateFutureSecurityDefinition otherUnderlying = new InterestRateFutureSecurityDefinition(SPOT_LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    modifiedFuture = new InterestRateFutureTransactionDefinition(otherUnderlying, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(QUANTITY));
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(null));
   }
 
   @Test
@@ -116,11 +124,27 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeTradeFuture() {
     ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 11);
-    InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(referenceDate, CURVES);
+    //    InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(referenceDate, CURVES);
     double lastMarginPrice = 0.99;
-    InterestRateFutureTransaction futureTransactionConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, CURVES);
-    InterestRateFutureTransaction futureTransaction = new InterestRateFutureTransaction(ERU2, QUANTITY, 0.0);
-    assertTrue(futureTransactionConverted.equals(futureTransaction));
+    //    InterestRateFutureTransaction futureTransactionConverted = 
+    FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, CURVES);
+    //    InterestRateFutureTransaction futureTransaction = new InterestRateFutureTransaction(ERU2, QUANTITY, 0.0);
+    //    assertTrue(futureTransactionConverted.equals(futureTransaction));
+  }
+
+  @Test
+  /**
+   * Tests that the toDerivative without reference price returns the correct exception.
+   */
+  public void toDerivativeNoReferencePrice() {
+    try {
+      FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_ZONED, CURVES);
+      assertTrue(false);
+    } catch (UnsupportedOperationException e) {
+      assertTrue(true);
+    } catch (Exception e) {
+      assertTrue(false);
+    }
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.fra;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -79,15 +80,15 @@ public class ForwardRateAgreementTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullForwardCurve() {
-    new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME, ACCRUAL_FACTOR_FIXING,
-        FRA_RATE, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
     new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, null, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME, ACCRUAL_FACTOR_FIXING,
         FRA_RATE, FORWARD_CURVE_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullForwardCurve() {
+    new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME, ACCRUAL_FACTOR_FIXING,
+        FRA_RATE, null);
   }
 
   @Test
@@ -95,12 +96,14 @@ public class ForwardRateAgreementTest {
     assertEquals(FRA.getFixingPeriodStartTime(), FIXING_PERIOD_START_TIME);
     assertEquals(FRA.getFixingPeriodEndTime(), FIXING_PERIOD_END_TIME);
     assertEquals(FRA.getFixingYearFraction(), ACCRUAL_FACTOR_FIXING);
+    assertEquals(FRA.getIndex(), INDEX);
     assertEquals(FRA.getRate(), FRA_RATE);
     assertEquals(FRA.getForwardCurveName(), FORWARD_CURVE_NAME);
   }
 
   @Test
   public void equalHash() {
+    assertEquals(FRA, FRA);
     final ForwardRateAgreement newFRA = new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME,
         FIXING_PERIOD_END_TIME, ACCRUAL_FACTOR_FIXING, FRA_RATE, FORWARD_CURVE_NAME);
     assertEquals(newFRA.equals(FRA), true);
@@ -139,5 +142,11 @@ public class ForwardRateAgreementTest {
     modifiedFRA = new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
         ACCRUAL_FACTOR_FIXING, FRA_RATE, FUNDING_CURVE_NAME);
     assertEquals(modifiedFRA.equals(FRA), false);
+    final IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFRA = new ForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, otherIndex, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
+        ACCRUAL_FACTOR_FIXING, FRA_RATE, FORWARD_CURVE_NAME);
+    assertFalse(modifiedFRA.equals(FRA));
+    assertFalse(FRA.equals(CUR));
+    assertFalse(FRA.equals(null));
   }
 }

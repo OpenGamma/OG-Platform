@@ -244,5 +244,4 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     }
     return true;
   }
-
 }

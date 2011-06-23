@@ -146,7 +146,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          return null;
+          return security.getCallCurrency();
         }
       });
       return ccy;
