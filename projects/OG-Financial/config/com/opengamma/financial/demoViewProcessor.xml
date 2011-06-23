@@ -139,7 +139,7 @@
   </bean>
   
   <!-- LiveData Snapshot/Availability Provider -->
-  <import resource="liveData-${opengamma.platform.runmode}.xml" />
+  <import resource="classpath:liveData-${opengamma.platform.runmode}.xml" />
   
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
