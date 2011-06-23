@@ -219,6 +219,9 @@ public final class ValueRequirementNames {
   public static final String PAR_RATE_CURVE_SENSITIVITY = "Par Rate Curve Sensitivity";
   public static final String PRESENT_VALUE_COUPON_SENSITIVITY = "Present Value Coupon Sensitivity";
   public static final String PRESENT_VALUE_CURVE_SENSITIVITY = "Present Value Curve Sensitivity"; 
+  public static final String PRESENT_VALUE_SABR_ALPHA_SENSITIVITY = "Present Value SABR Alpha Sensitivity";
+  public static final String PRESENT_VALUE_SABR_RHO_SENSITIVITY = "Present Value SABR Rho Sensitivity";
+  public static final String PRESENT_VALUE_SABR_NU_SENSITIVITY = "Present Value SABR Nu Sensitivity";
   
   //Bond analytics
   public static final String CLEAN_PRICE = "Clean Price";

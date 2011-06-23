@@ -140,6 +140,10 @@ public class SummingFunction extends PropertyPreservingFunction {
           result.put(name, temp);
         }
       }
+    } else if (currentValue instanceof DoubleLabelledMatrix2D) {
+      final DoubleLabelledMatrix2D previousMatrix = (DoubleLabelledMatrix2D) previousSum;
+      final DoubleLabelledMatrix2D currentMatrix = (DoubleLabelledMatrix2D) currentValue;
+      return previousMatrix.add(currentMatrix, 0.005, 0.005);
     }
     throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
         "or present value curve sensitivities right now.");

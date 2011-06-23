@@ -135,6 +135,23 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         scaled.put(entry.getKey(), scaledList);
       }
       scaledValue = new ComputedValue(specification, scaled);
+    } else if (value instanceof DoubleLabelledMatrix2D) {
+      final DoubleLabelledMatrix2D matrix = (DoubleLabelledMatrix2D) value;
+      final Double[] xKeys = matrix.getXKeys();
+      final Object[] xLabels = matrix.getXLabels();
+      final Double[] yKeys = matrix.getYKeys();
+      final Object[] yLabels = matrix.getYLabels();
+      final double[][] values = matrix.getValues();
+      final int n = values.length;
+      final int m = values[0].length;
+      final double[][] scaledValues = new double[n][m];
+      final double scale = target.getPosition().getQuantity().doubleValue();
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+          scaledValues[i][j] = values[i][j] * scale;
+        }
+      }
+      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix2D(xKeys, xLabels, yKeys, yLabels, scaledValues));
     } else {
       //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);
