@@ -36,7 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.DefinitionConverterDataProvider;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
@@ -63,7 +63,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final DefinitionConverterDataProvider DEFINITION_CONVERTER = new DefinitionConverterDataProvider(
+  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
       "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;

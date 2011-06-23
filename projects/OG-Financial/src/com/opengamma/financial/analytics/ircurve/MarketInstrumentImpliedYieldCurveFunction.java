@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.DefinitionConverterDataProvider;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
@@ -81,7 +81,7 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
-  private static final DefinitionConverterDataProvider DEFINITION_CONVERTER = new DefinitionConverterDataProvider(
+  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
       "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 

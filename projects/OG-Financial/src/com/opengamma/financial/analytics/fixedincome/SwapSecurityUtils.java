@@ -26,13 +26,19 @@ public class SwapSecurityUtils {
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) receiveLeg;
       if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        if (floatingLeg.getIsIBOR()) {
+          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        }
+        return InterestRateInstrumentType.SWAP_FIXED_CMS;
       }
       return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) payLeg;
       if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        if (floatingLeg.getIsIBOR()) {
+          return InterestRateInstrumentType.SWAP_FIXED_IBOR;
+        }
+        return InterestRateInstrumentType.SWAP_FIXED_CMS;
       }
       return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
     }

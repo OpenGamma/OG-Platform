@@ -37,12 +37,12 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConve
 /**
  * 
  */
-public class DefinitionConverterDataProvider {
+public class FixedIncomeConverterDataProvider {
   private final String _dataSourceName;
   private final String _fieldName;
   private final String _dataProvider = "CMPL"; // TODO: totally fix this.
 
-  public DefinitionConverterDataProvider(final String dataSourceName, final String fieldName) {
+  public FixedIncomeConverterDataProvider(final String dataSourceName, final String fieldName) {
     _dataSourceName = dataSourceName;
     _fieldName = fieldName;
   }
