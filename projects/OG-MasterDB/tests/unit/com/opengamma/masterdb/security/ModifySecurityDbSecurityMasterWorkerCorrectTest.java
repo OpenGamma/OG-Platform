@@ -34,7 +34,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerCorrectTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifySecurityDbSecurityMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

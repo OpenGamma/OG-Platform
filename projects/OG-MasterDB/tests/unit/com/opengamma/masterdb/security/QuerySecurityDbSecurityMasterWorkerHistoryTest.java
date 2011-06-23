@@ -29,7 +29,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerHistoryTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QuerySecurityDbSecurityMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

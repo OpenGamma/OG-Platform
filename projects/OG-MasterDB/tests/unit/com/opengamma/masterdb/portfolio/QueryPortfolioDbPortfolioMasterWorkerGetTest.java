@@ -27,7 +27,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPortfolioDbPortfolioMasterWorkerGetTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QueryPortfolioDbPortfolioMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
