@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.fra;
+package com.opengamma.financial.interestrate.fra.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -22,6 +23,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -102,6 +104,7 @@ public class ZZZForwardRateAgreementTest {
 
   @Test
   public void equalHash() {
+    assertEquals(FRA, FRA);
     ZZZForwardRateAgreement newFRA = new ZZZForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME,
         FIXING_PERIOD_END_TIME, ACCRUAL_FACTOR_FIXING, FRA_RATE, FORWARD_CURVE_NAME);
     assertEquals(newFRA.equals(FRA), true);
@@ -140,5 +143,11 @@ public class ZZZForwardRateAgreementTest {
     modifiedFRA = new ZZZForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
         ACCRUAL_FACTOR_FIXING, FRA_RATE, FUNDING_CURVE_NAME);
     assertEquals(modifiedFRA.equals(FRA), false);
+    IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFRA = new ZZZForwardRateAgreement(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, otherIndex, FIXING_TIME, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME,
+        ACCRUAL_FACTOR_FIXING, FRA_RATE, FORWARD_CURVE_NAME);
+    assertFalse(modifiedFRA.equals(FRA));
+    assertFalse(FRA.equals(CUR));
+    assertFalse(FRA.equals(null));
   }
 }

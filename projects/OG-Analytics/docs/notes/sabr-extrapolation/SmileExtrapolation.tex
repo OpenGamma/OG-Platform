@@ -62,13 +62,13 @@ An implementation of smile extrapolation for high strikes is described. The main
 
 \section{Introduction}
 
-The \emph{smile} is the description of the strike dependency of option price through Black implied volatilities. The name come from the shape of the curve which for most markets resemble a smile.
+The \emph{smile} is the description of the strike dependency of option prices through Black implied volatilities. The name come from the shape of the curve which for most markets resemble a smile.
 
-For interest rate markets like cap/floor and swaption, the smile is often described using a model like SABR. More exactly an approximated implied volatility function is used to obtained the prices. The model parameters are calibrated to fit the smile for the quoted options, which usually have a strike in the at-the-money region.
+For interest rate markets like cap/floor and swaption, the smile is often described using a model like SABR; more exactly an approximated implied volatility function is used to obtained the prices. The model parameters are calibrated to fit the smile for the quoted options, which usually have a strike in the at-the-money region.
 
-The standard approximated methods do not produce very good results far away from the money. Moreover the model calibration close to the money does not necessarily provide relevant information for far away strikes. When only vanilla options are priced, these problems are relatively minor as the time value of those far away from the money options is small. 
+The standard approximated methods do not produce very good results far away from the money. Moreover the model calibration close to the money does not necessarily provide relevant information for far away strikes. When only vanilla options are priced, these problems are relatively minor as the volatility impact on those far away from the money options is small. 
 
-This is not the case for some instruments the pricing of which depends on the full smile. In the cap/floor world, those instruments include the swap and cap/floor in arrear and the swaps with long or short tenors. In the swaption world, they include the CMS swap and cap/floor (pre and post-fixed).
+This is not the case for instruments the pricing of which depends on the full smile. In the cap/floor world, those instruments include the swap and cap/floor in arrear and the swaps with long or short tenors. In the swaption world, they include the CMS swap and cap/floor (pre and post-fixed).
 
 The requirements for the extrapolation, above the easiness to implement, is that they should provide arbitrage free extrapolation and leave a degree of freedom on the tail to calibrate to the traded smile dependent products. The degree of freedom will be refer to as the \emph{tail control} or \emph{tail thickness}.
 
@@ -76,12 +76,12 @@ The implementation described here is based on \cite{BDK.2008.1}. The call prices
 
 \section{Notation}
 
-The analysis framework is the pricing of option through a Black formula and an implied volatility description. In the main region, the call prices are obtained by the formula
+The analysis framework is the pricing of options through a Black formula and an implied volatility description. In the main region, the call prices are obtained by the formula
 \begin{equation}
 \label{EqnPrice}
-P(F,K) = N \black(F, K, \sigma(F,K)).
+C(F,K) = N \black(F, K, \sigma(F,K)).
 \end{equation}
-where $F$ is the forward, $K$ the strike, $N$ the numeraire and $\sigma$ the implied Black volatility.
+where $F$ is the forward, $K$ the strike, $N$ the numeraire and $\sigma$ the forward and strike dependent implied Black volatility.
 
 \section{Extrapolation}
 
@@ -90,18 +90,18 @@ A cut-off strike $K^*$ is selected. Below that strike the pricing formula descri
 \label{EqnExtra}
 f(K) = K^{-\mu} \exp\left( a + \frac{b}{K} + \frac{c}{K^2} \right).
 \end{equation}
-The parameter $\mu$ will be used to control the tail. The other three parameters are used to ensure regularity.
+The parameter $\mu$ will be used to control the tail. The other three parameters are used to ensure $C^2$ regularity.
 \subsection{Gluing}
 
-The \emph{gluing} between the two parts requires some regularity condition. It is required\footnote{Actually some $C^1$ condition would be sufficient but could produce a jump in the cumulative density and an atomic weight on the density.} to be $C^2$. 
+The \emph{gluing} between the two parts requires some regularity condition. It is required\footnote{Actually some weak second order condition would be sufficient but could produce a jump in the cumulative density and an atomic weight on the density.} to be $C^2$. 
 
 To be able to achieve this smooth gluing, we need to compute the derivatives of the price with respect to the strike up to the second order. The derivatives of the price are, for the first order,
 \[
-D_K P(F,K) = N \left( D_K \black(F, K, \sigma(F,K)) + D_\sigma \black(F, K, \sigma(F,K) D_K \sigma(F,K) \right)
+D_K C(F,K) = N \left( D_K \black(F, K, \sigma(F,K)) + D_\sigma \black(F, K, \sigma(F,K) D_K \sigma(F,K) \right)
 \]
 and, for the second order,
 \begin{eqnarray*}
-D^2_{K,K} P(F,K) & = & N \left(\vphantom{\int} D^2_{K,K} \black(F, K, \sigma) +D^2_{\sigma,K} \black(F, K, \sigma) D_K \sigma(F,K) \right.\\
+D^2_{K,K} C(F,K) & = & N \left(\vphantom{\int} D^2_{K,K} \black(F, K, \sigma) +D^2_{\sigma,K} \black(F, K, \sigma) D_K \sigma(F,K) \right.\\
 & & \quad + \left( D^2_{K,\sigma}\black(F, K, \sigma) + D^2_{\sigma,\sigma}\black(F, K, \sigma) D_K \sigma(F,K) \right) D_K \sigma(F,K) \\
 & & \quad \left. +  D_\sigma \black(F, K, \sigma(F,K)) D^2_{K,K} \sigma(F,K) \vphantom{\int}\right).
 \end{eqnarray*}
@@ -122,9 +122,9 @@ f''(K) & = & f(K) \left(\vphantom{\int} \mu(\mu+1)K^{-2}+2b(\mu+1)K^{-3}+2c(2\mu
 
 \subsection{Fitting}
 
-The two parts are fitted at the cut-off strike. At that strike the price and its derivatives are $P(K^*,F) = p$, $\partial P/\partial K(K^*,F) = p'$ and $\partial^2 P/\partial K^2(K^*,F) = p''$.
+The two parts are fitted at the cut-off strike. At that strike the price and its derivatives are $C(F, K^*) = p$, $\partial C/\partial K(F, K^*) = p'$ and $\partial^2 C/\partial K^2(F, K^*) = p''$.
 
-To obtain the extrapolation parameters ($a$, $b$, $c$), a system of three equation with three unknowns has to be solved. Due to the structure of the function, it is possible to isolate the first variable ($a$) and to solve a simpler system with two equations with two unknowns:
+To obtain the extrapolation parameters ($a$, $b$, $c$), a system of three equations with three unknowns has to be solved. Due to the structure of the function, it is possible to isolate the first variable ($a$) and to solve a simpler system of two equations with two unknowns:
 \[
 p' = p\left(-\mu K^{-1} - bK^{-2}-2cK^{-3}\right)
 \]
@@ -177,7 +177,7 @@ In Figure~\ref{FigSmile} the tail of the smile is given.
 \label{FigSmile}
 \end{figure}
 
-The impact of the smile extrapolation on the CMS prices is important. In Table~\ref{TabCMS}, a pre-fixed CMS coupon with around 9Y on a 5Y swap is computed. Depending on the tail, the CMS convexity adjustment can be very important (up to 50bps difference). The values of $mu$ have been selected to have differences of around 10 bps in adjusted rate between them. 
+The impact of the smile extrapolation on the CMS prices is important. In Table~\ref{TabCMS}, a pre-fixed CMS coupon with around 9Y on a 5Y swap is computed. Depending on the tail, the CMS convexity adjustment can be very different (up to 50bps difference). The values of $\mu$ in the table have been selected to have differences of around 10 bps in adjusted rate between them. 
 
 \begin{table}
 \begin{tabular}{lrr}
@@ -200,14 +200,14 @@ No convexity adjustment & -- & 4.04
 
 To compute the prices derivatives (greeks) with respect to the different market input, it is useful to have the derivatives of the building blocks. In this case, we would like to have the derivative of the price $f(K)$ with respect to the forward $F$ and the parameters describing the volatility surface $\sigma$ (called $p$ hereafter). 
 
-From the way the price is written it may appear that $f(K)$ does not depend of $F$ and $p$. Actually the dependency is hidden into the parameters $a$, $b$ and $c$. To see that we rewrite the problem that was solved. Let $\tilde f$ denote the vector function $(f, f', f'')$ and $\tilde P$ the vector function $(P, \partial P / \partial K, \partial^2 P/\partial K^2)$. The equation solved to obtain $x$ is
+From the way the price is written it may appear that $f(K)$ does not depend of $F$ and $p$. Actually the dependency is hidden into the parameters $a$, $b$ and $c$. To see that we rewrite the problem that was solved. Let $\tilde f$ denote the vector function $(f, f', f'')$ and $\tilde P$ the vector function $(C, \partial C / \partial K, \partial^2 C/\partial K^2)$. The equation solved to obtain $x=(a,b,c)$ is
 \[
-\tilde f(K^*, x) = \tilde P (F, K^*, p).
+\tilde f(K^*, x) = \tilde C (F, K^*, p).
 \]
 
 For the sequel the cut-off strike $K^*$ is a constant and we ignore it to simplify the writing. The equation to solve is then
 \[
-g(x, F, p) = \tilde f(x) - \tilde P(F, p)=0.
+g(x, F, p) = \tilde f(x) - \tilde C(F, p)=0.
 \]
 The equation is usually solved by numerical techniques and we have only one solution point but we would like to compute the derivative of the solution around the initial point. We have, at the initial point $(F_0, p_0)$,
 \[
@@ -225,7 +225,7 @@ Unfortunately $x$ is not known explicitly, we only know that such a function $x(
 \[
 g(x(F,p), F, p)=0
 \]
-exists around $(F_0,p_0)$ and
+exists around $(F_0,p_0)$, 
 \[
 D_F x(F_0, p_0) = - (D_x g(x_0, F_0, p_0))^{-1}D_F g(x_0, F_0, p_0)
 \]
