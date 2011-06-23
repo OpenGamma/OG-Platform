@@ -30,6 +30,10 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
+import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.financial.security.fx.FXSecurityVisitor;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -78,6 +82,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String SWAPS = "Swaps";
   /* package */static final String FORWARD_SWAPS = "Forward Swaps";
   /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
+  /* package */static final String FX = "FX";
+  /* package */static final String FX_FORWARDS = "FX forwards";
 
   @Override
   public String classifyPosition(Position position) {
@@ -216,6 +222,20 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
           return FX_BARRIER_OPTIONS;
         }
+      }, new FXSecurityVisitor<String>() {
+
+        @Override
+        public String visitFXSecurity(FXSecurity security) {
+          return FX;
+        }
+
+      }, new FXForwardSecurityVisitor<String>() {
+
+        @Override
+        public String visitFXForwardSecurity(FXForwardSecurity security) {
+          return FX_FORWARDS;
+        }
+
       }));
     } else {
       return UNKNOWN;

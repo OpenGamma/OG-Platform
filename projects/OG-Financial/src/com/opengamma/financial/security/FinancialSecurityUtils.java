@@ -14,6 +14,8 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -147,6 +149,16 @@ public class FinancialSecurityUtils {
         @Override
         public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return security.getCallCurrency();
+        }
+
+        @Override
+        public Currency visitFXSecurity(final FXSecurity security) {
+          throw new UnsupportedOperationException("FX securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
+          throw new UnsupportedOperationException("FX forward securities do not have a currency");
         }
       });
       return ccy;

@@ -1,0 +1,25 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+ 
+ namespace com.opengamma.financial.security.fx {
+ 
+  /** 
+   * A security modelling a FX forward
+   */ 
+  message FXForwardSecurity extends FinancialSecurity {
+  
+  	required string securityType [default = "FX FORWARD"];
+  	required id.Identifier underlyingIdentifier;
+  	required javax.time.calendar.ZonedDateTime forwardDate;
+  	
+  	binding Java {
+  	  body <<<JAVA
+  	    public <T> T accept(FXForwardSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
+  	    public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
+JAVA;
+    }
+  }
+}
