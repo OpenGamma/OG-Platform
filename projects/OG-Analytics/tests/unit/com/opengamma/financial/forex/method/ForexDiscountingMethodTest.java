@@ -48,7 +48,7 @@ public class ForexDiscountingMethodTest {
   private static final PaymentFixedDefinition PAY_DEFINITION_2 = new PaymentFixedDefinition(CUR_2, PAYMENT_DATE, -NOMINAL_1 * FX_RATE);
   private static final PaymentFixed PAY_2 = PAY_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_NAME[1]);
 
-  private static final ForexDiscountingMethod METHOD = new ForexDiscountingMethod();
+  private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
   private static final com.opengamma.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.financial.interestrate.PresentValueCalculator.getInstance();
   private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
@@ -106,10 +106,10 @@ public class ForexDiscountingMethodTest {
    * Tests the currency exposure computation.
    */
   public void currencyExposure() {
-    MultipleCurrencyAmount exposureMethod = METHOD.currencyExposure(FX, CURVES);
-    MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
+    final MultipleCurrencyAmount exposureMethod = METHOD.currencyExposure(FX, CURVES);
+    final MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
     assertEquals("Currency exposure", pv, exposureMethod);
-    MultipleCurrencyAmount exposureCalculator = CEC_FX.visit(FX, CURVES);
+    final MultipleCurrencyAmount exposureCalculator = CEC_FX.visit(FX, CURVES);
     assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 
