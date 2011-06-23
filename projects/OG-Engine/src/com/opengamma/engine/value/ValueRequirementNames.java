@@ -218,6 +218,7 @@ public final class ValueRequirementNames {
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
   public static final String PAR_RATE_CURVE_SENSITIVITY = "Par Rate Curve Sensitivity";
   public static final String PRESENT_VALUE_COUPON_SENSITIVITY = "Present Value Coupon Sensitivity";
+  public static final String PRESENT_VALUE_CURVE_SENSITIVITY = "Present Value Curve Sensitivity"; 
   
   //Bond analytics
   public static final String CLEAN_PRICE = "Clean Price";

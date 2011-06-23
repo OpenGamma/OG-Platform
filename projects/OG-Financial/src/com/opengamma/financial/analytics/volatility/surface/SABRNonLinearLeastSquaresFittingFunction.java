@@ -147,6 +147,9 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     final double[] beta = betaList.toDoubleArray();
     final double[] nu = nuList.toDoubleArray();
     final double[] rho = rhoList.toDoubleArray();
+    if (swapMaturities.length < 5) { //don't have sufficient fits to construct a surface
+      throw new OpenGammaRuntimeException("Could not construct SABR parameter surfaces");
+    }
     final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, alpha, INTERPOLATOR, "SABR alpha surface"));
     final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, beta, INTERPOLATOR, "SABR beta surface"));
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, nu, INTERPOLATOR, "SABR nu surface"));

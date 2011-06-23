@@ -24,9 +24,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -36,16 +35,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
-  private final PresentValueCalculator _calculator;
+public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
+  private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
-  public SwaptionSABRPresentValueFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
+  public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation));
   }
 
-  public SwaptionSABRPresentValueFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation) {
+  public SwaptionSABRPresentValueSABRFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation) {
     super(currency, definitionName, useSABRExtrapolation);
-    _calculator = useSABRExtrapolation ? PresentValueSABRExtrapolationCalculator.getInstance() : PresentValueSABRCalculator.getInstance();
   }
 
   @Override
@@ -57,7 +55,7 @@ public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
     final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
-    final double presentValue = _calculator.visit(swaption, data);
+    final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(swaption, data);
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
