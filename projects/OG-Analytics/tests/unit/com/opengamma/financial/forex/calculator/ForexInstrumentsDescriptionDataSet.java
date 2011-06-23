@@ -19,7 +19,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Contains a set of Forex instruments that can be used in tests.
  */
-public class ForexInstrumentsDescriptionDataSets {
+public class ForexInstrumentsDescriptionDataSet {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;

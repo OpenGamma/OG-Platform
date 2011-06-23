@@ -27,7 +27,7 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryExchangeDbExchangeMasterWorkerGetTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QueryExchangeDbExchangeMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

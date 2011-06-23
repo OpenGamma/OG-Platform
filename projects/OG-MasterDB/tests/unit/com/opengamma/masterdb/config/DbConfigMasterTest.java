@@ -34,7 +34,7 @@ public class DbConfigMasterTest extends DBTest {
 
   private DbConfigMaster _cfgMaster;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbConfigMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

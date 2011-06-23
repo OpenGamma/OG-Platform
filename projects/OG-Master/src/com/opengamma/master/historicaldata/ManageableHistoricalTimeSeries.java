@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.historicaldata;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -35,7 +36,10 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @PublicSPI
 @BeanDefinition
 public class ManageableHistoricalTimeSeries extends DirectBean
-  implements HistoricalTimeSeries, UniqueIdentifiable, MutableUniqueIdentifiable {
+  implements HistoricalTimeSeries, UniqueIdentifiable, MutableUniqueIdentifiable, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The historical time-series unique identifier.

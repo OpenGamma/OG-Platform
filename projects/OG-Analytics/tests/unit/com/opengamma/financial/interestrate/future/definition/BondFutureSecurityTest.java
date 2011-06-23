@@ -6,6 +6,8 @@
 package com.opengamma.financial.interestrate.future.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -105,12 +107,49 @@ public class BondFutureSecurityTest {
   @Test
   public void getter() {
     assertEquals("Bond future security derivative: last trading date", LAST_TRADING_TIME, BOND_FUTURE_SECURITY.getTradingLastTime());
-    assertEquals("Bond future security derivative: last trading date", FIRST_NOTICE_TIME, BOND_FUTURE_SECURITY.getNoticeFirstTime());
-    assertEquals("Bond future security derivative: last trading date", LAST_NOTICE_TIME, BOND_FUTURE_SECURITY.getNoticeLastTime());
-    assertEquals("Bond future security derivative: last trading date", FIRST_DELIVERY_TIME, BOND_FUTURE_SECURITY.getDeliveryFirstTime());
-    assertEquals("Bond future security derivative: last trading date", LAST_DELIVERY_TIME, BOND_FUTURE_SECURITY.getDeliveryLastTime());
-    assertEquals("Bond future security derivative: last trading date", BASKET, BOND_FUTURE_SECURITY.getDeliveryBasket());
-    assertEquals("Bond future security derivative: last trading date", CONVERSION_FACTOR, BOND_FUTURE_SECURITY.getConversionFactor());
+    assertEquals("Bond future security derivative: first notice date", FIRST_NOTICE_TIME, BOND_FUTURE_SECURITY.getNoticeFirstTime());
+    assertEquals("Bond future security derivative: last notice date", LAST_NOTICE_TIME, BOND_FUTURE_SECURITY.getNoticeLastTime());
+    assertEquals("Bond future security derivative: first delivery date", FIRST_DELIVERY_TIME, BOND_FUTURE_SECURITY.getDeliveryFirstTime());
+    assertEquals("Bond future security derivative: last delivery date", LAST_DELIVERY_TIME, BOND_FUTURE_SECURITY.getDeliveryLastTime());
+    assertEquals("Bond future security derivative: basket", BASKET, BOND_FUTURE_SECURITY.getDeliveryBasket());
+    assertEquals("Bond future security derivative: conversion factor", CONVERSION_FACTOR, BOND_FUTURE_SECURITY.getConversionFactor());
+    assertEquals("Bond future security derivative: notional", NOTIONAL, BOND_FUTURE_SECURITY.getNotional());
+    assertEquals("Bond future security derivative: currency", CUR, BOND_FUTURE_SECURITY.getCurrency());
+  }
+
+  @Test
+  /**
+   * Tests the equal and hashCode methods.
+   */
+  public void equalHash() {
+    assertTrue(BOND_FUTURE_SECURITY.equals(BOND_FUTURE_SECURITY));
+    BondFutureSecurity other = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertTrue(BOND_FUTURE_SECURITY.equals(other));
+    assertTrue(BOND_FUTURE_SECURITY.hashCode() == other.hashCode());
+    BondFutureSecurity modifiedFuture;
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME + 0.1, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME + 0.1, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME + 0.1, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME + 0.1, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME + 0.1, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL + 100000, BASKET, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    BondFixedSecurity[] otherBasket = new BondFixedSecurity[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      otherBasket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_NOTICE_DATE, CURVES_NAME);
+    }
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, otherBasket, CONVERSION_FACTOR);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292};
+    modifiedFuture = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, otherConversionFactor);
+    assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
+    assertFalse(BOND_FUTURE_SECURITY.equals(LAST_TRADING_DATE));
+    assertFalse(BOND_FUTURE_SECURITY.equals(null));
   }
 
 }

@@ -19,9 +19,9 @@ import com.opengamma.financial.forex.derivative.ForexSwap;
  */
 public class ForexDerivativeVisitorTest {
 
-  private static final Forex FX = ForexInstrumentsDescriptionDataSets.createForex();
-  private static final ForexSwap FX_SWAP = ForexInstrumentsDescriptionDataSets.createForexSwap();
-  private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSets.createForexOptionVanilla();
+  private static final Forex FX = ForexInstrumentsDescriptionDataSet.createForex();
+  private static final ForexSwap FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwap();
+  private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanilla();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();

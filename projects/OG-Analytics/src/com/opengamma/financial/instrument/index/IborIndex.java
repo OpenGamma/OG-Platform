@@ -61,7 +61,7 @@ public class IborIndex {
     Validate.notNull(dayCount, "day count");
     Validate.notNull(businessDayConvention, "business day convention");
     _name = _currency.toString() + _tenor.toString();
-    _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, _name + " conventions");
+    _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, "Ibor conventions");
     this._endOfMonth = endOfMonth;
   }
 
@@ -166,19 +166,16 @@ public class IborIndex {
       return false;
     }
     IborIndex other = (IborIndex) obj;
-    if (!ObjectUtils.equals(_convention, other._convention)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
     if (_endOfMonth != other._endOfMonth) {
       return false;
     }
-    if (!ObjectUtils.equals(_name, other._name)) {
+    if (_tenor != other._tenor) {
       return false;
     }
-    if (_tenor != other._tenor) {
+    if (!ObjectUtils.equals(_convention, other._convention)) {
       return false;
     }
     return true;
