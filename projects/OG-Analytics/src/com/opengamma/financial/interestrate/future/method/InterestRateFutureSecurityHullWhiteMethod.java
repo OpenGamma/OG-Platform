@@ -70,7 +70,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+    result = prime * result + _data.hashCode();
     return result;
   }
 

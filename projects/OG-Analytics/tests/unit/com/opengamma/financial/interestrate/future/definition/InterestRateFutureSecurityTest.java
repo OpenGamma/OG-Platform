@@ -103,6 +103,7 @@ public class InterestRateFutureSecurityTest {
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
     assertTrue(ERU2.equals(other));
     assertTrue(ERU2.hashCode() == other.hashCode());
+    assertEquals(ERU2.toString(), other.toString());
     InterestRateFutureSecurity modifiedFuture;
     modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME - 0.01, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME,
         FORWARD_CURVE_NAME);
@@ -120,6 +121,19 @@ public class InterestRateFutureSecurityTest {
         FORWARD_CURVE_NAME);
     assertFalse(ERU2.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR + 0.25, NAME, DISCOUNTING_CURVE_NAME,
+        FORWARD_CURVE_NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME + "NO",
+        FORWARD_CURVE_NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME,
+        FORWARD_CURVE_NAME + "NO");
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME + NAME, DISCOUNTING_CURVE_NAME,
+        FORWARD_CURVE_NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFuture = new InterestRateFutureSecurity(LAST_TRADING_TIME, otherIndex, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME,
         FORWARD_CURVE_NAME);
     assertFalse(ERU2.equals(modifiedFuture));
     assertFalse(ERU2.equals(LAST_TRADING_DATE));

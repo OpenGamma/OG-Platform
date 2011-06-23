@@ -6,6 +6,8 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -22,6 +24,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
@@ -97,5 +100,25 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
     double price = METHOD_SECURITY.price(ERU2, curves);
     double expectedPv = (price - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Future Hull-White method: present value from curves", expectedPv, pv.getAmount());
+    InterestRateDerivative derivative = FUTURE_TRANSACTION;
+    final CurrencyAmount pv2 = METHOD.presentValue(derivative, curves);
+    assertEquals("Future Hull-White method: present value from curves", pv, pv2);
   }
+
+  @Test
+  public void equalHash() {
+    assertTrue(METHOD.equals(METHOD));
+    InterestRateFutureTransactionHullWhiteMethod other = new InterestRateFutureTransactionHullWhiteMethod(MODEL_PARAMETERS);
+    assertTrue(METHOD.equals(other));
+    assertEquals(METHOD.hashCode(), other.hashCode());
+    other = new InterestRateFutureTransactionHullWhiteMethod(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    assertTrue(METHOD.equals(other));
+    InterestRateFutureTransactionHullWhiteMethod modifiedMethod;
+    HullWhiteOneFactorPiecewiseConstantDataBundle otherParameters = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    modifiedMethod = new InterestRateFutureTransactionHullWhiteMethod(otherParameters);
+    assertFalse(METHOD.equals(modifiedMethod));
+    assertFalse(METHOD.equals(CUR));
+    assertFalse(METHOD.equals(null));
+  }
+
 }
