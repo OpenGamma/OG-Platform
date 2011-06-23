@@ -94,7 +94,7 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
    * @param databaseType  the type of database
    * @param databaseVersion  the database script version
    */
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbHistoricalTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {} version {}", databaseType, databaseVersion);

@@ -67,7 +67,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   private CommandLineBatchJob _batchJob;
   private CommandLineBatchJobRun _batchJobRun;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbBatchMasterTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
