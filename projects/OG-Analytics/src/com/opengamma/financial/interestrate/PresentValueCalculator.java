@@ -220,13 +220,13 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
-    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
     return method.presentValue(cmsCoupon, curves);
   }
 
   @Override
   public Double visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
-    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValue(coupon, curves).getAmount();
   }
 

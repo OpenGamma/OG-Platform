@@ -292,7 +292,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponCMS(final CouponCMS payment, final YieldCurveBundle data) {
-    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
     return method.presentValueSensitivity(payment, data).getSensitivity();
   }
 
