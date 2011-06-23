@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument.future;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -112,6 +114,38 @@ public class BondFutureSecurityDefinitionTest {
     assertEquals("Bond future security definition: delivery basket", BASKET_DEFINITION, FUTURE_DEFINITION.getDeliveryBasket());
     assertEquals("Bond future security definition: conversion factors", CONVERSION_FACTOR, FUTURE_DEFINITION.getConversionFactor());
     assertEquals("Bond future security definition: settlement days", SETTLEMENT_DAYS, FUTURE_DEFINITION.getSettlementDays());
+  }
+
+  @Test
+  /**
+   * Tests the equal and hashCode methods.
+   */
+  public void equalHash() {
+    assertTrue(FUTURE_DEFINITION.equals(FUTURE_DEFINITION));
+    BondFutureSecurityDefinition other = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    assertTrue(FUTURE_DEFINITION.equals(other));
+    assertTrue(FUTURE_DEFINITION.hashCode() == other.hashCode());
+    BondFutureSecurityDefinition modifiedFuture;
+    modifiedFuture = new BondFutureSecurityDefinition(FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurityDefinition(LAST_TRADING_DATE, LAST_TRADING_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, FIRST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    modifiedFuture = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL + 100000, BASKET_DEFINITION, CONVERSION_FACTOR);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292};
+    modifiedFuture = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, BASKET_DEFINITION, otherConversionFactor);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    BondFixedSecurityDefinition[] otherBasket = new BondFixedSecurityDefinition[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      otherBasket[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, 2 * RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
+          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+    }
+    modifiedFuture = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL, otherBasket, CONVERSION_FACTOR);
+    assertFalse(FUTURE_DEFINITION.equals(modifiedFuture));
+    assertFalse(FUTURE_DEFINITION.equals(LAST_TRADING_DATE));
+    assertFalse(FUTURE_DEFINITION.equals(null));
   }
 
   @Test

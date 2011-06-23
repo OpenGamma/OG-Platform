@@ -1,6 +1,6 @@
 \contentsline {section}{\tocsection {}{1}{Introduction}}{1}{section.1}
 \contentsline {section}{\tocsection {}{2}{Notation}}{1}{section.2}
-\contentsline {section}{\tocsection {}{3}{Extrapolation}}{1}{section.3}
+\contentsline {section}{\tocsection {}{3}{Extrapolation}}{2}{section.3}
 \contentsline {subsection}{\tocsubsection {}{3.1}{Gluing}}{2}{subsection.3.1}
 \contentsline {subsection}{\tocsubsection {}{3.2}{Extrapolation derivatives}}{2}{subsection.3.2}
 \contentsline {subsection}{\tocsubsection {}{3.3}{Fitting}}{2}{subsection.3.3}

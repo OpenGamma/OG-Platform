@@ -107,6 +107,11 @@ public:
 /// Wrapper for a volatile pointer. All operations are inlined and the only internal memory
 /// is the integer variable itself. An optimising compiler will produce the same code as if
 /// the interlocked calls are used directly; typically then reducing down to intrinsics.
+#ifdef _WIN32
+///
+/// Note that the ATLCONV.H header in the platform SDK redefines the InterlockedExchangePointer
+/// function. If you are using ATL, include this header before the ATL headers.
+#endif /* ifdef _WIN32 */
 template <typename PTYPE> class CAtomicPointer {
 private:
 

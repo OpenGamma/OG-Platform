@@ -22,8 +22,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
@@ -58,6 +58,8 @@ public class FutureDerivativeVisitorTest {
 
   private static final InterestRateFutureSecurity IR_FUT_SECURITY = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurity();
   private static final InterestRateFutureTransaction IR_FUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransaction();
+  private static final BondFutureSecurity BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
+  private static final BondFutureTransaction BNDFUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createBondFutureTransaction();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -69,6 +71,10 @@ public class FutureDerivativeVisitorTest {
     assertEquals("InterestRateFutureSecurity2", IR_FUT_SECURITY.accept(VISITOR, o));
     assertEquals("InterestRateFutureTransaction1", IR_FUT_TRANSACTION.accept(VISITOR));
     assertEquals("InterestRateFutureTransaction2", IR_FUT_TRANSACTION.accept(VISITOR, o));
+    assertEquals("BondFutureSecurity1", BNDFUT_SECURITY.accept(VISITOR));
+    assertEquals("BondFutureSecurity2", BNDFUT_SECURITY.accept(VISITOR, o));
+    assertEquals("BondFutureTransaction1", BNDFUT_TRANSACTION.accept(VISITOR));
+    assertEquals("BondFutureTransaction2", BNDFUT_TRANSACTION.accept(VISITOR, o));
   }
 
   private static class MyVisitor<T, U> implements InterestRateDerivativeVisitor<T, String> {
@@ -100,12 +106,12 @@ public class FutureDerivativeVisitorTest {
 
     @Override
     public String visitBondFutureSecurity(BondFutureSecurity bondFuture, T data) {
-      return null;
+      return "BondFutureSecurity2";
     }
 
     @Override
     public String visitBondFutureTransaction(BondFutureTransaction bondFuture, T data) {
-      return null;
+      return "BondFutureTransaction2";
     }
 
     @Override
@@ -290,12 +296,12 @@ public class FutureDerivativeVisitorTest {
 
     @Override
     public String visitBondFutureSecurity(BondFutureSecurity bondFuture) {
-      return null;
+      return "BondFutureSecurity1";
     }
 
     @Override
     public String visitBondFutureTransaction(BondFutureTransaction bondFuture) {
-      return null;
+      return "BondFutureTransaction1";
     }
 
     @Override

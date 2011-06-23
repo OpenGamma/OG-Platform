@@ -136,12 +136,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXOptionSecurity(FXOptionSecurity security) {
-          return null;
+          return security.getCallCurrency();
         }
 
         @Override
         public Currency visitSwaptionSecurity(SwaptionSecurity security) {
-          return null;
+          return security.getCurrency();
         }
 
         @Override
@@ -151,7 +151,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-          return null;
+          return security.getCallCurrency();
         }
       });
       return ccy;
