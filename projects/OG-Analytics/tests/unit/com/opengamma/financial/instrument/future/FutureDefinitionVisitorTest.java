@@ -40,6 +40,8 @@ public class FutureDefinitionVisitorTest {
 
   private static final InterestRateFutureSecurityDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   private static final InterestRateFutureTransactionDefinition IR_FUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransactionDefinition();
+  private static final BondFutureSecurityDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
+  private static final BondFutureTransactionDefinition BNDFUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureTransactionDefinition();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -51,6 +53,10 @@ public class FutureDefinitionVisitorTest {
     assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR, o), "InterestRateFutureSecurity2");
     assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR), "InterestRateFutureTransaction1");
     assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "InterestRateFutureTransaction2");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR), "BondFutureSecurity1");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR, o), "BondFutureSecurity2");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR), "BondFutureTransaction1");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "BondFutureTransaction2");
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
@@ -107,22 +113,22 @@ public class FutureDefinitionVisitorTest {
 
     @Override
     public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond, T data) {
-      return null;
+      return "BondFutureSecurity2";
     }
 
     @Override
     public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond) {
-      return null;
+      return "BondFutureSecurity1";
     }
 
     @Override
     public String visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond, T data) {
-      return null;
+      return "BondFutureTransaction2";
     }
 
     @Override
     public String visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond) {
-      return null;
+      return "BondFutureTransaction1";
     }
 
     @Override
