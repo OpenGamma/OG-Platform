@@ -39,7 +39,7 @@ public class DoubleLabelledMatrix2DTest {
     testResult(result, SORTED_X_LABELS2, SORTED_Y_LABELS2);
   }
 
-  //@Test
+  @Test
   public void testAdd() {
     Double[] otherX = new Double[] {6., 7.};
     Double[] otherY = new Double[] {4., 5., 6., 7., 8.};
