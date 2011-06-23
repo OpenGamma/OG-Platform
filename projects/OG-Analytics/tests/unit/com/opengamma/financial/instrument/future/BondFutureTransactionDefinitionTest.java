@@ -94,6 +94,7 @@ public class BondFutureTransactionDefinitionTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
+    assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(FUTURE_TRANSACTION_DEFINITION));
     BondFutureTransactionDefinition other = new BondFutureTransactionDefinition(FUTURE_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(other));
     assertTrue(FUTURE_TRANSACTION_DEFINITION.hashCode() == other.hashCode());
@@ -104,6 +105,11 @@ public class BondFutureTransactionDefinitionTest {
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new BondFutureTransactionDefinition(FUTURE_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
+    BondFutureSecurityDefinition otherUnderlying = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, 2 * NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    modifiedFuture = new BondFutureTransactionDefinition(otherUnderlying, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(QUANTITY));
+    assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(null));
   }
 
   @Test
@@ -136,6 +142,25 @@ public class BondFutureTransactionDefinitionTest {
     BondFutureSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
     BondFutureTransaction futureConstructed = new BondFutureTransaction(security, QUANTITY, lastMarginPrice);
     assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
+  }
+
+  @Test
+  /**
+   * Tests the exception of to derivative method when no reference price is provided.
+   */
+  public void toDerivativeNoReferencePrice() {
+    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 6, 22);
+    final String creditCruveName = "Credit";
+    final String repoCurveName = "Repo";
+    final String[] curvesName = {creditCruveName, repoCurveName};
+    try {
+      FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, curvesName);
+      assertTrue(false);
+    } catch (UnsupportedOperationException e) {
+      assertTrue(true);
+    } catch (Exception e) {
+      assertTrue(false);
+    }
   }
 
 }

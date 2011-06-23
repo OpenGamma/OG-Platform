@@ -232,12 +232,6 @@ public class BondFutureSecurityDefinition implements FixedIncomeInstrumentConver
     if (!Arrays.equals(_deliveryBasket, other._deliveryBasket)) {
       return false;
     }
-    if (!ObjectUtils.equals(_deliveryFirstDate, other._deliveryFirstDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_deliveryLastDate, other._deliveryLastDate)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_noticeFirstDate, other._noticeFirstDate)) {
       return false;
     }
@@ -245,9 +239,6 @@ public class BondFutureSecurityDefinition implements FixedIncomeInstrumentConver
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
-      return false;
-    }
-    if (_settlementDays != other._settlementDays) {
       return false;
     }
     if (!ObjectUtils.equals(_tradingLastDate, other._tradingLastDate)) {

@@ -41,7 +41,7 @@ public class PerformanceTest extends DBTest {
    */
   private HistoricalTimeSeriesMaster _tsMaster;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

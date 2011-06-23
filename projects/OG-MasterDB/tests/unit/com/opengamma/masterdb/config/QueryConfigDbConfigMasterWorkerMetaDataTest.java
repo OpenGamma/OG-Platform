@@ -27,7 +27,7 @@ public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfi
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerMetaDataTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QueryConfigDbConfigMasterWorkerMetaDataTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

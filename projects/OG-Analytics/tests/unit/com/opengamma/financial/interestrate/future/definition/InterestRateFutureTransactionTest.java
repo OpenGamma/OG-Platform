@@ -6,6 +6,8 @@
 package com.opengamma.financial.interestrate.future.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -60,9 +62,8 @@ public class InterestRateFutureTransactionTest {
       NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   // Transaction
   private static final int QUANTITY = -123;
-  //  private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2011, 5, 12);
   private static final double TRADE_PRICE = 0.985;
-  InterestRateFutureTransaction FUTURE_TRANSACTION = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
+  private static final InterestRateFutureTransaction FUTURE_TRANSACTION = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -74,6 +75,26 @@ public class InterestRateFutureTransactionTest {
     assertEquals(ERU2, FUTURE_TRANSACTION.getUnderlyingFuture());
     assertEquals(QUANTITY, FUTURE_TRANSACTION.getQuantity());
     assertEquals(TRADE_PRICE, FUTURE_TRANSACTION.getReferencePrice());
+  }
+
+  @Test
+  public void equalHash() {
+    assertTrue(FUTURE_TRANSACTION.equals(FUTURE_TRANSACTION));
+    InterestRateFutureTransaction other = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
+    assertTrue(FUTURE_TRANSACTION.equals(other));
+    assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
+    assertEquals(FUTURE_TRANSACTION.toString(), other.toString());
+    InterestRateFutureTransaction modifiedFuture;
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, QUANTITY + 1, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE + 0.01);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    InterestRateFutureSecurity otherSecurity = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL * 2, FUTURE_FACTOR, NAME,
+        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    modifiedFuture = new InterestRateFutureTransaction(otherSecurity, QUANTITY, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    assertFalse(FUTURE_TRANSACTION.equals(TRADE_PRICE));
+    assertFalse(FUTURE_TRANSACTION.equals(null));
   }
 
 }

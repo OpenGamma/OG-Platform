@@ -79,6 +79,16 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertEquals(NAME, ERU2_DEFINITION.getName());
     assertEquals(SPOT_LAST_TRADING_DATE, ERU2_DEFINITION.getFixingPeriodStartDate());
     assertEquals(ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR), ERU2_DEFINITION.getFixingPeriodEndDate());
+    assertEquals(DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE), ERU2_DEFINITION.getFixingPeriodAccrualFactor());
+    String description = "IRFuture Security: " + NAME + " Last trading date: " + LAST_TRADING_DATE.toString() + " Ibor Index: " + IBOR_INDEX.getName() + " Notional: " + NOTIONAL;
+    assertEquals(description, ERU2_DEFINITION.toString());
+  }
+
+  @Test
+  public void constructor() {
+    InterestRateFutureSecurityDefinition constructor1 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, "RateFuture " + IBOR_INDEX.getName());
+    InterestRateFutureSecurityDefinition constructor2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR);
+    assertTrue(constructor1.equals(constructor2));
   }
 
   @Test
@@ -93,8 +103,13 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR * 2.0, NAME);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL + 1.0, FUTURE_FACTOR, NAME + "+");
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME + "+");
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
+    IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, otherIndex, NOTIONAL, FUTURE_FACTOR, NAME);
+    assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
+    assertFalse(ERU2_DEFINITION.equals(IBOR_INDEX));
+    assertFalse(ERU2_DEFINITION.equals(null));
   }
 
   @Test
