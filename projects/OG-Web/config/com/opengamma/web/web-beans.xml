@@ -3,9 +3,28 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
 
   <!--  import resources from OG-Util -->
   <import resource="classpath:com/opengamma/transport/jaxrs/beans.xml" />
+
+  <!-- Property file configuration -->
+  <bean id="beansProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="locations">
+      <list>
+        <value>classpath:com/opengamma/web/engine-spring.properties</value>
+      </list>
+    </property>
+  </bean>
+  
+  <!-- Bundle Property file configuration -->
+  <bean id="bundleProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:com/opengamma/web/bundle.properties</value>
+    </property>
+  </bean>
 
   <!-- Historical data source service -->
   <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceService">
