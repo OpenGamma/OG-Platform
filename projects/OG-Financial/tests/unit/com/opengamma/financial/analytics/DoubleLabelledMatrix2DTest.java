@@ -39,16 +39,76 @@ public class DoubleLabelledMatrix2DTest {
     testResult(result, SORTED_X_LABELS2, SORTED_Y_LABELS2);
   }
 
-  private void testResult(DoubleLabelledMatrix2D result, Object[] xLabels, Object[] yLabels) {
-    Double[] xKeysResult = result.getXKeys();
+  @Test
+  public void testAdd() {
+    Double[] otherX = new Double[] {6., 7.};
+    Double[] otherY = new Double[] {4., 5., 6., 7., 8.};
+    Object[] otherXLabels = new Object[] {"F", "G"};
+    Object[] otherYLabels = new Object[] {"D", "E", "F", "G", "H"};
+    double[][] values = new double[][] {new double[] {24, 28}, new double[] {30, 35}, new double[] {36, 42}, new double[] {42, 49}, new double[] {48, 56}};
+    final DoubleLabelledMatrix2D originalMatrix = new DoubleLabelledMatrix2D(SORTED_X_KEYS, SORTED_X_LABELS2, SORTED_Y_KEYS, SORTED_Y_LABELS2, SORTED_VALUES);
+    DoubleLabelledMatrix2D otherMatrix = new DoubleLabelledMatrix2D(otherX, otherXLabels, otherY, otherYLabels, values);
+    LabelledMatrix2D<Double, Double> sum = originalMatrix.add(otherMatrix, 0.0001, 0.0001);
+    double[][] expectedValues = new double[][] {new double[] {1, 2, 3, 4, 5, 0, 0},
+        new double[] {2, 4, 6, 8, 10, 0, 0},
+        new double[] {3, 6, 9, 12, 15, 0, 0},
+        new double[] {0, 0, 0, 0, 0, 24, 28},
+        new double[] {0, 0, 0, 0, 0, 30, 35},
+        new double[] {0, 0, 0, 0, 0, 36, 42},
+        new double[] {0, 0, 0, 0, 0, 42, 49},
+        new double[] {0, 0, 0, 0, 0, 48, 56}};
+    LabelledMatrix2D<Double, Double> expectedSum = new DoubleLabelledMatrix2D(new Double[] {1., 2., 3., 4., 5., 6., 7.},
+                                                                              new Object[] {"A", "B", "C", "D", "E", "F", "G"},
+                                                                              new Double[] {1., 2., 3., 4., 5., 6., 7., 8.},
+                                                                              new Object[] {"A", "B", "C", "D", "E", "F", "G", "H"},
+                                                                              expectedValues);
+    assertArrayEquals(expectedSum.getXKeys(), sum.getXKeys());
+    assertArrayEquals(expectedSum.getXLabels(), sum.getXLabels());
+    assertArrayEquals(expectedSum.getYKeys(), sum.getYKeys());
+    assertArrayEquals(expectedSum.getYLabels(), sum.getYLabels());
+    for (int i = 0; i < expectedValues.length; i++) {
+      for (int j = 0; j < expectedValues[0].length; j++) {
+        assertEquals(expectedValues[i][j], sum.getValues()[i][j]);
+      }
+    }
+    otherX = new Double[] {1., 2.};
+    otherY = new Double[] {1., 2., 3., 4., 5.};
+    otherXLabels = new Object[] {"A", "B"};
+    otherYLabels = new Object[] {"A", "B", "C", "D", "E"};
+    values = new double[][] {new double[] {10, 100}, new double[] {20, 200}, new double[] {30, 300}, new double[] {40, 400}, new double[] {50, 500}};
+    otherMatrix = new DoubleLabelledMatrix2D(otherX, otherXLabels, otherY, otherYLabels, values);
+    sum = originalMatrix.add(otherMatrix, 0.0001, 0.0001);
+    expectedValues = new double[][] {new double[] {11, 102, 3, 4, 5},
+        new double[] {22, 204, 6, 8, 10},
+        new double[] {33, 306, 9, 12, 15},
+        new double[] {40, 400, 0, 0, 0},
+        new double[] {50, 500, 0, 0, 0}};
+    expectedSum = new DoubleLabelledMatrix2D(new Double[] {1., 2., 3., 4., 5.},
+                                             new Object[] {"A", "B", "C", "D", "E"},
+                                             new Double[] {1., 2., 3., 4., 5.},
+                                             new Object[] {"A", "B", "C", "D", "E"},
+                                             expectedValues);
+    assertArrayEquals(expectedSum.getXKeys(), sum.getXKeys());
+    assertArrayEquals(expectedSum.getXLabels(), sum.getXLabels());
+    assertArrayEquals(expectedSum.getYKeys(), sum.getYKeys());
+    assertArrayEquals(expectedSum.getYLabels(), sum.getYLabels());
+    for (int i = 0; i < expectedValues.length; i++) {
+      for (int j = 0; j < expectedValues[0].length; j++) {
+        assertEquals(expectedValues[i][j], sum.getValues()[i][j]);
+      }
+    }
+  }
+
+  private void testResult(final DoubleLabelledMatrix2D result, final Object[] xLabels, final Object[] yLabels) {
+    final Double[] xKeysResult = result.getXKeys();
     assertArrayEquals(SORTED_X_KEYS, xKeysResult);
-    Object[] xLabelsResult = result.getXLabels();
+    final Object[] xLabelsResult = result.getXLabels();
     assertArrayEquals(xLabels, xLabelsResult);
-    Double[] yKeysResult = result.getYKeys();
+    final Double[] yKeysResult = result.getYKeys();
     assertArrayEquals(SORTED_Y_KEYS, yKeysResult);
-    Object[] yLabelsResult = result.getYLabels();
+    final Object[] yLabelsResult = result.getYLabels();
     assertArrayEquals(yLabels, yLabelsResult);
-    double[][] valuesResult = result.getValues();
+    final double[][] valuesResult = result.getValues();
     for (int i = 0; i < yKeysResult.length; i++) {
       for (int j = 0; j < xKeysResult.length; j++) {
         assertEquals(valuesResult[i][j], SORTED_VALUES[i][j]);
