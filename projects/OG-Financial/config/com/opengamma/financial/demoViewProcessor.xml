@@ -14,7 +14,7 @@
   </bean>
   
   <import resource="classpath:com/opengamma/financial/common.xml" />
-  <import resource="classpath:com/opengamma/financial/demoIntegrationMasters.xml" />
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
   <!-- Active MQ -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">

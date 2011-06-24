@@ -3,10 +3,10 @@
 <beans>
 
   <!-- Property file configuration -->
-  <bean id="demoIntegrationMastersProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="demoMastersProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="location">
-      <value>classpath:demoIntegrationMasters-${opengamma.platform.runmode}.properties</value>
+      <value>classpath:demoMasters-${opengamma.platform.runmode}.properties</value>
     </property>
   </bean>
 
