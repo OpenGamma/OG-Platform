@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 @FudgeBuilderFor(SABRFittedSurfaces.class)
-public class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFittedSurfaces> {
+public final class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFittedSurfaces> {
   private static final String ALPHA_SURFACE_NAME = "AlphaSurface";
   private static final String BETA_SURFACE_NAME = "BetaSurface";
   private static final String NU_SURFACE_NAME = "NuSurface";

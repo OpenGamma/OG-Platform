@@ -81,10 +81,7 @@ public class SABRFittedSurfaces {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof SABRFittedSurfaces)) {
       return false;
     }
     final SABRFittedSurfaces other = (SABRFittedSurfaces) obj;

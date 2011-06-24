@@ -279,6 +279,9 @@ public final class ValueRequirementNames {
   public static final String SABR_BETA_SURFACE = "SABR Beta Surface";
   public static final String SABR_NU_SURFACE = "SABR Nu Surface";
   public static final String SABR_RHO_SURFACE = "SABR Rho Surface";
+  
+  //Heston fitted parameters
+  public static final String HESTON_SURFACES = "Heston Surfaces";
   //CSON
 
 }
