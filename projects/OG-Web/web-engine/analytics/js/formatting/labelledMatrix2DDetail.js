@@ -5,12 +5,12 @@
  */
 
 /**
- * Renders a detailed view of a volatility surface
+ * Renders a detailed view of a LabelledMatrix2D
  */
 (function($) {
   
   /** @constructor */
-  function VolatilitySurfaceDataDetail(_$popup, _$container, _rowId, _colId) {
+  function LabelledMatrix2DDetail(_$popup, _$container, _rowId, _colId, _data) {
     
     var self = this;
     
@@ -19,9 +19,13 @@
     var _gridHelper;
     
     function init() {
-      // Set some defaults
-      _$popup.width(500);
-      _$popup.height(300);
+      // TODO: probably want to limit the size
+      if (_data.v.summary) {
+        var colCount = parseInt(_data.v.summary.colCount) + 1;
+        _$popup.width(colCount * 75);
+      } else {
+        _$popup.width(500);
+      }
 
       _dataView = new Slick.Data.DataView();
       _dataView.beginUpdate();
@@ -30,38 +34,35 @@
     }
     
     function formatValue(row, cell, value, columnDef, dataContext) {
-      return value;
-    }
-    
-    function formatHeader(row, cell, value, columnDef, dataContext) {
-      return "<span class='cell-header'>" + value + "</span>";
+      var cssClass = row == 0 || cell == 0 ? 'labelled-matrix-header' : 'cell-value';
+      return "<span class='" + cssClass + "'>" + value + "</span>";
     }
     
     function getGridRows(data) {
       var rows = [];
-      var xs = data.xs;
-      var ys = data.ys;
-      var values = data.surface;
-      // work out min and max values
-      var minVal = 10000;
-      var maxVal = 0;
-      for (var i = 0; i < values.length; i++) {
-        for (var col=0; col < values[i].length; col++) {
-          minVal = Math.min(minVal, values[i][col]);
-          maxVal = Math.max(maxVal, values[i][col]);
-        }
-      }
+      var xs = data.x;
+      var ys = data.y;
+      var values = data.matrix;
       
+      var header = new Object();
+      header.name = '';
+      header.id = 0;
+      header.x0 = '';
+      for (var i = 0; i < xs.length; i++) {
+        header['x' + (i + 1)] = xs[i];
+      }
+      rows.push(header);
       for (var i = 0; i < values.length; i++) {
         var row = new Object();
         row.name = ys[i];
-        row.id = i;
+        row.id = i + 1;
         row.x0 = ys[i];
         for (var col=0; col < values[i].length; col++) {
           var value = values[i][col];
-          var brightness = (value - minVal) / (maxVal - minVal); // decimal %
-          var colorValue = Math.round((brightness * 64) + 127 + 64).toString(16);
-          row['x' + (col + 1)] = '<div style="padding: 2px; background: #ff' + colorValue + colorValue + ';">' + value.toFixed(2) + '</div>';
+          if (value) {
+            value = value.toFixed(4);
+          }
+          row['x' + (col + 1)] = value;
         }
         rows.push(row);
       }
@@ -72,26 +73,27 @@
       if (_grid) {
         return;
       }
-      var xs = data.xs;
+      var xs = data.x;
       var columns = [];
       columns.push({
         id : 'x0',
-        name : 'Swap Length \\ Expiry',
+        name : '',
         field : 'x0',
-        width : 120,
-        formatter: formatHeader
+        width : 75,
+        formatter: formatValue
       });
-      for (var i=1; i<xs.length+1; i++) {
+      for (var i=0; i<xs.length; i++) {
         var column = { 
-          id : 'x' + i,
-          name: xs[i-1],
-          field : 'x' + i,
-          width: 45,
+          id : 'x' + (i + 1),
+          name: xs[i],
+          field : 'x' + (i + 1),
+          width: 75,
           formatter: formatValue
         }
         columns.push(column);
       }
       var options = {
+          autoHeight: true,
           editable: false,
           enableAddRow: false,
           enableCellNavigation: false,
@@ -100,6 +102,8 @@
         };
       _grid = new Slick.Grid(_$container, _dataView.rows, columns, options);
       _gridHelper = new SlickGridHelper(_grid, _dataView, null, true);
+      _$container.find(".slick-header-columns").css('height', '0');
+      _$container.find(".slick-header").css('border', 'none');
       _grid.resizeCanvas();
     }
     
@@ -124,12 +128,6 @@
       _dataView.endUpdate();
     }
     
-    this.resize = function() {
-      if (_grid) {
-        _grid.resizeCanvas();
-      }
-    }
-    
     this.destroy = function() {
       if (_gridHelper) {
         _gridHelper.destroy();
@@ -146,7 +144,7 @@
   }
   
   $.extend(true, window, {
-    VolatilitySurfaceDataDetail : VolatilitySurfaceDataDetail
+    LabelledMatrix2DDetail : LabelledMatrix2DDetail
   });
 
 }(jQuery));

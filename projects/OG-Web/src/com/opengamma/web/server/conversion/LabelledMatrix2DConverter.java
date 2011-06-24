@@ -12,7 +12,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 
 /**
- * 
+ * Converter for {@link LabelledMatrix2D} results.
  */
 @SuppressWarnings("rawtypes")
 public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix2D> {
@@ -20,21 +20,25 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
-    int rows = value.getYKeys().length;
-    int columns = value.getXKeys().length;
-    result.put("summary", rows + " x " + columns);
+    int rowCount = value.getYKeys().length;
+    int columnCount = value.getXKeys().length;
+    Map<String, Object> summary = new HashMap<String, Object>();
+    summary.put("rowCount", rowCount);
+    summary.put("colCount", columnCount);
+    result.put("summary", summary);
+    
     if (mode == ConversionMode.FULL) {
-      String[] xStrings = new String[columns];
-      String[] yStrings = new String[rows];
-      for (int i = 0; i < xStrings.length; i++) {
-        xStrings[i] = value.getXLabels()[i].toString();
+      String[] xLabels = new String[columnCount];
+      String[] yLabels = new String[rowCount];
+      for (int i = 0; i < xLabels.length; i++) {
+        xLabels[i] = value.getXLabels()[i].toString();
       }
-      result.put("x", xStrings);
-      for (int i = 0; i < yStrings.length; i++) {
-        yStrings[i] = value.getYLabels()[i].toString();
+      result.put("x", xLabels);
+      for (int i = 0; i < yLabels.length; i++) {
+        yLabels[i] = value.getYLabels()[i].toString();
       }
-      result.put("y", yStrings);
-      result.put("surface", value.getValues());
+      result.put("y", yLabels);
+      result.put("matrix", value.getValues());
     }
     return result;
   }
@@ -46,7 +50,7 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
 
   @Override
   public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value) {
-    return "Labelled Matrix 2D (" + value.getYKeys().length + " x " + value.getXKeys().length;
+    return "Labelled Matrix 2D (" + value.getYKeys().length + " x " + value.getXKeys().length + ")";
   }
 
   @Override
