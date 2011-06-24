@@ -121,6 +121,28 @@ public class HistoricalTimeSeriesSourceResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Path("uid/{uid}")
+  public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueIdentifier.parse(uid)));
+  }
+
+  @GET
+  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{excludeEnd}")
+  public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end,
+      @PathParam("excludeEnd") String excludeEnd) {
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        UniqueIdentifier.parse(uid), 
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(excludeEnd)));
+  }
+
+  //-------------------------------------------------------------------------
+  @GET
   @Path("all/{currentDate}/{dataSource}/{dataProvider}/{dataField}")
   public FudgeMsgEnvelope getAll(@PathParam("currentDate") String currentDate, 
       @PathParam("dataSource") String dataSource, 
@@ -128,8 +150,11 @@ public class HistoricalTimeSeriesSourceResource {
       @PathParam("dataField") String dataField,
       @QueryParam("id") List<String> identifiers) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
-        identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
-        NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField));
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        dataSource,
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider,
+        dataField));
   }
 
   @GET
@@ -145,57 +170,53 @@ public class HistoricalTimeSeriesSourceResource {
       @QueryParam("id") List<String> identifiers) {
     
     HistoricalTimeSeries hts = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
-        identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
-        NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField,
-        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
-        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd));
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        dataSource, 
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider,
+        dataField,
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(excludeEnd));
     return encodeMessage(hts);
   }
 
   @GET
-  @Path("default/{currentDate}/{configDocName}")
-  public FudgeMsgEnvelope getDefault(@PathParam("currentDate") String currentDate, 
-      @PathParam("configDocName") String configDocName, 
+  @Path("resolved/{dataField}/{currentDate}/{resolutionKey}")
+  public FudgeMsgEnvelope getResolved(@PathParam("currentDate") String currentDate, 
+      @PathParam("dataField") String dataField, 
+      @PathParam("resolutionKey") String resolutionKey, 
       @QueryParam("id") List<String> identifiers) {
-    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(identifiersToBundle(identifiers),
-        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), NULL_VALUE.equals(configDocName) ? null : configDocName));
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        dataField,
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        NULL_VALUE.equals(resolutionKey) ? null : resolutionKey));
   }
 
   @GET
-  @Path("defaultByDate/{currentDate}/{configDocName}/{start}/{includeStart}/{end}/{excludeEnd}")
-  public FudgeMsgEnvelope getDefaultByDate(@PathParam("currentDate") String currentDate,
+  @Path("resolvedByDate/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{excludeEnd}")
+  public FudgeMsgEnvelope getResolvedByDate(@PathParam("currentDate") String currentDate,
+      @PathParam("dataField") String dataField, 
+      @PathParam("resolutionKey") String resolutionKey, 
       @PathParam("start") String start, 
-      @PathParam("configDocName") String configDocName, 
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end, 
       @PathParam("excludeEnd") String excludeEnd,
       @QueryParam("id") List<String> identifiers) {
-    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(identifiersToBundle(identifiers),
-        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
-        NULL_VALUE.equals(configDocName) ? null : configDocName,
-        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
-        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
-  }
-
-  @GET
-  @Path("uid/{uid}")
-  public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
-    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueIdentifier.parse(uid)));
-  }
-
-  @GET
-  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{excludeEnd}")
-  public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
-      @PathParam("start") String start, 
-      @PathParam("includeStart") String includeStart,
-      @PathParam("end") String end,
-      @PathParam("excludeEnd") String excludeEnd) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
-        UniqueIdentifier.parse(uid), 
-        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
-        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
+        dataField,
+        identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        NULL_VALUE.equals(resolutionKey) ? null : resolutionKey,
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
+        Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
+        Boolean.valueOf(excludeEnd)));
   }
 
+  //-------------------------------------------------------------------------
   @POST
   @Path(REQUEST_MULTIPLE)
   @SuppressWarnings("unchecked")

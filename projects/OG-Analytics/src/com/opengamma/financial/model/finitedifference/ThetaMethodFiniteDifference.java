@@ -16,7 +16,7 @@ import com.opengamma.math.surface.Surface;
  * This uses the exponentially fitted scheme of duffy 
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
-
+  // private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   private final double _theta;
   private final boolean _showFullResults;
 
@@ -37,6 +37,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
     _theta = theta;
     _showFullResults = showFullResults;
+  }
+
+  public double getTheta() {
+    return _theta;
   }
 
   @Override
@@ -69,6 +73,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     double dt, t1, t2, x;
     double[] x1st, x2nd;
 
+    double omega = 1.5;
+    boolean omegaIncrease = false;
+    int oldCount = 0;
+
     for (int i = 0; i < xNodes; i++) {
       f[i] = pdeData.getInitialValue(grid.getSpaceNode(i));
     }
@@ -83,6 +91,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       c1[i] = pdeData.getC(0, x);
       rho1[i] = getFittingParameter(grid, a1[i], b1[i], i + 1);
     }
+
+    //    final DecompositionResult decompRes = null;
+    //    final boolean first = true;
 
     for (int n = 1; n < tNodes; n++) {
       t1 = grid.getTimeNode(n - 1);
@@ -134,7 +145,25 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
       q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, t2);
 
-      sor(grid, freeBoundary, xNodes, f, q, m, t2);
+      final int count = sor(omega, grid, freeBoundary, xNodes, f, q, m, t2);
+      if (oldCount > 0) {
+        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
+          omega = Math.max(1.0, omega * 0.9);
+          omegaIncrease = false;
+        } else {
+          omega = 1.1 * omega;
+          omegaIncrease = true;
+        }
+      }
+      oldCount = count;
+
+      //      if (first) {
+      //        final DoubleMatrix2D mM = new DoubleMatrix2D(m);
+      //        decompRes = DCOMP.evaluate(mM);
+      //        first = false;
+      //      }
+      //      f = decompRes.solve(q);
+
       if (_showFullResults) {
         full[n] = Arrays.copyOf(f, f.length);
       }
@@ -175,29 +204,31 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
   /**
    * Checks that the lower and upper boundaries match up with the grid
-   * @param grid
-   * @param lowerBoundary
-   * @param upperBoundary
+   * @param grid The grid
+   * @param lowerBoundary The lower boundary
+   * @param upperBoundary The upper boundary
    */
-  private void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+  protected void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
     Validate.isTrue(Math.abs(grid.getSpaceNode(0) - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
     Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
   }
 
   /**
-   * @param grid
-   * @param freeBoundary
-   * @param xNodes
-   * @param f
-   * @param q
-   * @param m
-   * @param t2
+   * @param omega omega
+   * @param grid the grid
+   * @param freeBoundary the free boundary
+   * @param xNodes x nodes
+   * @param f f 
+   * @param q q 
+   * @param m m
+   * @param t2 t2
+   * @return an int
    */
-  private void sor(final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m, final double t2) {
+  protected int sor(final double omega, final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m,
+      final double t2) {
     double sum;
-    // SOR
-    final double omega = 1.0;
+    int count = 0;
     double scale = 1.0;
     double errorSqr = Double.POSITIVE_INFINITY;
     while (errorSqr / (scale + 1e-10) > 1e-18) {
@@ -216,7 +247,11 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         f[j] += correction;
         scale += f[j] * f[j];
       }
+      count++;
     }
+    //debug
+    //  System.out.println(count + " " + omega);
+    return count;
   }
 
   /**

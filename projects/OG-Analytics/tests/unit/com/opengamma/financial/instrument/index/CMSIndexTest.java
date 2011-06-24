@@ -1,6 +1,12 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import javax.time.calendar.Period;
 
@@ -15,7 +21,6 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
 public class CMSIndexTest {
-
   //Libor3m
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -58,5 +63,31 @@ public class CMSIndexTest {
     assertEquals(CMS_INDEX.getFixedLegPeriod(), FIXED_LEG_PERIOD);
     assertEquals(CMS_INDEX.getIborIndex(), IBOR_INDEX);
     assertEquals(CMS_INDEX.getTenor(), CMS_TENOR);
+    SwapGenerator generator = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
+    String name = CMS_TENOR.toString() + generator.getName();
+    assertEquals(name, CMS_INDEX.getName());
+    assertEquals(CMS_INDEX.toString(), CMS_INDEX.getName());
   }
+
+  @Test
+  public void testEqualHash() {
+    assertEquals(CMS_INDEX, CMS_INDEX);
+    CMSIndex indexDuplicate = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+    assertEquals(CMS_INDEX, indexDuplicate);
+    assertEquals(CMS_INDEX.hashCode(), indexDuplicate.hashCode());
+    CMSIndex indexModified;
+    Period otherPeriod = Period.ofMonths(12);
+    indexModified = new CMSIndex(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
+    assertFalse(CMS_INDEX.equals(indexModified));
+    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, otherPeriod);
+    assertFalse(CMS_INDEX.equals(indexModified));
+    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX, CMS_TENOR);
+    assertFalse(CMS_INDEX.equals(indexModified));
+    IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM);
+    indexModified = new CMSIndex(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex, CMS_TENOR);
+    assertFalse(CMS_INDEX.equals(indexModified));
+    assertFalse(CMS_INDEX.equals(null));
+    assertFalse(CMS_INDEX.equals(CUR));
+  }
+
 }

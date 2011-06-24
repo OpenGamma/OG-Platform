@@ -21,6 +21,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
 import com.opengamma.masterdb.historicaldata.LocalDateDbHistoricalTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
@@ -40,7 +41,7 @@ public class PerformanceTest extends DBTest {
    */
   private HistoricalTimeSeriesMaster _tsMaster;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
@@ -69,26 +70,26 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      HistoricalTimeSeriesDocument tsDocument = new HistoricalTimeSeriesDocument();
-      
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
       LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
       
-      tsDocument.setDataField("CLOSE");
-      tsDocument.setDataProvider("CMPL");
-      tsDocument.setDataSource("BLOOMBERG");
-      tsDocument.setObservationTime("LDN_CLOSE");
-      tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
-      tsDocument.setTimeSeries(timeSeries);
-      s_logger.debug("adding timeseries {}", tsDocument);
-      _tsMaster.add(tsDocument);
+      ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+      series.setDataField("CLOSE");
+      series.setDataProvider("CMPL");
+      series.setDataSource("BLOOMBERG");
+      series.setObservationTime("LDN_CLOSE");
+      series.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+      series.setTimeSeries(timeSeries);
+      HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(series);
+      s_logger.debug("adding timeseries {}", doc);
+      _tsMaster.add(doc);
       
       timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
         DataPointDocument dataPointDocument = new DataPointDocument();
-        dataPointDocument.setHistoricalTimeSeriesId(tsDocument.getUniqueId());
+        dataPointDocument.setHistoricalTimeSeriesId(doc.getUniqueId());
         dataPointDocument.setDate(timeSeries.getTime(j));
         dataPointDocument.setValue(timeSeries.getValueAt(j));
         s_logger.debug("adding data points {}", dataPointDocument);

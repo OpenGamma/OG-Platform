@@ -37,7 +37,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerGetTradeTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QueryPositionDbPositionMasterWorkerGetTradeTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

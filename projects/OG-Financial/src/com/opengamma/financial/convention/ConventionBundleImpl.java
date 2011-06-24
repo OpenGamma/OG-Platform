@@ -31,6 +31,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   private Integer _settlementDays;
   private Frequency _frequency;
   private Period _period;
+  private Identifier _region;
 
   private DayCount _swapFixedLegDayCount;
   private BusinessDayConvention _swapFixedLegBusinessDayConvention;
@@ -83,13 +84,14 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays) {
+      final int settlementDays, final Identifier region) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _period = period;
     _settlementDays = settlementDays;
+    _region = region;
   }
 
   // futures
@@ -455,4 +457,10 @@ public class ConventionBundleImpl implements ConventionBundle {
   public Period getPeriod() {
     return _period;
   }
+
+  @Override
+  public Identifier getRegion() {
+    return _region;
+  }
+
 }

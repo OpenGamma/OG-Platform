@@ -179,18 +179,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName) {
-    return getHistoricalTimeSeries(identifiers, null, configDocName);
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
+    return getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(configDocName, currentDate, identifiers, null, null, null);
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, null);
     HistoricalTimeSeries hts = getFromCache(key);
     if (hts == null) {
-      hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, configDocName);
+      hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
         _cache.put(new Element(key, hts.getUniqueId()));
@@ -201,15 +203,17 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalTimeSeries(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
+    return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    HistoricalTimeSeries tsPair = getHistoricalTimeSeries(identifiers, currentDate, configDocName);
+    HistoricalTimeSeries tsPair = getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
     return getSubSeries(tsPair, start, inclusiveStart, end, exclusiveEnd);
   }
 

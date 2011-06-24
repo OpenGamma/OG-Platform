@@ -36,7 +36,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerUpdateTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

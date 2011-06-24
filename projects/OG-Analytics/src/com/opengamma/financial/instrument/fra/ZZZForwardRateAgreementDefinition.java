@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
-import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -65,8 +65,7 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
    * @param rate The FRA rate.
    */
   public ZZZForwardRateAgreementDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double rate) {
+      final double accrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
     Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
@@ -199,19 +198,7 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
     final ZZZForwardRateAgreementDefinition other = (ZZZForwardRateAgreementDefinition) obj;
-    if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_fixingPeriodEndDate, other._fixingPeriodEndDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_fixingPeriodStartDate, other._fixingPeriodStartDate)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

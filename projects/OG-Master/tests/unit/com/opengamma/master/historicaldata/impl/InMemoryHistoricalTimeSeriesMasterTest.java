@@ -19,6 +19,7 @@ import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
+import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaldata.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -58,32 +59,33 @@ public class InMemoryHistoricalTimeSeriesMasterTest extends AbstractInMemoryHist
   
   public void getTimeSeriesWithDateRange() throws Exception {
     List<HistoricalTimeSeriesDocument> tsList = addAndTestTimeSeries();
-    for (HistoricalTimeSeriesDocument tsDoc : tsList) {
-      LocalDateDoubleTimeSeries timeSeries = tsDoc.getTimeSeries();
+    for (HistoricalTimeSeriesDocument doc : tsList) {
+      ManageableHistoricalTimeSeries series = doc.getSeries();
+      LocalDateDoubleTimeSeries timeSeries = series.getTimeSeries();
       
-      HistoricalTimeSeriesDocument searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), null, null);
+      HistoricalTimeSeriesDocument searchDoc = getHistoricalTimeSeries(series.getIdentifiers(),  series.getDataSource(), series.getDataProvider(), series.getDataField(), null, null);
       assertNotNull(searchDoc);
-      assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
-      assertEquals(timeSeries, searchDoc.getTimeSeries());
+      assertEquals(doc.getUniqueId(), searchDoc.getUniqueId());
+      assertEquals(timeSeries, searchDoc.getSeries().getTimeSeries());
       
       // test end dates
       LocalDate earliestDate = timeSeries.getEarliestTime();
       LocalDate latestDate = timeSeries.getLatestTime();
       
-      searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), earliestDate, latestDate);
+      searchDoc = getHistoricalTimeSeries(series.getIdentifiers(),  series.getDataSource(), series.getDataProvider(), series.getDataField(), earliestDate, latestDate);
       assertNotNull(searchDoc);
-      assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
-      assertEquals(timeSeries, searchDoc.getTimeSeries());
+      assertEquals(doc.getUniqueId(), searchDoc.getUniqueId());
+      assertEquals(timeSeries, searchDoc.getSeries().getTimeSeries());
 
       // test subSeries
       LocalDate start = DateUtil.nextWeekDay(earliestDate);
       LocalDate end = DateUtil.previousWeekDay(latestDate);
       if (start.isBefore(end) || start.equals(end)) {
-        searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), start, end);
+        searchDoc = getHistoricalTimeSeries(series.getIdentifiers(),  series.getDataSource(), series.getDataProvider(), series.getDataField(), start, end);
         assertNotNull(searchDoc);
-        assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
-        assertEquals(start, searchDoc.getTimeSeries().getEarliestTime());
-        assertEquals(end, searchDoc.getTimeSeries().getLatestTime());
+        assertEquals(doc.getUniqueId(), searchDoc.getUniqueId());
+        assertEquals(start, searchDoc.getSeries().getTimeSeries().getEarliestTime());
+        assertEquals(end, searchDoc.getSeries().getTimeSeries().getLatestTime());
       }
     }
   }

@@ -92,7 +92,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   public void clientRemoved(Client client) {
     // Tidy up
     s_logger.debug("Client " + client.getId() + " disconnected");
-    if (_clientViews.containsKey(client)) {
+    if (_clientViews.containsKey(client.getId())) {
       WebView view = _clientViews.remove(client.getId());
       view.shutdown();
     }

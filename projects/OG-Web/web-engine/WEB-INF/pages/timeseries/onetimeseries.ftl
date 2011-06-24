@@ -10,14 +10,14 @@
 <#-- SECTION Time series output -->
 <@section title="Time series">
   <p>
-    <@rowout label="Reference">${timeseriesDoc.uniqueId.value}</@rowout>
-   	<#list timeseriesDoc.identifiers.iterator() as item>
+    <@rowout label="Reference">${timeseries.uniqueId.value}</@rowout>
+   	<#list timeseries.identifiers.iterator() as item>
     <@rowout label="Identifier">${item}</@rowout>
    	</#list>
-    <@rowout label="Data source">${timeseriesDoc.dataSource}</@rowout>
-    <@rowout label="Data provider">${timeseriesDoc.dataProvider}</@rowout>
-    <@rowout label="Data field">${timeseriesDoc.dataField}</@rowout>
-    <@rowout label="Observation time">${timeseriesDoc.observationTime}</@rowout>
+    <@rowout label="Data source">${timeseries.dataSource}</@rowout>
+    <@rowout label="Data provider">${timeseries.dataProvider}</@rowout>
+    <@rowout label="Data field">${timeseries.dataField}</@rowout>
+    <@rowout label="Observation time">${timeseries.observationTime}</@rowout>
   </p>
   
 <#-- SUBSECTION Chart -->
@@ -33,7 +33,7 @@
 $(function () {
     
     var d = [
-    <#list timeseries.toZonedDateTimeDoubleTimeSeries().iterator() as item>
+    <#list timeseries.timeSeries.toZonedDateTimeDoubleTimeSeries().iterator() as item>
       [${item.key.toInstant().toEpochMillisLong()?c}, ${item.value}],
 	</#list>
     ];
@@ -129,9 +129,9 @@ $(function () {
   
 <#-- SUBSECTION Data table -->
 <@subsection title="Data points">
-<@table items=timeseries.times() empty="No data points" headers=["Time","Value"]; item>
+<@table items=timeseries.timeSeries.times() empty="No data points" headers=["Time","Value"]; item>
       <td>${item}</td>
-      <td>${timeseries.getValue(item)}</td>
+      <td>${timeseries.timeSeries.getValue(item)}</td>
 </@table>
 </@subsection>
 <@subsection title="Data point export">

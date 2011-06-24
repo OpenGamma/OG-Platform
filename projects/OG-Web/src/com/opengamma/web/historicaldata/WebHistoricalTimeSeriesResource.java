@@ -60,7 +60,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     StringWriter stringWriter  = new StringWriter();
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
-    for (Map.Entry<?, Double> entry : data().getHistoricalTimeSeries().getTimeSeries()) {
+    for (Map.Entry<?, Double> entry : data().getHistoricalTimeSeries().getSeries().getTimeSeries()) {
       csvWriter.writeNext(new String[] {entry.getKey().toString(), entry.getValue().toString()});
     }
     return stringWriter.toString();
@@ -115,7 +115,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     FlexiBean out = super.createRootData();
     HistoricalTimeSeriesDocument doc = data().getHistoricalTimeSeries();
     out.put("timeseriesDoc", doc);
-    out.put("timeseries", doc.getTimeSeries());
+    out.put("timeseries", doc.getSeries());
     return out;
   }
 

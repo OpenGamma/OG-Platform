@@ -29,7 +29,7 @@ public class TridiagonalMatrix {
   private final double[] _a;
   private final double[] _b;
   private final double[] _c;
-  private final DoubleMatrix2D _matrix;
+  private DoubleMatrix2D _matrix;
 
   /**
    * @param a An array containing the diagonal values of the matrix, not null
@@ -46,18 +46,6 @@ public class TridiagonalMatrix {
     _a = a;
     _b = b;
     _c = c;
-    int i;
-    final double[][] data = new double[n][n];
-    for (i = 0; i < n; i++) {
-      data[i][i] = _a[i];
-    }
-    for (i = 1; i < n; i++) {
-      data[i - 1][i] = _b[i - 1];
-    }
-    for (i = 1; i < n; i++) {
-      data[i][i - 1] = _c[i - 1];
-    }
-    _matrix = new DoubleMatrix2D(data);
   }
 
   /**
@@ -85,7 +73,25 @@ public class TridiagonalMatrix {
    * @return Returns the tridiagonal matrix as a {@link com.opengamma.math.matrix.DoubleMatrix2D}
    */
   public DoubleMatrix2D toDoubleMatrix2D() {
+    if (_matrix == null) {
+      calMatrix();
+    }
     return _matrix;
+  }
+
+  private void calMatrix() {
+    int n = _a.length;
+    final double[][] data = new double[n][n];
+    for (int i = 0; i < n; i++) {
+      data[i][i] = _a[i];
+    }
+    for (int i = 1; i < n; i++) {
+      data[i - 1][i] = _b[i - 1];
+    }
+    for (int i = 1; i < n; i++) {
+      data[i][i - 1] = _c[i - 1];
+    }
+    _matrix = new DoubleMatrix2D(data);
   }
 
   @Override

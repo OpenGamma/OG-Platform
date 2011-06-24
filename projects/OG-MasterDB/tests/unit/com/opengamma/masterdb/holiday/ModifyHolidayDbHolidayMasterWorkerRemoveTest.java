@@ -34,7 +34,7 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerRemoveTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyHolidayDbHolidayMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

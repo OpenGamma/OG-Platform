@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.base.Supplier;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
@@ -78,9 +78,9 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
     UniqueIdentifier uniqueId = _metaUniqueIdentifierStore.get(key);
     if (uniqueId == null) {
       return null;
@@ -98,33 +98,37 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
+      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField);
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configDocName) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifiers, String resolutionKey) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, String configName, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
+  public HistoricalTimeSeries getHistoricalTimeSeries(
+      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   //-------------------------------------------------------------------------
