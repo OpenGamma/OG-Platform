@@ -6,6 +6,7 @@
     
   <!-- Override properties configuration -->
   <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+    <property name="ignoreInvalidKeys" value="true" />
     <property name="location">
       <value>classpath:engine-${opengamma.platform.runmode}-override.properties</value>
     </property>
