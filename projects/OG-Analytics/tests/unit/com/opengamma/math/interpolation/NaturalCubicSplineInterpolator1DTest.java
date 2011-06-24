@@ -6,9 +6,12 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.TreeMap;
 
+import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -20,7 +23,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle
  * 
  */
 public class NaturalCubicSplineInterpolator1DTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1.};
 

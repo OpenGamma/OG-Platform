@@ -6,10 +6,13 @@
 package com.opengamma.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Arrays;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -25,7 +28,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 
 public class SimpleNetTimeSeriesReturnCalculatorTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_DDMMYYYY;
 

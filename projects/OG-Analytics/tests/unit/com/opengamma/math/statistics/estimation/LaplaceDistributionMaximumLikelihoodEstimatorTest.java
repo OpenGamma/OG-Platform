@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.estimation;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.LaplaceDistribution;
@@ -32,7 +35,7 @@ public class LaplaceDistributionMaximumLikelihoodEstimatorTest {
   public void test() {
     final double mu = 0.367;
     final double b = 1.4;
-    final ProbabilityDistribution<Double> distribution = new LaplaceDistribution(mu, b, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+    final ProbabilityDistribution<Double> distribution = new LaplaceDistribution(mu, b, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     final int n = 500000;
     final double[] x = new double[n];
     for (int i = 0; i < n; i++) {

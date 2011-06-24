@@ -6,15 +6,16 @@
 package com.opengamma.math.regression;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
 public class AdaptiveLeastSquaresRegressionTest {
-  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister.DEFAULT_SEED);
   private static final double BETA_2 = -0.9;
   private static final double BETA_3 = 1.1;
   private static final int N = 100;
