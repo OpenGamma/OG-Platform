@@ -22,7 +22,7 @@
       // TODO: probably want to limit the size
       if (_data.v.summary) {
         var colCount = parseInt(_data.v.summary.colCount) + 1;
-        _$popup.width(colCount * 75);
+        _$popup.width(colCount * 50);
       } else {
         _$popup.width(500);
       }
@@ -79,7 +79,7 @@
         id : 'x0',
         name : '',
         field : 'x0',
-        width : 75,
+        width : 50,
         formatter: formatValue
       });
       for (var i=0; i<xs.length; i++) {
@@ -87,7 +87,7 @@
           id : 'x' + (i + 1),
           name: xs[i],
           field : 'x' + (i + 1),
-          width: 75,
+          width: 50,
           formatter: formatValue
         }
         columns.push(column);
