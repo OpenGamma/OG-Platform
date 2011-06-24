@@ -18,6 +18,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -70,21 +71,48 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param isCap The cap (true) /floor (false) flag.
    */
   public CapFloorCMSSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional,
-      final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final CMSIndex cmsIndex1, final SwapFixedIborDefinition underlyingSwap2, final CMSIndex cmsIndex2,
-      final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final CMSIndex cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
+      final CMSIndex cmsIndex2, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(underlyingSwap1, "underlying swap");
     Validate.notNull(cmsIndex1, "CMS index");
     Validate.notNull(underlyingSwap2, "underlying swap");
     Validate.notNull(cmsIndex2, "CMS index");
-    Validate.notNull(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "identic settlement date");
+    Validate.isTrue(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "Identic settlement date");
     _underlyingSwap1 = underlyingSwap1;
     _cmsIndex1 = cmsIndex1;
     _underlyingSwap2 = underlyingSwap2;
     _cmsIndex2 = cmsIndex2;
     _strike = strike;
     _isCap = isCap;
+  }
+
+  /**
+   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag. 
+   * The underlying swaps are computed from that date and the CMS indexes.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param cmsIndex1 The index associated to the first CMS.
+   * @param cmsIndex2 The index associated to the second CMS.
+   * @param strike The strike
+   * @param isCap The cap (true) /floor (false) flag.
+   * @return The CMS spread cap/floor.
+   */
+  public static CapFloorCMSSpreadDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final CMSIndex cmsIndex1, final CMSIndex cmsIndex2, final double strike, final boolean isCap) {
+    Validate.notNull(accrualStartDate, "Accrual start date.");
+    Validate.notNull(cmsIndex1, "CMS index");
+    Validate.notNull(cmsIndex2, "CMS index");
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex1.getIborIndex().getBusinessDayConvention(), cmsIndex1.getIborIndex().getCalendar(), -cmsIndex1
+        .getIborIndex().getSettlementDays());
+    // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
+    final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
+    return new CapFloorCMSSpreadDefinition(cmsIndex1.getIborIndex().getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap1, cmsIndex1,
+        underlyingSwap2, cmsIndex2, strike, isCap);
   }
 
   /**
@@ -210,7 +238,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     }
     final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
-          fundingCurveName);
+        fundingCurveName);
   }
 
   @Override
@@ -240,7 +268,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     }
     final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
-          fundingCurveName);
+        fundingCurveName);
   }
 
 }
