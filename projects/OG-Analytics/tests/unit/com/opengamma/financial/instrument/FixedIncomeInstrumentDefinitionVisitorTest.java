@@ -42,6 +42,7 @@ import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
+import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -60,6 +61,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
@@ -99,7 +101,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
   private static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
   private static final double SPREAD = 0.001;
-  private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_1 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_2, SPREAD, !IS_PAYER);
   private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_2 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, 0.0, IS_PAYER);
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
@@ -122,8 +123,13 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   };
   private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
   private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS});
-  private static final SwaptionCashFixedIborDefinition CASH_SWAPTION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_FIXED_IBOR, true);
-  private static final SwaptionPhysicalFixedIborDefinition PHYSICAL_SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_FIXED_IBOR, true);
+
+  private static final InterestRateFutureSecurityDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
+  private static final InterestRateFutureTransactionDefinition IR_FUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransactionDefinition();
+  private static final BondFutureSecurityDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
+  private static final BondFutureTransactionDefinition BNDFUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureTransactionDefinition();
+  private static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -159,10 +165,18 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "AnnuityCouponCMS2");
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "AnnuityCouponCMS1");
-    assertEquals(CASH_SWAPTION.accept(VISITOR), "CashSettledSwaption2");
-    assertEquals(CASH_SWAPTION.accept(VISITOR, o), "CashSettledSwaption1");
-    assertEquals(PHYSICAL_SWAPTION.accept(VISITOR), "PhysicalSettledSwaption2");
-    assertEquals(PHYSICAL_SWAPTION.accept(VISITOR, o), "PhysicalSettledSwaption1");
+    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR), "InterestRateFutureSecurity1");
+    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR, o), "InterestRateFutureSecurity2");
+    assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR), "InterestRateFutureTransaction1");
+    assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "InterestRateFutureTransaction2");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR), "BondFutureSecurity1");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR, o), "BondFutureSecurity2");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR), "BondFutureTransaction1");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "BondFutureTransaction2");
+    assertEquals(SWAPTION_CASH.accept(VISITOR), "SwaptionCashFixedIbor1");
+    assertEquals(SWAPTION_CASH.accept(VISITOR, o), "SwaptionCashFixedIbor2");
+    assertEquals(SWAPTION_PHYS.accept(VISITOR), "SwaptionPhysicalFixedIbor1");
+    assertEquals(SWAPTION_PHYS.accept(VISITOR, o), "SwaptionPhysicalFixedIbor2");
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String>, FixedIncomeFutureInstrumentDefinitionVisitor<T, String> {
@@ -369,32 +383,32 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
 
     @Override
     public String visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra, final T data) {
-      return "ZZZForwardRateAgreement1";
+      return "ForwardRateAgreement1";
     }
 
     @Override
     public String visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra) {
-      return "ZZZForwardRateAgreement2";
+      return "ForwardRateAgreement2";
     }
 
     @Override
     public String visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition future, final T data) {
-      return "InterestRateFutureSecurity1";
-    }
-
-    @Override
-    public String visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition future) {
       return "InterestRateFutureSecurity2";
     }
 
     @Override
+    public String visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition future) {
+      return "InterestRateFutureSecurity1";
+    }
+
+    @Override
     public String visitInterestRateFutureTransactionDefinition(final InterestRateFutureTransactionDefinition future, final T data) {
-      return "InterestRateFutureTransaction1";
+      return "InterestRateFutureTransaction2";
     }
 
     @Override
     public String visitInterestRateFutureTransactionDefinition(final InterestRateFutureTransactionDefinition future) {
-      return "InterestRateFutureTransaction2";
+      return "InterestRateFutureTransaction1";
     }
 
     @Override
@@ -415,26 +429,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitInterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumTransactionDefinition future) {
       return "InterestRateFutureOptionPremiumTransaction2";
-    }
-
-    @Override
-    public String visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final T data) {
-      return "CashSettledSwaption1";
-    }
-
-    @Override
-    public String visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
-      return "CashSettledSwaption2";
-    }
-
-    @Override
-    public String visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final T data) {
-      return "PhysicalSettledSwaption1";
-    }
-
-    @Override
-    public String visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
-      return "PhysicalSettledSwaption2";
     }
 
     @Override
@@ -479,22 +473,42 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBondFutureSecurityDefinition(final BondFutureSecurityDefinition bond, final T data) {
-      return "BondFutureSecurity1";
-    }
-
-    @Override
-    public String visitBondFutureSecurityDefinition(final BondFutureSecurityDefinition bond) {
       return "BondFutureSecurity2";
     }
 
     @Override
+    public String visitBondFutureSecurityDefinition(final BondFutureSecurityDefinition bond) {
+      return "BondFutureSecurity1";
+    }
+
+    @Override
     public String visitBondFutureTransactionDefinition(final BondFutureTransactionDefinition bond, final T data) {
-      return "BondFutureTransaction1";
+      return "BondFutureTransaction2";
     }
 
     @Override
     public String visitBondFutureTransactionDefinition(final BondFutureTransactionDefinition bond) {
-      return "BondFutureTransaction2";
+      return "BondFutureTransaction1";
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption, final T data) {
+      return "SwaptionCashFixedIbor2";
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(final SwaptionCashFixedIborDefinition swaption) {
+      return "SwaptionCashFixedIbor1";
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption, final T data) {
+      return "SwaptionPhysicalFixedIbor2";
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
+      return "SwaptionPhysicalFixedIbor1";
     }
   }
 }

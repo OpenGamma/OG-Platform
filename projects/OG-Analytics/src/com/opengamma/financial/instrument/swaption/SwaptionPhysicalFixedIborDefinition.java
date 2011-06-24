@@ -97,10 +97,33 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
+  }
+
+  @Override
+  public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double expiryTime = actAct.getDayCountFraction(date, _expiry.getExpiry());
+    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
@@ -120,29 +143,13 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }
-    return ObjectUtils.equals(_underlyingSwap, other._underlyingSwap);
-  }
-
-  @Override
-  public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double expiryTime = actAct.getDayCountFraction(date, _expiry.getExpiry());
-    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
-  }
-
-  @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
-  }
-
-  @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
+    if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -6,6 +6,8 @@
 package com.opengamma.financial.interestrate.swaption.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -98,6 +100,27 @@ public class SwaptionCashFixedIborTest {
   // Volatility and pricing functions
   SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+
+  @Test
+  /**
+   * Tests the equal and hashCode methods.
+   */
+  public void equalHash() {
+    assertTrue(SWAPTION_LONG_PAYER.equals(SWAPTION_LONG_PAYER));
+    SwaptionCashFixedIbor other = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    assertTrue(SWAPTION_LONG_PAYER.equals(other));
+    assertTrue(SWAPTION_LONG_PAYER.hashCode() == other.hashCode());
+    assertEquals(SWAPTION_LONG_PAYER.toString(), other.toString());
+    SwaptionCashFixedIbor modifiedSwaption;
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry() - 0.01, SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime() - 0.01, IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), !IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    assertFalse(SWAPTION_LONG_PAYER.equals(EXPIRY_DATE));
+    assertFalse(SWAPTION_LONG_PAYER.equals(null));
+  }
 
   @Test
   public void testPriceBlack() {
