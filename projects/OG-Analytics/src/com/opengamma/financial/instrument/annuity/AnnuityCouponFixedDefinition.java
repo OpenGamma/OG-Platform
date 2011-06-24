@@ -19,7 +19,6 @@ import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -219,16 +218,6 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       }
     }
     return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[0]));
-  }
-
-  @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitAnnuityCouponFixedDefinition(this, data);
-  }
-
-  @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitAnnuityCouponFixedDefinition(this);
   }
 
 }
