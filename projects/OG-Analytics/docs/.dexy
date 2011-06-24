@@ -15,12 +15,12 @@
                 "OG_VERSION" : "0.8.0"
             }
         },
-        "*.md|markdown|hd|ft|jinja" : {
+        "*.md|fn|markdown|hd|ft|jinja" : {
             "allinputs" : true,
             "inputs" : [
                 "og_docs_true_primitives.tex|hd|ft|jinja|latex",
-            "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
-                ],
+                "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
+             ],
             "jinjavars" : {
                 "OG_VERSION" : "0.8.0"
             }
