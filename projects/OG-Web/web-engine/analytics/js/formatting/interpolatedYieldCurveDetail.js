@@ -21,6 +21,7 @@
       // Set some defaults
       _$popup.width(400);
       _$popup.height(300);
+      _$popup.addClass('tabs');
       
       var tabManager = new TabManager();
       var $tabsContainer = $("<div class='interpolated-yield-curve-detail-tabs'></div>")
