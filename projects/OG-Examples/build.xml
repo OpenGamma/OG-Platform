@@ -47,7 +47,7 @@
 			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
 			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />

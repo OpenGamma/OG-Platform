@@ -313,7 +313,7 @@
         <entry key="DVI-135">
           <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
             <property name="location">
-              <value>classpath:demoIntegrationMasters-shareddev.properties</value>
+              <value>classpath:demoIntegrationMasters-${opengamma.platform.runmode}.properties</value>
             </property>
           </bean>
         </entry>
