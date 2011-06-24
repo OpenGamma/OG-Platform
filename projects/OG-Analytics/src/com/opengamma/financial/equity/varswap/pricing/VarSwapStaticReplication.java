@@ -6,6 +6,9 @@
 package com.opengamma.financial.equity.varswap.pricing;
 
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
@@ -34,7 +37,7 @@ public class VarSwapStaticReplication {
   private final boolean _cutoffProvided; // False if both the above are null 
 
   // Integration parameters
-  private final double _lowerBound; // Integrate over strikes in 'moneyness', defined as strike/forward. Start very close to zero
+  private final double _lowerBound; // Integrate over strikes in 'moneyness' or 'relative strike', defined as strike/forward. Start close to zero
   private final double _upperBound; // Upper bound in 'moneyness' (K/F). This represents 'large'
   private final Integrator1D<Double, Double> _integrator;
 
@@ -42,11 +45,11 @@ public class VarSwapStaticReplication {
    * Default constructor with sensible inputs.
    */
   public VarSwapStaticReplication() {
-    _lowerBound = 1e-9; // almost zero
-    _upperBound = 10.0; // multiple of the atm forward
+    _lowerBound = 1e-4; // almost zero
+    _upperBound = 5.0; // multiple of the atm forward
     _integrator = new RungeKuttaIntegrator1D();
     _strikeCutoff = 0.25; // TODO Choose how caller tells impliedVariance not to use ShiftedLognormal..
-    _strikeSpread = 0.01;
+    _strikeSpread = 0.05;
     _cutoffProvided = true;
   }
 
@@ -128,6 +131,7 @@ public class VarSwapStaticReplication {
     final double df = market.getDiscountCurve().getDiscountFactor(expiry);
     final double spot = market.getSpotUnderlying();
     final double fwd = spot / df;
+    System.err.println("fwd = " + fwd);
     final VolatilitySurface vsurf = market.getVolatilitySurface();
 
     // *********************************************************
@@ -160,15 +164,35 @@ public class VarSwapStaticReplication {
 
           diffs[0] = cutoffPut - black(fwd + shift, _strikeCutoff * fwd + shift, variance, false);
           diffs[1] = spreadPut - black(fwd + shift, (_strikeCutoff + _strikeSpread) * fwd + shift, variance, false);
-
+          //          System.err.println(varianceShiftPair.getEntry(0) + "\t" + varianceShiftPair.getEntry(1) + "\t" + diffs[0] + "\t" + diffs[1]);
           return new DoubleMatrix1D(diffs);
         }
       };
       // 
-      // final NewtonDefaultVectorRootFinder solver = new NewtonDefaultVectorRootFinder(); // TODO Review whether we'd like to add control params
-      final BroydenVectorRootFinder solver = new BroydenVectorRootFinder();
-      DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {cutoffVar, 0.0 }); // Start with the Lognormal that hits the cutoff price
-      shiftedLnParams = solver.getRoot(fitShiftedLognormal, guess);
+
+      final BroydenVectorRootFinder solver = new BroydenVectorRootFinder(1E-6, 1E-6, 10000); // TODO PASS ARGS AS CONTOL PARAMS !!!
+      DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {0.5 * cutoffVar, 0.5 * fwd }); // Start with the Lognormal that hits the cutoff price // TODO SET TO REASONABLE VALS
+      try {
+        //        System.err.println("Variance" + "\t" + "Shift" + "\t" + "diffCutoff" + "\t" + "diffSpread");
+        shiftedLnParams = solver.getRoot(fitShiftedLognormal, guess);
+        System.err.println("cutoff vol is " + cutoffVol);
+        System.err.println("spread vol is " + spreadVol);
+        System.err.println("fit vol is " + Math.sqrt(shiftedLnParams.getEntry(0) / expiry));
+        System.err.println("fit shift is " + shiftedLnParams.getEntry(1));
+      } catch (java.lang.IllegalArgumentException e) {
+        System.err.println("VarSwapStaticReplication.impliedVariance failed to find roots to fit a Shifted Lognormal Distribution to your cutoff and spread targets."
+            + e.getMessage()); // "Matrix is singular; could not perform LU decomposition"
+        throw new RuntimeException(e);
+      } catch (com.opengamma.math.MathException e) {
+        System.err.println("VarSwapStaticReplication.impliedVariance failed to find roots to fit a Shifted Lognormal Distribution to your cutoff and spread targets."
+            + e.getMessage()); // "Failed to converge in backtracking, even after a Jacobian recalculation."
+        throw new RuntimeException(e);
+      }
+
+      // TEST 888888888888 REMOVE ME
+      double zeroStrikePut = black(fwd + shiftedLnParams.getEntry(1), 0.0 + shiftedLnParams.getEntry(1), shiftedLnParams.getEntry(0), false);
+      //      System.err.println("Price of zero strike put: " + zeroStrikePut);
+
     } else {
       shiftedLnParams = null;
     }
@@ -180,18 +204,31 @@ public class VarSwapStaticReplication {
       @Override
       public Double evaluate(final Double moneyness) {
 
-        double strike = moneyness * fwd;
+        final double strike = moneyness * fwd;
+        final boolean isCall = moneyness > 1; // if strike > fwd, the call is out of the money..
 
-        double weight = 2 / (fwd * moneyness * moneyness);
+        final double weight = 2 / (fwd * moneyness * moneyness);
         double otmPrice;
+        double itmPrice;
 
         if (_cutoffProvided && moneyness < _strikeCutoff) { // Extrapolate with ShiftedLognormal
-          otmPrice = black(fwd + shiftedLnParams.getEntry(1), moneyness * fwd + shiftedLnParams.getEntry(1), shiftedLnParams.getEntry(0), false);
+          otmPrice = black(fwd + shiftedLnParams.getEntry(1), moneyness * fwd + shiftedLnParams.getEntry(1), shiftedLnParams.getEntry(0), isCall);
         } else {
           DoublesPair coord = DoublesPair.of(expiry, strike);
           double vol = vsurf.getVolatility(coord);
-          boolean isCall = moneyness > 1; // if strike > fwd, the call is out of the money..
           otmPrice = black(fwd, moneyness * fwd, vol * vol * expiry, isCall);
+        }
+
+        final double anotherVol = 0.25; // !!! Why do I have to input a vol?!?
+        final BlackFunctionData blackData = new BlackFunctionData(fwd, 1.0, anotherVol);
+        final EuropeanVanillaOption blackDataRest = new EuropeanVanillaOption(strike, expiry, isCall);
+        final BlackImpliedVolatilityFormula theFormulaItself = new BlackImpliedVolatilityFormula();
+        try {
+          double impVol = theFormulaItself.getImpliedVolatility(blackData, blackDataRest, otmPrice);
+          System.err.println(strike + "," + impVol + "," + otmPrice * weight);
+        } catch (com.opengamma.math.MathException e) {
+          System.err.println("VarSwapStaticReplication.impliedVariance failed to compute an ImpliedVolatility with relative strike = " + moneyness
+              + ". Message: " + e.getMessage());
         }
 
         return otmPrice * weight;
@@ -199,6 +236,7 @@ public class VarSwapStaticReplication {
     };
 
     // 3. Compute variance hedge by integrating positions over all strikes
+    System.err.println("strike" + "," + "impVol" + "," + "weight*price");
     double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
     return variance;
   }
