@@ -10,6 +10,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -159,6 +160,11 @@ public class FinancialSecurityUtils {
         @Override
         public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
           throw new UnsupportedOperationException("FX forward securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitCapFloorSecurity(final CapFloorSecurity security) {
+          return security.getCurrency();
         }
       });
       return ccy;

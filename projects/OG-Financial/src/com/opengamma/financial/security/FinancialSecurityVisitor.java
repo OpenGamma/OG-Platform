@@ -6,6 +6,7 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -54,5 +55,7 @@ public interface FinancialSecurityVisitor<T> {
   T visitFXSecurity(FXSecurity security);
 
   T visitFXForwardSecurity(FXForwardSecurity security);
+
+  T visitCapFloorSecurity(CapFloorSecurity security);
 
 }
