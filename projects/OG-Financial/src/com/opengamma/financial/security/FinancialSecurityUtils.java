@@ -10,6 +10,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -164,6 +165,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitCapFloorSecurity(final CapFloorSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
           return security.getCurrency();
         }
       });

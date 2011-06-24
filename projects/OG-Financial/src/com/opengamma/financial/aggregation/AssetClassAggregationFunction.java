@@ -10,6 +10,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -46,6 +47,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String FX = "FX";
   /* package */static final String FX_FORWARDS = "FX Forwards";
   /* package */static final String CAP_FLOOR = "Cap/Floor";
+  /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
   /* package */static final String UNKNOWN = "Unknown Security Type";
   /* package */static final String NAME = "Asset Class";
 
@@ -129,6 +131,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitCapFloorSecurity(final CapFloorSecurity security) {
           return CAP_FLOOR;
+        }
+
+        @Override
+        public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+          return CAP_FLOOR_CMS_SPREAD;
         }
 
       });
