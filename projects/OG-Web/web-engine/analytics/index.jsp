@@ -47,9 +47,10 @@
     <script type="text/javascript" src="js/formatting/interpolatedYieldCurveData.js"></script>
     <script type="text/javascript" src="js/formatting/volatilitySurfaceDataFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/volatilitySurfaceDataDetail.js"></script>
-    <script type="text/javascript" src="js/formatting/volatilitySurfaceDataData.js"></script>
     <script type="text/javascript" src="js/formatting/labelledMatrix1DFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/labelledMatrix1DDetail.js"></script>
+    <script type="text/javascript" src="js/formatting/labelledMatrix2DFormatter.js"></script>
+    <script type="text/javascript" src="js/formatting/labelledMatrix2DDetail.js"></script>
     <script type="text/javascript" src="js/formatting/unknownTypeFormatter.js"></script>
     <script type="text/javascript" src="js/slickGridHelper.js"></script>
     <script type="text/javascript" src="js/popupManager.js"></script>
@@ -168,20 +169,20 @@
         margin: 5px;
       }
 
-      .interpolated-yield-curve-detail-tabs, .volatility-surface-detail-tabs {
+      .interpolated-yield-curve-detail-tabs {
         width: 100%;
         height: 100%;
       }
 
-      .interpolated-yield-curve-detail-tabs .ui-tabs-nav li a, .volatility-surface-detail-tabs .ui-tabs-nav li a {
+      .interpolated-yield-curve-detail-tabs .ui-tabs-nav li a {
         font-size: 90%;
       }
 
-      .interpolated-yield-curve-detail-tabs .ui-tabs-nav span, .volatility-surface-detail-tabs .ui-tabs-nav span {
+      .interpolated-yield-curve-detail-tabs .ui-tabs-nav span {
         font-size: 100%;
       }
 
-      .interpolated-yield-curve-detail-tabs .data, .interpolated-yield-curve-detail-tabs .curve, .volatility-surface-detail-tabs .data, .volatility-surface-detail-tabs .curve {
+      .interpolated-yield-curve-detail-tabs .data, .interpolated-yield-curve-detail-tabs .curve {
         position: absolute;
         top: 2.8em;
         bottom: 0;
@@ -190,7 +191,7 @@
         padding: 0;
       }
 
-      .interpolated-yield-curve-detail-tabs .data .grid, .volatility-surface-detail-tabs .data .grid {
+      .interpolated-yield-curve-detail-tabs .data .grid {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -198,17 +199,24 @@
         right: 0;
       }
 
-      .interpolated-yield-curve-detail-tabs .curve .chart, .volatility-surface-detail-tabs .curve .chart {
+      .interpolated-yield-curve-detail-tabs .curve .chart {
         position: absolute;
         top: 8px;
         bottom: 8px;
         left: 8px;
         right: 8px;
       }
+      
+      .labelled-matrix-header {
+        font-weight: bold;
+      }
 
       .detail-popup {
-        padding: 8px;
         position: absolute;
+      }
+      
+      .detail-popup.tabs {
+        padding: 8px;
       }
 
       .detail-popup .detail-content {
