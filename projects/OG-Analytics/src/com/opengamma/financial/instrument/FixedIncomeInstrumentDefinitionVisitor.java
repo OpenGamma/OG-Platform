@@ -32,6 +32,8 @@ import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 
 /**
  * 
@@ -163,4 +165,12 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data);
 
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap);
+
+  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
+
+  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
+
+  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
+
+  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
 }
