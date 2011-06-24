@@ -429,7 +429,7 @@
 			<include name="${dist.name}/**/*" />
 		</tar>
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
-		<ivy:retrieve type="jar,webapp" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
+		<ivy:retrieve type="jar,webapp,resource" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
 		<antcall target="dist-fixcrlf" />
 	</target>
 
