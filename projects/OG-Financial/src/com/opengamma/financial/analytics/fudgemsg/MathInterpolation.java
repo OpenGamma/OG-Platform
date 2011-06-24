@@ -98,19 +98,20 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
    * Fudge builder for {@code GridInterpolator2D}.
    */
   @GenericFudgeBuilderFor(GridInterpolator2D.class)
-  public static final class GridInterpolator2DBuilder extends AbstractFudgeBuilder<GridInterpolator2D> {
+  public static final class GridInterpolator2DBuilder extends AbstractFudgeBuilder<GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle>> {
     private static final String X_FIELD_NAME = "x";
     private static final String Y_FIELD_NAME = "y";
 
     @Override
-    public void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final GridInterpolator2D object) {
+    public void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message,
+        final GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle> object) {
       context.addToMessage(message, X_FIELD_NAME, null, object.getXInterpolator());
       context.addToMessage(message, Y_FIELD_NAME, null, object.getYInterpolator());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public GridInterpolator2D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       return new GridInterpolator2D(context.fieldValueToObject(Interpolator1D.class, message.getByName(X_FIELD_NAME)),
           context.fieldValueToObject(Interpolator1D.class, message.getByName(Y_FIELD_NAME)));
     }
