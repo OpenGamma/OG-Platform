@@ -1,6 +1,0 @@
-\contentsline {section}{\tocsection {}{1}{Introduction}}{1}{section.1}
-\contentsline {section}{\tocsection {}{2}{Preliminaries}}{1}{section.2}
-\contentsline {section}{\tocsection {}{3}{Smile}}{2}{section.3}
-\contentsline {section}{\tocsection {}{4}{Currency exposure}}{2}{section.4}
-\contentsline {section}{\tocsection {}{5}{Implementation}}{3}{section.5}
-\contentsline {section}{\tocsection {}{}{References}}{3}{section*.1}
