@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Manages and communicates with the Java client
-
 #include "Alert.h"
 #include "Client.h"
 #include "MessageDirectives.h"
@@ -18,14 +15,34 @@
 
 LOGGING (com.opengamma.language.connector.Client);
 
+/// Initialise the Fudge library.
 static CFudgeInitialiser g_oInitialiseFudge;
 
+/// Event thread. This thread is responsible for starting the JVM, restarting it on failure
+/// and blocking on read requests to receive incoming messages from the Java stack. Major
+/// transitions will result in a call back to the parent CClientService object.
 class CClientService::CRunnerThread : public CThread {
 private:
+
+	/// Critical section to protect the stash message.
 	CMutex m_oStashMutex;
+
+	/// Stash message. The stash message is stored by the Java stack on successful startup.
+	/// If the Java stack is restarted, for example on a heartbeat failure, it is sent the
+	/// stash message so that it can recover previous state. NULL if no stash message has
+	/// been set.
 	FudgeMsg m_msgStash;
+
+	/// Parent service object.
 	CClientService *m_poService;
+
+	/// Heartbeat timeout (taken from the CSettings instance).
 	unsigned long m_lHeartbeatTimeout;
+
+	/// Send a heartbeat message, optionally including the stash message.
+	///
+	/// @param[in] bWithStash TRUE to include the stash message (if there is one), FALSE not to
+	/// @return TRUE if the message was sent, FALSE if there was a problem
 	bool SendHeartbeat (bool bWithStash) {
 		LOGDEBUG (TEXT ("Sending heartbeat message"));
 		FudgeStatus status;
@@ -57,6 +74,11 @@ private:
 		FudgeMsg_release (msg);
 		return bResult;
 	}
+
+	/// Wait for the response to the first heartbeat message. This may be a heartbeat message generated
+	/// by the Java stack (if it had nothing else to send) or any other valid message.
+	///
+	/// @return TRUE if a response was received, FALSE if the timeout elapsed
 	bool WaitForHeartbeatResponse () {
 		LOGDEBUG (TEXT ("Waiting for heartbeat response"));
 		FudgeMsgEnvelope env = m_poService->Recv (m_lHeartbeatTimeout);
@@ -69,14 +91,22 @@ private:
 			return false;
 		}
 	}
+
 protected:
+
+	/// Destroy the thread object, releasing any resources still held.
 	~CRunnerThread () {
 		LOGDEBUG (TEXT ("Runner thread destroyed"));
 		if (m_msgStash) {
 			FudgeMsg_release (m_msgStash);
 		}
 	}
+
 public:
+
+	/// Create a new thread.
+	///
+	/// @param[in] poService the parent service object, never NULL
 	CRunnerThread (CClientService *poService) : CThread () {
 		LOGDEBUG (TEXT ("Runner thread created"));
 		CSettings oSettings;
@@ -84,6 +114,11 @@ public:
 		m_msgStash = NULL;
 		m_lHeartbeatTimeout = oSettings.GetHeartbeatTimeout ();
 	}
+
+	/// Thread execution. The JVM is started, pipes connected, and then a message receive loop begins.
+	/// If the heartbeat timeout passes, a heartbeat message is sent. If the heartbeat fails the
+	/// JVM is reset. If the reset happens twice in quick succession, an ERRORED state is assumed
+	/// and the thread terminates. The thread will also terminate if a POISONED state is requested.
 	void Run () {
 		LOGINFO (TEXT ("Runner thread started"));
 		bool bRetry = true;
@@ -135,7 +170,7 @@ public:
 				}
 				LOGERROR (TEXT ("Java framework is not responding"));
 				CAlert::Bad (TEXT ("Service is not responding"));
-				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user cloicks on the bubble?
+				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user clicks on the bubble?
 				// TODO: [XLS-43] (needs a hook to implement) What about a "retry" button to force Excel to unload and re-load the plugin
 				bStatus = false;
 				break;
@@ -189,6 +224,10 @@ endMessageLoop:
 		m_poService->SetState (bStatus ? STOPPED : ERRORED);
 		LOGINFO (TEXT ("Runner thread stopped"));
 	}
+
+	/// Sets the stash message to send to the Java stack if it restarts.
+	///
+	/// @param[in] msgStash the message to stash, NULL for none
 	void SetStash (FudgeMsg msgStash) {
 		m_oStashMutex.Enter ();
 		if (m_msgStash) {
@@ -199,8 +238,12 @@ endMessageLoop:
 		m_msgStash = msgStash;
 		m_oStashMutex.Leave ();
 	}
+
 };
 
+/// Creates a new service object.
+///
+/// @param[in] pszLanguageID the language identifier to be sent to the Java stack
 CClientService::CClientService (const TCHAR *pszLanguageID)
 : m_oPipesSemaphore (1, 1) {
 	m_poStateChangeCallback = NULL;
@@ -212,6 +255,9 @@ CClientService::CClientService (const TCHAR *pszLanguageID)
 	m_pszLanguageID = _tcsdup (pszLanguageID);
 }
 
+/// Destroys the object, releasing any resources. If not already stopped, an attempt will
+/// be made to stop the service. Assertions are made that JVM connection pipes and the
+/// event thread have terminated.
 CClientService::~CClientService () {
 	if (!Stop ()) {
 		LOGFATAL (TEXT ("Couldn't stop running service"));
@@ -233,6 +279,11 @@ CClientService::~CClientService () {
 	delete (m_pszLanguageID);
 }
 
+/// Attempts to start the service. The service will enter the STARTING state and an event thread
+/// created to coordinate the startup.
+///
+/// @return TRUE if the service entered the STARTING state, FALSE if there was a problem
+///         such as the service already running or in the process of shutting down.
 bool CClientService::Start () {
 	LOGINFO (TEXT ("Starting"));
 	m_oStateMutex.Enter ();
@@ -262,6 +313,11 @@ bool CClientService::Start () {
 	return bResult;
 }
 
+/// Attempts to stop the service. The service will enter the POISONED state signalling the
+/// event thread to shut down. The caller is then blocked until the revent thread terminates.
+///
+/// @return TRUE if the service stopped and the thread terminated. FALSE if there was a
+///         problem
 bool CClientService::Stop () {
 	LOGINFO (TEXT ("Stopping"));
 	// Exclude concurrent calls to Stop.
@@ -311,6 +367,9 @@ bool CClientService::Stop () {
 	return bResult;
 }
 
+/// Returns the current state of the service.
+///
+/// @return the current state
 ClientServiceState CClientService::GetState () const {
 	m_oStateMutex.Enter ();
 	ClientServiceState eState = m_eState;
@@ -318,22 +377,37 @@ ClientServiceState CClientService::GetState () const {
 	return eState;
 }
 
+/// Sends a user message to the Java stack for dispatch to the handling code.
+///
+/// @param[in] msg message to send
+/// @return TRUE if the message was sent, FALSE if there was a problem
 bool CClientService::Send (FudgeMsg msg) const {
 	return Send (MESSAGE_DIRECTIVES_USER, msg);
 }
 
+/// Sets the state change callback object. The pointer passed must be valid
+/// for the lifetime of the CClientService instance, or until a different
+/// callback is set.
+///
+/// @param[in] poCallback the callback instance, or NULL for none
 void CClientService::SetStateChangeCallback (CStateChange *poCallback) {
 	m_oStateChangeMutex.Enter ();
 	m_poStateChangeCallback = poCallback;
 	m_oStateChangeMutex.Leave ();
 }
 
+/// Sets the message received callback object. The pointer passed must be
+/// valid for the lifetime of the CClientService instance, or until a different
+/// callback is set.
+///
+/// @param[in] poCallback the callback instance, or NULL for none
 void CClientService::SetMessageReceivedCallback (CMessageReceived *poCallback) {
 	m_oMessageReceivedMutex.Enter ();
 	m_poMessageReceivedCallback = poCallback;
 	m_oMessageReceivedMutex.Leave ();
 }
 
+/// Closes the pipes connected to the JVM and frees the underlying resources.
 void CClientService::ClosePipes () {
 	LOGINFO (TEXT ("Closing pipes"));
 	m_oPipesSemaphore.Wait ();
@@ -344,6 +418,10 @@ void CClientService::ClosePipes () {
 	m_oPipesSemaphore.Signal ();
 }
 
+/// Connects the pipes to the JVM instance, blocking until connected, the timeout
+/// from CSettings has elapsed, or the JVM abends.
+///
+/// @return TRUE if connected, FALSE if there was a problem
 bool CClientService::ConnectPipes () {
 	LOGINFO (TEXT ("Connecting pipes to JVM"));
 	m_oPipesSemaphore.Wait ();
@@ -405,6 +483,9 @@ bool CClientService::ConnectPipes () {
 	return bResult;
 }
 
+/// Creates the pipe pair to be used for communication with the JVM host process.
+///
+/// @return TRUE if the pipes were created, FALSE if there was a problem
 bool CClientService::CreatePipes () {
 	LOGINFO (TEXT ("Creating pipes"));
 	m_oPipesSemaphore.Wait ();
@@ -425,9 +506,17 @@ bool CClientService::CreatePipes () {
 	}
 }
 
-// This must only be called from the thread that creates and connects the pipes. This then
-// doesn't need to acquire the pipe semaphore as the object won't be modified concurrently.
-// Another thread might be sending, but that's it.
+/// Dispatches a received message to user code (or handles internally) and releases the
+/// containing envelope.
+///
+/// This must only be called from the thread that creates and connects the pipes (i.e. the
+/// event thread). This then doesn't need to acquire the pipe semaphore as the object won't
+/// be modified concurrently. Another thread may still then send. This also means a deadlock
+/// won't occur if the user message callback attempts to send a message although that should
+/// be discouraged.
+///
+/// @param[in] env message to be dispatched, will then be released
+/// @return TRUE if the pipes to the JVM are still connected
 bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
 	FudgeMsg msg = FudgeMsgEnvelope_getMessage (env);
 	switch (FudgeMsgEnvelope_getDirectives (env)) {
@@ -484,9 +573,15 @@ bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
 	return m_poPipes->IsConnected ();
 }
 
-// This must only be called from the thread that creates and connects the pipes. This then
-// doesn't need to acquire the pipe semaphore as the object won't be modified concurrently.
-// Another thread might be sending, but that's it.
+/// Receives a message from the Java stack.
+///
+/// This must only be called from the thread that creates and connects the pipes (i.e. the event
+/// thread). This then doesn't need to acquire the pipe semaphore as the object won't be modified
+/// concurrently. Another thread may still then send. This also means a deadlock won't occur if
+/// the user message callback attempts to send a message although that should be discouraged.
+///
+/// @param lTimeout maximum time to wait for a message, in milliseconds
+/// @return the received message or NULL if there was an error or the timeout elapsed
 FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
 	FudgeStatus status;
 	FudgeMsgHeader header;
@@ -525,6 +620,13 @@ FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
 	}
 }
 
+/// Sends a message to the Java stack. The processing directives control whether the OG-Language client handling code
+/// (the Java counterpart of the CConnector class) should process it or whether it should be passed onto the bound
+/// language user code.
+///
+/// @param[in] cProcessingDirectives processing directives - see the Fudge message specification for more details
+/// @param[in] msg message to send
+/// @return TRUE if the message was sent, FALSE if there was a problem
 bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) const {
 	FudgeStatus status;
 	FudgeMsgEnvelope env;
@@ -589,14 +691,14 @@ retrySend:
 				bResult = false;
 			}
 		} else {
-			LOGWARN (TEXT ("Pipes not available for message"));
+			LOGWARN (TEXT ("Pipes not available for message, not connected"));
 			bResult = false;
 			SetLastError (ENOTCONN);
 		}
 		m_oPipesSemaphore.Signal ();
 	} else {
 		int ec = GetLastError ();
-		LOGWARN (TEXT ("Pipes not available for message"));
+		LOGWARN (TEXT ("Pipes not available for message, error ") << ec);
 		SetLastError (ec);
 		bResult = false;
 	}
@@ -604,6 +706,11 @@ retrySend:
 	return bResult;
 }
 
+/// Sends a poison message to the Java stack to trigger a shutdown of the resources handling this client.
+/// It will not poison the whole JVM as the host process may be shared among a number of OG-Language client
+/// instances.
+///
+/// @return TRUE if the poison message was sent, FALSE if there was a problem
 bool CClientService::SendPoison () {
 	LOGINFO (TEXT ("Sending poison to JVM"));
 	FudgeStatus status;
@@ -624,7 +731,11 @@ bool CClientService::SendPoison () {
 	return bResult;
 }
 
-// Returns false if the state change wasn't allowed because a poison was in progress
+/// Sets the state of the object, notifying any registered callback. When in the POISONED state, the
+/// only permitted changes are to STOPPED or ERRORED.
+///
+/// @param[in] eNewState state to change to
+/// @return TRUE if the state change completed, FALSE if rejected because a poison is in progress
 bool CClientService::SetState (ClientServiceState eNewState) {
 	LOGDEBUG (TEXT ("Set state ") << eNewState);
 	bool bResult;
@@ -650,6 +761,9 @@ bool CClientService::SetState (ClientServiceState eNewState) {
 	return bResult;
 }
 
+/// Attempts to start the JVM host service. See CClientJVM for more information.
+///
+/// @return TRUE if the startup was attempted or the service is already running, FALSE if there was an error
 bool CClientService::StartJVM () {
 	LOGINFO (TEXT ("Starting JVM"));
 	if (m_poJVM) {
@@ -670,6 +784,9 @@ bool CClientService::StartJVM () {
 	}
 }
 
+/// Attempts to stop the JVM host service. See CClientJVM for more information.
+///
+/// @return TRUE if the stop was attempted or the service was not running, FALSE if there was an error
 bool CClientService::StopJVM () {
 	LOGINFO (TEXT ("Stopping JVM"));
 	if (!m_poJVM) {

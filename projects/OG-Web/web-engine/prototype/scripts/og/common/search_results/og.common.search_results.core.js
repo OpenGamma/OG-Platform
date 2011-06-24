@@ -60,7 +60,6 @@ $.register_module({
                         var last = routes.last(), obj_url = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
-                                type: slick_manager.data[$(e.currentTarget).attr('row')].type,
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 filter_type: (last && last.args.filter_type) || '',

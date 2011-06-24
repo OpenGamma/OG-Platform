@@ -7,10 +7,7 @@ package com.opengamma.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -26,8 +23,6 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
-import com.opengamma.financial.interestrate.TestsDataSets;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -58,10 +53,8 @@ public class BondFixedTransactionTest {
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
-  YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // to derivatives: first coupon
-  private static final LocalDate REFERENCE_DATE_1 = LocalDate.of(2011, 8, 18);
-  private static final ZonedDateTime REFERENCE_DATE_Z_1 = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE_1), TimeZone.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_Z_1 = DateUtil.getUTCDate(2011, 8, 18);
   // Transaction
   private static final double PRICE = 0.90;
   private static final ZonedDateTime BOND_SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 8, 24);
@@ -88,16 +81,16 @@ public class BondFixedTransactionTest {
       YIELD_CONVENTION, COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME);
   private static final BondFixedSecurity BOND_STD_DESCRIPTION = new BondFixedSecurity(NOMINAL_STD, COUPON_STD, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, FACTOR_TO_NEXT, YIELD_CONVENTION,
       COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME);
-  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, ACCRUED_AT_SPOT, 1.0);
+  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, 1.0);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondPurchase() {
-    new BondFixedTransaction(null, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, ACCRUED_AT_SPOT, 1.0);
+    new BondFixedTransaction(null, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, 1.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondStandard() {
-    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, null, ACCRUED_AT_SPOT, 1.0);
+    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, null, 1.0);
   }
 
   @Test
@@ -111,10 +104,4 @@ public class BondFixedTransactionTest {
     assertEquals(ACCRUED_AT_SPOT, BOND_TRANSACTION.getBondStandard().getAccruedInterest());
   }
 
-  @Test
-  public void testToDerivative() {
-    final BondFixedTransaction convertedTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
-    convertedTransaction.equals(BOND_TRANSACTION);
-    assertEquals(convertedTransaction, BOND_TRANSACTION);
-  }
 }

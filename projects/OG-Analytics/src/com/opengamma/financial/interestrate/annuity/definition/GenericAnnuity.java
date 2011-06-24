@@ -29,7 +29,6 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
    * The list of the annuity payments.
    */
   private final P[] _payments;
-
   /**
    * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount; 
    * if all amounts don't have the same sign, the flag may be incorrect.

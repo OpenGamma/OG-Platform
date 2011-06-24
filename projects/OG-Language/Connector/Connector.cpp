@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Main connector API
-
 #include "Connector.h"
 #define FUDGE_NO_NAMESPACE
 #include "com_opengamma_language_connector_UserMessage.h"
@@ -15,11 +12,22 @@
 
 LOGGING (com.opengamma.language.connector.Connector);
 
+/// Asynchronous operation to send a received Fudge message to the user callback.
 class CConnectorMessageDispatch : public CAsynchronous::COperation {
 private:
+
+	/// Callback entry to pass the message to.
 	CConnector::CCallbackEntry *m_poCallback;
+
+	/// Message to pass.
 	FudgeMsg m_msg;
+
 public:
+
+	/// Creates a new operation for the callback entry and message.
+	///
+	/// @param[in] poCallback callback entry, never NULL
+	/// @param[in] msg Fudge message
 	CConnectorMessageDispatch (CConnector::CCallbackEntry *poCallback, FudgeMsg msg)
 	: COperation () {
 		poCallback->Retain ();
@@ -27,53 +35,96 @@ public:
 		FudgeMsg_retain (msg);
 		m_msg = msg;
 	}
+
+	/// Destroys the operation, releasing the entry and message.
 	~CConnectorMessageDispatch () {
 		CConnector::CCallbackEntry::Release (m_poCallback);
 		FudgeMsg_release (m_msg);
 	}
+
+	/// Invokes OnMessage on the callback entry with the message.
 	void Run () {
 		m_poCallback->OnMessage (m_msg);
 	}
+
 };
 
+/// Asynchronous operation to notify a user callback of asynchronous thread disconnection.
+/// The single notification from CAsynchronous is propogated to all of the registered
+/// event handlers as this "vital" operation (see the documentation for CAsynchronous).
 class CConnectorThreadDisconnectDispatch : public CAsynchronous::COperation {
 private:
+
+	/// Callback entry to notify.
 	CConnector::CCallbackEntry *m_poCallback;
+
 public:
+
+	/// Creates a new notification for the callback entry.
+	///
+	/// @param[in] poCallback callback entry, never NULL
 	CConnectorThreadDisconnectDispatch (CConnector::CCallbackEntry *poCallback)
 	: COperation (true) {
 		poCallback->Retain ();
 		m_poCallback = poCallback;
 	}
+
+	/// Destroys the operation, releasing the entry
 	~CConnectorThreadDisconnectDispatch () {
 		CConnector::CCallbackEntry::Release (m_poCallback);
 	}
+
+	/// Invokes OnThreadDisconnect on the callback entry.
 	void Run () {
 		m_poCallback->OnThreadDisconnect ();
 	}
+
 };
 
+/// Helper for dispatching messages (and thread disconnection operations) into the 
+/// user callbacks.
 class CConnectorDispatcher : public CAsynchronous {
 private:
+
+	/// Associated CConnector instance.
 	CConnector *m_poConnector;
+
+	/// Creates a new dispatcher for the connector.
+	///
+	/// @param[in] poConnector associated connector instance, never NULL
 	CConnectorDispatcher (CConnector *poConnector) : CAsynchronous () {
 		poConnector->Retain ();
 		m_poConnector = poConnector;
 	}
+
+	/// Destroys the dispatcher.
 	~CConnectorDispatcher () {
 		CConnector::Release (m_poConnector);
 	}
 protected:
+
+	/// Propogates the thread disconnect message to the connector which will in turn
+	/// pass it to the registered user callbacks.
 	void OnThreadExit () {
 		CAsynchronous::OnThreadExit ();
 		m_poConnector->OnDispatchThreadDisconnect ();
 	}
+
 public:
+
+	/// Creates a new dispatcher.
+	///
+	/// @param[in] poConnector associated connector instance, never NULL
+	/// @return the new dispatcher
 	static CConnectorDispatcher *Create (CConnector *poConnector) {
 		return new CConnectorDispatcher (poConnector);
 	}
 };
 
+/// Propogates the received message to the user callback. If the entry has been unregistered
+/// (i.e. the underlying class matching string released) the message is discarded.
+///
+/// @param[in] msgPayload message to send
 void CConnector::CCallbackEntry::OnMessage (FudgeMsg msgPayload) {
 	if (m_strClass) {
 		m_poCallback->OnMessage (msgPayload);
@@ -82,6 +133,15 @@ void CConnector::CCallbackEntry::OnMessage (FudgeMsg msgPayload) {
 	}
 }
 
+/// Executes the runnable held in the pointer. The full sequence of events is to take
+/// ownership of the runnable (by swapping it with NULL), executing that, and then
+/// restoring ownership back into the atomic pointer unless a new callback has since
+/// been registered.
+///
+/// @param[in,out] poPtr pointer to the runnable. During execution may contain NULL.
+///                After execution will contain either the original value, or whatever
+///                another thread passed into it. If another thread updates the
+///                pointer, the original runnable is destroyed before exit.
 static void _GetRunAndRestore (CAtomicPointer<IRunnable*> *poPtr) {
 	IRunnable *poRunnable = poPtr->GetAndSet (NULL);
 	if (poRunnable) {
@@ -94,6 +154,7 @@ static void _GetRunAndRestore (CAtomicPointer<IRunnable*> *poPtr) {
 	}
 }
 
+/// TODO
 void CConnector::OnEnterRunningState () {
 	LOGINFO (TEXT ("Entered running state"));
 	// Make sure all of the semaphores for synchronous calls are "unsignalled" (all get signalled when the client stops)
@@ -393,6 +454,8 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 		SetLastError (EINVAL);
 		return false;
 	}
+	unsigned long lStartTime = GetTickCount ();
+retryCall:
 	CCall *poOverlapped = Call (msgPayload);
 	if (!poOverlapped) {
 		int error = GetLastError ();
@@ -409,6 +472,15 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 			} else {
 				LOGWARN (TEXT ("Couldn't initiate call - not connected"));
 				SetLastError (error);
+				return false;
+			}
+		} else if (error == ETIMEDOUT) {
+			if (GetTickCount () - lStartTime < lTimeout) {
+				LOGINFO (TEXT ("Retrying call initiation after intermediate timeout"));
+				goto retryCall;
+			} else {
+				LOGWARN (TEXT ("Timeout elapsed during call initiation"));
+				SetLastError (ETIMEDOUT);
 				return false;
 			}
 		} else {
@@ -560,14 +632,45 @@ static void _Replace (CAtomicPointer<IRunnable*> *poPtr, IRunnable *poNewValue) 
 	}
 }
 
+/// Registers a callback runnable for when the client enters its RUNNING state.
+///
+/// The connector will take ownership of the pointer and will be responsible for deleting it when
+/// it falls out of scope (e.g. another callback is registered, or the connector is destroyed).
+/// If the callback is code from a dynamically loaded library, it should use the locking mechanism
+/// (CLibraryLock) to ensure that it is not unloaded prematurely.
+///
+/// @param[in] poOnEnterRunningState the new callback, replacing any previous callback. Use NULL
+///            to request no callback and delete any previous one.
 void CConnector::OnEnterRunningState (IRunnable *poOnEnterRunningState) {
 	_Replace (&m_oOnEnterRunningState, poOnEnterRunningState);
 }
 
+/// Registers a callback runnable for when the client leaves its RUNNING state (e.g. a restart
+/// under error, or a complete halt as part of a shutdown or more serious error condition).
+/// After leaving the RUNNING state, it is likely that it will either re-enter the RUNNING state
+/// or a "stable non-running" state.
+///
+/// The connector will take ownership of the pointer and will be responsible for deleting it when
+/// it falls out of scope (e.g. another callback is registered, or the connector is destroyed).
+/// If the callback is code from a dynamically loaded library, it should use the locking mechanism
+/// (CLibraryLock) to ensure that it is not unloaded prematurely.
+///
+/// @param[in] poOnExitRunningState the new callback, replacing any previous callback. Use NULL
+///            to request no callback and delete any previous one
 void CConnector::OnExitRunningState (IRunnable *poOnExitRunningState) {
 	_Replace (&m_oOnExitRunningState, poOnExitRunningState);
 }
 
+/// Registers a callback runnable for when the client enters a "stable non-running state" that
+/// isn't RUNNING but is not a transition state, for example STOPPED or ERRORED.
+///
+/// The connector will take ownership of the pointer and will be responsible for deleting it when
+/// it falls out of scope (e.g. another callback is registered, or the connector is destroyed).
+/// If the callback is code from a dynamically loaded library, it should use the locking mechanism
+/// (CLibraryLock) to ensure that it is not unloaded prematurely.
+///
+/// @param[in] poOnEnterStableNonRunningState the new callback, replacing any previous callback.
+///            Use NULL to request no callback and delete any previous one.
 void CConnector::OnEnterStableNonRunningState (IRunnable *poOnEnterStableNonRunningState) {
 	_Replace (&m_oOnEnterStableNonRunningState, poOnEnterStableNonRunningState);
 }

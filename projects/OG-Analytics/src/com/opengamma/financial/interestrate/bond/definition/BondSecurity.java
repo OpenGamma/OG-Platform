@@ -95,7 +95,7 @@ public abstract class BondSecurity<C extends Payment> implements InterestRateDer
 
   @Override
   public String toString() {
-    String result = "Bond Description:";
+    String result = "Bond Security:";
     result += "\nNominal: " + _nominal.toString();
     result += "\nCoupon: " + _coupon.toString();
     return result;

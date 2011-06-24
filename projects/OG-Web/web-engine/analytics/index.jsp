@@ -225,12 +225,29 @@
         margin-bottom: 1em;
         margin-top: 1em;
       }
+      
+      #loadingviews {
+        margin-top: 1em;
+      }
+      
+      #loadingviews p {
+        margin: 0;
+        padding: 0;
+        font-size: 1.2em;
+      }
 
-      .viewcontrols {
+      #viewcontrols {
+        display: none;
         text-align: right;
         float: right;
         margin-top: 1em;
         margin-right: 1em;
+      }
+      
+      #viewselector {
+        position: absolute;
+        left: 5px;
+        top: 10px;
       }
 
       #currentviewcontrols {
@@ -364,7 +381,21 @@
       #views {
         display: inline-block;
       }
-
+      
+      .viewlabel {
+        margin: 0 0.5em;
+      }
+      
+      .live-market-data {
+        font-style: italic;
+      }
+      
+      .autocomplete-divider {
+        border-width: 0 0 1px 0;
+        border-style: inherit;
+        border-color: inherit;
+      }
+      
       /* JQuery UI theme overrides */
 
       .ui-tabs {
@@ -388,6 +419,12 @@
       .ui-button .ui-button-text {
         display: inline;
       }
+      
+      .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
 
       .ui-autocomplete-input {
         font-size: 1em;
@@ -399,8 +436,9 @@
    </style>
   </head>
   <body>
-    <div class="viewcontrols">
-      <div style="left: 5px; top: 10px; position: absolute">
+    <div id="loadingviews"><p>Loading views...</p></div> 
+    <div id="viewcontrols">
+      <div id="viewselector">
         <div id="views"></div>
         <div id="changeView"></div>
         <div id="sparklines" class="imgbutton sparklines"></div>

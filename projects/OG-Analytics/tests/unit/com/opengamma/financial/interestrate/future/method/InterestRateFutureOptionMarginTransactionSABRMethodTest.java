@@ -23,9 +23,9 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -110,7 +110,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    */
   public void presentValue() {
     final InterestRateFutureSecurityDiscountingMethod methodFuture = new InterestRateFutureSecurityDiscountingMethod();
-    final double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
+    final double priceFuture = methodFuture.priceFromCurves(EDU2, CURVES_BUNDLE);
     final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
     final double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
     final double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture).getAmount();

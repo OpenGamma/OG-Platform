@@ -64,9 +64,13 @@ public class ForexOptionVanillaDefinitionTest {
    * Tests the equal and hashCode methods.
    */
   public void equalHash() {
+    assertTrue(FX_OPTION_DEFINITION.equals(FX_OPTION_DEFINITION));
     ForexOptionVanillaDefinition otherOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL);
     assertTrue(otherOption.equals(FX_OPTION_DEFINITION));
     assertEquals(FX_OPTION_DEFINITION.hashCode(), otherOption.hashCode());
+    ForexOptionVanillaDefinition put1 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
+    ForexOptionVanillaDefinition put2 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
+    assertEquals(put1.hashCode(), put2.hashCode());
     ForexOptionVanillaDefinition modifiedOption;
     modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
@@ -75,6 +79,8 @@ public class ForexOptionVanillaDefinitionTest {
     ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
     modifiedOption = new ForexOptionVanillaDefinition(modifiedFxDefinition, EXPIRATION_DATE, IS_CALL);
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
+    assertFalse(FX_OPTION_DEFINITION.equals(CUR_1));
+    assertFalse(FX_OPTION_DEFINITION.equals(null));
   }
 
   @Test

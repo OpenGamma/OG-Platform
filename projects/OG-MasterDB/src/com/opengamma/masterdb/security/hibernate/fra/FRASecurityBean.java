@@ -25,6 +25,7 @@ public class FRASecurityBean extends SecurityBean {
   private ZonedDateTimeBean _endDate;
   private double _rate;
   private double _amount;
+  private IdentifierBean _underlying;
   /**
    * Gets the rate field.
    * @return the rate
@@ -121,6 +122,14 @@ public class FRASecurityBean extends SecurityBean {
   public void setEndDate(ZonedDateTimeBean endDate) {
     _endDate = endDate;
   }
+  
+  public IdentifierBean getUnderlying() {
+    return _underlying;
+  }
+
+  public void setUnderlying(final IdentifierBean underlying) {
+    _underlying = underlying;
+  }
 
   @Override
   public boolean equals(final Object other) {
@@ -135,7 +144,9 @@ public class FRASecurityBean extends SecurityBean {
       .append(getStartDate(), fra.getStartDate())
       .append(getEndDate(), fra.getEndDate())
       .append(getRate(), fra.getRate())
-      .append(getAmount(), fra.getAmount()).isEquals();
+      .append(getAmount(), fra.getAmount())
+      .append(getUnderlying(), fra.getUnderlying())
+      .isEquals();
   }
   
   @Override
@@ -147,6 +158,7 @@ public class FRASecurityBean extends SecurityBean {
       .append(getStartDate())
       .append(getRate())
       .append(getAmount())
+      .append(getUnderlying())
       .toHashCode();
   }
 

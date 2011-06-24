@@ -20,7 +20,8 @@
 	<property name="ivy.install.version" value="2.1.0" />
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
-		
+    <property name="docs.dir" value="${build.dir}/docs" />
+
 	<import file="git-macros.xml" />
 
 	<available file="${ivy.jar.file}" property="skip.download"/>
@@ -235,7 +236,7 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
 			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
@@ -247,7 +248,7 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 			</zipfileset>
 		</zip>
 	</target>
@@ -400,7 +401,12 @@
 			<link href="http://joda-beans.sourceforge.net/apidocs/" />
 		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
-	</target>
+    </target>
+
+  <target name="test-docs-dir">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-all" />
+</target>
 
   <target name="javadoc-all" depends="load-ivy, resolve"
   	description="javadoc whole system (requires > 2GB RAM and LaTeX)">

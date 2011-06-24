@@ -16,7 +16,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 
@@ -196,8 +196,6 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
     String result = "IRFuture Security: " + _name;
     result += " Last trading date: " + _lastTradingDate.toString();
     result += " Ibor Index: " + _iborIndex.getName();
-    result += " Start fixing date: " + _fixingPeriodStartDate.toString();
-    result += " End fixing date: " + _fixingPeriodEndDate.toString();
     result += " Notional: " + _notional;
     return result;
   }
@@ -233,15 +231,6 @@ public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrume
       return false;
     }
     InterestRateFutureSecurityDefinition other = (InterestRateFutureSecurityDefinition) obj;
-    if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_fixingPeriodEndDate, other._fixingPeriodEndDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_fixingPeriodStartDate, other._fixingPeriodStartDate)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
       return false;
     }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -18,10 +19,10 @@ import com.opengamma.util.money.CurrencyAmount;
  */
 public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFutureTransactionMethod {
 
-  /**
-   * The model used for the convexity adjustment computation.
-   */
-  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
+  //  /**
+  //   * The model used for the convexity adjustment computation.
+  //   */
+  //  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
   /**
    * The method used to compute the future price.
    */
@@ -36,8 +37,8 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
   public InterestRateFutureTransactionHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
+    HullWhiteOneFactorPiecewiseConstantDataBundle data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(data);
   }
 
   /**
@@ -46,8 +47,7 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
    */
   public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
     Validate.notNull(data, "Data");
-    _data = data;
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(data);
   }
 
   /**
@@ -68,6 +68,32 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
   public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
     return presentValue((InterestRateFutureTransaction) instrument, curves);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _securityMethod.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    InterestRateFutureTransactionHullWhiteMethod other = (InterestRateFutureTransactionHullWhiteMethod) obj;
+    if (!ObjectUtils.equals(_securityMethod, other._securityMethod)) {
+      return false;
+    }
+    return true;
   }
 
 }

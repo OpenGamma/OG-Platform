@@ -25,6 +25,7 @@ import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.util.test.Timeout;
@@ -110,7 +111,7 @@ public class ViewTest {
     client.setResultListener(resultListener);
     
     final long time0 = System.currentTimeMillis();
-    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0 + 10, time0 + 20, time0 + 30), false, false, null);
+    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0 + 10, time0 + 20, time0 + 30), ExecutionFlags.none().get());
         
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     

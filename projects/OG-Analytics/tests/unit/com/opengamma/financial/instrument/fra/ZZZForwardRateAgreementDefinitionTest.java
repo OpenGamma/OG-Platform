@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument.fra;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
@@ -21,7 +23,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -116,9 +118,9 @@ public class ZZZForwardRateAgreementDefinitionTest {
 
   @Test
   public void equalHash() {
+    assertTrue(FRA_DEFINITION.equals(FRA_DEFINITION));
     final ZZZForwardRateAgreementDefinition newFRA = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
-        INDEX,
-        FRA_RATE);
+        INDEX, FRA_RATE);
     assertEquals(newFRA.equals(FRA_DEFINITION), true);
     assertEquals(newFRA.hashCode() == FRA_DEFINITION.hashCode(), true);
     ZZZForwardRateAgreementDefinition modifiedFRA;
@@ -136,6 +138,11 @@ public class ZZZForwardRateAgreementDefinitionTest {
     assertEquals(modifiedFRA.equals(FRA_DEFINITION), false);
     modifiedFRA = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX, FRA_RATE + 0.10);
     assertEquals(modifiedFRA.equals(FRA_DEFINITION), false);
+    IborIndex otherIndex = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM);
+    modifiedFRA = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, otherIndex, FRA_RATE);
+    assertEquals(modifiedFRA.equals(FRA_DEFINITION), false);
+    assertFalse(FRA_DEFINITION.equals(CUR));
+    assertFalse(FRA_DEFINITION.equals(null));
   }
 
   @Test
@@ -152,15 +159,18 @@ public class ZZZForwardRateAgreementDefinitionTest {
     final ZZZForwardRateAgreement fra = new ZZZForwardRateAgreement(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         FRA_DEFINITION.getFixingPeriodAccrualFactor(), FRA_RATE, forwardCurve);
     final ZZZForwardRateAgreement convertedFra = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, curves);
-    assertEquals(convertedFra, fra);
+    assertEquals(fra, convertedFra);
+    final double shift = 0.01;
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
+    final ZZZForwardRateAgreement convertedFra2 = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, fixingTS, curves);
+    assertEquals(fra, convertedFra2);
   }
 
   @Test
   public void toDerivativeFixed() {
     final ZonedDateTime referenceFixed = DateUtil.getUTCDate(2011, 1, 4);
     final ZZZForwardRateAgreementDefinition fraFixed = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
-        INDEX,
-        FRA_RATE);
+        INDEX, FRA_RATE);
     final double shift = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
     //fraFixed.fixingProcess(FRA_RATE + shift);

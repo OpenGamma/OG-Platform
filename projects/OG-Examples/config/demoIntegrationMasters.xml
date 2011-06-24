@@ -149,18 +149,18 @@
   </bean>
 
   <!-- TimeSeries database -->
-  <import resource="classpath:com/opengamma/masterdb/timeseries/tssQueries.xml" />
+  <import resource="classpath:com/opengamma/masterdb/historicaldata/tssQueries.xml" />
   <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
     <constructor-arg ref="tssDbSource"/>
     <constructor-arg ref="tssNamedSQLMap"/>
     <constructor-arg value="false"/>
   </bean>
-  <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
-      <bean class="com.opengamma.master.timeseries.impl.MasterHistoricalDataSource">
+      <bean class="com.opengamma.master.historicaldata.impl.MasterHistoricalTimeSeriesSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
-          <bean class="com.opengamma.master.timeseries.impl.DefaultTimeSeriesMetaDataResolver">
+          <bean class="com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesResolver">
           	<constructor-arg ref="timeseriesMaster"/>
           	<constructor-arg ref="sharedConfigSource"/>
           </bean>

@@ -4,6 +4,7 @@
   
   var _liveResultsClient;
   
+  var _init = false;
   var _isRunning = false;
   var _statusTitle = '';
   var _resultTitle = '';
@@ -18,7 +19,7 @@
     _create: function() {
       var self = this,
         select = this.element,
-        selectWidth = select.width() + 10,
+        selectWidth = select.width() + 15,
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "";
       select.hide();
@@ -49,14 +50,20 @@
             self._trigger("selected", event, {
               item: ui.item.option
             });
+            if (self.options.change) {
+              self.options.change(ui.item.option);
+            }
           },
           change: function(event, ui) {
             if (!ui.item) {
-              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i"),
-                valid = false;
+              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i");
+              var valid = false;
               select.children("option").each(function() {
                 if (this.value.match(matcher)) {
                   this.selected = valid = true;
+                  if (self.options.change) {
+                    self.options.change(this);
+                  }
                   return false;
                 }
               });
@@ -65,6 +72,10 @@
                 $(this).val("");
                 select.val("");
                 return false;
+              }
+            } else {
+              if (self.options.change) {
+                self.options.change(ui.item.option);
               }
             }
           }
@@ -75,6 +86,7 @@
         return $("<li></li>")
           .data("item.autocomplete", item )
           .append("<a>" + item.label + "</a>")
+          .attr("class", $(item.option).attr("class"))
           .appendTo(ul);
       };
 
@@ -105,30 +117,132 @@
     }
   });
   
-  function onViewListReceived(viewList) {
+  function onInitDataReceived(initData) {
+    if (_init) {
+      return;
+    }
+    
+    $('#viewcontrols').show();
+    
+    viewList = initData.viewNames;
     var $views = $('#views');
-    $views.empty();
-    var $backingList = $("<select></select>").appendTo($views);
+    var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
+    var $backingSnapshotList = $("<select id='snapshotlist'></select>")
+    $('<option value=""></option>').appendTo($backingViewList);
     $.each(viewList, function() {
       var $opt = $('<option value="' + this + '">' + this + '</option>');
-      $opt.appendTo($backingList);
+      $opt.appendTo($backingViewList);
     });
-    $backingList.combobox();
+    $backingViewList.combobox({
+      change: function(item) { populateSnapshots($backingSnapshotList, initData.snapshots, $(item).val()); }
+    });
+
+    $("<span class='viewlabel'>using</span>").appendTo($views);
+    $backingSnapshotList.appendTo($views);
+    $backingSnapshotList.combobox();
+    populateSnapshots($backingSnapshotList, initData.snapshots, null);
+    
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
       .css('position', 'relative')
       .keydown(function(e) {
         if (e.keyCode === 13) {
           this.blur();
-          $('#changeView').trigger('click');
+          $('#changeView').focus();
+          
+          // The error dialog fails from the event handler
+          setTimeout(function() { initializeView(); }, 0);
         }
-      })
-      .focus();
+      });
+    $backingViewList.next().focus();
+    
+    $('#changeView').button({ label: 'Load View' })
+    .click(function(event) {
+        initializeView();
+      });
+    
+    $('#sparklines').click(function(event) {
+      var sparklinesEnabled = !_userConfig.getSparklinesEnabled();
+      toggleSparklines(sparklinesEnabled);
+      _userConfig.setSparklinesEnabled(sparklinesEnabled);
+    });
+    
+    $('#viewcontrols').hide().show(500);
+    $('#loadingviews').remove();
+    _init = true;
   }
   
-  function initializeView(name) {
+  function populateSnapshots($snapshotSelect, snapshots, selectedView) {
+    var $input = $snapshotSelect.next();
+    var currentVal = $input.val();
+    var currentValExists = false;
+    var selectedViewSnapshots = snapshots[selectedView];
+    
+    $snapshotSelect.empty();
+    $('<option value=""></option>').appendTo($snapshotSelect);
+    var $liveMarketData = $('<option value="live">Live market data</option>')
+        .addClass("live-market-data");
+    $liveMarketData.appendTo($snapshotSelect);
+
+    if (selectedView) {
+      if (selectedViewSnapshots) {
+        $.each(selectedViewSnapshots, function(snapshotId, snapshotName) {
+          $('<option value="' + snapshotId + '">' + snapshotName + '</option>').appendTo($snapshotSelect);
+          if (!currentValExists && snapshotName == currentVal) {
+            currentValExists = true;
+          }
+        });
+      }
+      
+      if ($snapshotSelect.children().size() > 2) {
+        $liveMarketData.addClass("autocomplete-divider");
+      }
+
+      var isFirst = true;
+      $.each(snapshots, function(viewName, viewSnapshots) {
+        if (viewName == selectedView) {
+          return;
+        }
+        $.each(viewSnapshots, function(snapshotId, snapshotName) {
+          if (isFirst) {
+            $snapshotSelect.children().last().addClass("autocomplete-divider");
+            isFirst = false;
+          }
+          $('<option value="' + snapshotId + '">' + snapshotName + '</option>').appendTo($snapshotSelect);
+        });
+      });
+    }
+        
+    $input.width($snapshotSelect.width() + 15);
+    if (!currentValExists) {
+      $input.val("Live market data");
+    }
+  }
+  
+  function initializeView() {
     if (!_liveResultsClient) {
       return;
+    }
+    
+    var view = $('#viewlist option:selected').attr('value');
+    
+    if (!view || view == "") {
+      $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>A view must be chosen from the list before it can be loaded.</div></div>").dialog({
+        modal: true,
+        buttons: {
+          Ok: function() {
+            $(this).dialog("close");
+            $('#viewlist').next().focus();
+          }
+        },
+        resizable: false
+      });
+      return;
+    }
+    
+    var snapshotId = $('#snapshotlist option:selected').attr('value');
+    if (!snapshotId || snapshotId == "" || snapshotId == "live") {
+      snapshotId = null;
     }
     
     document.body.style.cursor = "wait";
@@ -150,12 +264,12 @@
     }
     
     setStatusTitle('Loading');
-    setResultTitle('initializing ' + name);
+    setResultTitle('initializing ' + view);
     updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
     
-    _liveResultsClient.changeView(name);
+    _liveResultsClient.changeView(view, snapshotId);
   }
   
   function onViewInitialized(gridStructures) {
@@ -236,7 +350,7 @@
   // Messaging connection
   
   function onConnected() {    
-    _liveResultsClient.getViews();
+    _liveResultsClient.getInitData();
   }
   
   function onDisconnected() {
@@ -246,14 +360,7 @@
   
   //-------------------------------------------------------------------------
   
-  $(document).ready(function() {
-    
-    $('#changeView').button({ label: 'Select View' })
-                    .click(function(event) {
-                        var name = $('option:selected').attr('value');
-                        initializeView(name);
-                      });
-    
+  $(document).ready(function() {    
     $('#pause').click(function(event) {
       if (_liveResultsClient) {
         _liveResultsClient.pause();
@@ -265,13 +372,7 @@
         _liveResultsClient.resume();
       }
     });
-    
-    $('#sparklines').click(function(event) {
-      var sparklinesEnabled = !_userConfig.getSparklinesEnabled();
-      toggleSparklines(sparklinesEnabled);
-      _userConfig.setSparklinesEnabled(sparklinesEnabled);
-    });
-    
+   
     _userConfig = new UserConfig();
     toggleSparklines(_userConfig.getSparklinesEnabled());
     disablePauseResumeButtons();
@@ -279,7 +380,7 @@
     _liveResultsClient = new LiveResultsClient();
     _liveResultsClient.onConnected.subscribe(onConnected);
     _liveResultsClient.onDisconnected.subscribe(onDisconnected);
-    _liveResultsClient.onViewListReceived.subscribe(onViewListReceived);
+    _liveResultsClient.onInitDataReceived.subscribe(onInitDataReceived);
     _liveResultsClient.onViewInitialized.subscribe(onViewInitialized);
     _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);
     _liveResultsClient.afterUpdateReceived.subscribe(afterUpdateReceived);
@@ -289,7 +390,9 @@
       _liveResultsClient.disconnect();
     });
     
-    _liveResultsClient.connect();
+    // Timeout fools Chrome into thinking the page has loaded to stop the loading indicator from spinning and to
+    // prevent escape from stopping CometD. 
+    setTimeout(function() { _liveResultsClient.connect(); }, 0);
   });
   
 })(jQuery);

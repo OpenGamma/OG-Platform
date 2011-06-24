@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -29,10 +29,13 @@
 #define ERROR_FIRST_USER			1000
 #define ERROR_LAST_USER				9999
 
+/// Error utility functions for handling standard messages from the Java stack.
 class CError {
 private:
+
+	/// Private constructor to prevent instantiation.
 	CError () { }
-	~CError () { }
+
 public:
 	static TCHAR *ToString (const com_opengamma_language_Value *pValue);
 };

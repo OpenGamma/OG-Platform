@@ -38,7 +38,7 @@
 									<entry key="contextConfigLocation" value="classpath:example-beans.xml" />
 								</map>
 							</property>
-							<property name="EventListeners">
+							<property name="eventListeners">
 							 <list>
 							   <bean id="contextLoader" class="org.springframework.web.context.ContextLoaderListener"/>
 							 </list>

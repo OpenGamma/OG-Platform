@@ -25,11 +25,11 @@ public interface SecuritySource {
    * <p>
    * Since a unique identifier is unique, there are no complex matching issues.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the security, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Security getSecurity(UniqueIdentifier uid);
+  Security getSecurity(UniqueIdentifier uniqueId);
 
   /**
    * Finds all securities that match the specified bundle of keys.
