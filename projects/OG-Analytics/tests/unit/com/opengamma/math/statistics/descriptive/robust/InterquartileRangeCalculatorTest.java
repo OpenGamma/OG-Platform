@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.descriptive.robust;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -19,7 +22,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class InterquartileRangeCalculatorTest {
   private static final Function1D<double[], Double> IQR = new InterquartileRangeCalculator();
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double[] UNIFORM_DATA;
   private static final double[] NORMAL_DATA;

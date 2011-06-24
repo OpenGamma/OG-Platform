@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.estimation;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -33,7 +36,7 @@ public class StudentTDistributionMaximumLikelihoodEstimatorTest {
     final int n = 500000;
     final double eps = 5e-2;
     final double nu = 5.4;
-    final ProbabilityDistribution<Double> p1 = new StudentTDistribution(nu, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+    final ProbabilityDistribution<Double> p1 = new StudentTDistribution(nu, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();

@@ -6,9 +6,12 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.List;
 
+import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.function.Function1D;
@@ -20,12 +23,12 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 public class BasisFunctionGeneratorTest {
 
   private static final Boolean PRINT = false;
-  private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+  private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final BasisFunctionGenerator GENERATOR = new BasisFunctionGenerator();
   private static final double[] KNOTS;
 
   static {
-    int n = 10;
+    final int n = 10;
     KNOTS = new double[n + 1];
     for (int i = 0; i < n + 1; i++) {
       KNOTS[i] = 0 + i * 1.0;
@@ -94,11 +97,11 @@ public class BasisFunctionGeneratorTest {
   @Test
   public void test2D() {
 
-    double[][] knots = new double[2][];
+    final double[][] knots = new double[2][];
     knots[0] = KNOTS;
     knots[1] = KNOTS;
-    Function1D<double[], Double> func = GENERATOR.generate(knots, new int[] {2, 3}, new int[] {4, 4});
-    double[] x = new double[2];
+    final Function1D<double[], Double> func = GENERATOR.generate(knots, new int[] {2, 3}, new int[] {4, 4});
+    final double[] x = new double[2];
 
     if (PRINT) {
       for (int i = 0; i < 101; i++) {
@@ -111,7 +114,7 @@ public class BasisFunctionGeneratorTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = 0 + j * 10.0 / 100.0;
-          double y = func.evaluate(x);
+          final double y = func.evaluate(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");
@@ -123,17 +126,17 @@ public class BasisFunctionGeneratorTest {
   @SuppressWarnings("unused")
   @Test
   public void testSet() {
-    java.util.List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
-    int n = functions.size();
-    double[] w = new double[n];
+    final java.util.List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
+    final int n = functions.size();
+    final double[] w = new double[n];
     for (int i = 0; i < n; i++) {
       w[i] = 1 + 0.1 * NORMAL.nextRandom();
     }
-    Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
+    final Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
 
     for (int i = 0; i < 101; i++) {
-      double x = -3 + i * 8.0 / 100.0;
-      double y = fun.evaluate(x);
+      final double x = -3 + i * 8.0 / 100.0;
+      final double y = fun.evaluate(x);
       // System.out.println(x + "\t" + y);
     }
   }
@@ -142,45 +145,45 @@ public class BasisFunctionGeneratorTest {
   @Test
   public void testSet2() {
 
-    double[] iKnots = new double[] {0, 0.25, 0.75, 1, 2, 5, 7, 10, 15, 20, 30};
+    final double[] iKnots = new double[] {0, 0.25, 0.75, 1, 2, 5, 7, 10, 15, 20, 30};
     // for (int i = 0; i < 11; i++) {
     // iKnots[i] = i / 10.0;
     // }
-    List<Function1D<Double, Double>> functions = GENERATOR.generateSet(iKnots, 3);
-    int n = functions.size();
-    double[] w = new double[n];
+    final List<Function1D<Double, Double>> functions = GENERATOR.generateSet(iKnots, 3);
+    final int n = functions.size();
+    final double[] w = new double[n];
     for (int i = 0; i < n; i++) {
       w[i] = 1 + 0.1 * NORMAL.nextRandom();
     }
-    Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
+    final Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
 
     for (int i = 0; i < 100; i++) {
-      double x = -1 + i * 6 / 100.0;
-      double y = fun.evaluate(x);
+      final double x = -1 + i * 6 / 100.0;
+      final double y = fun.evaluate(x);
       // System.out.println(x + "\t" + y);
     }
     for (int i = 0; i < 101; i++) {
-      double x = 6 + i * 54 / 100.0;
-      double y = fun.evaluate(x);
+      final double x = 6 + i * 54 / 100.0;
+      final double y = fun.evaluate(x);
       // System.out.println(x + "\t" + y);
     }
   }
 
   @Test
   public void testSet3() {
-    double[] xa = new double[] {0.0, 0.0};
-    double[] xb = new double[] {1.0, 1.0};
-    int[] nknots = new int[] {10, 15};
-    int[] degree = new int[] {3, 4};
-    List<Function1D<double[], Double>> functions = GENERATOR.generateSet(xa, xb, nknots, degree);
-    int n = functions.size();
-    double[] w = new double[n];
+    final double[] xa = new double[] {0.0, 0.0};
+    final double[] xb = new double[] {1.0, 1.0};
+    final int[] nknots = new int[] {10, 15};
+    final int[] degree = new int[] {3, 4};
+    final List<Function1D<double[], Double>> functions = GENERATOR.generateSet(xa, xb, nknots, degree);
+    final int n = functions.size();
+    final double[] w = new double[n];
     for (int i = 0; i < n; i++) {
       w[i] = 1 + 0.1 * NORMAL.nextRandom();
     }
-    Function1D<double[], Double> fun = new BasisFunctionAggregation<double[]>(functions, w);
+    final Function1D<double[], Double> fun = new BasisFunctionAggregation<double[]>(functions, w);
 
-    double[] x = new double[2];
+    final double[] x = new double[2];
 
     if (PRINT) {
 
@@ -194,7 +197,7 @@ public class BasisFunctionGeneratorTest {
         System.out.print(x[0]);
         for (int j = 0; j < 101; j++) {
           x[1] = -0.4 + j * 1.8 / 100.0;
-          double y = fun.evaluate(x);
+          final double y = fun.evaluate(x);
           System.out.print("\t" + y);
         }
         System.out.print("\n");
