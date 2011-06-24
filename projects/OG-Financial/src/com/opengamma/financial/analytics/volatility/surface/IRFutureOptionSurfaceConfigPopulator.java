@@ -13,9 +13,9 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class InterestRateFutureOptionSurfaceConfigPopulator {
+public class IRFutureOptionSurfaceConfigPopulator {
 
-  public InterestRateFutureOptionSurfaceConfigPopulator(final ConfigMaster configMaster) {
+  public IRFutureOptionSurfaceConfigPopulator(final ConfigMaster configMaster) {
     populateVolatilitySurfaceConfigMaster(configMaster);
   }
 
@@ -55,7 +55,7 @@ public class InterestRateFutureOptionSurfaceConfigPopulator {
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
-    final SurfaceInstrumentProvider<Integer, Double> surfaceInstrumentProvider = new BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty");
+    final SurfaceInstrumentProvider<Integer, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty");
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }

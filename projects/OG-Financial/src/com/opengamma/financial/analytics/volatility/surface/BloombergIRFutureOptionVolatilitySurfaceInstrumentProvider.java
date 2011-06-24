@@ -23,7 +23,7 @@ import com.opengamma.id.Identifier;
 /**
  * 
  */
-public class BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Integer, Double> {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Integer, Double> {
   private static BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
   private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER;
@@ -47,7 +47,7 @@ public class BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvide
   private final String _futureOptionPrefix;
   private final String _postfix;
 
-  public BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix) {
+  public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix) {
     Validate.notNull(futureOptionPrefix, "future option prefix");
     Validate.notNull(postfix, "postfix");
     _futureOptionPrefix = futureOptionPrefix;
@@ -110,10 +110,10 @@ public class BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvide
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider)) {
+    if (!(obj instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider)) {
       return false;
     }
-    final BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider other = (BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider) obj;
+    final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider other = (BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) obj;
     return getFutureOptionPrefix().equals(other.getFutureOptionPrefix()) &&
            getPostfix().equals(other.getPostfix());
   }

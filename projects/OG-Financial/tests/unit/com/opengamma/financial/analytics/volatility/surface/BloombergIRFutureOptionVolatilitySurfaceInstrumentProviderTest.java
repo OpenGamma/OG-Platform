@@ -15,7 +15,7 @@ import com.opengamma.id.Identifier;
 /**
  * 
  */
-public class BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProviderTest {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final String PREFIX = "ED";
   private static final String POSTFIX = "Comdty";
   private static final LocalDate DATE = LocalDate.of(1, 7, 2011);
@@ -24,7 +24,7 @@ public class BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvide
   private static final String[][] RESULTS = new String[][] {new String[] {"EDU1 96C Comdty", "EDU1 97.25C Comdty", "EDU1 98.5C Comdty", "EDU1 99.75C Comdty"},
                                                             new String[] {"EDH3 96C Comdty", "EDH3 97.25C Comdty", "EDH3 98.5C Comdty", "EDH3 99.75C Comdty"},
                                                             new String[] {"EDZ3 96C Comdty", "EDZ3 97.25C Comdty", "EDZ3 98.5C Comdty", "EDZ3 99.75C Comdty"}};
-  private static final BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergInterestRateFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX);
+  private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX);
 
   //@Test
   public void test() {
