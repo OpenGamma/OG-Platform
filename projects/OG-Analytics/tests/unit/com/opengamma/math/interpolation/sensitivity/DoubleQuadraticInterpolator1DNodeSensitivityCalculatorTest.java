@@ -6,7 +6,10 @@
 package com.opengamma.math.interpolation.sensitivity;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -18,7 +21,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
  * 
  */
 public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle> CALCULATOR = new DoubleQuadraticInterpolator1DNodeSensitivityCalculator();
   private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle>(
@@ -83,7 +86,7 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
   @Test
   public void testEdgeCase() {
     final double tmax = DATA.lastKey();
-    double[] sensitivity = CALCULATOR.calculate(DATA, tmax);
+    final double[] sensitivity = CALCULATOR.calculate(DATA, tmax);
     for (int j = 0; j < sensitivity.length - 1; j++) {
       assertEquals(0, sensitivity[j], EPS);
     }

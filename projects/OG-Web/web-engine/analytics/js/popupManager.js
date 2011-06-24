@@ -150,7 +150,7 @@
 
       var $popup = getPopup('detail-popup', $cell, rowId, colId);
       var $content = $("<div class='detail-content'></div>").appendTo($popup);
-      var detailComponent = formatter.createDetail($popup, $content, rowId, columnStructure, _userConfig);
+      var detailComponent = formatter.createDetail($popup, $content, rowId, columnStructure, _userConfig, row[columnStructure.colId]);
       
       if (detailComponent.resize) {
         var afterResized = function() {
@@ -159,7 +159,6 @@
             detailComponent.resize();
           }
         };
-        $popup.addClass('ui-corner-bottom');
         $popup.resizable({
           handles: 'se',
           helper: 'ui-state-highlight ui-corner-bottom',

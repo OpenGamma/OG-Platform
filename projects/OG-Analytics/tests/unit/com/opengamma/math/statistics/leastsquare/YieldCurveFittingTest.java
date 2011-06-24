@@ -6,12 +6,13 @@
 package com.opengamma.math.statistics.leastsquare;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -33,14 +34,17 @@ public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
+  @Override
   protected Logger getLogger() {
     return LOGGER;
   }
-  
+
+  @Override
   protected int getWarmupCycles() {
     return WARMUP_CYCLES;
   }
-  
+
+  @Override
   protected int getBenchmarkCycles() {
     return BENCHMARK_CYCLES;
   }

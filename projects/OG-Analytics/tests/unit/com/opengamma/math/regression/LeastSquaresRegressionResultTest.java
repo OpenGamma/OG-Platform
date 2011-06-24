@@ -5,19 +5,20 @@
  */
 package com.opengamma.math.regression;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
 public class LeastSquaresRegressionResultTest {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
-  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister.DEFAULT_SEED);
   private static final LeastSquaresRegressionResult NO_INTERCEPT;
   private static final LeastSquaresRegressionResult INTERCEPT;
   private static final double BETA_0 = 3.9;

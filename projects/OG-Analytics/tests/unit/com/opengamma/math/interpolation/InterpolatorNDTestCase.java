@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -22,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public abstract class InterpolatorNDTestCase {
-  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<Pair<double[], Double>>();
   protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<Pair<double[], Double>>();
   protected static final List<Pair<double[], Double>> SWAPTION_ATM_VOL_DATA = new ArrayList<Pair<double[], Double>>();
@@ -31,7 +32,7 @@ public abstract class InterpolatorNDTestCase {
   protected static Function1D<double[], Double> COS_EXP_FUNCTION = new Function1D<double[], Double>() {
 
     @Override
-    public Double evaluate(double[] x) {
+    public Double evaluate(final double[] x) {
       return Math.sin(Math.PI * x[0] / 10.0) * Math.exp(-x[1] / 5.);
     }
   };
@@ -43,47 +44,47 @@ public abstract class InterpolatorNDTestCase {
       x = 10 * RANDOM.nextDouble();
       y = 10 * RANDOM.nextDouble();
       z = 10 * RANDOM.nextDouble();
-      FLAT_DATA.add(new ObjectsPair<double[], Double>(new double[] {x, y, z }, VALUE));
-      temp = new double[] {x, y };
+      FLAT_DATA.add(new ObjectsPair<double[], Double>(new double[] {x, y, z}, VALUE));
+      temp = new double[] {x, y};
       COS_EXP_DATA.add(new ObjectsPair<double[], Double>(temp, COS_EXP_FUNCTION.evaluate(temp)));
     }
 
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 1 }, 0.7332));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 5 }, 0.36995));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 5 }, 0.23845));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 10 }, 0.2177));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {10, 20 }, 0.1697));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15 }, 0.162));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 1}, 0.7332));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 5}, 0.36995));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 5}, 0.23845));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 10}, 0.2177));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {10, 20}, 0.1697));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
   }
 
-  protected <T extends InterpolatorNDDataBundle> void assertFlat(InterpolatorND<T> interpolator, double tol) {
+  protected <T extends InterpolatorNDDataBundle> void assertFlat(final InterpolatorND<T> interpolator, final double tol) {
     double x1, x2, x3;
     double[] x;
     for (int i = 0; i < 10; i++) {
       x1 = 10 * RANDOM.nextDouble();
       x2 = 10 * RANDOM.nextDouble();
       x3 = 10 * RANDOM.nextDouble();
-      x = new double[] {x1, x2, x3 };
-      double fit = interpolator.interpolate(interpolator.getDataBundle(FLAT_DATA), x);
+      x = new double[] {x1, x2, x3};
+      final double fit = interpolator.interpolate(interpolator.getDataBundle(FLAT_DATA), x);
       assertEquals(VALUE, fit, tol);
     }
   }
 
-  protected <T extends InterpolatorNDDataBundle> void assertCosExp(InterpolatorND<T> interpolator, double tol) {
+  protected <T extends InterpolatorNDDataBundle> void assertCosExp(final InterpolatorND<T> interpolator, final double tol) {
     double x1, x2;
     double[] x;
-    T dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
+    final T dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
     for (int i = 0; i < 10; i++) {
       x1 = 10 * RANDOM.nextDouble();
       x2 = 10 * RANDOM.nextDouble();
-      x = new double[] {x1, x2 };
-      double fit = interpolator.interpolate(dataBundle, x);
+      x = new double[] {x1, x2};
+      final double fit = interpolator.interpolate(dataBundle, x);
       assertEquals(COS_EXP_FUNCTION.evaluate(x), fit, tol);
     }
 
     //check the input points are recovered exactly 
     for (int i = 0; i < 10; i++) {
-      Pair<double[], Double> t = COS_EXP_DATA.get(i);
+      final Pair<double[], Double> t = COS_EXP_DATA.get(i);
       assertEquals(t.getSecond(), interpolator.interpolate(dataBundle, t.getFirst()), 1e-9);
     }
   }

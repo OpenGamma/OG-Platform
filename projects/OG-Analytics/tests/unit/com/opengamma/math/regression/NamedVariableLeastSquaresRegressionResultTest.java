@@ -6,8 +6,7 @@
 package com.opengamma.math.regression;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,14 +14,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
 public class NamedVariableLeastSquaresRegressionResultTest {
-  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister.DEFAULT_SEED);
   private static final double EPS = 1e-2;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -39,7 +40,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonMatchingInputs() {
     final List<String> names = Arrays.asList("A", "B");
-    final double[] array = new double[] { 1. };
+    final double[] array = new double[] {1.};
     final LeastSquaresRegressionResult result = new LeastSquaresRegressionResult(array, array, 0., array, 0., 0.,
         array, array, false);
     new NamedVariableLeastSquaresRegressionResult(names, result);
