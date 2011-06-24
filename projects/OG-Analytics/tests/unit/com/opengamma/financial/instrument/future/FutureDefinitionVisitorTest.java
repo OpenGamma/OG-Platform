@@ -24,7 +24,6 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
@@ -259,46 +258,6 @@ public class FutureDefinitionVisitorTest {
 
     @Override
     public String visitCouponCMS(final CouponCMSDefinition payment) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity) {
       return null;
     }
 
