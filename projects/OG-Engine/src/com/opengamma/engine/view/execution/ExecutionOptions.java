@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.execution;
 
+import java.util.EnumSet;
+
 import javax.time.Instant;
 
 import com.opengamma.id.UniqueIdentifier;
@@ -18,57 +20,43 @@ import com.opengamma.util.PublicAPI;
 public class ExecutionOptions implements ViewExecutionOptions {
 
   private ViewCycleExecutionSequence _executionSequence;
-  private final boolean _runAsFastAsPossible;
-  private final boolean _liveDataTriggerEnabled;
+  private final EnumSet<ViewExecutionFlags> _flags;
   private final Integer _maxSuccessiveDeltaCycles;
-  private final boolean _compileOnly;
   private final UniqueIdentifier _marketDataSnapshotIdentifier;
   
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean liveDataTriggerEnabled) {
-    this(executionSequence, liveDataTriggerEnabled, null);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags) {
+    this(executionSequence, flags, null, null);
   }
   
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
-    this(executionSequence, false, liveDataTriggerEnabled, null, false);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, Integer maxSuccessiveDeltaCycles) {
+    this(executionSequence, flags, maxSuccessiveDeltaCycles, null);
   }
   
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
-      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
-    this(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, false);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, UniqueIdentifier marketDataSnapshotId) {
+    this(executionSequence, flags, null, marketDataSnapshotId);
   }
-  
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
-      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles, boolean compileOnly) {
-    this(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, compileOnly, null);
-  }
-  
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
-      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles, boolean compileOnly, UniqueIdentifier marketDataSnapshotIdentifier) {
+    
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
+      Integer maxSuccessiveDeltaCycles, UniqueIdentifier marketDataSnapshotIdentifier) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
+    ArgumentChecker.notNull(flags, "flags");
     
     _executionSequence = executionSequence;
-    _runAsFastAsPossible = runAsFastAsPossible;
-    _liveDataTriggerEnabled = liveDataTriggerEnabled;
+    _flags = flags;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
-    _compileOnly = compileOnly;
     _marketDataSnapshotIdentifier = marketDataSnapshotIdentifier;
   }
   
   public static ViewExecutionOptions realTime() {
-    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), true);
+    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().get());
   }
   
   public static ViewExecutionOptions likeRealTime(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(cycleExecutionSequence, true);
+    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.triggersEnabled().get());
   }
   
   public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(
-        cycleExecutionSequence,
-        true,
-        false,
-        null,
-        false);
+    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.none().runAsFastAsPossible().get());
   }
 
   public static ViewExecutionOptions singleCycle() {
@@ -80,16 +68,30 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
   
   public static ViewExecutionOptions singleCycle(Instant valuationTime) {
-    return new ExecutionOptions(
-        ArbitraryViewCycleExecutionSequence.of(valuationTime),
-        true,
-        false,
-        null,
-        false);
+    return new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(valuationTime), ExecutionFlags.none().runAsFastAsPossible().get());
   }
   
+  /**
+   * Creates execution options for running using a snapshot against the current time. Execution will never complete,
+   * allowing changes to the snapshot or changes due to time passing to trigger a further cycle.
+   * 
+   * @param snapshotIdentifier  the identifier of the snapshot, not {@code null}
+   * @return the execution options, not {@code null}
+   */
   public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
-    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), false, true, null, false, snapshotIdentifier);
+    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().get(), snapshotIdentifier);
+  }
+  
+  /**
+   * Creates execution options for running using a snapshot, with a fixed valuation time. Execution will never
+   * complete, allowing changes to the snapshot data to trigger a further cycle for this valuation time.
+   * 
+   * @param snapshotIdentifier  the identifier of the snapshot, not {@code null}
+   * @param valuationTime  the fixed valuation time, not {@code null}
+   * @return the execution options, not {@code null}
+   */
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, Instant valuationTime) {
+    return new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(valuationTime), ExecutionFlags.none().triggerOnLiveData().get(), snapshotIdentifier);
   }
   
   public static ViewExecutionOptions compileOnly() {
@@ -97,12 +99,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
   
   public static ViewExecutionOptions compileOnly(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(
-        cycleExecutionSequence,
-        true,
-        false,
-        null,
-        true);
+    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.none().compileOnly().get());
   }
   
   @Override
@@ -111,40 +108,28 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
 
   @Override
-  public boolean isRunAsFastAsPossible() {
-    return _runAsFastAsPossible;
-  }
-
-  @Override
-  public boolean isLiveDataTriggerEnabled() {
-    return _liveDataTriggerEnabled;
-  }
-
-  @Override
   public Integer getMaxSuccessiveDeltaCycles() {
     return _maxSuccessiveDeltaCycles;
   }
-  
-  @Override
-  public boolean isCompileOnly() {
-    return _compileOnly;
-  }
-  
 
   @Override
   public UniqueIdentifier getMarketDataSnapshotIdentifier() {
     return _marketDataSnapshotIdentifier;
+  }
+  
+  @Override
+  public EnumSet<ViewExecutionFlags> getFlags() {
+    return _flags;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _executionSequence.hashCode();
-    result = prime * result + (_liveDataTriggerEnabled ? 1231 : 1237);
+    result = prime * result + ((_executionSequence == null) ? 0 : _executionSequence.hashCode());
+    result = prime * result + ((_flags == null) ? 0 : _flags.hashCode());
+    result = prime * result + ((_marketDataSnapshotIdentifier == null) ? 0 : _marketDataSnapshotIdentifier.hashCode());
     result = prime * result + ((_maxSuccessiveDeltaCycles == null) ? 0 : _maxSuccessiveDeltaCycles.hashCode());
-    result = prime * result + (_runAsFastAsPossible ? 1231 : 1237);
-    result = prime * result + (_compileOnly ? 1231 : 1237);
     return result;
   }
 
@@ -163,20 +148,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (!_executionSequence.equals(other._executionSequence)) {
       return false;
     }
-    if (_liveDataTriggerEnabled != other._liveDataTriggerEnabled) {
-      return false;
-    }
-    if (_maxSuccessiveDeltaCycles == null) {
-      if (other._maxSuccessiveDeltaCycles != null) {
-        return false;
-      }
-    } else if (!_maxSuccessiveDeltaCycles.equals(other._maxSuccessiveDeltaCycles)) {
-      return false;
-    }
-    if (_runAsFastAsPossible != other._runAsFastAsPossible) {
-      return false;
-    }
-    if (_compileOnly != other._compileOnly) {
+    if (!_flags.equals(other._flags)) {
       return false;
     }
     if (_marketDataSnapshotIdentifier == null) {
@@ -186,8 +158,14 @@ public class ExecutionOptions implements ViewExecutionOptions {
     } else if (!_marketDataSnapshotIdentifier.equals(other._marketDataSnapshotIdentifier)) {
       return false;
     }
+    if (_maxSuccessiveDeltaCycles == null) {
+      if (other._maxSuccessiveDeltaCycles != null) {
+        return false;
+      }
+    } else if (!_maxSuccessiveDeltaCycles.equals(other._maxSuccessiveDeltaCycles)) {
+      return false;
+    }
     return true;
   }
-
 
 }
