@@ -47,7 +47,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
    * @param expirationDate The expiration date (and time) of the option.
    * @param isCall The call (true) / put (false) flag.
    */
-  public ForexOptionVanillaDefinition(ForexDefinition forex, ZonedDateTime expirationDate, boolean isCall) {
+  public ForexOptionVanillaDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall) {
     Validate.notNull(forex, "Underlying forex");
     Validate.notNull(expirationDate, "Expiration date");
     Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
@@ -80,21 +80,32 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
     return _isCall;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public ForexOptionVanilla toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public ForexOptionVanilla toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yieldCurveNames");
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
     return new ForexOptionVanilla(fx, expirationTime, _isCall);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public <U, V> V accept(ForexDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexOptionVanillaDefinition(this, data);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexOptionVanillaDefinition(this);
   }
 
@@ -109,7 +120,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -119,7 +130,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexOptionVanillaDefinition other = (ForexOptionVanillaDefinition) obj;
+    final ForexOptionVanillaDefinition other = (ForexOptionVanillaDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

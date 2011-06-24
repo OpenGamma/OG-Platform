@@ -10,21 +10,21 @@
 (function($) {
   
   /** @constructor */
-  function LabelledMatrix1DFormatter() {
+  function LabelledMatrix2DFormatter() {
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      var summaryText = value.v.summary == 0 ? "N/A" : "Vector (" + value.v.summary + ")";
+      var summaryText = "Matrix (" + value.v.summary.rowCount + " x " + value.v.summary.colCount + ")";
       $cell.html("<span class='cell-value'>" + summaryText + "</span>");
     }
     
     this.createDetail = function($popup, $container, rowId, columnStructure, userConfig, currentData) {
-      return new LabelledMatrix1DDetail($popup, $container, rowId, columnStructure.colId);
+      return new LabelledMatrix2DDetail($popup, $container, rowId, columnStructure.colId, currentData);
     }
     
   }
   
   $.extend(true, window, {
-    LabelledMatrix1DFormatter : new LabelledMatrix1DFormatter()
+    LabelledMatrix2DFormatter : new LabelledMatrix2DFormatter()
   });
 
 }(jQuery));

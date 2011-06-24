@@ -91,10 +91,23 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   }
 
   @Override
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitSwaptionCashFixedIbor(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitSwaptionCashFixedIbor(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_isLong ? 1231 : 1237);
+    long temp;
+    temp = Double.doubleToLongBits(_settlementTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
@@ -107,27 +120,17 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
     SwaptionCashFixedIbor other = (SwaptionCashFixedIbor) obj;
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_settlementTime) != Double.doubleToLongBits(other._settlementTime)) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitSwaptionCashFixedIbor(this, data);
-  }
-
-  @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitSwaptionCashFixedIbor(this);
   }
 
 }

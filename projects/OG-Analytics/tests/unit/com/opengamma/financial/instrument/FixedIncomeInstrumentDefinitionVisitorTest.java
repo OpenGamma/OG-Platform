@@ -42,6 +42,12 @@ import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
+<<<<<<< HEAD
+=======
+import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
+import com.opengamma.financial.instrument.future.IRFutureConvention;
+import com.opengamma.financial.instrument.future.IRFutureDefinition;
+>>>>>>> master
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -52,7 +58,6 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
@@ -60,6 +65,10 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+<<<<<<< HEAD
+=======
+import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
+>>>>>>> master
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
@@ -125,6 +134,13 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final SwaptionCashFixedIborDefinition CASH_SWAPTION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_FIXED_IBOR, true);
   private static final SwaptionPhysicalFixedIborDefinition PHYSICAL_SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_FIXED_IBOR, true);
 
+  private static final InterestRateFutureSecurityDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
+  private static final InterestRateFutureTransactionDefinition IR_FUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransactionDefinition();
+  private static final BondFutureSecurityDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
+  private static final BondFutureTransactionDefinition BNDFUT_TRANSACTION_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureTransactionDefinition();
+  private static final SwaptionCashFixedIborDefinition SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIborDefinition();
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
+
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
 
@@ -139,12 +155,25 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(BOND_FUTURE.accept(VISITOR, o), "BondFuture1");
     assertEquals(CASH.accept(VISITOR), "Cash2");
     assertEquals(CASH.accept(VISITOR, o), "Cash1");
+<<<<<<< HEAD
     assertEquals(ANNUITY_FIXED.accept(VISITOR), "AnnuityCouponFixed2");
     assertEquals(ANNUITY_FIXED.accept(VISITOR, o), "AnnuityCouponFixed1");
     assertEquals(ANNUITY_IBOR.accept(VISITOR), "AnnuityCouponIbor2");
     assertEquals(ANNUITY_IBOR.accept(VISITOR, o), "AnnuityCouponIbor1");
     assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR), "AnnuityCouponIborSpread2");
     assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR, o), "AnnuityCouponIborSpread1");
+=======
+    assertEquals(FRA.accept(VISITOR), "FRA2");
+    assertEquals(FRA.accept(VISITOR, o), "FRA1");
+    assertEquals(IR_FUTURE.accept(VISITOR), "IRFuture2");
+    assertEquals(IR_FUTURE.accept(VISITOR, o), "IRFuture1");
+    assertEquals(ANNUITY_FIXED.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_FIXED.accept(VISITOR, o), "Annuity1");
+    assertEquals(ANNUITY_IBOR.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_IBOR.accept(VISITOR, o), "Annuity1");
+    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR, o), "Annuity1");
+>>>>>>> master
     assertEquals(SWAP_FIXED_IBOR.accept(VISITOR), "SwapFixedIbor2");
     assertEquals(SWAP_FIXED_IBOR.accept(VISITOR, o), "SwapFixedIbor1");
     assertEquals(SWAP_FIXED_IBOR_SPREAD.accept(VISITOR), "SwapFixedIborSpread2");
@@ -157,12 +186,29 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(COUPON_FLOATING.accept(VISITOR, o), "CouponFloating1");
     assertEquals(COUPON_CMS.accept(VISITOR), "CouponCMS2");
     assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
+<<<<<<< HEAD
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "AnnuityCouponCMS2");
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "AnnuityCouponCMS1");
     assertEquals(CASH_SWAPTION.accept(VISITOR), "CashSettledSwaption2");
     assertEquals(CASH_SWAPTION.accept(VISITOR, o), "CashSettledSwaption1");
     assertEquals(PHYSICAL_SWAPTION.accept(VISITOR), "PhysicalSettledSwaption2");
     assertEquals(PHYSICAL_SWAPTION.accept(VISITOR, o), "PhysicalSettledSwaption1");
+=======
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "Annuity1");
+    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR), "InterestRateFutureSecurity1");
+    assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR, o), "InterestRateFutureSecurity2");
+    assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR), "InterestRateFutureTransaction1");
+    assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "InterestRateFutureTransaction2");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR), "BondFutureSecurity1");
+    assertEquals(BNDFUT_SECURITY_DEFINITION.accept(VISITOR, o), "BondFutureSecurity2");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR), "BondFutureTransaction1");
+    assertEquals(BNDFUT_TRANSACTION_DEFINITION.accept(VISITOR, o), "BondFutureTransaction2");
+    assertEquals(SWAPTION_CASH.accept(VISITOR), "SwaptionCashFixedIbor1");
+    assertEquals(SWAPTION_CASH.accept(VISITOR, o), "SwaptionCashFixedIbor2");
+    assertEquals(SWAPTION_PHYS.accept(VISITOR), "SwaptionPhysicalFixedIbor1");
+    assertEquals(SWAPTION_PHYS.accept(VISITOR, o), "SwaptionPhysicalFixedIbor2");
+>>>>>>> master
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String>, FixedIncomeFutureInstrumentDefinitionVisitor<T, String> {
@@ -268,46 +314,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity, final T data) {
-      return "AnnuityCouponCMS1";
-    }
-
-    @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity) {
-      return "AnnuityCouponCMS2";
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity, final T data) {
-      return "AnnuityCouponFixed1";
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity) {
-      return "AnnuityCouponFixed2";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity, final T data) {
-      return "AnnuityCouponIbor1";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity) {
-      return "AnnuityCouponIbor2";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity, final T data) {
-      return "AnnuityCouponIborSpread1";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity) {
-      return "AnnuityCouponIborSpread2";
-    }
-
-    @Override
     public String visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final T data) {
       return "Annuity1";
     }
@@ -378,6 +384,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
+<<<<<<< HEAD
     public String visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition future, final T data) {
       return "InterestRateFutureSecurity1";
     }
@@ -395,6 +402,25 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitInterestRateFutureTransactionDefinition(final InterestRateFutureTransactionDefinition future) {
       return "InterestRateFutureTransaction2";
+=======
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data) {
+      return "InterestRateFutureSecurity2";
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future) {
+      return "InterestRateFutureSecurity1";
+    }
+
+    @Override
+    public String visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future, T data) {
+      return "InterestRateFutureTransaction2";
+    }
+
+    @Override
+    public String visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future) {
+      return "InterestRateFutureTransaction1";
+>>>>>>> master
     }
 
     @Override
@@ -478,6 +504,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
+<<<<<<< HEAD
     public String visitBondFutureSecurityDefinition(final BondFutureSecurityDefinition bond, final T data) {
       return "BondFutureSecurity1";
     }
@@ -495,6 +522,45 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitBondFutureTransactionDefinition(final BondFutureTransactionDefinition bond) {
       return "BondFutureTransaction2";
+=======
+    public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond, T data) {
+      return "BondFutureSecurity2";
+    }
+
+    @Override
+    public String visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond) {
+      return "BondFutureSecurity1";
+    }
+
+    @Override
+    public String visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond, T data) {
+      return "BondFutureTransaction2";
+    }
+
+    @Override
+    public String visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond) {
+      return "BondFutureTransaction1";
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data) {
+      return "SwaptionCashFixedIbor2";
+    }
+
+    @Override
+    public String visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption) {
+      return "SwaptionCashFixedIbor1";
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data) {
+      return "SwaptionPhysicalFixedIbor2";
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption) {
+      return "SwaptionPhysicalFixedIbor1";
+>>>>>>> master
     }
   }
 }
