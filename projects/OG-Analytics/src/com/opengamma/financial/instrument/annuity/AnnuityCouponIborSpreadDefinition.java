@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 
@@ -37,7 +36,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
    * @param spread The common spread.
    * @return The Ibor annuity.
    */
-  public static AnnuityCouponIborSpreadDefinition from(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index, final double spread,
+  public static AnnuityCouponIborSpreadDefinition from(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index, final double spread, 
       final boolean isPayer) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(index, "index");
@@ -72,14 +71,5 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
     }
     return new AnnuityCouponIborSpreadDefinition(coupons);
   }
-
-  @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitAnnuityCouponIborSpreadDefinition(this, data);
-  }
-
-  @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitAnnuityCouponIborSpreadDefinition(this);
-  }
+  
 }

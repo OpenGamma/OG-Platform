@@ -53,7 +53,6 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
@@ -145,12 +144,12 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(BOND_FUTURE.accept(VISITOR, o), "BondFuture1");
     assertEquals(CASH.accept(VISITOR), "Cash2");
     assertEquals(CASH.accept(VISITOR, o), "Cash1");
-    assertEquals(ANNUITY_FIXED.accept(VISITOR), "AnnuityCouponFixed2");
-    assertEquals(ANNUITY_FIXED.accept(VISITOR, o), "AnnuityCouponFixed1");
-    assertEquals(ANNUITY_IBOR.accept(VISITOR), "AnnuityCouponIbor2");
-    assertEquals(ANNUITY_IBOR.accept(VISITOR, o), "AnnuityCouponIbor1");
-    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR), "AnnuityCouponIborSpread2");
-    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR, o), "AnnuityCouponIborSpread1");
+    assertEquals(ANNUITY_FIXED.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_FIXED.accept(VISITOR, o), "Annuity1");
+    assertEquals(ANNUITY_IBOR.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_IBOR.accept(VISITOR, o), "Annuity1");
+    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_IBOR_SPREAD_1.accept(VISITOR, o), "Annuity1");
     assertEquals(SWAP_FIXED_IBOR.accept(VISITOR), "SwapFixedIbor2");
     assertEquals(SWAP_FIXED_IBOR.accept(VISITOR, o), "SwapFixedIbor1");
     assertEquals(SWAP_FIXED_IBOR_SPREAD.accept(VISITOR), "SwapFixedIborSpread2");
@@ -163,8 +162,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(COUPON_FLOATING.accept(VISITOR, o), "CouponFloating1");
     assertEquals(COUPON_CMS.accept(VISITOR), "CouponCMS2");
     assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
-    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "AnnuityCouponCMS2");
-    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "AnnuityCouponCMS1");
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "Annuity2");
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "Annuity1");
     assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR), "InterestRateFutureSecurity1");
     assertEquals(IR_FUT_SECURITY_DEFINITION.accept(VISITOR, o), "InterestRateFutureSecurity2");
     assertEquals(IR_FUT_TRANSACTION_DEFINITION.accept(VISITOR), "InterestRateFutureTransaction1");
@@ -279,46 +278,6 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponIborSpread(final CouponIborDefinition payment) {
       return "CouponIborSpread2";
-    }
-
-    @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity, final T data) {
-      return "AnnuityCouponCMS1";
-    }
-
-    @Override
-    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity) {
-      return "AnnuityCouponCMS2";
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity, final T data) {
-      return "AnnuityCouponFixed1";
-    }
-
-    @Override
-    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity) {
-      return "AnnuityCouponFixed2";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity, final T data) {
-      return "AnnuityCouponIbor1";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity) {
-      return "AnnuityCouponIbor2";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity, final T data) {
-      return "AnnuityCouponIborSpread1";
-    }
-
-    @Override
-    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity) {
-      return "AnnuityCouponIborSpread2";
     }
 
     @Override

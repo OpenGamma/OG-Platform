@@ -24,7 +24,6 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
@@ -124,22 +123,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitCouponCMS(CouponCMSDefinition payment, T data);
 
   U visitCouponCMS(CouponCMSDefinition payment);
-
-  U visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity, T data);
-
-  U visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity);
-
-  U visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity, T data);
-
-  U visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity);
-
-  U visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity, T data);
-
-  U visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity);
-
-  U visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity, T data);
-
-  U visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity);
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data);
 

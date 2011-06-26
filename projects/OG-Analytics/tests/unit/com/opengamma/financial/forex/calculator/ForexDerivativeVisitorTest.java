@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 
@@ -22,6 +23,7 @@ public class ForexDerivativeVisitorTest {
   private static final Forex FX = ForexInstrumentsDescriptionDataSet.createForex();
   private static final ForexSwap FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwap();
   private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanilla();
+  private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrier();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -38,6 +40,8 @@ public class ForexDerivativeVisitorTest {
     assertEquals(FX_SWAP.accept(VISITOR, o), "ForexSwap2");
     assertEquals(FX_OPTION.accept(VISITOR), "ForexOptionVanilla1");
     assertEquals(FX_OPTION.accept(VISITOR, o), "ForexOptionVanilla2");
+    assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR), "ForexOptionSingleBarrier1");
+    assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR, o), "ForexOptionSingleBarrier2");
   }
 
   @Test
@@ -49,51 +53,51 @@ public class ForexDerivativeVisitorTest {
     testException(FX_SWAP, o);
     testException(FX_OPTION);
     testException(FX_OPTION, o);
-    ForexDerivative[] forexArray = new ForexDerivative[] {FX, FX_SWAP};
+    final ForexDerivative[] forexArray = new ForexDerivative[] {FX, FX_SWAP};
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       assertTrue(true);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(false);
     }
     try {
       VISITOR_ABSTRACT.visit(forexArray);
       assertTrue(false);
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       assertTrue(true);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(false);
     }
     try {
       VISITOR_ABSTRACT.visit(forexArray, o);
       assertTrue(false);
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       assertTrue(true);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(false);
     }
   }
 
-  private void testException(ForexDerivative fx) {
+  private void testException(final ForexDerivative fx) {
     try {
       fx.accept(VISITOR_ABSTRACT);
       assertTrue(false);
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       assertTrue(true);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(false);
     }
   }
 
-  private void testException(ForexDerivative fx, Object o) {
+  private void testException(final ForexDerivative fx, final Object o) {
     try {
       fx.accept(VISITOR_ABSTRACT, o);
       assertTrue(false);
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       assertTrue(true);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       assertTrue(false);
     }
   }
@@ -101,53 +105,63 @@ public class ForexDerivativeVisitorTest {
   private static class MyVisitor<T, U> implements ForexDerivativeVisitor<T, String> {
 
     @Override
-    public String visit(ForexDerivative derivative, T data) {
+    public String visit(final ForexDerivative derivative, final T data) {
       return null;
     }
 
     @Override
-    public String visit(ForexDerivative derivative) {
+    public String visit(final ForexDerivative derivative) {
       return null;
     }
 
     @Override
-    public String[] visit(ForexDerivative[] derivative, T data) {
+    public String[] visit(final ForexDerivative[] derivative, final T data) {
       return null;
     }
 
     @Override
-    public String[] visit(ForexDerivative[] derivative) {
+    public String[] visit(final ForexDerivative[] derivative) {
       return null;
     }
 
     @Override
-    public String visitForex(Forex derivative, T data) {
+    public String visitForex(final Forex derivative, final T data) {
       return "Forex2";
     }
 
     @Override
-    public String visitForex(Forex derivative) {
+    public String visitForex(final Forex derivative) {
       return "Forex1";
     }
 
     @Override
-    public String visitForexSwap(ForexSwap derivative, T data) {
+    public String visitForexSwap(final ForexSwap derivative, final T data) {
       return "ForexSwap2";
     }
 
     @Override
-    public String visitForexSwap(ForexSwap derivative) {
+    public String visitForexSwap(final ForexSwap derivative) {
       return "ForexSwap1";
     }
 
     @Override
-    public String visitForexOptionVanilla(ForexOptionVanilla derivative, T data) {
+    public String visitForexOptionVanilla(final ForexOptionVanilla derivative, final T data) {
       return "ForexOptionVanilla2";
     }
 
     @Override
-    public String visitForexOptionVanilla(ForexOptionVanilla derivative) {
+    public String visitForexOptionVanilla(final ForexOptionVanilla derivative) {
       return "ForexOptionVanilla1";
+    }
+
+    @Override
+    public String visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final T data) {
+      return "ForexOptionSingleBarrier2";
+    }
+
+    @Override
+    public String visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative) {
+      return "ForexOptionSingleBarrier1";
     }
 
   }
