@@ -3,9 +3,9 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-	<target name="publish" depends="zip-webapp,common.publish" />
+	<target name="publish" depends="zip-webapp,zip-resources,common.publish" />
 
-	<target name="publish-local" depends="zip-webapp,common.publish-local" />
+	<target name="publish-local" depends="zip-webapp,zip-resources,common.publish-local" />
 
 	<target name="zip-webapp" description="--> tar up the webapp directories for publishing">
 		<mkdir dir="${dist.dir}" />
@@ -15,6 +15,13 @@
 		<zip destfile="${dist.dir}/web-marketdata-webapp.zip" basedir="${basedir}">
 			<include name="web-marketdata/**/*" />
 		</zip>
+	</target>
+	
+	<target name="zip-resources" description="--> create resources file for publishing">
+	  <mkdir dir="${dist.dir}" />
+	  <zip destfile="${dist.dir}/og-web-resource.zip">
+	    <zipfileset dir="${basedir}/config" />
+	  </zip>
 	</target>
 
 	<target name="dist-common" depends="common.dist-common">

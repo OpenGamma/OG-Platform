@@ -19,6 +19,7 @@ namespace com.opengamma.financial.security.option {
     required double callAmount;
     required util.time.Expiry expiry;
     required javax.time.calendar.ZonedDateTime settlementDate;
+    required boolean isLong;
    
     binding Java {
       body <<<JAVA

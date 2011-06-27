@@ -7,14 +7,14 @@
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
-        <value>classpath:demoViewProcessor-common.properties</value>
+        <value>classpath:com/opengamma/financial/demoViewProcessor-common.properties</value>
         <value>classpath:demoViewProcessor-${opengamma.platform.runmode}.properties</value>
       </list>
     </property>
   </bean>
   
-  <import resource="common.xml" />
-  <import resource="demoIntegrationMasters.xml" />
+  <import resource="classpath:com/opengamma/financial/common.xml" />
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
   <!-- Active MQ -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
@@ -79,7 +79,6 @@
   </bean>
   
   <!-- Market data snapshots -->
-
   <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
@@ -113,25 +112,36 @@
 
   <!-- User Vol Cubes-->
   <!-- TODO: this properly, user source and cacheing -->
-  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
+  
+  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource">
+    <constructor-arg>
+      <list>
+        <ref bean="bloombergVolatilityCubeDefinitionSource" />
+        <ref bean="sharedVolatilityCubeDefinitionSource" />
+      </list>
+    </constructor-arg>
+  </bean>
+  
+  
+  <bean id="sharedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
+  </bean>
+  
+  <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
   </bean>
   
   <!-- JMS-based LiveDataClient -->
   <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="subscriptionTopic" value="MockSubscriptionRequestTopic" />
-    <property name="entitlementTopic" value="MockEntitlementRequestTopic" />
-    <property name="heartbeatTopic" value="MockHeartbeatTopic" />
+    <property name="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+    <property name="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+    <property name="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
   </bean>
   
   <!-- LiveData Snapshot/Availability Provider -->
-  <import resource="liveData-${opengamma.platform.runmode}.xml" />
-  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.livedata.MockLiveDataAvailabilityProviderFactoryBean" />
-   
-  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.livedata.MockLiveDataSnapshotProviderFactoryBean" />
-    
-  <bean id="testUser" class="com.opengamma.examples.server.MockUserFactoryBean" />  
+  <import resource="classpath:liveData-${opengamma.platform.runmode}.xml" />
+  
+  <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
   <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
   	<constructor-arg ref="sharedConfigMaster"/>
@@ -414,9 +424,4 @@
       </list>
     </property>
   </bean>
-
-	<!-- example data providers -->
-	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
-	<bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
-
 </beans>
