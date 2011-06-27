@@ -102,7 +102,7 @@ public class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Sw
     return visitor.visitSwapDefinition(this);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
@@ -110,7 +110,7 @@ public class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Sw
     return new Swap(firstLeg, secondLeg);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     Validate.notNull(data, "index data time series array");
