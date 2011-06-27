@@ -244,8 +244,37 @@
 		</junitreport>
 	</target>
 
-	<target name="testng-batch" depends="compile-tests" if="testng">
-		<taskdef resource="testngtasks" classpathref="lib.path.id"/>
+	<available property="resourceDir.present" file="${lib.dir}/resource" type="dir"/>
+
+	<target name="cp-with-resource" if="resourceDir.present">
+		<path id="testng.run.path">
+			<path refid="lib.path.id" />
+			<path refid="resource.path.id" />
+			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
+			<pathelement path="${classes.dir}" />
+			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${config.dir}" />
+			<pathelement path="${clover.jar.file}" />
+			<pathelement path="${test.properties.dir}" />
+		</path>
+	</target>
+
+	<target name="cp-without-resource" unless="resourceDir.present">
+		<path id="testng.run.path">
+			<path refid="lib.path.id" />
+			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
+			<pathelement path="${classes.dir}" />
+			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${config.dir}" />
+			<pathelement path="${clover.jar.file}" />
+			<pathelement path="${test.properties.dir}" />
+		</path>
+	</target>
+
+	<target name="build-testng-cp" depends="cp-with-resource, cp-without-resource" />
+
+	<target name="testng-batch" depends="build-testng-cp, compile-tests" if="testng">
+		<taskdef resource="testngtasks" classpathref="lib.path.id" />
 
 		<property file="${common.dir}/tests.properties" />
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
@@ -253,18 +282,8 @@
 			<isset property="junit.logback" />
 		</condition>
 		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
-		<testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}">
-			<classpath>
-				<path refid="lib.path.id" />
-				<path refid="resource.path.id" />
-				<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
-				<!-- pathelement path="${lib.path.jar.file}" /-->
-				<pathelement path="${classes.dir}" />
-				<pathelement path="${tests.classes.dir}" />
-				<pathelement path="${config.dir}" />
-				<pathelement path="${clover.jar.file}" />
-				<pathelement path="${test.properties.dir}" />
-			</classpath>
+		<testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}" classpathref="testng.run.path">
+
 			<classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
 			<jvmarg value="${junit.logback.jvmarg}" />
 			<jvmarg value="-Xmx${junit.maxheap}" />
