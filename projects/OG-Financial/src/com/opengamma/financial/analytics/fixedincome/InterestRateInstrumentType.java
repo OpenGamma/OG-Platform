@@ -34,10 +34,14 @@ public enum InterestRateInstrumentType {
   SWAP_FIXED_IBOR,
   /** A swap, one fixed leg, one floating referenced to an ibor rate and spread, paying fixed */
   SWAP_FIXED_IBOR_WITH_SPREAD,
-  /** A swap, one fixed leg, one floating referenced to an ibor rate and spread, paying fixed */
+  /** A swap, two floating legs referenced to ibor rates */
   SWAP_IBOR_IBOR,
-  /** A swap, one fixed leg, one CMS leg*/
+  /** A swap, one fixed leg, one CMS leg */
   SWAP_FIXED_CMS,
+  /** A swap, one ibor leg, one CMS leg */
+  SWAP_IBOR_CMS,
+  /** A swap, two CMS legs */
+  SWAP_CMS_CMS,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
   /** FRA */

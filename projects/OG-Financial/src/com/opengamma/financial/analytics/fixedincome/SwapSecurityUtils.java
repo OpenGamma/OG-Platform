@@ -43,7 +43,15 @@ public class SwapSecurityUtils {
       return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
     }
     if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
-      return InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      final FloatingInterestRateLeg payLeg1 = (FloatingInterestRateLeg) payLeg;
+      final FloatingInterestRateLeg receiveLeg1 = (FloatingInterestRateLeg) receiveLeg;
+      if (payLeg1.getIsIBOR()) {
+        if (receiveLeg1.getIsIBOR()) {
+          return InterestRateInstrumentType.SWAP_IBOR_IBOR;
+        }
+        return InterestRateInstrumentType.SWAP_IBOR_CMS;
+      }
+      return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
     throw new OpenGammaRuntimeException(
         "Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps");
