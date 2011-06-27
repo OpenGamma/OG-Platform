@@ -162,6 +162,7 @@
 	</target>
 
 	<available property="tests.interop" file="${tests.dir}/interop" />
+	
 	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
 		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
 			classpathref="tests.build.classpath.id" debug="${build.debug}"
@@ -244,8 +245,6 @@
 		</junitreport>
 	</target>
 
-	<available property="resourceDir.present" file="${lib.dir}/resource" type="dir"/>
-
 	<target name="cp-with-resource" if="resourceDir.present">
 		<path id="testng.run.path">
 			<path refid="lib.path.id" />
@@ -272,8 +271,13 @@
 	</target>
 
 	<target name="build-testng-cp" depends="cp-with-resource, cp-without-resource" />
+	
+	<target name="check-resource">
+		<available property="resourceDir.present" file="${lib.dir}/resource" type="dir"/>
+	</target>	
 
-	<target name="testng-batch" depends="build-testng-cp, compile-tests" if="testng">
+	<target name="testng-batch" depends="compile-tests, check-resource, build-testng-cp" if="testng">
+		
 		<taskdef resource="testngtasks" classpathref="lib.path.id" />
 
 		<property file="${common.dir}/tests.properties" />
