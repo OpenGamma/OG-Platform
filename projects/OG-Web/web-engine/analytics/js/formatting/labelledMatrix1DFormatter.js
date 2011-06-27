@@ -17,8 +17,8 @@
       $cell.html("<span class='cell-value'>" + summaryText + "</span>");
     }
     
-    this.createDetail = function($container, rowId, columnStructure, userConfig) {
-      return new LabelledMatrix1DDetail($container, rowId, columnStructure.colId);
+    this.createDetail = function($popup, $container, rowId, columnStructure, userConfig, currentData) {
+      return new LabelledMatrix1DDetail($popup, $container, rowId, columnStructure.colId);
     }
     
   }

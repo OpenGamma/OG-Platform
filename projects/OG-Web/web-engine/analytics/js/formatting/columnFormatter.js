@@ -92,7 +92,11 @@
       case 'LABELLED_MATRIX_1D':
         return LabelledMatrix1DFormatter;
       case 'LABELLED_MATRIX_2D':
+<<<<<<< HEAD
         return LabelledMatrix1DFormatter;
+=======
+        return LabelledMatrix2DFormatter;
+>>>>>>> master
       default:
         return UnknownTypeFormatter;
     }    

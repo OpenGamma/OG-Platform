@@ -77,6 +77,25 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   }
 
   /**
+   * Builder of a CMS coupon. The fixing date is computed from the start accrual date with the Ibor index spot lag. The underlying swap is computed from that date and the CMS index.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param cmsIndex The CMS index associated to the coupon.
+   * @return The CMS coupon.
+   */
+  public static CouponCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
+      final CMSIndex cmsIndex) {
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().getCalendar(), -cmsIndex.getIborIndex()
+        .getSettlementDays());
+    // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
+    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true);
+    return new CouponCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
+  }
+
+  /**
    * Builder from a floating coupon and an underlying swap.
    * @param coupon A floating coupon with the details of the coupon to construct.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.

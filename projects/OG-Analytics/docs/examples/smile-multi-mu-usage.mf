@@ -1,0 +1,6 @@
+Let's explore an example of SMILE extrapolation.
+
+{% set smile_class = d['javadoc-data.json|javadocs']['packages']['com.opengamma.financial.model.option.pricing.analytic.formula']['classes']['SABRExtrapolationRightFunction'] %}
+{{ smile_class['qualified-name'] }}
+
+{{ smile_class['source-html'] }}
