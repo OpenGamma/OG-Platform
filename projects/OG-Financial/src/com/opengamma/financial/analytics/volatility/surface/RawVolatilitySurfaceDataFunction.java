@@ -169,7 +169,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
-                                                                                                     _definition.getCurrency(), _definition.getInterpolatorName(),
+                                                                                                     _definition.getCurrency(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);

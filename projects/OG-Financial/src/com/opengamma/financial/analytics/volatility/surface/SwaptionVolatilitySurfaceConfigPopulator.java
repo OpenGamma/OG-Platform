@@ -39,14 +39,14 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
                                        Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10),
                                        Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30)};
     final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT", Currency.USD,
-                                                                                                 "DUNNO", timeToExpiry, swapLength);
+                                                                                                 timeToExpiry, swapLength);
 
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
 
     final Tenor[] timeToExpiryTest = new Tenor[] {Tenor.ofMonths(1), Tenor.ofMonths(3)};
     final Tenor[] swapLengthTest = new Tenor[] {Tenor.ofYears(1), Tenor.ofYears(2)};
     final VolatilitySurfaceDefinition<Tenor, Tenor> test = new VolatilitySurfaceDefinition<Tenor, Tenor>("TEST", Currency.USD,
-        "DUNNO", timeToExpiryTest, swapLengthTest);
+        timeToExpiryTest, swapLengthTest);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(test));
   }
 

@@ -32,12 +32,12 @@ public class IRFutureOptionSurfaceConfigPopulator {
       futureOptionNumbers[i] = i + 1;
     }
     final Double[] strikes = new Double[24];
-    double strike = 99.75;
+    double strike = 99.875;
     for (int i = 0; i < 24; i++) {
       strikes[i] = strike;
-      strike -= 0.25;
+      strike -= 0.125; // quoted option strikes decrease by this amount
     }
-    final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT", Currency.USD, "", futureOptionNumbers, strikes);
+    final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT", Currency.USD, futureOptionNumbers, strikes);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }
 

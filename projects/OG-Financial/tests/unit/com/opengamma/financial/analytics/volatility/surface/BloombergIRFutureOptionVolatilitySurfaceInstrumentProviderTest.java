@@ -23,7 +23,6 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final LocalDate DATE = LocalDate.of(2011, 7, 1);
   private static final Integer[] NUMBERS = new Integer[] {1, 7, 10};
   private static final Double[] STRIKES = new Double[] {96., 97.25, 98.5, 99.75};
-  private static final Boolean[] USE_CALL = new Boolean[] {false, false, true, true};
   private static final String DATA_FIELD_NAME = "OPT_IMPLIED_VOLATILITY";
   private static final String[][] RESULTS = new String[][] {new String[] {"EDU1P 96.000 Comdty", "EDU1P 97.250 Comdty", "EDU1C 98.500 Comdty", "EDU1C 99.750 Comdty"},
                                                             new String[] {"EDH3P 96.000 Comdty", "EDH3P 97.250 Comdty", "EDH3C 98.500 Comdty", "EDH3C 99.750 Comdty"},
