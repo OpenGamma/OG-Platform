@@ -144,11 +144,11 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap);
 
-  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
-
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
 
-  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
+  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
 
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
+
+  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
 }

@@ -14,6 +14,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -24,7 +25,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 //TODO get rid when checkstyle can actually handle this class declaration
 //CSOFF
-public abstract class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
+public class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
   //CSON
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
@@ -99,5 +100,23 @@ public abstract class SwapDefinition implements FixedIncomeInstrumentWithDataCon
   @Override
   public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwapDefinition(this);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  @Override
+  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
+    final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
+    return new Swap(firstLeg, secondLeg);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  @Override
+  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
+    Validate.notNull(data, "index data time series array");
+    Validate.isTrue(data.length > 0, "index data time series must contain at least two elements");
+    final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
+    final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
+    return new Swap(firstLeg, secondLeg);
   }
 }

@@ -43,7 +43,7 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
     Validate.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;
     _conventionSource = conventionSource;
-    _visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder().swapSecurityVisitor(swapConverter).create();
+    _visitor = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder().swapSecurityVisitor(swapConverter).create();
   }
 
   @Override

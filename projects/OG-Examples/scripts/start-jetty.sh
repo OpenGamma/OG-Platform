@@ -7,7 +7,7 @@ fi
 if [ ! -z "$1" ]; then
   RUN_MODE="$1"
 else
-  RUN_MODE=shareddev
+  RUN_MODE=example
 fi
 
 CLASSPATH=config:og-examples.jar

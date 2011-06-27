@@ -15,13 +15,26 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
+import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
+import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Abstract base class for running a Jetty server
  */
-public abstract class AbstractJettyServer {
+public class JettyServer {
   
-  public static void run(final String springConfig) throws IOException {
+  private final RunMode _runMode;
+  
+  private final MarketDataSource _marketDataSource;
+  
+  public JettyServer(RunMode runMode, MarketDataSource marketDataSource) {
+    ArgumentChecker.notNull(runMode, "runMode");
+    ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    _runMode = runMode;
+    _marketDataSource = marketDataSource;
+  }
+
+  public void run(final String springConfig) throws IOException {
     ArgumentChecker.notNull(springConfig, "spring config");
     
     // Logging
@@ -29,7 +42,8 @@ public abstract class AbstractJettyServer {
       System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
-    PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV, PlatformConfigUtils.MarketDataSource.DIRECT);
+//    PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV, PlatformConfigUtils.MarketDataSource.DIRECT);
+    PlatformConfigUtils.configureSystemProperties(_runMode, _marketDataSource);
     
     // server
     try {

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
+import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -33,23 +34,21 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.Identifier;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunction {
+//TODO this class needs to be re-written, as each instrument type needs a different set of inputs
+public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
   /**
-   * Resultant value specification property for the curve result. Note these should be moved into either the ValuePropertyNames class
+   * Resultant value specification property for the surface result. Note these should be moved into either the ValuePropertyNames class
    * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
    */
   public static final String PROPERTY_SURFACE_DEFINITION_NAME = "NAME";
 
-  @SuppressWarnings("unused")
-  private String _interpolator;
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
@@ -59,11 +58,11 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
 
   private VolatilitySurfaceSpecification _specification;
 
-  public SimpleInterpolatedVolatilitySurfaceFunction(final String currency, final String definitionName, final String specificationName) {
+  public RawVolatilitySurfaceDataFunction(final String currency, final String definitionName, final String specificationName) {
     this(Currency.of(currency), definitionName, specificationName);
   }
 
-  public SimpleInterpolatedVolatilitySurfaceFunction(final Currency currency, final String definitionName, final String specificationName) {
+  public RawVolatilitySurfaceDataFunction(final Currency currency, final String definitionName, final String specificationName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(specificationName, "Specification Name");
@@ -71,7 +70,6 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     _surfaceCurrency = currency;
     _definitionName = definitionName;
     _specificationName = specificationName;
-    _interpolator = null;
     _result = null;
     _results = null;
   }
@@ -83,7 +81,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   public String getDefinitionName() {
     return _definitionName;
   }
-  
+
   public String getSpecificationName() {
     return _specificationName;
   }
@@ -95,7 +93,6 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     _definition = volSurfaceDefinitionSource.getDefinition(_surfaceCurrency, _definitionName);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _specification = volatilitySurfaceSpecificationSource.getSpecification(_surfaceCurrency, _specificationName);
-    _interpolator = _definition.getInterpolatorName();
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
         createValueProperties().with(PROPERTY_SURFACE_DEFINITION_NAME, _definitionName).get());
     _results = Collections.singleton(_result);
@@ -109,13 +106,15 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
                                                         final VolatilitySurfaceDefinition<X, Y> definition,
-                                                        final FunctionCompilationContext context) {
+                                                        final FunctionCompilationContext context,
+                                                        final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (X x : definition.getXs()) {
+    for (final X x : definition.getXs()) {
       // don't care what these are
-      for (Y y : definition.getYs()) {
-        Identifier identifier = ((SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider()).getInstrument(x, y);
-        result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, identifier));
+      for (final Y y : definition.getYs()) {
+        final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
+        final Identifier identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
+        result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }
     }
     return result;
@@ -124,8 +123,8 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, context));
-    // ENG-252 see MarkingInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, context, atInstant));
+    //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
       @Override
@@ -162,17 +161,20 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
+        final Clock snapshotClock = executionContext.getSnapshotClock();
+        final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
-            Identifier identifier = ((SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider()).getInstrument(x, y);
-            ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, identifier);
-            Double volatility = (Double) inputs.getValue(requirement);
+            final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
+            final Identifier identifier = provider.getInstrument(x, y, now.toLocalDate());
+            final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+            final Double volatility = (Double) inputs.getValue(requirement);
             volatilityValues.put(Pair.of(x, y), volatility);
           }
         }
-        final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(), 
-                                                                                                     _definition.getCurrency(), _definition.getInterpolatorName(), 
+        final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
+                                                                                                     _definition.getCurrency(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
