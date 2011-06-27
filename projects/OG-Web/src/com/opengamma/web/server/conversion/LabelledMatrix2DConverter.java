@@ -6,7 +6,6 @@
 package com.opengamma.web.server.conversion;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
@@ -21,37 +20,6 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
-<<<<<<< HEAD
-    int length = value.getYKeys().length;
-    int width = value.getXKeys().length;
-    result.put("summary", length * width);
-    
-    String tabs = "\t\t\t\t\t";
-    if (mode == ConversionMode.FULL) {
-      Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
-      for (int i = 0; i < length; i++) {
-        Object label;
-        String currentValue = "";
-        if (i == 0) {
-          label = "";
-          for (int j = 0; j < width; j++) {
-            currentValue += Double.toString(((double) (Math.round((Double) value.getXKeys()[j] * 10))) / 10.);
-            currentValue += tabs;
-          }
-          Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
-          labelledValues.put(currentLabel, currentValue);
-        } 
-        currentValue = "";
-        label = Double.toString(((double) (Math.round((Double) value.getYKeys()[i] * 10))) / 10.);
-        for (int j = 0; j < width; j++) {
-          currentValue += context.getDoubleConverter().convertForDisplay(context, valueSpec, value.getValues()[i][j], mode);
-          currentValue += tabs;        
-        }
-        Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
-        labelledValues.put(currentLabel, currentValue);
-      }
-      result.put("full", labelledValues);
-=======
     int rowCount = value.getYKeys().length;
     int columnCount = value.getXKeys().length;
     Map<String, Object> summary = new HashMap<String, Object>();
@@ -71,7 +39,6 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
       }
       result.put("y", yLabels);
       result.put("matrix", value.getValues());
->>>>>>> master
     }
     return result;
 //    Map<String, Object> result = new HashMap<String, Object>();
