@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.capfloor;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -72,7 +72,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
+          "Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floors");
     }
     return tenor;
   }
