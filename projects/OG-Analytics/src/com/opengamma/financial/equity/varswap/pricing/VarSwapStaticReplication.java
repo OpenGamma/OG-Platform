@@ -9,14 +9,13 @@ import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.BlackOption;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.tuple.DoublesPair;
 
 import org.apache.commons.lang.Validate;
@@ -35,6 +34,14 @@ public class VarSwapStaticReplication {
   private final Double _strikeCutoff; // Lowest interpolated strike. ShiftedLognormal hits Put(_strikeCutoff)
   private final Double _strikeSpread; // Match derivative near cutoff by also fitting to Put(_strikeCutoff + _strikeSpread)
   private final boolean _cutoffProvided; // False if both the above are null 
+
+  // ShiftedLognormal Fitting Parameters 
+  // TODO Add these to constructor. Is it better to form bundles for these and add those to constructor? Guess it depends on whether it's reusable
+  private final double _relativeTolerance = 1.0E-6;
+  private final double _absoluteTolerance = 1.0E-6;
+  private final int _maxSteps = 10000;
+  private final double _guessVol = 0.5;
+  private final double _guessShift = 0.5;
 
   // Integration parameters
   private final double _lowerBound; // Integrate over strikes in 'moneyness' or 'relative strike', defined as strike/forward. Start close to zero
@@ -70,52 +77,6 @@ public class VarSwapStaticReplication {
 
   }
 
-  // ************************** Black *****************
-  // * TODO Review where a Black(fwd,strike,variance,isCall) function might live
-  // * I've rewritten the Black function instead of using BlackPriceFunction as that was based on an 'option'
-  // * where my usage here is simply to create a Function1D:  k -> price. 
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-
-  private static final double black(double fwd, double strike, double variance, boolean isCall) {
-
-    final double small = 1.0E-16;
-
-    if (strike < small) {
-      return isCall ? fwd : 0.0;
-    }
-    final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = Math.sqrt(variance);
-    if (Math.abs(fwd - strike) < small) {
-      return fwd * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
-    }
-    if (sigmaRootT < small) {
-      return Math.max(sign * (fwd - strike), 0.0);
-    }
-    final double d1 = (Math.log(fwd / strike) + 0.5 * variance) / sigmaRootT;
-    final double d2 = d1 - sigmaRootT;
-
-    return sign * (fwd * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
-  }
-
-  private static final double blackStrikeSensitivity(double fwd, double strike, double variance, boolean isCall) {
-
-    final double small = 1.0E-16;
-
-    if (strike < small) {
-      Validate.isTrue(false); //return isCall ? fwd : 0.0;
-    }
-    final int sign = isCall ? 1 : -1;
-    final double sigmaRootT = Math.sqrt(variance);
-    if (Math.abs(fwd - strike) < small) {
-      return -sign * NORMAL.getCDF(sign * 0.5 * sigmaRootT);
-    }
-    if (sigmaRootT < small) {
-      return sign;
-    }
-    final double d2 = (Math.log(fwd / strike) - 0.5 * variance) / sigmaRootT;
-    return -sign * NORMAL.getCDF(sign * d2);
-  }
-
   /**
    * @param deriv VarianceSwap derivative to be priced
    * @param market VarianceSwapDataBundle containing volatility surface, spot underlying, and funding curve
@@ -125,9 +86,9 @@ public class VarSwapStaticReplication {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
-    // 1. Unpack market data
+    // 1. Unpack Market data
     // TODO Review whether fwd=spot/df is sufficient, or whether the fwd itself should be in the VarianceSwapDataBundle
-    final double expiry = deriv.getTimeToObsEnd(); // TODO Confirm treatmen t of which date should be used, obsEnd or settlement
+    final double expiry = deriv.getTimeToObsEnd(); // TODO Confirm treatment of which date should be used, obsEnd or settlement
     final double df = market.getDiscountCurve().getDiscountFactor(expiry);
     final double spot = market.getSpotUnderlying();
     final double fwd = spot / df;
@@ -136,23 +97,23 @@ public class VarSwapStaticReplication {
 
     // *********************************************************
     // 1B. Fit the leftExtrapolator
-    // TODO Cover the case in which a spread point isn't given
-    // TODO Test what happens when a cutoff IS given but the vol is ConstantDoublesSurface
 
-    final DoubleMatrix1D shiftedLnParams; // Two entries, Lognormal Variance and Forward Shift parameters, respectively
+    final DoubleMatrix1D shiftedLnParams;
+    // TODO Change this to VolShift, ie from Var to Vol
+    // Two entries, Lognormal Variance and Forward Shift parameters, respectively
 
     // Targets
     if (_cutoffProvided) {
 
-      final DoublesPair cutoffCoords = DoublesPair.of(expiry, _strikeCutoff * fwd + 0.0); // TODO Review
+      final DoublesPair cutoffCoords = DoublesPair.of(expiry, _strikeCutoff * fwd + 0.0);
       final double cutoffVol = vsurf.getVolatility(cutoffCoords);
       final double cutoffVar = cutoffVol * cutoffVol * expiry;
-      final double cutoffPut = black(fwd, _strikeCutoff * fwd, cutoffVar, false);
+      final double cutoffPutPrice = new BlackOption(fwd, _strikeCutoff * fwd, expiry, cutoffVol, null, _strikeCutoff > 1).getPrice();
 
       final DoublesPair spreadCoords = DoublesPair.of(expiry, (_strikeCutoff + _strikeSpread) * fwd);
       final double spreadVol = vsurf.getVolatility(spreadCoords);
-      double spreadVar = spreadVol * spreadVol * expiry;
-      final double spreadPut = black(fwd, (_strikeCutoff + _strikeSpread) * fwd, spreadVar, false);
+      final boolean secondTargetIsCall = _strikeCutoff + _strikeSpread > 1;
+      final double spreadPutPrice = new BlackOption(fwd, (_strikeCutoff + _strikeSpread) * fwd, expiry, spreadVol, null, secondTargetIsCall).getPrice();
 
       // Function
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> fitShiftedLognormal = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
@@ -162,16 +123,16 @@ public class VarSwapStaticReplication {
           double variance = Math.max(1e-9, varianceShiftPair.getEntry(0));
           double shift = varianceShiftPair.getEntry(1);
 
-          diffs[0] = cutoffPut - black(fwd + shift, _strikeCutoff * fwd + shift, variance, false);
-          diffs[1] = spreadPut - black(fwd + shift, (_strikeCutoff + _strikeSpread) * fwd + shift, variance, false);
-          //          System.err.println(varianceShiftPair.getEntry(0) + "\t" + varianceShiftPair.getEntry(1) + "\t" + diffs[0] + "\t" + diffs[1]);
+          diffs[0] = cutoffPutPrice - new BlackOption(fwd + shift, _strikeCutoff * fwd + shift, expiry, Math.sqrt(variance / expiry), null, false).getPrice();
+          diffs[1] = spreadPutPrice - new BlackOption(fwd + shift, (_strikeCutoff + _strikeSpread) * fwd + shift, expiry, Math.sqrt(variance / expiry), null, false).getPrice();
+
+          // System.err.println(varianceShiftPair.getEntry(0) + "\t" + varianceShiftPair.getEntry(1) + "\t" + diffs[0] + "\t" + diffs[1]);
           return new DoubleMatrix1D(diffs);
         }
       };
-      // 
 
-      final BroydenVectorRootFinder solver = new BroydenVectorRootFinder(1E-6, 1E-6, 10000); // TODO PASS ARGS AS CONTOL PARAMS !!!
-      DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {0.5 * cutoffVar, 0.5 * fwd }); // Start with the Lognormal that hits the cutoff price // TODO SET TO REASONABLE VALS
+      final BroydenVectorRootFinder solver = new BroydenVectorRootFinder(_relativeTolerance, _absoluteTolerance, _maxSteps);
+      DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {_guessVol * cutoffVar, _guessShift * fwd });
       try {
         //        System.err.println("Variance" + "\t" + "Shift" + "\t" + "diffCutoff" + "\t" + "diffSpread");
         shiftedLnParams = solver.getRoot(fitShiftedLognormal, guess);
@@ -189,16 +150,17 @@ public class VarSwapStaticReplication {
         throw new RuntimeException(e);
       }
 
-      // TEST 888888888888 REMOVE ME
-      double zeroStrikePut = black(fwd + shiftedLnParams.getEntry(1), 0.0 + shiftedLnParams.getEntry(1), shiftedLnParams.getEntry(0), false);
-      //      System.err.println("Price of zero strike put: " + zeroStrikePut);
+      // ----------------------- TESTING ------------------------------
+      double zeroStrikePut = new BlackOption(fwd + shiftedLnParams.getEntry(1), 0.0 + shiftedLnParams.getEntry(1), expiry, Math.sqrt(shiftedLnParams.getEntry(0) / expiry), null, false).getPrice();
+      System.err.println("Price of zero strike put: " + zeroStrikePut);
+      // --------------------------------------------------------------
 
     } else {
       shiftedLnParams = null;
     }
 
     // *********************************************************    
-    // 2. Define integrand, the position to hold in each otmOption(k) = 2 / strike^2, where otmOption is a call if k>fwd and a put otherwise
+    // 2. Define Portfolio, the position to hold in each otmOption(k) = 2 / strike^2, where otmOption is a call if k>fwd and a put otherwise
     //    Note:  strike space is parameterised wrt the forward, moneyness := strike/fwd i.e. atm moneyness=1
     final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
       @Override
@@ -209,27 +171,27 @@ public class VarSwapStaticReplication {
 
         final double weight = 2 / (fwd * moneyness * moneyness);
         double otmPrice;
-        double itmPrice;
 
         if (_cutoffProvided && moneyness < _strikeCutoff) { // Extrapolate with ShiftedLognormal
-          otmPrice = black(fwd + shiftedLnParams.getEntry(1), moneyness * fwd + shiftedLnParams.getEntry(1), shiftedLnParams.getEntry(0), isCall);
+          otmPrice = new BlackOption(fwd + shiftedLnParams.getEntry(1), moneyness * fwd + shiftedLnParams.getEntry(1), expiry, Math.sqrt(shiftedLnParams.getEntry(0) / expiry), null, isCall)
+                            .getPrice();
         } else {
           DoublesPair coord = DoublesPair.of(expiry, strike);
           double vol = vsurf.getVolatility(coord);
-          otmPrice = black(fwd, moneyness * fwd, vol * vol * expiry, isCall);
+          otmPrice = new BlackOption(fwd, moneyness * fwd, expiry, vol, null, isCall).getPrice();
         }
+        // ----------------------- TESTING ------------------------------
 
-        final double anotherVol = 0.25; // !!! Why do I have to input a vol?!?
-        final BlackFunctionData blackData = new BlackFunctionData(fwd, 1.0, anotherVol);
-        final EuropeanVanillaOption blackDataRest = new EuropeanVanillaOption(strike, expiry, isCall);
-        final BlackImpliedVolatilityFormula theFormulaItself = new BlackImpliedVolatilityFormula();
         try {
-          double impVol = theFormulaItself.getImpliedVolatility(blackData, blackDataRest, otmPrice);
+          final BlackFunctionData blackData = new BlackFunctionData(fwd, 1.0, 0.0);
+          final EuropeanVanillaOption blackOption = new EuropeanVanillaOption(strike, expiry, isCall);
+          double impVol = new BlackImpliedVolatilityFormula().getImpliedVolatility(blackData, blackOption, otmPrice);
           System.err.println(strike + "," + impVol + "," + otmPrice * weight);
         } catch (com.opengamma.math.MathException e) {
           System.err.println("VarSwapStaticReplication.impliedVariance failed to compute an ImpliedVolatility with relative strike = " + moneyness
               + ". Message: " + e.getMessage());
         }
+        // --------------------------------------------------------------
 
         return otmPrice * weight;
       }
