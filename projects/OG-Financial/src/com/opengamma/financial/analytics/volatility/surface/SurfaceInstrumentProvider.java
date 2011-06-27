@@ -16,6 +16,8 @@ import com.opengamma.id.Identifier;
  */
 public interface SurfaceInstrumentProvider<X, Y> {
 
+  //TODO in general, each instrument type will need a different set of inputs - not sure how helpful this class actually is
+
   Identifier getInstrument(X xAxis, Y yAxis);
 
   Identifier getInstrument(X xAxis, Y yAxis, LocalDate surfaceDate);
