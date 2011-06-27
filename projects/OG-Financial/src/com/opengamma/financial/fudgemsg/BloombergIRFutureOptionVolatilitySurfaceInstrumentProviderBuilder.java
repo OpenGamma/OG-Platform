@@ -26,13 +26,17 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderBuilder i
     FudgeSerializationContext.addClassHeader(message, BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider.class);
     message.add("futureOptionPrefix", object.getFutureOptionPrefix());
     message.add("postfix", object.getPostfix());
+    message.add("dataFieldName", object.getDataFieldName());
+    message.add("useCallAboveStrikeValue", object.useCallAboveStrike());
     return message;
   }
 
   @Override
   public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     return new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(message.getString("futureOptionPrefix"),
-                                                                          message.getString("postfix"));
+                                                                          message.getString("postfix"),
+                                                                          message.getString("dataFieldName"),
+                                                                          Double.parseDouble(message.getString("useCallAboveStrikeValue")));
   }
 
 }

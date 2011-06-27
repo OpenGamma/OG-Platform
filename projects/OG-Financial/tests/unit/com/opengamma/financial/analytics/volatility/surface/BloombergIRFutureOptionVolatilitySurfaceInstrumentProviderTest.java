@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.LocalDate;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
 
@@ -18,15 +20,17 @@ import com.opengamma.id.Identifier;
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final String PREFIX = "ED";
   private static final String POSTFIX = "Comdty";
-  private static final LocalDate DATE = LocalDate.of(1, 7, 2011);
+  private static final LocalDate DATE = LocalDate.of(2011, 7, 1);
   private static final Integer[] NUMBERS = new Integer[] {1, 7, 10};
   private static final Double[] STRIKES = new Double[] {96., 97.25, 98.5, 99.75};
-  private static final String[][] RESULTS = new String[][] {new String[] {"EDU1 96C Comdty", "EDU1 97.25C Comdty", "EDU1 98.5C Comdty", "EDU1 99.75C Comdty"},
-                                                            new String[] {"EDH3 96C Comdty", "EDH3 97.25C Comdty", "EDH3 98.5C Comdty", "EDH3 99.75C Comdty"},
-                                                            new String[] {"EDZ3 96C Comdty", "EDZ3 97.25C Comdty", "EDZ3 98.5C Comdty", "EDZ3 99.75C Comdty"}};
-  private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX);
+  private static final Boolean[] USE_CALL = new Boolean[] {false, false, true, true};
+  private static final String DATA_FIELD_NAME = "OPT_IMPLIED_VOLATILITY";
+  private static final String[][] RESULTS = new String[][] {new String[] {"EDU1P 96.000 Comdty", "EDU1P 97.250 Comdty", "EDU1C 98.500 Comdty", "EDU1C 99.750 Comdty"},
+                                                            new String[] {"EDH3P 96.000 Comdty", "EDH3P 97.250 Comdty", "EDH3C 98.500 Comdty", "EDH3C 99.750 Comdty"},
+                                                            new String[] {"EDZ3P 96.000 Comdty", "EDZ3P 97.250 Comdty", "EDZ3C 98.500 Comdty", "EDZ3C 99.750 Comdty"}};
+  private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 97.625);
 
-  //@Test
+  @Test
   public void test() {
     for (int i = 0; i < NUMBERS.length; i++) {
       for (int j = 0; j < STRIKES.length; j++) {

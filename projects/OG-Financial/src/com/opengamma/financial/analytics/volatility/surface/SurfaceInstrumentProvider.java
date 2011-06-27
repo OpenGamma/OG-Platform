@@ -19,4 +19,6 @@ public interface SurfaceInstrumentProvider<X, Y> {
   Identifier getInstrument(X xAxis, Y yAxis);
 
   Identifier getInstrument(X xAxis, Y yAxis, LocalDate surfaceDate);
+
+  String getDataFieldName();
 }

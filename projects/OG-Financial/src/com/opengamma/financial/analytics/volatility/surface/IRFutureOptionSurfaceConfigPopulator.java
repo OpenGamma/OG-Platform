@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -55,7 +56,8 @@ public class IRFutureOptionSurfaceConfigPopulator {
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
-    final SurfaceInstrumentProvider<Integer, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty");
+    final SurfaceInstrumentProvider<Integer, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }

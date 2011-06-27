@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -23,9 +24,15 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   private String _postfix;
   private boolean _zeroPadFirstTenor;
   private boolean _zeroPadSecondTenor;
+  private String _dataFieldName; // expecting MarketDataRequirementNames.MARKET_VALUE or PX_LAST
 
   public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadFirstTenor, final boolean zeroPadSecondTenor,
       final String postfix) {
+    this(countryPrefix, typePrefix, zeroPadFirstTenor, zeroPadSecondTenor, postfix, MarketDataRequirementNames.MARKET_VALUE);
+  }
+
+  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadFirstTenor, final boolean zeroPadSecondTenor,
+      final String postfix, final String dataFieldName) {
     Validate.notNull(countryPrefix);
     Validate.notNull(typePrefix);
     Validate.notNull(postfix);
@@ -34,6 +41,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     _zeroPadFirstTenor = zeroPadFirstTenor;
     _zeroPadSecondTenor = zeroPadSecondTenor;
     _postfix = postfix;
+    _dataFieldName = dataFieldName;
   }
 
   @Override
@@ -44,6 +52,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(tenorToCode(startTenor, _zeroPadFirstTenor));
     ticker.append(tenorToCode(maturity, _zeroPadSecondTenor));
     ticker.append(_postfix);
+    ticker.append(_dataFieldName);
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker.toString());
   }
 
@@ -117,6 +126,14 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     return _zeroPadSecondTenor;
   }
 
+  /**
+   * @return The data field name - should be PX_LAST
+   */
+  @Override
+  public String getDataFieldName() {
+    return _dataFieldName;
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o == null) {
@@ -131,11 +148,12 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
            getPostfix().equals(other.getPostfix()) &&
            getTypePrefix().equals(other.getTypePrefix()) &&
            isZeroPadFirstTenor() == other.isZeroPadFirstTenor() &&
-           isZeroPadSecondTenor() == other.isZeroPadSecondTenor();
+           isZeroPadSecondTenor() == other.isZeroPadSecondTenor() &&
+           getDataFieldName().equals(other.getDataFieldName());
   }
 
   @Override
   public int hashCode() {
-    return getCountryPrefix().hashCode() + getTypePrefix().hashCode() + getPostfix().hashCode();
+    return getCountryPrefix().hashCode() + getTypePrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
   }
 }
