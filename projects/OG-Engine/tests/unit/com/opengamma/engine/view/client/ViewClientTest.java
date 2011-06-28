@@ -16,16 +16,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.livedata.AbstractLiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
@@ -63,7 +71,7 @@ public class ViewClientTest {
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client1.getUniqueId());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     ViewProcessImpl client1Process = env.getViewProcess(vp, client1.getUniqueId());
     assertTrue(client1Process.getState() == ViewProcessState.RUNNING);
     
@@ -71,7 +79,7 @@ public class ViewClientTest {
     assertNotNull(client2.getUniqueId());
     assertFalse(client1.getUniqueId().equals(client2.getUniqueId()));
     
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     ViewProcessImpl client2Process = env.getViewProcess(vp, client2.getUniqueId());
     assertEquals(client1Process, client2Process);
     assertTrue(client2Process.getState() == ViewProcessState.RUNNING);
@@ -94,10 +102,10 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewProcessImpl view = env.getViewProcess(vp, client1.getUniqueId());
     
@@ -117,10 +125,10 @@ public class ViewClientTest {
   @Test
   public void testComputationResultsFlow() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setProviders(snapshotProvider, snapshotProvider);
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(env.getPrimitive1(), 0);
+    marketDataProvider.addValue(env.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -134,12 +142,12 @@ public class ViewClientTest {
     // Client not attached - should not have been listening to anything that might have been going on
     assertEquals(0, resultListener.getQueueSize());
 
-    snapshotProvider.addValue(env.getPrimitive1(), 1);
-    snapshotProvider.addValue(env.getPrimitive2(), 2);
+    marketDataProvider.addValue(env.getPrimitive1(), 1);
+    marketDataProvider.addValue(env.getPrimitive2(), 2);
     
     assertEquals(0, resultListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
@@ -156,10 +164,10 @@ public class ViewClientTest {
     
     client.pause();
     
-    snapshotProvider.addValue(env.getPrimitive1(), 3);
-    snapshotProvider.addValue(env.getPrimitive2(), 4);
+    marketDataProvider.addValue(env.getPrimitive1(), 3);
+    marketDataProvider.addValue(env.getPrimitive2(), 4);
     
-    env.getCurrentComputationJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).marketDataChanged();  // Need to get it to perform another cycle
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -173,10 +181,10 @@ public class ViewClientTest {
   @Test
   public void testDeltaResults() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setProviders(snapshotProvider, snapshotProvider);
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(env.getPrimitive1(), 0);
+    marketDataProvider.addValue(env.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -191,12 +199,12 @@ public class ViewClientTest {
     // Client not attached - should not have been listening to anything that might have been going on
     assertEquals(0, resultListener.getQueueSize());
     
-    snapshotProvider.addValue(env.getPrimitive1(), 1);
-    snapshotProvider.addValue(env.getPrimitive2(), 2);
+    marketDataProvider.addValue(env.getPrimitive1(), 1);
+    marketDataProvider.addValue(env.getPrimitive2(), 2);
     
     assertEquals(0, resultListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewDeltaResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
@@ -209,11 +217,11 @@ public class ViewClientTest {
     client.pause();
     
     // Just update one live data value, and only this one value should end up in the delta
-    snapshotProvider.addValue(env.getPrimitive1(), 3);
+    marketDataProvider.addValue(env.getPrimitive1(), 3);
     
     assertEquals(0, resultListener.getQueueSize());
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    env.getCurrentComputationJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).marketDataChanged();  // Need to get it to perform another cycle
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -227,10 +235,10 @@ public class ViewClientTest {
   @Test
   public void testStates() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setProviders(snapshotProvider, snapshotProvider);
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(env.getPrimitive1(), 0);
+    marketDataProvider.addValue(env.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -242,7 +250,7 @@ public class ViewClientTest {
     
     assertEquals(0, client1ResultListener.getQueueSize());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     // Wait for first computation cycle
     client1ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -253,7 +261,7 @@ public class ViewClientTest {
     client2.setResultListener(client2ResultListener);
     
     assertEquals(0, client2ResultListener.getQueueSize());
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     // Initial result should be pushed through
     client2ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -267,14 +275,14 @@ public class ViewClientTest {
     client1ResultListener.assertNoCalls(TIMEOUT);
     
     // Now client 1 is paused, so any changes should be batched.
-    snapshotProvider.addValue(env.getPrimitive1(), 1);
-    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive1(), 1);
+    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
     
-    snapshotProvider.addValue(env.getPrimitive1(), 2);
-    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive1(), 2);
+    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -289,8 +297,8 @@ public class ViewClientTest {
     assertComputationResult(expected, env.getCalculationResult(result2));
     
     // Changes should now propagate straight away to both listeners
-    snapshotProvider.addValue(env.getPrimitive1(), 3);
-    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive1(), 3);
+    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     ViewComputationResultModel result3 = client1ResultListener.getCycleCompleted(TIMEOUT).getFullResult();
     expected = new HashMap<ValueRequirement, Object>();
@@ -303,14 +311,14 @@ public class ViewClientTest {
     client2ResultListener.assertNoCalls(TIMEOUT);
     client1ResultListener.assertNoCalls(TIMEOUT);
 
-    snapshotProvider.addValue(env.getPrimitive2(), 1);
-    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive2(), 1);
+    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
 
-    snapshotProvider.addValue(env.getPrimitive2(), 2);
-    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive2(), 2);
+    env.getCurrentComputationJob(viewProcess1).marketDataChanged();
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -342,7 +350,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewProcess viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -356,10 +364,10 @@ public class ViewClientTest {
   @Test
   public void testChangeOfListeners() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setProviders(snapshotProvider, snapshotProvider);
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(env.getPrimitive1(), 0);
+    marketDataProvider.addValue(env.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -371,9 +379,9 @@ public class ViewClientTest {
     client.setResultListener(resultListener1);
     
     // Start live computation and collect the initial result
-    snapshotProvider.addValue(env.getPrimitive1(), 2);
+    marketDataProvider.addValue(env.getPrimitive1(), 2);
 
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
     
@@ -383,8 +391,8 @@ public class ViewClientTest {
     assertEquals(0, resultListener1.getQueueSize());
     
     // Push through a second result
-    snapshotProvider.addValue(env.getPrimitive1(), 3);
-    recalcJob.liveDataChanged();
+    marketDataProvider.addValue(env.getPrimitive1(), 3);
+    recalcJob.marketDataChanged();
     resultListener1.assertCycleCompleted(TIMEOUT);
     assertEquals(0, resultListener1.getQueueSize());
 
@@ -393,7 +401,7 @@ public class ViewClientTest {
     client.setResultListener(resultListener2);
 
     // Push through a result which should arrive at the new listeners
-    recalcJob.liveDataChanged();
+    recalcJob.marketDataChanged();
     resultListener2.assertCycleCompleted(TIMEOUT);
     assertEquals(0, resultListener1.getQueueSize());
     assertEquals(0, resultListener2.getQueueSize());
@@ -408,10 +416,10 @@ public class ViewClientTest {
   @Test
   public void testOldRecalculationThreadDies() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setProviders(snapshotProvider, snapshotProvider);
+    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    marketDataProvider.addValue(env.getPrimitive1(), 0);
+    marketDataProvider.addValue(env.getPrimitive2(), 0);
+    env.setMarketDataProvider(marketDataProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -419,7 +427,7 @@ public class ViewClientTest {
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
     
     ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
@@ -428,7 +436,7 @@ public class ViewClientTest {
     assertTrue(recalcThread1.isAlive());
     
     client.detachFromViewProcess();
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
     Thread recalcThread2 = env.getCurrentComputationThread(viewProcess2);
@@ -467,57 +475,59 @@ public class ViewClientTest {
    * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to
    * lag behind if accessed from a different thread immediately after a change.
    */
-  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements LiveDataInjector, 
-      LiveDataAvailabilityProvider {
+  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector, 
+      MarketDataAvailabilityProvider {
     
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
     
     private final Map<ValueRequirement, Object> _lastKnownValues = new HashMap<ValueRequirement, Object>();
-    private final Map<Long, Map<ValueRequirement, Object>> _snapshots = new ConcurrentHashMap<Long, Map<ValueRequirement, Object>>();
+    private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
     @Override
-    public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
-      addSubscription(user, Collections.singleton(valueRequirement));
+    public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+      subscribe(user, Collections.singleton(valueRequirement));
     }
 
     @Override
-    public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
       // No actual subscription to make, but we still need to acknowledge it.
       subscriptionSucceeded(valueRequirements);
     }
-
+    
     @Override
-    public Object querySnapshot(long snapshot, ValueRequirement requirement) {
-      Map<ValueRequirement, Object> snapshotValues;
-      snapshotValues = _snapshots.get(snapshot);
-      if (snapshotValues == null) {
-        return null;
-      }
-      Object value = snapshotValues.get(requirement);
-      return value;
+    public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
     }
 
     @Override
-    public long snapshot() {
-      long snapshotTime = System.currentTimeMillis();
-      snapshot(snapshotTime);
-      return snapshotTime;
+    public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public MarketDataAvailabilityProvider getAvailabilityProvider() {
+      return this;
     }
 
     @Override
-    public long snapshot(long snapshotTime) {
+    public MarketDataPermissionProvider getPermissionProvider() {
+      return _permissionProvider;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
+      return false;
+    }
+    
+    @Override
+    public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
       synchronized (_lastKnownValues) {
         Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
-        _snapshots.put(snapshotTime, snapshotValues);
+        return new SynchronousInMemoryLKVSnapshot(snapshotValues);
       }
-      return snapshotTime;
     }
 
-    @Override
-    public void releaseSnapshot(long snapshot) {
-      _snapshots.remove(snapshot);
-    }
-
+    //-----------------------------------------------------------------------
     @Override
     public void addValue(ValueRequirement requirement, Object value) {
       s_logger.debug("Setting {} = {}", requirement, value);
@@ -543,6 +553,7 @@ public class ViewClientTest {
     public void removeValue(Identifier identifier, String valueName) {
     }
 
+    //-----------------------------------------------------------------------
     @Override
     public boolean isAvailable(ValueRequirement requirement) {
       synchronized (_lastKnownValues) {
@@ -550,6 +561,49 @@ public class ViewClientTest {
       }
     }
 
+  }
+  
+  private static class SynchronousInMemoryLKVSnapshot implements MarketDataSnapshot {
+
+    private final Map<ValueRequirement, Object> _snapshot;
+    
+    public SynchronousInMemoryLKVSnapshot(Map<ValueRequirement, Object> snapshot) {
+      _snapshot = snapshot;
+    }
+    
+    @Override
+    public Instant getSnapshotTimeIndication() {
+      return null;
+    }
+
+    @Override
+    public void init() {
+    }
+    
+    @Override
+    public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
+    }
+
+    @Override
+    public Instant getSnapshotTime() {
+      return null;
+    }
+
+    @Override
+    public boolean hasStructuredData() {
+      return false;
+    }
+
+    @Override
+    public Object query(ValueRequirement requirement) {
+      return _snapshot.get(requirement);
+    }
+
+    @Override
+    public Object query(StructuredMarketDataKey marketDataKey) {
+      return null;
+    }
+    
   }
   
 }

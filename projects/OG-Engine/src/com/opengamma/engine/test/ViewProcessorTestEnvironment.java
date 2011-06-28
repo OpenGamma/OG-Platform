@@ -11,9 +11,6 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -29,9 +26,9 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.MapViewDefinitionRepository;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -55,11 +52,9 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
-import com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory;
+import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
@@ -78,13 +73,11 @@ public class ViewProcessorTestEnvironment {
   public static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
 
   // Settings
-  private LiveDataSnapshotProvider _snapshotProvider;
-  private LiveDataAvailabilityProvider _availabilityProvider;
+  private MarketDataProvider _marketDataProvider;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private FunctionExecutionContext _functionExecutionContext;
   private FunctionCompilationContext _functionCompilationContext;
-  private LiveDataClient _liveDataClient;
   private ViewDefinition _viewDefinition;
   private FunctionRepository _functionRepository;
   private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
@@ -123,20 +116,14 @@ public class ViewProcessorTestEnvironment {
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
-    LiveDataClient liveDataClient = getLiveDataClient() != null ? getLiveDataClient() : generateLiveDataClient();
-    vpFactBean.setLiveDataClient(liveDataClient);
-
-    if (getSnapshotProvider() == null) {
-      generateProviders(securitySource);
-    }
-    vpFactBean.setLiveDataSnapshotProvider(getSnapshotProvider());
-    vpFactBean.setLiveDataAvailabilityProvider(getAvailabilityProvider());
+    MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
+    vpFactBean.setMarketDataProviderResolver(new SingleMarketDataProviderResolver(marketDataProvider));
 
     vpFactBean.setPositionSource(positionSource);
     vpFactBean.setSecuritySource(securitySource);
     vpFactBean.setComputationTargetResolver(generateCachingComputationTargetResolver(positionSource, securitySource));
     vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
-    vpFactBean.setViewPermissionProviderFactory(new DefaultViewPermissionProviderFactory());
+    vpFactBean.setViewPermissionProviderFactory(new DefaultViewPermissionProvider());
     _viewDefinitionRepository = viewDefinitionRepository;
 
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();
@@ -155,39 +142,23 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
     
-    vpFactBean.setMarketDataSnapshotSource(new MarketDataSnapshotSource() {
-      
-      @Override
-      public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
-        return null;
-      }
-
-      @Override
-      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-
-      @Override
-      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-    });
-    
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
   
-  public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(Instant instant) {
+  public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(Instant valuationTime) {
     if (getViewProcessor() == null) {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
     
     ViewCompilationServices compilationServices = new ViewCompilationServices(
-        getAvailabilityProvider(),
+        getMarketDataProvider().getAvailabilityProvider(),
         getFunctionResolver(),
         getFunctionCompilationContext(),
         getCachingComputationTargetResolver(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
         getSecuritySource(),
         getPositionSource());
-    return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, instant);
+    return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime);
   }
 
   // Environment
@@ -211,26 +182,21 @@ public class ViewProcessorTestEnvironment {
     return testDefinition;
   }
   
-  public LiveDataSnapshotProvider getSnapshotProvider() {
-    return _snapshotProvider;
-  }
-  
-  public LiveDataAvailabilityProvider getAvailabilityProvider() {
-    return _availabilityProvider;
+  public MarketDataProvider getMarketDataProvider() {
+    return _marketDataProvider;
   }
 
-  public void setProviders(LiveDataSnapshotProvider liveDataSnapshotProvider, LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
-    _snapshotProvider = liveDataSnapshotProvider;
-    _availabilityProvider = liveDataAvailabilityProvider;
+  public void setMarketDataProvider(MarketDataProvider marketDataProvider) {
+    ArgumentChecker.notNull(marketDataProvider, "marketDataProvider");
+    _marketDataProvider = marketDataProvider;
   }
   
-  private void generateProviders(SecuritySource securitySource) {
-    InMemoryLKVSnapshotProvider provider = new InMemoryLKVSnapshotProvider(securitySource);
+  private MarketDataProvider generateMarketDataProvider(SecuritySource securitySource) {
+    InMemoryLKVMarketDataProvider provider = new InMemoryLKVMarketDataProvider(securitySource);
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
-    setProviders(provider, provider);
+    setMarketDataProvider(provider);
+    return provider;
   }
   
   public FunctionRepository getFunctionRepository() {
@@ -316,20 +282,6 @@ public class ViewProcessorTestEnvironment {
     functionCompilationContext.setSecuritySource(getSecuritySource());
     setFunctionCompilationContext(functionCompilationContext);
     return functionCompilationContext;
-  }
-  
-  public LiveDataClient getLiveDataClient() {
-    return _liveDataClient;
-  }
-  
-  public void setLiveDataClient(LiveDataClient liveDataClient) {
-    _liveDataClient = liveDataClient;
-  }
-  
-  private LiveDataClient generateLiveDataClient() {
-    LiveDataClient ldc = new TestLiveDataClient();
-    setLiveDataClient(ldc);
-    return ldc;
   }
 
   // Environment accessors

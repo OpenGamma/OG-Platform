@@ -127,9 +127,9 @@
   
   <!-- LiveData Snapshot/Availability Provider -->
   <import resource="liveData-${opengamma.platform.runmode}.xml" />
-  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.livedata.MockLiveDataAvailabilityProviderFactoryBean" />
+  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.marketdata.MockMarketDataAvailabilityProvider" />
    
-  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.livedata.MockLiveDataSnapshotProviderFactoryBean" />
+  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.marketdata.MockMarketDataProviderFactoryBean" />
     
   <bean id="testUser" class="com.opengamma.examples.server.MockUserFactoryBean" />  
   <!-- ViewDefinitionRepository -->
@@ -416,7 +416,7 @@
   </bean>
 
 	<!-- example data providers -->
-	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
-	<bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
+	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.marketdata.MockTimeSeriesLoader" />
+	<bean id="mockSecurityLoader" class="com.opengamma.examples.marketdata.MockSecurityLoader" />
 
 </beans>

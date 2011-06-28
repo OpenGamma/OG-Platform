@@ -51,10 +51,10 @@ public interface CompiledViewCalculationConfiguration {
   Set<ComputationTarget> getComputationTargets();
 
   /**
-   * Gets the live data requirements of the calculation configuration.
+   * Gets the market data requirements of the calculation configuration.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for live data, not null  
+   * @return a map from each stated value requirement to the resolved value specification for market data, not null  
    */
-  Map<ValueRequirement, ValueSpecification> getLiveDataRequirements();
+  Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
 
 }

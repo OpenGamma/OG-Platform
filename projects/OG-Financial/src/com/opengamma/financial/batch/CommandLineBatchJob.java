@@ -29,7 +29,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -137,7 +137,7 @@ public class CommandLineBatchJob {
    * Optional. If not given, you need to pre-populate the
    * batch DB with all necessary market data.   
    */
-  private HistoricalLiveDataSnapshotProvider _historicalSnapshotProvider;
+  private HistoricalMarketDataProvider _historicalSnapshotProvider;
   
   /**
    * This is used to determine the name of the property file from
@@ -303,11 +303,11 @@ public class CommandLineBatchJob {
     _holidayCurrency = holidayCurrency;
   }
   
-  public HistoricalLiveDataSnapshotProvider getHistoricalSnapshotProvider() {
+  public HistoricalMarketDataProvider getHistoricalSnapshotProvider() {
     return _historicalSnapshotProvider;
   }
 
-  public void setHistoricalSnapshotProvider(HistoricalLiveDataSnapshotProvider historicalSnapshotProvider) {
+  public void setHistoricalSnapshotProvider(HistoricalMarketDataProvider historicalSnapshotProvider) {
     _historicalSnapshotProvider = historicalSnapshotProvider;
   }
 

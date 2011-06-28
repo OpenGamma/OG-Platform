@@ -53,11 +53,11 @@ public interface CompiledViewDefinition {
   Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations();
   
   /**
-   * Gets the combined live data requirements of all calculation configurations.
+   * Gets the combined market data requirements of all calculation configurations.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for all live data, not null  
+   * @return a map from each stated value requirement to the resolved value specification for all market data, not null  
    */
-  Map<ValueRequirement, ValueSpecification> getLiveDataRequirements();
+  Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
   
   /**
    * Gets the combined computation targets across every calculation configuration.

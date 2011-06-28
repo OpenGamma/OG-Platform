@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.historicaldata.impl.MockHistoricalTimeSeriesSource;
-import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -46,7 +46,7 @@ public class BatchLiveDataSnapshotProviderTest {
     IdentifierBundle bundle = IdentifierBundle.of(identifier);
     historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
-    HistoricalLiveDataSnapshotProvider snapshotProvider = new HistoricalLiveDataSnapshotProvider(historicalSource, "BLOOMBERG", "CMPL", "PX_LAST");
+    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, "BLOOMBERG", "CMPL", "PX_LAST");
     
     BatchLiveDataSnapshotProvider provider = new BatchLiveDataSnapshotProvider(run,
         new DummyBatchMaster(),

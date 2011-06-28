@@ -27,9 +27,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.engine.ComputationTarget;
@@ -46,7 +43,10 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ComputedValue;
@@ -66,14 +66,11 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
-import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
-import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.Timeout;
@@ -116,8 +113,8 @@ public class CancelExecutionTest {
   }
 
   private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
-    final LiveDataEntitlementChecker liveDataEntitlementChecker = new PermissiveLiveDataEntitlementChecker();
-    final InMemoryLKVSnapshotProvider liveData = new InMemoryLKVSnapshotProvider();
+    final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
+    final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(marketDataProvider);
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
     _functionCount.set(0);
     final MockFunction mockFunction = new MockFunction(new ComputationTarget("Foo")) {
@@ -149,28 +146,12 @@ public class CancelExecutionTest {
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
         viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
-    final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider(securitySource, liveDataEntitlementChecker);
+    final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     
-    final MarketDataSnapshotSource marketDataSnapshotSource = new MarketDataSnapshotSource() {
-      
-      @Override
-      public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
-        return null;
-      }
-
-      @Override
-      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-
-      @Override
-      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-    };
-    
-    final ViewProcessContext vpc = new ViewProcessContext(viewPermissionProvider, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
+    final ViewProcessContext vpc = new ViewProcessContext(viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider, marketDataSnapshotSource);
+        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -187,12 +168,15 @@ public class CancelExecutionTest {
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions();
+    cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
+    cycleOptions.setMarketDataSnapshotSpecification(new MarketDataSnapshotSpecification());
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueIdentifier.of("Test", "Cycle1"),
         UniqueIdentifier.of("Test", "ViewProcess1"),
         vpc, 
         viewEvaluationModel, 
-        new ViewCycleExecutionOptions(Instant.ofEpochMillis(1)), ExecutionOptions.realTime());
+        cycleOptions);
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

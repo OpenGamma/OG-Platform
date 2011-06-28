@@ -34,7 +34,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -269,12 +269,12 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   }
 
   //-------------------------------------------------------------------------
-  public InMemoryLKVSnapshotProvider createSnapshotProvider() {
-    InMemoryLKVSnapshotProvider provider;
+  public InMemoryLKVMarketDataProvider createSnapshotProvider() {
+    InMemoryLKVMarketDataProvider provider;
     if (getJob().getHistoricalSnapshotProvider() != null) {
       provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalSnapshotProvider());
     } else {
-      provider = new InMemoryLKVSnapshotProvider();
+      provider = new InMemoryLKVMarketDataProvider();
     }
     
     // Initialize provider with values from batch DB
@@ -324,7 +324,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     // the engine API well at all. See [PLAT-1156]. 
     
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
-    InMemoryLKVSnapshotProvider snapshotProvider = createSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = createSnapshotProvider();
 
     VersionCorrection vc = VersionCorrection.of(getStaticDataTime(), getOriginalCreationTime());
     SecuritySource securitySource = getJob().getSecuritySource();

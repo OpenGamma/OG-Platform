@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.view;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,22 +21,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.RealTimeViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -67,7 +72,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     vp.stop();
   }
@@ -80,7 +85,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess("Something random", ExecutionOptions.realTime());
+    client.attachToViewProcess("Something random", ExecutionOptions.continuous(MarketData.live()));
   }
 
   @Test
@@ -98,7 +103,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }
@@ -124,7 +129,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }
@@ -146,7 +151,8 @@ public class ViewProcessorTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
     client.setResultListener(listener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.batch(new RealTimeViewCycleExecutionSequence()));
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), new ViewCycleExecutionOptions(MarketData.live()), ExecutionFlags.none().runAsFastAsPossible().get());
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
@@ -166,7 +172,7 @@ public class ViewProcessorTest {
     vp.start();
     
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10));
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     client.waitForCompletion();
     client.shutdown();
@@ -192,10 +198,15 @@ public class ViewProcessorTest {
           references.add(reference);
         }
       }
+
+      @Override
+      public UserPrincipal getUser() {
+        return UserPrincipal.getTestUser();
+      }
       
     };
     client.setResultListener(resultListener);
-    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10));
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
@@ -220,7 +231,7 @@ public class ViewProcessorTest {
   }
   
   private ViewCycleExecutionSequence generateExecutionSequence(int cycleCount) {
-    Collection<Instant> valuationTimes = new ArrayList<Instant>(cycleCount);
+    Collection<InstantProvider> valuationTimes = new ArrayList<InstantProvider>(cycleCount);
     Instant now = Instant.now();
     for (int i = 0; i < cycleCount; i++) {
       valuationTimes.add(now.plus(i, TimeUnit.MINUTES));
@@ -243,6 +254,11 @@ public class ViewProcessorTest {
     
     public void awaitCycles(long timeoutMillis) throws InterruptedException {
       _cycleLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public UserPrincipal getUser() {
+      return UserPrincipal.getTestUser();
     }
     
   }

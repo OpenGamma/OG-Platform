@@ -155,7 +155,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
+    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count,
+        (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {

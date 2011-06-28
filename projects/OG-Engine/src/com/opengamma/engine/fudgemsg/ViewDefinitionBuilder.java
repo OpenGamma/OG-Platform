@@ -66,7 +66,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     MutableFudgeMsg message = context.newMessage();
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.addToMessage(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
-    context.addToMessage(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
+    context.addToMessage(message, USER_FIELD, null, viewDefinition.getMarketDataUser());
     context.addToMessage(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
 
     Currency defaultCurrency = viewDefinition.getDefaultCurrency();

@@ -1,0 +1,18 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.engine.marketdata.spec {
+ 
+  /**
+   * Describes a user market data snapshot.
+   */
+  message UserMarketDataSnapshotSpecification extends MarketDataSnapshotSpecification {
+  
+    required com.opengamma.id.UniqueIdentifier userSnapshotId;
+    
+  }
+  
+}

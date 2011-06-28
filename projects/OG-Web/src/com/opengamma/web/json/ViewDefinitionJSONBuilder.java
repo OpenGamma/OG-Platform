@@ -156,7 +156,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       if (viewDefinition.getPortfolioId() != null) {
         jsonObject.put(IDENTIFIER_FIELD, toJSONObject(viewDefinition.getPortfolioId()));
       }
-      jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getLiveDataUser()));
+      jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getMarketDataUser()));
       jsonObject.put(RESULT_MODEL_DEFINITION_FIELD, toJSONObject(viewDefinition.getResultModelDefinition()));
       Currency defaultCurrency = viewDefinition.getDefaultCurrency();
       if (defaultCurrency != null) {

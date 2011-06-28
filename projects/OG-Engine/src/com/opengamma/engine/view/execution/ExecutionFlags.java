@@ -24,21 +24,51 @@ public final class ExecutionFlags {
   
   //-------------------------------------------------------------------------
   
-  public ExecutionFlags triggerOnLiveData() {
-    _flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED);
+  /**
+   * Adds {@link ViewExecutionFlags#AWAIT_MARKET_DATA}.
+   * 
+   * @return this
+   */
+  public ExecutionFlags awaitMarketData() {
+    _flags.add(ViewExecutionFlags.AWAIT_MARKET_DATA);
     return this;
   }
   
+  /**
+   * Adds {@link ViewExecutionFlags#TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED}.
+   * 
+   * @return this
+   */
+  public ExecutionFlags triggerOnMarketData() {
+    _flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED);
+    return this;
+  }
+  
+  /**
+   * Adds {@link ViewExecutionFlags#TRIGGER_CYCLE_ON_TIME_ELAPSED}.
+   * 
+   * @return this
+   */
   public ExecutionFlags triggerOnTimeElapsed() {
     _flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
     return this;
   }
   
+  /**
+   * Adds {@link ViewExecutionFlags#RUN_AS_FAST_AS_POSSIBLE}.
+   * 
+   * @return this
+   */
   public ExecutionFlags runAsFastAsPossible() {
     _flags.add(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE);
     return this;
   }
   
+  /**
+   * Adds {@link ViewExecutionFlags#COMPILE_ONLY}
+   * 
+   * @return this
+   */
   public ExecutionFlags compileOnly() {
     _flags.add(ViewExecutionFlags.COMPILE_ONLY);
     return this;
@@ -46,16 +76,31 @@ public final class ExecutionFlags {
   
   //-------------------------------------------------------------------------
   
+  /**
+   * Gets an {@link EnumSet} corresponding to the flags that have been added.
+   * 
+   * @return the set of flags, not {@code null}
+   */
   public EnumSet<ViewExecutionFlags> get() {
     return _flags;
   }
   
+  /**
+   * Gets a builder starting with the empty set of flags.
+   * 
+   * @return a builder starting with the empty set of flags, not {@code null}
+   */
   public static ExecutionFlags none() {
     return new ExecutionFlags();
   }
   
+  /**
+   * Gets a builder starting with all trigger-related flags.
+   * 
+   * @return a builder starting with all trigger-related flags, not {@code null}
+   */
   public static ExecutionFlags triggersEnabled() {
-    return none().triggerOnLiveData().triggerOnTimeElapsed();
+    return none().triggerOnMarketData().triggerOnTimeElapsed();
   }
   
 }

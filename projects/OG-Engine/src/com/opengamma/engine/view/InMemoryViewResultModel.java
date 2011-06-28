@@ -28,6 +28,9 @@ import com.opengamma.id.UniqueIdentifier;
  * A simple in-memory implementation of {@link ViewResultModel}.
  */
 public abstract class InMemoryViewResultModel implements ViewResultModel, Serializable {
+
+  private static final long serialVersionUID = 1L;
+  
   private UniqueIdentifier _viewProcessId;
   private UniqueIdentifier _viewCycleId;
   private Instant _valuationTime;

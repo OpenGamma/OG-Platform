@@ -65,8 +65,8 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_LIVE_DATA_REQUIREMENTS).build();
+  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
     return _client.access(uri).get(Map.class);
   }
   

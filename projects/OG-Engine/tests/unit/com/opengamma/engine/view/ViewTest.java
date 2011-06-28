@@ -17,6 +17,7 @@ import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -27,6 +28,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
@@ -43,7 +45,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -61,7 +63,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -88,7 +90,7 @@ public class ViewTest {
     
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());    
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));    
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
     
@@ -110,8 +112,9 @@ public class ViewTest {
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     
-    final long time0 = System.currentTimeMillis();
-    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0 + 10, time0 + 20, time0 + 30), ExecutionFlags.none().get());
+    final Instant time0 = Instant.now();
+    ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions();
+    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
         
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     
@@ -122,8 +125,8 @@ public class ViewTest {
     CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
     
-    computationJob.liveDataChanged();
-    assertEquals(time0 + 10, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    computationJob.marketDataChanged();
+    assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
@@ -131,22 +134,22 @@ public class ViewTest {
       @Override
       public boolean isValidFor(final InstantProvider timestampProvider) {
         Instant timestamp = timestampProvider.toInstant();
-        return (!timestamp.isAfter(Instant.ofEpochMillis(time0 + 20)));
+        return (!timestamp.isAfter(time0.plusMillis(20)));
       }
     };
     computationJob.setLatestCompiledViewDefinition(compiledViewDefinition);
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    computationJob.liveDataChanged();
-    assertEquals(time0 + 20, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    computationJob.marketDataChanged();
+    assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
-    computationJob.liveDataChanged();
+    computationJob.marketDataChanged();
     CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
-    assertEquals(time0 + 30, resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
     
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());

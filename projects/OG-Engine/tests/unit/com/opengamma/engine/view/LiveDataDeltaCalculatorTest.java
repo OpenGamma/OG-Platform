@@ -6,12 +6,14 @@
 package com.opengamma.engine.view;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.Collections;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -19,7 +21,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -71,8 +73,7 @@ public class LiveDataDeltaCalculatorTest {
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     ComputationTarget target = getTarget(name); 
     
-    MockFunction function = new MockFunction(target);
-    function.addRequiredLiveData(getValueRequirement(name));
+    MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement(name));
     
     DependencyNode node = new DependencyNode(target);
     node.setFunction(function);
@@ -81,7 +82,7 @@ public class LiveDataDeltaCalculatorTest {
   }
   
   private void put(ViewComputationCache cache, DependencyNode node, Object value) {
-    ValueSpecification spec = ((MockFunction) node.getFunction().getFunction()).getRequiredLiveData().iterator().next();
+    ValueSpecification spec = ((MarketDataSourcingFunction) node.getFunction().getFunction()).getMarketDataRequirement().getSecond();
     cache.putSharedValue(new ComputedValue(spec, value));
   }
   

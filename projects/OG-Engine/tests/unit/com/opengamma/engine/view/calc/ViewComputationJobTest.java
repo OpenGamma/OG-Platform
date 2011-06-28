@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -39,7 +40,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     // Consume the initial result
     resultListener.assertViewDefinitionCompiled(TIMEOUT);

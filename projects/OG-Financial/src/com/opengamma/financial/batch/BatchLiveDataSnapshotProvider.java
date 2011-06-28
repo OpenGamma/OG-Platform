@@ -8,8 +8,8 @@ package com.opengamma.financial.batch;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * the data in the historical data provider is completely fixed, 
  * then this step would not strictly be necessary. 
  */
-public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
+public class BatchLiveDataSnapshotProvider extends InMemoryLKVMarketDataProvider {
 
   /**
    * The run for which snapshots are being provided.
@@ -42,7 +42,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
    * The provider of historical data.
    * In practice, this is the time series database.
    */
-  private final HistoricalLiveDataSnapshotProvider _snapshotProvider;
+  private final HistoricalMarketDataProvider _snapshotProvider;
 
   /**
    * Creates an instance.
@@ -54,7 +54,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
   public BatchLiveDataSnapshotProvider(
       BatchJobRun run,
       BatchRunMaster batchRunMaster,
-      HistoricalLiveDataSnapshotProvider snapshotProvider) {
+      HistoricalMarketDataProvider snapshotProvider) {
     ArgumentChecker.notNull(run, "run");
     ArgumentChecker.notNull(batchRunMaster, "batchMaster");
     ArgumentChecker.notNull(snapshotProvider, "snapshotProvider");

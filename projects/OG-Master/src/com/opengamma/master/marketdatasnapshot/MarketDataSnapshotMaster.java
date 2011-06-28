@@ -35,5 +35,5 @@ public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnaps
    * @throws IllegalArgumentException if the request is invalid
    */
   MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request);
-
+  
 }

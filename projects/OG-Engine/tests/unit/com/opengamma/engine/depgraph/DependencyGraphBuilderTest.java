@@ -37,7 +37,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
@@ -194,7 +194,7 @@ public class DependencyGraphBuilderTest {
         assertEquals(helper.getSpec2().getValueName(), inputSpec.getValueName());
         assertEquals(helper.getSpec2().getTargetSpecification(), inputSpec.getTargetSpecification());
         assertEquals(helper.getTarget(), node.getComputationTarget());
-      } else if (node.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
+      } else if (node.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
         assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertEquals(1, node.getOutputValues().size());
         ValueSpecification outputSpec = node.getOutputValues().iterator().next();

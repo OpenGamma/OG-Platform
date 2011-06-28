@@ -15,7 +15,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -62,7 +62,7 @@ public class DepGraphTestHelper {
   private final ComputedValue _value2Bar;
   private final ValueRequirement _req2Any;
   private final InMemoryFunctionRepository _functionRepo;
-  private final FixedLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private final FixedMarketDataAvailabilityProvider _liveDataAvailabilityProvider;
 
   private DependencyGraphBuilder _builder;
   private int _mockId;
@@ -94,7 +94,7 @@ public class DepGraphTestHelper {
     _spec2Bar = new ValueSpecification(_req2Bar, MockFunction.UNIQUE_ID);
     _value2Bar = new ComputedValue(_spec2Bar, 7.8);
     _req2Any = new ValueRequirement(REQUIREMENT_2, targetId, ValueProperties.withAny(TEST_PROPERTY).get());
-    _liveDataAvailabilityProvider = new FixedLiveDataAvailabilityProvider();
+    _liveDataAvailabilityProvider = new FixedMarketDataAvailabilityProvider();
   }
 
   public InMemoryFunctionRepository getFunctionRepository() {

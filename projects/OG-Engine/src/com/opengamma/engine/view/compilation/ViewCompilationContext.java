@@ -30,10 +30,10 @@ public class ViewCompilationContext {
   private final ViewCompilationServices _services;
   private final Map<String, DependencyGraphBuilder> _builders;
 
-  /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant atInstant) {
+  /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     _viewDefinition = viewDefinition;
     _services = compilationServices;
-    _builders = generateBuilders(viewDefinition, compilationServices, atInstant);
+    _builders = generateBuilders(viewDefinition, compilationServices, valuationTime);
   }
 
   // --------------------------------------------------------------------------
@@ -50,14 +50,14 @@ public class ViewCompilationContext {
   }
 
   // --------------------------------------------------------------------------
-  private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant atInstant) {
+  private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
-    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(atInstant);
+    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(valuationTime);
     final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = new DependencyGraphBuilder();
       builder.setCalculationConfigurationName(configName);
-      builder.setLiveDataAvailabilityProvider(compilationServices.getLiveDataAvailabilityProvider());
+      builder.setLiveDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
       final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);

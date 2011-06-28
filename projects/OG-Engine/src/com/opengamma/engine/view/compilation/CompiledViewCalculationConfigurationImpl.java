@@ -27,7 +27,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   private final String _name;
   private final Set<ComputationTarget> _computationTargets;
   private final Set<ValueSpecification> _terminalOutputSpecifications;
-  private final Map<ValueRequirement, ValueSpecification> _liveDataRequirements;
+  private final Map<ValueRequirement, ValueSpecification> _marketDataRequirements;
   
   /**
    * Constructs an instance
@@ -35,18 +35,18 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param name  the name of the view calculation configuration, not null
    * @param computationTargets  the computation targets, not null
    * @param terminalOutputSpecifications  the output specifications, not null
-   * @param liveDataRequirements  the live data requirements, not null
+   * @param marketDataRequirements  the market data requirements, not null
    */
   public CompiledViewCalculationConfigurationImpl(String name, Set<ComputationTarget> computationTargets,
-      Set<ValueSpecification> terminalOutputSpecifications, Map<ValueRequirement, ValueSpecification> liveDataRequirements) {
+      Set<ValueSpecification> terminalOutputSpecifications, Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
-    ArgumentChecker.notNull(liveDataRequirements, "liveDataRequirements");
+    ArgumentChecker.notNull(marketDataRequirements, "marketDataRequirements");
     _name = name;
     _computationTargets = computationTargets;
     _terminalOutputSpecifications = terminalOutputSpecifications;
-    _liveDataRequirements = liveDataRequirements;
+    _marketDataRequirements = marketDataRequirements;
   }
   
   /**
@@ -56,7 +56,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    */
   public CompiledViewCalculationConfigurationImpl(DependencyGraph dependencyGraph) {
     this(dependencyGraph.getCalculationConfigurationName(), processComputationTargets(dependencyGraph),
-        processTerminalOutputSpecifications(dependencyGraph), processLiveDataRequirements(dependencyGraph));
+        processTerminalOutputSpecifications(dependencyGraph), processMarketDataRequirements(dependencyGraph));
   }
   
   @Override
@@ -85,16 +85,16 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   }
   
   @Override
-  public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
-    return _liveDataRequirements;
+  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
+    return _marketDataRequirements;
   }
 
   //-------------------------------------------------------------------------
-  private static Map<ValueRequirement, ValueSpecification> processLiveDataRequirements(DependencyGraph dependencyGraph) {
+  private static Map<ValueRequirement, ValueSpecification> processMarketDataRequirements(DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
     Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>();
-    for (Pair<ValueRequirement, ValueSpecification> liveData : dependencyGraph.getAllRequiredLiveData()) {
-      result.put(liveData.getFirst(), liveData.getSecond());
+    for (Pair<ValueRequirement, ValueSpecification> marketData : dependencyGraph.getAllRequiredMarketData()) {
+      result.put(marketData.getFirst(), marketData.getSecond());
     }
     return result;
   }

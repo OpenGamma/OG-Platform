@@ -15,9 +15,10 @@ public interface ViewCycleExecutionSequence {
    * Gets the next execution options in the sequence. This is a destructive operation; it should be used only when
    * intending to begin a view cycle with the options returned.
    * 
-   * @return the next time details, or {@code null} if there are no further times for execution
+   * @param defaultExecutionOptions  the default execution options, possibly {@code null}
+   * @return the execution options for the next cycle, or {@code null} if there are no further cycles to execute
    */
-  ViewCycleExecutionOptions getNext();
+  ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions);
   
   /**
    * Gets whether there are no more cycles in the execution sequence.

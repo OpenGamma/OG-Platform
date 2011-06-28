@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -82,7 +84,13 @@ public class WebView {
     _client.setResultListener(new AbstractViewResultListener() {
       
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+      public UserPrincipal getUser() {
+        // Authentication needed
+        return UserPrincipal.getLocalUser();
+      }
+      
+      @Override
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         // TODO: support for changing compilation results     
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
@@ -104,12 +112,8 @@ public class WebView {
 
     });
     
-    ViewExecutionOptions executionOptions;
-    if (snapshotId == null) {
-      executionOptions = ExecutionOptions.realTime();
-    } else {
-      executionOptions = ExecutionOptions.snapshot(snapshotId);
-    }
+    MarketDataSnapshotSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
+    ViewExecutionOptions executionOptions = ExecutionOptions.continuous(marketDataSpec);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   

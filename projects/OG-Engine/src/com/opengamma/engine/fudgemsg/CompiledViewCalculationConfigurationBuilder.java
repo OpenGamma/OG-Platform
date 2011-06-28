@@ -30,7 +30,7 @@ public class CompiledViewCalculationConfigurationBuilder implements FudgeBuilder
   private static final String NAME_FIELD = "name";
   private static final String COMPUTATION_TARGETS_FIELD = "computationTargets";
   private static final String TERMINAL_OUTPUT_SPECIFICATIONS_FIELD = "terminalOutputSpecifications";
-  private static final String LIVE_DATA_REQUIREMENTS_FIELD = "liveDataRequirements";
+  private static final String MARKET_DATA_REQUIREMENTS_FIELD = "marketDataRequirements";
   
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CompiledViewCalculationConfiguration object) {
@@ -38,7 +38,7 @@ public class CompiledViewCalculationConfigurationBuilder implements FudgeBuilder
     context.addToMessage(msg, NAME_FIELD, null, object.getName());
     context.addToMessage(msg, COMPUTATION_TARGETS_FIELD, null, object.getComputationTargets());
     context.addToMessage(msg, TERMINAL_OUTPUT_SPECIFICATIONS_FIELD, null, object.getTerminalOutputSpecifications());
-    context.addToMessage(msg, LIVE_DATA_REQUIREMENTS_FIELD, null, object.getLiveDataRequirements());
+    context.addToMessage(msg, MARKET_DATA_REQUIREMENTS_FIELD, null, object.getMarketDataRequirements());
     return msg;
   }
 
@@ -48,7 +48,7 @@ public class CompiledViewCalculationConfigurationBuilder implements FudgeBuilder
     String name = message.getString(NAME_FIELD);
     Set<ComputationTarget> computationTargets = context.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
     Set<ValueSpecification> terminalOutputSpecifications = context.fieldValueToObject(Set.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
-    Map<ValueRequirement, ValueSpecification> liveDataRequirements = context.fieldValueToObject(Map.class, message.getByName(LIVE_DATA_REQUIREMENTS_FIELD));
+    Map<ValueRequirement, ValueSpecification> liveDataRequirements = context.fieldValueToObject(Map.class, message.getByName(MARKET_DATA_REQUIREMENTS_FIELD));
     return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, liveDataRequirements);
   }
 

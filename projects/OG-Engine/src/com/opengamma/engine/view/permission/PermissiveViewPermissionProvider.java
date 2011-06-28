@@ -14,12 +14,12 @@ import com.opengamma.livedata.UserPrincipal;
 public class PermissiveViewPermissionProvider implements ViewPermissionProvider {
 
   @Override
-  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
+  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition compiledViewDefinition) {
     return true;
   }
 
   @Override
-  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
+  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
     return true;
   }
 
