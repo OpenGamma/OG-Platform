@@ -263,13 +263,25 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    ZonedDateTime[] tempDates = indexFixingTimeSeries.timesArray();
+    Double[] tempValues = indexFixingTimeSeries.valuesArray();
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+      if (fixedRate == null) {
+        ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
+      }
       if (fixedRate == null) {
         final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(
             "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
+        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
+          ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
+        }        
+        if (fixedRate == null) {          
           throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
