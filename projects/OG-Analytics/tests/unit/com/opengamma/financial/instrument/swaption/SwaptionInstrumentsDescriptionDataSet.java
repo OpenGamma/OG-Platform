@@ -17,6 +17,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -46,12 +48,25 @@ public class SwaptionInstrumentsDescriptionDataSet {
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, SWAP_TENOR);
   private static final SwapFixedIborDefinition SWAP = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
 
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final String FUNDING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+
   public static SwaptionCashFixedIborDefinition createSwaptionCashFixedIborDefinition() {
     return SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
   }
 
+  public static SwaptionCashFixedIbor createSwaptionCashFixedIbor() {
+    return createSwaptionCashFixedIborDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+  }
+
   public static SwaptionPhysicalFixedIborDefinition createSwaptionPhysicalFixedIborDefinition() {
     return SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+  }
+
+  public static SwaptionPhysicalFixedIbor createSwaptionPhysicalFixedIbor() {
+    return createSwaptionPhysicalFixedIborDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
 
 }

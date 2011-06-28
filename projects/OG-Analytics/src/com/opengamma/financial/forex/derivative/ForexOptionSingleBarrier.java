@@ -14,12 +14,25 @@ import com.opengamma.financial.model.option.definition.Barrier;
 
 /**
  * Class describing a single-barrier FX option. The class wraps a vanilla European FX option ({@code ForexOptionVanilla}) and a {@code BarrierType}.
+ * It is suppose that the barrier has not been activated yet (and thus there is no flag indicated if the activation took place already).
  */
 public class ForexOptionSingleBarrier implements ForexDerivative {
-  private final ForexOptionVanilla _underlyingOption;
-  private final Barrier _barrier;
 
   /**
+   * The underlying vanilla Forex option.
+   */
+  private final ForexOptionVanilla _underlyingOption;
+  /**
+   * The barrier description.
+   */
+  private final Barrier _barrier;
+  /**
+   * The amount paid back to the option holder in case the option expires inactive (in domestic currency).
+   */
+  private final double _rebate;
+
+  /**
+   * Constructor from the details with 0 rebate.
    * @param underlyingOption The underlying option
    * @param barrier The barrier
    */
@@ -28,6 +41,22 @@ public class ForexOptionSingleBarrier implements ForexDerivative {
     Validate.notNull(barrier, "barrier");
     _underlyingOption = underlyingOption;
     _barrier = barrier;
+    _rebate = 0.0;
+  }
+
+  /**
+   * Constructor from the details with 0 rebate.
+   * @param underlyingOption The underlying option
+   * @param barrier The barrier.
+   * @param rebate The rebate amount (in domestic currency).
+   */
+  public ForexOptionSingleBarrier(final ForexOptionVanilla underlyingOption, final Barrier barrier, final double rebate) {
+    Validate.notNull(underlyingOption, "underlying option");
+    Validate.notNull(barrier, "barrier");
+    Validate.isTrue(rebate >= 0.0, "Rebate is positive or null");
+    _underlyingOption = underlyingOption;
+    _barrier = barrier;
+    _rebate = rebate;
   }
 
   /**
@@ -44,31 +73,12 @@ public class ForexOptionSingleBarrier implements ForexDerivative {
     return _barrier;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _barrier.hashCode();
-    result = prime * result + _underlyingOption.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof ForexOptionSingleBarrier)) {
-      return false;
-    }
-    final ForexOptionSingleBarrier other = (ForexOptionSingleBarrier) obj;
-    if (!ObjectUtils.equals(_underlyingOption, other._underlyingOption)) {
-      return false;
-    }
-    if (_barrier != other._barrier) {
-      return false;
-    }
-    return true;
+  /**
+   * Gets the rebate amount (in domestic currency).
+   * @return The rebate.
+   */
+  public double getRebate() {
+    return _rebate;
   }
 
   @Override
@@ -79,6 +89,42 @@ public class ForexOptionSingleBarrier implements ForexDerivative {
   @Override
   public <T> T accept(final ForexDerivativeVisitor<?, T> visitor) {
     return visitor.visitForexOptionSingleBarrier(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _barrier.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_rebate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _underlyingOption.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ForexOptionSingleBarrier other = (ForexOptionSingleBarrier) obj;
+    if (_barrier != other._barrier) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rebate) != Double.doubleToLongBits(other._rebate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingOption, other._underlyingOption)) {
+      return false;
+    }
+    return true;
   }
 
 }

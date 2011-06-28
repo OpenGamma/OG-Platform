@@ -32,7 +32,8 @@ public class ForexOptionConverter implements FXOptionSecurityVisitor<ForexConver
     final ZonedDateTime expiry = fxOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    return new ForexOptionVanillaDefinition(underlying, expiry, true);
+    boolean isLong = fxOptionSecurity.getIsLong();
+    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
   }
 
 }
