@@ -7,8 +7,6 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.fft.JTransformsWrapper;
 import com.opengamma.math.function.Function1D;
@@ -26,29 +24,31 @@ public class FFTPricer {
   /**
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
    * and x is a random variable with a known characteristic function.
-   * @param data The data required for Black option pricing, where the black volatility in this bundle is the approximate Black vol - used to calculate size of FFT. Not null
-   * @param option The option to be priced, not null
+   * @param forward The forward value of the underlying
+   * @param discountFactor 
+   * @param t Time to expiry
+   * @param isCall true for call 
    * @param ce The Characteristic Exponent (log of characteristic function) of the returns of the underlying
    * @param lowestStrike The lowest strike to return (the actual value will depend on the set up, but is guaranteed to be less than this) 
    * @param highestStrike The highest strike to return (the actual value will depend on the set up, but is guaranteed to be greater than this) 
    * @param minStrikesDisplayed minimum number of strikes returned (actual number depends on set up) 
+   * @param limitSigma An estimate of the implied vol used to calculate limits in the numerical routines 
    * @param alpha Regularization factor. Values of 0 or -1 are not allowed. -0.5 is recommended  
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
+   * @return
    */
-  public double[][] price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double lowestStrike, final double highestStrike,
-      final int minStrikesDisplayed, final double alpha, final double tol) {
-    Validate.notNull(data, "data");
-    Validate.notNull(option, "option");
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final double lowestStrike,
+      final double highestStrike, final int minStrikesDisplayed, final double limitSigma, final double alpha, final double tol) {
+
     Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(tol > 0.0, "need tol > 0");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
-    final double forward = data.getForward();
-    final double limitSigma = data.getBlackVolatility();
+
     Validate.isTrue(lowestStrike <= forward, "need lowestStrike <= forward");
     Validate.isTrue(highestStrike >= forward, "need highestStrike >= forward");
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
-    final double t = option.getTimeToExpiry();
+
     double kMax;
     final double limitSigmaRootT = limitSigma * Math.sqrt(t);
     final double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
@@ -82,33 +82,35 @@ public class FFTPricer {
     final int nLowStrikes = (int) Math.ceil(Math.log(forward / lowestStrike) / deltaK);
     final int nHighStrikes = (int) Math.ceil(Math.log(highestStrike / forward) / deltaK);
 
-    return price(data, option, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
+    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, limitSigma, alpha, delta, n, m);
   }
 
   /**
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
    * and x is a random variable with a known characteristic function.
-   * @param data The data required for Black option pricing, where the black volatility in this bundle is the approximate Black vol - used to calculate size of FFT. Not null
-   * @param option The option to be priced, not null
+   * @param forward The forward value of the underlying
+   * @param discountFactor 
+   * @param t Time to expiry
+   * @param isCall true for call 
    * @param ce The Characteristic Exponent (log of characteristic function) of the returns of the underlying
    * @param nStrikes maximum number of strikes (centred around ATM) to be returned 
    * @param maxDeltaMoneyness Gives the (maximum) step size of the strikes in moneyness m = ln(K/F), where K is strike and F is forward 
+   * @param limitSigma An estimate of the implied vol used to calculate limits in the numerical routines 
    * @param alpha Regularization factor. Values of 0 or -1 are not allowed. -0.5 is recommended  
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final int nStrikes, final double maxDeltaMoneyness, final double alpha,
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final int nStrikes, final double maxDeltaMoneyness,
+      final double limitSigma, final double alpha,
       final double tol) {
-    Validate.notNull(data, "data");
-    Validate.notNull(option, "option");
+
     Validate.notNull(ce, "characteristicExponent");
     Validate.isTrue(tol > 0.0, "need tol > 0");
     Validate.isTrue(nStrikes > 0, "need number of strikes > 0");
     Validate.isTrue(maxDeltaMoneyness > 0, "need max delta moneyness > 0");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
-    final double limitSigma = data.getBlackVolatility();
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
-    final double t = option.getTimeToExpiry();
+
     double kMax;
     final double limitSigmaRootT = limitSigma * Math.sqrt(t);
     final double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
@@ -142,28 +144,31 @@ public class FFTPricer {
       nLowStrikes = nStrikes / 2;
       nHighStrikes = nLowStrikes - 1;
     }
-    return price(data, option, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
+    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, limitSigma, alpha, delta, n, m);
 
   }
 
   /**
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
    * and x is a random variable with a known characteristic function. <b>Note: this method is for expert use only</b>
-   * @param data The data required for Black option pricing, where the black volatility in this bundle is the approximate Black vol - used to calculate size of FFT. Not null
-   * @param option The option to be priced, not null
+   * @param forward The forward value of the underlying
+   * @param discountFactor 
+   * @param t Time to expiry
+   * @param isCall true for call 
    * @param ce The Characteristic Exponent (log of characteristic function) of the returns of the underlying
    * @param nStrikesBelowATM maximum number of strikes below ATM to be returned 
    * @param nStrikesAboveATM maximum number of strikes above ATM to be returned 
    * @param alpha Regularization factor. Values of 0 or -1 are not allowed. -0.5 is recommended  
+   * @param limitSigma An estimate of the implied vol used to calculate limits in the numerical routines 
    * @param delta The spacing for sampling the function 
    * @param n The (zero padded) array of sample values. <b>Use a power of 2</b>
    * @param m The actual number of samples. Need n >= 2m-1
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final int nStrikesBelowATM, final int nStrikesAboveATM,
-      final double alpha, final double delta, final int n, final int m) {
-    Validate.notNull(data, "data");
-    Validate.notNull(option, "option");
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final int nStrikesBelowATM,
+      final int nStrikesAboveATM,
+      final double limitSigma, final double alpha, final double delta, final int n, final int m) {
+
     Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(nStrikesBelowATM >= 0, "nStrikesBelowATM >= 0");
     Validate.isTrue(nStrikesAboveATM >= 0, "nStrikesAboveATM >= 0");
@@ -172,10 +177,6 @@ public class FFTPricer {
     Validate.isTrue(m > 0, "need m > 0");
     Validate.isTrue(n >= 2 * m - 1, "need n > 2m-1");
 
-    final double t = option.getTimeToExpiry();
-    final double forward = data.getForward();
-    final double discountFactor = data.getDiscountFactor();
-    final boolean isCall = option.isCall();
     final Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFourierTransform(ce).getFunction(t);
     final int halfN = n % 2 == 0 ? n / 2 : (n + 1) / 2;
     final double a = -(halfN - 1) * delta;
