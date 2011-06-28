@@ -20,7 +20,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -91,12 +91,12 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
 
   @Override
-  public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
+  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
     return true;
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     return new InMemoryLKVMarketDataSnapshot(this);
   }
 

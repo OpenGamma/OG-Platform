@@ -7,11 +7,11 @@
 namespace com.opengamma.engine.marketdata.spec {
  
   /**
-   * Describes a live market data snapshot.
+   * Describes user market data.
    */
-  message LiveMarketDataSnapshotSpecification extends MarketDataSnapshotSpecification {
+  message UserMarketDataSpecification extends MarketDataSpecification {
   
-    optional string dataSource;
+    required com.opengamma.id.UniqueIdentifier userSnapshotId;
     
   }
   

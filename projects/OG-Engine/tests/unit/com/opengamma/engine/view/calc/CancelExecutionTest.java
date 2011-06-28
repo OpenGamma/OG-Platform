@@ -44,9 +44,10 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ComputedValue;
@@ -114,7 +115,7 @@ public class CancelExecutionTest {
 
   private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
-    final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(marketDataProvider);
+    final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
     _functionCount.set(0);
     final MockFunction mockFunction = new MockFunction(new ComputationTarget("Foo")) {
@@ -170,7 +171,7 @@ public class CancelExecutionTest {
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions();
     cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
-    cycleOptions.setMarketDataSnapshotSpecification(new MarketDataSnapshotSpecification());
+    cycleOptions.setMarketDataSpecification(new MarketDataSpecification());
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueIdentifier.of("Test", "Cycle1"),
         UniqueIdentifier.of("Test", "ViewProcess1"),

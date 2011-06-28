@@ -24,7 +24,7 @@ import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
@@ -174,21 +174,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
     
-    if (executionOptions.getMarketDataSnapshotSpecification() == null) {
-      s_logger.error("No market data snapshot specification for cycle");
-      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("No market data snapshot specification for cycle"));
+    if (executionOptions.getMarketDataSpecification() == null) {
+      s_logger.error("No market data specification for cycle");
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("No market data specification for cycle"));
       return;
     }
     
-    if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSnapshotSpecification())) {
+    if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSpecification())) {
       // A different market data provider is required. We support this because we can, but changing provider is not the
       // most efficient operation.
-      s_logger.warn("Replacing market data provider between cycles");
-      replaceMarketDataProvider(executionOptions.getMarketDataSnapshotSpecification());
+      if (getMarketDataProvider() != null) {
+        s_logger.info("Replacing market data provider between cycles");
+      }
+      replaceMarketDataProvider(executionOptions.getMarketDataSpecification());
     }
     
     // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
-    MarketDataSnapshot marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSnapshotSpecification());
+    MarketDataSnapshot marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSpecification());
     
     Instant compilationValuationTime;
     if (executionOptions.getValuationTime() != null) {
@@ -506,11 +508,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   //-------------------------------------------------------------------------
-  private void replaceMarketDataProvider(MarketDataSnapshotSpecification snapshotSpec) {
+  private void replaceMarketDataProvider(MarketDataSpecification marketDataSpec) {
     removeMarketDataProvider();
     // A different market data provider may change the availability of market data, altering the dependency graph
     invalidateCachedCompiledViewDefinition();
-    setMarketDataProvider(snapshotSpec);
+    setMarketDataProvider(marketDataSpec);
   }
   
   private void removeMarketDataProvider() {
@@ -526,8 +528,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return _marketDataProvider;
   }
   
-  private void setMarketDataProvider(MarketDataSnapshotSpecification snapshotSpec) {
-    _marketDataProvider = getProcessContext().getMarketDataProviderResolver().resolve(snapshotSpec);
+  private void setMarketDataProvider(MarketDataSpecification marketDataSpec) {
+    _marketDataProvider = getProcessContext().getMarketDataProviderResolver().resolve(marketDataSpec);
     _marketDataProvider.addListener(this);
   }
   

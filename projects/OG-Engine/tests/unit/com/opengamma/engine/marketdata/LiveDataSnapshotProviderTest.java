@@ -5,18 +5,18 @@
  */
 package com.opengamma.engine.marketdata;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
-import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.LiveMarketDataProvider;
 import com.opengamma.engine.marketdata.availability.AllMarketDataAvailabilityProvider;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
@@ -24,7 +24,6 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.livedata.test.TestLiveDataClient;
 
@@ -45,8 +44,7 @@ public class LiveDataSnapshotProviderTest {
   
   public void snapshotting() {
     TestLiveDataClient client = new TestLiveDataClient();
-    LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new PermissiveLiveDataEntitlementChecker(),
-        new MockSecuritySource(), new AllMarketDataAvailabilityProvider());
+    LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new MockSecuritySource(), new AllMarketDataAvailabilityProvider());
     
     provider.subscribe(TEST_USER, constructRequirement("test1"));
     provider.subscribe(TEST_USER, constructRequirement("test2"));

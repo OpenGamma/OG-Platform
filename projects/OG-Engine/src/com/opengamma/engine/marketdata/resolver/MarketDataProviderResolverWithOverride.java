@@ -7,12 +7,12 @@ package com.opengamma.engine.marketdata.resolver;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderWithOverride;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@link MarketDataProviderResolver} which delegates resolution to an underlying provider, but wraps any resolved
- * provider in a {@link MarketDataProviderWithOverride}.
+ * provider in a {@link MarketDataProviderResolverWithOverride}.
  */
 public class MarketDataProviderResolverWithOverride implements MarketDataProviderResolver {
 
@@ -27,8 +27,8 @@ public class MarketDataProviderResolverWithOverride implements MarketDataProvide
   }
   
   @Override
-  public MarketDataProvider resolve(MarketDataSnapshotSpecification snapshotSpec) {
-    MarketDataProvider provider = getUnderlying().resolve(snapshotSpec);
+  public MarketDataProvider resolve(MarketDataSpecification marketDataSpec) {
+    MarketDataProvider provider = getUnderlying().resolve(marketDataSpec);
     if (provider == null) {
       return null;
     }

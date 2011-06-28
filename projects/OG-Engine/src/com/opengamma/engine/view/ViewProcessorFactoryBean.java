@@ -162,7 +162,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _viewPermissionProvider;
   }
   
-  public void setViewPermissionProviderFactory(ViewPermissionProvider viewPermissionProvider) {
+  public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
     _viewPermissionProvider = viewPermissionProvider;
   }
 

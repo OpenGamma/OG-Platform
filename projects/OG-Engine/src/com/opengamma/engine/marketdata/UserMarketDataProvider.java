@@ -12,10 +12,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataSnapshotAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -95,8 +96,9 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    // TODO
-    return null;
+    MarketDataSnapshot snapshot = snapshot();
+    snapshot.init();
+    return new MarketDataSnapshotAvailabilityProvider(snapshot);
   }
 
   @Override
@@ -106,20 +108,24 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
-    if (!(snapshotSpec instanceof UserMarketDataSnapshotSpecification)) {
+  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    if (!(marketDataSpec instanceof UserMarketDataSpecification)) {
       return false;
     }
-    UserMarketDataSnapshotSpecification userSnapshotSpec = (UserMarketDataSnapshotSpecification) snapshotSpec;
-    return getSnapshotId().equals(userSnapshotSpec.getUserSnapshotId());
+    UserMarketDataSpecification userMarketDataSpec = (UserMarketDataSpecification) marketDataSpec;
+    return getSnapshotId().equals(userMarketDataSpec.getUserSnapshotId());
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
-    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId());
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    return snapshot();
   }
 
   //-------------------------------------------------------------------------
+  private MarketDataSnapshot snapshot() {
+    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId());
+  }
+  
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
   }

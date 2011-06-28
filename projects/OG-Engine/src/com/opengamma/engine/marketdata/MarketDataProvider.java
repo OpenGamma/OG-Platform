@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
@@ -75,7 +75,10 @@ public interface MarketDataProvider {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the availability provider for this market data provider.
+   * Gets the availability provider for this market data provider. It is expected that obtaining an accurate
+   * availability provider could be a heavy operation. This method is called every time a view definition is compiled,
+   * in order to build the dependency graphs, and the result on each occasion is cached and reused throughout that
+   * compilation. 
    * 
    * @return the availability provider, not {@code null}
    */
@@ -90,22 +93,21 @@ public interface MarketDataProvider {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets whether a snapshot specification is compatible with this market data provider. It does not necessarily
-   * indicate that the snapshot specification can be satisfied, only whether the market data provider knows how to make
-   * the best attempt to satisfy it.
+   * Gets whether a market data specification is compatible with this market data provider. It does not necessarily
+   * indicate that the specification can be satisfied, only whether the market data provider knows how to make the best
+   * attempt to satisfy it.
    * 
-   * @param snapshotSpec  describes the snapshot, not {@code null}
-   * @return {@code true} if the snapshot specification is compatible with this provider, {@code false} otherwise
+   * @param marketDataSpec  describes the market data, not {@code null}
+   * @return {@code true} if the specification is compatible with this provider, {@code false} otherwise
    */
-  boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec);
+  boolean isCompatible(MarketDataSpecification marketDataSpec);
   
   /**
-   * Obtains access to a snapshot of market data. Depending on the implementation, this may involve creating a
-   * snapshot, or simply making an existing snapshot available, for example by loading it into memory.
+   * Obtains access to a snapshot of market data.
    * 
-   * @param snapshotSpec  describes the snapshot to obtain, not {@code null}
-   * @return  a description of the snapshot obtained, not {@code null}
+   * @param marketDataSpec  describes the market data to obtain, not {@code null}
+   * @return  the snapshot, not {@code null}
    */
-  MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec);
+  MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec);
     
 }

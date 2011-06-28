@@ -12,8 +12,8 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
 
   protected ViewCycleExecutionOptions merge(ViewCycleExecutionOptions nextCycle, ViewCycleExecutionOptions defaults) {
     if (defaults != null) {
-      if (nextCycle.getMarketDataSnapshotSpecification() == null) {
-        nextCycle.setMarketDataSnapshotSpecification(defaults.getMarketDataSnapshotSpecification());
+      if (nextCycle.getMarketDataSpecification() == null) {
+        nextCycle.setMarketDataSpecification(defaults.getMarketDataSpecification());
       }
       if (nextCycle.getValuationTime() != null) {
         nextCycle.setValuationTime(defaults.getValuationTime());

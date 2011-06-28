@@ -9,22 +9,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.MarketDataProviderFactory;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
  * Resolves a {@link MarketDataSnapshotSpecification} into a {@link MarketDataProvider} by specification type.
  */
 public class TypeBasedMarketDataProviderResolver implements MarketDataProviderResolver {
 
-  private final Map<Class<?>, MarketDataProvider> _providerMap = new HashMap<Class<?>, MarketDataProvider>();
+  private final Map<Class<?>, MarketDataProviderFactory> _providerFactoryMap = new HashMap<Class<?>, MarketDataProviderFactory>();
   
-  public <S extends MarketDataSnapshotSpecification> void addProvider(Class<S> specificationType, MarketDataProvider provider) {
-    _providerMap.put(specificationType, provider);
+  public void addProvider(Class<?> marketDataSpecType, MarketDataProviderFactory provider) {
+    _providerFactoryMap.put(marketDataSpecType, provider);
   }
   
   @Override
-  public MarketDataProvider resolve(MarketDataSnapshotSpecification snapshotSpec) {
-    return _providerMap.get(snapshotSpec.getClass());
+  public MarketDataProvider resolve(MarketDataSpecification marketDataSpec) {
+    MarketDataProviderFactory providerFactory = _providerFactoryMap.get(marketDataSpec.getClass());
+    if (providerFactory == null) {
+      return null;
+    }
+    return providerFactory.create(marketDataSpec);
   }
 
 }

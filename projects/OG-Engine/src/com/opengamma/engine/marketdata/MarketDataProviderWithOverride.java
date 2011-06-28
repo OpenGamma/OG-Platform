@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -149,14 +149,14 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
-    return _underlying.isCompatible(snapshotSpec) && _override.isCompatible(snapshotSpec);
+  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    return _underlying.isCompatible(marketDataSpec) && _override.isCompatible(marketDataSpec);
   }
   
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
-    MarketDataSnapshot underlyingSnapshot = _underlying.snapshot(snapshotSpec);
-    MarketDataSnapshot overrideSnapshot = _override.snapshot(snapshotSpec);    
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    MarketDataSnapshot underlyingSnapshot = _underlying.snapshot(marketDataSpec);
+    MarketDataSnapshot overrideSnapshot = _override.snapshot(marketDataSpec);    
     return new MarketDataSnapshotWithOverride(underlyingSnapshot, overrideSnapshot);
   }
     

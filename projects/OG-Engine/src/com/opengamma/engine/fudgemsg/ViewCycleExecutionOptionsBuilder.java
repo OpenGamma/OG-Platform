@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 
 /**
@@ -25,14 +25,14 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 public class ViewCycleExecutionOptionsBuilder implements FudgeBuilder<ViewCycleExecutionOptions> {
 
   private static final String VALUATION_TIME_FIELD = "valuation";
-  private static final String MARKET_DATA_SNAPSHOT_SPECIFICATION = "marketDataSnapshotSpecification";
+  private static final String MARKET_DATA_SPECIFICATION = "marketDataSpecification";
 
   
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCycleExecutionOptions object) {
     MutableFudgeMsg msg = context.newMessage();
     msg.add(VALUATION_TIME_FIELD, object.getValuationTime());
-    msg.add(MARKET_DATA_SNAPSHOT_SPECIFICATION, object.getMarketDataSnapshotSpecification());
+    msg.add(MARKET_DATA_SPECIFICATION, object.getMarketDataSpecification());
     return msg;
   }
 
@@ -43,9 +43,9 @@ public class ViewCycleExecutionOptionsBuilder implements FudgeBuilder<ViewCycleE
     if (valuationTimeField != null) {
       result.setValuationTime(context.fieldValueToObject(Instant.class, valuationTimeField));
     }
-    FudgeField marketDataSnapshotSpecificationField = msg.getByName(MARKET_DATA_SNAPSHOT_SPECIFICATION);
-    if (marketDataSnapshotSpecificationField != null) {
-      result.setMarketDataSnapshotSpecification(context.fieldValueToObject(MarketDataSnapshotSpecification.class, marketDataSnapshotSpecificationField));
+    FudgeField marketDataSpecificationField = msg.getByName(MARKET_DATA_SPECIFICATION);
+    if (marketDataSpecificationField != null) {
+      result.setMarketDataSpecification(context.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
     }
     return result;
   }

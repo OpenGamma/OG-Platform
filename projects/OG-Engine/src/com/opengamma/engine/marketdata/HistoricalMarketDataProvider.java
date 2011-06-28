@@ -16,8 +16,8 @@ import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSnapshotSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -86,19 +86,19 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
-    if (!(snapshotSpec instanceof HistoricalMarketDataSnapshotSpecification)) {
+  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    if (!(marketDataSpec instanceof HistoricalMarketDataSpecification)) {
       return false;
     }
-    HistoricalMarketDataSnapshotSpecification historicalSpec = (HistoricalMarketDataSnapshotSpecification) snapshotSpec;
+    HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
     return getDataProvider().equals(historicalSpec.getDataProvider())
         && getDataSource().equals(historicalSpec.getDataSource())
         && getDataField().equals(historicalSpec.getDataField());
   }
   
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
-    HistoricalMarketDataSnapshotSpecification historicalSpec = (HistoricalMarketDataSnapshotSpecification) snapshotSpec;
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
     return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource());
   }
 

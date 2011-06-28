@@ -2,7 +2,7 @@
 ///CLOVER:OFF
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
-public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification implements java.io.Serializable {
+public class HistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
   private static final long serialVersionUID = -7509181024321257288l;
   private javax.time.calendar.LocalDate _snapshotDate;
   public static final String SNAPSHOT_DATE_KEY = "snapshotDate";
@@ -12,22 +12,22 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
   public static final String DATA_PROVIDER_KEY = "dataProvider";
   private String _dataField;
   public static final String DATA_FIELD_KEY = "dataField";
-  public HistoricalMarketDataSnapshotSpecification (javax.time.calendar.DateProvider snapshotDate) {
+  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
       _snapshotDate = snapshotDate.toLocalDate ();
     }
   }
-  protected HistoricalMarketDataSnapshotSpecification (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected HistoricalMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (SNAPSHOT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSnapshotSpecification - field 'snapshotDate' is not present");
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'snapshotDate' is not present");
     try {
       _snapshotDate = fudgeMsg.getFieldValue (javax.time.calendar.DateProvider.class, fudgeField).toLocalDate ();
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSnapshotSpecification - field 'snapshotDate' is not date", e);
+      throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'snapshotDate' is not date", e);
     }
     fudgeField = fudgeMsg.getByName (DATA_SOURCE_KEY);
     if (fudgeField != null)  {
@@ -35,7 +35,7 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
         setDataSource ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSnapshotSpecification - field 'dataSource' is not string", e);
+        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataSource' is not string", e);
       }
     }
     fudgeField = fudgeMsg.getByName (DATA_PROVIDER_KEY);
@@ -44,7 +44,7 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
         setDataProvider ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSnapshotSpecification - field 'dataProvider' is not string", e);
+        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataProvider' is not string", e);
       }
     }
     fudgeField = fudgeMsg.getByName (DATA_FIELD_KEY);
@@ -53,11 +53,11 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
         setDataField ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSnapshotSpecification - field 'dataField' is not string", e);
+        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataField' is not string", e);
       }
     }
   }
-  public HistoricalMarketDataSnapshotSpecification (javax.time.calendar.DateProvider snapshotDate, String dataSource, String dataProvider, String dataField) {
+  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate, String dataSource, String dataProvider, String dataField) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
       _snapshotDate = snapshotDate.toLocalDate ();
@@ -66,7 +66,7 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
     _dataProvider = dataProvider;
     _dataField = dataField;
   }
-  protected HistoricalMarketDataSnapshotSpecification (final HistoricalMarketDataSnapshotSpecification source) {
+  protected HistoricalMarketDataSpecification (final HistoricalMarketDataSpecification source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
     if (source._snapshotDate == null) _snapshotDate = null;
@@ -77,8 +77,8 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
     _dataProvider = source._dataProvider;
     _dataField = source._dataField;
   }
-  public HistoricalMarketDataSnapshotSpecification clone () {
-    return new HistoricalMarketDataSnapshotSpecification (this);
+  public HistoricalMarketDataSpecification clone () {
+    return new HistoricalMarketDataSpecification (this);
   }
   public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
@@ -101,19 +101,19 @@ public class HistoricalMarketDataSnapshotSpecification extends com.opengamma.eng
       msg.add (DATA_FIELD_KEY, null, _dataField);
     }
   }
-  public static HistoricalMarketDataSnapshotSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static HistoricalMarketDataSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
-      if ("com.opengamma.engine.marketdata.spec.HistoricalMarketDataSnapshotSpecification".equals (className)) break;
+      if ("com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification".equals (className)) break;
       try {
-        return (com.opengamma.engine.marketdata.spec.HistoricalMarketDataSnapshotSpecification)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new HistoricalMarketDataSnapshotSpecification (fudgeContext, fudgeMsg);
+    return new HistoricalMarketDataSpecification (fudgeContext, fudgeMsg);
   }
   public javax.time.calendar.LocalDate getSnapshotDate () {
     return _snapshotDate;

@@ -28,6 +28,7 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.MapViewDefinitionRepository;
@@ -117,13 +118,15 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
     MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
-    vpFactBean.setMarketDataProviderResolver(new SingleMarketDataProviderResolver(marketDataProvider));
+    SingletonMarketDataProviderFactory marketDataProviderFactory = new SingletonMarketDataProviderFactory(marketDataProvider);
+    SingleMarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(marketDataProviderFactory);
+    vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
     vpFactBean.setPositionSource(positionSource);
     vpFactBean.setSecuritySource(securitySource);
     vpFactBean.setComputationTargetResolver(generateCachingComputationTargetResolver(positionSource, securitySource));
     vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
-    vpFactBean.setViewPermissionProviderFactory(new DefaultViewPermissionProvider());
+    vpFactBean.setViewPermissionProvider(new DefaultViewPermissionProvider());
     _viewDefinitionRepository = viewDefinitionRepository;
 
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();

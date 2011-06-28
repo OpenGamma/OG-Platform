@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.PublicSPI;
 
@@ -23,5 +24,6 @@ public interface MarketDataAvailabilityProvider {
    * @return {@code true} if the item of market data is available, {@code false} otherwise
    */
   boolean isAvailable(ValueRequirement requirement);
+
   
 }

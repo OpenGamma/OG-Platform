@@ -10,7 +10,7 @@ import java.util.EnumSet;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -155,9 +155,9 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param marketDataSpec  the market data specification, not {@code null}
    * @return the execution sequence, not {@code null}
    */
-  public static ViewExecutionOptions continuous(MarketDataSnapshotSpecification marketDataSpec) {
+  public static ViewExecutionOptions continuous(MarketDataSpecification marketDataSpec) {
     ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
-    defaultExecutionOptions.setMarketDataSnapshotSpecification(marketDataSpec);
+    defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, ExecutionFlags.triggersEnabled().get());
   }
   
@@ -177,12 +177,12 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * Creates an execution sequence to run a single cycle.
    * 
    * @param valuationTimeProvider  the valuation time provider, or {@code null} to use the market data time
-   * @param marketDataSnapshotSpecification  the market data snapshot specificaiton, not {@code null}
+   * @param marketDataSpec  the market data specificaiton, not {@code null}
    * @return an execution sequence representing the single cycle, not {@code null}
    */
-  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSnapshotSpecification marketDataSnapshotSpecification) {
-    ArgumentChecker.notNull(marketDataSnapshotSpecification, "marketDataSnapshotSpecification");
-    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSnapshotSpecification);
+  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
+    ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
     if (valuationTimeProvider != null) {
       cycleOptions.setValuationTime(valuationTimeProvider);
     }

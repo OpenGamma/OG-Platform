@@ -11,7 +11,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Static helper for constructing instances of {@link MarketDataSnapshotSpecification}.
+ * Static helper for constructing instances of {@link MarketDataSpecification}.
  */
 public class MarketData {
 
@@ -19,31 +19,31 @@ public class MarketData {
    * Avoid creating multiple instances since the live case is so common and most requests should come through this
    * helper. 
    */
-  private static final LiveMarketDataSnapshotSpecification LIVE_SPEC = new LiveMarketDataSnapshotSpecification();
+  private static final LiveMarketDataSpecification LIVE_SPEC = new LiveMarketDataSpecification();
   
   /**
-   * Gets a live market data snapshot specification.
+   * Gets a live market data specification.
    * 
-   * @return the live market data snapshot specification
+   * @return the live market data specification
    */
-  public static LiveMarketDataSnapshotSpecification live() {
+  public static LiveMarketDataSpecification live() {
     return LIVE_SPEC;
   }
   
   /**
-   * Gets a live market data snapshot specification for a specific data source.
+   * Gets a live market data specification for a specific data source.
    * 
    * @param dataSource  the name of the data source, not {@code null}
-   * @return the live market data snapshot specification, not {@code null}
+   * @return the live market data specification, not {@code null}
    */
-  public static LiveMarketDataSnapshotSpecification live(String dataSource) {
+  public static LiveMarketDataSpecification live(String dataSource) {
     ArgumentChecker.notNull(dataSource, "dataSource");
-    return new LiveMarketDataSnapshotSpecification(dataSource.intern());
+    return new LiveMarketDataSpecification(dataSource.intern());
   }
   
   //-------------------------------------------------------------------------
   /**
-   * Gets a historical market data snapshot specification.
+   * Gets a historical market data specification.
    * 
    * @param date  the date, not {@code null}
    * @param dataSource  the data source, not {@code null}
@@ -51,8 +51,8 @@ public class MarketData {
    * @param dataField  the data field, not {@code null}
    * @return the historical market data specification, not {@code null}
    */
-  public static HistoricalMarketDataSnapshotSpecification historical(LocalDate date, String dataSource, String dataProvider, String dataField) {
-    HistoricalMarketDataSnapshotSpecification result = new HistoricalMarketDataSnapshotSpecification(date);
+  public static HistoricalMarketDataSpecification historical(LocalDate date, String dataSource, String dataProvider, String dataField) {
+    HistoricalMarketDataSpecification result = new HistoricalMarketDataSpecification(date);
     result.setDataSource(dataSource);
     result.setDataProvider(dataProvider);
     result.setDataField(dataField);
@@ -61,13 +61,13 @@ public class MarketData {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets a user market data snapshot specification.
+   * Gets a user market data specification.
    * 
    * @param snapshotId  the unique identifier of the snapshot, not {@code null}
    * @return the user market data specification, not {@code null}
    */
-  public static UserMarketDataSnapshotSpecification user(UniqueIdentifier snapshotId) {
-    return new UserMarketDataSnapshotSpecification(snapshotId);
+  public static UserMarketDataSpecification user(UniqueIdentifier snapshotId) {
+    return new UserMarketDataSpecification(snapshotId);
   }
   
 }

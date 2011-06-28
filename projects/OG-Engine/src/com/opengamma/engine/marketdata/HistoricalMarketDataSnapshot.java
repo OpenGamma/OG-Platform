@@ -15,7 +15,7 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
-import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -25,18 +25,18 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
-  private final HistoricalMarketDataSnapshotSpecification _snapshotSpec;
+  private final HistoricalMarketDataSpecification _marketDataSpec;
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   
-  public HistoricalMarketDataSnapshot(HistoricalMarketDataSnapshotSpecification snapshotSpec, HistoricalTimeSeriesSource timeSeriesSource) {
-    _snapshotSpec = snapshotSpec;
+  public HistoricalMarketDataSnapshot(HistoricalMarketDataSpecification marketDataSpec, HistoricalTimeSeriesSource timeSeriesSource) {
+    _marketDataSpec = marketDataSpec;
     _timeSeriesSource = timeSeriesSource;
   }
   
   @Override
   public Instant getSnapshotTimeIndication() {
     // TODO something better thought-out here
-    return getSnapshotSpec().getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
+    return getMarketDataSpec().getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
   }
 
   @Override
@@ -62,13 +62,13 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
   @Override
   public Object query(ValueRequirement requirement) {
-    LocalDate date = getSnapshotSpec().getSnapshotDate();
+    LocalDate date = getMarketDataSpec().getSnapshotDate();
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
         IdentifierBundle.of(identifier), 
-        getSnapshotSpec().getDataSource(), 
-        getSnapshotSpec().getDataProvider(), 
-        getSnapshotSpec().getDataField(), 
+        getMarketDataSpec().getDataSource(), 
+        getMarketDataSpec().getDataProvider(), 
+        getMarketDataSpec().getDataField(), 
         date, 
         true, 
         date, 
@@ -76,7 +76,7 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
     if (hts == null || hts.getTimeSeries().isEmpty()) {
       return null;
     }
-    return hts.getTimeSeries().getValue(getSnapshotSpec().getSnapshotDate());
+    return hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
   }
 
   @Override
@@ -85,8 +85,8 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
   }
   
   //-------------------------------------------------------------------------
-  private HistoricalMarketDataSnapshotSpecification getSnapshotSpec() {
-    return _snapshotSpec;
+  private HistoricalMarketDataSpecification getMarketDataSpec() {
+    return _marketDataSpec;
   }
   
   private HistoricalTimeSeriesSource getTimeSeriesSource() {

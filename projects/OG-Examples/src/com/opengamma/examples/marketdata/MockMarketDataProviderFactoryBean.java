@@ -14,7 +14,7 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
@@ -77,12 +77,12 @@ public class MockMarketDataProviderFactoryBean extends SingletonFactoryBean<Mark
 
       //---------------------------------------------------------------------
       @Override
-      public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
+      public boolean isCompatible(MarketDataSpecification marketDataSpec) {
         return true;
       }
 
       @Override
-      public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
+      public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
         return new MockMarketDataSnapshot();
       }
     };

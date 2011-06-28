@@ -82,7 +82,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
-  private final MarketDataProviderResolver _marketDataProviderResolver;
+  private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
@@ -117,7 +117,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       CachingComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
-      MarketDataProviderResolver marketDataProviderResolver,
+      MarketDataProviderResolver marketDataProviderFactoryResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher jobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
@@ -131,7 +131,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
-    _marketDataProviderResolver = marketDataProviderResolver;
+    _marketDataProviderFactoryResolver = marketDataProviderFactoryResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = jobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
@@ -475,7 +475,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
         _viewPermissionProvider,
-        _marketDataProviderResolver,
+        _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
         _positionSource,

@@ -20,14 +20,14 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.LiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
@@ -52,15 +52,13 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
 
-  public LiveMarketDataProvider(LiveDataClient liveDataClient, LiveDataEntitlementChecker entitlementChecker, SecuritySource securitySource, MarketDataAvailabilityProvider availabilityProvider) {
-    this(liveDataClient, entitlementChecker, securitySource, availabilityProvider, new FudgeContext());
+  public LiveMarketDataProvider(LiveDataClient liveDataClient, SecuritySource securitySource, MarketDataAvailabilityProvider availabilityProvider) {
+    this(liveDataClient, securitySource, availabilityProvider, new FudgeContext());
   }
 
-  public LiveMarketDataProvider(LiveDataClient liveDataClient, LiveDataEntitlementChecker entitlementChecker,
-      SecuritySource securitySource, MarketDataAvailabilityProvider availabilityProvider, FudgeContext fudgeContext) {
+  public LiveMarketDataProvider(LiveDataClient liveDataClient, SecuritySource securitySource,
+      MarketDataAvailabilityProvider availabilityProvider, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
-    ArgumentChecker.notNull(entitlementChecker, "entitlementChecker");
-    ArgumentChecker.notNull(entitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -69,7 +67,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     _fudgeContext = fudgeContext;
     _availabilityProvider = availabilityProvider;
     _underlyingProvider = new InMemoryLKVMarketDataProvider(securitySource);
-    _permissionProvider = new LiveMarketDataPermissionProvider(entitlementChecker, securitySource);
+    _permissionProvider = new LiveMarketDataPermissionProvider(liveDataClient, securitySource);
   }
 
   //-------------------------------------------------------------------------
@@ -151,13 +149,14 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
-    return false;
+  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    // We don't look at the live data provider field at the moment
+    return marketDataSpec instanceof LiveMarketDataSpecification;
   }
   
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotDescription) {
-    return getUnderlyingProvider().snapshot(snapshotDescription);
+  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    return getUnderlyingProvider().snapshot(marketDataSpec);
   }
   
   //-------------------------------------------------------------------------

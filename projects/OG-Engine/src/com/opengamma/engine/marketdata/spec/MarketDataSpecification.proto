@@ -7,9 +7,9 @@
 namespace com.opengamma.engine.marketdata.spec {
  
   /**
-   * Base message for market data snapshot specifications.
+   * Base message for market data specifications.
    */
-  message MarketDataSnapshotSpecification {
+  message MarketDataSpecification {
 
   }
   

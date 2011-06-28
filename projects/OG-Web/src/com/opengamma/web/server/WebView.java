@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -112,7 +112,7 @@ public class WebView {
 
     });
     
-    MarketDataSnapshotSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
+    MarketDataSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
     ViewExecutionOptions executionOptions = ExecutionOptions.continuous(marketDataSpec);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }

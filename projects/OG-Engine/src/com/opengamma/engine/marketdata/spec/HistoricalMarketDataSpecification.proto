@@ -7,9 +7,9 @@
 namespace com.opengamma.engine.marketdata.spec {
  
   /**
-   * Describes a historical market data snapshot.
+   * Describes historical market data.
    */
-  message HistoricalMarketDataSnapshotSpecification extends MarketDataSnapshotSpecification {
+  message HistoricalMarketDataSpecification extends MarketDataSpecification {
   
     required date snapshotDate;
     optional string dataSource;

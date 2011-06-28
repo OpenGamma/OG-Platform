@@ -8,7 +8,7 @@ package com.opengamma.engine.view.execution;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
  * Encapsulates specific settings affecting the execution of an individual view cycle.
@@ -16,7 +16,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
 public class ViewCycleExecutionOptions {
 
   private Instant _valuationTime;
-  private MarketDataSnapshotSpecification _marketDataSnapshotSpecification;
+  private MarketDataSpecification _marketDataSpecification;
   
   // TODO [PLAT-1153] view correction time - probably want either valuation time or some fixed correction time
   
@@ -36,23 +36,23 @@ public class ViewCycleExecutionOptions {
   }
   
   /**
-   * Constructs an instance, specifying a market data snapshot specification.
+   * Constructs an instance, specifying a market data specification.
    * 
-   * @param snapshotSpec  the market data snapshot specification, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be {@code null}
    */
-  public ViewCycleExecutionOptions(MarketDataSnapshotSpecification snapshotSpec) {
-    setMarketDataSnapshotSpecification(snapshotSpec);
+  public ViewCycleExecutionOptions(MarketDataSpecification marketDataSpec) {
+    setMarketDataSpecification(marketDataSpec);
   }
   
   /**
    * Constructs an instance.
    * 
    * @param valuationTimeProvider  the valuation time provider, may be {@code null}
-   * @param snapshotSpec  the market data snapshot specification, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be {@code null}
    */
-  public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, MarketDataSnapshotSpecification snapshotSpec) {
+  public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
     setValuationTime(valuationTimeProvider);
-    setMarketDataSnapshotSpecification(snapshotSpec);
+    setMarketDataSpecification(marketDataSpec);
   }
 
   /**
@@ -76,26 +76,26 @@ public class ViewCycleExecutionOptions {
   }
   
   /**
-   * Gets the market data snapshot specification.
+   * Gets the market data specification.
    * 
-   * @return the market data snapshot specification, or {@code null} if not specified
+   * @return the market data specification, or {@code null} if not specified
    */
-  public MarketDataSnapshotSpecification getMarketDataSnapshotSpecification() {
-    return _marketDataSnapshotSpecification;
+  public MarketDataSpecification getMarketDataSpecification() {
+    return _marketDataSpecification;
   }
   
   /**
-   * Sets the market data snapshot specification.
+   * Sets the market data specification.
    * 
-   * @param marketDataSnapshotSpecification  the market data snapshot specification, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be {@code null}
    */
-  public void setMarketDataSnapshotSpecification(MarketDataSnapshotSpecification marketDataSnapshotSpecification) {
-    _marketDataSnapshotSpecification = marketDataSnapshotSpecification;
+  public void setMarketDataSpecification(MarketDataSpecification marketDataSpec) {
+    _marketDataSpecification = marketDataSpec;
   }
 
   @Override
   public String toString() {
-    return "ViewCycleExecutionOptions[valuationTime=" + _valuationTime + ", marketDataSnapshotSpecification=" + _marketDataSnapshotSpecification + "]";
+    return "ViewCycleExecutionOptions[valuationTime=" + getValuationTime() + ", marketDataSpecification=" + getMarketDataSpecification() + "]";
   }
   
 }

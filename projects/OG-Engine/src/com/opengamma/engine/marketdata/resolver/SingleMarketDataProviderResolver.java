@@ -6,22 +6,23 @@
 package com.opengamma.engine.marketdata.resolver;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.MarketDataProviderFactory;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
- * Implements {@link MarketDataProviderResolver} by providing a single {@link MarketDataProvider}.
+ * Implements {@link MarketDataProviderResolver} by using a single {@link MarketDataProviderFactory}.
  */
 public class SingleMarketDataProviderResolver implements MarketDataProviderResolver {
 
-  private final MarketDataProvider _provider;
+  private final MarketDataProviderFactory _providerFactory;
   
-  public SingleMarketDataProviderResolver(MarketDataProvider provider) {
-    _provider = provider;
+  public SingleMarketDataProviderResolver(MarketDataProviderFactory providerFactory) {
+    _providerFactory = providerFactory;
   }
   
   @Override
-  public MarketDataProvider resolve(MarketDataSnapshotSpecification snapshotSpec) {
-    return _provider;
+  public MarketDataProvider resolve(MarketDataSpecification marketDataSpec) {
+    return _providerFactory.create(marketDataSpec);
   }
 
 }

@@ -33,7 +33,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.marketdata.spec.MarketDataSnapshotSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
@@ -515,12 +515,12 @@ public class ViewClientTest {
 
     //-----------------------------------------------------------------------
     @Override
-    public boolean isCompatible(MarketDataSnapshotSpecification snapshotSpec) {
+    public boolean isCompatible(MarketDataSpecification marketDataSpec) {
       return false;
     }
     
     @Override
-    public MarketDataSnapshot snapshot(MarketDataSnapshotSpecification snapshotSpec) {
+    public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
         Map<ValueRequirement, Object> snapshotValues = new HashMap<ValueRequirement, Object>(_lastKnownValues);
         return new SynchronousInMemoryLKVSnapshot(snapshotValues);
