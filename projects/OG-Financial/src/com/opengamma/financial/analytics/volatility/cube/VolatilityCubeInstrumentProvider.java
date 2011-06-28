@@ -25,6 +25,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.Identifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -38,9 +39,9 @@ public final class VolatilityCubeInstrumentProvider {
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
-    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy", MarketDataRequirementNames.MARKET_VALUE);
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER = 
-    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy");
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy",  MarketDataRequirementNames.MARKET_VALUE);
   
   /**
    * Generates Bloomberg codes for volatilities given points.

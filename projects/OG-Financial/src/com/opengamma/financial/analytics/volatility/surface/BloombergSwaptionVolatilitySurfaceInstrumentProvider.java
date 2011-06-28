@@ -52,7 +52,6 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(tenorToCode(startTenor, _zeroPadFirstTenor));
     ticker.append(tenorToCode(maturity, _zeroPadSecondTenor));
     ticker.append(_postfix);
-    ticker.append(_dataFieldName);
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker.toString());
   }
 
