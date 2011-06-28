@@ -263,8 +263,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
-    ZonedDateTime[] tempDates = indexFixingTimeSeries.timesArray();
-    Double[] tempValues = indexFixingTimeSeries.valuesArray();
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
