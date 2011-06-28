@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -40,6 +41,9 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -93,7 +97,7 @@ public class ForexOptionVanillaMethodTest {
   private static final ZonedDateTime OPTION_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, OPTION_PAY_DATE, NOTIONAL, STRIKE);
   private static final ForexOptionVanillaDefinition FOREX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
-  private static final ForexDerivative FOREX_OPTION = FOREX_OPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final ForexOptionVanilla FOREX_OPTION = FOREX_OPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test
   /**
@@ -342,4 +346,25 @@ public class ForexOptionVanillaMethodTest {
     assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
     assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
+
+  @Test
+  /**
+   * Tests present value volatility sensitivity.
+   */
+  public void volatilitySensitivity() {
+    PresentValueVolatilitySensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    DoublesPair point = new DoublesPair(FOREX_OPTION.getTimeToExpiry(), STRIKE);
+    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
+    assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().entrySet().size());
+    assertTrue("Forex vanilla option: vega", sensi.getVega().containsKey(point));
+    final double timeToExpiry = ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_EXP_DATE);
+    final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
+    final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, STRIKE, forward));
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
+    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_OPTION, dataBlack);
+    assertEquals("Forex vanilla option: vega", priceAdjoint[2] * NOTIONAL, sensi.getVega().get(point));
+  }
+
 }

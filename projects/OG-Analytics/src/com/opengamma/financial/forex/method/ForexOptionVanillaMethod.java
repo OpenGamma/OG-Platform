@@ -35,6 +35,12 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
+  /**
+   * Computes the present value of the vanilla option with the Black function and a volatility from a volatility surface.
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @return The present value.
+   */
   public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
@@ -56,6 +62,12 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
     return presentValue((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
+  /**
+   * Computes the currency exposure of the vanilla option with the Black function and a volatility from a volatility surface. The exposure is computed in both option currencies.
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @return The currency exposure
+   */
   public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
@@ -125,6 +137,30 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.add(new PresentValueSensitivity(resultDomesticMap));
     return result;
+  }
+
+  /**
+   * Computes the volatility sensitivity of the vanilla option with the Black function and a volatility from a volatility surface. The sensitivity
+   * is computed with respect to the computed Black implied volatility and not with respect to the volatility surface input.
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @return The volatility sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    double df = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    double spot = smile.getSpot();
+    double forward = spot * smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime()) / df;
+    double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getTimeToExpiry(), optionForex.getStrike(), forward));
+    BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
+    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
+    double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
+    DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), optionForex.getStrike());
+    PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
+        .getCurrency2());
+    sensi.add(point, volatilitySensitivityValue);
+    return sensi;
   }
 
 }
