@@ -7,10 +7,12 @@ package com.opengamma.engine.marketdata.resolver;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Resolver for {@link MarketDataProvider}s 
  */
+@PublicSPI
 public interface MarketDataProviderResolver {
 
   /**

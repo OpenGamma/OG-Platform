@@ -6,10 +6,12 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A factory for {@link MarketDataProvider} instances.
  */
+@PublicSPI
 public interface MarketDataProviderFactory {
 
   /**

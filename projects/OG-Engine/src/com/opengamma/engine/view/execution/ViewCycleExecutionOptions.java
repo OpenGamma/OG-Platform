@@ -9,10 +9,12 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Encapsulates specific settings affecting the execution of an individual view cycle.
  */
+@PublicAPI
 public class ViewCycleExecutionOptions {
 
   private Instant _valuationTime;

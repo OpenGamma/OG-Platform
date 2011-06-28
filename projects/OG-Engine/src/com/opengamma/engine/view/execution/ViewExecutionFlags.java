@@ -6,11 +6,13 @@
 package com.opengamma.engine.view.execution;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Represents options which can apply to a {@link ViewExecutionOptions} instance. These are not necessarily mutually
  * compatible; incorrect combinations may result in execution errors or unexpected behaviour.
  */
+@PublicAPI
 public enum ViewExecutionFlags {
 
   /**

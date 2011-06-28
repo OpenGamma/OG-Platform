@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.PublicSPI;
 

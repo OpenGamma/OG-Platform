@@ -9,10 +9,12 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Static helper for constructing instances of {@link MarketDataSpecification}.
  */
+@PublicAPI
 public class MarketData {
 
   /**

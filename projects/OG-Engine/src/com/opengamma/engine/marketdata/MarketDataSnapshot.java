@@ -12,10 +12,12 @@ import javax.time.Instant;
 
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Represents a market data snapshot.
  */
+@PublicSPI
 public interface MarketDataSnapshot {
 
   /**

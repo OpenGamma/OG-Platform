@@ -5,10 +5,13 @@
  */
 package com.opengamma.engine.view.execution;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * Provides a sequence of execution options which define the individual view cycles to be executed. This could be an
  * infinite sequence, and the execution options might be a function of the current time.
  */
+@PublicAPI
 public interface ViewCycleExecutionSequence {
 
   /**

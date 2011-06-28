@@ -7,9 +7,12 @@ package com.opengamma.engine.view.execution;
 
 import java.util.EnumSet;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * An execution options flag builder for {@link ViewExecutionOptions}.
  */
+@PublicAPI
 public final class ExecutionFlags {
 
   private final EnumSet<ViewExecutionFlags> _flags;

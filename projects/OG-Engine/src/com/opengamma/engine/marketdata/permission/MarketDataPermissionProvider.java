@@ -9,10 +9,12 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Used to query permissions on market data.
  */
+@PublicSPI
 public interface MarketDataPermissionProvider {
 
   boolean canAccessMarketData(UserPrincipal user, Set<ValueRequirement> requirements);
