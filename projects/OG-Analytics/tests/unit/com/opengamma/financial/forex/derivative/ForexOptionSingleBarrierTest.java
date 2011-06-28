@@ -29,9 +29,12 @@ public class ForexOptionSingleBarrierTest {
   private static final Forex FOREX = new Forex(new PaymentFixed(CCY1, PAYMENT_TIME, AMOUNT1, "USD"), new PaymentFixed(CCY2, PAYMENT_TIME, AMOUNT2, "EUR"));
   private static final double EXPIRY_TIME = 0.49;
   private static final boolean IS_CALL = true;
-  private static final ForexOptionVanilla UNDERLYING = new ForexOptionVanilla(FOREX, EXPIRY_TIME, IS_CALL);
+  private static final boolean IS_LONG = true;
+  private static final double REBATE = 0.5;
+  private static final ForexOptionVanilla UNDERLYING = new ForexOptionVanilla(FOREX, EXPIRY_TIME, IS_CALL, IS_LONG);
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CLOSE, 1);
   private static final ForexOptionSingleBarrier OPTION = new ForexOptionSingleBarrier(UNDERLYING, BARRIER);
+  private static final ForexOptionSingleBarrier OPTION_REBATE = new ForexOptionSingleBarrier(UNDERLYING, BARRIER, REBATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -47,12 +50,21 @@ public class ForexOptionSingleBarrierTest {
   public void testObject() {
     assertEquals(UNDERLYING, OPTION.getUnderlyingOption());
     assertEquals(BARRIER, OPTION.getBarrier());
+    assertEquals(0.0, OPTION.getRebate(), 1.0E-10);
+    assertEquals(REBATE, OPTION_REBATE.getRebate(), 1.0E-10);
+    assertEquals(OPTION, OPTION);
     ForexOptionSingleBarrier other = new ForexOptionSingleBarrier(UNDERLYING, BARRIER);
     assertEquals(OPTION, other);
     assertEquals(OPTION.hashCode(), other.hashCode());
-    other = new ForexOptionSingleBarrier(new ForexOptionVanilla(FOREX, EXPIRY_TIME, !IS_CALL), BARRIER);
+    ForexOptionSingleBarrier otherRebate = new ForexOptionSingleBarrier(UNDERLYING, BARRIER, REBATE);
+    assertEquals(OPTION_REBATE, otherRebate);
+    assertEquals(OPTION_REBATE.hashCode(), otherRebate.hashCode());
+    other = new ForexOptionSingleBarrier(new ForexOptionVanilla(FOREX, EXPIRY_TIME, !IS_CALL, IS_LONG), BARRIER);
     assertFalse(other.equals(OPTION));
     other = new ForexOptionSingleBarrier(UNDERLYING, new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CLOSE, 1));
     assertFalse(other.equals(OPTION));
+    assertFalse(OPTION_REBATE.equals(OPTION));
+    assertFalse(other.equals(CCY1));
+    assertFalse(other.equals(null));
   }
 }

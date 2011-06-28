@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// JVM process/service management
-
 #include "JVM.h"
 #include "Settings.h"
 #ifdef _WIN32
@@ -18,6 +15,11 @@
 LOGGING (com.opengamma.language.connector.JVM);
 
 #ifdef _WIN32
+/// Creates a new JVM process manager for one installed as a service.
+///
+/// @param[in] hService service handle
+/// @param[in] bFirstConnection TRUE if the service was just started, or FALSE if
+///            it was already running
 CClientJVM::CClientJVM (SC_HANDLE hService, bool bFirstConnection) {
 	if (bFirstConnection) {
 		LOGINFO (TEXT ("Connection to fresh client JVM service"));
@@ -30,6 +32,11 @@ CClientJVM::CClientJVM (SC_HANDLE hService, bool bFirstConnection) {
 }
 #endif /* ifdef _WIN32 */
 
+/// Creates a new JVM process manager.
+///
+/// @param[in] poProcess O/S handle to the host process
+/// @param[in] bFirstConnection TRUE if the process was just started, or FALSE if
+///            it was already running
 CClientJVM::CClientJVM (CProcess *poProcess, bool bFirstConnection) {
 	if (bFirstConnection) {
 		LOGINFO (TEXT ("Connection to new client JVM process"));
@@ -43,6 +50,7 @@ CClientJVM::CClientJVM (CProcess *poProcess, bool bFirstConnection) {
 #endif /* ifdef _WIN32 */
 }
 
+/// Destroys the JVM process manager.
 CClientJVM::~CClientJVM () {
 	if (m_poProcess) {
 		delete m_poProcess;
@@ -54,6 +62,13 @@ CClientJVM::~CClientJVM () {
 #endif /* ifdef _WIN32 */
 }
 
+/// Starts a new instance of a JVM host process.
+///
+/// Note that the startup timeout is not currently implemented and the function will return immediately.
+/// 
+/// @param[in] pszExecutable full path to the executable to launch
+/// @param[in] lStartTimeout maximum time to wait for the process to start in milliseconds
+/// @return a process manager instance, or NULL if there was a problem
 CClientJVM *CClientJVM::StartExecutable (const TCHAR *pszExecutable, unsigned long lStartTimeout) {
 	LOGINFO (TEXT ("Starting executable ") << pszExecutable);
 	CProcess *poProcess = CProcess::FindByName (pszExecutable);
@@ -69,6 +84,11 @@ CClientJVM *CClientJVM::StartExecutable (const TCHAR *pszExecutable, unsigned lo
 	return new CClientJVM (poProcess, true);
 }
 
+/// Attempts to kill an existing JVM host process.
+///
+/// @param[in] poProcess O/S process handle to kill
+/// @param[in] lTimeout maximum time to wait for the process to acknowledge the kill in milliseconds
+/// @return TRUE if the process was killed, FALSE if it may still be running
 static bool _KillJVMProcess (CProcess *poProcess, unsigned long lTimeout) {
 	LOGINFO (TEXT ("Killing JVM service process ") << poProcess->GetProcessId ());
 	bool bResult = true;
@@ -86,6 +106,18 @@ static bool _KillJVMProcess (CProcess *poProcess, unsigned long lTimeout) {
 }
 
 #ifdef _WIN32
+/// Attempts to kill a hung service. The SCM signals are first used to wait for the service to terminate
+/// gracefully. If this does not happen the executable is identified and killed.
+///
+/// @param[in] hService service handle
+/// @param[in] pszExecutable full path to the process executable
+/// @param[in] dwPollTimeout time to wait between polling the SCM in milliseconds
+/// @param[in] dwStartTimeout time to normally wait for the service to start - the time to wait for it
+///            to terminate gracefully is the greater of this and the dwStopTimeout value
+/// @param[in] dwStopTimeout time to wait for the process to terminate
+/// @param[out] pss pointer to a SERVICE_STATUS buffer, left populated on exit.
+/// @return TRUE if the service entered a RUNNING or STOPPED state, or the executable was killed. FALSE
+///         if there was a problem and the process may still be running
 static bool _KillHungJVMService (SC_HANDLE hService, PCTSTR pszExecutable, DWORD dwPollTimeout, DWORD dwStartTimeout, DWORD dwStopTimeout, LPSERVICE_STATUS pss) {
 	DWORD dwStart = GetTickCount ();
 	DWORD dwServiceTimeout = (dwStartTimeout > dwStopTimeout) ? dwStartTimeout : dwStopTimeout;
@@ -133,6 +165,15 @@ static bool _KillHungJVMService (SC_HANDLE hService, PCTSTR pszExecutable, DWORD
 }
 #endif /* ifdef _WIN32 */
 
+/// Attempts to start the service if the operating system supports a standard service manager, otherwise
+/// forks the executable.
+///
+/// @param[in] pszServiceName name of the installed service, never NULL
+/// @param[in] pszExecutable full path to the executable, never NULL
+/// @param[in] lPollTimeout polling interval waiting for the service or executable to start
+/// @param[in] lStartTimeout maximum time to wait for the service or executable to start
+/// @param[in] lStopTimeout maximum time to wait for a failed service to stop first
+/// @return wrapper instance to manage the service, or NULL if there was a problem
 CClientJVM *CClientJVM::StartService (const TCHAR *pszServiceName, const TCHAR *pszExecutable, unsigned long lPollTimeout, unsigned long lStartTimeout, unsigned long lStopTimeout) {
 	LOGINFO (TEXT ("Starting service ") << pszServiceName);
 #ifdef _WIN32
@@ -219,6 +260,9 @@ retryStart:
 #endif /* ifdef _WIN32 */
 }
 
+/// Attempts to start the JVM host process.
+///
+/// @return JVM host process instance, or NULL if there was a problem
 CClientJVM *CClientJVM::Start () {
 	LOGDEBUG (TEXT ("Starting JVM service"));
 	CSettings oSettings;
@@ -230,6 +274,9 @@ CClientJVM *CClientJVM::Start () {
 	}
 }
 
+/// Attempts to stop the JVM host process.
+///
+/// @return TRUE if the service was stopped, FALSE if there was a problem.
 bool CClientJVM::Stop () {
 	LOGDEBUG (TEXT ("Stopping JVM service"));
 	bool bResult;
@@ -263,12 +310,21 @@ bool CClientJVM::Stop () {
 	return bResult;
 }
 
+/// Returns TRUE on the first call, FALSE on subsequent calls. This is used so that
+/// a caller may take different actions on the first messages sent (e.g. use longer
+/// timeouts).
+///
+/// @return TRUE on the first call, FALSE on subsequent calls
 bool CClientJVM::FirstConnection () {
 	bool bResult = m_bFirstConnection;
 	m_bFirstConnection = false;
 	return bResult;
 }
 
+/// Tests if the JVM host process is still active. This only queries the process
+/// state; the behaviour of the JVM may be erroneous.
+///
+/// @return TRUE if the process is running, FALSE if it has halted.
 bool CClientJVM::IsAlive () const {
 #ifdef _WIN32
 	if (m_hService) {

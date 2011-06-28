@@ -205,6 +205,7 @@ private:
 	CAtomicPointer<IRunnable*> m_oOnEnterStableNonRunningState;
 
 	CConnector (CClientService *poClient);
+	~CConnector ();
 	void OnEnterRunningState ();
 	void OnExitRunningState ();
 	void OnEnterStableNonRunningState ();
@@ -243,7 +244,6 @@ public:
 	/// @param[in] poConnector object to release, never NULL
 	static void Release (const CConnector *poConnector) { if (!poConnector->m_oRefCount.DecrementAndGet ()) delete poConnector; }
 
-	~CConnector ();
 	static CConnector *Start (const TCHAR *pszLanguageID);
 	bool Stop ();
 	bool WaitForStartup (unsigned long lTimeout) const;

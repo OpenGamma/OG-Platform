@@ -25,17 +25,23 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
    * The underlying Forex transaction (the one entered into in case of exercise).
    */
   private final Forex _underlyingForex;
+  /**
+   * The long (true) / short (false) flag.
+   */
+  private final boolean _isLong;
 
   /**
    * Constructor from all details.
    * @param underlyingForex The underlying Forex transaction (the one entered into in case of exercise).
    * @param expirationTime The expiration date (and time) of the option.
    * @param isCall The call (true) / put (false) flag.
+   * @param isLong The long (true) / short (false) flag.
    */
-  public ForexOptionVanilla(Forex underlyingForex, double expirationTime, boolean isCall) {
+  public ForexOptionVanilla(Forex underlyingForex, double expirationTime, boolean isCall, boolean isLong) {
     super(-underlyingForex.getPaymentCurrency2().getAmount() / underlyingForex.getPaymentCurrency1().getAmount(), expirationTime, isCall ^ (underlyingForex.getPaymentCurrency1().getAmount() < 0));
     Validate.isTrue(expirationTime <= underlyingForex.getPaymentTime(), "Expiration should be before payment.");
     this._underlyingForex = underlyingForex;
+    _isLong = isLong;
   }
 
   /**
@@ -46,10 +52,29 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
     return _underlyingForex;
   }
 
+  /**
+   * Gets the long (true) / short (false) flag.
+   * @return The long / short flag.
+   */
+  public boolean isLong() {
+    return _isLong;
+  }
+
+  @Override
+  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitForexOptionVanilla(this, data);
+  }
+
+  @Override
+  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
+    return visitor.visitForexOptionVanilla(this);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingForex.hashCode();
     return result;
   }
@@ -63,20 +88,13 @@ public class ForexOptionVanilla extends EuropeanVanillaOption implements ForexDe
       return false;
     }
     ForexOptionVanilla other = (ForexOptionVanilla) obj;
+    if (_isLong != other._isLong) {
+      return false;
+    }
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(ForexDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitForexOptionVanilla(this, data);
-  }
-
-  @Override
-  public <T> T accept(ForexDerivativeVisitor<?, T> visitor) {
-    return visitor.visitForexOptionVanilla(this);
   }
 
 }

@@ -171,6 +171,7 @@ const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszV
 }
 
 #ifdef _WIN32
+
 /// Fetches a value from the registry, adding it to the cache if found.
 ///
 /// @param[in] hkey the settings key to look under, never NULL
@@ -185,7 +186,7 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {
 	DWORD dwSize = sizeof (data);
 	HRESULT hr;
 	if ((hr = RegGetValue (hkey, NULL, pszKey, RRF_RT_REG_DWORD | RRF_RT_REG_SZ, &dwType, &data, &dwSize)) != ERROR_SUCCESS) {
-		LOGDEBUG (TEXT ("Couldn't read registry key ") << pszKey << TEXT (", error ") << hr);
+		LOGDEBUG (TEXT ("Couldn't read registry key ") << pszKey << TEXT (", error ") << HRESULT_CODE (hr));
 	} else {
 		switch (dwType) {
 		case REG_DWORD :
@@ -201,6 +202,38 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {
 	}
 	return NULL;
 }
+
+/// Opens a sub-key from the registry.
+///
+/// @param[in] hkey key to look in
+/// @param[in] pszKey name of the key to open, never NULL
+/// @return the open handle or NULL if not found
+static HKEY _RegistryOpen (HKEY hkey, PCTSTR pszKey) {
+	HRESULT hr;
+	HKEY hkeyResult;
+	if ((hr = RegOpenKeyEx (hkey, pszKey, 0, KEY_READ, &hkeyResult)) != ERROR_SUCCESS) {
+		LOGDEBUG (TEXT ("Couldn't open registry key ") << pszKey << TEXT (", error ") << HRESULT_CODE (hr));
+		return NULL;
+	}
+	return hkeyResult;
+}
+
+/// Opens a sub-key from the local (user) registry store.
+///
+/// @param[in] pszKey name of the key, never NULL
+/// @return the open key or NULL if not found
+HKEY CAbstractSettings::RegistryOpenLocal (PCTSTR pszKey) const {
+	return _RegistryOpen (m_hkeyLocal, pszKey);
+}
+
+/// Opens a sub-key from the global (machine) registry store.
+///
+/// @param[in] pszKey name of the key, never NULL
+/// @return the open key or NULL if not found
+HKEY CAbstractSettings::RegistryOpenGlobal (PCTSTR pszKey) const {
+	return _RegistryOpen (m_hkeyGlobal, pszKey);
+}
+
 #endif /* ifdef _WIN32 */
 
 /// Fetches a string setting

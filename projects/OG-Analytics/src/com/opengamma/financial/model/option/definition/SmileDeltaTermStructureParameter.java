@@ -82,18 +82,19 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     double[] volatilityT = new double[nbVol];
     double[] variancePeriod0 = new double[nbVol];
     double[] variancePeriod1 = new double[nbVol];
-    for (int loopvol = 0; loopvol < nbVol; loopvol++) { // Linear interpolation on variance over the period (s^2*t).
+    double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+    // Implementation note: Linear interpolation on variance over the period (s^2*t).
+    for (int loopvol = 0; loopvol < nbVol; loopvol++) {
       variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
       variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
-      variancePeriodT[loopvol] = variancePeriod0[loopvol] + (variancePeriod1[loopvol] - variancePeriod0[loopvol]) * (time - _timeToExpiration[indexLower])
-          / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+      variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
       volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
     }
     SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
     double[] strikes = smile.getStrike(forward);
     double[] strikesExtra = new double[nbVol + 2]; // Extended strikes for flat extrapolation.
     strikesExtra[0] = 0;
-    strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 10.0;
+    strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 100.0; // TODO: better figure than 100*upper strike?
     System.arraycopy(strikes, 0, strikesExtra, 1, nbVol);
     double[] volatilityExtra = new double[nbVol + 2];
     volatilityExtra[0] = volatilityT[0];
