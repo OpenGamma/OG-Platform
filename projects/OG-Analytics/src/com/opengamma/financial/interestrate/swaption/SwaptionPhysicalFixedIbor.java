@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.swaption;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -102,6 +103,39 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
     return visitor.visitSwaptionPhysicalFixedIbor(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (_isLong ? 1231 : 1237);
+    long temp;
+    temp = Double.doubleToLongBits(_settlementTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _underlyingSwap.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    SwaptionPhysicalFixedIbor other = (SwaptionPhysicalFixedIbor) obj;
+    if (_isLong != other._isLong) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_settlementTime) != Double.doubleToLongBits(other._settlementTime)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
+      return false;
+    }
+    return true;
   }
 
 }

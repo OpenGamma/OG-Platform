@@ -7,9 +7,13 @@ package com.opengamma.web.spring;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.ServletContextAware;
 
@@ -22,10 +26,12 @@ import com.opengamma.web.bundle.BundleManager;
  */
 public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryBean<BundleManager> implements ServletContextAware {
 
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBundleManagerFactoryBean.class);
   /**
-   * The config file.
+   * The config resource.
    */
-  private Resource _configFile;
+  private Resource _configResource;
   /**
    * The base directory.
    */
@@ -37,20 +43,20 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the config file.
+   * Gets the config resource.
    * 
-   * @return the config file
+   * @return the config resource
    */
-  public Resource getConfigFile() {
-    return _configFile;
+  public Resource getConfigResource() {
+    return _configResource;
   }
 
   /**
-   * Sets the config file.
-   * @param configFile  the config file
+   * Sets the config resource.
+   * @param configResource  the config resource
    */
-  public void setConfigFile(Resource configFile) {
-    _configFile = configFile;
+  public void setConfigResource(Resource configResource) {
+    _configResource = configResource;
   }
 
   /**
@@ -94,14 +100,20 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
    * 
    * @return the resolved file
    */
-  protected File resolveConfigurationFile() {
-    File configFile = null;
+  protected InputStream getXMLStream() {
+    InputStream xmlStream = null;
     try {
-      configFile = _configFile.getFile();
+      ClassPathResource resource = (ClassPathResource) _configResource;
+      s_logger.debug("resource.getPath() : {}", resource.getPath());
+      s_logger.debug("resource.getClassLoader() : {}", resource.getClassLoader());
+      s_logger.debug("resource.getURL().toString() : {}", resource.getURL().toString());
+      s_logger.debug("resource.getDescription() : {}", resource.getDescription());
+      
+      xmlStream = _configResource.getInputStream();
     } catch (IOException ex) {
-      throw new IllegalArgumentException("Cannot find bundle config file : " + getConfigFile() + " in the classpath");
+      throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath");
     }
-    return configFile;
+    return xmlStream;
   }
 
   /**

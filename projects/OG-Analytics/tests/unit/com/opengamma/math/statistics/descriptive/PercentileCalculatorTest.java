@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -19,7 +20,7 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class PercentileCalculatorTest {
   private static final PercentileCalculator CALCULATOR = new PercentileCalculator(0.1);
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final int N = 100;
   private static final double[] X = new double[N];
 

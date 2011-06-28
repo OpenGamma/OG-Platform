@@ -52,13 +52,11 @@ public class CouponIborTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction1() {
     new CouponIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, -0.25, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
-    ;
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction2() {
     new CouponIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, -0.25, LIBOR_CURVE_NAME);
-    ;
   }
 
   //  @Test(expected = IllegalArgumentException.class)

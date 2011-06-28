@@ -42,6 +42,7 @@ public final class FxOptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
+    bean.setIsLong(security.getIsLong());
     return bean;
   }
 
@@ -51,7 +52,7 @@ public final class FxOptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
-    FXOptionSecurity sec = new FXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate);
+    FXOptionSecurity sec = new FXOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong());
     return sec;
   }
 
