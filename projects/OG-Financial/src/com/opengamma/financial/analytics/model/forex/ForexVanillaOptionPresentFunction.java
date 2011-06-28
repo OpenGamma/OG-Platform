@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.forex.ForexOptionSecurityConverter;
+import com.opengamma.financial.analytics.forex.ForexVanillaOptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
@@ -41,14 +41,14 @@ public class ForexVanillaOptionPresentFunction extends AbstractFunction.NonCompi
   private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
   private final String _putCurveName;
   private final String _callCurveName;
-  private final ForexOptionSecurityConverter _visitor;
+  private final ForexVanillaOptionSecurityConverter _visitor;
 
   public ForexVanillaOptionPresentFunction(final String putCurveName, final String callCurveName) {
     Validate.notNull(putCurveName, "put curve name");
     Validate.notNull(callCurveName, "call curve name");
     _putCurveName = putCurveName;
     _callCurveName = callCurveName;
-    _visitor = new ForexOptionSecurityConverter();
+    _visitor = new ForexVanillaOptionSecurityConverter();
   }
 
   @Override
