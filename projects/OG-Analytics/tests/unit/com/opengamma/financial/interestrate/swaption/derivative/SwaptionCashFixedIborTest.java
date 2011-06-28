@@ -6,6 +6,8 @@
 package com.opengamma.financial.interestrate.swaption.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -20,6 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
@@ -73,6 +76,7 @@ public class SwaptionCashFixedIborTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER);
   // Swaption construction: All combinations
+  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_PAYER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, IS_LONG);
@@ -98,6 +102,34 @@ public class SwaptionCashFixedIborTest {
   // Volatility and pricing functions
   SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+
+  @Test
+  /**
+   * Tests the equal and hashCode methods.
+   */
+  public void equalHash() {
+    assertTrue(SWAPTION_LONG_PAYER.equals(SWAPTION_LONG_PAYER));
+    SwaptionCashFixedIbor other = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    assertTrue(SWAPTION_LONG_PAYER.equals(other));
+    assertTrue(SWAPTION_LONG_PAYER.hashCode() == other.hashCode());
+    assertEquals(SWAPTION_LONG_PAYER.toString(), other.toString());
+    SwaptionCashFixedIbor otherS = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    assertTrue(SWAPTION_SHORT_RECEIVER.equals(otherS));
+    assertTrue(SWAPTION_SHORT_RECEIVER.hashCode() == otherS.hashCode());
+    SwaptionCashFixedIbor modifiedSwaption;
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry() - 0.01, SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime() - 0.01, IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), !IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    SwapFixedIborDefinition otherSwapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, 2 * NOTIONAL, RATE, FIXED_IS_PAYER);
+    FixedCouponSwap<Payment> otherSwap = otherSwapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), otherSwap, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
+    assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
+    assertFalse(SWAPTION_LONG_PAYER.equals(EXPIRY_DATE));
+    assertFalse(SWAPTION_LONG_PAYER.equals(null));
+  }
 
   @Test
   public void testPriceBlack() {

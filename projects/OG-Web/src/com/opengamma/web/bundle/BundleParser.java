@@ -7,6 +7,7 @@ package com.opengamma.web.bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,13 +43,9 @@ public class BundleParser {
   private static final String ID_ATTR = "id";
 
   /**
-   * The bundle XML file to parse.
-   */
-  private final File _xmlFile;
-  /**
    * The base directory for the fragments.
    */
-  private final File _baseDir;
+  private File _baseDir;
   /**
    * The bundle manager to populate.
    */
@@ -59,32 +56,33 @@ public class BundleParser {
   private final Map<String, Element> _elementsByIdMap = new HashMap<String, Element>(); 
 
   /**
-   * Creates a parser based on an XML file.
+   * Creates a parser
    * 
-   * @param xmlFile  the XML file to parse, not null
    */
-  public BundleParser(File xmlFile) {
-    this(xmlFile, null);
+  public BundleParser() {
+  }
+    
+  /**
+   * Gets the baseDir.
+   * @return the baseDir
+   */
+  public File getBaseDir() {
+    return _baseDir;
   }
 
   /**
-   * Creates a parser based on an XML file and base directory.
-   * 
-   * @param xmlFile  the XML file to parse, not null
-   * @param baseDir  the base directory for fragments, may be null
+   * Sets the baseDir.
+   * @param baseDir  the baseDir
    */
-  public BundleParser(File xmlFile, File baseDir) {
-    validate(xmlFile, baseDir);
+  public void setBaseDir(File baseDir) {
+    validateFile(baseDir);
     _bundleManager.setBaseDir(baseDir);
-    _xmlFile = xmlFile;
     _baseDir = baseDir;
   }
 
-  private void validate(File xmlFile, File baseDir) {
-    ArgumentChecker.notNull(xmlFile, "xmlFile");
-    ArgumentChecker.isTrue(xmlFile.exists(), xmlFile + "does not exists");
+  private void validateFile(File baseDir) {
     if (baseDir != null) {
-      ArgumentChecker.isTrue(baseDir.exists(), baseDir + " does not exists");
+      ArgumentChecker.isTrue(baseDir.exists(), baseDir + "does not exists");
     }
   }
 
@@ -92,18 +90,20 @@ public class BundleParser {
   /**
    * Parses the XML file, returning the bundle manager.
    * 
+   * @param xmlStream the XML input stream, not null
    * @return the parsed bundle manager, not null
    */
-  public BundleManager parse() {
+  public BundleManager parse(InputStream xmlStream) {
+    ArgumentChecker.notNull(xmlStream, "xml inputstream");
     DocumentBuilder builder = getDocumentBuilder();
     if (builder != null) {
       try {
-        Document document = builder.parse(_xmlFile);
+        Document document = builder.parse(xmlStream);
         processXMLDocument(document);
       } catch (SAXException ex) {
-        throw new OpenGammaRuntimeException("unable to parse : " + _xmlFile.getAbsolutePath(), ex);
+        throw new OpenGammaRuntimeException("unable to parse xml file", ex);
       } catch (IOException ex) {
-        throw new OpenGammaRuntimeException("unable to read : " + _xmlFile.getAbsolutePath(), ex);
+        throw new OpenGammaRuntimeException("unable to read xml file", ex);
       }
     }
     return _bundleManager;
@@ -146,8 +146,9 @@ public class BundleParser {
     if (StringUtils.isNotBlank(fragment)) {
       return true;
     }
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + " invalid fragment value");
+    throw new OpenGammaRuntimeException("invalid fragment value while parsing bundle xml file");
   }
+
 
   private BundleNode createBundleFragment(String fragment) {
     return new Fragment(new File(_baseDir, fragment));
@@ -171,7 +172,7 @@ public class BundleParser {
     if (StringUtils.isNotBlank(idRef) && idRefExists(idRef)) {
       return true;
     }
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + " invalid idref ["  + idRef + "]");
+    throw new OpenGammaRuntimeException(" invalid idref ["  + idRef + "]");
   }
 
   private boolean idRefExists(String idRef) {
@@ -192,7 +193,7 @@ public class BundleParser {
             if (_elementsByIdMap.get(idAttr) == null) {
               _elementsByIdMap.put(idAttr, element);
             } else {
-              throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": duplicate id attribute in " + node.getNodeName());
+              throw new OpenGammaRuntimeException("parsing bundle XML : duplicate id attribute in " + node.getNodeName());
             }
           }
         }
@@ -204,7 +205,7 @@ public class BundleParser {
     if (rootElement.getNodeName().equals("uiResourceConfig")) {
       return true;
     }
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": invalid root element " + rootElement.getNodeName());
+    throw new OpenGammaRuntimeException("parsing bundle XML : invalid root element " + rootElement.getNodeName());
   }
 
   private boolean isValidBundleElement(Element element) {
@@ -215,21 +216,21 @@ public class BundleParser {
     if (element.hasAttribute(ID_ATTR) && StringUtils.isNotBlank(element.getAttribute(ID_ATTR))) {
       return true;
     } 
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": bundle element needs id attribute");
+    throw new OpenGammaRuntimeException("parsing bundle XML : bundle element needs id attribute");
   }
 
   private boolean hasChildren(Element element) {
     if (element.hasChildNodes()) {
       return true;
     } 
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": missing children elements in bundle");
+    throw new OpenGammaRuntimeException("parsing bundle XML : missing children elements in bundle");
   }
 
   private boolean isBundleElement(Element element) {
     if (element.getNodeName().equals(BUNDLE_ELEMENT)) {
       return true;
     } 
-    throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": element not a bundle");
+    throw new OpenGammaRuntimeException("parsing bundle XML : element not a bundle");
   }
 
   private DocumentBuilder getDocumentBuilder() {

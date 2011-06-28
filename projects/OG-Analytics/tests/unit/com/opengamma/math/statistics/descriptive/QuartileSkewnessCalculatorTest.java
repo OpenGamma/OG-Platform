@@ -5,9 +5,12 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.function.Function1D;
@@ -21,7 +24,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 public class QuartileSkewnessCalculatorTest {
   private static final double STD = 2.;
   private static final Function1D<double[], Double> SKEW = new QuartileSkewnessCalculator();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(4);
   private static final double[] NORMAL_DATA = new double[50000];
   private static final double[] CHI_SQ_DATA = new double[50000];

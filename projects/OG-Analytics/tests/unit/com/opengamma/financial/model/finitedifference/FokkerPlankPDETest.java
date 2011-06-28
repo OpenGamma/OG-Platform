@@ -31,7 +31,7 @@ public class FokkerPlankPDETest {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final EuropeanVanillaOption OPTION;
 
- // private static NormalDistribution NORMAL;
+  // private static NormalDistribution NORMAL;
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
 
@@ -84,7 +84,6 @@ public class FokkerPlankPDETest {
 
     //using a normal distribution with a very small Standard deviation as a proxy for a Dirac delta
     final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-;
       double tOffset = 0.05;
 
       @Override

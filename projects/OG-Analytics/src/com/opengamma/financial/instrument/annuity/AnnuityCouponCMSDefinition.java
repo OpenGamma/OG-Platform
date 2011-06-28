@@ -5,8 +5,15 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 
 /**
  * A wrapper class for a AnnuityDefinition containing CMS coupon Definition.
@@ -21,14 +28,35 @@ public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefin
     super(payments);
   }
 
-  @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitAnnuityCouponCMSDefinition(this, data);
-  }
-
-  @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitAnnuityCouponCMSDefinition(this);
+  /**
+   * CMS annuity (or CMS coupon leg) constructor from standard description. The coupon are fixing in advance and payment in arrears. 
+   * The CMS fixing is done at a standard lag before the coupon start.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param notional The notional.
+   * @param index The CMS index.
+   * @param paymentPeriod The payment period of the coupons.
+   * @param dayCount The day count of the coupons.
+   * @param isPayer Payer (true) / receiver (false) fleg.
+   * @return The CMS coupon leg.
+   */
+  public static AnnuityCouponCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final CMSIndex index, final Period paymentPeriod,
+      final DayCount dayCount, final boolean isPayer) {
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(maturityDate, "maturity date");
+    Validate.notNull(index, "index");
+    Validate.isTrue(notional > 0, "notional <= 0");
+    Validate.notNull(paymentPeriod, "Payment period");
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getIborIndex().getBusinessDayConvention(), index.getIborIndex().getCalendar());
+    final double sign = isPayer ? -1.0 : 1.0;
+    final CouponCMSDefinition[] coupons = new CouponCMSDefinition[paymentDates.length];
+    coupons[0] = CouponCMSDefinition.from(paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, index);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponCMSDefinition.from(paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn]), sign * notional, index);
+    }
+    return new AnnuityCouponCMSDefinition(coupons);
   }
 
 }

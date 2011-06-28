@@ -6,7 +6,10 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -17,7 +20,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
  * 
  */
 public class Extrapolator1DTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR);
   private static final FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> FLAT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>();

@@ -13,7 +13,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 
 /**
- * 
+ * Converter for {@link LabelledMatrix1D} results.
  */
 @SuppressWarnings("rawtypes")
 public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix1D> {
