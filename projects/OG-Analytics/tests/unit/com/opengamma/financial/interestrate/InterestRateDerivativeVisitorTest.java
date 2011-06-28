@@ -510,6 +510,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
+    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -703,12 +704,23 @@ public class InterestRateDerivativeVisitorTest {
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testSwaptionCash() {
+  public void testSwaptionCash1() {
     ABSTRACT_VISITOR.visit(SWAPTION_CASH);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testSwaptionPhysical() {
+  public void testSwaptionCash2() {
+    ABSTRACT_VISITOR.visit(SWAPTION_CASH, CURVE_NAME);
+  }
+  
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testSwaptionPhysical1() {
     ABSTRACT_VISITOR.visit(SWAPTION_PHYS);
   }
+  
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testSwaptionPhysical2() {
+    ABSTRACT_VISITOR.visit(SWAPTION_PHYS, CURVE_NAME);
+  }
+  
 }
