@@ -5,38 +5,50 @@
  */
 package com.opengamma.financial.forex.method;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Class describing the present value sensitivity to a Forex currency pair volatility point.
+ * Class describing the present value sensitivity to a Forex currency pair volatility grid.
  */
-public class PresentValueVolatilitySensitivityDataBundle {
+public class PresentValueVolatilityNodeSensitivityDataBundle {
 
   /**
    * The currency pair.
    */
   private final Pair<Currency, Currency> _currencyPair;
   /**
-   * The volatility sensitivity as a map between (time to expiry, strike) and sensitivity value. The sensitivity value is in second/domestic currency.
+   * The volatility sensitivity as a matrix with same dimension as the input. The sensitivity value is in second/domestic currency.
    */
-  private final Map<DoublesPair, Double> _vega;
+  private final DoubleMatrix2D _vega;
 
   /**
    * Constructor with empty sensitivities for a given currency pair.
    * @param ccy1 First currency.
    * @param ccy2 Second currency.
+   * @param numberExpiry The number of expiries.
+   * @param numberStrike The number of strikes.
    */
-  public PresentValueVolatilitySensitivityDataBundle(final Currency ccy1, final Currency ccy2) {
+  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, int numberExpiry, int numberStrike) {
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
-    _vega = new HashMap<DoublesPair, Double>();
+    _vega = new DoubleMatrix2D(numberExpiry, numberStrike);
+  }
+
+  /**
+   * Constructor with initial sensitivities for a given currency pair.
+   * @param ccy1 First currency.
+   * @param ccy2 Second currency.
+   * @param vega The initial sensitivity.
+   */
+  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix2D vega) {
+    Validate.notNull(vega, "Matrix");
+    _currencyPair = ObjectsPair.of(ccy1, ccy2);
+    _vega = vega;
   }
 
   /**
@@ -51,22 +63,11 @@ public class PresentValueVolatilitySensitivityDataBundle {
    * Gets the volatility sensitivity (vega) map.
    * @return The sensitivity.
    */
-  public Map<DoublesPair, Double> getVega() {
+  public DoubleMatrix2D getVega() {
     return _vega;
   }
 
-  /**
-   * Add the sensitivity at a given (expiry/strike) point. If the point is already present, the sensitivity is added.
-   * @param point The expiry/strike point.
-   * @param value The sensitivity value (in second/domestic currency).
-   */
-  public void add(final DoublesPair point, final double value) {
-    if (_vega.containsKey(point)) {
-      _vega.put(point, value + _vega.get(point));
-    } else {
-      _vega.put(point, value);
-    }
-  }
+  //TODO Add possibility to add a sensitivity?
 
   @Override
   public int hashCode() {
@@ -88,7 +89,7 @@ public class PresentValueVolatilitySensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PresentValueVolatilitySensitivityDataBundle other = (PresentValueVolatilitySensitivityDataBundle) obj;
+    PresentValueVolatilityNodeSensitivityDataBundle other = (PresentValueVolatilityNodeSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }

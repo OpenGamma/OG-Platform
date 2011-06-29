@@ -46,6 +46,8 @@ namespace com.opengamma.financial.security.option {
     required BarrierDirection barrierDirection;
     required MonitoringType monitoringType;
     required SamplingFrequency samplingFrequency;
+    
+    required double barrierLevel;
    
     binding Java {
       body <<<JAVA
