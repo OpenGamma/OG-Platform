@@ -68,7 +68,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
    * @param specConfigMaster
    */
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
-    final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy",
+    final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));

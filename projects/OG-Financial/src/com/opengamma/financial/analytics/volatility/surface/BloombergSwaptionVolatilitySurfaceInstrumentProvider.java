@@ -22,35 +22,35 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   private String _countryPrefix;
   private String _typePrefix;
   private String _postfix;
-  private boolean _zeroPadFirstTenor;
-  private boolean _zeroPadSecondTenor;
+  private boolean _zeroPadSwapMaturityTenor;
+  private boolean _zeroPadSwaptionExpiryTenor;
   private String _dataFieldName; // expecting MarketDataRequirementNames.MARKET_VALUE or PX_LAST
 
-  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadFirstTenor, final boolean zeroPadSecondTenor,
+  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
       final String postfix) {
-    this(countryPrefix, typePrefix, zeroPadFirstTenor, zeroPadSecondTenor, postfix, MarketDataRequirementNames.MARKET_VALUE);
+    this(countryPrefix, typePrefix, zeroPadSwapMaturityTenor, zeroPadSwaptionExpiryTenor, postfix, MarketDataRequirementNames.MARKET_VALUE);
   }
 
-  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadFirstTenor, final boolean zeroPadSecondTenor,
+  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
       final String postfix, final String dataFieldName) {
     Validate.notNull(countryPrefix);
     Validate.notNull(typePrefix);
     Validate.notNull(postfix);
     _countryPrefix = countryPrefix;
     _typePrefix = typePrefix;
-    _zeroPadFirstTenor = zeroPadFirstTenor;
-    _zeroPadSecondTenor = zeroPadSecondTenor;
+    _zeroPadSwapMaturityTenor = zeroPadSwapMaturityTenor;
+    _zeroPadSwaptionExpiryTenor = zeroPadSwaptionExpiryTenor;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
   }
 
   @Override
-  public Identifier getInstrument(final Tenor startTenor, final Tenor maturity) {
+  public Identifier getInstrument(final Tenor swapMaturityTenor, final Tenor swaptionExpiryTenor) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_countryPrefix);
     ticker.append(_typePrefix);
-    ticker.append(tenorToCode(startTenor, _zeroPadFirstTenor));
-    ticker.append(tenorToCode(maturity, _zeroPadSecondTenor));
+    ticker.append(tenorToCode(swaptionExpiryTenor, _zeroPadSwaptionExpiryTenor));
+    ticker.append(tenorToCode(swapMaturityTenor, _zeroPadSwapMaturityTenor));
     ticker.append(_postfix);
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker.toString());
   }
@@ -110,19 +110,19 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   }
 
   /**
-   * Gets the zeroPadFirstTenor field.
-   * @return the zeroPadFirstTenor
+   * Gets the zeroPadSwaptionExpiryTenor field.
+   * @return the zeroPadSwaptionExpiryTenor
    */
-  public boolean isZeroPadFirstTenor() {
-    return _zeroPadFirstTenor;
+  public boolean isZeroPadSwapMaturityTenor() {
+    return _zeroPadSwaptionExpiryTenor;
   }
 
   /**
-   * Gets the zeroPadSecondTenor field.
-   * @return the zeroPadSecondTenor
+   * Gets the zeroPadSwaptionExpiryTenor field.
+   * @return the zeroPadSwaptionExpiryTenor
    */
-  public boolean isZeroPadSecondTenor() {
-    return _zeroPadSecondTenor;
+  public boolean isZeroPadSwaptionExpiryTenor() {
+    return _zeroPadSwaptionExpiryTenor;
   }
 
   /**
@@ -146,8 +146,8 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     return getCountryPrefix().equals(other.getCountryPrefix()) &&
            getPostfix().equals(other.getPostfix()) &&
            getTypePrefix().equals(other.getTypePrefix()) &&
-           isZeroPadFirstTenor() == other.isZeroPadFirstTenor() &&
-           isZeroPadSecondTenor() == other.isZeroPadSecondTenor() &&
+           isZeroPadSwapMaturityTenor() == other.isZeroPadSwapMaturityTenor() &&
+           isZeroPadSwaptionExpiryTenor() == other.isZeroPadSwaptionExpiryTenor() &&
            getDataFieldName().equals(other.getDataFieldName());
   }
 
