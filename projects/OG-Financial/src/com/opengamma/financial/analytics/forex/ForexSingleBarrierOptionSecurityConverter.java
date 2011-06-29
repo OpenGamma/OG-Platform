@@ -51,7 +51,8 @@ public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptio
                                   getObservationType(barrierOptionSecurity.getMonitoringType()), level);
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true), barrier);
+    boolean isLong = true;//barrierOptionSecurity.getIsLong();
+    return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);
   }
 
   private KnockType getKnockType(BarrierDirection direction) {
