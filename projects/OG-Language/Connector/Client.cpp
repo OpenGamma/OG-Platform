@@ -221,7 +221,13 @@ endMessageLoop:
 			bStatus &= m_poService->SendPoison ();
 		}
 		m_poService->ClosePipes ();
-		m_poService->SetState (bStatus ? STOPPED : ERRORED);
+		if (bStatus) {
+			CAlert::Good (TEXT ("Disconnected from service"));
+			m_poService->SetState (STOPPED);
+		} else {
+			// A bad alert was already flagged when bStatus was set to FALSE
+			m_poService->SetState (ERRORED);
+		}
 		LOGINFO (TEXT ("Runner thread stopped"));
 	}
 
@@ -646,7 +652,7 @@ bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) const {
 	if (m_oPipesSemaphore.Wait (m_lSendTimeout)) {
 		if (m_poPipes && m_poPipes->IsConnected ()) {
 			int nPoll = 0;
-			long lStartTime = GetTickCount ();
+			unsigned long lStartTime = GetTickCount ();
 retrySend:
 			if (m_poPipes->Write (ptrBuffer, cbBuffer, m_lSendTimeout)) {
 				bResult = true;

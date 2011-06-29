@@ -57,17 +57,22 @@ static inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wc
 /// @param[in] pszIn string to copy
 /// @return the new string
 static inline wchar_t *AsciiToWideDup (const char *pszIn) {
-	int cch = strlen (pszIn);
-	wchar_t *pszOut = (wchar_t*)malloc (sizeof (wchar_t) * (cch + 1));
+	size_t cch = strlen (pszIn) + 1;
+#ifdef _WIN64
+	if (cch > MAXDWORD) return NULL;
+#endif /* ifdef _WIN64 */
+	wchar_t *pszOut = (wchar_t*)malloc (sizeof (wchar_t) * cch);
+	if (pszOut) {
 #ifdef _WIN32
-	MultiByteToWideChar (CP_ACP, 0, pszIn, cch, pszOut, cch + 1);
-#else
-	wchar_t *psz = pszOut;
-	while (*pszIn) {
-		*(psz++) = *(pszIn++);
-	}
-	*psz = 0;
+		MultiByteToWideChar (CP_ACP, 0, pszIn, (int)cch, pszOut, (int)cch);
+#else /* ifdef _WIN32 */
+		wchar_t *psz = pszOut;
+		while (*pszIn) {
+			*(psz++) = *(pszIn++);
+		}
+		*psz = 0;
 #endif /* ifdef _WIN32 */
+	}
 	return pszOut;
 }
 
@@ -76,17 +81,22 @@ static inline wchar_t *AsciiToWideDup (const char *pszIn) {
 /// @param[in] pszIn string to copy
 /// @return the new string
 static inline char *WideToAsciiDup (const wchar_t *pszIn) {
-	int cch = wcslen (pszIn);
-	char *pszOut = (char*)malloc (sizeof (char) * (cch + 1));
+	size_t cch = wcslen (pszIn) + 1;
+#ifdef _WIN64
+	if (cch > MAXINT32) return NULL;
+#endif /* ifdef _WIN64 */
+	char *pszOut = (char*)malloc (sizeof (char) * cch);
+	if (pszOut) {
 #ifdef _WIN32
-	WideCharToMultiByte (CP_ACP, 0, pszIn, cch, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
+		WideCharToMultiByte (CP_ACP, 0, pszIn, (int)cch, pszOut, sizeof (char)  * (int)cch, NULL, NULL);
 #else /* ifdef _WIN32 */
-	char *psz = pszOut;
-	while (*pszIn) {
-		*(psz++) = *(pszIn++);
-	}
-	*psz = 0;
+		char *psz = pszOut;
+		while (*pszIn) {
+			*(psz++) = *(pszIn++);
+		}
+		*psz = 0;
 #endif /* ifdef _WIN32 */
+	}
 	return pszOut;
 }
 

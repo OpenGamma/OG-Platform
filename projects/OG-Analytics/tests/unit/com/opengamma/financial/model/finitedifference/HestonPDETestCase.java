@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
@@ -193,9 +191,8 @@ public class HestonPDETestCase {
     final int n = 51;
     final double alpha = -0.5;
     final double tol = 1e-12;
-    EuropeanVanillaOption option = new EuropeanVanillaOption(F0, T, true);
-    final BlackFunctionData data = new BlackFunctionData(F0, 1.0, 0.2);
-    final double[][] strikeNprice = pricer.price(data, option, heston, STRIKE / 2, STRIKE * 2, n, alpha, tol);
+
+    final double[][] strikeNprice = pricer.price(F0, 1.0, T, true, heston, STRIKE / 2, STRIKE * 2, n, 0.2, alpha, tol);
 
     int nStrikes = strikeNprice.length;
     double[] k = new double[nStrikes];

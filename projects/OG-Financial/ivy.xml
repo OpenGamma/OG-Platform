@@ -4,7 +4,9 @@
     <publications>
       <artifact name="og-financial" type="jar"/>
       <artifact name="og-financial" type="source" ext="jar" />
+      <artifact name="og-financial" type="resource" ext="zip" />
     </publications>
+    
     <dependencies>
         <dependency name="og-analytics" rev="latest.integration" />
         <dependency name="og-master" rev="latest.integration" />

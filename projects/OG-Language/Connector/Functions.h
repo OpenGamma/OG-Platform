@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -13,6 +13,7 @@
 #include "com_opengamma_language_function_QueryAvailable.h"
 #include "com_opengamma_language_function_Result.h"
 
+/// Message builder for Function/Invoke.
 REQUESTBUILDER_BEGIN (CFunctionInvoke)
 	REQUESTBUILDER_REQUEST (com_opengamma_language_function_Invoke)
 	void SetInvocationId (int nInvocationId) {
@@ -25,6 +26,7 @@ REQUESTBUILDER_BEGIN (CFunctionInvoke)
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_function_Result)
 REQUESTBUILDER_END
 
+/// Message builder for Function/QueryAvailable.
 REQUESTBUILDER_BEGIN (CFunctionQueryAvailable)
 	REQUESTBUILDER_REQUEST (com_opengamma_language_function_QueryAvailable)
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_function_Available)

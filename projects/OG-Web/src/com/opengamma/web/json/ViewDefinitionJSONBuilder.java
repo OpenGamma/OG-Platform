@@ -69,7 +69,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       JSONObject viewJSON = new JSONObject(json);
       UniqueIdentifier portfolioIdentifier = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
-        portfolioIdentifier = convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(IDENTIFIER_FIELD));
+        portfolioIdentifier = UniqueIdentifier.parse(viewJSON.getString(IDENTIFIER_FIELD));
       }
       String name = viewJSON.getString(NAME_FIELD);
       UserPrincipal liveDataUser = convertJsonToObject(UserPrincipal.class, viewJSON.getJSONObject(USER_FIELD));
@@ -138,7 +138,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
         }
       }
       if (viewJSON.opt(UNIQUE_ID_FIELD) != null) {
-        viewDefinition.setUniqueId(convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(UNIQUE_ID_FIELD)));
+        viewDefinition.setUniqueId(UniqueIdentifier.parse(viewJSON.getString(UNIQUE_ID_FIELD)));
       }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create ViewDefinition", ex);
@@ -154,7 +154,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       jsonObject.put(String.valueOf(0), ViewDefinition.class.getName());
       jsonObject.put(NAME_FIELD, viewDefinition.getName());
       if (viewDefinition.getPortfolioId() != null) {
-        jsonObject.put(IDENTIFIER_FIELD, toJSONObject(viewDefinition.getPortfolioId()));
+        jsonObject.put(IDENTIFIER_FIELD, viewDefinition.getPortfolioId().toString());
       }
       jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getLiveDataUser()));
       jsonObject.put(RESULT_MODEL_DEFINITION_FIELD, toJSONObject(viewDefinition.getResultModelDefinition()));
@@ -213,7 +213,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       if (!calConfigJSONList.isEmpty()) {
         jsonObject.put(CALCULATION_CONFIGURATION_FIELD, calConfigJSONList);
       }
-      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(viewDefinition.getUniqueId()));
+      jsonObject.put(UNIQUE_ID_FIELD, viewDefinition.getUniqueId().toString());
             
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);

@@ -91,6 +91,8 @@ protected:
 	const TCHAR *CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const;
 #ifdef _WIN32
 	PCTSTR RegistryGet (HKEY hKey, PCTSTR pszKey) const;
+	HKEY RegistryOpenLocal (PCTSTR pszKey) const;
+	HKEY RegistryOpenGlobal (PCTSTR pszKey) const;
 #endif
 	const TCHAR *Get (const TCHAR *pszKey) const;
 	const TCHAR *Get (const TCHAR *pszKey, const TCHAR *pszDefault) const;

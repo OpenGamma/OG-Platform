@@ -53,6 +53,8 @@ public class ForexDerivativeVisitorTest {
     testException(FX_SWAP, o);
     testException(FX_OPTION);
     testException(FX_OPTION, o);
+    testException(FX_OPTION_SINGLE_BARRIER);
+    testException(FX_OPTION_SINGLE_BARRIER, o);
     final ForexDerivative[] forexArray = new ForexDerivative[] {FX, FX_SWAP};
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);

@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -40,6 +41,9 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -74,6 +78,7 @@ public class ForexOptionVanillaMethodTest {
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}};
+  private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParameter SMILE_TERM = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   // Methods and curves
   private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
@@ -84,6 +89,16 @@ public class ForexOptionVanillaMethodTest {
   private static final ForexDiscountingMethod METHOD_DISC = new ForexDiscountingMethod();
   private static final PresentValueForexCalculator PVC = PresentValueForexCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC = CurrencyExposureForexCalculator.getInstance();
+  // option
+  private static final double STRIKE = 1.45;
+  private static final boolean IS_CALL = true;
+  private static final boolean IS_LONG = true;
+  private static final double NOTIONAL = 100000000;
+  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
+  private static final ZonedDateTime OPTION_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, CALENDAR, -SETTLEMENT_DAYS);
+  private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, OPTION_PAY_DATE, NOTIONAL, STRIKE);
+  private static final ForexOptionVanillaDefinition FOREX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
+  private static final ForexOptionVanilla FOREX_OPTION = FOREX_OPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test
   /**
@@ -92,10 +107,11 @@ public class ForexOptionVanillaMethodTest {
   public void persentValueAtGridPoint() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final int indexPay = 2; // 1Y
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, PAY_DATE[indexPay], notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, EXPIRY_DATE[indexPay], isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, EXPIRY_DATE[indexPay], isCall, isLong);
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAY_DATE[indexPay]));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAY_DATE[indexPay])) / df;
@@ -111,15 +127,16 @@ public class ForexOptionVanillaMethodTest {
   /**
    * Tests the present value against an explicit computation.
    */
-  public void persentValue() {
+  public void presentValue() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final double timeToExpiry = ACT_ACT.getDayCountFraction(REFERENCE_DATE, expDate);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, payDate));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, payDate)) / df;
@@ -135,18 +152,35 @@ public class ForexOptionVanillaMethodTest {
   /**
    * Tests the present value Method versus the Calculator.
    */
-  public void persentValueMethodVsCalculator() {
+  public void presentValueMethodVsCalculator() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvMethod = METHOD_OPTION.presentValue(forexOption, SMILE_BUNDLE);
     final MultipleCurrencyAmount pvCalculator = PVC.visit(forexOption, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: present value Method vs Calculator", pvMethod.getAmount(CUR_2), pvCalculator.getAmount(CUR_2), 1E-2);
+  }
+
+  @Test
+  /**
+   * Tests the present value long/short parity.
+   */
+  public void presentValueLongShort() {
+    final ForexOptionVanillaDefinition forexOptionShortDefinition = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, !IS_LONG);
+    final ForexDerivative forexOptionShort = forexOptionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final MultipleCurrencyAmount pvShort = METHOD_OPTION.presentValue(forexOptionShort, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvLong = METHOD_OPTION.presentValue(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: present value long/short parity", pvLong.getAmount(CUR_2), -pvShort.getAmount(CUR_2), 1E-2);
+    final MultipleCurrencyAmount ceShort = METHOD_OPTION.currencyExposure(forexOptionShort, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceLong = METHOD_OPTION.currencyExposure(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: currency exposure long/short parity", ceLong.getAmount(CUR_2), -ceShort.getAmount(CUR_2), 1E-2);
+    assertEquals("Forex vanilla option: currency exposure long/short parity", ceLong.getAmount(CUR_1), -ceShort.getAmount(CUR_1), 1E-2);
   }
 
   @Test
@@ -156,13 +190,14 @@ public class ForexOptionVanillaMethodTest {
   public void currencyExposure() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final double timeToExpiry = ACT_ACT.getDayCountFraction(REFERENCE_DATE, expDate);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
-    final ForexOptionVanillaDefinition forexOptionDefinitionPut = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanillaDefinition forexOptionDefinitionPut = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall, isLong);
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final ForexOptionVanilla forexOptionPut = forexOptionDefinitionPut.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, payDate)); // USD
@@ -193,12 +228,13 @@ public class ForexOptionVanillaMethodTest {
   public void currencyExposurePutCallParity() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
-    final ForexOptionVanillaDefinition forexOptionDefinitionPut = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanillaDefinition forexOptionDefinitionPut = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall, isLong);
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final ForexOptionVanilla forexOptionPut = forexOptionDefinitionPut.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final Forex forexForward = forexUnderlyingDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -218,11 +254,12 @@ public class ForexOptionVanillaMethodTest {
   public void currencyExposureMethodVsCalculator() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount ceMethod = METHOD_OPTION.currencyExposure(forexOption, SMILE_BUNDLE);
     final MultipleCurrencyAmount ceCalculator = CEC.visit(forexOption, SMILE_BUNDLE);
@@ -237,11 +274,12 @@ public class ForexOptionVanillaMethodTest {
   public void presentValueCurveSensitivity() {
     final double strike = 1.45;
     final boolean isCall = true;
+    final boolean isLong = true;
     final double notional = 100000000;
     final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, CALENDAR, -SETTLEMENT_DAYS);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(CUR_1, CUR_2, payDate, notional, strike);
-    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall);
+    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final Forex forexForward = forexUnderlyingDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final PresentValueSensitivity sensi = METHOD_OPTION.presentValueCurveSensitivity(forexOptionCall, SMILE_BUNDLE);
@@ -309,4 +347,50 @@ public class ForexOptionVanillaMethodTest {
     assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
     assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
+
+  @Test
+  /**
+   * Tests present value volatility sensitivity.
+   */
+  public void volatilitySensitivity() {
+    PresentValueVolatilitySensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    DoublesPair point = new DoublesPair(FOREX_OPTION.getTimeToExpiry(), STRIKE);
+    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
+    assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().entrySet().size());
+    assertTrue("Forex vanilla option: vega", sensi.getVega().containsKey(point));
+    final double timeToExpiry = ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_EXP_DATE);
+    final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
+    final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, STRIKE, forward));
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
+    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_OPTION, dataBlack);
+    assertEquals("Forex vanilla option: vega", priceAdjoint[2] * NOTIONAL, sensi.getVega().get(point));
+    final ForexOptionVanillaDefinition optionShortDefinition = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, !IS_LONG);
+    final ForexOptionVanilla optionShort = optionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    PresentValueVolatilitySensitivityDataBundle sensiShort = METHOD_OPTION.presentValueVolatilitySensitivity(optionShort, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: vega short", -sensi.getVega().get(point), sensiShort.getVega().get(point));
+  }
+
+  @Test
+  /**
+   * Tests present value volatility node sensitivity.
+   */
+  public void volatilityNodeSensitivity() {
+    PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
+    PresentValueVolatilitySensitivityDataBundle pointSensitivity = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    double[][] nodeWeight = new double[NB_EXP][NB_STRIKE];
+    final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
+    final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
+    SMILE_TERM.getVolatilityAdjoint(FOREX_OPTION.getTimeToExpiry(), STRIKE, forward, nodeWeight);
+    DoublesPair point = DoublesPair.of(FOREX_OPTION.getTimeToExpiry(), STRIKE);
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
+        assertEquals("Forex vanilla option: vega node", nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point), sensi.getVega().getData()[loopexp][loopstrike]);
+      }
+    }
+  }
+
 }
