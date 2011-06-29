@@ -221,7 +221,13 @@ endMessageLoop:
 			bStatus &= m_poService->SendPoison ();
 		}
 		m_poService->ClosePipes ();
-		m_poService->SetState (bStatus ? STOPPED : ERRORED);
+		if (bStatus) {
+			CAlert::Good (TEXT ("Disconnected from service"));
+			m_poService->SetState (STOPPED);
+		} else {
+			// A bad alert was already flagged when bStatus was set to FALSE
+			m_poService->SetState (ERRORED);
+		}
 		LOGINFO (TEXT ("Runner thread stopped"));
 	}
 

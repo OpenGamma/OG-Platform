@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -11,6 +11,7 @@
 #include "com_opengamma_language_procedure_Available.h"
 #include "com_opengamma_language_procedure_QueryAvailable.h"
 
+/// Message builder for Procedure/QueryAvailable
 REQUESTBUILDER_BEGIN (CProcedureQueryAvailable)
 	REQUESTBUILDER_REQUEST (com_opengamma_language_procedure_QueryAvailable)
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_procedure_Available)

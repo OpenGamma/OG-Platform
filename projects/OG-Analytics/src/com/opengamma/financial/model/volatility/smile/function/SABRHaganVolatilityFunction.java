@@ -16,6 +16,7 @@ import com.opengamma.util.CompareUtils;
  * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  */
 public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+  private static final double CUTOFF_MONEYNESS = 1e-6;
   private static final double EPS = 1e-15;
 
   @Override
@@ -34,10 +35,9 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
         final double rho = data.getRho();
         final double nu = data.getNu();
         final double f = data.getForward();
-        final double k = Math.max(option.getStrike(), 0.000001); // Floored at 0.01bp
+
+        final double k = Math.max(option.getStrike(), f * CUTOFF_MONEYNESS); // Floored
         // TODO: Improve treatment around strike/k=0?
-        //        final double k = Math.max(option.getStrike(), f * 1e-6); // Floored
-        //        // TODO: Improve treatment around strike/k=0?
         double vol, z, zOverChi;
         final double beta1 = 1 - beta;
         if (CompareUtils.closeEquals(f, k, EPS)) {
@@ -87,13 +87,13 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
      */
     final double[] volatilityAdjoint = new double[6];
 
-    final double strike = Math.max(option.getStrike(), 0.000001);
+    final double forward = data.getForward();
+    final double strike = Math.max(option.getStrike(), forward * CUTOFF_MONEYNESS);
     final double timeToExpiry = option.getTimeToExpiry();
     final double alpha = data.getAlpha();
     final double beta = data.getBeta();
     final double rho = data.getRho();
     final double nu = data.getNu();
-    final double forward = data.getForward();
 
     // Implementation note: Forward sweep.
     final double sfK = Math.pow(forward * strike, (1 - beta) / 2);
