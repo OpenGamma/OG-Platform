@@ -35,7 +35,23 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
   private MonitoringType _monitoringType;
   private SamplingFrequency _samplingFrequency;
   private double _barrierLevel;
+  private boolean _isLong;
+  
+  /**
+   * Gets the isLong.
+   * @return the isLong
+   */
+  public boolean isLong() {
+    return _isLong;
+  }
 
+  /**
+   * Sets the isLong.
+   * @param isLong  the isLong
+   */
+  public void setLong(boolean isLong) {
+    _isLong = isLong;
+  }
 
   public FXBarrierOptionSecurityBean() {
     super();
@@ -212,6 +228,7 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
       .append(getMonitoringType(), option.getMonitoringType())
       .append(getSamplingFrequency(), option.getSamplingFrequency())
       .append(getBarrierLevel(), option.getBarrierLevel())
+      .append(isLong(), option.isLong())
       .isEquals();
   }
 
@@ -229,6 +246,7 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
       .append(getMonitoringType())
       .append(getSamplingFrequency())
       .append(getBarrierLevel())
+      .append(isLong())
       .toHashCode();
   }
 

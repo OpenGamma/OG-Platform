@@ -48,6 +48,7 @@ namespace com.opengamma.financial.security.option {
     required SamplingFrequency samplingFrequency;
     
     required double barrierLevel;
+    required boolean isLong;
    
     binding Java {
       body <<<JAVA
