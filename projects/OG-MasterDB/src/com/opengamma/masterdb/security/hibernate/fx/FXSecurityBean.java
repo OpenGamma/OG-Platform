@@ -11,6 +11,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
+import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
@@ -21,7 +22,7 @@ public class FXSecurityBean extends SecurityBean {
   private CurrencyBean _payCurrency;
   private double _receiveAmount;
   private CurrencyBean _receiveCurrency;
-  private String _tradeCountry;
+  private IdentifierBean _region;
   
   /**
    * Gets the payAmount.
@@ -86,21 +87,21 @@ public class FXSecurityBean extends SecurityBean {
   public void setReceiveCurrency(CurrencyBean receiveCurrency) {
     _receiveCurrency = receiveCurrency;
   }
-
+  
   /**
-   * Gets the tradeCountry.
-   * @return the tradeCountry
+   * Gets the region.
+   * @return the region
    */
-  public String getTradeCountry() {
-    return _tradeCountry;
+  public IdentifierBean getRegion() {
+    return _region;
   }
 
   /**
-   * Sets the tradeCountry.
-   * @param tradeCountry  the tradeCountry
+   * Sets the region.
+   * @param region  the region
    */
-  public void setTradeCountry(String tradeCountry) {
-    _tradeCountry = tradeCountry;
+  public void setRegion(IdentifierBean region) {
+    _region = region;
   }
 
   @Override
@@ -115,7 +116,7 @@ public class FXSecurityBean extends SecurityBean {
       .append(getReceiveAmount(), fx.getReceiveAmount())
       .append(getPayCurrency(), fx.getPayCurrency())
       .append(getReceiveCurrency(), fx.getReceiveCurrency())
-      .append(getTradeCountry(), fx.getTradeCountry())
+      .append(getRegion(), fx.getRegion())
       .isEquals();
   }
   
@@ -126,7 +127,7 @@ public class FXSecurityBean extends SecurityBean {
       .append(getReceiveAmount())
       .append(getPayCurrency())
       .append(getReceiveCurrency())
-      .append(getTradeCountry())
+      .append(getRegion())
       .toHashCode();
   }
 

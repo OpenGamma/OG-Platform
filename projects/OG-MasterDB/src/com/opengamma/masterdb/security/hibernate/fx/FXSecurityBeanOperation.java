@@ -7,6 +7,8 @@
 package com.opengamma.masterdb.security.hibernate.fx;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
+import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
 
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
@@ -34,19 +36,17 @@ public final class FXSecurityBeanOperation extends AbstractSecurityBeanOperation
     bean.setPayCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPayCurrency().getCode()));
     bean.setReceiveAmount(security.getReceiveAmount());
     bean.setReceiveCurrency(secMasterSession.getOrCreateCurrencyBean(security.getReceiveCurrency().getCode()));
-//    bean.setRegion(identifierToIdentifierBean(security.getRegion()));
-    bean.setTradeCountry(security.getTradeCountry());    
+    bean.setRegion(identifierToIdentifierBean(security.getRegion()));
     return bean;
   }
 
   @Override
   public FXSecurity createSecurity(final OperationContext context, FXSecurityBean bean) {
-//    identifierBeanToIdentifier(bean.getRegion())
     return new FXSecurity(currencyBeanToCurrency(bean.getPayCurrency()), 
         currencyBeanToCurrency(bean.getReceiveCurrency()), 
         bean.getPayAmount(), 
         bean.getReceiveAmount(), 
-        bean.getTradeCountry());
+        identifierBeanToIdentifier(bean.getRegion()));
   }
 
 }
