@@ -19,7 +19,7 @@ namespace com.opengamma.financial.security.option {
   
   enum MonitoringType {
     CONTINUOUS;
-    DESCRETE;
+    DISCRETE;
   }
   
   enum SamplingFrequency {
