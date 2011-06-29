@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ForexOptionSecurityConverter implements FXOptionSecurityVisitor<ForexConverter<?>> {
+public class ForexVanillaOptionSecurityConverter implements FXOptionSecurityVisitor<ForexConverter<?>> {
 
   @Override
   public ForexConverter<?> visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
