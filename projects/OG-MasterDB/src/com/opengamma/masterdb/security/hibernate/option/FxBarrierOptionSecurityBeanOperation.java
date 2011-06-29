@@ -47,6 +47,7 @@ public final class FxBarrierOptionSecurityBeanOperation extends AbstractSecurity
     bean.setMonitoringType(security.getMonitoringType());
     bean.setSamplingFrequency(security.getSamplingFrequency());
     bean.setBarrierLevel(security.getBarrierLevel());
+    bean.setLong(security.getIsLong());
     return bean;
   }
 
@@ -66,7 +67,8 @@ public final class FxBarrierOptionSecurityBeanOperation extends AbstractSecurity
         bean.getBarrierDirection(), 
         bean.getMonitoringType(), 
         bean.getSamplingFrequency(),
-        bean.getBarrierLevel());
+        bean.getBarrierLevel(),
+        bean.isLong());
     return sec;
   }
 
