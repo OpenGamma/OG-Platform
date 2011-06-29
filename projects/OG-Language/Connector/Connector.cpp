@@ -227,7 +227,7 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 		int nFields = FudgeMsg_numFields (msgPayload);
 		FudgeField field[8];
 		FudgeField *pField;
-		if (nFields <= (sizeof (field) / sizeof (FudgeField))) {
+		if (nFields <= (int)(sizeof (field) / sizeof (FudgeField))) {
 			pField = field;
 		} else {
 			LOGDEBUG (TEXT ("Allocating buffer for ") << nFields << TEXT (" fields"));

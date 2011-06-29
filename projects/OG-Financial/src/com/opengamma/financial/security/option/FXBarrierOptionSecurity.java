@@ -5,7 +5,7 @@ package com.opengamma.financial.security.option;
 public class FXBarrierOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept (FXBarrierOptionSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
-  private static final long serialVersionUID = 7795774372712856404l;
+  private static final long serialVersionUID = 2361078214451615862l;
   private com.opengamma.util.money.Currency _putCurrency;
   public static final String PUT_CURRENCY_KEY = "putCurrency";
   private com.opengamma.util.money.Currency _callCurrency;
@@ -28,8 +28,10 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
   public static final String SAMPLING_FREQUENCY_KEY = "samplingFrequency";
   private double _barrierLevel;
   public static final String BARRIER_LEVEL_KEY = "barrierLevel";
+  private boolean _isLong;
+  public static final String IS_LONG_KEY = "isLong";
   public static final String SECURITY_TYPE = "FX_BARRIER_OPTION";
-  public FXBarrierOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel) {
+  public FXBarrierOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel, boolean isLong) {
     super (SECURITY_TYPE);
     if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
     _putCurrency = putCurrency;
@@ -54,6 +56,7 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     if (samplingFrequency == null) throw new NullPointerException ("samplingFrequency' cannot be null");
     _samplingFrequency = samplingFrequency;
     _barrierLevel = barrierLevel;
+    _isLong = isLong;
   }
   protected FXBarrierOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
@@ -146,8 +149,16 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierLevel' is not double", e);
     }
+    fudgeField = fudgeMsg.getByName (IS_LONG_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'isLong' is not present");
+    try {
+      _isLong = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'isLong' is not boolean", e);
+    }
   }
-  public FXBarrierOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel) {
+  public FXBarrierOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel, boolean isLong) {
     super (uniqueId, name, securityType, identifiers);
     if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
     _putCurrency = putCurrency;
@@ -172,6 +183,7 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     if (samplingFrequency == null) throw new NullPointerException ("samplingFrequency' cannot be null");
     _samplingFrequency = samplingFrequency;
     _barrierLevel = barrierLevel;
+    _isLong = isLong;
   }
   protected FXBarrierOptionSecurity (final FXBarrierOptionSecurity source) {
     super (source);
@@ -193,6 +205,7 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     _monitoringType = source._monitoringType;
     _samplingFrequency = source._samplingFrequency;
     _barrierLevel = source._barrierLevel;
+    _isLong = source._isLong;
   }
   public FXBarrierOptionSecurity clone () {
     return new FXBarrierOptionSecurity (this);
@@ -234,6 +247,7 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
       msg.add (SAMPLING_FREQUENCY_KEY, null, _samplingFrequency.name ());
     }
     msg.add (BARRIER_LEVEL_KEY, null, _barrierLevel);
+    msg.add (IS_LONG_KEY, null, _isLong);
   }
   public static FXBarrierOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -327,6 +341,12 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
   public void setBarrierLevel (double barrierLevel) {
     _barrierLevel = barrierLevel;
   }
+  public boolean getIsLong () {
+    return _isLong;
+  }
+  public void setIsLong (boolean isLong) {
+    _isLong = isLong;
+  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof FXBarrierOptionSecurity)) return false;
@@ -390,6 +410,7 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     }
     else if (msg._samplingFrequency != null) return false;
     if (_barrierLevel != msg._barrierLevel) return false;
+    if (_isLong != msg._isLong) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -413,6 +434,8 @@ public class FXBarrierOptionSecurity extends com.opengamma.financial.security.Fi
     hc *= 31;
     if (_samplingFrequency != null) hc += _samplingFrequency.hashCode ();
     hc = (hc * 31) + (int)_barrierLevel;
+    hc *= 31;
+    if (_isLong) hc++;
     return hc;
   }
   public String toString () {

@@ -652,7 +652,7 @@ bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) const {
 	if (m_oPipesSemaphore.Wait (m_lSendTimeout)) {
 		if (m_poPipes && m_poPipes->IsConnected ()) {
 			int nPoll = 0;
-			long lStartTime = GetTickCount ();
+			unsigned long lStartTime = GetTickCount ();
 retrySend:
 			if (m_poPipes->Write (ptrBuffer, cbBuffer, m_lSendTimeout)) {
 				bResult = true;

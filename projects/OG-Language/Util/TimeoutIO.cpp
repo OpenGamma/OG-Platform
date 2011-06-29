@@ -154,7 +154,10 @@ size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) 
 	}
 #ifdef _WIN32
 	DWORD cbBytesRead = 0;
-	if (ReadFile (m_file, pBuffer, cbBuffer, &cbBytesRead, GetOverlapped ())) {
+#ifdef _WIN64
+	if (cbBuffer > MAXDWORD) cbBuffer = MAXDWORD;
+#endif /* ifdef _WIN64 */
+	if (ReadFile (m_file, pBuffer, (DWORD)cbBuffer, &cbBytesRead, GetOverlapped ())) {
 		LOGDEBUG (TEXT ("Read ") << cbBytesRead << TEXT (" immediate data"));
 		return cbBytesRead;
 	}
@@ -173,7 +176,7 @@ size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) 
 		return 0;
 	}
 	return cbBytesRead;
-#else
+#else /* ifdef _WIN32 */
 	bool bLazyWait = false;
 	if (IsLazyClosing ()) {
 		bLazyWait = true;
@@ -213,7 +216,7 @@ timeoutOperation:
 		return 0;
 	}
 	return cbBytesRead;
-#endif
+#endif /* ifdef _WIN32 */
 }
 
 /// Write to the underlying, returning when at least one byte has been written, the timeout elapses
@@ -231,7 +234,10 @@ size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long ti
 	}
 #ifdef _WIN32
 	DWORD cbBytesWritten = 0;
-	if (WriteFile (m_file, pBuffer, cbBuffer, &cbBytesWritten, &m_overlapped)) {
+#ifdef _WIN64
+	if (cbBuffer > MAXDWORD) cbBuffer = MAXDWORD;
+#endif /* ifdef _WIN64 */
+	if (WriteFile (m_file, pBuffer, (DWORD)cbBuffer, &cbBytesWritten, &m_overlapped)) {
 		LOGDEBUG (TEXT ("Write ") << cbBytesWritten << TEXT (" immediate data"));
 		return cbBytesWritten;
 	}
