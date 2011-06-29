@@ -1,46 +1,58 @@
 ### @export "imports"
-from com.opengamma.financial.model.volatility.smile.function import SABRFormulaData
-from com.opengamma.financial.model.option.pricing.analytic.formula import SABRExtrapolationRightFunction
+from com.opengamma.financial.model.option.pricing.analytic.formula import BlackFunctionData
 from com.opengamma.financial.model.option.pricing.analytic.formula import EuropeanVanillaOption
+from com.opengamma.financial.model.option.pricing.analytic.formula import SABRExtrapolationRightFunction
+from com.opengamma.financial.model.volatility import BlackImpliedVolatilityFormula
+from com.opengamma.financial.model.volatility.smile.function import SABRFormulaData
 
 ### @export "sabr-data"
-forward = 0.05
-alpha = 0.05
-beta = 0.50
-nu = 0.50
-rho = -0.25
+FORWARD = 0.05
+ALPHA = 0.05
+BETA = 0.50
+NU = 0.50
+RHO = -0.25
 
-sabr_data =  SABRFormulaData(forward, alpha, beta, nu, rho)
+sabr_data =  SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO)
 print sabr_data
 
 ### @export "sabr-function"
-cut_off_strike = 0.10
-time_to_expiry = 2.0
+CUT_OFF_STRIKE = 0.10
+TIME_TO_EXPIRY = 2.0
 mu = 5.0
-sabr_fn = SABRExtrapolationRightFunction(sabr_data, cut_off_strike, time_to_expiry, mu)
+sabr_fn = SABRExtrapolationRightFunction(sabr_data, CUT_OFF_STRIKE, TIME_TO_EXPIRY, mu)
 print sabr_fn
 
 ### @export "create-option"
-option = EuropeanVanillaOption(cut_off_strike, time_to_expiry, True)
+strike = 0.12
+option = EuropeanVanillaOption(strike, TIME_TO_EXPIRY, True)
+print option
 
 ### @export "calculate-price"
-sabr_fn.price(option)
+price = sabr_fn.price(option)
+print price
+
+### @export "calculate-implied-vol"
+implied = BlackImpliedVolatilityFormula()
+black_data = BlackFunctionData(FORWARD, 1.0, 0.0)
+implied.getImpliedVolatility(black_data, option, price)
 
 ### @export "create-table"
-f = open("dexy--smile-data.txt", "w")
+f = open("dexy--sabr-extrapolation-data.txt", "w")
 
 # Write header row
-f.write("Mu\tPrice\tStrikePrice\n")
+f.write("Mu\tPrice\tStrike\tImpliedVol\n")
 
-range_strike = 0.02
-n = 100
+RANGE_STRIKE = 0.02
+N = 100
 
 for mu in [5.0, 40.0, 90.0, 150.0]:
-    sabr_fn = SABRExtrapolationRightFunction(sabr_data, cut_off_strike, time_to_expiry, mu)
-    for p in range(0, n):
-        strike_price = cut_off_strike - range_strike + p * 4.0 * range_strike / n
-        option = EuropeanVanillaOption(strike_price, time_to_expiry, True)
-        f.write("%s\t%s\t%s\n" % (mu, sabr_fn.price(option), strike_price))
+    sabr_fn = SABRExtrapolationRightFunction(sabr_data, CUT_OFF_STRIKE, TIME_TO_EXPIRY, mu)
+    for p in range(0, N):
+        strike = CUT_OFF_STRIKE - RANGE_STRIKE + p * 4.0 * RANGE_STRIKE / N
+        option = EuropeanVanillaOption(strike, TIME_TO_EXPIRY, True)
+        price = sabr_fn.price(option)
+        implied_vol = implied.getImpliedVolatility(black_data, option, price)
+        f.write("%s\t%s\t%s\t%s\n" % (mu, sabr_fn.price(option), strike, implied_vol))
 
 f.close()
 
