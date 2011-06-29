@@ -22,7 +22,6 @@ public class AccuracyTest {
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
   private static final int N_STRIKES = 21;
-  private static final BlackFunctionData DATA = new BlackFunctionData(FORWARD, DF, SIGMA);
   private static final double ALPHA = -0.5;
   private static final double EPS = 1e-6;
 
@@ -59,9 +58,8 @@ public class AccuracyTest {
     final double maxLogMoneyness = 6.0 / N_STRIKES * SIGMA * Math.sqrt(t);
     final FourierPricer integralPricer = new FourierPricer();
     final FFTPricer fftPricer = new FFTPricer();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(100, t, true);
 
-    final double[][] fftStrikeNprice = fftPricer.price(DATA, option, ce, N_STRIKES, maxLogMoneyness, ALPHA, fftTol);
+    final double[][] fftStrikeNprice = fftPricer.price(FORWARD, DF, t, true, ce, N_STRIKES, maxLogMoneyness, SIGMA, ALPHA, fftTol);
     final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
     for (int i = 0; i < N_STRIKES; i++) {
       final double k = fftStrikeNprice[i][0];

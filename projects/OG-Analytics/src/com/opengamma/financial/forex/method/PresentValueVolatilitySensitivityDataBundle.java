@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -66,6 +68,34 @@ public class PresentValueVolatilitySensitivityDataBundle {
     }
   }
 
-  //TODO Add equal/hash?
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _currencyPair.hashCode();
+    result = prime * result + _vega.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    PresentValueVolatilitySensitivityDataBundle other = (PresentValueVolatilitySensitivityDataBundle) obj;
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_vega, other._vega)) {
+      return false;
+    }
+    return true;
+  }
 
 }

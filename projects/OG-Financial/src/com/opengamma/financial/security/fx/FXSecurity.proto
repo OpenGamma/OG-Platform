@@ -17,7 +17,7 @@
      required com.opengamma.util.money.Currency receiveCurrency;
      required double payAmount;
      required double receiveAmount;
-     required string tradeCountry;
+     required id.Identifier region;
 
      binding Java {
        body <<<JAVA

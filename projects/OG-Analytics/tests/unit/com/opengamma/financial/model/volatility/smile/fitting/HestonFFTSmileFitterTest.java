@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -13,10 +14,37 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class HestonFourierNonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTestCase {
-  private static final HestonFourierNonLinearLeastSquareFitter FITTER = new HestonFourierNonLinearLeastSquareFitter();
-  private static final double[] INITIAL_VALUES = new double[] {0.5, 0.3, 0.2, 0.1, 0};
+public class HestonFFTSmileFitterTest extends LeastSquareSmileFitterTestCase {
+  private static final double ALPHA = -0.5;
+  private static final double LIMIT_TOLERANCE = 1e-8;
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
+  private static final HestonFFTSmileFitter FITTER = new HestonFFTSmileFitter(false);
+  private static final double[] INITIAL_VALUES = new double[] {0.5, 0.3, 0.2, 0.1, 0 };
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullInterpolator1() {
+    new HestonFFTSmileFitter(null, ALPHA, LIMIT_TOLERANCE, false);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullInterpolator2() {
+    new HestonFFTSmileFitter(null, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testZeroAlpha() {
+    new HestonFFTSmileFitter(INTERPOLATOR, 0, LIMIT_TOLERANCE, false);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongAlpha() {
+    new HestonFFTSmileFitter(INTERPOLATOR, -1, LIMIT_TOLERANCE, false);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeTolerance() {
+    new HestonFFTSmileFitter(INTERPOLATOR, ALPHA, -LIMIT_TOLERANCE, false);
+  }
 
   @Override
   protected LeastSquareSmileFitter getFitter() {
@@ -28,28 +56,4 @@ public class HestonFourierNonLinearLeastSquareFitterTest extends LeastSquareSmil
     return INITIAL_VALUES;
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullInterpolator1() {
-    new HestonFourierNonLinearLeastSquareFitter(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullInterpolator2() {
-    new HestonFourierNonLinearLeastSquareFitter(null, 0.5, 1e-4);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testZeroAlpha() {
-    new HestonFourierNonLinearLeastSquareFitter(INTERPOLATOR, 0, 1e-6);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongAlpha() {
-    new HestonFourierNonLinearLeastSquareFitter(INTERPOLATOR, -1, 1e-6);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeTolerance() {
-    new HestonFourierNonLinearLeastSquareFitter(INTERPOLATOR, 0.5, -1e-6);
-  }
 }

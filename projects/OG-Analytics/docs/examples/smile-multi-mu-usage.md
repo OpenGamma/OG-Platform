@@ -27,7 +27,7 @@ Now we just need to define a few more constants and we can create an instance of
 
 {{ d['smile-multi-mu.py|fn|idio|jythoni|pyg']['sabr-function'] }}
 
-The price() method of SABRExtrapolationRightFunction requires a EuropeanVanillaOption as its argument, so next we create one:
+The price() method of SABRExtrapolationRightFunction requires a EuropeanVanillaOption as its argument, we will create them with different strikes in the following way:
 
 {{ d['smile-multi-mu.py|fn|idio|jythoni|pyg']['create-option'] }}
 
@@ -35,13 +35,13 @@ So finally we can calculate the price of this option using our extrapolation fun
 
 {{ d['smile-multi-mu.py|fn|idio|jythoni|pyg']['calculate-price'] }}
 
-Now that we have this working, we can construct a table of extrapolated prices for various option prices and values for $\\mu$.
+Now that we have this working, we can construct a table of extrapolated prices for various strikes and values for mu.
 
 {{ d['smile-multi-mu.py|fn|idio|jythoni|pyg']['create-table'] }}
 
 Here is what the data file generated looks like:
 <pre>
-{% for l in d['smile-data'].split("\\n")[0:10] -%}
+{% for l in d['sabr-extrapolation-data'].split("\\n")[0:10] -%}
 {{ l }}
 {% endfor -%}
 </pre>
@@ -49,7 +49,22 @@ Here is what the data file generated looks like:
 Now we switch to R where we are going to plot this generated data.
 
 {{ d['smile-multi-mu.R|fn|idio|rint|pyg']['read-data'] }}
+
 {{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-data'] }}
 
-<img src="../smile.png" />
+<img src="../extrapolation-price.png" />
+
+{{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-implied-vol'] }}
+
+<img src="../extrapolation-smile.png" />
+
+Also we want to calculate the price density:
+
+{{ d['smile-multi-mu.R|fn|idio|rint|pyg']['calculate-density'] }}
+
+And graph it:
+
+{{ d['smile-multi-mu.R|fn|idio|rint|pyg']['plot-density'] }}
+
+<img src="../extrapolation-density.png" />
 
