@@ -35,6 +35,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionH
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
@@ -59,7 +60,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
   private static final double ERROR = 0.001;
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
-  private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 0.2, 0.2, 0.0};
+  private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 0.5, 0.2, 0.0};
   private static final BitSet FIXED = new BitSet();
   private static final boolean RECOVER_ATM_VOL = true;
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
@@ -70,6 +71,10 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
   private final VolatilityCubeFunctionHelper _volCubeHelper;
   private ValueSpecification _resultSpecification;
   private ValueRequirement _cubeRequirement;
+
+  static {
+    FIXED.set(1);
+  }
 
   //TODO forward data helper? or in the cube?
 
@@ -106,6 +111,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     final DoubleArrayList betaList = new DoubleArrayList();
     final DoubleArrayList nuList = new DoubleArrayList();
     final DoubleArrayList rhoList = new DoubleArrayList();
+    final DoubleArrayList chiSqList = new DoubleArrayList();
     for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
       final double maturity = getTime(swapMaturityEntry.getKey());
       for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {
@@ -137,6 +143,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
             betaList.add(parameters.getEntry(1));
             nuList.add(parameters.getEntry(2));
             rhoList.add(parameters.getEntry(3));
+            chiSqList.add(fittedResult.getChiSq());
           }
         }
       }
@@ -150,10 +157,16 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     final double[] beta = betaList.toDoubleArray();
     final double[] nu = nuList.toDoubleArray();
     final double[] rho = rhoList.toDoubleArray();
+    final double[] chiSq = chiSqList.toDoubleArray();
     final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, alpha, INTERPOLATOR, "SABR alpha surface"));
     final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, beta, INTERPOLATOR, "SABR beta surface"));
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, nu, INTERPOLATOR, "SABR nu surface"));
     final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, rho, INTERPOLATOR, "SABR rho surface"));
+    PDEUtilityTools.printSurface("Alpha", alphaSurface.getSurface(), 2, 30, 0.25, 20);
+    PDEUtilityTools.printSurface("Beta", betaSurface.getSurface(), 2, 30, 0.25, 20);
+    PDEUtilityTools.printSurface("Nu", nuSurface.getSurface(), 2, 30, 0.25, 20);
+    PDEUtilityTools.printSurface("Rho", rhoSurface.getSurface(), 2, 30, 0.25, 20);
+    PDEUtilityTools.printSurface("Chi Sq", InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, chiSq, INTERPOLATOR, "SABR chi sq surface"), 2, 30, 0.25, 20);
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, _volCubeHelper.getKey().getCurrency(), DAY_COUNT);
     return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces));
   }
