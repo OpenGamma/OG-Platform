@@ -46,7 +46,8 @@ public final class YieldCurveFunction {
   private YieldCurveFunction() {
   }
 
-  private static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     if ((curveNames == null) || (curveNames.size() != 1)) {
       return null;
@@ -55,7 +56,8 @@ public final class YieldCurveFunction {
     }
   }
 
-  private static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
     s_logger.debug("propertyName={} requirement={}", propertyName, requirement);
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     final Set<String> defaultCurves;

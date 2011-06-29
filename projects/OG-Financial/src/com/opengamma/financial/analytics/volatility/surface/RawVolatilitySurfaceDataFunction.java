@@ -29,6 +29,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -47,8 +48,13 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
    * Resultant value specification property for the surface result. Note these should be moved into either the ValuePropertyNames class
    * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
    */
-  public static final String PROPERTY_SURFACE_DEFINITION_NAME = "NAME";
-  public static final String PROPERTY_SURFACE_INSTRUMENT_TYPE = "INSTRUMENT_TYPE";
+  //TODO replace with ValuePropertyNames.SURFACE?
+  //public static final String PROPERTY_SURFACE_DEFINITION_NAME = "NAME";
+  /**
+   * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
+   * surface, swaption ATM volatility surface). 
+   */
+  public static final String PROPERTY_SURFACE_INSTRUMENT_TYPE = "InstrumentType";
 
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
@@ -59,11 +65,11 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   private String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public RawVolatilitySurfaceDataFunction(final String currency, final String definitionName, String instrumentType, final String specificationName) {
+  public RawVolatilitySurfaceDataFunction(final String currency, final String definitionName, final String instrumentType, final String specificationName) {
     this(Currency.of(currency), definitionName, instrumentType, specificationName);
   }
 
-  public RawVolatilitySurfaceDataFunction(final Currency currency, final String definitionName, String instrumentType, final String specificationName) {
+  public RawVolatilitySurfaceDataFunction(final Currency currency, final String definitionName, final String instrumentType, final String specificationName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
@@ -93,11 +99,11 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_surfaceCurrency, _definitionName);
+    _definition = volSurfaceDefinitionSource.getDefinition(_surfaceCurrency, _definitionName, _instrumentType);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_surfaceCurrency, _specificationName);
+    _specification = volatilitySurfaceSpecificationSource.getSpecification(_surfaceCurrency, _specificationName, _instrumentType);
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
-        createValueProperties().with(PROPERTY_SURFACE_DEFINITION_NAME, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
+        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
   }
 
@@ -172,8 +178,8 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
             final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
             final Identifier identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
-            final Double volatility = (Double) inputs.getValue(requirement);            
-            volatilityValues.put(Pair.of(x, y), volatility);
+            final Double volatility = (Double) inputs.getValue(requirement);
+            volatilityValues.put(Pair.of(x, y), volatility / 100);
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),

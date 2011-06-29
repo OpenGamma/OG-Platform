@@ -23,7 +23,7 @@ public interface VolatilitySurfaceDefinitionSource {
    * @param name  the name, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceDefinition<?, ?> getDefinition(Currency currency, String name);
+  VolatilitySurfaceDefinition<?, ?> getDefinition(Currency currency, String name, String instrumentType);
 
   /**
    * Gets a volatility surface definition for a currency, name and version.
@@ -32,6 +32,6 @@ public interface VolatilitySurfaceDefinitionSource {
    * @param version  the version instant, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceDefinition<?, ?> getDefinition(Currency currency, String name, Instant version);
+  VolatilitySurfaceDefinition<?, ?> getDefinition(Currency currency, String name, Instant version, String instrumentType);
 
 }

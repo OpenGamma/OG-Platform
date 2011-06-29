@@ -42,13 +42,13 @@ public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurf
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name) {
-    return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, name + "_" + ccy.getCode());
+  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name, final String instrumentType) {
+    return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, name + "_" + instrumentType + "_" + ccy.getCode());
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name, final Instant version) {
-    return _configSource.getByName(VolatilitySurfaceDefinition.class, name + "_" + ccy.getCode(), version);
+  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name, final Instant version, final String instrumentType) {
+    return _configSource.getByName(VolatilitySurfaceDefinition.class, name + "_" + instrumentType + "_" + ccy.getCode(), version);
   }
 
 }

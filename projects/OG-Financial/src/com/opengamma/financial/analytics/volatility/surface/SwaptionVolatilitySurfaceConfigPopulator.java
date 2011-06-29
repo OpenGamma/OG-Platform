@@ -38,7 +38,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     final Tenor[] swapLength = new Tenor[] {Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(3), Tenor.ofYears(4), Tenor.ofYears(5),
                                        Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10),
                                        Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30)};
-    final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT", Currency.USD,
+    final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT_SWAPTION", Currency.USD,
                                                                                                  timeToExpiry, swapLength);
 
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
@@ -70,7 +70,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
-    final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, surfaceInstrumentProvider);
+    final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT_SWAPTION", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
   }
 }

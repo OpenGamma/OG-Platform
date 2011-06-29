@@ -31,10 +31,10 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
     for (final Object x : object.getXs()) {
-      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      context.addToMessageWithClassHeaders(message, "xs", null, x);
     }
     for (final Object y : object.getYs()) {
-      message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+      context.addToMessageWithClassHeaders(message, "ys", null, y);
     }
     return message;
   }

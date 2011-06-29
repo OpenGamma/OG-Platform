@@ -135,7 +135,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
-          return null;
+          throw new UnsupportedOperationException("FX securities do not have a currency");
         }
 
         @Override

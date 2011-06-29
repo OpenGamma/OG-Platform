@@ -27,8 +27,8 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProviderBuilder impleme
     message.add("countryPrefix", object.getCountryPrefix());
     message.add("type", object.getTypePrefix());
     message.add("postfix", object.getPostfix());
-    message.add("zeroPadSwapMaturityTenor", object.isZeroPadSwapMaturityTenor());
-    message.add("zeroPadSwaptionExpiryTenor", object.isZeroPadSwaptionExpiryTenor());
+    message.add("zeroPadFirstTenor", object.isZeroPadSwapMaturityTenor()); //TODO rename the field name
+    message.add("zeroPadSecondTenor", object.isZeroPadSwaptionExpiryTenor()); //TODO rename the field name
     message.add("dataFieldName", object.getDataFieldName());
     return message;
   }
@@ -38,10 +38,10 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProviderBuilder impleme
     final String dataFieldName = message.getString("dataFieldName");
     if (dataFieldName == null) {
       return new BloombergSwaptionVolatilitySurfaceInstrumentProvider(message.getString("countryPrefix"), message.getString("type"),
-                   message.getBoolean("zeroPadSwapMaturityTenor"), message.getBoolean("zeroPadSwaptionExpiryTenor"), message.getString("postfix"));
+                   message.getBoolean("zeroPadFirstTenor"), message.getBoolean("zeroPadSecondTenor"), message.getString("postfix"));
     }
     return new BloombergSwaptionVolatilitySurfaceInstrumentProvider(message.getString("countryPrefix"), message.getString("type"),
-        message.getBoolean("zeroPadSwapMaturityTenor"), message.getBoolean("zeroPadSwaptionExpiryTenor"), message.getString("postfix"), dataFieldName);
+        message.getBoolean("zeroPadFirstTenor"), message.getBoolean("zeroPadSecondTenor"), message.getString("postfix"), dataFieldName);
   }
 
 }

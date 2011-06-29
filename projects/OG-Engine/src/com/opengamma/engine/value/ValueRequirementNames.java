@@ -280,8 +280,20 @@ public final class ValueRequirementNames {
   public static final String SABR_NU_SURFACE = "SABR Nu Surface";
   public static final String SABR_RHO_SURFACE = "SABR Rho Surface";
   
+  //SABR fitted surface parameters
+  public static final String SABR_FITS = "SABR Fits";
+  public static final String SABR_ALPHA_FITS= "SABR Alpha Fits";
+  public static final String SABR_BETA_FITS = "SABR Beta Fits";
+  public static final String SABR_NU_FITS = "SABR Nu Fits";
+  public static final String SABR_RHO_FITS = "SABR Rho Fits";
+
   //Heston fitted parameters
-  public static final String HESTON_SURFACES = "Heston Surfaces";
+  public static final String HESTON_FITS = "Heston Fits";
+  public static final String HESTON_KAPPA_FITS = "Heston Kappa Fits";
+  public static final String HESTON_THETA_FITS = "Heston Theta Fits";
+  public static final String HESTON_VOL0_FITS = "Heston Vol0 Fits";
+  public static final String HESTON_OMEGA_FITS = "Heston Omega Fits";
+  public static final String HESTON_RHO_FITS = "Heston Rho Fits";
   //CSON
 
 }
