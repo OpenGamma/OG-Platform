@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import javax.time.Instant;
 import javax.time.calendar.Clock;
 
 import com.opengamma.core.security.SecuritySource;
@@ -26,13 +27,13 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    */
   public static final String VIEW_PROCESSOR_QUERY_NAME = "viewProcessorQuery";
   /**
-   * The name under which the epoch time indicating the snapshot time will be bound.
+   * The name under which the valuation instant will be bound.
    */
-  public static final String SNAPSHOT_EPOCH_TIME_NAME = "snapshotEpochTime";
+  public static final String VALUATION_INSTANT_NAME = "valuationInstant";
   /**
-   * The name under which a JSR-310 Clock providing the snapshot time will be bound.
+   * The name under which a Clock providing the valuation time will be bound.
    */
-  public static final String SNAPSHOT_CLOCK_NAME = "snapshotClock";
+  public static final String VALUATION_CLOCK_NAME = "valuationClock";
   /**
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
@@ -81,39 +82,39 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   }
 
   /**
-   * Gets the snapshot instant.
+   * Gets the valuation time.
    * 
-   * @return the snapshot instant, null if not in the context
+   * @return the valuation time, {@code null} if not in the context
    */
-  public Long getSnapshotEpochTime() {
-    return (Long) get(SNAPSHOT_EPOCH_TIME_NAME);
+  public Instant getValuationTime() {
+    return (Instant) get(VALUATION_INSTANT_NAME);
   }
 
   /**
-   * Sets the snapshot instant.
+   * Sets the valuation time.
    * 
-   * @param snapshotEpochTime  the snapshot instant to bind
+   * @param valuationTime the valuation time to bind
    */
-  public void setSnapshotEpochTime(Long snapshotEpochTime) {
-    put(SNAPSHOT_EPOCH_TIME_NAME, snapshotEpochTime);
+  public void setValuationTime(Instant valuationTime) {
+    put(VALUATION_INSTANT_NAME, valuationTime);
   }
 
   /**
-   * Gets the clock providing the snapshot time.
+   * Gets the clock providing the valuation time.
    * 
    * @return the clock, null if not in the context
    */
-  public Clock getSnapshotClock() {
-    return (Clock) get(SNAPSHOT_CLOCK_NAME);
+  public Clock getValuationClock() {
+    return (Clock) get(VALUATION_CLOCK_NAME);
   }
 
   /**
-   * Sets the clock providing the snapshot time.
+   * Sets the clock providing the valuation time.
    * 
    * @param snapshotClock the clock instance
    */
-  public void setSnapshotClock(Clock snapshotClock) {
-    put(SNAPSHOT_CLOCK_NAME, snapshotClock);
+  public void setValuationClock(Clock snapshotClock) {
+    put(VALUATION_CLOCK_NAME, snapshotClock);
   }
 
   /**

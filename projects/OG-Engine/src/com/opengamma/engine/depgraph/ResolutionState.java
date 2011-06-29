@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through
  * alternative resolutions to node requirements.
  */
-/* package */final class ResolutionState {
+/*package*/ final class ResolutionState {
 
   /**
    * 

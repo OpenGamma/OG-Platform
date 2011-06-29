@@ -16,6 +16,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.testng.annotations.Test;
@@ -40,8 +41,10 @@ public class ViewComputationResultModelImplTest {
   static void checkModel(InMemoryViewResultModel model) {
     model.setValuationTime(Instant.ofEpochMillis(400));
     assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
-    model.setResultTimestamp(Instant.ofEpochMillis(500));
-    assertEquals(Instant.ofEpochMillis(500), model.getResultTimestamp());
+    model.setCalculationTime(Instant.ofEpochMillis(500));
+    assertEquals(Instant.ofEpochMillis(500), model.getCalculationTime());
+    model.setCalculationDuration(Duration.ofMillis(100));
+    assertEquals(Duration.ofMillis(100), model.getCalculationDuration());
     
     Set<String> calcConfigNames = Sets.newHashSet("configName1", "configName2");
     model.setCalculationConfigurationNames(calcConfigNames);

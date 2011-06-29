@@ -24,5 +24,4 @@ public interface MarketDataAvailabilityProvider {
    */
   boolean isAvailable(ValueRequirement requirement);
 
-  
 }

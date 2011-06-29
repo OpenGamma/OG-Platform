@@ -29,18 +29,89 @@ import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.money.Currency;
 
+// REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
+// engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
+// They are a perfect example of adding a custom market data source and should be moved elsewhere.
 /**
  * Represents a market data snapshot from a {@link MarketDataSnapshotSource}.
  */
 public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
+  private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
+  
   private final MarketDataSnapshotSource _snapshotSource;
   private final UniqueIdentifier _snapshotId;
   private StructuredMarketDataSnapshot _snapshot;
+  
+  /**
+   * Factory for {@link StructuredMarketDataKey} instances.
+   */
+  private abstract static class StructuredMarketDataKeyFactory {
+
+    /**
+     * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
+     * 
+     * @param valueRequirement  the value requirement, not {@code null}
+     * @return the structured market data key, or {@code null} if the value requirement does not correspond to a key
+     */
+    public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
+    
+    protected Currency getCurrency(ValueRequirement valueRequirement) {
+      if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
+        return null;
+      }
+      UniqueIdentifier targetId = valueRequirement.getTargetSpecification().getUniqueId();
+      if (!Currency.OBJECT_IDENTIFIER_SCHEME.equals(targetId.getScheme())) {
+        return null;
+      }
+      Currency currency = Currency.of(targetId.getValue());
+      return currency;
+    }
+    
+  }
+
+  static {
+    registerStructuredKeyFactory(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new StructuredMarketDataKeyFactory() {
+
+      @Override
+      public StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement) {
+        Currency currency = getCurrency(valueRequirement);
+        if (currency == null) {
+          return null;
+        }
+        String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
+        if (curveName == null) {
+          throw new IllegalArgumentException("Must specify a curve name");
+        }
+        return new YieldCurveKey(currency, curveName);
+      }
+      
+    });
+    
+    registerStructuredKeyFactory(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, new StructuredMarketDataKeyFactory() {
+
+      @Override
+      public StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement) {
+        Currency currency = getCurrency(valueRequirement);
+        if (currency == null) {
+          return null;
+        }
+        String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
+        if (cubeName == null) {
+          throw new IllegalArgumentException("Must specify a cube name");
+        }
+        return new VolatilityCubeKey(currency, cubeName);
+      }
+      
+    });
+  }
   
   public UserMarketDataSnapshot(MarketDataSnapshotSource snapshotSource, UniqueIdentifier snapshotId) {
     _snapshotSource = snapshotSource;
@@ -84,12 +155,29 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
   }
 
   @Override
-  public boolean hasStructuredData() {
-    return true;
+  public Object query(ValueRequirement requirement) {
+    StructuredMarketDataKey structuredKey = getStructuredKey(requirement);
+    if (structuredKey != null) {
+      return queryStructured(structuredKey);
+    } else {
+      return queryUnstructured(requirement);
+    }
   }
 
-  @Override
-  public Object query(ValueRequirement requirement) {
+  //-------------------------------------------------------------------------
+  private static void registerStructuredKeyFactory(String valueRequirementName, StructuredMarketDataKeyFactory factory) {
+    s_structuredKeyFactories.put(valueRequirementName, factory);
+  }
+  
+  private static StructuredMarketDataKey getStructuredKey(ValueRequirement valueRequirement) {
+    StructuredMarketDataKeyFactory factory = s_structuredKeyFactories.get(valueRequirement.getValueName());
+    if (factory == null) {
+      return null;
+    }
+    return factory.fromRequirement(valueRequirement);
+  }
+
+  private Object queryUnstructured(ValueRequirement requirement) {
     UnstructuredMarketDataSnapshot globalValues = getSnapshot().getGlobalValues();
     MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(
         getTargetType(requirement), requirement.getTargetSpecification().getUniqueId());
@@ -102,8 +190,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return query(valueSnapshot);
   }
 
-  @Override
-  public Object query(StructuredMarketDataKey marketDataKey) {
+  private Object queryStructured(StructuredMarketDataKey marketDataKey) {
     if (marketDataKey instanceof YieldCurveKey) {
       YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(marketDataKey);
       if (yieldCurveSnapshot == null) {
@@ -121,7 +208,6 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     }
   }
   
-  //------------------------------------------------------------------------- 
   private StructuredMarketDataSnapshot getSnapshot() {
     if (_snapshot == null) {
       throw new IllegalStateException("Snapshot has not been initialised");

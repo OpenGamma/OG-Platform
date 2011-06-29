@@ -7,6 +7,8 @@ package com.opengamma.engine.test;
 
 import java.util.Collections;
 
+import javax.time.Instant;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -47,8 +49,8 @@ public class CalculationNodeUtils {
 
   public static CalculationJob getCalculationJob(MockFunction function) {
 
-    long iterationTimestamp = System.currentTimeMillis();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), CALC_CONF_NAME, iterationTimestamp, 1L);
+    Instant valuationTime = Instant.now();
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), CALC_CONF_NAME, valuationTime, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());

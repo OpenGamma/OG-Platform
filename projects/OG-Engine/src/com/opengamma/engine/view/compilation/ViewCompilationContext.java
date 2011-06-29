@@ -57,7 +57,7 @@ public class ViewCompilationContext {
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = new DependencyGraphBuilder();
       builder.setCalculationConfigurationName(configName);
-      builder.setLiveDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
+      builder.setMarketDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
       final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);

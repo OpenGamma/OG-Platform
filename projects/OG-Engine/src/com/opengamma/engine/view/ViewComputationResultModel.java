@@ -26,6 +26,6 @@ public interface ViewComputationResultModel extends ViewResultModel {
    * 
    * @return all market data used to calculate this result 
    */
-  Set<ComputedValue> getAllLiveData();
+  Set<ComputedValue> getAllMarketData();
 
 }

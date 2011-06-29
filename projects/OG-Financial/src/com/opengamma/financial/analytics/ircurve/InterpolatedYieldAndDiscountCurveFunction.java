@@ -183,7 +183,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
             OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
         final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(
             specification, marketDataMap);
-        final Clock snapshotClock = executionContext.getSnapshotClock();
+        final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
         final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
         boolean isFirst = true;

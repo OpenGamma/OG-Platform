@@ -7,6 +7,7 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
+import javax.time.Duration;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -51,9 +52,9 @@ public class RemoteViewCycle implements ViewCycle {
   }
 
   @Override
-  public long getDurationNanos() {
+  public Duration getDuration() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_DURATION).build();
-    return _client.access(uri).get(Long.class);
+    return _client.access(uri).get(Duration.class);
   }
 
   @Override

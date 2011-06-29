@@ -47,7 +47,7 @@ public final class ViewDefinitionCompiler {
   private ViewDefinitionCompiler() {
   }
 
-  // --------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
@@ -82,7 +82,7 @@ public final class ViewDefinitionCompiler {
     return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
-  // --------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
     Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     for (DependencyGraphBuilder builder : context.getBuilders().values()) {

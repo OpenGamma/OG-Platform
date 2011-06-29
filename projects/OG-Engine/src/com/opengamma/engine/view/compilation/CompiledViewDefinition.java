@@ -26,7 +26,7 @@ public interface CompiledViewDefinition {
   /**
    * Gets the view definition which was compiled.
    * 
-   * @return the view definition, not null
+   * @return the view definition, not {@code null}
    */
   ViewDefinition getViewDefinition();
   
@@ -40,29 +40,31 @@ public interface CompiledViewDefinition {
   /**
    * Gets a compiled view calculation configuration.
    * 
-   * @param viewCalculationConfiguration  the name of the calculation configuration, not null
-   * @return the compiled view calculation configuration, or {@code null} if no calculation configuration exists with that name. 
+   * @param viewCalculationConfiguration  the name of the calculation configuration, not {@code null}
+   * @return the compiled view calculation configuration, or {@code null} if no calculation configuration exists with
+   *         that name. 
    */
   CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration);
   
   /**
    * Gets all compiled view calculation configurations.
    * 
-   * @return a collection of all compiled view calcualtion configurations, not null
+   * @return a collection of all compiled view calcualtion configurations, not {@code null}
    */
   Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations();
   
   /**
    * Gets the combined market data requirements of all calculation configurations.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for all market data, not null  
+   * @return a map from each stated value requirement to the resolved value specification for all market data, not
+   *         {@code null}  
    */
   Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
   
   /**
    * Gets the combined computation targets across every calculation configuration.
    * 
-   * @return a set of all computation targets, not null
+   * @return a set of all computation targets, not {@code null}
    */
   Set<ComputationTarget> getComputationTargets();
   

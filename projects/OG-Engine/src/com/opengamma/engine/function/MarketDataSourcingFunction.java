@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -20,8 +19,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Special case of a function implementation that is never executed by the graph executor but
- * used to source data from a {@link MarketDataProvider}.
+ * Special case of function implementation that is never executed by the graph executor but is used to source market
+ * data.
  */
 public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -46,6 +45,7 @@ public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvo
     _value = Pair.of(requirement, specification);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the value requirement (to be passed to a market data provider) and resultant specification to be passed
    * to dependent nodes in the graph.
@@ -58,6 +58,12 @@ public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvo
 
   public ValueSpecification getResult() {
     return getMarketDataRequirement().getSecond();
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public final Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+    throw new NotImplementedException(getClass().getSimpleName() + " should never be executed");
   }
 
   @Override
@@ -80,11 +86,6 @@ public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public ComputationTargetType getTargetType() {
     return getMarketDataRequirement().getSecond().getTargetSpecification().getType();
-  }
-
-  @Override
-  public final Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    throw new NotImplementedException("MarketDataSourcingFunction should never be executed.");
   }
 
 }

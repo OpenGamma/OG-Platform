@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.PublicSPI;
 
@@ -54,16 +53,7 @@ public interface MarketDataSnapshot {
    * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
    */
   Instant getSnapshotTime();
-  
-  /**
-   * Queries whether this snapshot contains structured data. If this method returns {@code false} then any structured
-   * data query should return {@code null}.
-   * 
-   * @return {@code true} if this snapshot contains structured data, {@code false} otherwise
-   * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
-   */
-  boolean hasStructuredData();
-  
+
   /**
    * Queries the snapshot for a piece of data.
    *  
@@ -74,14 +64,4 @@ public interface MarketDataSnapshot {
    */
   Object query(ValueRequirement requirement); 
   
-  /**
-   * Queries a snapshot for a bundle of structured market data.
-   *  
-   * @param marketDataKey the structured market data key, not {@code null}
-   * @return  the value found in the snapshot, or {@code null} if the snapshot does not exist or no such value was
-   *          found in the snapshot.
-   * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
-   */
-  Object query(StructuredMarketDataKey marketDataKey);
-
 }

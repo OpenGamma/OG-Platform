@@ -20,8 +20,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public interface CompiledViewCalculationConfiguration {
 
-  // TODO [PLAT-883] Currently no dependency graph browsing is possible through the interface, and therefore remotely.
-
   /**
    * Gets the name of the view calculation configuration.
    * 
@@ -32,28 +30,29 @@ public interface CompiledViewCalculationConfiguration {
   /**
    * Gets the set of terminal output {@link ValueSpecification} for the calculation configuration.
    * 
-   * @return the set of terminal output {@link ValueSpecification} for the calculation configuration, not null
+   * @return the set of terminal output {@link ValueSpecification} for the calculation configuration, not {@code null}
    */
   Set<ValueSpecification> getTerminalOutputSpecifications();
 
   /**
    * Gets the set of terminal output values for the calculation configuration.
    * 
-   * @return the set of terminal output values, not null
+   * @return the set of terminal output values, not {@code null}
    */
   Set<Pair<String, ValueProperties>> getTerminalOutputValues();
 
   /**
    * Gets the computation targets for the calculation configuration.
    * 
-   * @return the set of computation targets, not null
+   * @return the set of computation targets, not {@code null}
    */
   Set<ComputationTarget> getComputationTargets();
 
   /**
    * Gets the market data requirements of the calculation configuration.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for market data, not null  
+   * @return a map from each stated value requirement to the resolved value specification for market data, not
+   *         {@code null}
    */
   Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
 

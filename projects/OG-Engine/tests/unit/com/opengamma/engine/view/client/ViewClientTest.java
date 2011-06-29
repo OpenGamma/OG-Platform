@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -588,20 +587,10 @@ public class ViewClientTest {
     public Instant getSnapshotTime() {
       return null;
     }
-
-    @Override
-    public boolean hasStructuredData() {
-      return false;
-    }
-
+    
     @Override
     public Object query(ValueRequirement requirement) {
       return _snapshot.get(requirement);
-    }
-
-    @Override
-    public Object query(StructuredMarketDataKey marketDataKey) {
-      return null;
     }
     
   }

@@ -152,7 +152,7 @@ public class DepGraphTestHelper {
   public DependencyGraphBuilder getBuilder(final DefaultFunctionResolver.FunctionPriority prioritizer) {
     if (_builder == null) {
       _builder = new DependencyGraphBuilder();
-      _builder.setLiveDataAvailabilityProvider(_liveDataAvailabilityProvider);
+      _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
       final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
       final DefaultFunctionResolver resolver;
       if (prioritizer != null) {

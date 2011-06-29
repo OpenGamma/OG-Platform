@@ -17,7 +17,6 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -102,18 +101,8 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
   }
 
   @Override
-  public boolean hasStructuredData() {
-    return false;
-  }
-
-  @Override
   public Object query(ValueRequirement requirement) {
     return getSnapshot().get(requirement);
-  }
-
-  @Override
-  public Object query(StructuredMarketDataKey marketDataKey) {
-    return null;
   }
   
   //-------------------------------------------------------------------------

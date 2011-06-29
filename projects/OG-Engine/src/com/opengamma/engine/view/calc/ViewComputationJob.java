@@ -384,10 +384,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw e;
     }
     
-    long duration = cycleReference.get().getDurationNanos();
-    _totalTimeNanos += duration;
+    long durationNanos = cycleReference.get().getDuration().toNanosLong();
+    _totalTimeNanos += durationNanos;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
   }
     
   @Override

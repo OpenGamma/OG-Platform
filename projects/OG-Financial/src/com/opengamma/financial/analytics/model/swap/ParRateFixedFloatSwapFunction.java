@@ -78,7 +78,7 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final InterestRateLeg payLeg = (InterestRateLeg) security.getPayLeg();
     final InterestRateLeg receiveLeg = (InterestRateLeg) security.getReceiveLeg();

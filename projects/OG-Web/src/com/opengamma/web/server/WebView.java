@@ -266,14 +266,14 @@ public class WebView {
           
           getRemote().startBatch();
           
-          long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
-          long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
+          long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
+          long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
           
-          sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
+          sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
             processResult(update);
           } catch (Exception e) {
-            s_logger.error("Error processing result with timestamp " + update.getResultTimestamp(), e);
+            s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
           }
           sendEndMessage();
           
@@ -299,7 +299,7 @@ public class WebView {
   }
   
   private void processResult(ViewComputationResultModel resultModel) {
-    long resultTimestamp = resultModel.getResultTimestamp().toEpochMillisLong();
+    long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
     for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
       switch (target.getType()) {
         case PRIMITIVE:
@@ -321,12 +321,12 @@ public class WebView {
   }
   
   /**
-   * Tells the remote client that updates are starting, relating to a particular timestamp.
+   * Tells the remote client that updates are starting.
    */
-  private void sendStartMessage(long timestamp, long calculationLatency) {
+  private void sendStartMessage(long valuationTimeEpochMillis, long calculationDurationMillis) {
     Map<String, Object> startMessage = new HashMap<String, Object>();
-    startMessage.put("timestamp", timestamp);
-    startMessage.put("latency", calculationLatency);
+    startMessage.put("valuationTime", valuationTimeEpochMillis);
+    startMessage.put("calculationDuration", calculationDurationMillis);
     getRemote().deliver(getLocal(), "/updates/control/start", startMessage, null);
   }
 

@@ -38,7 +38,8 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param marketDataRequirements  the market data requirements, not null
    */
   public CompiledViewCalculationConfigurationImpl(String name, Set<ComputationTarget> computationTargets,
-      Set<ValueSpecification> terminalOutputSpecifications, Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
+      Set<ValueSpecification> terminalOutputSpecifications,
+      Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");

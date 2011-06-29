@@ -107,14 +107,15 @@ public class ServerSocketRemoteViewComputationCacheTest {
     final AtomicLong getTime = new AtomicLong(0);
     final AtomicLong putTime = new AtomicLong(0);
     List<Thread> threads = new ArrayList<Thread>();
-    final long timestamp = System.currentTimeMillis();
+    UniqueIdentifier cycle0Id = UniqueIdentifier.of("Test", "MultiThreadedTestViewCycle", "0");
+    UniqueIdentifier cycle1Id = UniqueIdentifier.of("Test", "MultiThreadedTestViewCycle", "1");
     for (int i = 0; i < NUM_THREADS; i++) {
-      // Half the threads on one cache, half on another
-      final long cacheTimestamp = ((i & 1) == 0) ? timestamp : (timestamp + 1);
+      // Half the threads on one cycle, half on another
+      final UniqueIdentifier cycleId = ((i & 1) == 0) ? cycle0Id : cycle1Id;
       Thread t = new Thread(new Runnable() {
         @Override
         public void run() {
-          final ViewComputationCache cache = _cacheSource.getCache(UniqueIdentifier.of("Test", "MultiThreadedTestViewProcess"), "default", cacheTimestamp);
+          final ViewComputationCache cache = _cacheSource.getCache(cycleId, "default");
           try {
             long tGet = 0;
             long tPut = 0;

@@ -77,7 +77,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final ZonedDateTime firstDeliveryDate = security.getExpiry().getExpiry();
     //final ZonedDateTime lastDeliveryDate = firstDeliveryDate.plusMonths(1);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     //final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"); //TODO this needs to be pulled from a convention

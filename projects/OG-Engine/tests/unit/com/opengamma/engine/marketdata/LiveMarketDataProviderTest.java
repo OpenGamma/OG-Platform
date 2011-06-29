@@ -17,7 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.availability.AllMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -31,7 +31,7 @@ import com.opengamma.livedata.test.TestLiveDataClient;
  * Test LiveDataSnapshotProvider.
  */
 @Test
-public class LiveDataSnapshotProviderTest {
+public class LiveMarketDataProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
   
@@ -43,15 +43,23 @@ public class LiveDataSnapshotProviderTest {
   }
   
   public void snapshotting() {
+    ValueRequirement test1Requirement = constructRequirement("test1");
+    ValueRequirement test2Requirement = constructRequirement("test2");
+    ValueRequirement test3Requirement = constructRequirement("test3");
+    
     TestLiveDataClient client = new TestLiveDataClient();
-    LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new MockSecuritySource(), new AllMarketDataAvailabilityProvider());
+    FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
+    availabilityProvider.addRequirement(test1Requirement);
+    availabilityProvider.addRequirement(test2Requirement);
+    availabilityProvider.addRequirement(test3Requirement);
+    LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new MockSecuritySource(), availabilityProvider);
     
-    provider.subscribe(TEST_USER, constructRequirement("test1"));
-    provider.subscribe(TEST_USER, constructRequirement("test2"));
+    provider.subscribe(TEST_USER, test1Requirement);
+    provider.subscribe(TEST_USER, test2Requirement);
     
-    provider.subscribe(TEST_USER, constructRequirement("test3"));
-    provider.subscribe(TEST_USER, constructRequirement("test3"));
-    provider.subscribe(TEST_USER_2, constructRequirement("test3"));
+    provider.subscribe(TEST_USER, test3Requirement);
+    provider.subscribe(TEST_USER, test3Requirement);
+    provider.subscribe(TEST_USER_2, test3Requirement);
     
     MutableFudgeMsg msg1 = new FudgeContext().newMessage();
     msg1.add(_marketDataRequirement, 52.07);
@@ -72,15 +80,15 @@ public class LiveDataSnapshotProviderTest {
     MarketDataSnapshot snapshot = provider.snapshot(null);
     snapshot.init(Collections.<ValueRequirement>emptySet(), 0, TimeUnit.MILLISECONDS);
     
-    Double test1Value = (Double) snapshot.query(constructRequirement("test1"));
+    Double test1Value = (Double) snapshot.query(test1Requirement);
     assertNotNull(test1Value);
     assertEquals(52.07, test1Value, 0.000001);
     
-    Double test2Value = (Double) snapshot.query(constructRequirement("test2"));
+    Double test2Value = (Double) snapshot.query(test2Requirement);
     assertNotNull(test2Value);
     assertEquals(52.15, test2Value, 0.000001);
     
-    Double test3Value = (Double) snapshot.query(constructRequirement("test3"));
+    Double test3Value = (Double) snapshot.query(test3Requirement);
     assertNotNull(test3Value);
     assertEquals(52.17, test3Value, 0.000001);
     

@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -44,19 +43,9 @@ public class MockMarketDataSnapshot implements MarketDataSnapshot {
   }
 
   @Override
-  public boolean hasStructuredData() {
-    return false;
-  }
-
-  @Override
   public Object query(ValueRequirement requirement) {
     _provider.incrementQueryCount();
     return _provider.getValue(requirement);
-  }
-
-  @Override
-  public Object query(StructuredMarketDataKey marketDataKey) {
-    return null;
   }
 
 }

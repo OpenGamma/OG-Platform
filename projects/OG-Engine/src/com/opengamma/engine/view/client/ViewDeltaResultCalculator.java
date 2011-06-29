@@ -35,12 +35,13 @@ public class ViewDeltaResultCalculator {
   public static ViewDeltaResultModel computeDeltaModel(ViewDefinition viewDefinition, ViewResultModel previousResult, ViewResultModel result) {
     InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
     deltaModel.setValuationTime(result.getValuationTime());
-    deltaModel.setResultTimestamp(result.getResultTimestamp());
+    deltaModel.setCalculationTime(result.getCalculationTime());
+    deltaModel.setCalculationDuration(result.getCalculationDuration());
     deltaModel.setViewCycleId(result.getViewCycleId());
     deltaModel.setViewProcessId(result.getViewProcessId());
     
     if (previousResult != null) {
-      deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
+      deltaModel.setPreviousCalculationTime(previousResult.getCalculationTime());
     }
     deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {

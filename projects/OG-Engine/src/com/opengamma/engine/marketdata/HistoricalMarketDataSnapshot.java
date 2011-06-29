@@ -14,7 +14,6 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -56,11 +55,6 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
   }
 
   @Override
-  public boolean hasStructuredData() {
-    return false;
-  }
-
-  @Override
   public Object query(ValueRequirement requirement) {
     LocalDate date = getMarketDataSpec().getSnapshotDate();
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
@@ -77,11 +71,6 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
       return null;
     }
     return hts.getTimeSeries().getValue(getMarketDataSpec().getSnapshotDate());
-  }
-
-  @Override
-  public Object query(StructuredMarketDataKey marketDataKey) {
-    return null;
   }
   
   //-------------------------------------------------------------------------

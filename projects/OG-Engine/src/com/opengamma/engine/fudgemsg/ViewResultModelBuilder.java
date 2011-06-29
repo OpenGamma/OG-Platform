@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.fudgemsg.FudgeField;
@@ -32,16 +33,18 @@ import com.opengamma.id.UniqueIdentifier;
 public abstract class ViewResultModelBuilder {
   private static final String FIELD_VIEWPROCESSID = "viewProcessId";
   private static final String FIELD_VIEWCYCLEID = "viewCycleId";
-  private static final String FIELD_VALUATIONTS = "valuationTS";
-  private static final String FIELD_RESULTTS = "resultTS";
+  private static final String FIELD_VALUATION_TIME = "valuationTime";
+  private static final String FIELD_CALCULATION_TIME = "calculationTime";
+  private static final String FIELD_CALCULATION_DURATION = "calculationDuration";
   private static final String FIELD_RESULTS = "results";
 
   protected static MutableFudgeMsg createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
     final MutableFudgeMsg message = context.newMessage();
     message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
     message.add(FIELD_VIEWCYCLEID, resultModel.getViewCycleId());
-    message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
-    message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
+    message.add(FIELD_VALUATION_TIME, resultModel.getValuationTime());
+    message.add(FIELD_CALCULATION_TIME, resultModel.getCalculationTime());
+    message.add(FIELD_CALCULATION_DURATION, resultModel.getCalculationDuration());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
     final MutableFudgeMsg resultMsg = context.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
@@ -55,8 +58,9 @@ public abstract class ViewResultModelBuilder {
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
     final UniqueIdentifier viewProcessId = message.getValue(UniqueIdentifier.class, FIELD_VIEWPROCESSID);
     final UniqueIdentifier viewCycleId = message.getValue(UniqueIdentifier.class, FIELD_VIEWCYCLEID);
-    final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
-    final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
+    final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
+    final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
+    final Duration calculationDuration = message.getFieldValue(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
@@ -89,8 +93,9 @@ public abstract class ViewResultModelBuilder {
     
     resultModel.setViewProcessId(viewProcessId);
     resultModel.setViewCycleId(viewCycleId);
-    resultModel.setValuationTime(inputDataTimestamp);
-    resultModel.setResultTimestamp(resultTimestamp);
+    resultModel.setValuationTime(valuationTime);
+    resultModel.setCalculationTime(calculationTime);
+    resultModel.setCalculationDuration(calculationDuration);
     
     return resultModel;
   }

@@ -18,7 +18,7 @@ public class InMemoryViewComputationCacheSource extends DefaultViewComputationCa
   public InMemoryViewComputationCacheSource(final FudgeContext fudgeContext) {
     super(new InMemoryIdentifierMap(), fudgeContext, new DefaultFudgeMessageStoreFactory(
         new InMemoryBinaryDataStoreFactory(), fudgeContext), new DefaultFudgeMessageStoreFactory(
-        new InMemoryBinaryDataStoreFactory(), fudgeContext));
+            new InMemoryBinaryDataStoreFactory(), fudgeContext));
   }
 
 }
