@@ -21,7 +21,10 @@ import com.opengamma.util.tuple.Pair;
 /**
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through
  * alternative resolutions to node requirements.
+ * 
+ * @deprecated Here while PLAT-1049 is worked on
  */
+@Deprecated
 /* package */final class ResolutionState {
 
   /**
