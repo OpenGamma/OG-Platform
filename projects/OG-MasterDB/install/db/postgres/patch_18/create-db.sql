@@ -586,6 +586,19 @@ CREATE TABLE sec_fx (
     constraint sec_fk_fxreceive2currency foreign key (receive_currency_id) references sec_currency (id)
 );
 
+CREATE TABLE sec_fxforward (
+  id bigint not null,
+  security_id bigint not null,
+  region_scheme varchar(255) not null,
+  region_identifier varchar(255) not null,
+  underlying_scheme varchar(255) not null,
+  underlying_identifier varchar(255) not null,
+  forward_date timestamp not null,
+  forward_zone varchar(50) not null,
+  primary key (id),
+  constraint sec_fk_fxforward2sec foreign key (security_id) references sec_security (id)
+);
+
 CREATE TABLE sec_swap (
     id bigint not null,
     security_id bigint not null,

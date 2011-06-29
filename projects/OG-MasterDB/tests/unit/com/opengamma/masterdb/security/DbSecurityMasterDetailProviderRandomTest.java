@@ -196,5 +196,11 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
   public void testFXSecurity() {
     _testCase.testFXSecurity();
   }
+
+  @Override
+  @Test
+  public void testFXForwardSecurity() {
+    _testCase.testFXForwardSecurity();
+  }
   
 }

@@ -55,5 +55,7 @@ public interface SecurityTestCaseMethods {
   void testEquityIndexOptionSecurity();
   
   void testFXSecurity();
+  
+  void testFXForwardSecurity();
 
 }

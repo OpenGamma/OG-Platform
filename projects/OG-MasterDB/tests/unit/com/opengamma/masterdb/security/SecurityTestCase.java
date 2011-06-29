@@ -60,6 +60,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -639,5 +640,13 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testFXSecurity() {
     assertSecurities(FXSecurity.class);
   }
+
+  @Override
+  @Test
+  public void testFXForwardSecurity() {
+    assertSecurities(FXForwardSecurity.class);
+  }
+  
+  
   
 }
