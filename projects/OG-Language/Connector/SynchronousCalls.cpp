@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Blocking slots for synchronous calls
-
 #include "SynchronousCalls.h"
 #include <Util/Thread.h>
 #include <Util/Error.h>
@@ -24,6 +21,10 @@ LOGGING (com.opengamma.language.connector.SynchronousCalls);
 #define STATE_WAITING		0x40000000
 #define STATE_DONE			0x50000000
 
+/// Creates a new call slot.
+///
+/// @param[in] poOwner parent slot manager
+/// @param[in] nIdentifier slot identifier
 CSynchronousCallSlot::CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i32 nIdentifier)
 : m_oState (STATE_IDLE | 1), m_oSequence (1), m_sem (0, 1) {
 	LOGDEBUG (TEXT ("Created call slot ") << nIdentifier);
@@ -31,6 +32,7 @@ CSynchronousCallSlot::CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i3
 	m_nIdentifier = nIdentifier;
 }
 
+/// Destroys a call slot, releasing any resources.
 CSynchronousCallSlot::~CSynchronousCallSlot () {
 	FudgeMsg msg = m_msg.Get ();
 	if (msg) {
@@ -39,9 +41,11 @@ CSynchronousCallSlot::~CSynchronousCallSlot () {
 	}
 }
 
-// Handles are created as the identifier combined with a sequence. Lower identifier numbers allow more bits for sequence
-// values allowing better detection of messaging errors. The high order bits are a header that indicates which are which
-
+/// Returns the current handle to use for the slot. Handles are a composition of the identifier and sequence counter. Lower
+/// identifier numbers allow more bits for sequence values allowing better detection of messaging errors. The high order
+/// bits are a header that indicates the bit lengths used.
+///
+/// @return the current handle
 fudge_i32 CSynchronousCallSlot::GetHandle () const {
 	if (m_nIdentifier >= 0) {
 		int nSequence = m_oSequence.Get ();
@@ -67,7 +71,8 @@ fudge_i32 CSynchronousCallSlot::GetHandle () const {
 	return 0;
 }
 
-// Only one thread should call either GetMessage or Release at any one time
+/// Releases the slot back to its parent. This may be called at the same time as a PostAndRelease
+/// from a message receiving thread. This must not be called at the same time as GetMessage.
 void CSynchronousCallSlot::Release () {
 	int nSequence = m_oSequence.IncrementAndGet () & STATE_SEQUENCE_MASK;
 	int nState = m_oState.Get (), nAltState;
@@ -109,7 +114,11 @@ retry:
 	m_poOwner->Release (this);
 }
 
-// Only one thread calling PostAndRelease at any time
+/// Posts a message to the slot and releases a caller to GetMessage if there is one. Only one
+/// thread may call this at any one time.
+///
+/// @param[in] nSequence sequence counter decoded from the message
+/// @param[in] msg message payload
 void CSynchronousCallSlot::PostAndRelease (int nSequence, FudgeMsg msg) {
 	nSequence &= STATE_SEQUENCE_MASK;
 	int nState = m_oState.Get (), nAltState;
@@ -173,7 +182,11 @@ retry:
 	}
 }
 
-// Only one thread should call either GetMessage or Release at any one time
+/// Blocks the caller until a message is received (posted to the slot). This must not be called
+/// at the same time as Release.
+///
+/// @param[in] lTimeout maximum time to wait for a message in milliseconds
+/// @return the message received or NULL if there was a problem (e.g. timeout elapsed)
 FudgeMsg CSynchronousCallSlot::GetMessage (unsigned long lTimeout) {
 	int nState = m_oState.Get (), nAltState;
 	int nSequence = nState & STATE_SEQUENCE_MASK;
@@ -237,6 +250,7 @@ retry:
 	return msg;
 }
 
+/// Creates a new synchronous call manager.
 CSynchronousCalls::CSynchronousCalls () {
 	m_ppoSlots = new CSynchronousCallSlot*[m_nAllocatedSlots = SLOT_INCREMENT];
 	m_ppoFreeSlots = new CSynchronousCallSlot*[m_nMaxFreeSlots = m_nFreeSlots = m_nAllocatedSlots];
@@ -246,6 +260,7 @@ CSynchronousCalls::CSynchronousCalls () {
 	}
 }
 
+/// Destroys a synchronous call manager.
 CSynchronousCalls::~CSynchronousCalls () {
 	if (m_nFreeSlots != m_nAllocatedSlots) {
 		LOGFATAL (TEXT ("Not all slots released at destruction (") << (m_nAllocatedSlots - m_nFreeSlots) << TEXT (" outstanding"));
@@ -259,6 +274,8 @@ CSynchronousCalls::~CSynchronousCalls () {
 	delete m_ppoFreeSlots;
 }
 
+/// Clears all slot semaphores. This is necessary if all slots are about to be reused
+/// and some may have had undelivered messages in them.
 void CSynchronousCalls::ClearAllSemaphores () {
 	int i;
 	for (i = 0; i < m_nAllocatedSlots; i++) {
@@ -266,6 +283,11 @@ void CSynchronousCalls::ClearAllSemaphores () {
 	}
 }
 
+/// Signals all slot semaphores. This is necessary to unblock all callers in the event
+/// of a serious communication failure and they will never receive their messages. Note
+/// that some slots may or may not have had callers waiting on them so the slots may
+/// end up in a mix of signalled and unsignalled states afterwards. One should either
+/// follow this up with a ClearAllSemaphores, or discard the whole object and start again.
 void CSynchronousCalls::SignalAllSemaphores () {
 	int i;
 	for (i = 0; i < m_nAllocatedSlots; i++) {
@@ -273,6 +295,9 @@ void CSynchronousCalls::SignalAllSemaphores () {
 	}
 }
 
+/// Returns a call slot to the free list for re-use later.
+///
+/// @param[in] poSlot slot to return, never NULL
 void CSynchronousCalls::Release (CSynchronousCallSlot *poSlot) {
 	m_mutex.Enter ();
 	if (m_nFreeSlots >= m_nMaxFreeSlots) {
@@ -294,6 +319,10 @@ void CSynchronousCalls::Release (CSynchronousCallSlot *poSlot) {
 	m_mutex.Leave ();
 }
 
+/// Acquires a call slot. If there is one in the free list it is taken. If all slots
+/// are already out and in use, a new one is created.
+///
+/// @return a call slot
 CSynchronousCallSlot *CSynchronousCalls::Acquire () {
 	CSynchronousCallSlot *poSlot;
 	m_mutex.Enter ();
@@ -318,6 +347,11 @@ CSynchronousCallSlot *CSynchronousCalls::Acquire () {
 
 // TODO: the slots don't have to be pointers as they don't move in the array once allocated; they should be inline fragments
 
+/// Posts a message to the call slot identified by the handle and releases any caller blocked on
+/// that slot. If the sequence number is invalid, the slot will not accept the message.
+///
+/// @param[in] nHandle message correlation handle; identifies the slot and slot sequence
+/// @param[in] msg message to deliver
 void CSynchronousCalls::PostAndRelease (fudge_i32 nHandle, FudgeMsg msg) {
 	int nIdentifier, nMessageSequence, nMessageSequenceMask;
 	if (nHandle & 0x80000000) {

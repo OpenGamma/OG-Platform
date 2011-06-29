@@ -51,7 +51,8 @@ static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
-	int i = _tcslen (pszLibrary), separators = 2;
+	size_t i = _tcslen (pszLibrary);
+	int separators = 2;
 	while (--i > 0) {
 		if (pszLibrary[i] == PATH_CHAR) {
 			if (!--separators) {
@@ -446,15 +447,26 @@ bool CJVM::IsRunning () const {
 	return bResult;
 }
 
+#ifdef _UNICODE
+#ifdef _WIN64
+static inline jsize _SafeLen (const TCHAR *psz) {
+	size_t len = wcslen (psz);
+	return (len > MAXINT32) ? MAXINT32 : (jsize)len;
+}
+#else /* ifdef _WIN64 */
+#define _SafeLen wcslen
+#endif /* ifdef _WIN64 */
+#endif /* ifdef _UNICODE */
+
 void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID) {
 	m_oMutex.Enter ();
 	if (m_bRunning) {
 		m_pEnv->PushLocalFrame (3);
 #ifdef _UNICODE
-		jstring jsUserName = m_pEnv->NewString ((jchar*)pszUserName, wcslen (pszUserName));
-		jstring jsInputPipe = m_pEnv->NewString ((jchar*)pszInputPipe, wcslen (pszInputPipe));
-		jstring jsOutputPipe = m_pEnv->NewString ((jchar*)pszOutputPipe, wcslen (pszOutputPipe));
-		jstring jsLanguageID = m_pEnv->NewString ((jchar*)pszLanguageID, wcslen (pszLanguageID));
+		jstring jsUserName = m_pEnv->NewString ((jchar*)pszUserName, _SafeLen (pszUserName));
+		jstring jsInputPipe = m_pEnv->NewString ((jchar*)pszInputPipe, _SafeLen (pszInputPipe));
+		jstring jsOutputPipe = m_pEnv->NewString ((jchar*)pszOutputPipe, _SafeLen (pszOutputPipe));
+		jstring jsLanguageID = m_pEnv->NewString ((jchar*)pszLanguageID, _SafeLen (pszLanguageID));
 #else
 		jstring jsUserName = m_pEnv->NewStringUTF (pszUserName);
 		jstring jsInputPipe = m_pEnv->NewStringUTF (pszInputPipe);
