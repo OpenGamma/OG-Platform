@@ -33,11 +33,14 @@ CProcess::~CProcess () {
 bool CProcess::GetCurrentModule (TCHAR *pszBuffer, size_t cchBuffer) {
 #ifdef _WIN32
 	HMODULE hModule = CDllVersion::GetCurrentModule ();
-	return hModule && GetModuleFileName (hModule, pszBuffer, cchBuffer);
-#else
+#ifdef _WIN64
+	if (cchBuffer > MAXDWORD) cchBuffer = MAXDWORD;
+#endif /* ifdef _WIN64 */
+	return hModule && GetModuleFileName (hModule, pszBuffer, (DWORD)cchBuffer);
+#else /* ifdef _WIN32 */
 	// TODO: this is flawed and probably not portable; we probably want the .so file and not the executing image
 	return readlink ("/proc/self/exe", pszBuffer, cchBuffer) > 0;
-#endif
+#endif /* ifdef _WIN32 */
 }
 
 /// Finds a process instance that is running the named image.
