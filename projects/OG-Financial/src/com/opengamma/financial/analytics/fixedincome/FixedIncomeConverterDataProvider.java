@@ -108,7 +108,7 @@ public class FixedIncomeConverterDataProvider {
       final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
-          .minusDays(7);
+          .minusDays(7); 
       final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
       if (ts == null) {

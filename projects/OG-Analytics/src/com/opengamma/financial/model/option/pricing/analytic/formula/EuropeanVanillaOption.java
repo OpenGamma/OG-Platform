@@ -39,6 +39,15 @@ public class EuropeanVanillaOption {
     return _k;
   }
 
+  /**
+   * Computes the pay-off for a spot price at expiry.
+   * @param spot The spot price.
+   * @return The pay-off.
+   */
+  public double getPayoff(final double spot) {
+    return isCall() ? Math.max(0, spot - _k) : Math.max(0, _k - spot);
+  }
+
   public static EuropeanVanillaOption fromDefinition(final EuropeanVanillaOptionDefinition definition, final ZonedDateTime date) {
     Validate.notNull(definition, "definition");
     Validate.notNull(date, "date");
