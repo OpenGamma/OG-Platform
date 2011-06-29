@@ -7,15 +7,16 @@ package com.opengamma.master.listener;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.List;
 
 import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
@@ -56,7 +57,6 @@ public class JmsMasterChangeManagerTest {
     _changeManager = new JmsMasterChangeManager();
     _changeManager.setJmsTemplate(_jmsTemplate);
     _changeManager.setTopic(_topic);
-    _changeManager.addChangeListener(_testListener);
     
     _container = new DefaultMessageListenerContainer();
     _container.setConnectionFactory(cf);
@@ -76,12 +76,18 @@ public class JmsMasterChangeManagerTest {
     }
   }
 
-  public void testAdded() throws Exception {
+  private void startContainer() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
     while (!_container.isRunning()) {
       Thread.sleep(10l);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  public void testAdded() throws Exception {
+    _changeManager.addChangeListener(_testListener);
+    startContainer();
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
@@ -93,11 +99,8 @@ public class JmsMasterChangeManagerTest {
   }
 
   public void testRemoved() throws Exception {
-    _container.afterPropertiesSet();
-    _container.start();
-    while (!_container.isRunning()) {
-      Thread.sleep(10l);
-    }
+    _changeManager.addChangeListener(_testListener);
+    startContainer();
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
@@ -111,11 +114,8 @@ public class JmsMasterChangeManagerTest {
   }
 
   public void testUpdated() throws Exception {
-    _container.afterPropertiesSet();
-    _container.start();
-    while (!_container.isRunning()) {
-      Thread.sleep(10l);
-    }
+    _changeManager.addChangeListener(_testListener);
+    startContainer();
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
@@ -138,12 +138,7 @@ public class JmsMasterChangeManagerTest {
       _changeManager.addChangeListener(client);
       clients.add(client);
     }
-    
-    _container.afterPropertiesSet();
-    _container.start();
-    while (!_container.isRunning()) {
-      Thread.sleep(10l);
-    }
+    startContainer();
     
     // add, update and remove doc in config master
     final ConfigDocument<Identifier> doc = createTestDocument();
@@ -163,7 +158,7 @@ public class JmsMasterChangeManagerTest {
       client.waitForUpdatedItem(WAIT_TIMEOUT);
     }
     
-    //assert items
+    // assert items
     assertEquals(2, clients.size());
     for (TestMasterChangeClient client : clients) {
       assertEquals(addedItem, client.getAddedItem());
