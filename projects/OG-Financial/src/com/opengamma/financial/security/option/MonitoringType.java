@@ -4,7 +4,7 @@
 package com.opengamma.financial.security.option;
 public enum MonitoringType {
   CONTINUOUS,
-  DESCRETE;
+  DISCRETE;
 }
 ///CLOVER:ON
 // CSON: Generated File
