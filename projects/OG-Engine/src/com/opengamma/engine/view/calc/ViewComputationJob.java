@@ -180,38 +180,65 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
     
-    if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSpecification())) {
-      // A different market data provider is required. We support this because we can, but changing provider is not the
-      // most efficient operation.
-      if (getMarketDataProvider() != null) {
-        s_logger.info("Replacing market data provider between cycles");
+    MarketDataSnapshot marketDataSnapshot;
+    try {
+      if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSpecification())) {
+        // A different market data provider is required. We support this because we can, but changing provider is not the
+        // most efficient operation.
+        if (getMarketDataProvider() != null) {
+          s_logger.info("Replacing market data provider between cycles");
+        }
+        replaceMarketDataProvider(executionOptions.getMarketDataSpecification());
       }
-      replaceMarketDataProvider(executionOptions.getMarketDataSpecification());
+      
+      // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
+      marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSpecification());
+    } catch (Exception e) {
+      s_logger.error("Error with market data provider", e);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
+      return;
     }
-    
-    // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
-    MarketDataSnapshot marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSpecification());
-    
+
     Instant compilationValuationTime;
-    if (executionOptions.getValuationTime() != null) {
-      compilationValuationTime = executionOptions.getValuationTime();
-    } else {
-      // Neither the cycle-specific options nor the defaults have overridden the valuation time so use the time
-      // associated with the market data snapshot. To avoid initialising the snapshot perhaps before the required
-      // inputs are known or even subscribed to, only ask for an indication at the moment.
-      compilationValuationTime = marketDataSnapshot.getSnapshotTimeIndication();
+    try {
+      if (executionOptions.getValuationTime() != null) {
+        compilationValuationTime = executionOptions.getValuationTime();
+      } else {
+        // Neither the cycle-specific options nor the defaults have overridden the valuation time so use the time
+        // associated with the market data snapshot. To avoid initialising the snapshot perhaps before the required
+        // inputs are known or even subscribed to, only ask for an indication at the moment.
+        compilationValuationTime = marketDataSnapshot.getSnapshotTimeIndication();
+        if (compilationValuationTime == null) {
+          throw new OpenGammaRuntimeException("Market data snapshot " + marketDataSnapshot + " produced a null indication of snapshot time");
+        }
+      }
+    } catch (Exception e) {
+      s_logger.error("Error obtaining compilation valuation time", e);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compilation valuation time", e));
+      return;
     }
     
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
-    
-    if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
-      marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements().keySet(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-    } else {
-      marketDataSnapshot.init();
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    try {
+      compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
+    } catch (Exception e) {
+      s_logger.error("Error obtaining compiled view definition for time {}", compilationValuationTime);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compiled view definition for time " + compilationValuationTime, e));
+      return;
     }
     
-    if (executionOptions.getValuationTime() == null) {
-      executionOptions.setValuationTime(marketDataSnapshot.getSnapshotTime());
+    try {
+      if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
+        marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements().keySet(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+      } else {
+        marketDataSnapshot.init();
+      }
+      if (executionOptions.getValuationTime() == null) {
+        executionOptions.setValuationTime(marketDataSnapshot.getSnapshotTime());
+      }
+    } catch (Exception e) {
+      s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error initializing snapshot" + marketDataSnapshot, e));
     }
     
     EngineResourceReference<SingleComputationCycle> cycleReference;
@@ -277,6 +304,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       s_logger.error("Error notifying the view process " + getViewProcess() + " of the cycle execution error", vpe);
     }
   }
+  
+  private void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    try {
+      getViewProcess().viewDefinitionCompiled(compiledViewDefinition, getMarketDataProvider().getPermissionProvider());
+    } catch (Exception vpe) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view definition compilation");
+    }
+  }
+  
+  private void viewDefinitionCompilationFailed(Instant compilationTime, Exception e) {
+    try {
+      getViewProcess().viewDefinitionCompilationFailed(compilationTime, e);
+    } catch (Exception vpe) {
+      s_logger.error("Error notifying the view process " + getViewProcess() + " of the view definition compilation failure", vpe);
+    }
+  }
+  
   
   private synchronized ViewCycleType waitForNextCycle() {
     long currentTime = System.nanoTime();
@@ -448,21 +492,21 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       compiledViewDefinition = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), compilationServices, valuationTime);
     } catch (Exception e) {
-      getViewProcess().viewDefinitionCompilationFailed(valuationTime, e);
+      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException("Error compiling view definition for time " + valuationTime, e));
       throw new OpenGammaRuntimeException("Error compiling view definition", e);
     }
-    setLatestCompiledViewDefinition(compiledViewDefinition);
+    setCachedCompiledViewDefinition(compiledViewDefinition);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
-    getViewProcess().viewDefinitionCompiled(compiledViewDefinition, getMarketDataProvider().getPermissionProvider());
+    viewDefinitionCompiled(compiledViewDefinition);
     
     // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
     setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements().keySet());
     return compiledViewDefinition;
   }
-  
+
   /**
    * Gets the cached compiled view definition which may be re-used in subsequent computation cycles.
    * <p>
@@ -485,7 +529,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * 
    * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
    */
-  public void setLatestCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
+  public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
   
