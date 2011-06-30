@@ -90,7 +90,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   @Override
   public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    _listeningValueRequirements.removeAll(valueRequirements);
+    // TODO
   }
 
   //-------------------------------------------------------------------------
