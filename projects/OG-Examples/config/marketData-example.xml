@@ -4,7 +4,7 @@
 
   <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolverFactoryBean">
     <property name="provider">
-      <bean class="com.opengamma.examples.livedata.MockMarketDataProviderFactoryBean" />
+      <bean class="com.opengamma.examples.marketdata.MockMarketDataProviderFactoryBean" />
     </property>
   </bean>
   
