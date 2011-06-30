@@ -50,7 +50,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
 
   private final String _futureOptionPrefix;
   private final String _postfix;
-  private final String _dataFieldName; // expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY
+  private final String _dataFieldName; // expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
   private final Double _useCallAboveStrike;
 
   public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike) {
