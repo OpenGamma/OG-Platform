@@ -104,6 +104,11 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
   public Object query(ValueRequirement requirement) {
     return getSnapshot().get(requirement);
   }
+
+  //-------------------------------------------------------------------------
+  public Set<ValueRequirement> getAllValueKeys() {
+    return Collections.unmodifiableSet(getSnapshot().keySet());
+  }
   
   //-------------------------------------------------------------------------
   private Map<ValueRequirement, Object> getSnapshot() {

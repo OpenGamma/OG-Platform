@@ -121,15 +121,15 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
     return _historicalTimeSeriesSource;
   }
   
-  private String getDataSource() {
+  public String getDataSource() {
     return _dataSource;
   }
   
-  private String getDataProvider() {
+  public String getDataProvider() {
     return _dataProvider;
   }
   
-  private String getDataField() {
+  public String getDataField() {
     return _dataField;
   }
 

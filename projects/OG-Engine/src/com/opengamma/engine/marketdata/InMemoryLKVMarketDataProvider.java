@@ -96,7 +96,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+  public InMemoryLKVMarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     return new InMemoryLKVMarketDataSnapshot(this);
   }
 

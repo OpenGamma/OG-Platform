@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata.resolver;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
+import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
@@ -15,6 +16,10 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 public class SingleMarketDataProviderResolver implements MarketDataProviderResolver {
 
   private final MarketDataProviderFactory _providerFactory;
+  
+  public SingleMarketDataProviderResolver(MarketDataProvider provider) {
+    this(new SingletonMarketDataProviderFactory(provider));
+  }
   
   public SingleMarketDataProviderResolver(MarketDataProviderFactory providerFactory) {
     _providerFactory = providerFactory;

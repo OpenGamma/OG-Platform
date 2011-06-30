@@ -30,9 +30,12 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -137,7 +140,7 @@ public class CommandLineBatchJob {
    * Optional. If not given, you need to pre-populate the
    * batch DB with all necessary market data.   
    */
-  private HistoricalMarketDataProvider _historicalSnapshotProvider;
+  private HistoricalMarketDataProvider _historicalMarketDataProvider;
   
   /**
    * This is used to determine the name of the property file from
@@ -303,12 +306,12 @@ public class CommandLineBatchJob {
     _holidayCurrency = holidayCurrency;
   }
   
-  public HistoricalMarketDataProvider getHistoricalSnapshotProvider() {
-    return _historicalSnapshotProvider;
+  public HistoricalMarketDataProvider getHistoricalMarketDataProvider() {
+    return _historicalMarketDataProvider;
   }
 
-  public void setHistoricalSnapshotProvider(HistoricalMarketDataProvider historicalSnapshotProvider) {
-    _historicalSnapshotProvider = historicalSnapshotProvider;
+  public void setHistoricalMarketDataProvider(HistoricalMarketDataProvider historicalMarketDataProvider) {
+    _historicalMarketDataProvider = historicalMarketDataProvider;
   }
 
   public UserPrincipal getUser() {
@@ -511,7 +514,12 @@ public class CommandLineBatchJob {
         _batchMaster.startBatch(run);
         
         ViewClient client = run.getViewProcessor().createViewClient(UserPrincipal.getLocalUser());
-        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.of(run.getValuationTime())), true);
+        HistoricalMarketDataSpecification marketDataSpec = getHistoricalMarketDataProvider() == null ?
+            MarketData.historical(run.getSnapshotObservationDate(), null, null, null) :
+              MarketData.historical(run.getSnapshotObservationDate(), getHistoricalMarketDataProvider().getDataSource(),
+                getHistoricalMarketDataProvider().getDataProvider(), getHistoricalMarketDataProvider().getDataField());
+        ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(run.getValuationTime(), marketDataSpec);
+        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), null), true);
         client.waitForCompletion();
 
         _batchMaster.endBatch(run);
