@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -19,8 +21,10 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -157,10 +161,17 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
+  public Map<String, List<DoublesPair>> visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bondFuture);
+    final BondFutureTransactionDiscountingMethod method = new BondFutureTransactionDiscountingMethod();
+    return method.presentValueCurveSensitivity(bondFuture, curves).getSensitivity();
+  }
+
+  @Override
   public Map<String, List<DoublesPair>> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> senseR = visit(swap.getSecondLeg(), curves);
     final Map<String, List<DoublesPair>> senseP = visit(swap.getFirstLeg(), curves);
-
     return PresentValueSensitivityUtil.addSensitivity(curves, senseR, senseP);
   }
 
