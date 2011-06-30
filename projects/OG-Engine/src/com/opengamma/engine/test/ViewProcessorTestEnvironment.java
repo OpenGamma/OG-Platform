@@ -28,7 +28,7 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
-import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.MapViewDefinitionRepository;
@@ -72,9 +72,13 @@ public class ViewProcessorTestEnvironment {
 
   public static final String TEST_VIEW_DEFINITION_NAME = "Test View";
   public static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
+  
+  private static final ValueRequirement s_primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
+  private static final ValueRequirement s_primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
 
   // Settings
   private MarketDataProvider _marketDataProvider;
+  private MarketDataProviderResolver _marketDataProviderResolver;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private FunctionExecutionContext _functionExecutionContext;
@@ -87,8 +91,6 @@ public class ViewProcessorTestEnvironment {
   private ViewProcessorImpl _viewProcessor;
   private FunctionResolver _functionResolver;
   private CachingComputationTargetResolver _cachingComputationTargetResolver;
-  private final ValueRequirement _primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
-  private final ValueRequirement _primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
   private MapViewDefinitionRepository _viewDefinitionRepository;
 
   public void init() {
@@ -117,9 +119,7 @@ public class ViewProcessorTestEnvironment {
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
-    MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
-    SingletonMarketDataProviderFactory marketDataProviderFactory = new SingletonMarketDataProviderFactory(marketDataProvider);
-    SingleMarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(marketDataProviderFactory);
+    MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
     vpFactBean.setPositionSource(positionSource);
@@ -177,8 +177,8 @@ public class ViewProcessorTestEnvironment {
   private ViewDefinition generateViewDefinition() {
     ViewDefinition testDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_USER);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(testDefinition, TEST_CALC_CONFIG_NAME);
-    calcConfig.addSpecificRequirement(_primitive1);
-    calcConfig.addSpecificRequirement(_primitive2);
+    calcConfig.addSpecificRequirement(getPrimitive1());
+    calcConfig.addSpecificRequirement(getPrimitive2());
     testDefinition.addViewCalculationConfiguration(calcConfig);
     
     setViewDefinition(testDefinition);
@@ -200,6 +200,22 @@ public class ViewProcessorTestEnvironment {
     provider.addValue(getPrimitive2(), 0);
     setMarketDataProvider(provider);
     return provider;
+  }
+  
+  public MarketDataProviderResolver getMarketDataProviderResolver() {
+    return _marketDataProviderResolver;
+  }
+  
+  public void setMarketDataProviderResolver(MarketDataProviderResolver marketDataProviderResolver) {
+    ArgumentChecker.notNull(marketDataProviderResolver, "marketDataProviderResolver");
+    _marketDataProviderResolver = marketDataProviderResolver;
+  }
+  
+  private MarketDataProviderResolver generateMarketDataProviderResolver(SecuritySource securitySource) {
+    MarketDataProvider marketDataProvider = getMarketDataProvider() != null ? getMarketDataProvider() : generateMarketDataProvider(securitySource);
+    MarketDataProviderResolver resolver = new SingleMarketDataProviderResolver(marketDataProvider);
+    setMarketDataProviderResolver(resolver);
+    return resolver;
   }
   
   public FunctionRepository getFunctionRepository() {
@@ -324,12 +340,12 @@ public class ViewProcessorTestEnvironment {
     return viewProcess.getComputationThread();
   }
 
-  public ValueRequirement getPrimitive1() {
-    return _primitive1;
+  public static ValueRequirement getPrimitive1() {
+    return s_primitive1;
   }
 
-  public ValueRequirement getPrimitive2() {
-    return _primitive2;
+  public static ValueRequirement getPrimitive2() {
+    return s_primitive2;
   }
 
   public ViewCalculationResultModel getCalculationResult(ViewResultModel result) {
