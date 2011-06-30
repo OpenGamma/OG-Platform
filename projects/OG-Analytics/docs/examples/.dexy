@@ -1,4 +1,7 @@
 {
+    "$globals" : {
+        "title" : "Examples"
+    },
   "*.py|pyg" : {},
   "*.py|dexy" : {},
   "*.py|fn|jython" : {

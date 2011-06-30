@@ -1,6 +1,6 @@
 <p>Here are some examples:</p>
 <ul>
-    {% for k in lk -%}{% if l[k].final %}
-    <li><a href="{{ l[k].canonical_basename() }}">{{ k }}</a></li>
-    {% endif %}{% endfor -%}
+    {% for subdir in subdirectories -%}
+    <li><a href="{{ subdir }}">{{ subdir }}</a></li>
+    {% endfor -%}
 </ul>
