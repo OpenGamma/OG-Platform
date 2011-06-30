@@ -1,10 +1,11 @@
 @font-face {
-    font-family: 'MuseoSlab500';
-    src: url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.eot');
-    src: url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.eot?iefix') format('eot'),
-         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.woff') format('woff'),
-         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.ttf') format('truetype'),
-         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.svg#webfont8VbsAwew') format('svg');
+    /* A font by Jos Buivenga (exljbris) -> http://www.exljbris.com */
+    font-family: 'MuseoSans500';
+    src: url('https://opengamma.com/res/display/default/fonts/MuseoSans500/MuseoSans_500-webfont.eot');
+    src: url('https://opengamma.com/res/display/default/fonts/MuseoSans500/MuseoSans_500-webfont.eot?iefix') format('eot'),
+         url('https://opengamma.com/res/display/default/fonts/MuseoSans500/MuseoSans_500-webfont.woff') format('woff'),
+         url('https://opengamma.com/res/display/default/fonts/MuseoSans500/MuseoSans_500-webfont.ttf') format('truetype'),
+         url('https://opengamma.com/res/display/default/fonts/MuseoSans500/MuseoSans_500-webfont.svg#webfont8VbsAwew') format('svg');
     font-weight: normal;
     font-style: normal;
 }

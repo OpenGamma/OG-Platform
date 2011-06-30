@@ -2,6 +2,7 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,6 +91,53 @@ public class PresentValueSABRSensitivityDataBundleTest {
     nu.put(new DoublesPair(0.5, 5.0), 310.0);
     nu.put(new DoublesPair(1.5, 5.0), 320.0);
     assertEquals(sensi.getNu(), nu);
+  }
+
+  @Test
+  /**
+   * Tests related to the plus method.
+   */
+  public void plus() {
+    Map<DoublesPair, Double> alpha1 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> rho1 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> nu1 = new HashMap<DoublesPair, Double>();
+    alpha1.put(new DoublesPair(0.5, 5.0), 11.0);
+    alpha1.put(new DoublesPair(1.5, 5.0), 12.0);
+    rho1.put(new DoublesPair(0.5, 5.0), 21.0);
+    rho1.put(new DoublesPair(1.5, 5.0), 22.0);
+    nu1.put(new DoublesPair(0.5, 5.0), 31.0);
+    nu1.put(new DoublesPair(2.5, 5.0), 32.0);
+    Map<DoublesPair, Double> alpha2 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> rho2 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> nu2 = new HashMap<DoublesPair, Double>();
+    alpha2.put(new DoublesPair(0.5, 5.0), 11.0);
+    alpha2.put(new DoublesPair(1.5, 5.0), 12.0);
+    rho2.put(new DoublesPair(0.5, 5.0), 21.0);
+    rho2.put(new DoublesPair(1.5, 5.0), 22.0);
+    nu2.put(new DoublesPair(0.5, 5.0), 31.0);
+    nu2.put(new DoublesPair(2.5, 5.0), 32.0);
+    PresentValueSABRSensitivityDataBundle sensi1 = new PresentValueSABRSensitivityDataBundle(alpha1, rho1, nu1);
+    PresentValueSABRSensitivityDataBundle sensi2 = new PresentValueSABRSensitivityDataBundle(alpha2, rho2, nu2);
+    PresentValueSABRSensitivityDataBundle sensi3 = sensi1.plus(sensi1);
+    sensi2.multiply(2.0);
+    assertTrue("Adding twice the same sensi", sensi3.equals(sensi2));
+    Map<DoublesPair, Double> alpha3 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> rho3 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> nu3 = new HashMap<DoublesPair, Double>();
+    alpha3.put(new DoublesPair(2.5, 5.0), 11.0);
+    PresentValueSABRSensitivityDataBundle sensi4 = new PresentValueSABRSensitivityDataBundle(alpha3, rho3, nu3);
+    Map<DoublesPair, Double> alpha4 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> rho4 = new HashMap<DoublesPair, Double>();
+    Map<DoublesPair, Double> nu4 = new HashMap<DoublesPair, Double>();
+    alpha4.put(new DoublesPair(0.5, 5.0), 11.0);
+    alpha4.put(new DoublesPair(1.5, 5.0), 12.0);
+    alpha4.put(new DoublesPair(2.5, 5.0), 11.0);
+    rho4.put(new DoublesPair(0.5, 5.0), 21.0);
+    rho4.put(new DoublesPair(1.5, 5.0), 22.0);
+    nu4.put(new DoublesPair(0.5, 5.0), 31.0);
+    nu4.put(new DoublesPair(2.5, 5.0), 32.0);
+    PresentValueSABRSensitivityDataBundle sensi5 = new PresentValueSABRSensitivityDataBundle(alpha4, rho4, nu4);
+    assertTrue("Adding a single alpha risk", sensi5.equals(sensi1.plus(sensi4)));
   }
 
   @Test
