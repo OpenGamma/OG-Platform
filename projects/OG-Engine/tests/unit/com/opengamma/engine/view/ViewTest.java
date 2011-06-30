@@ -137,7 +137,7 @@ public class ViewTest {
         return (!timestamp.isAfter(time0.plusMillis(20)));
       }
     };
-    computationJob.setLatestCompiledViewDefinition(compiledViewDefinition);
+    computationJob.setCachedCompiledViewDefinition(compiledViewDefinition);
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.marketDataChanged();

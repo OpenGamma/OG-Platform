@@ -515,7 +515,7 @@ public class ViewClientTest {
     //-----------------------------------------------------------------------
     @Override
     public boolean isCompatible(MarketDataSpecification marketDataSpec) {
-      return false;
+      return true;
     }
     
     @Override
@@ -565,6 +565,7 @@ public class ViewClientTest {
   private static class SynchronousInMemoryLKVSnapshot implements MarketDataSnapshot {
 
     private final Map<ValueRequirement, Object> _snapshot;
+    private final Instant _snapshotTime = Instant.now();
     
     public SynchronousInMemoryLKVSnapshot(Map<ValueRequirement, Object> snapshot) {
       _snapshot = snapshot;
@@ -572,7 +573,7 @@ public class ViewClientTest {
     
     @Override
     public Instant getSnapshotTimeIndication() {
-      return null;
+      return _snapshotTime;
     }
 
     @Override
@@ -585,7 +586,7 @@ public class ViewClientTest {
 
     @Override
     public Instant getSnapshotTime() {
-      return null;
+      return _snapshotTime;
     }
     
     @Override
