@@ -100,6 +100,39 @@ public class PresentValueSABRSensitivityDataBundle {
   }
 
   /**
+   * Return the sum of to sensitivities in a ne one. The original sensitivities are unchanged.
+   * @param other Another SABR sensitivity.
+   * @return The sum sensitivity.
+   */
+  public PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle other) {
+    Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>(_alpha);
+    Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>(_rho);
+    Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>(_nu);
+    for (final DoublesPair p : other.getAlpha().keySet()) {
+      if (_alpha.containsKey(p)) {
+        alpha.put(p, other.getAlpha().get(p) + _alpha.get(p));
+      } else {
+        alpha.put(p, other.getAlpha().get(p));
+      }
+    }
+    for (final DoublesPair p : other.getRho().keySet()) {
+      if (_rho.containsKey(p)) {
+        rho.put(p, other.getRho().get(p) + _rho.get(p));
+      } else {
+        rho.put(p, other.getRho().get(p));
+      }
+    }
+    for (final DoublesPair p : other.getNu().keySet()) {
+      if (_nu.containsKey(p)) {
+        nu.put(p, other.getNu().get(p) + _nu.get(p));
+      } else {
+        nu.put(p, other.getNu().get(p));
+      }
+    }
+    return new PresentValueSABRSensitivityDataBundle(alpha, rho, nu);
+  }
+
+  /**
    * Gets the _alpha field.
    * @return The alpha sensitivity.
    */
