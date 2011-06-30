@@ -46,7 +46,7 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
 
   @Override
   public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
-    if (valuesRequired != null && valuesRequired.isEmpty()) {
+    if (valuesRequired != null && !valuesRequired.isEmpty()) {
       final Set<ValueRequirement> unavailableRequirements = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
       unavailableRequirements.addAll(valuesRequired);
       final CountDownLatch awaitingValuesLatch = new CountDownLatch(1);
