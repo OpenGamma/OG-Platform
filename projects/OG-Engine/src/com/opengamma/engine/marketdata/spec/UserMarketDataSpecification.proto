@@ -13,6 +13,10 @@ namespace com.opengamma.engine.marketdata.spec {
   
     required com.opengamma.id.UniqueIdentifier userSnapshotId;
     
+    binding Java {
+      methods "equals, hashCode, toString";
+    }
+    
   }
   
 }

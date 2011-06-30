@@ -32,6 +32,16 @@ public class MarketDataSpecification implements java.io.Serializable {
     }
     return new MarketDataSpecification (fudgeContext, fudgeMsg);
   }
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof MarketDataSpecification)) return false;
+    MarketDataSpecification msg = (MarketDataSpecification)o;
+    return true;
+  }
+  public int hashCode () {
+    int hc = 1;
+    return hc;
+  }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }

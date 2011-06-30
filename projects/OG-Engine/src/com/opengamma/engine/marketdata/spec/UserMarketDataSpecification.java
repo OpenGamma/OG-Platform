@@ -72,6 +72,25 @@ public class UserMarketDataSpecification extends com.opengamma.engine.marketdata
       _userSnapshotId = userSnapshotId;
     }
   }
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof UserMarketDataSpecification)) return false;
+    UserMarketDataSpecification msg = (UserMarketDataSpecification)o;
+    if (_userSnapshotId != null) {
+      if (msg._userSnapshotId != null) {
+        if (!_userSnapshotId.equals (msg._userSnapshotId)) return false;
+      }
+      else return false;
+    }
+    else if (msg._userSnapshotId != null) return false;
+    return super.equals (msg);
+  }
+  public int hashCode () {
+    int hc = super.hashCode ();
+    hc *= 31;
+    if (_userSnapshotId != null) hc += _userSnapshotId.hashCode ();
+    return hc;
+  }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }

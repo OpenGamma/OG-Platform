@@ -11,6 +11,10 @@ namespace com.opengamma.engine.marketdata.spec {
    */
   message MarketDataSpecification {
 
+    binding Java {
+      methods "equals, hashCode, toString";
+    }
+
   }
   
 }

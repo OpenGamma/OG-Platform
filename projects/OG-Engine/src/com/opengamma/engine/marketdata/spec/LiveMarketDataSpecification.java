@@ -64,6 +64,25 @@ public class LiveMarketDataSpecification extends com.opengamma.engine.marketdata
   public void setDataSource (String dataSource) {
     _dataSource = dataSource;
   }
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof LiveMarketDataSpecification)) return false;
+    LiveMarketDataSpecification msg = (LiveMarketDataSpecification)o;
+    if (_dataSource != null) {
+      if (msg._dataSource != null) {
+        if (!_dataSource.equals (msg._dataSource)) return false;
+      }
+      else return false;
+    }
+    else if (msg._dataSource != null) return false;
+    return super.equals (msg);
+  }
+  public int hashCode () {
+    int hc = super.hashCode ();
+    hc *= 31;
+    if (_dataSource != null) hc += _dataSource.hashCode ();
+    return hc;
+  }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }

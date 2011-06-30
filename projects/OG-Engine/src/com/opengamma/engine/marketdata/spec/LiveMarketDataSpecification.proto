@@ -13,6 +13,10 @@ namespace com.opengamma.engine.marketdata.spec {
   
     optional string dataSource;
     
+    binding Java {
+      methods "equals, hashCode, toString";
+    }
+    
   }
   
 }

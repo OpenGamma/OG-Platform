@@ -142,6 +142,52 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
   public void setDataField (String dataField) {
     _dataField = dataField;
   }
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof HistoricalMarketDataSpecification)) return false;
+    HistoricalMarketDataSpecification msg = (HistoricalMarketDataSpecification)o;
+    if (_snapshotDate != null) {
+      if (msg._snapshotDate != null) {
+        if (!_snapshotDate.equals (msg._snapshotDate)) return false;
+      }
+      else return false;
+    }
+    else if (msg._snapshotDate != null) return false;
+    if (_dataSource != null) {
+      if (msg._dataSource != null) {
+        if (!_dataSource.equals (msg._dataSource)) return false;
+      }
+      else return false;
+    }
+    else if (msg._dataSource != null) return false;
+    if (_dataProvider != null) {
+      if (msg._dataProvider != null) {
+        if (!_dataProvider.equals (msg._dataProvider)) return false;
+      }
+      else return false;
+    }
+    else if (msg._dataProvider != null) return false;
+    if (_dataField != null) {
+      if (msg._dataField != null) {
+        if (!_dataField.equals (msg._dataField)) return false;
+      }
+      else return false;
+    }
+    else if (msg._dataField != null) return false;
+    return super.equals (msg);
+  }
+  public int hashCode () {
+    int hc = super.hashCode ();
+    hc *= 31;
+    if (_snapshotDate != null) hc += _snapshotDate.hashCode ();
+    hc *= 31;
+    if (_dataSource != null) hc += _dataSource.hashCode ();
+    hc *= 31;
+    if (_dataProvider != null) hc += _dataProvider.hashCode ();
+    hc *= 31;
+    if (_dataField != null) hc += _dataField.hashCode ();
+    return hc;
+  }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
