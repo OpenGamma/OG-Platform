@@ -6,6 +6,9 @@
 package com.opengamma.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
+
+import java.util.List;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -30,15 +33,19 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Test class for the replication method for CMS caplet/floorlet with a SABR smile.
@@ -119,6 +126,54 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final double priceStrike = PVC_SABR.visit(COUPON_STRIKE, CURVES);
     // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
     assertEquals(priceCMSCap - priceCMSFloor + 24.0, priceCMSCoupon - priceStrike, 1.0);
+  }
+
+  @Test
+  /**
+   * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
+   */
+  public void presentValueCurveSensitivity() {
+    PresentValueSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_CAP, SABR_BUNDLE);
+    pvcsCap = pvcsCap.clean();
+    final double deltaTolerancePrice = 1.0E+1;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
+    final double deltaShift = 1.0E-6;
+    String bumpedCurveName = "Bumped Curve";
+    // 1. Forward curve sensitivity
+    final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final CapFloorCMS capBumpedForward = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
+    DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
+    for (int loopcpn = 0; loopcpn < CMS_CAP.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
+      CouponIbor cpn = (CouponIbor) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      forwardTime.add(cpn.getFixingPeriodStartTime());
+      forwardTime.add(cpn.getFixingPeriodEndTime());
+    }
+    double[] nodeTimesForward = forwardTime.toDoubleArray();
+    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    assertEquals("Sensitivity finite difference method: number of node", nodeTimesForward.length, sensiForwardMethod.length);
+    List<DoublesPair> sensiPvForward = pvcsCap.getSensitivity().get(FORWARD_CURVE_NAME);
+    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvForward.get(loopnode);
+      assertEquals("Sensitivity CMS cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
+    }
+    // 2. Discounting curve sensitivity
+    final String[] CurveNameBumpedDisc = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final CapFloorCMS capBumpedDisc = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedDisc);
+    DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
+    discTime.add(capBumpedDisc.getPaymentTime());
+    for (int loopcpn = 0; loopcpn < CMS_CAP.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
+      CouponIbor cpn = (CouponIbor) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      discTime.add(cpn.getPaymentTime());
+    }
+    double[] nodeTimesDisc = discTime.toDoubleArray();
+    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivity().get(FUNDING_CURVE_NAME);
+    for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvDisc.get(loopnode);
+      assertEquals("Sensitivity CMS cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
+    }
   }
 
   @Test
