@@ -8,12 +8,12 @@ package com.opengamma.engine.function.resolver;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.ComputationTarget;
 
 /**
  * 
  */
-public class ApplyToAllTargets implements ComputationTargetFilter {
+public class ApplyToAllTargets extends ComputationTargetFilter {
   
   /**
    * Since the class has no state, you can always use this instance.
@@ -21,7 +21,7 @@ public class ApplyToAllTargets implements ComputationTargetFilter {
   public static final ApplyToAllTargets INSTANCE = new ApplyToAllTargets();
 
   @Override
-  public boolean accept(DependencyNode node) {
+  public boolean accept(ComputationTarget target) {
     return true;
   }
   

@@ -8,23 +8,35 @@ package com.opengamma.engine.depgraph;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.depgraph.ResolveTask.TerminationCallback;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given
@@ -48,17 +60,79 @@ public class DependencyGraphBuilder {
    * as a thread blocked on graph construction in the call to {@link #getDependencyGraph} will join in with
    * the remaining construction.
    */
-  private volatile int _maxAdditionalThreads /* = 0 */;
+  private volatile int _maxAdditionalThreads = Runtime.getRuntime().availableProcessors();
 
   // State:
   private final int _objectId = s_nextObjectId.incrementAndGet();
-  private final ConcurrentMap<ValueRequirement, ResolveTask> _requirements = new ConcurrentHashMap<ValueRequirement, ResolveTask>();
+  private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
+  private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolveTask>> _specifications = new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolveTask>>();
   private final Set<TerminatableJob> _activeJobs = new HashSet<TerminatableJob>();
+  private final Queue<ResolveTask> _runQueue = new ConcurrentLinkedQueue<ResolveTask>();
+  private final Collection<Throwable> _exceptions = new ConcurrentLinkedQueue<Throwable>();
+  private final ConcurrentMap<ComputationTarget, ConcurrentMap<ParameterizedFunction, DependencyNode>> _graphTargets = new ConcurrentHashMap<ComputationTarget, ConcurrentMap<ParameterizedFunction, DependencyNode>>();
+
+  // TODO: we could have different run queues for the different states. When the PENDING one is considered, a bulk lookup operation can then be done
+
+  // TODO: The number of active jobs for thread spawn decisions could come from a shared variable rather than size of the set. This can then be shared
+  // among a set of builders that themselves be running concurrently (e.g. different configurations) so that the total background threads for the
+  // group is pegged, NOT the count per builder which may be too much.
 
   /**
    * Incrementing identifier for background thread identifiers. Users must hold the _activeJobs monitor.
    */
   private int _nextJobThreadId;
+
+  private final TerminationCallback _addTargetCallback = new TerminationCallback() {
+
+    private DependencyNode taskToNode(final ResolveTask task) {
+      DependencyNode node = task.getDependencyNode();
+      if (!node.getOutputValues().isEmpty()) {
+        return node;
+      }
+      s_logger.debug("Converting {} to depenency node", task);
+      final ComputationTarget target = task.getDependencyNode().getComputationTarget();
+      ConcurrentMap<ParameterizedFunction, DependencyNode> functions = _graphTargets.get(target);
+      if (functions == null) {
+        functions = new ConcurrentHashMap<ParameterizedFunction, DependencyNode>();
+        final ConcurrentMap<ParameterizedFunction, DependencyNode> existing = _graphTargets.putIfAbsent(target, functions);
+        if (existing != null) {
+          functions = existing;
+        }
+      }
+      final ParameterizedFunction function = task.getDependencyNode().getFunction();
+      node = functions.get(function);
+      if (node == null) {
+        node = new DependencyNode(target);
+        final DependencyNode existing = functions.putIfAbsent(function, node);
+        if (existing == null) {
+          node.setFunction(function);
+        } else {
+          node = existing;
+        }
+      }
+      node.addOutputValue(task.getValueSpecification());
+      if (task.getInputTasks() != null) {
+        for (ResolveTask input : task.getInputTasks()) {
+          node.addInputNode(taskToNode(input));
+        }
+      }
+      task.setDependencyNode(node);
+      return node;
+    }
+
+    @Override
+    public void complete(final ResolveTask task) {
+      s_logger.info("Resolved {}", task.getValueRequirement());
+      taskToNode(task);
+    }
+
+    @Override
+    public void failed(final ResolveTask task) {
+      // TODO: extract some useful exception state from the task
+      s_logger.error("Couldn't resolve {}", task.getValueRequirement());
+    }
+
+  };
 
   /**
    * @return the calculationConfigurationName
@@ -167,7 +241,7 @@ public class DependencyGraphBuilder {
   public void addTarget(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     checkInjectedInputs();
-    addTargetImpl(requirement);
+    resolveRequirement(requirement, null).notifyOnTermination(_addTargetCallback);
   }
 
   /**
@@ -182,27 +256,75 @@ public class DependencyGraphBuilder {
     ArgumentChecker.noNulls(requirements, "requirements");
     checkInjectedInputs();
     for (ValueRequirement requirement : requirements) {
-      addTargetImpl(requirement);
+      resolveRequirement(requirement, null).notifyOnTermination(_addTargetCallback);
     }
   }
 
-  protected void addTargetImpl(final ValueRequirement requirement) {
+  protected ResolveTask resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
     s_logger.debug("addTargetImpl {}", requirement);
-    ResolveTask task = _requirements.get(requirement);
-    if (task == null) {
-      task = new ResolveTask(requirement);
-      final ResolveTask existing = _requirements.putIfAbsent(requirement, task);
-      if (existing != null) {
-        task = existing;
+    final Set<ResolveTask> otherTasks = getOtherTasksResolving(requirement, dependent);
+    if (otherTasks == null) {
+      // There are no other tasks resolving the requirement
+      final ResolveTask newTask = new ResolveTask(requirement);
+      final ResolveTask task = declareTaskResolving(requirement, newTask);
+      if (task == newTask) {
+        s_logger.debug("Created resolver task for {}", requirement);
+        addToRunQueue(task);
       }
-    }
-    // TODO: this needs to be broken out; addTargetImpl as called by the addTarget methods is not
-    // the same behavior as needed by a target added during graph traversal.
+      return task;
+    } else {
+      for (ResolveTask otherTask : otherTasks) {
+        if (otherTask.getState() == ResolveTask.State.COMPLETE) {
+          s_logger.debug("Found completed resolve task for {}", requirement);
+          return otherTask;
+        }
+      }
+      // There are other tasks resolving the requirement, but they may be different to us
+      final ResolveTask newTask = new ResolveTask(requirement);
+      final ResolveTask task = declareTaskResolving(requirement, newTask);
+      if (task == newTask) {
+        s_logger.debug("Created deferred resolver task for {}", requirement);
+        final AtomicInteger blocked = new AtomicInteger(1);
+        final TerminationCallback callback = new TerminationCallback() {
 
+          private volatile ResolveTask _completed;
+
+          @Override
+          public void complete(final ResolveTask otherTask) {
+            s_logger.debug("Resolve task completed for {}", requirement);
+            _completed = otherTask;
+            blocked.decrementAndGet();
+          }
+
+          @Override
+          public void failed(final ResolveTask otherTask) {
+            if (blocked.decrementAndGet() == 0) {
+              if (_completed == null) {
+                s_logger.debug("Created new resolver task for {}", requirement);
+                addToRunQueue(task);
+              }
+            }
+          }
+
+        };
+        for (ResolveTask otherTask : otherTasks) {
+          blocked.incrementAndGet();
+          otherTask.notifyOnTermination(callback);
+        }
+        callback.failed(null);
+      }
+      return task;
+    }
+  }
+
+  protected void addToRunQueue(final ResolveTask runnable) {
+    s_logger.debug("addToRunQueue {}", runnable);
+    final boolean dontSpawn = _runQueue.isEmpty();
+    _runQueue.add(runnable);
     // NOTE: Is it safe to query the size of a set without the monitor? I don't care if it isn't
     // exactly accurate in the event of the set being modified as we will repeat the check with
     // the monitor held. I just want to avoid entering a monitor unnecessarily.
-    if (_activeJobs.size() < getMaxAdditionalThreads()) {
+    if (_activeJobs.isEmpty() || (!dontSpawn && (_activeJobs.size() < getMaxAdditionalThreads()))) {
       synchronized (_activeJobs) {
         if (_activeJobs.size() < getMaxAdditionalThreads()) {
           startBackgroundConstructionJob();
@@ -220,12 +342,27 @@ public class DependencyGraphBuilder {
     final Thread t = new Thread(job);
     t.setDaemon(true);
     t.setName(toString() + "-" + (_nextJobThreadId++));
+    t.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(final Thread t, final Throwable e) {
+        s_logger.warn("Graph builder exception", e);
+        postException(e);
+        synchronized (_activeJobs) {
+          _activeJobs.remove(job);
+        }
+      }
+    });
     t.start();
     s_logger.info("Started background thread {}", t);
   }
 
   protected TerminatableJob createConstructionJob() {
     return new TerminatableJob() {
+
+      @Override
+      protected void preStart() {
+        s_logger.info("Construction job started");
+      }
 
       @Override
       protected void runOneCycle() {
@@ -236,11 +373,12 @@ public class DependencyGraphBuilder {
 
       @Override
       protected void postRunCycle() {
-        s_logger.info("Construction thread ended");
+        s_logger.info("Construction job ended");
         synchronized (_activeJobs) {
           _activeJobs.remove(this);
         }
       }
+
     };
   }
 
@@ -252,8 +390,12 @@ public class DependencyGraphBuilder {
    * @return true if there is more work still to do, false if all the work is done
    */
   protected boolean buildGraph() {
-    // TODO: take a runnable task and deal with it
-    return false;
+    final ResolveTask task = _runQueue.poll();
+    if (task == null) {
+      return false;
+    }
+    task.run(this);
+    return true;
   }
 
   /**
@@ -263,8 +405,14 @@ public class DependencyGraphBuilder {
    * @return {@code true} if the graph has been built, {@code false} if it is outstanding.
    */
   public boolean isGraphBuilt() {
-    // TODO
-    return false;
+    synchronized (_activeJobs) {
+      if (!_activeJobs.isEmpty()) {
+        // One or more active jobs, so can't be built yet
+        return false;
+      }
+    }
+    // no active jobs, so built if there is nothing in the run queue
+    return _runQueue.isEmpty();
   }
 
   /**
@@ -275,7 +423,9 @@ public class DependencyGraphBuilder {
    * @return the graph if built or {@code null} otherwise
    */
   public DependencyGraph pollDependencyGraph() {
-    // TODO
+    if (isGraphBuilt()) {
+      return createDependencyGraph();
+    }
     return null;
   }
 
@@ -306,8 +456,7 @@ public class DependencyGraphBuilder {
    * @param numThreads maximum number of active jobs desired
    */
   protected void startBackgroundBuild(final int numThreads) {
-    final int runnableCount = 0; // TODO: get the size of the run-queue
-    if (runnableCount == 0) {
+    if (_runQueue.isEmpty()) {
       s_logger.info("No pending runnable tasks for background building");
     } else {
       synchronized (_activeJobs) {
@@ -316,19 +465,17 @@ public class DependencyGraphBuilder {
           s_logger.info("Already {} background building threads running ({} requested)", _activeJobs.size(), numThreads);
           return;
         }
-        if (createThreads > runnableCount) {
-          createThreads = runnableCount;
-        }
-        s_logger.info("Creating {} additional building threads for {} runnable tasks", createThreads, runnableCount);
-        for (int i = 0; i < createThreads; i++) {
-          startBackgroundConstructionJob();
+        final Iterator<ResolveTask> itr = _runQueue.iterator();
+        while (itr.hasNext()) {
+          itr.next();
+          if ((--createThreads) >= 0) {
+            startBackgroundConstructionJob();
+            break;
+          }
         }
       }
     }
   }
-
-  // DON'T CHECK IN WITH =true
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
 
   /**
    * Returns the constructed dependency graph able to compute as may of the requirements requested as
@@ -341,17 +488,56 @@ public class DependencyGraphBuilder {
    */
   public DependencyGraph getDependencyGraph() {
     if (!isGraphBuilt()) {
-      final TerminatableJob job = createConstructionJob();
-      synchronized (_activeJobs) {
-        _activeJobs.add(job);
-      }
-      job.run();
+      s_logger.info("Building dependency graph");
+      do {
+        final TerminatableJob job = createConstructionJob();
+        synchronized (_activeJobs) {
+          _activeJobs.add(job);
+        }
+        try {
+          job.run();
+        } catch (Throwable t) {
+          postException(t);
+          throw new OpenGammaRuntimeException("Caught exception", t);
+        }
+        synchronized (_activeJobs) {
+          if (_activeJobs.isEmpty()) {
+            // We're done and there are no other jobs
+            break;
+          } else {
+            // There are other jobs still running ...
+            if (!_runQueue.isEmpty()) {
+              // ... and stuff in the queue
+              continue;
+            }
+          }
+        }
+        // ... but nothing in the queue for us so take a nap
+        s_logger.info("Waiting for background threads");
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          throw new OpenGammaRuntimeException("Interrupted during graph building", e);
+        }
+      } while (true);
       if (!isGraphBuilt()) {
-        throw new CancellationException("Dependency graph construction incomplete");
+        throw new CancellationException("Dependency graph building incomplete");
       }
     }
+    return createDependencyGraph();
+  }
+
+  // DON'T CHECK IN WITH =true
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
+
+  protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
-    // TODO: populate the graph from the current state
+    s_logger.debug("Converting internal representation to dependency graph");
+    for (ConcurrentMap<ParameterizedFunction, DependencyNode> functions : _graphTargets.values()) {
+      for (DependencyNode node : functions.values()) {
+        graph.addDependencyNode(node);
+      }
+    }
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
         final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));
@@ -364,9 +550,86 @@ public class DependencyGraphBuilder {
     return graph;
   }
 
+  /**
+   * Stores an exception that should be reported to the user.
+   * 
+   * @param t exception to store, not {@code null}
+   */
+  protected void postException(final Throwable t) {
+    _exceptions.add(t);
+  }
+
+  /**
+   * Returns the set of exceptions that may have prevented graph construction.
+   * 
+   * @return the set of exceptions that were thrown by the building process, or {@code null} for none
+   */
+  @SuppressWarnings("unchecked")
+  public Collection<Throwable> getExceptions() {
+    if (_exceptions.isEmpty()) {
+      return null;
+    } else {
+      return Collections.unmodifiableCollection(_exceptions);
+    }
+  }
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + "-" + _objectId;
+  }
+
+  private static <T> ResolveTask declareImpl(final T key, final ResolveTask task, final ConcurrentMap<T, ConcurrentMap<ResolveTask, ResolveTask>> taskMap) {
+    ConcurrentMap<ResolveTask, ResolveTask> tasks = taskMap.get(key);
+    if (tasks == null) {
+      tasks = new ConcurrentHashMap<ResolveTask, ResolveTask>();
+      tasks.put(task, task);
+      tasks = taskMap.putIfAbsent(key, tasks);
+      if (tasks == null) {
+        return task;
+      } else {
+        final ResolveTask existingTask = tasks.putIfAbsent(task, task);
+        if (existingTask == null) {
+          return task;
+        } else {
+          return existingTask;
+        }
+      }
+    } else {
+      final ResolveTask existingTask = tasks.putIfAbsent(task, task);
+      if (existingTask == null) {
+        return task;
+      } else {
+        return existingTask;
+      }
+    }
+  }
+
+  protected ResolveTask declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
+    return declareImpl(valueSpecification, task, _specifications);
+  }
+
+  protected Set<ResolveTask> getOtherTasksProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
+    ConcurrentMap<ResolveTask, ResolveTask> tasks = _specifications.get(valueSpecification);
+    if (tasks == null) {
+      return null;
+    } else {
+      // TODO: need to return a set with any tasks that ARE NOT dependent on the supplied task, this doesn't do that
+      return tasks.keySet();
+    }
+  }
+
+  protected ResolveTask declareTaskResolving(final ValueRequirement valueRequirement, final ResolveTask task) {
+    return declareImpl(valueRequirement, task, _requirements);
+  }
+
+  protected Set<ResolveTask> getOtherTasksResolving(final ValueRequirement valueRequirement, final ResolveTask task) {
+    final ConcurrentMap<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
+    if (tasks == null) {
+      return null;
+    } else {
+      // TODO: need to return a set with any tasks that ARE NOT dependent on the supplied task, this doesn't do that
+      return tasks.keySet();
+    }
   }
 
 }

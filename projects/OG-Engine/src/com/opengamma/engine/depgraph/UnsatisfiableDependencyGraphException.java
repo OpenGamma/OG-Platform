@@ -122,30 +122,31 @@ public class UnsatisfiableDependencyGraphException extends OpenGammaRuntimeExcep
    */
   @Override
   public String getMessage() {
-    String base = "Unable to satisfy value requirement: ";
+    final StringBuilder sb = new StringBuilder();
+    sb.append("Unable to satisfy value requirement");
     if (super.getMessage() != null) {
-      base = "Unable to satisfy value requirement, " + super.getMessage() + ": ";
+      sb.append(", ").append(super.getMessage());
     }
-    base = base + getRequirement();
+    sb.append(": ").append(getRequirement());
     if (_state.size() > 0) {
-      base += ", StateOfTheWorld=";
+      sb.append(", state=");
       for (String name : _state.keySet()) {
-        base += "\n| " + name + "=";
+        sb.append("\n| ").append(name).append("=");
         Object obj = _state.get(name);
         if (obj instanceof Collection) {
           for (Object loop : (Collection<?>) obj) {
-            base += "\n||  " + loop;
+            sb.append("\n||  ").append(loop);
           }
         } else if (obj instanceof Map) {
           for (Object loop : ((Map<?, ?>) obj).entrySet()) {
-            base += "\n||  " + loop;
+            sb.append("\n||  ").append(loop);
           }
         } else {
-          base += obj;
+          sb.append(obj);
         }
       }
     }
-    return base;
+    return sb.toString();
   }
 
 }

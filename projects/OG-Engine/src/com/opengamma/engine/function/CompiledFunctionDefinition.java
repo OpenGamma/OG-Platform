@@ -60,7 +60,7 @@ public interface CompiledFunctionDefinition {
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
    * @param desiredValue The output the function has been selected to satisfy; i.e. one of the
-   * values returned by {@link #getResults} satisfies satisfy it.
+   * values returned by {@link #getResults} satisfies it.
    * @return All input requirements to execute this function on the specified target with the specified configuration.
    */
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);

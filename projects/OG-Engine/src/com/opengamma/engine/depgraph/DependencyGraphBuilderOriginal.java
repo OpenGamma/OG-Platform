@@ -195,7 +195,7 @@ public class DependencyGraphBuilderOriginal {
     }
     // Find functions that can do this
     final DependencyNode node = createDependencyNode(target, dependent);
-    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
+    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, target);
     resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
 
       private DependencyNode _node = node;

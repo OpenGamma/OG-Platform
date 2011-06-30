@@ -8,8 +8,7 @@ package com.opengamma.engine.function.resolver;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -21,17 +20,16 @@ import com.opengamma.util.tuple.Pair;
  */
 @PublicAPI
 public interface CompiledFunctionResolver {
-  
+
   /**
    * Returns one or more functions capable of satisfying the requirement. If multiple functions can satisfy, they
    * should be returned in descending priority.
    * 
    * @param requirement Output requirement to satisfy
-   * @param atNode The node in a dependency graph the function would be assigned to
+   * @param target Target to satisfy the requirement on
    * @return the function(s) found
-   * @throws UnsatisfiableDependencyGraphException if there is a problem
    */
-  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
+  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
 
   /**
    * Returns a full set of resolution rules backing the resolver.

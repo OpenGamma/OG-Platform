@@ -6,10 +6,11 @@
 package com.opengamma.engine.function.resolver;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.PrimitiveTestFunction;
@@ -50,21 +51,36 @@ public class DefaultFunctionResolverTest {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
 
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target)).next();
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
 
     assertEquals(_parameterizedF2, result.getFirst());
   }
 
+  private static class Filter extends ComputationTargetFilter {
+
+    private final ComputationTarget _match;
+
+    public Filter(final ComputationTarget match) {
+      _match = match;
+    }
+
+    @Override
+    public boolean accept(ComputationTarget target) {
+      return target == _match;
+    }
+
+  }
+
   public void nonGlobalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
-    _resolver.addRule(new ResolutionRule(_parameterizedF2, new ApplyToSubtree(_target.toSpecification()), 200));
+    _resolver.addRule(new ResolutionRule(_parameterizedF2, new Filter(_target), 200));
 
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target)).next();
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
 
     assertEquals(_parameterizedF2, result.getFirst());
 
     ComputationTarget anotherTarget = new ComputationTarget(UniqueIdentifier.of("scheme", "target2"));
-    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), new DependencyNode(anotherTarget)).next();
+    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherTarget).next();
 
     assertEquals(_parameterizedF1, result.getFirst());
   }

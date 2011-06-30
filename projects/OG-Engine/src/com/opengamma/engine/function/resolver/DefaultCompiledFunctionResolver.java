@@ -23,8 +23,6 @@ import com.google.common.collect.MapMaker;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -156,14 +154,14 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   @SuppressWarnings("unchecked")
   @Override
-  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final DependencyNode atNode) {
-    List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(atNode.getComputationTarget());
+  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final ComputationTarget target) {
+    List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(target);
     if (cached == null) {
       final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
-      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(atNode.getComputationTarget().getType()).values()) {
+      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(target.getType()).values()) {
         int rulesFound = 0;
         for (ResolutionRule rule : rules) {
-          final Set<ValueSpecification> results = rule.getResults(atNode.getComputationTarget(), getFunctionCompilationContext());
+          final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
           if (results != null) {
             applicableRules.add(Pair.of(rule, results));
             rulesFound++;
@@ -187,32 +185,25 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           }
         }
       }
-      cached = _targetCache.putIfAbsent(atNode.getComputationTarget(), applicableRules);
-      cached = _targetCache.get(atNode.getComputationTarget());
+      cached = _targetCache.putIfAbsent(target, applicableRules);
+      cached = _targetCache.get(target);
     }
-    return new It(atNode, requirement, cached, getFunctionCompilationContext());
+    return new It(target, requirement, cached);
   }
 
   /**
    * Iterator.
    */
   private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
-    private final DependencyNode _atNode;
+    private final ComputationTarget _target;
     private final ValueRequirement _requirement;
-    private final List<Pair<ResolutionRule, Set<ValueSpecification>>> _valueList;
     private final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> _values;
-    private final FunctionCompilationContext _functionCompilationContext;
     private Pair<ParameterizedFunction, ValueSpecification> _next;
-    private boolean _satisfied;
 
-    private It(DependencyNode atNode, ValueRequirement requirement,
-        List<Pair<ResolutionRule, Set<ValueSpecification>>> values,
-        FunctionCompilationContext functionCompilationContext) {
-      _atNode = atNode;
+    private It(final ComputationTarget target, final ValueRequirement requirement, final List<Pair<ResolutionRule, Set<ValueSpecification>>> values) {
+      _target = target;
       _requirement = requirement;
-      _valueList = values;
       _values = values.iterator();
-      _functionCompilationContext = functionCompilationContext;
     }
 
     private void takeNext() {
@@ -221,18 +212,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       while (_values.hasNext()) {
         final Pair<ResolutionRule, Set<ValueSpecification>> value = _values.next();
-        final ValueSpecification result = value.getKey().getResult(_requirement, _atNode, _functionCompilationContext, value.getValue());
+        final ValueSpecification result = value.getKey().getResult(_requirement, _target, value.getValue());
         if (result != null) {
           _next = Pair.of(value.getKey().getFunction(), result);
-          _satisfied = true;
           return;
         }
-      }
-      if (!_satisfied) {
-        throw new UnsatisfiableDependencyGraphException(_requirement, "No specification for requirement")
-            .addState("values List<Pair<ResolutionRule, Set<ValueSpecification>>>", _valueList)
-            .addState("atNode DependencyNode", _atNode)
-            .addState("functionCompilationContext FunctionCompilationContext", _functionCompilationContext);
       }
     }
 
