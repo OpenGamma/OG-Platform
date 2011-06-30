@@ -17,7 +17,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * MasterChangeListener for use in a test environment.
- *
  */
 /* package */ class TestMasterChangeClient implements MasterChangeListener {
 
@@ -25,10 +24,10 @@ import com.opengamma.util.tuple.Pair;
   private UniqueIdentifier _removedItem;
   private Pair<UniqueIdentifier, UniqueIdentifier> _updatedItem;
   private Pair<UniqueIdentifier, UniqueIdentifier> _correctedItem;
-  final private CountDownLatch _removedItemLatch = new CountDownLatch(1);
-  final private CountDownLatch _addedItemLatch = new CountDownLatch(1);
-  final private CountDownLatch _updatedItemLatch = new CountDownLatch(1);
-  final private CountDownLatch _correctedItemLatch = new CountDownLatch(1);
+  private final CountDownLatch _removedItemLatch = new CountDownLatch(1);
+  private final CountDownLatch _addedItemLatch = new CountDownLatch(1);
+  private final CountDownLatch _updatedItemLatch = new CountDownLatch(1);
+  private final CountDownLatch _correctedItemLatch = new CountDownLatch(1);
 
   @Override
   public void masterChanged(MasterChanged event) {
@@ -86,16 +85,16 @@ import com.opengamma.util.tuple.Pair;
   }
 
   //-------------------------------------------------------------------------
-  public void waitForRemovedItem(long timeoutMs) {
-    waitForLatch(_removedItemLatch, timeoutMs);
-  }
-
   public void waitForAddedItem(long timeoutMs) {
     waitForLatch(_addedItemLatch, timeoutMs);
   }
 
   public void waitForUpdatedItem(long timeoutMs) {
     waitForLatch(_updatedItemLatch, timeoutMs);
+  }
+
+  public void waitForRemovedItem(long timeoutMs) {
+    waitForLatch(_removedItemLatch, timeoutMs);
   }
 
   public void waitForCorrectedItem(long timeoutMs) {
