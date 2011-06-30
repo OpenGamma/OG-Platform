@@ -9,7 +9,7 @@ package com.opengamma.masterdb.security.hibernate.capfloor;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
@@ -18,20 +18,20 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
- * A bean representation of {@link CapFloorSecurity}.
+ * A bean representation of {@link CapFloorCMSSpreadSecurity}.
  */
-public class CapFloorSecurityBean extends SecurityBean {
+public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private DayCountBean _dayCount;
   private FrequencyBean _frequency;
   private boolean _isCap;
-  private boolean _isIbor;
   private boolean _isPayer;
+  private IdentifierBean _longIdentifier;
   private ZonedDateTimeBean _maturityDate;
   private double _notional;
+  private IdentifierBean _shortIdentifier;
   private ZonedDateTimeBean _startDate;
   private double _strike;
-  private IdentifierBean _underlyingIdentifier;
   
   /**
    * Gets the currency.
@@ -95,22 +95,6 @@ public class CapFloorSecurityBean extends SecurityBean {
    */
   public void setCap(boolean isCap) {
     _isCap = isCap;
-  }
-
-  /**
-   * Gets the isIbor.
-   * @return the isIbor
-   */
-  public boolean isIbor() {
-    return _isIbor;
-  }
-
-  /**
-   * Sets the isIbor.
-   * @param isIbor  the isIbor
-   */
-  public void setIbor(boolean isIbor) {
-    _isIbor = isIbor;
   }
 
   /**
@@ -192,29 +176,45 @@ public class CapFloorSecurityBean extends SecurityBean {
   public void setStrike(double strike) {
     _strike = strike;
   }
-
+ 
   /**
-   * Gets the underlyingIdentifier.
-   * @return the underlyingIdentifier
+   * Gets the longIdentifier.
+   * @return the longIdentifier
    */
-  public IdentifierBean getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public IdentifierBean getLongIdentifier() {
+    return _longIdentifier;
   }
 
   /**
-   * Sets the underlyingIdentifier.
-   * @param underlyingIdentifier  the underlyingIdentifier
+   * Sets the longIdentifier.
+   * @param longIdentifier  the longIdentifier
    */
-  public void setUnderlyingIdentifier(IdentifierBean underlyingIdentifier) {
-    _underlyingIdentifier = underlyingIdentifier;
+  public void setLongIdentifier(IdentifierBean longIdentifier) {
+    _longIdentifier = longIdentifier;
+  }
+
+  /**
+   * Gets the shortIdentifier.
+   * @return the shortIdentifier
+   */
+  public IdentifierBean getShortIdentifier() {
+    return _shortIdentifier;
+  }
+
+  /**
+   * Sets the shortIdentifier.
+   * @param shortIdentifier  the shortIdentifier
+   */
+  public void setShortIdentifier(IdentifierBean shortIdentifier) {
+    _shortIdentifier = shortIdentifier;
   }
 
   @Override
   public boolean equals(final Object other) {
-    if (!(other instanceof CapFloorSecurityBean)) {
+    if (!(other instanceof CapFloorCMSSpreadSecurityBean)) {
       return false;
     }
-    CapFloorSecurityBean capFloor = (CapFloorSecurityBean) other;
+    CapFloorCMSSpreadSecurityBean capFloor = (CapFloorCMSSpreadSecurityBean) other;
     return new EqualsBuilder()
         .append(getId(), capFloor.getId())
         .append(getNotional(), capFloor.getNotional())
@@ -224,9 +224,9 @@ public class CapFloorSecurityBean extends SecurityBean {
         .append(getMaturityDate(), capFloor.getMaturityDate())
         .append(getStartDate(), capFloor.getStartDate())
         .append(getStrike(), capFloor.getStrike())
-        .append(getUnderlyingIdentifier(), capFloor.getUnderlyingIdentifier())
+        .append(getLongIdentifier(), capFloor.getLongIdentifier())
+        .append(getShortIdentifier(), capFloor.getShortIdentifier())
         .append(isCap(), capFloor.isCap())
-        .append(isIbor(), capFloor.isIbor())
         .append(isPayer(), capFloor.isPayer())
         .isEquals();
   }
@@ -241,9 +241,9 @@ public class CapFloorSecurityBean extends SecurityBean {
         .append(getMaturityDate())
         .append(getStartDate())
         .append(getStrike())
-        .append(getUnderlyingIdentifier())
+        .append(getLongIdentifier())
+        .append(getShortIdentifier())
         .append(isCap())
-        .append(isIbor())
         .append(isPayer())
         .toHashCode();
   }

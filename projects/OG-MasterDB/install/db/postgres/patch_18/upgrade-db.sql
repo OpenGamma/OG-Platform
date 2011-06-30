@@ -50,3 +50,29 @@ CREATE TABLE sec_capfloor (
   constraint sec_fk_capfloor2daycount foreign key (daycountconvention_id) references sec_daycount (id),
   constraint sec_fk_capfloor2frequency foreign key (frequency_id) references sec_frequency (id)
 );
+
+CREATE TABLE  sec_capfloorcmsspread (
+  id bigint not null,
+  security_id bigint not null,
+  currency_id bigint not null,
+  daycountconvention_id bigint not null,
+  frequency_id bigint not null,
+  is_cap boolean not null,
+  is_payer boolean not null,
+  long_scheme varchar(255) not null,
+  long_identifier varchar(255) not null,
+  maturity_date timestamp not null,
+  maturity_zone varchar(50) not null,
+  notional double precision not null,
+  short_scheme varchar(255) not null,
+  short_identifier varchar(255) not null,
+  start_date timestamp not null,
+  start_zone varchar(50) not null,
+  strike double precision not null,
+  
+  primary key (id),
+  constraint sec_fk_capfloorcmsspread2sec foreign key (security_id) references sec_security (id),
+  constraint sec_fk_capfloorcmsspread2currency foreign key (currency_id) references sec_currency(id),
+  constraint sec_fk_capfloorcmsspread2daycount foreign key (daycountconvention_id) references sec_daycount (id),
+  constraint sec_fk_capfloorcmsspread2frequency foreign key (frequency_id) references sec_frequency (id)
+);
