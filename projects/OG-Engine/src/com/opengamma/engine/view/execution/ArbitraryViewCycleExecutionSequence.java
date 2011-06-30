@@ -48,7 +48,7 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   }
   
   /**
-   * Gets a sequence for a set of valuation times.
+   * Gets a sequence for a collection of valuation times.
    * 
    * @param valuationTimeProviders  the valuation times, not {@code null}
    * @return the sequence, not {@code null}
@@ -58,7 +58,7 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   }
 
   /**
-   * Gets a sequence for a set of valuation times.
+   * Gets a sequence for a collection of valuation times.
    * 
    * @param valuationTimeProviders  the valuation times, not {@code null}
    * @return the sequence, not {@code null}
@@ -71,6 +71,16 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
       executionSequence.add(options);
     }
     return new ArbitraryViewCycleExecutionSequence(executionSequence);
+  }
+  
+  /**
+   * Gets a sequence for a collection of cycles.
+   * 
+   * @param executionSequence the sequence, not {@code null}
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence of(ViewCycleExecutionOptions... executionSequence) {
+    return new ArbitraryViewCycleExecutionSequence(Arrays.asList(executionSequence));
   }
   
   public List<ViewCycleExecutionOptions> getRemainingSequence() {
