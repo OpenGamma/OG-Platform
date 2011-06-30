@@ -382,6 +382,7 @@ CREATE TABLE sec_fxbarrieroption (
     barrier_level double precision not null,
     monitoring_type varchar(32) not null,
     sampling_frequency varchar(32),
+    is_long boolean not null,
     primary key (id),
     constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
