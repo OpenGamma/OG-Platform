@@ -33,10 +33,10 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests View
+ * Tests {@link ViewProcess}
  */
 @Test
-public class ViewTest {
+public class ViewProcessTest {
 
   public void testLifecycle() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
