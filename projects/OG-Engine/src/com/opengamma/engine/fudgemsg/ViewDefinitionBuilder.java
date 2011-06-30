@@ -41,7 +41,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
-  private static final String MIN_FULL_CALC_PERIOD_FIELD = "fullDeltaCalcPeriod";
+  private static final String MIN_FULL_CALC_PERIOD_FIELD = "minFullCalcPeriod";
   private static final String MAX_FULL_CALC_PERIOD_FIELD = "maxFullCalcPeriod";
   private static final String RESULT_MODEL_DEFINITION_FIELD = "resultModelDefinition";
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
@@ -142,6 +142,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     }
     if (message.hasField(MIN_FULL_CALC_PERIOD_FIELD)) {
       viewDefinition.setMinFullCalculationPeriod(message.getLong(MIN_FULL_CALC_PERIOD_FIELD));
+    }
+    //for backward compatibility of renaming fullDeltaCalcPeriod to minFullCalcPeriod
+    if (message.hasField("fullDeltaCalcPeriod")) {
+      viewDefinition.setMinFullCalculationPeriod(message.getLong("fullDeltaCalcPeriod"));
     }
     if (message.hasField(MAX_FULL_CALC_PERIOD_FIELD)) {
       viewDefinition.setMaxFullCalculationPeriod(message.getLong(MAX_FULL_CALC_PERIOD_FIELD));
