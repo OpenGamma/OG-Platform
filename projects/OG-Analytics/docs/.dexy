@@ -1,41 +1,30 @@
 {
-    "index.html|hd|ft|jinja|split" : {
-        "allinputs" : true,
-            "jinjavars" : {
-                "OG_VERSION" : "0.8.0"
-            }
+    "$globals" : {
+        "jinjavars" : { "OG_VERSION" : "dev" }
     },
+        "index.html|hd|ft|jinja|split" : {
+            "allinputs" : true
+        },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
             "allinputs" : true,
             "title" : "Yield Curve Maths"
         },
         "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "allinputs" : true,
-            "jinjavars" : {
-                "OG_VERSION" : "0.8.0"
-            }
-        },
-        "*.md|markdown|hd|ft|jinja" : {
-            "allinputs" : true,
-            "inputs" : [
-                "og_docs_true_primitives.tex|hd|ft|jinja|latex",
-            "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
-                ],
-            "jinjavars" : {
-                "OG_VERSION" : "0.8.0"
-            }
-        },
-        "sync.sh|jinja" : {
-            "jinjavars" : {
-                "OG_VERSION" : "0.8.0"
-            }
-        },
-        "debug.txt|jinja" : {
             "allinputs" : true
         },
+        "*.md|fn|markdown|hd|ft|jinja" : {
+            "allinputs" : true,
+            "inputs" : [
+              "og_docs_true_primitives.tex|hd|ft|jinja|latex",
+              "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
+            ]
+        },
+        "sync.sh|jinja" : {},
+        "debug.txt|jinja" : { "allinputs" : true },
         "javadoc-data.json|javadocs" : {},
         "_*.html|dexy" : {},
         "_*.tex|dexy" : {},
+        "*.jpg|cp" : {},
         "*.png|cp" : {},
         "*.css|cp" : {},
         "*.svg|cp" : {},

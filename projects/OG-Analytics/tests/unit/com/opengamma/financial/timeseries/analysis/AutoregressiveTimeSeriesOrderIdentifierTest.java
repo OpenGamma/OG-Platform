@@ -6,7 +6,10 @@
 package com.opengamma.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.model.AutoregressiveTimeSeriesModel;
@@ -22,7 +25,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 public class AutoregressiveTimeSeriesOrderIdentifierTest {
   private static final AutoregressiveTimeSeriesPACFOrderIdentifier PACF_IDENTIFIER = new AutoregressiveTimeSeriesPACFOrderIdentifier(10, 0.05);
   private static final AutoregressiveTimeSeriesModel AR_MODEL =
-      new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
+      new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED)));
   private static final DoubleTimeSeries<Long> RANDOM;
   private static final DoubleTimeSeries<Long> AR3;
   private static final DoubleTimeSeries<Long> AR5;
@@ -31,7 +34,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
     final int n = 50000;
     final long[] dates = new long[n];
     final double[] random = new double[n];
-    final ProbabilityDistribution<Double> normal = new NormalDistribution(2, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(2, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
       dates[i] = i;
       random[i] = normal.nextRandom();

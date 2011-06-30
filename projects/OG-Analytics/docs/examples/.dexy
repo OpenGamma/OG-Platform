@@ -1,15 +1,20 @@
 {
+    "$globals" : {
+        "title" : "Examples"
+    },
   "*.py|pyg" : {},
   "*.py|dexy" : {},
-  "*.py|jython" : {
+  "*.py|fn|jython" : {
     "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes" },
     "disabled" : true
   },
   "*.py|idio|jythoni|pyg|l" : {
     "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }
   },
-  "*.py|idio|jythoni|pyg|pynliner" : {
+  "*.py|fn|idio|jythoni|pyg" : {
     "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }
   },
-  "*.R|rint|pyg" : {}
+  "*.R|fn|idio|rint|pyg" : {
+      "ifinput" : "%.py|fn|idio|jythoni|pyg"
+  }
 }

@@ -29,6 +29,7 @@ import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -88,7 +89,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _processContext = processContext;
     _cycleManager = cycleManager;
 
-    _executeCycles = !getExecutionOptions().isCompileOnly();
+    _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
 
     _liveDataSnapshotProvider = _processContext.getLiveDataSnapshotProvider(executionOptions);
     
@@ -113,12 +114,15 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   private void updateComputationTimes(long currentNanos, boolean deltaOnly) {
-    _eligibleForDeltaComputationFromNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinDeltaCalculationPeriod(), 0);
-    _deltaComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE);
+    // If time-based triggers disabled then always eligible for a cycle (if data changes), but never required
+    boolean timeTriggersEnabled = getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
+    
+    _eligibleForDeltaComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinDeltaCalculationPeriod(), 0) : 0;
+    _deltaComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
     
     if (!deltaOnly) {
-      _eligibleForFullComputationFromNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinFullCalculationPeriod(), 0);
-      _fullComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE);
+      _eligibleForFullComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinFullCalculationPeriod(), 0) : 0;
+      _fullComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
     }
   }
   
@@ -447,7 +451,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   private boolean requireDeltaCycleNext(long currentTime) {
-    if (getExecutionOptions().isRunAsFastAsPossible()) {
+    if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
       // Run as fast as possible on delta cycles, with full cycles as required by the view definition and execution options
       return true;
     }
@@ -531,7 +535,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
 
   @Override
   public void valueChanged(ValueRequirement value) {
-    if (!getExecutionOptions().isLiveDataTriggerEnabled()) {
+    if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED)) {
       return;
     }
     

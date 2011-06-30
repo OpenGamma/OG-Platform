@@ -85,6 +85,8 @@ public interface LiveDataSnapshotProvider {
    * Queries an existing snapshot for a particular bundle of data for a structured piece of market data.
    * @param snapshot the time of the snapshot. 
    * @param marketDataKey the market data to get data for
+   * @return  the value found in the snapshot, or <code>null</code> if the snapshot does not exist or no such value was
+   *          found in the snapshot. 
    */
   Object querySnapshot(long snapshot, StructuredMarketDataKey marketDataKey);
   

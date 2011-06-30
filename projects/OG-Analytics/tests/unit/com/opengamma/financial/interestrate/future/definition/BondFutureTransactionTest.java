@@ -24,6 +24,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -91,14 +92,20 @@ public class BondFutureTransactionTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
+    assertTrue(FUTURE_TRANSACTION.equals(FUTURE_TRANSACTION));
     BondFutureTransaction other = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
     assertTrue(FUTURE_TRANSACTION.equals(other));
     assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
     BondFutureTransaction modifiedFuture;
     modifiedFuture = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY + 1, REFERENCE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    modifiedFuture = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY + 1, REFERENCE_PRICE + 0.001);
+    modifiedFuture = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    BondFutureSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR, 1), CURVES_NAME);
+    modifiedFuture = new BondFutureTransaction(otherUnderlying, QUANTITY, REFERENCE_PRICE);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    assertFalse(FUTURE_TRANSACTION.equals(CUR));
+    assertFalse(FUTURE_TRANSACTION.equals(null));
   }
 
 }

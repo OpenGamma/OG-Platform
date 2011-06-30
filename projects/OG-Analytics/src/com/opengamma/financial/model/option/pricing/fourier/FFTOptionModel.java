@@ -72,7 +72,14 @@ public class FFTOptionModel implements OptionModel<EuropeanVanillaOptionDefiniti
     final ZonedDateTime date = dataBundle.getDate();
     final EuropeanVanillaOption option = EuropeanVanillaOption.fromDefinition(definition, date);
     final BlackFunctionData data = BlackFunctionData.fromDataBundle(dataBundle, definition);
-    final double[][] prices = PRICER.price(data, option, _characteristicExponent, _nStrikes, _maxDeltaMoneyness, _alpha, _tolerance);
+
+    double fwd = data.getForward();
+    double df = data.getDiscountFactor();
+    double t = option.getTimeToExpiry();
+    boolean isCall = option.isCall();
+    double limitSigma = data.getBlackVolatility(); //TODO This is a tuning parameter of the algorithm and has no business being passed in a BlackOptionDataBundle
+
+    final double[][] prices = PRICER.price(fwd, df, t, isCall, _characteristicExponent, _nStrikes, _maxDeltaMoneyness, limitSigma, _alpha, _tolerance);
     final int n = prices.length;
     final double[] k = new double[n];
     final double[] price = new double[n];

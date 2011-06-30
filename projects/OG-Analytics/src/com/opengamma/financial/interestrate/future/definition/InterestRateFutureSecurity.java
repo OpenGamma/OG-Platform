@@ -211,6 +211,7 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + _discountingCurveName.hashCode();
     result = prime * result + _iborIndex.hashCode();
     temp = Double.doubleToLongBits(_lastTradingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -244,6 +245,9 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
       return false;
     }
     if (!ObjectUtils.equals(_forwardCurveName, other._forwardCurveName)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_discountingCurveName, other._discountingCurveName)) {
       return false;
     }
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {

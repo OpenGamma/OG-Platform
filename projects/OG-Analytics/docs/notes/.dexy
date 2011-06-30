@@ -1,0 +1,4 @@
+{
+    "finance.bib|dexy" : {},
+    "*.tex|fn|bib|jinja|latex" : { "allinputs" : true}
+}

@@ -53,40 +53,44 @@ public interface Trade extends PositionOrTrade {
    * @return the trade time with offset, null if unknown
    */
   OffsetTime getTradeTime();
-  
+
   /**
-   * Gets the amount paid for trade at time of purchase.
+   * Gets the payment amount for the trade.
    * 
-   * @return the premium, can be null
+   * @return the premium amount, can be null
    */
   Double getPremium();
-  
+
   /**
-   * Gets the currency of payment at time of purchase.
+   * Gets the payment currency for the trade.
    * 
    * @return the premium currency, can be null
    */
   Currency getPremiumCurrency();
-  
+
   /**
-   * Gets the date of payment at time of purchase, possibly different from trade date.
+   * Gets the payment date for the trade.
+   * This may be different from the trade date.
    * 
    * @return the premium date, can be null
    */
   LocalDate getPremiumDate();
-  
+
   /**
-   * Gets the premuim time with offset.
+   * Gets the payment time for the trade.
+   * This may be different from the trade time.
    * <p>
-   * The offset time and local date can be combined to find the instant of when premuim was paid.
+   * The offset time and local date can be combined to find the instant of when premium was paid.
+   * 
    * @return the premium time with offset, can be null
    */
   OffsetTime getPremiumTime();
-  
+
   /**
-   * Gets the attributes to use for trade aggregation
+   * Gets the attributes to use for trade aggregation.
    * 
    * @return the attributes, not null
    */
   Map<String, String> getAttributes();
+
 }

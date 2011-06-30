@@ -5,9 +5,10 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
 
 /**
@@ -35,7 +36,7 @@ public class BondFutureDeliverableBasketDataBundleTest {
   @Test
   public void testGetters() {
     final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(CLEAN_PRICES, REPO_RATES);
-    assertArrayEquals(basketData.getCleanPrices(), CLEAN_PRICES, 0);
+    assertArrayEquals(basketData.getCleanPrices(), CLEAN_PRICES, 1.0E-15);
     assertArrayEquals(basketData.getRepoRates(), REPO_RATES, 0);
     assertEquals(basketData.getBasketSize(), 4);
   }

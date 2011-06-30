@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.descriptive;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.function.Function1D;
@@ -21,7 +24,7 @@ public class SemiStandardDeviationCalculatorTest {
   private static final double[] X = new double[N];
 
   static {
-    final MersenneTwister64 engine = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+    final MersenneTwister64 engine = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
     for (int i = 0; i < N; i++) {
       X[i] = engine.nextDouble() - 0.5;
     }

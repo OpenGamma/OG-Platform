@@ -34,22 +34,23 @@ public class ForexOptionVanillaDefinitionTest {
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   private static final boolean IS_CALL = true;
-  private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL);
+  private static final boolean IS_LONG = true;
+  private static final ForexOptionVanillaDefinition FX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFX() {
-    new ForexOptionVanillaDefinition(null, EXPIRATION_DATE, IS_CALL);
+    new ForexOptionVanillaDefinition(null, EXPIRATION_DATE, IS_CALL, IS_LONG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiration() {
-    new ForexOptionVanillaDefinition(FX_DEFINITION, null, IS_CALL);
+    new ForexOptionVanillaDefinition(FX_DEFINITION, null, IS_CALL, IS_LONG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongDate() {
     final ZonedDateTime expirationDateWrong = DateUtil.getUTCDate(2012, 6, 13);
-    new ForexOptionVanillaDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL);
+    new ForexOptionVanillaDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL, IS_LONG);
   }
 
   @Test
@@ -57,6 +58,7 @@ public class ForexOptionVanillaDefinitionTest {
     assertEquals(FX_DEFINITION, FX_OPTION_DEFINITION.getUnderlyingForex());
     assertEquals(EXPIRATION_DATE, FX_OPTION_DEFINITION.getExpirationDate());
     assertEquals(IS_CALL, FX_OPTION_DEFINITION.isCall());
+    assertEquals(IS_LONG, FX_OPTION_DEFINITION.isLong());
   }
 
   @Test
@@ -65,19 +67,21 @@ public class ForexOptionVanillaDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FX_OPTION_DEFINITION.equals(FX_OPTION_DEFINITION));
-    ForexOptionVanillaDefinition otherOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL);
+    ForexOptionVanillaDefinition otherOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
     assertTrue(otherOption.equals(FX_OPTION_DEFINITION));
     assertEquals(FX_OPTION_DEFINITION.hashCode(), otherOption.hashCode());
-    ForexOptionVanillaDefinition put1 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
-    ForexOptionVanillaDefinition put2 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
+    ForexOptionVanillaDefinition put1 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG);
+    ForexOptionVanillaDefinition put2 = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, !IS_LONG);
     assertEquals(put1.hashCode(), put2.hashCode());
     ForexOptionVanillaDefinition modifiedOption;
-    modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL);
+    modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, !IS_CALL, IS_LONG);
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
-    modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, PAYMENT_DATE, IS_CALL);
+    modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, !IS_LONG);
+    assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
+    modifiedOption = new ForexOptionVanillaDefinition(FX_DEFINITION, PAYMENT_DATE, IS_CALL, IS_LONG);
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
     ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
-    modifiedOption = new ForexOptionVanillaDefinition(modifiedFxDefinition, EXPIRATION_DATE, IS_CALL);
+    modifiedOption = new ForexOptionVanillaDefinition(modifiedFxDefinition, EXPIRATION_DATE, IS_CALL, IS_LONG);
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
     assertFalse(FX_OPTION_DEFINITION.equals(CUR_1));
     assertFalse(FX_OPTION_DEFINITION.equals(null));
@@ -96,7 +100,7 @@ public class ForexOptionVanillaDefinitionTest {
     Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
     DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
-    ForexOptionVanilla optionConstructed = new ForexOptionVanilla(fx, expirationTime, IS_CALL);
+    ForexOptionVanilla optionConstructed = new ForexOptionVanilla(fx, expirationTime, IS_CALL, IS_LONG);
     assertEquals("Convertion to derivative", optionConstructed, optionConverted);
   }
 

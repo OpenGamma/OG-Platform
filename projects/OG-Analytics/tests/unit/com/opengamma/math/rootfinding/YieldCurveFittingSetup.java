@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -57,7 +58,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class YieldCurveFittingSetup {
   /** Random number generator */
-  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
 
@@ -96,8 +97,8 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);

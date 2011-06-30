@@ -6,7 +6,9 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
@@ -37,15 +39,14 @@ public class HestonFFTPricerTest {
     final double deltaMoneyness = 0.1;
     final double alpha = -0.5;
     final double tol = 1e-9;
-    EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, sigma);
-    final double[][] strikeNprice = PRICER.price(data, option, heston, n, deltaMoneyness, alpha, tol);
+
+    final double[][] strikeNprice = PRICER.price(FORWARD, DF, T, true, heston, n, deltaMoneyness, sigma, alpha, tol);
 
     for (int i = 0; i < n; i++) {
       final double k = strikeNprice[i][0];
       final double price = strikeNprice[i][1];
-      option = new EuropeanVanillaOption(k, T, true);
-      final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+
+      final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(FORWARD, DF, 0.0), new EuropeanVanillaOption(k, T, true), price);
       //System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }

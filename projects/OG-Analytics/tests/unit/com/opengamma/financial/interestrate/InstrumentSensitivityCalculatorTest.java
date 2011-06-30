@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -46,17 +47,21 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
+  @Override
   protected Logger getLogger() {
     return LOGGER;
   }
-  
+
+  @Override
   protected int getWarmupCycles() {
     return WARMUP_CYCLES;
   }
-  
+
+  @Override
   protected int getBenchmarkCycles() {
     return BENCHMARK_CYCLES;
   }
+
   @Test
   public void test() {
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);

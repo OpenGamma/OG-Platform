@@ -5,6 +5,10 @@
  */
 package com.opengamma.web.spring;
 
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+
 import com.opengamma.web.bundle.BundleManager;
 import com.opengamma.web.bundle.BundleParser;
 
@@ -15,8 +19,18 @@ public class BundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
 
   @Override
   protected BundleManager createObject() {
-    BundleParser parser = new BundleParser(resolveConfigurationFile(), resolveBaseDir());
-    return parser.parse();
+    InputStream xmlStream = getXMLStream();
+    try {
+      BundleManager manager = null;
+      if (xmlStream != null) {
+        BundleParser parser = new BundleParser();
+        parser.setBaseDir(resolveBaseDir());
+        manager = parser.parse(xmlStream);
+      }
+      return manager;
+    } finally {
+      IOUtils.closeQuietly(xmlStream);
+    }
   }
 
 }

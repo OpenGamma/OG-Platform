@@ -97,30 +97,13 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _expiry.hashCode();
-    result = prime * result + _underlyingSwap.hashCode();
-    return result;
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
-    if (!ObjectUtils.equals(_expiry, other._expiry)) {
-      return false;
-    }
-    return ObjectUtils.equals(_underlyingSwap, other._underlyingSwap);
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 
   @Override
@@ -136,13 +119,37 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null;
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isLong ? 1231 : 1237);
+    result = prime * result + _underlyingSwap.hashCode();
+    return result;
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
+    if (!ObjectUtils.equals(_expiry, other._expiry)) {
+      return false;
+    }
+    if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 
@@ -31,5 +32,9 @@ public interface ForexDefinitionVisitor<T, U> {
   U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, T data);
 
   U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx);
+
+  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, T data);
+
+  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx);
 
 }
