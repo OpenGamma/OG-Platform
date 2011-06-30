@@ -47,6 +47,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -646,6 +647,14 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
+
+  @Override
+  @Test
+  public void testCapFloorSecurity() {
+    assertSecurities(CapFloorSecurity.class);
+  }
+  
+  
   
   
   

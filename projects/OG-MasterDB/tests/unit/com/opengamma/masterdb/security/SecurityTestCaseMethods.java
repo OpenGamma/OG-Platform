@@ -57,5 +57,7 @@ public interface SecurityTestCaseMethods {
   void testFXSecurity();
   
   void testFXForwardSecurity();
+  
+  void testCapFloorSecurity();
 
 }
