@@ -113,7 +113,7 @@ public class ViewTest {
     client.setResultListener(resultListener);
     
     final Instant time0 = Instant.now();
-    ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions();
+    ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions(MarketData.live());
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
         
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
@@ -123,10 +123,10 @@ public class ViewTest {
     Thread computationThread = env.getCurrentComputationThread(viewProcess);
     
     CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
-    assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     
     computationJob.marketDataChanged();
-    assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
@@ -141,7 +141,7 @@ public class ViewTest {
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.marketDataChanged();
-    assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
@@ -149,7 +149,7 @@ public class ViewTest {
     CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
-    assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
     
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
