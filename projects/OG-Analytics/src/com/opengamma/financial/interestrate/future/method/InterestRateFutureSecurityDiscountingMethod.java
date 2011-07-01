@@ -66,8 +66,8 @@ public class InterestRateFutureSecurityDiscountingMethod {
     double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double forwardBar = -future.getPaymentAccrualFactor() * future.getNotional() * pvBar; //* future.getQuantity()
+    double priceBar = 1.0;
+    double forwardBar = -priceBar;
     double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
     double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
