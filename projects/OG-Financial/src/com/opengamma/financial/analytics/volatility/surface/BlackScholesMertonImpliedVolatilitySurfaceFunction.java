@@ -102,7 +102,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
+    final ZonedDateTime today = executionContext.getValuationClock().zonedDateTime();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
     SecuritySource secMaster = executionContext.getSecuritySource();

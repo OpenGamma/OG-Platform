@@ -29,11 +29,12 @@ public class ViewDeltaResultModelMerger {
     if (_currentMergedResult == null) {
       // Start of a new result
       _currentMergedResult = new InMemoryViewDeltaResultModel();
-      _currentMergedResult.setPreviousResultTimestamp(newResult.getPreviousResultTimestamp());
+      _currentMergedResult.setPreviousCalculationTime(newResult.getPreviousResultTimestamp());
       _currentMergedResult.setCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
     }
     _currentMergedResult.setValuationTime(newResult.getValuationTime());
-    _currentMergedResult.setResultTimestamp(newResult.getResultTimestamp());
+    _currentMergedResult.setCalculationTime(newResult.getCalculationTime());
+    _currentMergedResult.setCalculationDuration(newResult.getCalculationDuration());
     _currentMergedResult.setViewCycleId(newResult.getViewCycleId());
     _currentMergedResult.setViewProcessId(newResult.getViewProcessId());
     _currentMergedResult.ensureCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
