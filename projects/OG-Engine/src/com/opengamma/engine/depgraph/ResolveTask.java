@@ -204,6 +204,7 @@ import com.opengamma.util.tuple.Pair;
           final DependencyNode node = new DependencyNode(getTarget());
           final LiveDataSourcingFunction function = new LiveDataSourcingFunction(getValueRequirement());
           node.setFunction(function);
+          node.addOutputValue(function.getResult());
           setStateComplete(node, function.getResult(), null);
         } else {
           final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = builder.getFunctionResolver().resolveFunction(getValueRequirement(), getTarget());
@@ -253,7 +254,7 @@ import com.opengamma.util.tuple.Pair;
             public void failed(final ResolveTask task) {
               if (blocked.decrementAndGet() == 0) {
                 if (getState() == State.BLOCKED) {
-                  functionApply(builder, resolvedFunction.getFirst().getFunction(), originalOutput, resolvedOutput);
+                  functionApply(builder, resolvedFunction.getFirst(), originalOutput, resolvedOutput);
                 }
               }
             }
@@ -265,7 +266,7 @@ import com.opengamma.util.tuple.Pair;
           }
           callback.failed(null);
         } else {
-          functionApply(builder, resolvedFunction.getFirst().getFunction(), originalOutput, resolvedOutput);
+          functionApply(builder, resolvedFunction.getFirst(), originalOutput, resolvedOutput);
         }
         break;
       }
@@ -333,11 +334,12 @@ import com.opengamma.util.tuple.Pair;
 
   }
 
-  private void functionApply(final DependencyGraphBuilder builder, final CompiledFunctionDefinition functionDefinition, final ValueSpecification originalOutput,
+  private void functionApply(final DependencyGraphBuilder builder, final ParameterizedFunction function, final ValueSpecification originalOutput,
       final ValueSpecification resolvedOutput) {
     final ResolveTask task = builder.declareTaskProducing(resolvedOutput, this);
     if (task == this) {
       // We're going to work on producing this value
+      final CompiledFunctionDefinition functionDefinition = function.getFunction();
       Set<ValueSpecification> originalOutputValues = null;
       try {
         originalOutputValues = functionDefinition.getResults(builder.getCompilationContext(), getTarget());
@@ -353,11 +355,9 @@ import com.opengamma.util.tuple.Pair;
       final Set<ValueSpecification> resolvedOutputValues;
       if (originalOutput.equals(resolvedOutput)) {
         resolvedOutputValues = originalOutputValues;
+        // Stake our claim on other output values
         for (ValueSpecification outputValue : originalOutputValues) {
-          if (!originalOutput.equals(outputValue)) {
-            // Stake our claim on other output values
-            builder.declareTaskProducing(outputValue, this);
-          }
+          builder.declareTaskProducing(outputValue, this);
         }
       } else {
         resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
@@ -400,6 +400,7 @@ import com.opengamma.util.tuple.Pair;
         protected void completeImpl() {
           // Late resolution of output based on inputs found
           final Set<ValueSpecification> inputValues;
+          final CompiledFunctionDefinition functionDefinition = function.getFunction();
           if (getOutputValue().getProperties().isStrict()) {
             inputValues = Sets.newHashSetWithExpectedSize(_inputTasks.size());
             for (ResolveTask inputTask : _inputTasks) {
@@ -467,7 +468,8 @@ import com.opengamma.util.tuple.Pair;
         private void onComplete() {
           s_logger.info("Inputs resolved for {}", getOutputValue());
           final DependencyNode node = new DependencyNode(getTarget());
-          node.setFunction(functionDefinition);
+          node.setFunction(function);
+          node.addOutputValues(resolvedOutputValues);
           setStateComplete(node, getOutputValue(), _inputTasks);
         }
 
@@ -499,7 +501,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  // TODO: update javadoc on CompiledFunctionDefinition about nulls; nothing should return null, but doing so is better than an exception for halting graph construction
+  // TODO: update javadoc on CompiledFunctionDefinition about nulls; nothing should return null, but doing so is better than an exception for halting graph construction in a controlled manner
 
   private void functionNextState(final DependencyGraphBuilder builder) {
     if (getFunctions().hasNext()) {

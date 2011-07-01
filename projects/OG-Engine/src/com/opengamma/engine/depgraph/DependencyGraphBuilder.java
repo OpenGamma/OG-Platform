@@ -8,7 +8,6 @@ package com.opengamma.engine.depgraph;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.Cancellable;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
@@ -66,16 +65,21 @@ public class DependencyGraphBuilder {
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
   private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolveTask>> _specifications = new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolveTask>>();
-  private final Set<TerminatableJob> _activeJobs = new HashSet<TerminatableJob>();
+  private final AtomicInteger _activeJobCount = new AtomicInteger();
+  private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ResolveTask> _runQueue = new ConcurrentLinkedQueue<ResolveTask>();
   private final Collection<Throwable> _exceptions = new ConcurrentLinkedQueue<Throwable>();
   private final ConcurrentMap<ComputationTarget, ConcurrentMap<ParameterizedFunction, DependencyNode>> _graphTargets = new ConcurrentHashMap<ComputationTarget, ConcurrentMap<ParameterizedFunction, DependencyNode>>();
+  private final Collection<ValueSpecification> _terminalOutputs = new ConcurrentLinkedQueue<ValueSpecification>();
 
   // TODO: we could have different run queues for the different states. When the PENDING one is considered, a bulk lookup operation can then be done
 
-  // TODO: The number of active jobs for thread spawn decisions could come from a shared variable rather than size of the set. This can then be shared
-  // among a set of builders that themselves be running concurrently (e.g. different configurations) so that the total background threads for the
-  // group is pegged, NOT the count per builder which may be too much.
+  // TODO: The number of active jobs for thread spawn decisions could come from a variable rather shared among a set of builders that themselves be
+  // running concurrently (e.g. different configurations) so that the total background threads for the group is pegged, NOT the count per builder which
+  // may be too much.
+
+  // TODO: We should use an external execution framework rather than the one here; there are far better (and probably more accurate) implementations of
+  // the algorithm in other projects I've worked on. 
 
   /**
    * Incrementing identifier for background thread identifiers. Users must hold the _activeJobs monitor.
@@ -86,10 +90,10 @@ public class DependencyGraphBuilder {
 
     private DependencyNode taskToNode(final ResolveTask task) {
       DependencyNode node = task.getDependencyNode();
-      if (!node.getOutputValues().isEmpty()) {
+      if (!node.getInputNodes().isEmpty() || !node.getDependentNodes().isEmpty()) {
         return node;
       }
-      s_logger.debug("Converting {} to depenency node", task);
+      s_logger.debug("Converting {} to dependency node", task);
       final ComputationTarget target = task.getDependencyNode().getComputationTarget();
       ConcurrentMap<ParameterizedFunction, DependencyNode> functions = _graphTargets.get(target);
       if (functions == null) {
@@ -102,17 +106,21 @@ public class DependencyGraphBuilder {
       final ParameterizedFunction function = task.getDependencyNode().getFunction();
       node = functions.get(function);
       if (node == null) {
-        node = new DependencyNode(target);
+        node = task.getDependencyNode();
         final DependencyNode existing = functions.putIfAbsent(function, node);
-        if (existing == null) {
-          node.setFunction(function);
-        } else {
+        if (existing != null) {
           node = existing;
         }
       }
-      node.addOutputValue(task.getValueSpecification());
+
+      // I think here is where we should add the output values as the resultant graph will require less pruning. It does
+      // break the tests through which assume if a function was chosen then *all* if its outputs will be available.
+      // Perhaps that's what we want though?
+      // node.addOutputValue (task.getValueSpecification ());
+
       if (task.getInputTasks() != null) {
         for (ResolveTask input : task.getInputTasks()) {
+          node.addInputValue(input.getValueSpecification());
           node.addInputNode(taskToNode(input));
         }
       }
@@ -122,8 +130,9 @@ public class DependencyGraphBuilder {
 
     @Override
     public void complete(final ResolveTask task) {
-      s_logger.info("Resolved {}", task.getValueRequirement());
+      s_logger.info("Resolved {} to {}", task.getValueRequirement(), task.getValueSpecification());
       taskToNode(task);
+      _terminalOutputs.add(task.getValueSpecification());
     }
 
     @Override
@@ -218,9 +227,7 @@ public class DependencyGraphBuilder {
   public void setMaxAdditionalThreads(final int maxAdditionalThreads) {
     ArgumentChecker.isTrue(maxAdditionalThreads >= 0, "maxAdditionalThreads");
     _maxAdditionalThreads = maxAdditionalThreads;
-    if (maxAdditionalThreads > 0) {
-      startBackgroundBuild(maxAdditionalThreads);
-    }
+    startBackgroundBuild();
   }
 
   protected void checkInjectedInputs() {
@@ -242,6 +249,8 @@ public class DependencyGraphBuilder {
     ArgumentChecker.notNull(requirement, "requirement");
     checkInjectedInputs();
     resolveRequirement(requirement, null).notifyOnTermination(_addTargetCallback);
+    // If the run-queue was empty, we won't have started a thread, so double check 
+    startBackgroundConstructionJob();
   }
 
   /**
@@ -258,6 +267,8 @@ public class DependencyGraphBuilder {
     for (ValueRequirement requirement : requirements) {
       resolveRequirement(requirement, null).notifyOnTermination(_addTargetCallback);
     }
+    // If the run-queue was empty, we may not have started enough threads, so double check 
+    startBackgroundConstructionJob();
   }
 
   protected ResolveTask resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
@@ -321,65 +332,87 @@ public class DependencyGraphBuilder {
     s_logger.debug("addToRunQueue {}", runnable);
     final boolean dontSpawn = _runQueue.isEmpty();
     _runQueue.add(runnable);
-    // NOTE: Is it safe to query the size of a set without the monitor? I don't care if it isn't
-    // exactly accurate in the event of the set being modified as we will repeat the check with
-    // the monitor held. I just want to avoid entering a monitor unnecessarily.
-    if (_activeJobs.isEmpty() || (!dontSpawn && (_activeJobs.size() < getMaxAdditionalThreads()))) {
-      synchronized (_activeJobs) {
-        if (_activeJobs.size() < getMaxAdditionalThreads()) {
-          startBackgroundConstructionJob();
-        }
-      }
+    if (!dontSpawn) {
+      startBackgroundConstructionJob();
     }
   }
 
-  /**
-   * Caller must hold the _activeJobs monitor.
-   */
-  private void startBackgroundConstructionJob() {
-    final TerminatableJob job = createConstructionJob();
-    _activeJobs.add(job);
-    final Thread t = new Thread(job);
-    t.setDaemon(true);
-    t.setName(toString() + "-" + (_nextJobThreadId++));
-    t.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(final Thread t, final Throwable e) {
-        s_logger.warn("Graph builder exception", e);
-        postException(e);
+  private boolean startBackgroundConstructionJob() {
+    int activeJobs = _activeJobCount.get();
+    while (activeJobs < getMaxAdditionalThreads()) {
+      if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
         synchronized (_activeJobs) {
-          _activeJobs.remove(job);
+          final Job job = createConstructionJob();
+          _activeJobs.add(job);
+          final Thread t = new Thread(job);
+          t.setDaemon(true);
+          t.setName(toString() + "-" + (_nextJobThreadId++));
+          t.start();
+          s_logger.info("Started background thread {}", t);
         }
+        return true;
       }
-    });
-    t.start();
-    s_logger.info("Started background thread {}", t);
+      activeJobs = _activeJobCount.get();
+    }
+    return false;
   }
 
-  protected TerminatableJob createConstructionJob() {
-    return new TerminatableJob() {
+  /**
+   * Job running thread.
+   */
+  protected final class Job implements Runnable, Cancellable {
 
-      @Override
-      protected void preStart() {
-        s_logger.info("Construction job started");
-      }
+    private volatile boolean _poison;
 
-      @Override
-      protected void runOneCycle() {
-        if (!buildGraph()) {
-          terminate();
+    private Job() {
+    }
+
+    @Override
+    public void run() {
+      s_logger.info("Building job started");
+      boolean jobsLeftToRun;
+      do {
+        do {
+          try {
+            jobsLeftToRun = buildGraph();
+          } catch (Throwable t) {
+            s_logger.warn("Graph builder exception", t);
+            postException(t);
+            jobsLeftToRun = false;
+          }
+        } while (!_poison && jobsLeftToRun);
+        s_logger.debug("Building job stopping");
+        int activeJobs = _activeJobCount.decrementAndGet();
+        // Watch for late arrivals in the run queue; they might have seen the old value
+        // of activeJobs and not started anything.
+        while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
+          if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
+            s_logger.debug("Building job resuming");
+            // Note the log messages may go from "resuming" to stopped if the poison arrives between
+            // the check above and the check below. This might look odd, but what the hey - they're
+            // only DEBUG level messages.
+            jobsLeftToRun = true;
+            break;
+          }
+          activeJobs = _activeJobCount.get();
         }
+      } while (!_poison && jobsLeftToRun);
+      synchronized (_activeJobs) {
+        _activeJobs.remove(this);
       }
+      s_logger.info("Building job stopped");
+    }
 
-      @Override
-      protected void postRunCycle() {
-        s_logger.info("Construction job ended");
-        synchronized (_activeJobs) {
-          _activeJobs.remove(this);
-        }
-      }
+    @Override
+    public boolean cancel(final boolean mayInterrupt) {
+      _poison = true;
+      return true;
+    }
 
-    };
+  }
+
+  protected Job createConstructionJob() {
+    return new Job();
   }
 
   /**
@@ -442,8 +475,8 @@ public class DependencyGraphBuilder {
   public void cancelActiveBuild() {
     setMaxAdditionalThreads(0);
     synchronized (_activeJobs) {
-      for (TerminatableJob job : _activeJobs) {
-        job.terminate();
+      for (Job job : _activeJobs) {
+        job.cancel(true);
       }
       _activeJobs.clear();
     }
@@ -452,27 +485,14 @@ public class DependencyGraphBuilder {
   /**
    * If there are runnable tasks but not as many active jobs as the requested number then additional threads
    * will be started. This is called when the number of background threads is changed.
-   * 
-   * @param numThreads maximum number of active jobs desired
    */
-  protected void startBackgroundBuild(final int numThreads) {
+  protected void startBackgroundBuild() {
     if (_runQueue.isEmpty()) {
       s_logger.info("No pending runnable tasks for background building");
     } else {
-      synchronized (_activeJobs) {
-        int createThreads = numThreads - _activeJobs.size();
-        if (createThreads <= 0) {
-          s_logger.info("Already {} background building threads running ({} requested)", _activeJobs.size(), numThreads);
-          return;
-        }
-        final Iterator<ResolveTask> itr = _runQueue.iterator();
-        while (itr.hasNext()) {
-          itr.next();
-          if ((--createThreads) >= 0) {
-            startBackgroundConstructionJob();
-            break;
-          }
-        }
+      final Iterator<ResolveTask> itr = _runQueue.iterator();
+      while (itr.hasNext() && startBackgroundConstructionJob()) {
+        itr.next();
       }
     }
   }
@@ -490,16 +510,11 @@ public class DependencyGraphBuilder {
     if (!isGraphBuilt()) {
       s_logger.info("Building dependency graph");
       do {
-        final TerminatableJob job = createConstructionJob();
+        final Job job = createConstructionJob();
         synchronized (_activeJobs) {
           _activeJobs.add(job);
         }
-        try {
-          job.run();
-        } catch (Throwable t) {
-          postException(t);
-          throw new OpenGammaRuntimeException("Caught exception", t);
-        }
+        job.run();
         synchronized (_activeJobs) {
           if (_activeJobs.isEmpty()) {
             // We're done and there are no other jobs
@@ -538,6 +553,10 @@ public class DependencyGraphBuilder {
         graph.addDependencyNode(node);
       }
     }
+    for (ValueSpecification terminalOutput : _terminalOutputs) {
+      graph.addTerminalOutputValue(terminalOutput);
+    }
+    graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
         final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));
