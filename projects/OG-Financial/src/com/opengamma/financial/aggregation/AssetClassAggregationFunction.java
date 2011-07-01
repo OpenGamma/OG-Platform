@@ -14,6 +14,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -41,6 +42,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String FUTURES = "Futures";
   /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
+  /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String SWAPS = "Swaps";
@@ -136,6 +138,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
           return CAP_FLOOR_CMS_SPREAD;
+        }
+
+        @Override
+        public String visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+          return EQUITY_VARIANCE_SWAPS;
         }
 
       });

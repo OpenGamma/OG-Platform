@@ -15,6 +15,8 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquitySecurityVisitor;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -60,7 +62,8 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   private final FXSecurityVisitor<T> _fxSecurityVisitor;
   private final FXForwardSecurityVisitor<T> _fxForwardSecurityVisitor;
   private final CapFloorSecurityVisitor<T> _capFloorSecurityVisitor;
-  private CapFloorCMSSpreadSecurityVisitor<T> _capFloorCMSSpreadSecurityVisitor;
+  private final CapFloorCMSSpreadSecurityVisitor<T> _capFloorCMSSpreadSecurityVisitor;
+  private final EquityVarianceSwapSecurityVisitor<T> _equityVarianceSwapSecurityVisitor;
 
   /**
    * Builder for the visitor adapter.
@@ -84,6 +87,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     private FXForwardSecurityVisitor<T> _fxForwardSecurityVisitor;
     private CapFloorSecurityVisitor<T> _capFloorSecurityVisitor;
     private CapFloorCMSSpreadSecurityVisitor<T> _capFloorCMSSpreadSecurityVisitor;
+    private EquityVarianceSwapSecurityVisitor<T> _equityVarianceSwapSecurityVisitor;
 
     private Builder() {
     }
@@ -168,6 +172,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
       return this;
     }
 
+    public Builder<T> equityVarianceSwapSecurityVisitor(final EquityVarianceSwapSecurityVisitor<T> equityVarianceSwapSecurityVisitor) {
+      _equityVarianceSwapSecurityVisitor = equityVarianceSwapSecurityVisitor;
+      return this;
+    }
+
     public FinancialSecurityVisitorAdapter<T> create() {
       return new FinancialSecurityVisitorAdapter<T>(this);
     }
@@ -189,7 +198,8 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
                                          final FXSecurityVisitor<T> fxSecurityVisitor,
                                          final FXForwardSecurityVisitor<T> fxForwardSecurityVisitor,
                                          final CapFloorSecurityVisitor<T> capFloorSecurityVisitor,
-                                         final CapFloorCMSSpreadSecurityVisitor<T> capFloorCMSSpreadSecurityVisitor) {
+                                         final CapFloorCMSSpreadSecurityVisitor<T> capFloorCMSSpreadSecurityVisitor,
+                                         final EquityVarianceSwapSecurityVisitor<T> equityVarianceSwapSecurityVisitor) {
     _bondSecurityVisitor = bondSecurityVisitor;
     _cashSecurityVisitor = cashSecurityVisitor;
     _equitySecurityVisitor = equitySecurityVisitor;
@@ -206,10 +216,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     _fxForwardSecurityVisitor = fxForwardSecurityVisitor;
     _capFloorSecurityVisitor = capFloorSecurityVisitor;
     _capFloorCMSSpreadSecurityVisitor = capFloorCMSSpreadSecurityVisitor;
+    _equityVarianceSwapSecurityVisitor = equityVarianceSwapSecurityVisitor;
   }
 
   public FinancialSecurityVisitorAdapter() {
-    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   }
 
   public static <T> Builder<T> builder() {
@@ -221,7 +232,8 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
         builder._futureSecurityVisitor, builder._swapSecurityVisitor, builder._equityIndexOptionSecurityVisitor,
         builder._equityOptionSecurityVisitor, builder._fxOptionSecurityVisitor, builder._swaptionSecurityVisitor,
         builder._irfutureSecurityVisitor, builder._fxBarrierOptionSecurityVisitor, builder._fxSecurityVisitor,
-        builder._fxForwardSecurityVisitor, builder._capFloorSecurityVisitor, builder._capFloorCMSSpreadSecurityVisitor);
+        builder._fxForwardSecurityVisitor, builder._capFloorSecurityVisitor, builder._capFloorCMSSpreadSecurityVisitor,
+        builder._equityVarianceSwapSecurityVisitor);
   }
 
   // FinancialSecurityVisitor
@@ -304,6 +316,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   @Override
   public T visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
     return (_capFloorCMSSpreadSecurityVisitor != null) ? security.accept(_capFloorCMSSpreadSecurityVisitor) : null;
+  }
+
+  @Override
+  public T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+    return (_equityVarianceSwapSecurityVisitor != null) ? security.accept(_equityVarianceSwapSecurityVisitor) : null;
   }
 
 }

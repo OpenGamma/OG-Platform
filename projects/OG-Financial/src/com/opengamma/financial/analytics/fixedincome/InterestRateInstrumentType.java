@@ -13,6 +13,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -115,6 +116,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle EquityOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle EquityVarianceSwapSecurity");
     }
 
     @Override

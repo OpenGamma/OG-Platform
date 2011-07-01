@@ -21,6 +21,8 @@ import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquitySecurityVisitor;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -77,6 +79,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
   /* package */static final String EQUITY_FUTURES = "Equity Futures";
   /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
+  /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
@@ -255,7 +258,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
           return CAP_FLOOR_CMS_SPREAD;
         }
 
-      }));
+      }, new EquityVarianceSwapSecurityVisitor<String>() {
+
+        @Override
+        public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return EQUITY_VARIANCE_SWAPS;
+        }
+
+      }
+
+      ));
     } else {
       return UNKNOWN;
     }
