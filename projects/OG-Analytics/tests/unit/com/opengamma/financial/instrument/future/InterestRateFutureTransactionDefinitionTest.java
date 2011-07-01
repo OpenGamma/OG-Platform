@@ -124,12 +124,8 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeTradeFuture() {
     ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 11);
-    //    InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(referenceDate, CURVES);
     double lastMarginPrice = 0.99;
-    //    InterestRateFutureTransaction futureTransactionConverted = 
     FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, CURVES);
-    //    InterestRateFutureTransaction futureTransaction = new InterestRateFutureTransaction(ERU2, QUANTITY, 0.0);
-    //    assertTrue(futureTransactionConverted.equals(futureTransaction));
   }
 
   @Test

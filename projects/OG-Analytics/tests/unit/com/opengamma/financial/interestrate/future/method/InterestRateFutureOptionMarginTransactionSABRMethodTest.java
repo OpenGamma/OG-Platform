@@ -7,6 +7,9 @@ package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -18,19 +21,25 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
@@ -55,18 +64,23 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   // Option 
   private static final ZonedDateTime EXPIRATION_DATE = DateUtil.getUTCDate(2011, 9, 16);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final double STRIKE = 0.9850;
   private static final boolean IS_CALL = true;
+  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_EDU2_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(EDU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
   // Transaction
   private static final int QUANTITY = -123;
   private static final double TRADE_PRICE = 0.0050;
+  private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final InterestRateFutureOptionMarginTransaction TRANSACTION = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
+  private static final InterestRateFutureOptionMarginTransactionDefinition TRANSACTION_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_EDU2_DEFINITION, QUANTITY,
+      TRADE_DATE, TRADE_PRICE);
 
   private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD = new InterestRateFutureOptionMarginTransactionSABRMethod();
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = new InterestRateFutureOptionMarginSecuritySABRMethod();
@@ -126,6 +140,51 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final double pvNoPremiumMethod = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
     final double pvNoPremiumCalculator = PVC.visit(transactionNoPremium, SABR_BUNDLE);
     assertEquals("Future option: present value: Method vs Calculator", pvNoPremiumMethod, pvNoPremiumCalculator);
+  }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity computed from the curves
+   */
+  public void presentValueCurveSensitivity() {
+    final PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(TRANSACTION, SABR_BUNDLE);
+    pvsFuture.clean();
+    final double deltaTolerancePrice = 1.0E+2;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    // 1. Forward curve sensitivity
+    final String bumpedCurveName = "Bumped Curve";
+    String[] curvesBumpedForward = new String[] {DISCOUNTING_CURVE_NAME, bumpedCurveName};
+    InterestRateFutureOptionMarginTransaction transactionBumped = TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, TRADE_PRICE, curvesBumpedForward);
+    final double[] nodeTimesForward = new double[] {EDU2.getFixingPeriodStartTime(), EDU2.getFixingPeriodEndTime()};
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(transactionBumped, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
+    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivity().get(FORWARD_CURVE_NAME);
+    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvForward.get(loopnode);
+      assertEquals("Sensitivity future pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
+    }
+  }
+
+  @Test
+  /**
+   * Tests that the method return the same result as the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
+    final Map<String, List<DoublesPair>> sensiCalculator = calculator.visit(TRANSACTION, SABR_BUNDLE);
+    final PresentValueSensitivity sensiMethod = METHOD.presentValueCurveSensitivity(TRANSACTION, SABR_BUNDLE);
+    assertEquals("Future option curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
+    InterestRateFutureOptionMarginSecuritySABRMethod methodSecurity = new InterestRateFutureOptionMarginSecuritySABRMethod();
+    PresentValueSensitivity sensiSecurity = methodSecurity.priceCurveSensitivity(OPTION_EDU2, SABR_BUNDLE);
+    PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY);
+    for (int looppt = 0; looppt < sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).size(); looppt++) {
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
+    }
   }
 
 }

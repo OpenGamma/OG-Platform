@@ -10,10 +10,18 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+
 /**
  * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
  */
-public class InterestRateFutureOptionMarginSecurityDefinition {
+public class InterestRateFutureOptionMarginSecurityDefinition implements FixedIncomeInstrumentConverter<InterestRateDerivative> {
 
   /**
    * Underlying future security.
@@ -78,6 +86,28 @@ public class InterestRateFutureOptionMarginSecurityDefinition {
    */
   public double getStrike() {
     return _strike;
+  }
+
+  @Override
+  public InterestRateFutureOptionMarginSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
+    InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
+    InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+    return option;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this);
   }
 
   @Override

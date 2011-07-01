@@ -149,6 +149,15 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     final Map<String, List<DoublesPair>> sensiCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
     final PresentValueSensitivity sensiMethod = METHOD.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
     assertEquals("Future discounting curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
+    InterestRateFutureSecurityDiscountingMethod methodSecurity = new InterestRateFutureSecurityDiscountingMethod();
+    PresentValueSensitivity sensiSecurity = methodSecurity.priceCurveSensitivity(ERU2, CURVES);
+    PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY);
+    for (int looppt = 0; looppt < sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).size(); looppt++) {
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
+    }
   }
 
   @Test
