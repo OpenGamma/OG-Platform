@@ -134,7 +134,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * 
    * @param cycleExecutionSequence  the execution sequence, not {@code null}
    * @param defaultCycleOptions  the default view cycle execution options, may be {@code null}
-   * @param flags  execution flags, not {@code null}
+   * @param flags  the execution flags, not {@code null}
    * @return the execution sequence, not {@code null}
    */
   public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions, EnumSet<ViewExecutionFlags> flags) {
@@ -144,21 +144,33 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
   
   /**
-   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
-   * for as long as there is demand.
+   * Creates an infinite execution sequence with a valuation time driven by the market data and all triggers enabled.
+   * Execution will continue for as long as there is demand.
    * <p>
    * For the classic execution sequence for real-time calculations against live market data, use
    * <pre>
-   *  ExecutionOptions.continuous(MarketData.live());
-   * </pre> 
+   *  ExecutionOptions.infinite(MarketData.live());
+   * </pre>
    * 
    * @param marketDataSpec  the market data specification, not {@code null}
    * @return the execution sequence, not {@code null}
    */
-  public static ViewExecutionOptions continuous(MarketDataSpecification marketDataSpec) {
+  public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec) {
+    return infinite(marketDataSpec, ExecutionFlags.triggersEnabled().get());
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
+   * for as long as there is demand.
+   * 
+   * @param marketDataSpec  the market data specification, not {@code null}
+   * @param flags  the execution flags, not {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
     defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
-    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, ExecutionFlags.triggersEnabled().get());
+    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
   }
   
   /**
