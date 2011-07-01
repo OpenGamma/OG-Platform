@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.equity;
+package com.opengamma.financial.equity.future;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -13,11 +13,11 @@ import com.opengamma.util.money.Currency;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Checks the wiring of the EquityFuturesPresentValueCalculator
  */
-public class PresentValueCalculatorTest {
+public class EquityFuturesPresentValueCalculatorTest {
 
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final EquityFuturesPresentValueCalculator PVC = EquityFuturesPresentValueCalculator.getInstance();
 
   @Test
   public void testEquityIndexDividendFuture() {

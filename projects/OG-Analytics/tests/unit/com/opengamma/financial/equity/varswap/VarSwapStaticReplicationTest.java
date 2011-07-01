@@ -37,24 +37,31 @@ public class VarSwapStaticReplicationTest {
   // The derivative
   final double varStrike = 0.05;
   final double varNotional = 3150;
+  final double now = 0;
   final double expiry1 = 1;
   final double expiry2 = 2;
   final double expiry5 = 5;
   final double expiry10 = 10;
+  final int nObsExpected = 750;
+  final double annualization = 252;
 
-  final VarianceSwap swap1 = new VarianceSwap(0, expiry1, expiry1, 750, 750, 0, Currency.EUR, varStrike, varNotional);
-  final VarianceSwap swap2 = new VarianceSwap(0, expiry2, expiry2, 750, 750, 0, Currency.EUR, varStrike, varNotional);
-  final VarianceSwap swap5 = new VarianceSwap(0, expiry5, expiry5, 750, 750, 0, Currency.EUR, varStrike, varNotional);
-  final VarianceSwap swap10 = new VarianceSwap(0, expiry10, expiry10, 750, 750, 0, Currency.EUR, varStrike, varNotional);
+  final VarianceSwap swap0 = new VarianceSwap(now, now, now, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
+  final VarianceSwap swap1 = new VarianceSwap(now, expiry1, expiry1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
+  final VarianceSwap swap2 = new VarianceSwap(now, expiry2, expiry2, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
+  final VarianceSwap swap5 = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
+  final VarianceSwap swap10 = new VarianceSwap(now, expiry10, expiry10, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
+  final VarianceSwap swapExpired = new VarianceSwap(now, now - 1, now - 1, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, null, null);
 
   // The pricing method
   final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication();
   final VarSwapStaticReplication pricer_null_cutoff = new VarSwapStaticReplication(1.0E-4, 5.0, new RungeKuttaIntegrator1D(), null, null);
 
   // Market data
-  double spot = 80;
-  final YieldCurveBundle curves = TestsDataSets.createCurves1();
-  final YieldAndDiscountCurve curveDiscount = curves.getCurve("Funding");
+  private static final double SPOT = 80;
+  private static final double FORWARD = 100;
+  private static final double TEST_VOL = 0.25;
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
                                                           1.0, 1.0, 1.0, 1.0,
@@ -69,11 +76,19 @@ public class VarSwapStaticReplicationTest {
                                                      0.26, 0.24, 0.23, 0.25,
                                                      0.20, 0.20, 0.20, 0.20 };
 
-  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+
+  final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR,
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+
   @SuppressWarnings("unchecked")
-  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D);
+  // This removes warning from unchecked cast of interpolators below
+  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D((Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D_EXPIRY,
+                                                                                (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D_STRIKE);
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
+  private static final VolatilitySurface VOL_SURFACE = new VolatilitySurface(SURFACE);
+  private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, DISCOUNT, SPOT, FORWARD);
 
   // Tests ------------------------------------------
   /**
@@ -82,16 +97,12 @@ public class VarSwapStaticReplicationTest {
   @Test
   public void testConstantDoublesSurface() {
 
-    double vol = 0.25;
-    double targetVar = swap1.getTimeToObsEnd() * vol * vol;
-
-    final ConstantDoublesSurface constSurf = ConstantDoublesSurface.from(0.25);
+    final ConstantDoublesSurface constSurf = ConstantDoublesSurface.from(TEST_VOL);
     final VolatilitySurface vols = new VolatilitySurface(constSurf);
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(vols, curveDiscount, spot);
 
-    double testVar = pricer_null_cutoff.impliedVariance(swap1, market);
-    System.out.println(testVar);
+    double testVar = pricer_null_cutoff.impliedVariance(swap1, MARKET);
 
+    double targetVar = swap1.getTimeToObsEnd() * TEST_VOL * TEST_VOL;
     assertEquals(testVar, targetVar, 1e-9);
   }
 
@@ -101,14 +112,8 @@ public class VarSwapStaticReplicationTest {
   @Test
   public void testInterpolatedDoublesSurfaceFlat() {
 
-    double vol = 0.25;
-    double targetVar = expiry1 * vol * vol;
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
-
-    double testVar = pricer_default_w_cutoff.impliedVariance(swap1, market);
-    System.out.println(testVar);
-
+    double testVar = pricer_default_w_cutoff.impliedVariance(swap1, MARKET);
+    double targetVar = swap1.getTimeToObsEnd() * TEST_VOL * TEST_VOL;
     assertEquals(testVar, targetVar, 1e-9);
   }
 
@@ -121,34 +126,19 @@ public class VarSwapStaticReplicationTest {
 
     VarSwapStaticReplication pricerNoCutoff = new VarSwapStaticReplication(1e-16, 10, new RungeKuttaIntegrator1D(), null, null);
 
-    double vol = 0.25;
-    double targetVar = expiry1 * vol * vol;
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
-
-    double testVar = pricerNoCutoff.impliedVariance(swap1, market);
-    System.out.println(testVar);
-
+    double testVar = pricerNoCutoff.impliedVariance(swap1, MARKET);
+    double targetVar = expiry1 * TEST_VOL * TEST_VOL;
     assertEquals(testVar, targetVar, 1e-9);
   }
 
   /** 
-   * Confirm all is well when null values are passed for the cutoff, 
+   * Confirm error trapped when bad values are passed for the cutoff 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInterpolatedDoublesSurfaceWithPoorCutoffDescription() {
 
     VarSwapStaticReplication pricerBadCutoff = new VarSwapStaticReplication(1e-16, 10, new RungeKuttaIntegrator1D(), null, 0.05);
-
-    double vol = 0.25;
-    double targetVar = expiry1 * vol * vol;
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
-
-    double testVar = pricerBadCutoff.impliedVariance(swap1, market);
-    System.out.println(testVar);
-
-    assertEquals(testVar, targetVar, 1e-9);
+    pricerBadCutoff.impliedVariance(swap1, MARKET);
   }
 
   /**
@@ -160,14 +150,8 @@ public class VarSwapStaticReplicationTest {
 
     VarSwapStaticReplication pricerHighCutoff = new VarSwapStaticReplication(1e-16, 10, new RungeKuttaIntegrator1D(), 0.95, 0.05);
 
-    double vol = 0.25;
-    double targetVar = expiry1 * vol * vol;
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
-
-    double testVar = pricerHighCutoff.impliedVariance(swap1, market);
-    System.out.println(testVar);
-
+    double testVar = pricerHighCutoff.impliedVariance(swap1, MARKET);
+    double targetVar = expiry1 * TEST_VOL * TEST_VOL;
     assertEquals(testVar, targetVar, 1e-9);
   }
 
@@ -180,15 +164,11 @@ public class VarSwapStaticReplicationTest {
     VarSwapStaticReplication pricerPuts = new VarSwapStaticReplication(1e-16, 1.0, new RungeKuttaIntegrator1D(), 0.9, 0.01);
     VarSwapStaticReplication pricerCalls = new VarSwapStaticReplication(1.0, 10, new RungeKuttaIntegrator1D(), null, null);
 
-    double vol = 0.25;
-    double targetVar = expiry1 * vol * vol;
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
-
-    double varFromPuts = pricerPuts.impliedVariance(swap1, market);
-    double varFromCalls = pricerCalls.impliedVariance(swap1, market);
+    double varFromPuts = pricerPuts.impliedVariance(swap1, MARKET);
+    double varFromCalls = pricerCalls.impliedVariance(swap1, MARKET);
     double testVar = varFromPuts + varFromCalls;
 
+    double targetVar = expiry1 * TEST_VOL * TEST_VOL;
     assertEquals(testVar, targetVar, 1e-9);
   }
 
@@ -199,7 +179,6 @@ public class VarSwapStaticReplicationTest {
   @Test
   public void testContributionByStrike() {
 
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
     final VarSwapStaticReplication pricer0 = new VarSwapStaticReplication(1e-4, 0.1, new RungeKuttaIntegrator1D(), 0.25, 0.05);
     final VarSwapStaticReplication pricer1 = new VarSwapStaticReplication(0.1, 0.2, new RungeKuttaIntegrator1D(), 0.25, 0.05);
     final VarSwapStaticReplication pricer2 = new VarSwapStaticReplication(0.2, 0.3, new RungeKuttaIntegrator1D(), 0.25, 0.05);
@@ -211,33 +190,33 @@ public class VarSwapStaticReplicationTest {
 
     double variance_total = 0.0;
     double variance_slice;
-    variance_slice = pricer0.impliedVariance(swap5, market);
+    variance_slice = pricer0.impliedVariance(swap5, MARKET);
     System.err.println("1e-4 to 0.1: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer1.impliedVariance(swap5, market);
+    variance_slice = pricer1.impliedVariance(swap5, MARKET);
     System.err.println("to 0.2: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer2.impliedVariance(swap5, market);
+    variance_slice = pricer2.impliedVariance(swap5, MARKET);
     System.err.println("to 0.3: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer3.impliedVariance(swap5, market);
+    variance_slice = pricer3.impliedVariance(swap5, MARKET);
     System.err.println("to 0.4: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer4.impliedVariance(swap5, market);
+    variance_slice = pricer4.impliedVariance(swap5, MARKET);
     System.err.println("to 0.5: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer5.impliedVariance(swap5, market);
+    variance_slice = pricer5.impliedVariance(swap5, MARKET);
     System.err.println("to 1.0: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer10.impliedVariance(swap5, market);
+    variance_slice = pricer10.impliedVariance(swap5, MARKET);
     System.err.println("to 1.5: " + variance_slice);
     variance_total += variance_slice;
-    variance_slice = pricer15.impliedVariance(swap5, market);
+    variance_slice = pricer15.impliedVariance(swap5, MARKET);
     System.err.println("to 5.0: " + variance_slice);
     variance_total += variance_slice;
     System.err.println("Sum of contributions from strike slices = " + variance_total);
 
-    double variance_onego = pricer_default_w_cutoff.impliedVariance(swap5, market);
+    double variance_onego = pricer_default_w_cutoff.impliedVariance(swap5, MARKET);
     System.err.println("Variance estimated in one integration = " + variance_onego);
 
     assertEquals(variance_total, variance_onego, 1e-9);
@@ -246,14 +225,13 @@ public class VarSwapStaticReplicationTest {
   @Test
   public void testVInterpolatedDoublesSurface() {
 
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
     VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(1e-4, 5, new RungeKuttaIntegrator1D(), 0.3894, 0.05);
 
-    double ShiftedLnVar = pricerCutoff.impliedVariance(swap5, market);
+    double ShiftedLnVar = pricerCutoff.impliedVariance(swap5, MARKET);
 
     System.err.println("testVInterpolatedDoublesSurface variance ShiftedLN is " + ShiftedLnVar);
 
-    double refVariance = expiry5 * .25 * .25;
+    double refVariance = expiry5 * TEST_VOL * TEST_VOL;
     System.err.println("For reference, the flat variance of 25% is " + refVariance);
 
   }
@@ -280,12 +258,24 @@ public class VarSwapStaticReplicationTest {
     final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D);
     final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
 
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), curveDiscount, spot);
+    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), DISCOUNT, SPOT, FORWARD);
     VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), 0.5, -.25); // Hit 75 and 25. Check shape in between. Use this value to extrapolate left
 
     double ShiftedLnVar = pricerCutoff.impliedVariance(swap1, market);
 
     System.err.println("testVInterpolatedDoublesSurface variance ShiftedLN is " + ShiftedLnVar);
 
+  }
+
+  @Test
+  public void testExpiredSwap() {
+
+    VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(1e-4, 5, new RungeKuttaIntegrator1D(), 0.3894, 0.05);
+
+    double noMoreVariance = pricerCutoff.impliedVariance(swap0, MARKET);
+    assertEquals(0.0, noMoreVariance, 1e-9);
+
+    double varInExpiredSwap = pricerCutoff.impliedVariance(swap0, MARKET);
+    assertEquals(0.0, varInExpiredSwap, 1e-9);
   }
 }

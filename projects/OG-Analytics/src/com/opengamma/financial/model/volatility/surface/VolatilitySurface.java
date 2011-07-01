@@ -43,18 +43,10 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return new VolatilityCurve(curve);
   }
 
-  /**
-   * Gets the underlying Axis representing Expiry (X)
-   * @return the ExpiryAxis
-   */
   public static Axis getExpiryAxis() {
     return EXPIRY_AXIS;
   }
 
-  /**
-   * Gets the underlying Axis representing Strike (Y).
-   * @return the StrikeAxis
-   */
   public static Axis getStrikeAxis() {
     return STRIKE_AXIS;
   }

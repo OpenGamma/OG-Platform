@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.equity;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -32,6 +33,11 @@ public abstract class AbstractEquityDerivativeVisitor<S, T> implements EquityDer
   @Override
   public T visitEquityFuture(final EquityFuture future, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityFuture()");
+  }
+
+  @Override
+  public T visitVarianceSwap(VarianceSwap derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitVarianceSwap()");
   }
 
 }
