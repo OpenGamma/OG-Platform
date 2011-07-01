@@ -140,6 +140,12 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
     return result;
   }
 
+  public PresentValueSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    return presentValueCurveSensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
+  }
+
   /**
    * Computes the volatility sensitivity of the vanilla option with the Black function and a volatility from a volatility surface. The sensitivity
    * is computed with respect to the computed Black implied volatility and not with respect to the volatility surface input.
