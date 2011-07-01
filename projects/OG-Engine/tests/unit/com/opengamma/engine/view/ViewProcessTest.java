@@ -45,7 +45,7 @@ public class ViewProcessTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -63,7 +63,7 @@ public class ViewProcessTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -90,7 +90,7 @@ public class ViewProcessTest {
     
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));    
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));    
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
     

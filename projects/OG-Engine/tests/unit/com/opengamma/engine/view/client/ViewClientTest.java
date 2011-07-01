@@ -70,7 +70,7 @@ public class ViewClientTest {
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client1.getUniqueId());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     ViewProcessImpl client1Process = env.getViewProcess(vp, client1.getUniqueId());
     assertTrue(client1Process.getState() == ViewProcessState.RUNNING);
     
@@ -78,7 +78,7 @@ public class ViewClientTest {
     assertNotNull(client2.getUniqueId());
     assertFalse(client1.getUniqueId().equals(client2.getUniqueId()));
     
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     ViewProcessImpl client2Process = env.getViewProcess(vp, client2.getUniqueId());
     assertEquals(client1Process, client2Process);
     assertTrue(client2Process.getState() == ViewProcessState.RUNNING);
@@ -101,10 +101,10 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl view = env.getViewProcess(vp, client1.getUniqueId());
     
@@ -146,7 +146,7 @@ public class ViewClientTest {
     
     assertEquals(0, resultListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
@@ -203,7 +203,7 @@ public class ViewClientTest {
     
     assertEquals(0, resultListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewDeltaResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
@@ -249,7 +249,7 @@ public class ViewClientTest {
     
     assertEquals(0, client1ResultListener.getQueueSize());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     // Wait for first computation cycle
     client1ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -260,7 +260,7 @@ public class ViewClientTest {
     client2.setResultListener(client2ResultListener);
     
     assertEquals(0, client2ResultListener.getQueueSize());
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     // Initial result should be pushed through
     client2ResultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -349,7 +349,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcess viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -380,7 +380,7 @@ public class ViewClientTest {
     // Start live computation and collect the initial result
     marketDataProvider.addValue(env.getPrimitive1(), 2);
 
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
     
@@ -426,7 +426,7 @@ public class ViewClientTest {
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
     
     ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
@@ -435,7 +435,7 @@ public class ViewClientTest {
     assertTrue(recalcThread1.isAlive());
     
     client.detachFromViewProcess();
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
     Thread recalcThread2 = env.getCurrentComputationThread(viewProcess2);

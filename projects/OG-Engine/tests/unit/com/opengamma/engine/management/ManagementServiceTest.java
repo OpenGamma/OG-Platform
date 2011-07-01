@@ -109,7 +109,7 @@ public class ManagementServiceTest {
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.continuous(MarketData.live()), false);
+    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.infinite(MarketData.live()), false);
   }
   
   

@@ -46,7 +46,7 @@ public class SingleComputationCycleTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
     assertTrue (executor.awaitFirstRun(TIMEOUT));
