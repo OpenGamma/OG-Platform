@@ -8,9 +8,13 @@ package com.opengamma.core.position.impl;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.google.common.collect.Sets;
@@ -22,7 +26,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
 
 /**
  * A simple mutable implementation of {@code Position}.
@@ -56,6 +59,12 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * The sets of trades that make up the position.
    */
   private final Set<Trade> _trades = Sets.newHashSet();
+  
+  /**
+   * The trade attributes
+   */
+  private Map<String, String> _attributes = new HashMap<String, String>();
+
 
   /**
    * Construct an empty instance that must be populated via setters.
@@ -174,6 +183,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
     _trades.addAll(copyFrom.getTrades());
+    setAttributes(copyFrom.getAttributes());
   }
 
   //-------------------------------------------------------------------------
@@ -323,6 +333,54 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public boolean removeTrade(Trade trade) {
     return _trades.remove(trade);
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public Map<String, String> getAttributes() {
+    return Collections.unmodifiableMap(_attributes);
+  }
+  
+  /**
+   * Add a position attribute
+   * 
+   * @param key attribute key, not null
+   * @param value attribute value, not null
+   */
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
+  }
+
+  /**
+   * Add all attributes from a given Map
+   *  
+   * @param attributes the attributes map, not null
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    ArgumentChecker.notNull(attributes, "attributes");
+    clearAttributes();
+    for (Entry<String, String> entry : attributes.entrySet()) {
+      addAttribute(entry.getKey(), entry.getValue());
+    }
+  }
+
+  /**
+   * Remove all attributes
+   */
+  public void clearAttributes() {
+    _attributes.clear();
+  }
+
+  /**
+   * Removes an attribute with given key
+   * 
+   * @param key the attribute key to remove, not null
+   */
+  public void removeAttribute(final String key) {
+    ArgumentChecker.notNull(key, "key");
+    _attributes.remove(key);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -332,32 +390,27 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     }
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
-      return CompareUtils.compareWithNull(getQuantity(), other.getQuantity()) == 0 &&
-          ObjectUtils.equals(getSecurityKey(), other.getSecurityKey()) &&
-          ObjectUtils.equals(getSecurity(), other.getSecurity()) &&
-          ObjectUtils.equals(getTrades(), other.getTrades()) &&
-          ObjectUtils.equals(getParentNodeId(), other.getParentNodeId());
+      return new EqualsBuilder().append(getQuantity(), other.getQuantity())
+          .append(getSecurityKey(), getSecurityKey())
+          .append(getSecurity(), other.getSecurity())
+          .append(getTrades(), other.getTrades())
+          .append(getParentNodeId(), other.getParentNodeId())
+          .append(getAttributes(), other.getAttributes())
+          .isEquals();
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hashCode = 65;
-    hashCode += getQuantity().hashCode();
-    hashCode *= 31;
-    hashCode += getSecurityKey().hashCode();
-    hashCode *= 31;
-    if (getSecurity() != null) {
-      hashCode += getSecurity().hashCode();
-    }
-    hashCode *= 31;
-    hashCode += getTrades().hashCode();
-    hashCode *= 31;
-    if (getParentNodeId() != null) {
-      hashCode += getParentNodeId().hashCode();
-    }
-    return hashCode;
+    return new HashCodeBuilder()
+        .append(getQuantity())
+        .append(getSecurityKey())
+        .append(getSecurity())
+        .append(getTrades())
+        .append(getParentNodeId())
+        .append(getAttributes())
+        .toHashCode();
   }
 
   @Override
@@ -372,5 +425,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
         .append(']')
         .toString();
   }
+
+  
 
 }
