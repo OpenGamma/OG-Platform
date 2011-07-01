@@ -18,7 +18,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -30,7 +29,7 @@ import com.opengamma.util.money.Currency;
 import org.testng.annotations.Test;
 
 /**
- * 
+ *    
  */
 public class VarSwapStaticReplicationTest {
 
@@ -84,8 +83,8 @@ public class VarSwapStaticReplicationTest {
 
   @SuppressWarnings("unchecked")
   // This removes warning from unchecked cast of interpolators below
-  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D((Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D_EXPIRY,
-                                                                                (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D_STRIKE);
+  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY,
+                                                                                INTERPOLATOR_1D_STRIKE);
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
   private static final VolatilitySurface VOL_SURFACE = new VolatilitySurface(SURFACE);
   private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, DISCOUNT, SPOT, FORWARD);
@@ -191,33 +190,23 @@ public class VarSwapStaticReplicationTest {
     double variance_total = 0.0;
     double variance_slice;
     variance_slice = pricer0.impliedVariance(swap5, MARKET);
-    System.err.println("1e-4 to 0.1: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer1.impliedVariance(swap5, MARKET);
-    System.err.println("to 0.2: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer2.impliedVariance(swap5, MARKET);
-    System.err.println("to 0.3: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer3.impliedVariance(swap5, MARKET);
-    System.err.println("to 0.4: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer4.impliedVariance(swap5, MARKET);
-    System.err.println("to 0.5: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer5.impliedVariance(swap5, MARKET);
-    System.err.println("to 1.0: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer10.impliedVariance(swap5, MARKET);
-    System.err.println("to 1.5: " + variance_slice);
     variance_total += variance_slice;
     variance_slice = pricer15.impliedVariance(swap5, MARKET);
-    System.err.println("to 5.0: " + variance_slice);
     variance_total += variance_slice;
-    System.err.println("Sum of contributions from strike slices = " + variance_total);
 
     double variance_onego = pricer_default_w_cutoff.impliedVariance(swap5, MARKET);
-    System.err.println("Variance estimated in one integration = " + variance_onego);
 
     assertEquals(variance_total, variance_onego, 1e-9);
   }
@@ -227,12 +216,11 @@ public class VarSwapStaticReplicationTest {
 
     VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(1e-4, 5, new RungeKuttaIntegrator1D(), 0.3894, 0.05);
 
-    double ShiftedLnVar = pricerCutoff.impliedVariance(swap5, MARKET);
+    double varSmiley = pricerCutoff.impliedVariance(swap5, MARKET);
 
-    System.err.println("testVInterpolatedDoublesSurface variance ShiftedLN is " + ShiftedLnVar);
+    assertEquals(varSmiley, 0.3073988343625848, 1e-9);
 
     double refVariance = expiry5 * TEST_VOL * TEST_VOL;
-    System.err.println("For reference, the flat variance of 25% is " + refVariance);
 
   }
 
@@ -255,15 +243,14 @@ public class VarSwapStaticReplicationTest {
     final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     @SuppressWarnings("unchecked")
-    final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D);
+    final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), INTERPOLATOR_1D);
     final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
 
     final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new VolatilitySurface(SURFACE), DISCOUNT, SPOT, FORWARD);
     VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), 0.5, -.25); // Hit 75 and 25. Check shape in between. Use this value to extrapolate left
 
-    double ShiftedLnVar = pricerCutoff.impliedVariance(swap1, market);
-
-    System.err.println("testVInterpolatedDoublesSurface variance ShiftedLN is " + ShiftedLnVar);
+    double variance = pricerCutoff.impliedVariance(swap1, market);
+    assertEquals(variance, 0.07044057342667964, 1e-9);
 
   }
 

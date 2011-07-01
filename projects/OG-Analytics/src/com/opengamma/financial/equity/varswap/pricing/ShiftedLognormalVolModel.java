@@ -91,7 +91,6 @@ public class ShiftedLognormalVolModel {
         diffs[0] = (target1Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget1 + shift), _expiry, vol, null, strikeTarget1 > 1).computePrice()) * 1.0E+6;
         diffs[1] = (target2Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget2 + shift), _expiry, vol, null, strikeTarget2 > 1).computePrice()) * 1.0E+6;
 
-        System.err.println(volShiftPair.getEntry(0) + "\t" + volShiftPair.getEntry(1) + "\t" + diffs[0] + "\t" + diffs[1]);
         return new DoubleMatrix1D(diffs);
       }
     };
