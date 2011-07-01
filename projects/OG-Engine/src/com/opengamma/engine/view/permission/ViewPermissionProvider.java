@@ -25,12 +25,15 @@ public interface ViewPermissionProvider {
   boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition compiledViewDefinition);
 
   /**
-   * Determines whether a user has permission to access the computation results of a view process.
+   * Determines whether a user has permission to access the computation results of a view process. This should take
+   * into account permission to access the underlying market data as well as any other permissions required.
    * 
    * @param user  the user, not null
-   * @param compiledViewDefinition  the view compilation from which computation results would be produced, not null 
+   * @param compiledViewDefinition  the view compilation from which computation results would be produced, not null
+   * @param hasMarketDataPermissions  {@code true} if the user has permission to access the market data requirements,
+   *                                  {@code false} otherwise  
    * @return {@code true} if the user may access results produced from the view compilation, {@code false} otherwise.
    */
-  boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition compiledViewDefinition);
+  boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions);
   
 }

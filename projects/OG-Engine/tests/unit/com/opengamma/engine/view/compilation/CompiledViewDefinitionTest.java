@@ -8,14 +8,15 @@ package com.opengamma.engine.view.compilation;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -97,11 +98,6 @@ public class CompiledViewDefinitionTest {
       @Override
       public Instant getLatestInvocationTime() {
         return functionEnd;
-      }
-
-      @Override
-      public Set<ValueSpecification> getRequiredLiveData() {
-        return Collections.emptySet ();
       }
 
       @Override

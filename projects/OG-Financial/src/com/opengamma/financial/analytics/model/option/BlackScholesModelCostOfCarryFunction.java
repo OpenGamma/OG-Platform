@@ -33,7 +33,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
+    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueId()));
     if (curveObject == null) {

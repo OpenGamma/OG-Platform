@@ -10,9 +10,8 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message DeleteRequest extends CacheMessage {
   
-    required id.UniqueIdentifier viewProcessId;
+    required id.UniqueIdentifier viewCycleId;
     required string calculationConfigurationName;
-    required long snapshotTimestamp;
     
     binding Java {
       body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitDeleteRequest (this); }";

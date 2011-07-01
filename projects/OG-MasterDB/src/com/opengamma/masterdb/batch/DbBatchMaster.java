@@ -1023,7 +1023,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       createLiveDataSnapshotImpl(snapshotId);
       
       Set<LiveDataValue> values = new HashSet<LiveDataValue>();
-      for (ComputedValue liveData : result.getResult().getAllLiveData()) {
+      for (ComputedValue liveData : result.getResult().getAllMarketData()) {
         values.add(new LiveDataValue(liveData));      
       }
       

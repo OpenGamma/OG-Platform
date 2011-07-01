@@ -22,9 +22,6 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -34,7 +31,10 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -55,12 +55,12 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
-import com.opengamma.engine.view.permission.PermissiveViewPermissionProviderFactory;
+import com.opengamma.engine.view.permission.PermissiveViewPermissionProvider;
+import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.impl.MasterSecuritySource;
@@ -269,21 +269,13 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   }
 
   //-------------------------------------------------------------------------
-  public InMemoryLKVSnapshotProvider createSnapshotProvider() {
-    InMemoryLKVSnapshotProvider provider;
-    if (getJob().getHistoricalSnapshotProvider() != null) {
-      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalSnapshotProvider());
-    } else {
-      provider = new InMemoryLKVSnapshotProvider();
-    }
-    
+  public MarketDataProvider createSnapshotProvider() {    
     // Initialize provider with values from batch DB
-    
     Set<LiveDataValue> liveDataValues;
     try {
       liveDataValues = getJob().getBatchMaster().getSnapshotValues(getSnapshotId());
     } catch (IllegalArgumentException e) {
-      if (getJob().getHistoricalSnapshotProvider() != null) {
+      if (getJob().getHistoricalMarketDataProvider() != null) {
         // if there is a historical data provider, that provider
         // may potentially provide all market data to run the batch,
         // so no pre-existing snapshot is required
@@ -294,12 +286,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         throw e;
       }
     }
-    
+
+    InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
     for (LiveDataValue value : liveDataValues) {
       ValueRequirement valueRequirement = new ValueRequirement(value.getFieldName(), value.getComputationTargetSpecification());
-      provider.addValue(valueRequirement, value.getValue());
+      batchDbProvider.addValue(valueRequirement, value.getValue());
     }
-    return provider;
+    
+    return new BatchMarketDataProvider(this, getJob().getBatchMaster(), batchDbProvider, getJob().getHistoricalMarketDataProvider());
   }
 
   public void createViewDefinition() {
@@ -324,7 +318,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     // the engine API well at all. See [PLAT-1156]. 
     
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
-    InMemoryLKVSnapshotProvider snapshotProvider = createSnapshotProvider();
+    MarketDataProvider snapshotProvider = createSnapshotProvider();
+    MarketDataProviderResolver providerResolver = new SingleMarketDataProviderResolver(snapshotProvider);
 
     VersionCorrection vc = VersionCorrection.of(getStaticDataTime(), getOriginalCreationTime());
     SecuritySource securitySource = getJob().getSecuritySource();
@@ -361,23 +356,6 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     InMemoryViewDefinitionRepository viewDefinitionRepository = new InMemoryViewDefinitionRepository();
     viewDefinitionRepository.addViewDefinition(new AddViewDefinitionRequest(_viewDefinitionConfig.getValue()));
     
-    //TODO allow snapshots to be used here
-    final MarketDataSnapshotSource marketDataSnapshotSource = new MarketDataSnapshotSource() {
-      
-      @Override
-      public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
-        return null;
-      }
-
-      @Override
-      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-
-      @Override
-      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-      }
-    };
-    
     ViewProcessor viewProcessor = new ViewProcessorImpl(
         UniqueIdentifier.of("Vp", "Batch"),
         viewDefinitionRepository,
@@ -386,16 +364,13 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         computationTargetResolver,
         functionCompilationService,
         functionResolver,
-        new TestLiveDataClient(),
-        snapshotProvider,
-        snapshotProvider,
+        providerResolver,
         computationCache,
         jobDispatcher,
         viewProcessorQueryReceiver,
         dependencyGraphExecutorFactory,
         new DiscardingGraphStatisticsGathererProvider(),
-        new PermissiveViewPermissionProviderFactory(),
-        marketDataSnapshotSource);
+        new PermissiveViewPermissionProvider());
         
     setViewProcessor(viewProcessor);
 
@@ -405,7 +380,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     // to initialise the database, so this logic probably belongs in the engine, as part of any 'batch' components, and
     // can run before (and delay) the computation cycle.
     
-    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver,
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider.getAvailabilityProvider(), functionResolver,
         functionCompilationService.getFunctionCompilationContext(), computationTargetResolver, functionCompilationService.getExecutorService(), securitySource, positionSource);
     CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
     setCompiledViewDefinition(compiledViewDefinition);

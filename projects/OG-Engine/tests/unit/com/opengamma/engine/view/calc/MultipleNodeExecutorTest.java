@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -121,7 +123,7 @@ public class MultipleNodeExecutorTest {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), 1L, JobIdSource.getId());
+        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
       }
 
       @Override

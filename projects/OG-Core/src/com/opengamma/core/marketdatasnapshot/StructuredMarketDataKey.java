@@ -9,5 +9,5 @@ package com.opengamma.core.marketdatasnapshot;
  * 
  */
 public interface StructuredMarketDataKey {
-
+  
 }

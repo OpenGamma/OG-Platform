@@ -7,7 +7,8 @@ package com.opengamma.engine.view.calcnode;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.ObjectUtils;
+import javax.time.Instant;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -20,42 +21,44 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class CalculationJobSpecification implements Serializable {
   
-  private final UniqueIdentifier _viewProcessId;
+  private static final long serialVersionUID = 1L;
+  
+  private final UniqueIdentifier _viewCycleId;
   private final String _calcConfigName;
-  private final long _iterationTimestamp;
+  private final Instant _valuationTime;
   private final long _jobId;
   
-  public CalculationJobSpecification(UniqueIdentifier viewProcessId, String calcConfigName, long iterationTimestamp, long jobId) {
+  public CalculationJobSpecification(UniqueIdentifier viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {
     // TODO kirk 2009-09-25 -- Check Inputs
-    _viewProcessId = viewProcessId;
+    _viewCycleId = viewCycleId;
     _calcConfigName = calcConfigName;
-    _iterationTimestamp = iterationTimestamp;
+    _valuationTime = valuationTime;
     _jobId = jobId;
   }
   
   public CalculationJobSpecification(CalculationJobSpecification other) {
-    this(other._viewProcessId, other._calcConfigName, other._iterationTimestamp, other._jobId);
+    this(other._viewCycleId, other._calcConfigName, other._valuationTime, other._jobId);
   }
 
   /**
-   * @return the unique identifier of the view process
+   * @return the unique identifier of the view cycle
    */
-  public UniqueIdentifier getViewProcessId() {
-    return _viewProcessId;
+  public UniqueIdentifier getViewCycleId() {
+    return _viewCycleId;
   }
 
   /**
-   * @return the calcConfigName
+   * @return the calculation configuration name
    */
   public String getCalcConfigName() {
     return _calcConfigName;
   }
-
+  
   /**
-   * @return the iterationTimestamp
+   * @return the cycle valuation time
    */
-  public long getIterationTimestamp() {
-    return _iterationTimestamp;
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
   /**
@@ -64,16 +67,15 @@ public class CalculationJobSpecification implements Serializable {
   public long getJobId() {
     return _jobId;
   }
-
+  
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + (int) (_iterationTimestamp ^ (_iterationTimestamp >>> 32));
+    result = prime * result + _calcConfigName.hashCode();
     result = prime * result + (int) (_jobId ^ (_jobId >>> 32));
-    result = prime * result + ((_viewProcessId == null) ? 0 : _viewProcessId.hashCode());
-    result = prime * result + ((_calcConfigName == null) ? 0 : _calcConfigName.hashCode());
+    result = prime * result + _viewCycleId.hashCode();
+    result = prime * result + _valuationTime.hashCode();
     return result;
   }
 
@@ -82,14 +84,26 @@ public class CalculationJobSpecification implements Serializable {
     if (this == obj) {
       return true;
     }
+    if (obj == null) {
+      return false;
+    }
     if (!(obj instanceof CalculationJobSpecification)) {
       return false;
     }
     CalculationJobSpecification other = (CalculationJobSpecification) obj;
-    return (_iterationTimestamp == other._iterationTimestamp)
-           && (_jobId == other._jobId)
-           && ObjectUtils.equals(_viewProcessId, other._viewProcessId)
-           && ObjectUtils.equals(_calcConfigName, other._calcConfigName);
+    if (_jobId != other._jobId) {
+      return false;
+    }
+    if (!_viewCycleId.equals(other._viewCycleId)) {
+      return false;
+    }
+    if (!_calcConfigName.equals(other._calcConfigName)) {
+      return false;
+    }
+    if (!_valuationTime.equals(other._valuationTime)) {
+      return false;
+    }
+    return true;
   }
 
   @Override

@@ -27,7 +27,7 @@ public class DataCompiledViewDefinitionResource {
   public static final String PATH_PORTFOLIO = "portfolio";
   public static final String PATH_VALID_FROM = "validFrom";
   public static final String PATH_VALID_TO = "validTo";
-  public static final String PATH_LIVE_DATA_REQUIREMENTS = "liveDataRequirements";
+  public static final String PATH_MARKET_DATA_REQUIREMENTS = "marketDataRequirements";
   public static final String PATH_COMPUTATION_TARGETS = "computationTargets";
   public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS = "compiledCalculationConfigurations";
   public static final String PATH_GRAPHS = "graphs";
@@ -70,9 +70,9 @@ public class DataCompiledViewDefinitionResource {
   }
   
   @GET
-  @Path(PATH_LIVE_DATA_REQUIREMENTS)
-  public Response getLiveDataRequirements() {
-    return Response.ok(_compiledViewDefinition.getLiveDataRequirements()).build();
+  @Path(PATH_MARKET_DATA_REQUIREMENTS)
+  public Response getMArketDataRequirements() {
+    return Response.ok(_compiledViewDefinition.getMarketDataRequirements()).build();
   }
   
   @GET

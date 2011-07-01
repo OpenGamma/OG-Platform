@@ -16,14 +16,16 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public class InMemoryViewComputationResultModel extends InMemoryViewResultModel implements ViewComputationResultModel {
   
-  private final Set<ComputedValue> _allLiveData = new HashSet<ComputedValue>();
+  private static final long serialVersionUID = 1L;
   
-  public void addLiveData(ComputedValue liveData) {
-    _allLiveData.add(liveData);    
+  private final Set<ComputedValue> _allMarketData = new HashSet<ComputedValue>();
+  
+  public void addMarketData(ComputedValue marketData) {
+    _allMarketData.add(marketData);    
   }
   
-  public Set<ComputedValue> getAllLiveData() {
-    return Collections.unmodifiableSet(_allLiveData);
+  public Set<ComputedValue> getAllMarketData() {
+    return Collections.unmodifiableSet(_allMarketData);
   }
   
 }
