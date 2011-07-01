@@ -9,6 +9,7 @@ package com.opengamma.core.position.impl;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -100,7 +101,7 @@ public class TradeImplTest {
     assertEquals(copy, trade);
   }
   
-  public void test_equals() {
+  public void test_collectionsOfTradesWithDifferentFields() {
     Set<TradeImpl> trades = Sets.newHashSet();
     
     TradeImpl trade1 = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
@@ -116,20 +117,33 @@ public class TradeImplTest {
     TradeImpl trade3 = new TradeImpl(POSITION_UID, Identifier.of("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trades.add(trade3);
     
-    TradeImpl trade4 = new TradeImpl(trade3);
-    trades.add(trade4);
+    trades.add(new TradeImpl(trade3));
     
-    TradeImpl trade5 = new TradeImpl(trade1);
-    trade5.addAttribute("key1", "value1");
-    trade5.addAttribute("key2", "value2");
-    trades.add(trade5);
+    TradeImpl trade4 = new TradeImpl(trade1);
+    trade4.addAttribute("key1", "value1");
+    trade4.addAttribute("key2", "value2");
+    trades.add(trade4);
     
     assertEquals(4, trades.size());
     assertTrue(trades.contains(trade1));
     assertTrue(trades.contains(trade2));
     assertTrue(trades.contains(trade3));
     assertTrue(trades.contains(trade4));
-    assertTrue(trades.contains(trade5));
+    
+    trades.remove(trade1);
+    assertEquals(3, trades.size());
+    assertFalse(trades.contains(trade1));
+    
+    trades.remove(trade2);
+    assertEquals(2, trades.size());
+    assertFalse(trades.contains(trade2));
+    
+    trades.remove(trade3);
+    assertEquals(1, trades.size());
+    assertFalse(trades.contains(trade3));
+    
+    trades.remove(trade4);
+    assertTrue(trades.isEmpty());
   }
   
   //------------------------------------------------------------------------
