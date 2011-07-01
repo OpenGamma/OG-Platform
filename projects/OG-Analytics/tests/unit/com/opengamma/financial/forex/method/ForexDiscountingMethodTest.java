@@ -15,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -53,6 +54,7 @@ public class ForexDiscountingMethodTest {
   private static final com.opengamma.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueForexCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
 
   @Test
   /**
@@ -64,6 +66,16 @@ public class ForexDiscountingMethodTest {
     final CurrencyAmount ca2 = CurrencyAmount.of(CUR_2, PVC_IR.visit(PAY_2, CURVES));
     assertEquals(ca1, pv.getCurrencyAmount(CUR_1));
     assertEquals(ca2, pv.getCurrencyAmount(CUR_2));
+  }
+
+  @Test
+  /**
+   * Test the present value through the method and through the calculator.
+   */
+  public void presentValueMethodVsCalculator() {
+    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX, CURVES);
+    final MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX, CURVES);
+    assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
   }
 
   @Test
@@ -80,12 +92,12 @@ public class ForexDiscountingMethodTest {
 
   @Test
   /**
-   * Test the present value through the method and through the calculator.
+   * Test the present value curve sensitivity through the method and through the calculator.
    */
-  public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX, CURVES);
-    final MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX, CURVES);
-    assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX, CURVES);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FX, CURVES);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
   @Test
