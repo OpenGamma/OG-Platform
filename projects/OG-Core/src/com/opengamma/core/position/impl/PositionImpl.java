@@ -391,7 +391,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
       return new EqualsBuilder().append(getQuantity(), other.getQuantity())
-          .append(getSecurityKey(), getSecurityKey())
+          .append(getSecurityKey(), other.getSecurityKey())
           .append(getSecurity(), other.getSecurity())
           .append(getTrades(), other.getTrades())
           .append(getParentNodeId(), other.getParentNodeId())
