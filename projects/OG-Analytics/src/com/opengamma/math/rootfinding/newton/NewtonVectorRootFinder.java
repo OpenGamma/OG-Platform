@@ -155,8 +155,12 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
-    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2())
-        || Double.isInfinite(data.getG2()));
+
+      if (data.getLambda0() == 0.0) {
+        throw new MathException("Failed to converge");
+      }
+    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2()) || Double.isInfinite(data.getG2()));
+
   }
 
   private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,

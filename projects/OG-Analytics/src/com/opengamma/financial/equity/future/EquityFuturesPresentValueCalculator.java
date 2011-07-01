@@ -3,26 +3,29 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.equity;
+package com.opengamma.financial.equity.future;
 
+import com.opengamma.financial.equity.AbstractEquityDerivativeVisitor;
+import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.financial.equity.future.pricing.EquityFutureMarkToMarket;
+import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 
 import org.apache.commons.lang.Validate;
 
 /**
- * TODO: Case - Review 2nd argument. In IR, it's YieldCurveBundle. Here I've put mktPrice for now..
+ * Present value calculator for futures on Equity underlying assets
  */
-public final class PresentValueCalculator extends AbstractEquityDerivativeVisitor<Double, Double> {
+public final class EquityFuturesPresentValueCalculator extends AbstractEquityDerivativeVisitor<Double, Double> {
 
-  private static final PresentValueCalculator s_instance = new PresentValueCalculator();
+  private static final EquityFuturesPresentValueCalculator s_instance = new EquityFuturesPresentValueCalculator();
 
-  public static PresentValueCalculator getInstance() {
+  public static EquityFuturesPresentValueCalculator getInstance() {
     return s_instance;
   }
 
-  private PresentValueCalculator() {
+  private EquityFuturesPresentValueCalculator() {
   }
 
   @Override
@@ -47,8 +50,7 @@ public final class PresentValueCalculator extends AbstractEquityDerivativeVisito
 
   @Override
   public Double visitEquityFuture(final EquityFuture future) {
-    Validate.notNull(future);
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support Futures without a mktPrice");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support futures without a mktPrice");
   }
 
   @Override
@@ -59,6 +61,11 @@ public final class PresentValueCalculator extends AbstractEquityDerivativeVisito
   @Override
   public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
     return visitEquityFuture(future);
+  }
+
+  @Override
+  public Double visitVarianceSwap(VarianceSwap derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitVarianceSwap(). Try VarianceSwapPresentValueCalculator");
   }
 
 }
