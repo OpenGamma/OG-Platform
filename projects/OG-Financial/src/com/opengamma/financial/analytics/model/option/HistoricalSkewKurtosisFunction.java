@@ -70,7 +70,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
+    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final Security security = target.getSecurity();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now

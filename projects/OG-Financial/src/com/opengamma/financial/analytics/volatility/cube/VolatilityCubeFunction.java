@@ -52,9 +52,9 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getKey().getCurrency());
+    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getCurrency());
     _cubeResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, currencyTargetSpec,
-        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
+        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_cubeResult);
   }
 
@@ -81,7 +81,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        return _helper.getKey().getCurrency().getUniqueId().equals(target.getUniqueId());
+        return _helper.getCurrency().getUniqueId().equals(target.getUniqueId());
       }
 
       @Override
@@ -120,8 +120,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
   private ValueRequirement getMarketDataRequirement() {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA,
-        new ComputationTargetSpecification(_helper.getKey().getCurrency()),
-        ValueProperties.with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
+        new ComputationTargetSpecification(_helper.getCurrency()),
+        ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
   }
 
 }

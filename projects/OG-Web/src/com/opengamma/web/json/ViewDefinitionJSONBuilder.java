@@ -38,7 +38,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
-  private static final String MIN_FULL_CALC_PERIOD_FIELD = "fullDeltaCalcPeriod";
+  private static final String MIN_FULL_CALC_PERIOD_FIELD = "minFullCalcPeriod";
   private static final String MAX_FULL_CALC_PERIOD_FIELD = "maxFullCalcPeriod";
   private static final String RESULT_MODEL_DEFINITION_FIELD = "resultModelDefinition";
   private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
@@ -156,7 +156,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       if (viewDefinition.getPortfolioId() != null) {
         jsonObject.put(IDENTIFIER_FIELD, viewDefinition.getPortfolioId().toString());
       }
-      jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getLiveDataUser()));
+      jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getMarketDataUser()));
       jsonObject.put(RESULT_MODEL_DEFINITION_FIELD, toJSONObject(viewDefinition.getResultModelDefinition()));
       Currency defaultCurrency = viewDefinition.getDefaultCurrency();
       if (defaultCurrency != null) {

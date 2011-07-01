@@ -131,9 +131,9 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   }
 
   @Override
-  public void onReleaseCaches(final UniqueIdentifier viewProcessId, final long timestamp) {
-    s_logger.debug("onReleaseCaches - {}/{}", new Object[] {viewProcessId, timestamp});
-    broadcast(new ReleaseCacheMessage(viewProcessId, timestamp));
+  public void onReleaseCaches(final UniqueIdentifier viewCycleId) {
+    s_logger.debug("onReleaseCaches - {}", viewCycleId);
+    broadcast(new ReleaseCacheMessage(viewCycleId));
   }
 
   public long getFindValueTimeout() {
@@ -153,7 +153,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   @Override
   public FudgeMsg findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
     s_logger.debug("findMissing value {}", identifier);
-    broadcast(new FindMessage(cacheKey.getViewProcessId(), cacheKey.getCalculationConfigurationName(), cacheKey.getSnapshotTimestamp(), Collections.singleton(identifier)));
+    broadcast(new FindMessage(cacheKey.getViewCycleId(), cacheKey.getCalculationConfigurationName(), Collections.singleton(identifier)));
     // We're in the callback so we know the cache must exist
     final FudgeMessageStore store = getUnderlying().findCache(cacheKey).getSharedDataStore();
     FudgeMsg data = store.get(identifier);
@@ -182,7 +182,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   public Map<Long, FudgeMsg> findMissingValues(final ViewComputationCacheKey cache,
       final Collection<Long> identifiers) {
     s_logger.debug("findMissing values {}", identifiers);
-    broadcast(new FindMessage(cache.getViewProcessId(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), identifiers));
+    broadcast(new FindMessage(cache.getViewCycleId(), cache.getCalculationConfigurationName(), identifiers));
     final ValueSearch search = getOrCreateValueSearch(cache);
     // We're in the callback so we know the cache must exist
     final FudgeMessageStore store = getUnderlying().findCache(cache).getSharedDataStore();
@@ -264,7 +264,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     @Override
     protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
       // [ENG-256] Remove/replace this. Propogate the overall "releaseCache" message only rather than the component "delete" operations.
-      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewCycleId(), request.getCalculationConfigurationName());
       if (cache != null) {
         cache.getSharedDataStore().delete();
       }
@@ -275,7 +275,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     protected GetResponse visitGetRequest(final GetRequest request) {
       final List<Long> identifiers = request.getIdentifier();
       final Collection<FudgeMsg> response;
-      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewCycleId(), request.getCalculationConfigurationName());
       if (cache == null) {
         // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
         s_logger.warn("Get request on invalid cache - {}", request);
@@ -307,7 +307,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     protected CacheMessage visitPutRequest(final PutRequest request) {
       final List<Long> identifiers = request.getIdentifier();
       final List<FudgeMsg> data = request.getData();
-      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewCycleId(), request.getCalculationConfigurationName());
       // Review 2010-10-19 Andrew -- This causes cache creation. This is bad if messages were delayed and the cache has already been released.
       final FudgeMessageStore store = getUnderlying().getCache(key).getSharedDataStore();
       if (identifiers.size() == 1) {

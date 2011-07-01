@@ -78,7 +78,7 @@
     </constructor-arg>
   </bean>
   
-  <!-- Market data snapshots -->
+  <!-- User market data snapshots -->
   <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
@@ -130,16 +130,8 @@
   <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
   </bean>
   
-  <!-- JMS-based LiveDataClient -->
-  <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
-    <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
-    <property name="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
-    <property name="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
-  </bean>
-  
-  <!-- LiveData Snapshot/Availability Provider -->
-  <import resource="classpath:liveData-${opengamma.platform.runmode}.xml" />
+  <!-- marketDataProviderResolver -->
+  <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
   
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
@@ -307,28 +299,25 @@
   </bean>
   <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
-    <property name="computationCacheSource" ref="demoComputationCacheSource" />
-    <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
-    <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />
-    <property name="liveDataClient" ref="sharedLiveDataClient" />
-    <property name="liveDataAvailabilityProvider" ref="liveDataAvailabilityProvider" />
-    <property name="liveDataSnapshotProvider" ref="liveDataSnapshotProvider" />
-    <property name="positionSource" ref="combinedPositionSource" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="marketDataSnapshotSource" ref="combinedSnapshotSource" />
-    <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
     <property name="functionResolver">
       <bean class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
         <property name="functionCompilationService" ref="demoFunctionCompilation" />
       </bean>
     </property>
+    <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
+    <property name="computationCacheSource" ref="demoComputationCacheSource" />
+    <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
+    <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />
     <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />
-    <property name="viewPermissionProviderFactory">
-      <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory" />
-    </property>
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
+    <property name="viewPermissionProvider">
+      <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
+    </property>
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">

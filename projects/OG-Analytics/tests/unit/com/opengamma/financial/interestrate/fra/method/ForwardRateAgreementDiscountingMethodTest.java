@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.fra.method;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -22,7 +23,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
@@ -87,6 +90,15 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getFixingYearFraction() * (forward - FRA_RATE) / (1 + FRA.getFixingYearFraction() * forward);
     final CurrencyAmount pv = FRA_METHOD.presentValue(FRA, curves);
     assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
+  }
+
+  @Test
+  public void presentValueMethodVsCalculator() {
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    CurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, curves);
+    PresentValueCalculator calculator = PresentValueCalculator.getInstance();
+    double pvCalculator = calculator.visit(FRA, curves);
+    assertEquals("FRA discounting: present value calculator vs method", pvCalculator, pvMethod.getAmount(), 1.0E-2);
   }
 
   @Test
@@ -236,6 +248,15 @@ public class ForwardRateAgreementDiscountingMethodTest {
     for (int loopnode = 0; loopnode < sensiFundingMethod.length; loopnode++) {
       assertEquals("Sensitivity finite difference method: node sensitivity", resDsc[loopnode], sensiFundingMethod[loopnode]);
     }
-
   }
+
+  @Test
+  public void presentValueSensitivityMethodVsCalculator() {
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    PresentValueSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
+    PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
+    Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, curves);
+    assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivity());
+  }
+
 }

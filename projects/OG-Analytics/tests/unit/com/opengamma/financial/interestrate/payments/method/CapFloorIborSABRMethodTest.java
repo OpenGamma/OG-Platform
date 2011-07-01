@@ -231,9 +231,6 @@ public class CapFloorIborSABRMethodTest {
    * Test the present value SABR parameters sensitivity against a finite difference computation.
    */
   public void testPresentValueSABRSensitivity() {
-    //    final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-    //    final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
-    //    final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
     final double pv = METHOD.presentValue(CAP_LONG, SABR_BUNDLE).getAmount();
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, SABR_BUNDLE);
     final PresentValueSABRSensitivityDataBundle pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_SHORT, SABR_BUNDLE);

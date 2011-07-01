@@ -33,7 +33,7 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
     FudgeSerializationContext.addClassHeader(message, ViewComputationResultModel.class);
     
     final MutableFudgeMsg liveDataMsg = context.newMessage();
-    for (ComputedValue value : resultModel.getAllLiveData()) {
+    for (ComputedValue value : resultModel.getAllMarketData()) {
       context.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
@@ -47,7 +47,7 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
     
     for (FudgeField field : message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_LIVEDATA))) {
       ComputedValue liveData = context.fieldValueToObject(ComputedValue.class, field);
-      resultModel.addLiveData(liveData);      
+      resultModel.addMarketData(liveData);      
     }
     
     return resultModel;

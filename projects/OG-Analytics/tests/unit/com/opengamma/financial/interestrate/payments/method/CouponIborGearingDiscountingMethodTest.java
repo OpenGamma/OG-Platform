@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.payments.method;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -26,6 +27,7 @@ import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -67,6 +69,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborGearing COUPON = (CouponIborGearing) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
 
   @Test
   /**
@@ -127,6 +130,16 @@ public class CouponIborGearingDiscountingMethodTest {
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity in method vs calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(COUPON, CURVES_BUNDLE);
+    assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivity(), pvcsCalculator);
   }
 
 }

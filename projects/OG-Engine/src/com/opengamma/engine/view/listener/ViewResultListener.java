@@ -11,6 +11,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -21,6 +22,18 @@ import com.opengamma.util.PublicAPI;
 public interface ViewResultListener {
   
   /**
+   * Gets the user represented by this listener.
+   * 
+   * @return the user represented by this listener, not {@code null}
+   */
+  UserPrincipal getUser();
+  
+  //-------------------------------------------------------------------------
+  // REVIEW jonathan 2011-06-27 -- a boolean permission flag might not be enough in future as it would be useful to
+  // know exactly what a user doesn't have permissions on, at the very least for information, but possibly to allow
+  // access to a subset of the results. The boolean flag preserves the previous functionality but it's easy to see how
+  // it might be extended.
+  /**
    * Called to indicate that the view definition has been compiled.
    * This is always called before
    * {@link #cycleCompleted(ViewComputationResultModel, ViewDeltaResultModel)} for
@@ -28,8 +41,10 @@ public interface ViewResultListener {
    * it will be called again if recompilation is necessary for future results.
    * 
    * @param compiledViewDefinition  the compiled view definition, not null
+   * @param hasMarketDataPermissions  {@code true} if the listener's user has permission to access all market data
+   *                                      requirements of the compiled view definition, {@code false} otherwise
    */
-  void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition);
+  void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions);
   
   /**
    * Called to indicate that the view definition failed to compile.

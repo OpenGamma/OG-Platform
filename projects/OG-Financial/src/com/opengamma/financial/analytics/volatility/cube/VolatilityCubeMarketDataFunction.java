@@ -15,9 +15,7 @@ import javax.time.InstantProvider;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -27,7 +25,6 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.StructuredMarketDataDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -68,19 +65,16 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);
-
-    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getKey().getCurrency());
-
+    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getCurrency());
     _marketDataResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, currencySpec,
-        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
+        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_marketDataResult);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile = _helper.compile(context, atInstant);
-    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context),
-        _helper.getKey());
+    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
   }
 
   private Set<ValueRequirement> buildRequirements(final VolatilityCubeSpecification third, final FunctionCompilationContext context) {
@@ -103,14 +97,13 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Set<ValueRequirement> getValueRequirements(final VolatilityPoint point) {
-    Set<Identifier> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getKey()
-        .getCurrency(), point);
+    Set<Identifier> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getCurrency(), point);
     if (instruments != null) {
       for (final Identifier identifier : instruments) {
         _pointsById.put(identifier, point);
       }
 
-      final Identifier strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getKey().getCurrency(), point);
+      final Identifier strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
       if (strikeInstruments != null) {
         final Set<Identifier> instrumentsWithStrike = new HashSet<Identifier>(instruments);
         final ObjectsPair<Tenor, Tenor> strikePoint = Pair.of(point.getSwapTenor(), point.getOptionExpiry());
@@ -197,16 +190,14 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   /**
    * 
    */
-  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction implements StructuredMarketDataDataSourcingFunction {
+  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
     private final Set<ValueRequirement> _requirements;
-    private final VolatilityCubeKey _volatilityCubeKey;
 
     private CompiledImpl(final InstantProvider earliest, final InstantProvider latest,
-        final Set<ValueRequirement> requirements, final VolatilityCubeKey volatilityCubeKey) {
+        final Set<ValueRequirement> requirements) {
       super(earliest, latest);
       _requirements = requirements;
-      _volatilityCubeKey = volatilityCubeKey;
     }
 
     @Override
@@ -238,13 +229,6 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _helper.canApplyTo(context, target);
-    }
-
-    @Override
-    public Set<Pair<StructuredMarketDataKey, ValueSpecification>> getStructuredMarketData() {
-      final HashSet<Pair<StructuredMarketDataKey, ValueSpecification>> ret = new HashSet<Pair<StructuredMarketDataKey, ValueSpecification>>();
-      ret.add(Pair.of((StructuredMarketDataKey) _volatilityCubeKey, _marketDataResult));
-      return ret;
     }
 
     @Override

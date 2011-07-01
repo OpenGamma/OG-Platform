@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -89,7 +91,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
   // to derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -199,7 +201,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCurveSensitivity() {
     PresentValueSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_SPREAD, SABR_BUNDLE);
     pvcsCap = pvcsCap.clean();
-    final double deltaTolerancePrice = 2.0E+5;
+    final double deltaTolerancePrice = 2.5E+6;
     //Testing note: The computed sensitivity does not change the strike of the ATM strike with the curves.
     final double deltaShift = 1.0E-6;
     String bumpedCurveName = "Bumped Curve";
@@ -247,6 +249,51 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       assertEquals("Sensitivity CMS cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
+  }
+
+  @Test
+  /**
+   * Tests the present value SABR parameters sensitivity vs finite difference.
+   */
+  public void presentValueSABRSensitivity() {
+    final double pv = METHOD.presentValue(CMS_SPREAD, SABR_BUNDLE).getAmount();
+    final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CMS_SPREAD, SABR_BUNDLE);
+    // SABR sensitivity vs finite difference
+    final double shift = 0.0001;
+    final double shiftAlpha = 0.00001;
+    double maturity1 = CMS_SPREAD.getUnderlyingSwap1().getFixedLeg().getNthPayment(CMS_SPREAD.getUnderlyingSwap1().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
+        - CMS_SPREAD.getSettlementTime();
+    final DoublesPair expectedExpiryTenor1 = new DoublesPair(CMS_SPREAD.getFixingTime(), maturity1);
+    double maturity2 = CMS_SPREAD.getUnderlyingSwap2().getFixedLeg().getNthPayment(CMS_SPREAD.getUnderlyingSwap2().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
+        - CMS_SPREAD.getSettlementTime();
+    final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_SPREAD.getFixingTime(), maturity2);
+    // Alpha sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);
+    final double pvLongPayerAlphaBumped = METHOD.presentValue(CMS_SPREAD, sabrBundleAlphaBumped).getAmount();
+    final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
+    assertEquals("Number of alpha sensitivity", pvsCapLong.getAlpha().keySet().size(), 2);
+    assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().keySet().contains(expectedExpiryTenor1), true);
+    assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().keySet().contains(expectedExpiryTenor2), true);
+    assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().get(expectedExpiryTenor2), 3.0E+3);
+    // Rho sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
+    final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES);
+    final double pvLongPayerRhoBumped = METHOD.presentValue(CMS_SPREAD, sabrBundleRhoBumped).getAmount();
+    final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
+    assertEquals("Number of rho sensitivity", pvsCapLong.getRho().keySet().size(), 2);
+    assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().keySet().contains(expectedExpiryTenor1), true);
+    assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().keySet().contains(expectedExpiryTenor2), true);
+    assertEquals("Rho sensitivity value", expectedRhoSensi, pvsCapLong.getRho().get(expectedExpiryTenor1) + pvsCapLong.getRho().get(expectedExpiryTenor2), 3.0E+1);
+    // Alpha sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
+    final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES);
+    final double pvLongPayerNuBumped = METHOD.presentValue(CMS_SPREAD, sabrBundleNuBumped).getAmount();
+    final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;
+    assertEquals("Number of nu sensitivity", pvsCapLong.getNu().keySet().size(), 2);
+    assertTrue("Nu sensitivity expiry/tenor", pvsCapLong.getNu().keySet().contains(expectedExpiryTenor1));
+    assertTrue("Nu sensitivity expiry/tenor", pvsCapLong.getNu().keySet().contains(expectedExpiryTenor2));
+    assertEquals("Nu sensitivity value", expectedNuSensi, pvsCapLong.getNu().get(expectedExpiryTenor1) + pvsCapLong.getNu().get(expectedExpiryTenor2), 2.0E+2);
   }
 
 }

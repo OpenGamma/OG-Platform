@@ -20,7 +20,9 @@ import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscounti
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -155,6 +157,14 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(bond);
     final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValue(bond, curves);
+  }
+
+  @Override
+  public Double visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bondFuture);
+    final BondFutureTransactionDiscountingMethod method = new BondFutureTransactionDiscountingMethod();
+    return method.presentValue(bondFuture, curves).getAmount();
   }
 
   @Override

@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -46,6 +47,7 @@ public class ForexSwapDiscountingMethodTest {
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
   private static final PresentValueForexCalculator PVC_FX = PresentValueForexCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
 
   @Test
   /**
@@ -96,6 +98,16 @@ public class ForexSwapDiscountingMethodTest {
     pvsNear = pvsNear.add(pvsFar);
     pvsNear.clean();
     assertTrue(pvs.equals(pvsNear));
+  }
+
+  @Test
+  /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FX_SWAP, CURVES);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
 }

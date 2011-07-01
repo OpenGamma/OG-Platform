@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +47,15 @@ public final class ViewDefinitionCompiler {
   private ViewDefinitionCompiler() {
   }
 
-  // --------------------------------------------------------------------------
-  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, InstantProvider atInstant) {
+  //-------------------------------------------------------------------------
+  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
 
-    s_logger.debug("Compiling {} for use at {}", viewDefinition.getName(), atInstant);
+    s_logger.debug("Compiling {} for use with {}", viewDefinition.getName(), valuationTime);
 
     OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
-    ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, Instant.of(atInstant));
+    ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime);
 
     long t = -System.nanoTime();
     EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
@@ -83,7 +82,7 @@ public final class ViewDefinitionCompiler {
     return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
-  // --------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
     Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     for (DependencyGraphBuilder builder : context.getBuilders().values()) {
@@ -113,13 +112,13 @@ public final class ViewDefinitionCompiler {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       String configName = entry.getKey();
-      Collection<Pair<ValueRequirement, ValueSpecification>> requiredLiveData = entry.getValue().getAllRequiredLiveData();
+      Collection<Pair<ValueRequirement, ValueSpecification>> requiredLiveData = entry.getValue().getAllRequiredMarketData();
       if (requiredLiveData.isEmpty()) {
         sb.append(configName).append(" requires no live data.\n");
       } else {
         sb.append("Live data for ").append(configName).append("\n");
         for (Pair<ValueRequirement, ValueSpecification> liveRequirement : requiredLiveData) {
-          sb.append("\t").append(liveRequirement.getFirst().getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
+          sb.append("\t").append(liveRequirement.getFirst()).append("\n");
         }
       }
     }

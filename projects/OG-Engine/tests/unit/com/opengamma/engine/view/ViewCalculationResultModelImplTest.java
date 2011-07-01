@@ -5,15 +5,16 @@
  */
 package com.opengamma.engine.view;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
@@ -60,7 +61,9 @@ public class ViewCalculationResultModelImplTest {
    */
 
   public void addValue() {
-    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() { };
+    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
+      private static final long serialVersionUID = 1L;
+    };
     resultModel.ensureCalculationConfigurationNames(Arrays.asList("Default"));
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNotNull(calcResult);

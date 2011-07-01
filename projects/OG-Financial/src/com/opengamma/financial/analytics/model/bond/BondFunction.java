@@ -56,7 +56,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
         .getConventionBundleSource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY,
         security.getUniqueId());

@@ -220,7 +220,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(
           OpenGammaExecutionContext.getRegionSource(executionContext),
           OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
-      final Clock snapshotClock = executionContext.getSnapshotClock();
+      final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = snapshotClock.zonedDateTime();
       final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {

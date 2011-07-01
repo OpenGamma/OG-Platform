@@ -91,25 +91,27 @@ public class ReleaseCacheMessageTest {
         new InMemoryIdentifierMap(), s_fudgeContext, new DefaultFudgeMessageStoreFactory(privateServerStore,
             s_fudgeContext), new DefaultFudgeMessageStoreFactory(sharedStore, s_fudgeContext));
     s_logger.info("Creating server local caches");
-    UniqueIdentifier vp1Id = UniqueIdentifier.of("Test", "ViewProcess1");
-    UniqueIdentifier vp2Id = UniqueIdentifier.of("Test", "ViewProcess2");
-    putStuffIntoCache(cacheSource.getCache(vp1Id, "Config 1", 1L));
-    putStuffIntoCache(cacheSource.getCache(vp1Id, "Config 2", 1L));
-    putStuffIntoCache(cacheSource.getCache(vp1Id, "Config 1", 2L));
-    putStuffIntoCache(cacheSource.getCache(vp1Id, "Config 2", 2L));
-    putStuffIntoCache(cacheSource.getCache(vp2Id, "Config 1", 1L));
-    putStuffIntoCache(cacheSource.getCache(vp2Id, "Config 2", 1L));
-    putStuffIntoCache(cacheSource.getCache(vp2Id, "Config 1", 2L));
-    putStuffIntoCache(cacheSource.getCache(vp2Id, "Config 2", 2L));
+    UniqueIdentifier viewCycle1Id = UniqueIdentifier.of("Test", "ViewCycle", "1");
+    UniqueIdentifier viewCycle2Id = UniqueIdentifier.of("Test", "ViewCycle", "2");
+    UniqueIdentifier viewCycle3Id = UniqueIdentifier.of("Test", "ViewCycle", "3");
+    UniqueIdentifier viewCycle4Id = UniqueIdentifier.of("Test", "ViewCycle", "4");
+    putStuffIntoCache(cacheSource.getCache(viewCycle1Id, "Config 1"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle1Id, "Config 2"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle2Id, "Config 1"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle2Id, "Config 2"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle3Id, "Config 1"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle3Id, "Config 2"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle4Id, "Config 1"));
+    putStuffIntoCache(cacheSource.getCache(viewCycle4Id, "Config 2"));
     assertEquals(8, privateServerStore._cachesCreated.size());
     assertEquals(0, privateServerStore._cachesDestroyed.size());
     assertEquals(8, sharedStore._cachesCreated.size());
     assertEquals(0, sharedStore._cachesDestroyed.size());
     s_logger.info("Releasing server local caches");
-    cacheSource.releaseCaches(vp1Id, 1L);
+    cacheSource.releaseCaches(viewCycle1Id);
     assertEquals(2, privateServerStore._cachesDestroyed.size());
     assertEquals(2, sharedStore._cachesDestroyed.size());
-    cacheSource.releaseCaches(vp2Id, 1L);
+    cacheSource.releaseCaches(viewCycle3Id);
     assertEquals(4, privateServerStore._cachesDestroyed.size());
     assertEquals(4, sharedStore._cachesDestroyed.size());
     final ViewComputationCacheServer server = new ViewComputationCacheServer(cacheSource);
@@ -120,18 +122,18 @@ public class ReleaseCacheMessageTest {
         conduit.getEnd2()), new DefaultFudgeMessageStoreFactory(privateClientStore, s_fudgeContext), EHCacheUtils
         .createCacheManager());
     s_logger.info("Using server cache at remote client");
-    putStuffIntoCache(remoteSource.getCache(vp1Id, "Config 1", 2L));
+    putStuffIntoCache(remoteSource.getCache(viewCycle2Id, "Config 1"));
     assertEquals(8, privateServerStore._cachesCreated.size());
     assertEquals(8, sharedStore._cachesCreated.size());
     assertEquals(1, privateClientStore._cachesCreated.size());
     assertEquals(0, privateClientStore._cachesDestroyed.size());
     s_logger.info("Releasing cache used by remote client");
-    cacheSource.releaseCaches(vp1Id, 2L);
+    cacheSource.releaseCaches(viewCycle2Id);
     assertEquals(6, privateServerStore._cachesDestroyed.size());
     assertEquals(6, sharedStore._cachesDestroyed.size());
     delayedEquals(1, privateClientStore._cachesDestroyed);
     s_logger.info("Releasing cache not used by remote client");
-    cacheSource.releaseCaches(vp2Id, 2L);
+    cacheSource.releaseCaches(viewCycle4Id);
     assertEquals(8, privateServerStore._cachesDestroyed.size());
     assertEquals(8, sharedStore._cachesDestroyed.size());
     for (int i = 0; i < 5; i++) {
@@ -139,12 +141,13 @@ public class ReleaseCacheMessageTest {
       pause ();
     }
     s_logger.info("Using new cache at remote client");
-    putStuffIntoCache(remoteSource.getCache(vp1Id, "Config 1", 3L));
+    UniqueIdentifier viewCycle5Id = UniqueIdentifier.of("Test", "ViewCycle", "5");
+    putStuffIntoCache(remoteSource.getCache(viewCycle5Id, "Config 1"));
     assertEquals(9, privateServerStore._cachesCreated.size());
     assertEquals(9, sharedStore._cachesCreated.size());
     assertEquals(2, privateClientStore._cachesCreated.size());
     s_logger.info("Releasing cache used by remote client");
-    cacheSource.releaseCaches(vp1Id, 3L);
+    cacheSource.releaseCaches(viewCycle5Id);
     assertEquals(9, privateServerStore._cachesDestroyed.size());
     assertEquals(9, sharedStore._cachesDestroyed.size());
     delayedEquals(2, privateClientStore._cachesDestroyed);

@@ -6,16 +6,46 @@
 package com.opengamma.engine.view.calc;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.Instant;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataListener;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -24,6 +54,9 @@ import com.opengamma.util.test.Timeout;
 public class ViewComputationJobTest {
 
   private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
+  
+  private static final String SOURCE_1_NAME = "source1";
+  private static final String SOURCE_2_NAME = "source2";
   
   @Test
   public void testInterruptJobBetweenCycles() throws InterruptedException {
@@ -39,7 +72,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     // Consume the initial result
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -47,15 +80,7 @@ public class ViewComputationJobTest {
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     Thread recalcThread = env.getCurrentComputationThread(viewProcess);
-    long startTime = System.currentTimeMillis();
-    while (recalcThread.getState() != Thread.State.TIMED_WAITING) {
-      // REVIEW jonathan 2010-10-01 -- I don't particularly like this, but how else can I wait for the recalc job to
-      // perform another cycle and then realise it needs to go to sleep?
-      Thread.sleep(50);
-      if (System.currentTimeMillis() - startTime > TIMEOUT) {
-        throw new OpenGammaRuntimeException("Waited longer than " + TIMEOUT + " ms for the recalc thread to go to sleep"); 
-      }
-    }
+    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
     
     // We're now 'between cycles', waiting for the arrival of live data.
     // Interrupting should terminate the job gracefully
@@ -65,6 +90,222 @@ public class ViewComputationJobTest {
     
     recalcThread.join(TIMEOUT);
     assertEquals(Thread.State.TERMINATED, recalcThread.getState());
+  }
+  
+  @Test
+  public void testWaitForMarketData() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+    env.setMarketDataProvider(marketDataProvider);
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    Thread recalcThread = env.getCurrentComputationThread(viewProcess);
+    assertThreadReachesState(recalcThread, Thread.State.TIMED_WAITING);
+    
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 123d);
+    underlyingProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 456d);
+    recalcThread.join();
+    
+    resultListener.assertCycleCompleted(TIMEOUT);
+    
+    Map<String, Object> resultValues = new HashMap<String, Object>();
+    ViewComputationResultModel result = client.getLatestResult();
+    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitive1().getTargetSpecification());
+    for (ComputedValue computedValue : targetResult.getAllValues(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME)) {
+      resultValues.put(computedValue.getSpecification().getValueName(), computedValue.getValue());
+    }
+    
+    assertEquals(123d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive1().getValueName()));
+    assertEquals(456d, resultValues.get(ViewProcessorTestEnvironment.getPrimitive2().getValueName()));
+    
+    resultListener.assertProcessCompleted(TIMEOUT);
+    
+    assertThreadReachesState(recalcThread, Thread.State.TERMINATED);
+  }
+  
+  @Test
+  public void testDoNotWaitForMarketData() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    InMemoryLKVMarketDataProvider underlyingProvider = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider marketDataProvider = new TestLiveMarketDataProvider("source", underlyingProvider);
+    env.setMarketDataProvider(marketDataProvider);
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertProcessCompleted(TIMEOUT);
+    
+    ViewComputationResultModel result = client.getLatestResult();
+    ViewTargetResultModel targetResult = result.getTargetResult(ViewProcessorTestEnvironment.getPrimitive1().getTargetSpecification());
+    assertNull(targetResult);
+  }
+  
+  @Test
+  public void testChangeMarketDataProviderBetweenCycles() throws InterruptedException {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    InMemoryLKVMarketDataProvider underlyingProvider1 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider1 = new TestLiveMarketDataProvider(SOURCE_1_NAME, underlyingProvider1);
+    InMemoryLKVMarketDataProvider underlyingProvider2 = new InMemoryLKVMarketDataProvider();
+    MarketDataProvider provider2 = new TestLiveMarketDataProvider(SOURCE_2_NAME, underlyingProvider2);
+    env.setMarketDataProviderResolver(new DualLiveMarketDataProviderResolver(SOURCE_1_NAME, provider1, SOURCE_2_NAME, provider2));
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    Instant valuationTime = Instant.now();
+    ViewCycleExecutionOptions cycle1 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_1_NAME));
+    ViewCycleExecutionOptions cycle2 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_2_NAME));
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    // Change of market data provider should cause a further compilation
+    resultListener.assertCycleCompleted(TIMEOUT);
+    resultListener.assertProcessCompleted(TIMEOUT);
+  }
+  
+  private void assertThreadReachesState(Thread recalcThread, Thread.State state) throws InterruptedException {
+    long startTime = System.currentTimeMillis();
+    while (recalcThread.getState() != state) {
+      Thread.sleep(50);
+      if (System.currentTimeMillis() - startTime > TIMEOUT) {
+        throw new OpenGammaRuntimeException("Waited longer than " + TIMEOUT + " ms for the recalc thread to reach state " + state); 
+      }
+    }
+  }
+  
+  private static class TestLiveMarketDataProvider implements MarketDataProvider, MarketDataAvailabilityProvider {
+
+    private final String _sourceName;
+    private final InMemoryLKVMarketDataProvider _underlyingProvider;
+    
+    public TestLiveMarketDataProvider(String sourceName, InMemoryLKVMarketDataProvider underlyingProvider) {
+      ArgumentChecker.notNull(sourceName, "sourceName");
+      _sourceName = sourceName;
+      _underlyingProvider = underlyingProvider;
+    }
+    
+    @Override
+    public void addListener(MarketDataListener listener) {
+      _underlyingProvider.addListener(listener);
+    }
+
+    @Override
+    public void removeListener(MarketDataListener listener) {
+      _underlyingProvider.removeListener(listener);
+    }
+    
+    @Override
+    public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+      _underlyingProvider.subscribe(user, valueRequirement);
+    }
+
+    @Override
+    public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+      _underlyingProvider.subscribe(user, valueRequirements);
+    }
+
+    @Override
+    public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+      _underlyingProvider.unsubscribe(user, valueRequirement);
+    }
+
+    @Override
+    public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+      _underlyingProvider.unsubscribe(user, valueRequirements);
+    }
+
+    @Override
+    public MarketDataAvailabilityProvider getAvailabilityProvider() {
+      return this;
+    }
+
+    @Override
+    public MarketDataPermissionProvider getPermissionProvider() {
+      return new PermissiveMarketDataPermissionProvider();
+    }
+
+    @Override
+    public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+      if (!(marketDataSpec instanceof LiveMarketDataSpecification)) {
+        return false;
+      }
+      LiveMarketDataSpecification liveMarketDataSpec = (LiveMarketDataSpecification) marketDataSpec;
+      return _sourceName.equals(liveMarketDataSpec.getDataSource());
+    }
+
+    @Override
+    public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+      return _underlyingProvider.snapshot(marketDataSpec);
+    }
+
+    @Override
+    public boolean isAvailable(ValueRequirement requirement) {
+      // Want the market data provider to indicate that data is available even before it's really available
+      return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
+          || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+    }
+    
+  }
+  
+  private static class DualLiveMarketDataProviderResolver implements MarketDataProviderResolver {
+
+    private final String _provider1SourceName;
+    private final MarketDataProvider _provider1;
+    private final String _provider2SourceName;
+    private final MarketDataProvider _provider2;
+    
+    public DualLiveMarketDataProviderResolver(String provider1SourceName, MarketDataProvider provider1, String provider2SourceName, MarketDataProvider provider2) {
+      _provider1SourceName = provider1SourceName;
+      _provider1 = provider1;
+      _provider2SourceName = provider2SourceName;
+      _provider2 = provider2;
+    }
+
+    @Override
+    public MarketDataProvider resolve(MarketDataSpecification snapshotSpec) {
+      if (_provider1SourceName.equals(((LiveMarketDataSpecification) snapshotSpec).getDataSource())) {
+        return _provider1;
+      }
+      if (_provider2SourceName.equals(((LiveMarketDataSpecification) snapshotSpec).getDataSource())) {
+        return _provider2;
+      }
+      throw new IllegalArgumentException("Unknown data source name");
+    }
+    
   }
   
 }
