@@ -9,47 +9,69 @@ import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.EquityDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 /**
- *  TODO Case 2011-06-07 - Add Javadoc description
+ * A Variance Swap is a forward contract on the realized variance of an underlying security. 
+ * The floating leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
+ * 
+ * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
+ * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ] 
  */
 public class VarianceSwap implements EquityDerivative {
   private final double _timeToObsStart;
   private final double _timeToObsEnd;
   private final double _timeToSettlement;
 
-  private final int _nObsExpected;
-  private final int _nObsRemaining; // nExpectedToHaveOccurred = _nObsExpected - _nObsRemaining
-  private final int _nObsActObs; // number of observations that have actually been made
-
-  private final Currency _currency;
-
   private final double _varStrike; // volStrike^2 
   private final double _varNotional; // := 0.5 * _volNotional / _volStrike
+  private final Currency _currency;
+  private final double _annualizationFactor; // typically 252 with daily observations
+
+  private final int _nObsExpected;
+  private final Double[] _observations;
+  private final Double[] _observationWeights;
 
   /**
    * @param timeToObsStart Time of first observation. Negative if observations have begun.
    * @param timeToObsEnd Time of final observation. Negative if observations have finished.
    * @param timeToSettlement Time of cash settlement. If negative, the swap has expired.
-   * @param nObsExpected Number of observations expected as of trade inception
-   * @param nObsRemaining Number of expected observations remaining  
-   * @param nObsActObs Actual number of observations made thus far
-   * @param currency Currency of cash settlement
    * @param varStrike Fair value of Variance struck at trade date
    * @param varNotional Trade pays the difference between realized and strike variance multiplied by this
+   * @param currency Currency of cash settlement
+   * @param annualizationFactor Number of business days per year
+   * @param nObsExpected Number of observations expected as of trade inception
+   * @param observations Array of observations of the underlying spot
+   * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
   public VarianceSwap(double timeToObsStart, double timeToObsEnd, double timeToSettlement,
-      int nObsExpected, int nObsRemaining, int nObsActObs,
-      Currency currency, double varStrike, double varNotional) {
+      double varStrike, double varNotional, Currency currency, double annualizationFactor,
+      int nObsExpected, Double[] observations, Double[] observationWeights) {
 
     _timeToObsStart = timeToObsStart;
     _timeToObsEnd = timeToObsEnd;
     _timeToSettlement = timeToSettlement;
-    _nObsExpected = nObsExpected;
-    _nObsRemaining = nObsRemaining;
-    _nObsActObs = nObsActObs;
-    _currency = currency;
     _varStrike = varStrike;
     _varNotional = varNotional;
+    _currency = currency;
+    _annualizationFactor = annualizationFactor;
+    _nObsExpected = nObsExpected;
+    _observations = observations;
+    if (_observations == null) {
+      _observationWeights = null;
+    } else {
+      _observationWeights = observationWeights;
+      if (_observationWeights != null) {
+        int nWeights = _observationWeights.length;
+        int nObs = _observations.length;
+        Validate.isTrue(nWeights + 1 == nObs,
+            "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
+                + " Found " + nWeights + " weights and " + nObs + " observations.");
+      }
+
+    }
+
   }
 
   @Override
@@ -95,22 +117,6 @@ public class VarianceSwap implements EquityDerivative {
   }
 
   /**
-   * Gets the nObsRemaining.
-   * @return the nObsRemaining
-   */
-  public int getObsRemaining() {
-    return _nObsRemaining;
-  }
-
-  /**
-   * Gets the nObsActObs.
-   * @return the nObsActObs
-   */
-  public int getObsActObs() {
-    return _nObsActObs;
-  }
-
-  /**
    * Gets the currency.
    * @return the currency
    */
@@ -134,14 +140,37 @@ public class VarianceSwap implements EquityDerivative {
     return _varNotional;
   }
 
+  /**
+   * Gets the annualizationFactor.
+   * @return the annualizationFactor
+   */
+  public double getAnnualizationFactor() {
+    return _annualizationFactor;
+  }
+
+  /**
+   * Gets the observations.
+   * @return the observations
+   */
+  public Double[] getObservations() {
+    return _observations;
+  }
+
+  /**
+   * Gets the observationWeights.
+   * @return the observationWeights
+   */
+  public final Double[] getObservationWeights() {
+    return _observationWeights;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
-    result = prime * result + _nObsActObs;
     result = prime * result + _nObsExpected;
-    result = prime * result + _nObsRemaining;
+    result = prime * result + ((_observations == null) ? 0 : _observations.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_timeToObsEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -161,27 +190,20 @@ public class VarianceSwap implements EquityDerivative {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof VarianceSwap)) {
       return false;
     }
     VarianceSwap other = (VarianceSwap) obj;
-    if (_currency == null) {
-      if (other._currency != null) {
-        return false;
-      }
-    } else if (!_currency.equals(other._currency)) {
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
-    if (_nObsActObs != other._nObsActObs) {
+    if (!ObjectUtils.equals(_observations, other._observations)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_observationWeights, other._observationWeights)) {
       return false;
     }
     if (_nObsExpected != other._nObsExpected) {
-      return false;
-    }
-    if (_nObsRemaining != other._nObsRemaining) {
       return false;
     }
     if (Double.doubleToLongBits(_timeToObsEnd) != Double.doubleToLongBits(other._timeToObsEnd)) {

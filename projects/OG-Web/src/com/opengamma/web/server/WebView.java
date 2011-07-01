@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -30,7 +31,9 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueIdentifier;
@@ -112,8 +115,16 @@ public class WebView {
 
     });
     
-    MarketDataSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
-    ViewExecutionOptions executionOptions = ExecutionOptions.continuous(marketDataSpec);
+    MarketDataSpecification marketDataSpec;
+    EnumSet<ViewExecutionFlags> flags;
+    if (snapshotId != null) {
+      marketDataSpec = MarketData.user(snapshotId.toLatest());
+      flags = ExecutionFlags.none().triggerOnMarketData().get();
+    } else {
+      marketDataSpec = MarketData.live();
+      flags = ExecutionFlags.triggersEnabled().get();
+    }
+    ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   

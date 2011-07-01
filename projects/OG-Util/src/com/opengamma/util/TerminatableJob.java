@@ -7,12 +7,17 @@ package com.opengamma.util;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A base class for any job which consists of cycles of work, and may be terminated between any two cycles. This
  * implements {@link Runnable} so that it may be executed in its own thread.
  */
 public abstract class TerminatableJob implements Runnable {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(TerminatableJob.class);
+  
   /**
    * A flag to indicate whether the job has been started
    */
@@ -38,6 +43,8 @@ public abstract class TerminatableJob implements Runnable {
       while (!isTerminated()) {
         runOneCycle();
       }
+    } catch (Exception e) {
+      s_logger.warn("Job " + this + " terminated with unhandled exception", e);
     } finally {
       // Want to ensure that even if the job terminates with an exception (e.g. InterruptedException), the tidy-up
       // semantics of postRunCycle are preserved
