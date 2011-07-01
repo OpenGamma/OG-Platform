@@ -44,7 +44,7 @@ public abstract class ViewResultModelBuilder {
     message.add(FIELD_VIEWCYCLEID, resultModel.getViewCycleId());
     message.add(FIELD_VALUATION_TIME, resultModel.getValuationTime());
     message.add(FIELD_CALCULATION_TIME, resultModel.getCalculationTime());
-    message.add(FIELD_CALCULATION_DURATION, resultModel.getCalculationDuration());
+    context.addToMessage(message, FIELD_CALCULATION_DURATION, null, resultModel.getCalculationDuration());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
     final MutableFudgeMsg resultMsg = context.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
@@ -60,7 +60,7 @@ public abstract class ViewResultModelBuilder {
     final UniqueIdentifier viewCycleId = message.getValue(UniqueIdentifier.class, FIELD_VIEWCYCLEID);
     final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
     final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
-    final Duration calculationDuration = message.getFieldValue(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));
+    final Duration calculationDuration = context.fieldValueToObject(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();

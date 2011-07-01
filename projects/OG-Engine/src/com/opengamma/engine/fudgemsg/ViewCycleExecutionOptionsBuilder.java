@@ -32,7 +32,7 @@ public class ViewCycleExecutionOptionsBuilder implements FudgeBuilder<ViewCycleE
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCycleExecutionOptions object) {
     MutableFudgeMsg msg = context.newMessage();
     msg.add(VALUATION_TIME_FIELD, object.getValuationTime());
-    msg.add(MARKET_DATA_SPECIFICATION, object.getMarketDataSpecification());
+    context.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, object.getMarketDataSpecification());
     return msg;
   }
 
