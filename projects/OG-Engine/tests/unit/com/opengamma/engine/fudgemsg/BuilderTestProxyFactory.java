@@ -95,6 +95,7 @@ public class BuilderTestProxyFactory {
               
               Future<List<String>> errFuture = scheduledThreadPoolExecutor.submit(new Callable<List<String>>() {
 
+                @SuppressWarnings("unchecked")
                 @Override
                 public List<String> call() throws Exception {
                   InputStream errorStream = proc.getErrorStream();

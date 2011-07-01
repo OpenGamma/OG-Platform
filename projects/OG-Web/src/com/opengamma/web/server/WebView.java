@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -82,7 +84,13 @@ public class WebView {
     _client.setResultListener(new AbstractViewResultListener() {
       
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+      public UserPrincipal getUser() {
+        // Authentication needed
+        return UserPrincipal.getLocalUser();
+      }
+      
+      @Override
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         // TODO: support for changing compilation results     
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
@@ -104,12 +112,8 @@ public class WebView {
 
     });
     
-    ViewExecutionOptions executionOptions;
-    if (snapshotId == null) {
-      executionOptions = ExecutionOptions.realTime();
-    } else {
-      executionOptions = ExecutionOptions.snapshot(snapshotId);
-    }
+    MarketDataSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
+    ViewExecutionOptions executionOptions = ExecutionOptions.continuous(marketDataSpec);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   
@@ -262,14 +266,14 @@ public class WebView {
           
           getRemote().startBatch();
           
-          long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
-          long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
+          long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
+          long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
           
-          sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
+          sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
             processResult(update);
           } catch (Exception e) {
-            s_logger.error("Error processing result with timestamp " + update.getResultTimestamp(), e);
+            s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
           }
           sendEndMessage();
           
@@ -295,7 +299,7 @@ public class WebView {
   }
   
   private void processResult(ViewComputationResultModel resultModel) {
-    long resultTimestamp = resultModel.getResultTimestamp().toEpochMillisLong();
+    long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
     for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
       switch (target.getType()) {
         case PRIMITIVE:
@@ -317,12 +321,12 @@ public class WebView {
   }
   
   /**
-   * Tells the remote client that updates are starting, relating to a particular timestamp.
+   * Tells the remote client that updates are starting.
    */
-  private void sendStartMessage(long timestamp, long calculationLatency) {
+  private void sendStartMessage(long valuationTimeEpochMillis, long calculationDurationMillis) {
     Map<String, Object> startMessage = new HashMap<String, Object>();
-    startMessage.put("timestamp", timestamp);
-    startMessage.put("latency", calculationLatency);
+    startMessage.put("valuationTime", valuationTimeEpochMillis);
+    startMessage.put("calculationDuration", calculationDurationMillis);
     getRemote().deliver(getLocal(), "/updates/control/start", startMessage, null);
   }
 

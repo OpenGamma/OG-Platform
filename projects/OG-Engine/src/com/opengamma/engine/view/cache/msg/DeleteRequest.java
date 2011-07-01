@@ -4,32 +4,29 @@
 package com.opengamma.engine.view.cache.msg;
 public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitDeleteRequest (this); }
-  private static final long serialVersionUID = -49610298912146002l;
-  private com.opengamma.id.UniqueIdentifier _viewProcessId;
-  public static final String VIEW_PROCESS_ID_KEY = "viewProcessId";
+  private static final long serialVersionUID = 35229501837005l;
+  private com.opengamma.id.UniqueIdentifier _viewCycleId;
+  public static final String VIEW_CYCLE_ID_KEY = "viewCycleId";
   private String _calculationConfigurationName;
   public static final String CALCULATION_CONFIGURATION_NAME_KEY = "calculationConfigurationName";
-  private long _snapshotTimestamp;
-  public static final String SNAPSHOT_TIMESTAMP_KEY = "snapshotTimestamp";
-  public DeleteRequest (com.opengamma.id.UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp) {
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+  public DeleteRequest (com.opengamma.id.UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
     _calculationConfigurationName = calculationConfigurationName;
-    _snapshotTimestamp = snapshotTimestamp;
   }
   protected DeleteRequest (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (VIEW_PROCESS_ID_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewProcessId' is not present");
+    fudgeField = fudgeMsg.getByName (VIEW_CYCLE_ID_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewCycleId' is not present");
     try {
-      _viewProcessId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _viewCycleId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewProcessId' is not UniqueIdentifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewCycleId' is not UniqueIdentifier message", e);
     }
     fudgeField = fudgeMsg.getByName (CALCULATION_CONFIGURATION_NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'calculationConfigurationName' is not present");
@@ -39,34 +36,24 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'calculationConfigurationName' is not string", e);
     }
-    fudgeField = fudgeMsg.getByName (SNAPSHOT_TIMESTAMP_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'snapshotTimestamp' is not present");
-    try {
-      _snapshotTimestamp = fudgeMsg.getFieldValue (Long.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'snapshotTimestamp' is not long", e);
-    }
   }
-  public DeleteRequest (Long correlationId, com.opengamma.id.UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp) {
+  public DeleteRequest (Long correlationId, com.opengamma.id.UniqueIdentifier viewCycleId, String calculationConfigurationName) {
     super (correlationId);
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
     _calculationConfigurationName = calculationConfigurationName;
-    _snapshotTimestamp = snapshotTimestamp;
   }
   protected DeleteRequest (final DeleteRequest source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._viewProcessId == null) _viewProcessId = null;
+    if (source._viewCycleId == null) _viewCycleId = null;
     else {
-      _viewProcessId = source._viewProcessId;
+      _viewCycleId = source._viewCycleId;
     }
     _calculationConfigurationName = source._calculationConfigurationName;
-    _snapshotTimestamp = source._snapshotTimestamp;
   }
   public DeleteRequest clone () {
     return new DeleteRequest (this);
@@ -79,15 +66,14 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
-    if (_viewProcessId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewProcessId.getClass (), com.opengamma.id.UniqueIdentifier.class);
-      _viewProcessId.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (VIEW_PROCESS_ID_KEY, null, fudge1);
+    if (_viewCycleId != null)  {
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewCycleId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      _viewCycleId.toFudgeMsg (fudgeContext, fudge1);
+      msg.add (VIEW_CYCLE_ID_KEY, null, fudge1);
     }
     if (_calculationConfigurationName != null)  {
       msg.add (CALCULATION_CONFIGURATION_NAME_KEY, null, _calculationConfigurationName);
     }
-    msg.add (SNAPSHOT_TIMESTAMP_KEY, null, _snapshotTimestamp);
   }
   public static DeleteRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -103,13 +89,13 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
     }
     return new DeleteRequest (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getViewProcessId () {
-    return _viewProcessId;
+  public com.opengamma.id.UniqueIdentifier getViewCycleId () {
+    return _viewCycleId;
   }
-  public void setViewProcessId (com.opengamma.id.UniqueIdentifier viewProcessId) {
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+  public void setViewCycleId (com.opengamma.id.UniqueIdentifier viewCycleId) {
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
   }
   public String getCalculationConfigurationName () {
@@ -118,12 +104,6 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
   public void setCalculationConfigurationName (String calculationConfigurationName) {
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
     _calculationConfigurationName = calculationConfigurationName;
-  }
-  public long getSnapshotTimestamp () {
-    return _snapshotTimestamp;
-  }
-  public void setSnapshotTimestamp (long snapshotTimestamp) {
-    _snapshotTimestamp = snapshotTimestamp;
   }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);

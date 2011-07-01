@@ -19,6 +19,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CalculationJobResult implements Serializable {
   
+  private static final long serialVersionUID = 1L;
+  
   private final CalculationJobSpecification _specification;
   private final List<CalculationJobResultItem> _resultItems;
   private final long _durationNanos;

@@ -37,6 +37,7 @@ import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Publishes asynchronous results from a view client over JMS.
@@ -163,8 +164,13 @@ public class JmsResultPublisher implements ViewResultListener {
   
   //-------------------------------------------------------------------------
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
-    send(new ViewDefinitionCompiledCall(compiledViewDefinition));
+  public UserPrincipal getUser() {
+    return _viewClient.getUser();
+  }
+  
+  @Override
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+    send(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
   }  
   
   @Override

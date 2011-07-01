@@ -26,15 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.EngineResourceManagerImpl;
@@ -49,10 +47,8 @@ import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.engine.view.permission.ViewPermissionProviderFactory;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -86,15 +82,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
-  private final LiveDataClient _liveDataClient;
-  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
-  private final ViewPermissionProviderFactory _permissionProviderFactory;
+  private final ViewPermissionProvider _viewPermissionProvider;
   
   // State
   /**
@@ -114,8 +108,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private boolean _isStarted;
   private boolean _isSuspended;
-
-  private final MarketDataSnapshotSource _marketDataSnapshotSource;
   
   public ViewProcessorImpl(
       UniqueIdentifier uniqueId,
@@ -125,16 +117,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       CachingComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
-      LiveDataClient liveDataClient,
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-      LiveDataSnapshotProvider liveDataSnapshotProvider,
+      MarketDataProviderResolver marketDataProviderFactoryResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher jobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
-      ViewPermissionProviderFactory permissionProviderFactory,
-      MarketDataSnapshotSource marketDataSnapshotSource) {
+      ViewPermissionProvider viewPermissionProvider) {
     _uniqueId = uniqueId;
     _viewDefinitionRepository = viewDefinitionRepository;
     _securitySource = securitySource;
@@ -142,16 +131,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
-    _liveDataClient = liveDataClient;
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-    _liveDataSnapshotProvider = liveDataSnapshotProvider;
+    _marketDataProviderFactoryResolver = marketDataProviderFactoryResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = jobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutionStatistics = graphExecutionStatisticsProvider;
-    _permissionProviderFactory = permissionProviderFactory;
-    _marketDataSnapshotSource = marketDataSnapshotSource;
+    _viewPermissionProvider = viewPermissionProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -374,7 +360,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the live data override injector, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public LiveDataInjector getLiveDataOverrideInjector(UniqueIdentifier clientId) {
+  public MarketDataInjector getLiveDataOverrideInjector(UniqueIdentifier clientId) {
     return getClientViewProcess(clientId).getLiveDataOverrideInjector();
   }
   
@@ -488,9 +474,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
-        _permissionProviderFactory.getViewPermissionProvider(_securitySource, _liveDataClient), 
-        _liveDataAvailabilityProvider,
-        _liveDataSnapshotProvider,
+        _viewPermissionProvider,
+        _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
         _positionSource,
@@ -500,8 +485,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _computationJobDispatcher,
         _viewProcessorQueryReceiver,
         _dependencyGraphExecutorFactory,
-        _graphExecutionStatistics,
-        _marketDataSnapshotSource);
+        _graphExecutionStatistics);
   }
   
   private String generateIdValue(AtomicLong source) {

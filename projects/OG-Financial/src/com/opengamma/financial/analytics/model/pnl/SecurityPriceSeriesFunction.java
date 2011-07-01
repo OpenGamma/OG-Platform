@@ -72,7 +72,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
