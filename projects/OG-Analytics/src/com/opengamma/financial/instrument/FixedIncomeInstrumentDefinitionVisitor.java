@@ -15,6 +15,8 @@ import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -23,13 +25,14 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 
 /**
  * 
@@ -50,13 +53,21 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitBondForwardDefinition(BondForwardDefinition bondForward);
 
+  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
+
+  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond);
+
   U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, T data);
 
   U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
 
-  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
+  U visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond, T data);
 
-  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond);
+  U visitBondFutureSecurityDefinition(BondFutureSecurityDefinition bond);
+
+  U visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond, T data);
+
+  U visitBondFutureTransactionDefinition(BondFutureTransactionDefinition bond);
 
   U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data);
 
@@ -118,22 +129,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitCouponCMS(CouponCMSDefinition payment);
 
-  U visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity, T data);
-
-  U visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity);
-
-  U visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity, T data);
-
-  U visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity);
-
-  U visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity, T data);
-
-  U visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity);
-
-  U visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity, T data);
-
-  U visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity);
-
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data);
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
@@ -153,4 +148,12 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data);
 
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap);
+
+  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
+
+  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
+
+  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
+
+  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
 }

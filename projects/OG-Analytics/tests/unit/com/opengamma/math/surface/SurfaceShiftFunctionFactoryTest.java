@@ -5,15 +5,18 @@
  */
 package com.opengamma.math.surface;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.surface.SurfaceShiftFunctionFactory.getFunction;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -64,13 +67,12 @@ public class SurfaceShiftFunctionFactoryTest {
   private static final ConstantDoublesSurface CONSTANT = ConstantDoublesSurface.from(3.4);
   private static final FunctionalDoublesSurface FUNCTIONAL = FunctionalDoublesSurface.from(F);
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
-  private static final InterpolatedDoublesSurface INTERPOLATED = InterpolatedDoublesSurface.from(new double[] {1, 2, 1, 2 }, new double[] {1, 2, 3, 4 }, new double[] {1.2, 3.4, 5.6, 7.8 },
-      new GridInterpolator2D(LINEAR,
-          LINEAR));
+  private static final InterpolatedDoublesSurface INTERPOLATED = InterpolatedDoublesSurface.from(new double[] {1, 2, 1, 2}, new double[] {1, 2, 3, 4}, new double[] {1.2, 3.4, 5.6, 7.8},
+      new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR));
   @SuppressWarnings("unchecked")
-  private static final InterpolatedFromCurvesDoublesSurface INTERPOLATED_FROM_CURVES = InterpolatedFromCurvesDoublesSurface.from(true, new double[] {1 },
-      new Curve[] {NodalDoublesCurve.from(new double[] {1, 2 }, new double[] {3, 4 }) }, LINEAR);
-  private static final NodalDoublesSurface NODAL = NodalDoublesSurface.from(new double[] {1, 2 }, new double[] {1, 2 }, new double[] {1.2, 3.4 });
+  private static final InterpolatedFromCurvesDoublesSurface INTERPOLATED_FROM_CURVES = InterpolatedFromCurvesDoublesSurface.from(true, new double[] {1},
+      new Curve[] {NodalDoublesCurve.from(new double[] {1, 2}, new double[] {3, 4})}, LINEAR);
+  private static final NodalDoublesSurface NODAL = NodalDoublesSurface.from(new double[] {1, 2}, new double[] {1, 2}, new double[] {1.2, 3.4});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongClass() {
@@ -89,7 +91,7 @@ public class SurfaceShiftFunctionFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType3() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1 }, new double[] {2 }, new double[] {3 });
+    SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1}, new double[] {2}, new double[] {3});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -104,7 +106,7 @@ public class SurfaceShiftFunctionFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType6() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1 }, new double[] {2 }, new double[] {3 }, "N");
+    SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1}, new double[] {2}, new double[] {3}, "N");
   }
 
   @Test
@@ -219,29 +221,29 @@ public class SurfaceShiftFunctionFactoryTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported5() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1 }, new double[] {1 }, new double[] {2 });
+    SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1}, new double[] {1}, new double[] {2});
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported6() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1 }, new double[] {1 }, new double[] {2 }, "M");
+    SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1}, new double[] {1}, new double[] {2}, "M");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported7() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1 }, new double[] {1 }, new double[] {2 });
+    SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1}, new double[] {1}, new double[] {2});
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported8() {
-    SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1 }, new double[] {1 }, new double[] {2 }, "M");
+    SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1}, new double[] {1}, new double[] {2}, "M");
   }
 
   @Test
   public void testGetShiftedSurface3() {
-    final double[] x = new double[] {1 };
-    final double[] y = new double[] {1 };
-    final double[] shift = new double[] {2 };
+    final double[] x = new double[] {1};
+    final double[] y = new double[] {1};
+    final double[] shift = new double[] {2};
     Surface<Double, Double, Double> shifted = SurfaceShiftFunctionFactory.getShiftedSurface(INTERPOLATED, x, y, shift);
     Surface<Double, Double, Double> expected = new InterpolatedSurfaceShiftFunction().evaluate(INTERPOLATED, x, y, shift);
     assertEquals(shifted.getClass(), expected.getClass());

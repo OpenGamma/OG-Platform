@@ -7,10 +7,7 @@ package com.opengamma.financial.interestrate.bond.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -58,8 +55,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // to derivatives: first coupon
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 8, 18);
-  private static final ZonedDateTime REFERENCE_DATE_Z = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 8, 18);
   //Fixed Coupon Semi-annual 5Y
   private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
@@ -78,30 +74,29 @@ public class BondTransactionDiscountingMethodTest {
   private static final double QUANTITY_FIXED = 100000000; //100m
   // Transaction past
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_1 = DateUtil.getUTCDate(2011, 8, 16);
-  //  private static final double BOND_SETTLEMENT_TIME_FIXED_1 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z, BOND_SETTLEMENT_DATE_FIXED_1);
-  private static final AnnuityCouponFixed COUPON_TR_FIXED_1 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
-  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_1 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
+  private static final AnnuityCouponFixed COUPON_TR_FIXED_1 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_1 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_1 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_1, PRICE_FIXED);
-  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_1 = BOND_TRANSACTION_DEFINITION_FIXED_1.toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
+  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_1 = BOND_TRANSACTION_DEFINITION_FIXED_1.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Transaction today
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_2 = DateUtil.getUTCDate(2011, 8, 18);
-  private static final double BOND_SETTLEMENT_TIME_FIXED_2 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z, BOND_SETTLEMENT_DATE_FIXED_2);
-  private static final AnnuityCouponFixed COUPON_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
-  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
+  private static final double BOND_SETTLEMENT_TIME_FIXED_2 = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FIXED_2);
+  private static final AnnuityCouponFixed COUPON_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
+  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_2 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_2, PRICE_FIXED);
   private static final PaymentFixed BOND_SETTLEMENT_FIXED_2 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_2, -PRICE_FIXED * QUANTITY_FIXED, REPO_CURVE_NAME);
-  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_2 = BOND_TRANSACTION_DEFINITION_FIXED_2.toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
+  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_2 = BOND_TRANSACTION_DEFINITION_FIXED_2.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Transaction future
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_3 = DateUtil.getUTCDate(2011, 8, 24);
-  private static final double BOND_SETTLEMENT_TIME_FIXED_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z, BOND_SETTLEMENT_DATE_FIXED_3);
-  private static final AnnuityCouponFixed COUPON_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
-  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
+  private static final double BOND_SETTLEMENT_TIME_FIXED_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FIXED_3);
+  private static final AnnuityCouponFixed COUPON_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
+  private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_3 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_3, PRICE_FIXED);
   private static final PaymentFixed BOND_SETTLEMENT_FIXED_3 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_3, -PRICE_FIXED * QUANTITY_FIXED, REPO_CURVE_NAME);
-  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
+  private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Ibor coupon Quarterly 2Y
   private static final DayCount DAY_COUNT_FRN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -122,17 +117,17 @@ public class BondTransactionDiscountingMethodTest {
   private static final double FIRST_FIXING = 0.02;
   private static final double PRICE_FRN = 0.99;
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FRN = DateUtil.getUTCDate(2011, 8, 24);
-  private static final double BOND_SETTLEMENT_TIME_FRN = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z, BOND_SETTLEMENT_DATE_FRN);
+  private static final double BOND_SETTLEMENT_TIME_FRN = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FRN);
   private static final double QUANTITY_FRN = 100000000; //100m
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {BOND_DESCRIPTION_DEFINITION_FRN.getCoupon().getNthPayment(0)
       .getFixingDate()}, new double[] {FIRST_FIXING});
-  private static final AnnuityPaymentFixed NOMINAL_TR_1_FRN = BOND_DESCRIPTION_DEFINITION_FRN.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FRN);
-  private static final GenericAnnuity<? extends Payment> COUPON_TR_1_FRN = BOND_DESCRIPTION_DEFINITION_FRN.getCoupon().toDerivative(REFERENCE_DATE_Z, FIXING_TS, COUPON_IBOR_CURVE_NAME)
+  private static final AnnuityPaymentFixed NOMINAL_TR_1_FRN = BOND_DESCRIPTION_DEFINITION_FRN.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FRN);
+  private static final GenericAnnuity<? extends Payment> COUPON_TR_1_FRN = BOND_DESCRIPTION_DEFINITION_FRN.getCoupon().toDerivative(REFERENCE_DATE, FIXING_TS, COUPON_IBOR_CURVE_NAME)
       .trimBefore(BOND_SETTLEMENT_TIME_FRN);
   private static final BondIborTransactionDefinition BOND_TRANSACTION_DEFINITION_FRN = new BondIborTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FRN, QUANTITY_FRN, BOND_SETTLEMENT_DATE_FRN,
       PRICE_FRN);
   private static final PaymentFixed BOND_SETTLEMENT_FRN = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FRN, -PRICE_FRN * QUANTITY_FRN, REPO_CURVE_NAME);
-  private static final BondIborTransaction BOND_TRANSACTION_FRN = BOND_TRANSACTION_DEFINITION_FRN.toDerivative(REFERENCE_DATE_Z, FIXING_TS, CURVES_NAME);
+  private static final BondIborTransaction BOND_TRANSACTION_FRN = BOND_TRANSACTION_DEFINITION_FRN.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
   // Calculators
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();

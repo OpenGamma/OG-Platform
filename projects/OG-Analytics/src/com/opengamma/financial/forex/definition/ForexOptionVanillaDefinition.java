@@ -31,7 +31,6 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
    * The underlying Forex transaction (the one entered into in case of exercise).
    */
   private final ForexDefinition _underlyingForex;
-  //TODO: Add the strike?
   /**
    * The expiration date (and time) of the option.
    */
@@ -40,20 +39,26 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
    * The call (true) / put (false) flag.
    */
   private final boolean _isCall;
+  /**
+   * The long (true) / short (false) flag.
+   */
+  private final boolean _isLong;
 
   /**
    * Constructor from the details.
    * @param forex The underlying Forex transaction.
    * @param expirationDate The expiration date (and time) of the option.
    * @param isCall The call (true) / put (false) flag.
+   * @param isLong The long (true) / short (false) flag.
    */
-  public ForexOptionVanillaDefinition(ForexDefinition forex, ZonedDateTime expirationDate, boolean isCall) {
+  public ForexOptionVanillaDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, boolean isLong) {
     Validate.notNull(forex, "Underlying forex");
     Validate.notNull(expirationDate, "Expiration date");
     Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
     this._underlyingForex = forex;
     this._expirationDate = expirationDate;
     this._isCall = isCall;
+    _isLong = isLong;
   }
 
   /**
@@ -80,21 +85,40 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
     return _isCall;
   }
 
+  /**
+   * Gets the long (true) / short (false) flag.
+   * @return The long / short flag.
+   */
+  public boolean isLong() {
+    return _isLong;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public ForexDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public ForexOptionVanilla toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yieldCurveNames");
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
-    return new ForexOptionVanilla(fx, expirationTime, _isCall);
+    return new ForexOptionVanilla(fx, expirationTime, _isCall, _isLong);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public <U, V> V accept(ForexDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexOptionVanillaDefinition(this, data);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexOptionVanillaDefinition(this);
   }
 
@@ -104,6 +128,7 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
     int result = 1;
     result = prime * result + _expirationDate.hashCode();
     result = prime * result + (_isCall ? 1231 : 1237);
+    result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingForex.hashCode();
     return result;
   }
@@ -124,6 +149,9 @@ public class ForexOptionVanillaDefinition implements ForexConverter<ForexDerivat
       return false;
     }
     if (_isCall != other._isCall) {
+      return false;
+    }
+    if (_isLong != other._isLong) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {

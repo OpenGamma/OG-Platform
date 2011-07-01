@@ -19,16 +19,16 @@
 <#if searchResult??>
 <@subsection title="Results">
   <@table items=searchResult.documents paging=paging empty="No time series" headers=["Reference","Identifiers","Data source","Data provider","Data field","Observation time","Actions"]; item>
-      <td><a href="${uris.oneTimeSeries(item)}">${item.uniqueId.value}</a></td>
+      <td><a href="${uris.oneTimeSeries(item)}">${item.series.uniqueId.value}</a></td>
       <td>
-      <#list item.identifiers.iterator() as item>
+      <#list item.series.identifiers.iterator() as item>
     	   ${item}<br>
    	  </#list>
       </td>
-      <td>${item.dataSource}</td>
-      <td>${item.dataProvider}</td>
-      <td>${item.dataField}</td>
-      <td>${item.observationTime}</td>
+      <td>${item.series.dataSource}</td>
+      <td>${item.series.dataProvider}</td>
+      <td>${item.series.dataField}</td>
+      <td>${item.series.observationTime}</td>
       <td><a href="${uris.oneTimeSeries(item)}">View</a></td>
   </@table>
 </@subsection>

@@ -5,55 +5,51 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 
 public class Barrier {
-
-  /**
-   * Knock type
-   */
+  /** Knock type */
   public enum KnockType {
-    /**
-     * Knock-in
-     */
+    /** Knock-in */
     IN,
-    /**
-     * Knock-out
-     */
+    /** Knock-out */
     OUT
   }
 
-  /**
-   * Barrier type
-   */
+  /** Barrier type */
   public enum BarrierType {
-    /**
-     * Down
-     */
+    /** Down */
     DOWN,
-    /**
-     * Up
-     */
+    /** Up */
     UP
+  }
+
+  //TODO probably will need something more useful 
+  /** Observation type */
+  public enum ObservationType {
+    /** Continuous */
+    CONTINUOUS,
+    /** Close */
+    CLOSE
   }
 
   private final KnockType _knock;
   private final BarrierType _barrier;
+  private final ObservationType _observation;
   private final double _level;
 
-  public Barrier(final KnockType knock, final BarrierType barrier, final double level) {
+  public Barrier(final KnockType knock, final BarrierType barrier, final ObservationType observation, final double level) {
     Validate.notNull(knock, "knock type");
     Validate.notNull(barrier, "barrier type");
-    ArgumentChecker.notNegative(level, "barrier level");
+    Validate.notNull(observation, "observation type");
+    Validate.isTrue(level > 0, "barrier level must be > 0");
     _knock = knock;
     _barrier = barrier;
+    _observation = observation;
     _level = level;
   }
 
@@ -65,6 +61,10 @@ public class Barrier {
     return _barrier;
   }
 
+  public ObservationType getObservationType() {
+    return _observation;
+  }
+
   public double getBarrierLevel() {
     return _level;
   }
@@ -73,8 +73,9 @@ public class Barrier {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_barrier == null) ? 0 : _barrier.hashCode());
-    result = prime * result + ((_knock == null) ? 0 : _knock.hashCode());
+    result = prime * result + _barrier.hashCode();
+    result = prime * result + _knock.hashCode();
+    result = prime * result + _observation.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_level);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -86,13 +87,13 @@ public class Barrier {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof Barrier)) {
       return false;
     }
     final Barrier other = (Barrier) obj;
-    return ObjectUtils.equals(_barrier, other._barrier) && ObjectUtils.equals(_knock, other._knock) && Double.doubleToLongBits(_level) == Double.doubleToLongBits(other._level);
+    return _barrier == other._barrier &&
+           _knock == other._knock &&
+           _observation == other._observation &&
+           Double.doubleToLongBits(_level) == Double.doubleToLongBits(other._level);
   }
 }

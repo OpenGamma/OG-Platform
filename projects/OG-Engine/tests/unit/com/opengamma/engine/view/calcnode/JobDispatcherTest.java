@@ -20,6 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -44,7 +46,7 @@ public class JobDispatcherTest {
   private static final AtomicLong s_jobId = new AtomicLong();
 
   protected static CalculationJobSpecification createTestJobSpec() {
-    return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "default", System.currentTimeMillis(), s_jobId.incrementAndGet());
+    return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "default", Instant.now(), s_jobId.incrementAndGet());
   }
 
   protected static List<CalculationJobItem> createTestJobItems() {

@@ -21,7 +21,7 @@ public class ViewTargetResultModelImpl extends AbstractResultModel<String> imple
   }
   
   @Override
-  public Set<ComputedValue> getAllValues(final String calcConfigurationName) {
+  public Collection<ComputedValue> getAllValues(final String calcConfigurationName) {
     return super.getAllValues(calcConfigurationName);
   }
 

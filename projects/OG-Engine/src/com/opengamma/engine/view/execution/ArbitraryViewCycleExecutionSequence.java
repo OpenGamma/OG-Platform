@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Provides a finite sequence of view cycle execution details for known valuation times.
+ * Provides a finite sequence of view cycles.
  */
-public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSequence {
+public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecutionSequence {
 
   private final LinkedList<ViewCycleExecutionOptions> _executionSequence;
   
@@ -28,29 +28,59 @@ public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSe
     _executionSequence = new LinkedList<ViewCycleExecutionOptions>(executionSequence);
   }
   
-  public static ArbitraryViewCycleExecutionSequence of(Instant valuationTime, Instant snapshotTime) {
-    return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(new ViewCycleExecutionOptions(valuationTime, snapshotTime)));
+  /**
+   * Gets a sequence for a single cycle which relies on default cycle execution options.
+   * 
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence single() {
+    return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(new ViewCycleExecutionOptions()));
   }
   
-  public static ArbitraryViewCycleExecutionSequence of(long... valuationTimesEpochMillis) {
-    Collection<Instant> valuationTimes = new ArrayList<Instant>(valuationTimesEpochMillis.length);
-    for (long valuationTimeEpochMillis : valuationTimesEpochMillis) {
-      valuationTimes.add(Instant.ofEpochMillis(valuationTimeEpochMillis));
-    }
-    return of(valuationTimes);
+  /**
+   * Gets a sequence for a single cycle.
+   * 
+   * @param executionOptions  the execution options for the single cycle, not {@code null}
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence single(ViewCycleExecutionOptions executionOptions) {
+    return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(executionOptions));
   }
   
-  public static ArbitraryViewCycleExecutionSequence of(Instant... valuationTimes) {
-    return of(Arrays.asList(valuationTimes));
+  /**
+   * Gets a sequence for a collection of valuation times.
+   * 
+   * @param valuationTimeProviders  the valuation times, not {@code null}
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence of(InstantProvider... valuationTimeProviders) {
+    return of(Arrays.asList(valuationTimeProviders));
   }
-  
-  public static ArbitraryViewCycleExecutionSequence of(Collection<Instant> valuationTimes) {
-    ArgumentChecker.notNull(valuationTimes, "valuationTimes");
-    List<ViewCycleExecutionOptions> executionSequence = new ArrayList<ViewCycleExecutionOptions>(valuationTimes.size());
-    for (Instant valuationTime : valuationTimes) {
-      executionSequence.add(new ViewCycleExecutionOptions(valuationTime, valuationTime));
+
+  /**
+   * Gets a sequence for a collection of valuation times.
+   * 
+   * @param valuationTimeProviders  the valuation times, not {@code null}
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence of(Collection<InstantProvider> valuationTimeProviders) {
+    ArgumentChecker.notNull(valuationTimeProviders, "valuationTimeProviders");
+    List<ViewCycleExecutionOptions> executionSequence = new ArrayList<ViewCycleExecutionOptions>(valuationTimeProviders.size());
+    for (InstantProvider valuationTimeProvider : valuationTimeProviders) {
+      ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTimeProvider);
+      executionSequence.add(options);
     }
     return new ArbitraryViewCycleExecutionSequence(executionSequence);
+  }
+  
+  /**
+   * Gets a sequence for a collection of cycles.
+   * 
+   * @param executionSequence the sequence, not {@code null}
+   * @return the sequence, not {@code null}
+   */
+  public static ArbitraryViewCycleExecutionSequence of(ViewCycleExecutionOptions... executionSequence) {
+    return new ArbitraryViewCycleExecutionSequence(Arrays.asList(executionSequence));
   }
   
   public List<ViewCycleExecutionOptions> getRemainingSequence() {
@@ -58,8 +88,8 @@ public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSe
   }
   
   @Override
-  public ViewCycleExecutionOptions getNext() {
-    return _executionSequence.poll();
+  public ViewCycleExecutionOptions getNext(ViewCycleExecutionOptions defaultExecutionOptions) {
+    return merge(_executionSequence.poll(), defaultExecutionOptions);
   }
 
   @Override

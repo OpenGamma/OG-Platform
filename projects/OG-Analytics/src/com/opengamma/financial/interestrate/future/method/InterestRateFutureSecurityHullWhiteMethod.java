@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -70,7 +70,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+    result = prime * result + _data.hashCode();
     return result;
   }
 

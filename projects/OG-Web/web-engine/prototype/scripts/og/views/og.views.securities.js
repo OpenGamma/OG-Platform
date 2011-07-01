@@ -30,7 +30,6 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             securities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -99,7 +98,7 @@ $.register_module({
                         {
                             id: 'type', name: 'Type', field: 'type', width: 80,
                             filter_type: 'select',
-                            filter_type_options: ['BOND', 'CASH', 'EQUITY_OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
+                            filter_type_options: null
                         },
                         {
                             id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
@@ -151,14 +150,14 @@ $.register_module({
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        var details_json = result.data,
+                            template = details_json.template_data.securityType.toLowerCase();
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + details_json.template_data.securityType,
-                                handler: function (template) {
+                        api.text({module: module.name + '.' + template, handler: function (template) {
                             var $warning, warning_message = 'This security has been deleted',
                                 html = [], id, json = details_json.identifiers;
                             $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
@@ -190,7 +189,7 @@ $.register_module({
                 route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
             },
             load_securities: {
-                route: '/' + page_name + '/:id/name:?/type:?/type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name
             },
             load_new_securities: {
                 route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
@@ -210,6 +209,12 @@ $.register_module({
                 ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
+                var search_filter = function () {
+                        var filter_options = options.slickgrid.columns[0].filter_type_options;
+                        if (!filter_options || filter_options === 'loading') // wait until type filter is populated
+                            return setTimeout(search_filter, 500);
+                        search.filter($.extend(args, {filter: true}));
+                    };
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -220,7 +225,7 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
@@ -228,7 +233,19 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (options.slickgrid.columns[0].filter_type_options === 'loading')
+                    return setTimeout(securities.search.partial(args), 500);
+                if (options.slickgrid.columns[0].filter_type_options === null) return api.rest.securities.get({
+                    meta: true,
+                    handler: function (result) {
+                        options.slickgrid.columns[0].filter_type_options = result.data.types;
+                        securities.search(args);
+                    },
+                    loading: function () {options.slickgrid.columns[0].filter_type_options = 'loading';}
+                });
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

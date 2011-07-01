@@ -6,9 +6,10 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -52,7 +53,7 @@ public class HestonSpeedTest {
   public void testEquals() {
     final int n = 21;
     EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    final double[][] fft_strikeNprice = FFT_PRICER.price(DATA, option, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS);
+    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, T, true, HESTON, n, MAX_LOG_MONEYNESS, SIGMA, ALPHA, 0.01 * EPS);
     for (int i = 0; i < n; i++) {
       final double k = fft_strikeNprice[i][0];
       final double fft_price = fft_strikeNprice[i][1];
@@ -131,8 +132,7 @@ public class HestonSpeedTest {
 
   private void priceWithFFT() {
     final int n = 7;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    FFT_PRICER.price(DATA, option, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS);
+    FFT_PRICER.price(FORWARD, DF, T, true, HESTON, n, MAX_LOG_MONEYNESS, SIGMA, ALPHA, 0.01 * EPS);
   }
 
 }

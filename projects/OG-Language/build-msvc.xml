@@ -112,14 +112,20 @@
 		</antcall>
 	</target>
 	<target name="tests-x64-debug" if="msvc.Debug">
+		<echo>Can't run 64-bit tests using MS-TEST</echo>
+		<!--
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Debug" />
 		</antcall>
+		-->
 	</target>
 	<target name="tests-x64-release" if="msvc.Release">
+		<echo>Can't run 64-bit tests using MS-TEST</echo>
+		<!--
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Release" />
 		</antcall>
+		-->
 	</target>
 	<target name="tests-x64" if="msvc.x64">
 		<antcall target="tests-x64-debug">

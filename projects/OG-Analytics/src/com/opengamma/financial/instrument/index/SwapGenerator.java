@@ -121,9 +121,6 @@ public class SwapGenerator {
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
       return false;
     }
-    if (!ObjectUtils.equals(_name, other._name)) {
-      return false;
-    }
     return true;
   }
 

@@ -130,17 +130,17 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
    */
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
-    setUniqueId(trade.getUniqueId());
     setPositionId(trade.getParentPositionId());
     setQuantity(trade.getQuantity());
     setSecurityKey(trade.getSecurityKey());
     setTradeDate(trade.getTradeDate());
     setTradeTime(trade.getTradeTime());
-    setCounterpartyKey(trade.getCounterparty().getIdentifier());
+    setCounterpartyKey((trade.getCounterparty() != null) ? trade.getCounterparty().getIdentifier() : null);
     setPremium(trade.getPremium());
     setPremiumCurrency(trade.getPremiumCurrency());
     setPremiumDate(trade.getPremiumDate());
     setPremiumTime(trade.getPremiumTime());
+    setAttributes(trade.getAttributes());
   }
 
   /**

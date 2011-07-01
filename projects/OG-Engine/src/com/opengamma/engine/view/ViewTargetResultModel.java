@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.util.PublicAPI;
@@ -18,18 +17,18 @@ import com.opengamma.util.PublicAPI;
 public interface ViewTargetResultModel {
 
   /**
-   * Returns all configuration names this target was defined in.
+   * Gets the configuration names for which results for this target were requested. 
    * 
-   * @return the configuration names
+   * @return the configuration names, not {@code null}
    */
   Collection<String> getCalculationConfigurationNames();
 
   /**
-   * Returns all of the values calculated for a target for a given configuration.
+   * Gets all of the values calculated for this target, for a given configuration.
    * 
-   * @param calcConfigurationName the calculation configuration
-   * @return the values as a map of value name to computed value, or {@code null} if the configuration name is invalid
+   * @param calcConfigurationName the calculation configuration name, not {@code null}
+   * @return the computed values, or {@code null} if the configuration name is unknown
    */
-  Set<ComputedValue> getAllValues(String calcConfigurationName);
+  Collection<ComputedValue> getAllValues(String calcConfigurationName);
 
 }

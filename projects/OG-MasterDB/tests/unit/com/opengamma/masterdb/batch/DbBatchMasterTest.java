@@ -67,7 +67,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   private CommandLineBatchJob _batchJob;
   private CommandLineBatchJobRun _batchJobRun;
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbBatchMasterTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
@@ -569,12 +569,12 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     
     BatchId batchId = new BatchId(LocalDate.of(2005, 1, 2), "LDN_CLOSE");
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    result.setResultTimestamp(now);
+    result.setCalculationTime(now);
     result.setValuationTime(now);
     result.setViewProcessId(UniqueIdentifier.of("Test", "ViewProcess"));
     
     ComputationTargetSpecification spec = new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)); 
-    result.addLiveData(new ComputedValue(
+    result.addMarketData(new ComputedValue(
         new ValueSpecification(
             "MarketValue", 
             spec, 

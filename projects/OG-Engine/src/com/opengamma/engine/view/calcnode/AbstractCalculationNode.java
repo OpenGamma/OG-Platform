@@ -119,9 +119,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     s_logger.info("Executing {} on {}", job, _nodeId);
     final CalculationJobSpecification spec = job.getSpecification();
     getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
-    getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
-    getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
-    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getIterationTimestamp());
+    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
+    getFunctionExecutionContext().setValuationClock(DateUtil.fixedClockUTC(spec.getValuationTime()));
+    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
     final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
     long executionTime = System.nanoTime();
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
@@ -154,7 +154,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
-    ViewComputationCache cache = getCacheSource().getCache(spec.getViewProcessId(), spec.getCalcConfigName(), spec.getIterationTimestamp());
+    ViewComputationCache cache = getCacheSource().getCache(spec.getViewCycleId(), spec.getCalcConfigName());
     return cache;
   }
 

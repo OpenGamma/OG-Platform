@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[2.6.0.201103160035-RELEASE]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[true]]></enableImports>
+	<configs>
+		<config>config/example-beans.xml</config>
+		<config>config/engine-spring.xml</config>
+		<config>config/dataLoader-example.xml</config>
+		<config>config/liveData-example.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

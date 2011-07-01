@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -55,7 +55,7 @@ public interface ViewProcess extends UniqueIdentifiable {
    * 
    * @return the live data injector, not null
    */
-  LiveDataInjector getLiveDataOverrideInjector();
+  MarketDataInjector getLiveDataOverrideInjector();
   
   /**
    * Terminates this view process, detaching any clients from it.

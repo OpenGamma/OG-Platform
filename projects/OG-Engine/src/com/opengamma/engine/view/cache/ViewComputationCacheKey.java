@@ -7,7 +7,6 @@ package com.opengamma.engine.view.cache;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -15,55 +14,46 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
+ * Identifies a {@link ViewComputationCache}.
  */
 /*package*/ class ViewComputationCacheKey implements Serializable {
-  private final UniqueIdentifier _viewProcessId;
-  private final String _calculationConfigurationName;
-  private final long _snapshotTimestamp;
+
+  private static final long serialVersionUID = 1L;
   
-  public ViewComputationCacheKey(UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp) {
-    ArgumentChecker.notNull(viewProcessId, "viewProcessId");
-    ArgumentChecker.notNull(calculationConfigurationName, "calculation configuration name");
-    
-    _viewProcessId = viewProcessId;
+  private final UniqueIdentifier _viewCycleId;
+  private final String _calculationConfigurationName;
+  
+  public ViewComputationCacheKey(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+    ArgumentChecker.notNull(viewCycleId, "viewCycleId");
+    ArgumentChecker.notNull(calculationConfigurationName, "calculationConfigurationName");
+    _viewCycleId = viewCycleId;
     _calculationConfigurationName = calculationConfigurationName;
-    _snapshotTimestamp = snapshotTimestamp;
   }
 
   /**
-   * @return the view process id
+   * Gets the unique identifer of the view cycle.
+   * 
+   * @return the unique identifier of the view cycle, not {@code null}
    */
-  public UniqueIdentifier getViewProcessId() {
-    return _viewProcessId;
+  public UniqueIdentifier getViewCycleId() {
+    return _viewCycleId;
   }
 
   /**
-   * @return the calculationConfigurationName
+   * Gets the calculation configuration name.
+   * 
+   * @return the calculation configuration name, not {@code null}
    */
   public String getCalculationConfigurationName() {
     return _calculationConfigurationName;
-  }
-
-  /**
-   * @return the snapshotTimestamp
-   */
-  public long getSnapshotTimestamp() {
-    return _snapshotTimestamp;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime
-        * result
-        + ((_calculationConfigurationName == null) ? 0
-            : _calculationConfigurationName.hashCode());
-    result = prime * result
-        + (int) (_snapshotTimestamp ^ (_snapshotTimestamp >>> 32));
-    result = prime * result + ((_viewProcessId == null) ? 0 : _viewProcessId.hashCode());
+    result = prime * result + _calculationConfigurationName.hashCode();
+    result = prime * result + _viewCycleId.hashCode();
     return result;
   }
 
@@ -72,13 +62,20 @@ import com.opengamma.util.ArgumentChecker;
     if (this == obj) {
       return true;
     }
+    if (obj == null) {
+      return false;
+    }
     if (!(obj instanceof ViewComputationCacheKey)) {
       return false;
     }
     ViewComputationCacheKey other = (ViewComputationCacheKey) obj;
-    return (_snapshotTimestamp == other._snapshotTimestamp)
-          && ObjectUtils.equals(_viewProcessId, other._viewProcessId)
-          && ObjectUtils.equals(_calculationConfigurationName, other._calculationConfigurationName);
+    if (!_calculationConfigurationName.equals(other._calculationConfigurationName)) {
+      return false;
+    }
+    if (!_viewCycleId.equals(other._viewCycleId)) {
+      return false;
+    }
+    return true;
   }
 
   @Override

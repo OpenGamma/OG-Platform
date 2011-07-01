@@ -26,6 +26,7 @@ public class FXOptionSecurityBean extends SecurityBean {
   private CurrencyBean _putCurrency;
   private CurrencyBean _callCurrency;
   private ZonedDateTimeBean _settlementDate;
+  private Boolean _isLong;
 
   public FXOptionSecurityBean() {
     super();
@@ -101,6 +102,22 @@ public class FXOptionSecurityBean extends SecurityBean {
   public void setCallAmount(double callAmount) {
     _callAmount = callAmount;
   }
+  
+  /**
+   * Gets the isLong.
+   * @return the isLong
+   */
+  public Boolean getIsLong() {
+    return _isLong;
+  }
+
+  /**
+   * Sets the isLong.
+   * @param isLong  the isLong
+   */
+  public void setIsLong(Boolean isLong) {
+    _isLong = isLong;
+  }
 
   @Override
   public boolean equals(final Object other) {
@@ -117,6 +134,7 @@ public class FXOptionSecurityBean extends SecurityBean {
       .append(getCallAmount(), option.getCallAmount())
       .append(getPutAmount(), option.getPutAmount())
       .append(getSettlementDate(), option.getSettlementDate())
+      .append(getIsLong(), option.getIsLong())
       .isEquals();
   }
 
@@ -129,6 +147,7 @@ public class FXOptionSecurityBean extends SecurityBean {
       .append(getSettlementDate())
       .append(getPutAmount())
       .append(getCallAmount())
+      .append(getIsLong())
       .toHashCode();
   }
 

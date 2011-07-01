@@ -15,7 +15,8 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -32,10 +33,7 @@ import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingF
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -74,16 +72,16 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName,
+    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSourceName, null, _fieldName,
         _startDate, true, now, false);
     if (tsPair == null) {
       throw new NullPointerException("Could not get identifier / price series pair for security " + security);
     }
-    final DoubleTimeSeries<?> ts = tsPair.getSecond();
+    final DoubleTimeSeries<?> ts = tsPair.getTimeSeries();
     if (ts == null) {
       throw new NullPointerException("Could not get price series for security " + security);
     }

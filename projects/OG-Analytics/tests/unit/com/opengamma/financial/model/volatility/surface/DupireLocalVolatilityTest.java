@@ -39,13 +39,14 @@ public class DupireLocalVolatilityTest {
 
     final Function<Double, Double> sabrSurface = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double... x) {
-        double t = x[0];
-        double k = x[1];
-        SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, NU, RHO);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option);
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double k = x[1];
+        final SABRFormulaData sabrdata = new SABRFormulaData(SPOT * Math.exp(RATE * t), ALPHA, BETA, NU, RHO);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option);
         return func.evaluate(sabrdata);
       }
     };
@@ -54,18 +55,18 @@ public class DupireLocalVolatilityTest {
 
     final BlackPriceFunction func = new BlackPriceFunction();
 
-    Function<Double, Double> priceSurface = new Function<Double, Double>() {
+    final Function<Double, Double> priceSurface = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
-        double t = x[0];
-        double k = x[1];
-        double sigma = sabrSurface.evaluate(x);
-        double df = Math.exp(-RATE * t);
-        BlackFunctionData data = new BlackFunctionData(SPOT / df, df, sigma);
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<BlackFunctionData, Double> pfunc = func.getPriceFunction(option);
-        double price = pfunc.evaluate(data);
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double k = x[1];
+        final double sigma = sabrSurface.evaluate(x);
+        final double df = Math.exp(-RATE * t);
+        final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, sigma);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<BlackFunctionData, Double> pfunc = func.getPriceFunction(option);
+        final double price = pfunc.evaluate(data);
         if (Double.isNaN(price)) {
           System.out.println("fuck");
         }
@@ -80,10 +81,10 @@ public class DupireLocalVolatilityTest {
   @SuppressWarnings("deprecation")
   @Test
   public void debugTest() {
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
-    double t = 3.0;
-    double f = 0.04;
+    final double t = 3.0;
+    final double f = 0.04;
     cal.debug(PRICE_SURFACE, SABR_SURFACE, SPOT, RATE, t, f);
   }
 
@@ -114,8 +115,8 @@ public class DupireLocalVolatilityTest {
 
   @Test(enabled = false)
   public void priceTest() {
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    LocalVolatilitySurface locVol = cal.getLocalVolatility(PRICE_SURFACE, SPOT, RATE);
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    final LocalVolatilitySurface locVol = cal.getLocalVolatility(PRICE_SURFACE, SPOT, RATE);
     double t;
     double f;
     double vol;
@@ -140,8 +141,8 @@ public class DupireLocalVolatilityTest {
 
   @Test(enabled = false)
   public void volTest() {
-    DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    LocalVolatilitySurface locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
+    final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    final LocalVolatilitySurface locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
     double t;
     double f;
     double vol;

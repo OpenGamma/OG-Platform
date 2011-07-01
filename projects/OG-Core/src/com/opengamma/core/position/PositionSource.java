@@ -21,37 +21,37 @@ public interface PositionSource {
   /**
    * Finds a specific portfolio by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the portfolio, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Portfolio getPortfolio(UniqueIdentifier uid);
+  Portfolio getPortfolio(UniqueIdentifier uniqueId);
 
   /**
    * Finds a specific node from any portfolio by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the node, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  PortfolioNode getPortfolioNode(UniqueIdentifier uid);
+  PortfolioNode getPortfolioNode(UniqueIdentifier uniqueId);
 
   /**
    * Finds a specific position from any portfolio by unique identifier.
    * 
-   * @param uid  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the position, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Position getPosition(UniqueIdentifier uid);
+  Position getPosition(UniqueIdentifier uniqueId);
 
   /**
    * Finds a specific trade from any portfolio by unique identifier.
    * 
-   * @param uid the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, null returns null
    * @return the trade, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Trade getTrade(UniqueIdentifier uid);
+  Trade getTrade(UniqueIdentifier uniqueId);
 
 }

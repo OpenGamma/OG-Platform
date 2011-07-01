@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.cometd.Client;
 import org.cometd.Message;
 import org.slf4j.Logger;
@@ -23,12 +24,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -46,6 +51,7 @@ public class WebView {
   private final Client _remote;
   private final ViewClient _client;
   private final String _viewDefinitionName;
+  private final UniqueIdentifier _snapshotId;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
   
@@ -64,11 +70,13 @@ public class WebView {
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
-      final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {    
+      final UniqueIdentifier snapshotId, final UserPrincipal user, final ExecutorService executorService,
+      final ResultConverterCache resultConverterCache) {    
     _local = local;
     _remote = remote;
     _client = client;
     _viewDefinitionName = viewDefinitionName;
+    _snapshotId = snapshotId;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
     _gridsByName = new HashMap<String, WebViewGrid>();
@@ -76,7 +84,13 @@ public class WebView {
     _client.setResultListener(new AbstractViewResultListener() {
       
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+      public UserPrincipal getUser() {
+        // Authentication needed
+        return UserPrincipal.getLocalUser();
+      }
+      
+      @Override
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         // TODO: support for changing compilation results     
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
@@ -98,7 +112,9 @@ public class WebView {
 
     });
     
-    client.attachToViewProcess(viewDefinitionName, ExecutionOptions.realTime());
+    MarketDataSpecification marketDataSpec = snapshotId != null ? MarketData.user(snapshotId) : MarketData.live();
+    ViewExecutionOptions executionOptions = ExecutionOptions.continuous(marketDataSpec);
+    client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   
   //-------------------------------------------------------------------------
@@ -130,7 +146,7 @@ public class WebView {
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getInitialJsonGridStructures(), null);
+    getRemote().deliver(getLocal(), "/changeView", getInitialJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -159,6 +175,14 @@ public class WebView {
   
   public String getViewDefinitionName() {
     return _viewDefinitionName;
+  }
+  
+  public UniqueIdentifier getSnapshotId() {
+    return _snapshotId;
+  }
+  
+  public boolean matches(String viewDefinitionName, UniqueIdentifier snapshotId) {
+    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getSnapshotId(), snapshotId);
   }
   
   public WebViewGrid getGridByName(String name) {
@@ -242,14 +266,14 @@ public class WebView {
           
           getRemote().startBatch();
           
-          long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
-          long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
+          long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
+          long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
           
-          sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
+          sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
             processResult(update);
           } catch (Exception e) {
-            s_logger.error("Error processing result with timestamp " + update.getResultTimestamp(), e);
+            s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
           }
           sendEndMessage();
           
@@ -275,7 +299,7 @@ public class WebView {
   }
   
   private void processResult(ViewComputationResultModel resultModel) {
-    long resultTimestamp = resultModel.getResultTimestamp().toEpochMillisLong();
+    long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
     for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
       switch (target.getType()) {
         case PRIMITIVE:
@@ -297,12 +321,12 @@ public class WebView {
   }
   
   /**
-   * Tells the remote client that updates are starting, relating to a particular timestamp.
+   * Tells the remote client that updates are starting.
    */
-  private void sendStartMessage(long timestamp, long calculationLatency) {
+  private void sendStartMessage(long valuationTimeEpochMillis, long calculationDurationMillis) {
     Map<String, Object> startMessage = new HashMap<String, Object>();
-    startMessage.put("timestamp", timestamp);
-    startMessage.put("latency", calculationLatency);
+    startMessage.put("valuationTime", valuationTimeEpochMillis);
+    startMessage.put("calculationDuration", calculationDurationMillis);
     getRemote().deliver(getLocal(), "/updates/control/start", startMessage, null);
   }
 

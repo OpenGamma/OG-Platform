@@ -28,6 +28,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -49,9 +51,9 @@ public class VolatilityCubeFunction extends AbstractFunction {
   @Override
   public void init(FunctionCompilationContext context) {
     
-    ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getKey().getCurrency());
+    ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getCurrency());
     _cubeResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE, currencyTargetSpec,
-        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
+        createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_cubeResult);
   }
 
@@ -84,24 +86,25 @@ public class VolatilityCubeFunction extends AbstractFunction {
       
       @Override
       public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-        return _helper.getKey().getCurrency().getUniqueId().equals(target.getUniqueId());
+        return _helper.getCurrency().getUniqueId().equals(target.getUniqueId());
       }
 
       @Override
       public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
           ComputationTarget target, Set<ValueRequirement> desiredValues) {
-        @SuppressWarnings("unused")
+        
         VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
+        Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
         //TODO this
-        return Sets.newHashSet(new ComputedValue(_cubeResult, 0xdeadbeef));
+        return Sets.newHashSet(new ComputedValue(_cubeResult, smiles.size()));
       }
     };
   }
 
   private ValueRequirement getMarketDataRequirement() {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA,
-        new ComputationTargetSpecification(_helper.getKey().getCurrency()),
-        ValueProperties.with(ValuePropertyNames.CUBE, _helper.getKey().getName()).get());
+        new ComputationTargetSpecification(_helper.getCurrency()),
+        ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
   }
 
 }

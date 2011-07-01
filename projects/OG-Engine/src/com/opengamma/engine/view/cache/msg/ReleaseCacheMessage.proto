@@ -8,8 +8,7 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message ReleaseCacheMessage extends CacheMessage {
   
-    required id.UniqueIdentifier viewProcessId;
-    required long timestamp;
+    required id.UniqueIdentifier viewCycleId;
     
     binding Java {
       body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitReleaseCacheMessage (this); }";

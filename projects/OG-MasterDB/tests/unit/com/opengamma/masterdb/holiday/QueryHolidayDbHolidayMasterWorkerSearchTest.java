@@ -34,7 +34,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerSearchTest.class);
 
-  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public QueryHolidayDbHolidayMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

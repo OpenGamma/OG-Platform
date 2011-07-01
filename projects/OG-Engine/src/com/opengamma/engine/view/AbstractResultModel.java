@@ -9,26 +9,27 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A simple implementation of the calculation result model.
+ * 
+ * <T> the type of the name
  */
 /*package*/ abstract class AbstractResultModel<T> implements Serializable {
 
-  private final Map<T, Map<String, ComputedValue>> _valuesByName = new HashMap<T, Map<String, ComputedValue>>();
-  private final Map<T, Set<ComputedValue>> _allValues = new HashMap<T, Set<ComputedValue>>();
+  private final Map<T, Map<Pair<String, ValueProperties>, ComputedValue>> _valuesByName = new HashMap<T, Map<Pair<String, ValueProperties>, ComputedValue>>();
 
   protected Collection<T> getKeys() {
-    return Collections.unmodifiableSet(_allValues.keySet());
+    return Collections.unmodifiableSet(_valuesByName.keySet());
   }
 
-  protected Map<String, ComputedValue> getValuesByName(final T target) {
-    Map<String, ComputedValue> values = _valuesByName.get(target);
+  protected Map<Pair<String, ValueProperties>, ComputedValue> getValuesByName(final T name) {
+    Map<Pair<String, ValueProperties>, ComputedValue> values = _valuesByName.get(name);
     if (values != null) {
       return Collections.unmodifiableMap(values);
     } else {
@@ -36,27 +37,23 @@ import com.opengamma.engine.value.ComputedValue;
     }
   }
 
-  protected Set<ComputedValue> getAllValues(final T target) {
-    Set<ComputedValue> values = _allValues.get(target);
+  protected Collection<ComputedValue> getAllValues(final T name) {
+    Map<Pair<String, ValueProperties>, ComputedValue> values = _valuesByName.get(name);
     if (values != null) {
-      return Collections.unmodifiableSet(values);
+      return Collections.unmodifiableCollection(values.values());
     } else {
       return null;
     }
   }
 
   protected void addValue(final T key, final ComputedValue value) {
-    Map<String, ComputedValue> valuesByName = _valuesByName.get(key);
-    Set<ComputedValue> allValues = _allValues.get(key);
+    Map<Pair<String, ValueProperties>, ComputedValue> valuesByName = _valuesByName.get(key);
     if (valuesByName == null) {
-      valuesByName = new HashMap<String, ComputedValue>();
+      valuesByName = new HashMap<Pair<String, ValueProperties>, ComputedValue>();
       _valuesByName.put(key, valuesByName);
-      allValues = new HashSet<ComputedValue>();
-      _allValues.put(key, allValues);
     }
     if (value != null) {
-      valuesByName.put(value.getSpecification().getValueName(), value);
-      allValues.add(value);
+      valuesByName.put(Pair.of(value.getSpecification().getValueName(), value.getSpecification().getProperties()), value);
     }
   }
 

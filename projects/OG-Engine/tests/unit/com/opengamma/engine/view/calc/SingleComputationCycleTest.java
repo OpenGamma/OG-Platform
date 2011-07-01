@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
@@ -45,7 +46,7 @@ public class SingleComputationCycleTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
     
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
     assertTrue (executor.awaitFirstRun(TIMEOUT));

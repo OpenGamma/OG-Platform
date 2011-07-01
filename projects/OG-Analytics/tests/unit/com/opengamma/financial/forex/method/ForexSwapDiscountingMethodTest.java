@@ -12,6 +12,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
@@ -41,7 +45,9 @@ public class ForexSwapDiscountingMethodTest {
 
   private static final ForexSwapDiscountingMethod METHOD = new ForexSwapDiscountingMethod();
   private static final ForexDiscountingMethod METHOD_FX = new ForexDiscountingMethod();
-  private static final com.opengamma.financial.forex.calculator.PresentValueCalculator PVC_FX = com.opengamma.financial.forex.calculator.PresentValueCalculator.getInstance();
+  private static final PresentValueForexCalculator PVC_FX = PresentValueForexCalculator.getInstance();
+  private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
 
   @Test
   /**
@@ -63,6 +69,21 @@ public class ForexSwapDiscountingMethodTest {
     MultipleCurrencyAmount pvMethod = METHOD.presentValue(FX_SWAP, CURVES);
     MultipleCurrencyAmount pvCalculator = PVC_FX.visit(FX_SWAP, CURVES);
     assertEquals("Forex present value: Method vs Calculator", pvMethod, pvCalculator);
+    ForexDerivative fxSwap = FX_SWAP;
+    MultipleCurrencyAmount pvMethod2 = METHOD.presentValue(fxSwap, CURVES);
+    assertEquals("Forex present value: Method ForexSwap vs Method ForexDerivative", pvMethod, pvMethod2);
+  }
+
+  @Test
+  /**
+   * Tests the currency exposure computation.
+   */
+  public void currencyExposure() {
+    MultipleCurrencyAmount exposureMethod = METHOD.currencyExposure(FX_SWAP, CURVES);
+    MultipleCurrencyAmount pv = METHOD.presentValue(FX_SWAP, CURVES);
+    assertEquals("Currency exposure", pv, exposureMethod);
+    MultipleCurrencyAmount exposureCalculator = CEC_FX.visit(FX_SWAP, CURVES);
+    assertEquals("Currency exposure: Method vs Calculator", exposureMethod, exposureCalculator);
   }
 
   @Test
@@ -78,4 +99,15 @@ public class ForexSwapDiscountingMethodTest {
     pvsNear.clean();
     assertTrue(pvs.equals(pvsNear));
   }
+
+  @Test
+  /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(FX_SWAP, CURVES);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FX_SWAP, CURVES);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
+  }
+
 }

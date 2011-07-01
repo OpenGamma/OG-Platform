@@ -21,16 +21,16 @@
   </bean>
 
   <!-- Historical data source -->
-  <bean id="historicalDataSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
+  <bean id="historicalTimeSeriesSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.historicaldata.rest.RemoteHistoricalDataSource">
+      <bean class="com.opengamma.financial.historicaldata.rest.RemoteHistoricalTimeSeriesSource">
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/historicalData" />
+                <property name="uri" value="${opengamma.engine.configuration.url}/historicalTimeSeriesSource" />
               </bean>
             </constructor-arg>
           </bean>
@@ -386,7 +386,7 @@
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="exchangeSource" ref="exchangeSource"/>
-    <property name="historicalDataSource" ref="historicalDataSource" />
+    <property name="historicalTimeSeriesSource" ref="historicalTimeSeriesSource" />
     <property name="holidaySource" ref="holidaySource"/>
     <property name="positionSource" ref="positionSource" />
     <property name="regionSource" ref="regionSource"/>

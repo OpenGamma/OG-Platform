@@ -52,8 +52,8 @@
         _isConnected = true;
         _cometd.batch(function() {
           _cometd.subscribe('/status', handleStatusUpdate);
-          _cometd.subscribe('/views', handleViewListUpdate);
-          _cometd.subscribe('/initialize', handleViewInitialized);          
+          _cometd.subscribe('/initData', handleInitDataUpdate);
+          _cometd.subscribe('/changeView', handleViewInitialized);          
           
           _cometd.subscribe('/updates/portfolio', handlePortfolioUpdate);
           _cometd.subscribe('/updates/primitives', handlePrimitivesUpdate);
@@ -89,8 +89,8 @@
       }
     }
     
-    function handleViewListUpdate(message) {
-      self.onViewListReceived.fire(message.data.availableViewNames);
+    function handleInitDataUpdate(message) {
+      self.onInitDataReceived.fire(message.data);
     }
     
     function handleViewInitialized(message) {
@@ -232,16 +232,19 @@
     //-----------------------------------------------------------------------
     // Public API
     
-    this.changeView = function(viewName) {
-      _logger.info("Sending initialize request");
+    this.changeView = function(viewName, snapshotId) {
+      _logger.info("Sending change view request");
       _portfolioDetails = null;
       _primitiveDetails = null;
       _changingView = true;
       _isRunning = false;
       
-      _cometd.publish('/service/initialize', {
-        viewName : viewName
-      });
+      var changeViewRequest = {};
+      changeViewRequest["viewName"] = viewName;
+      if (snapshotId) {
+        changeViewRequest["snapshotId"] = snapshotId;
+      }
+      _cometd.publish('/service/changeView', changeViewRequest);
     }
     
     this.pause = function() {
@@ -252,8 +255,8 @@
       _cometd.publish('/service/currentview/resume', {});
     }
     
-    this.getViews = function() {
-      _cometd.publish('/service/views', {});
+    this.getInitData = function() {
+      _cometd.publish('/service/initData', {});
     }
     
     this.triggerImmediateUpdate = function() {
@@ -299,7 +302,7 @@
      */
     this.beforeUpdateRequested = new EventManager();
     
-    this.onViewListReceived = new EventManager();
+    this.onInitDataReceived = new EventManager();
     this.onViewInitialized = new EventManager();
     this.onStatusUpdateReceived = new EventManager();
     this.afterUpdateReceived = new EventManager();

@@ -19,6 +19,7 @@
       <property name="date" column="settlement_date" type="timestamp" not-null="true" />
       <property name="zone" column="settlement_zone" type="string" not-null="true" />
     </component>
+    <property name="isLong" column="is_long" type="boolean" not-null="true" />
   </union-subclass>
 
   <query name="FXOptionSecurityBean.one.bySecurityId"><![CDATA[

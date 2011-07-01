@@ -1,41 +1,36 @@
 {
-  "index.html|hd|ft|jinja|split" : {
-    "allinputs" : true
-  },
-    "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
-      "allinputs" : true,
-      "title" : "Yield Curve Maths"
+    "$globals" : {
+        "jinjavars" : { "OG_VERSION" : "dev" }
     },
-    "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-      "allinputs" : true
-    },
-    "*.md|markdown|hd|ft|jinja" : {
-      "allinputs" : true,
-      "inputs" : [
-        "og_docs_true_primitives.tex|hd|ft|jinja|latex",
-      "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
-        ],
-      "jinjavars" : {
-        "OG_VERSION" : "dev"
-      }
-    },
-    "sync.sh|jinja" : {
-      "jinjavars" : {
-        "OG_VERSION" : "dev"
-      }
-    },
-    "debug.txt|jinja" : {
-      "allinputs" : true
-    },
-    "javadoc-data.json|javadocs" : {},
-    "_*.html|dexy" : {},
-    "_*.tex|dexy" : {},
-    "*.png|cp" : {},
-    "*.css|cp" : {},
-    "*.svg|cp" : {},
-    "*.eot|cp" : {},
-    "*.ttf|cp" : {},
-    "*.woff|cp" : {},
-    "*.tex|pyg|l" : {}
+        "index.html|hd|ft|jinja|split" : {
+            "allinputs" : true
+        },
+        "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
+            "allinputs" : true,
+            "title" : "Yield Curve Maths"
+        },
+        "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
+            "allinputs" : true
+        },
+        "*.md|fn|markdown|hd|ft|jinja" : {
+            "allinputs" : true,
+            "inputs" : [
+              "og_docs_true_primitives.tex|hd|ft|jinja|latex",
+              "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
+            ]
+        },
+        "sync.sh|jinja" : {},
+        "debug.txt|jinja" : { "allinputs" : true },
+        "javadoc-data.json|javadocs" : {},
+        "_*.html|dexy" : {},
+        "_*.tex|dexy" : {},
+        "*.jpg|cp" : {},
+        "*.png|cp" : {},
+        "*.css|cp" : {},
+        "*.svg|cp" : {},
+        "*.eot|cp" : {},
+        "*.ttf|cp" : {},
+        "*.woff|cp" : {},
+        "*.tex|pyg|l" : {}
 }
 

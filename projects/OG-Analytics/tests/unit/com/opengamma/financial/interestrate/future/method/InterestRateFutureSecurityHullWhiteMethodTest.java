@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.LocalDate;
@@ -25,7 +26,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -102,9 +103,22 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   public void comparisonDiscounting() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     InterestRateFutureSecurityDiscountingMethod methodDiscounting = new InterestRateFutureSecurityDiscountingMethod();
-    double priceDiscounting = methodDiscounting.price(ERU2, curves);
+    double priceDiscounting = methodDiscounting.priceFromCurves(ERU2, curves);
     double priceHullWhite = METHOD.price(ERU2, curves);
     assertTrue("Future price comparison with no convexity adjustment", priceDiscounting > priceHullWhite);
+  }
 
+  @Test
+  public void equalHash() {
+    assertTrue(METHOD.equals(METHOD));
+    InterestRateFutureSecurityHullWhiteMethod other = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
+    assertTrue(METHOD.equals(other));
+    assertTrue(METHOD.hashCode() == other.hashCode());
+    InterestRateFutureSecurityHullWhiteMethod modifiedMethod;
+    HullWhiteOneFactorPiecewiseConstantDataBundle modifiedParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION * 2, VOLATILITY, VOLATILITY_TIME);
+    modifiedMethod = new InterestRateFutureSecurityHullWhiteMethod(modifiedParameter);
+    assertFalse(METHOD.equals(modifiedMethod));
+    assertFalse(METHOD.equals(CUR));
+    assertFalse(METHOD.equals(null));
   }
 }

@@ -35,6 +35,7 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   public static final String YIELD_CURVE = "YieldCurve";
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
+  public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  

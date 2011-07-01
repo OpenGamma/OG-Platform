@@ -20,7 +20,8 @@
 	<property name="ivy.install.version" value="2.1.0" />
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
-		
+    <property name="docs.dir" value="${build.dir}/docs" />
+
 	<import file="git-macros.xml" />
 
 	<available file="${ivy.jar.file}" property="skip.download"/>
@@ -191,7 +192,7 @@
 		<replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
 		<replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
 	</target>
-	<target name="dist-source" depends="init,clone-or-pull,clean,dist-name,eclipse-readme"
+	<target name="dist-source" depends="clone-or-pull,clean,dist-name,eclipse-readme"
 		  description="builds a single source distribution zipfile">
 		<mkdir dir="${dist.dir}" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
@@ -235,7 +236,7 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
 			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
@@ -247,11 +248,11 @@
 				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="projects/**/lib/" />
+				<exclude name="projects/*/lib/" />
 			</zipfileset>
 		</zip>
 	</target>
-	<target name="dist-binary" depends="init,clean-all,publish-all-local,binary-dist-impl"
+	<target name="dist-binary" depends="clean-all,publish-all-local,binary-dist-impl"
 		description="builds a single binary distribution zipfile" />
 	<target name="binary-dist-impl" depends="buildlist,dist-name">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
@@ -267,7 +268,7 @@
 		</antcall>
 	</target>
 	<!-- og-examples-dist is probably more useful than binary-dist -->
-	<target name="dist-og-examples" depends="init,clean-all,publish-all-local,og-examples-dist-impl"
+	<target name="dist-og-examples" depends="clean-all,publish-all-local,og-examples-dist-impl"
 		description="builds a distribution zipfile for OG-Examples" />
 	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
 		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
@@ -400,7 +401,12 @@
 			<link href="http://joda-beans.sourceforge.net/apidocs/" />
 		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
-	</target>
+    </target>
+
+  <target name="test-docs-dir">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-all" />
+</target>
 
   <target name="javadoc-all" depends="load-ivy, resolve"
   	description="javadoc whole system (requires > 2GB RAM and LaTeX)">

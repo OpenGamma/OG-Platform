@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -16,7 +19,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class StudentTOneTailedCriticalValueCalculatorTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final double NU = 3;
   private static final Function1D<Double, Double> F = new StudentTOneTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);

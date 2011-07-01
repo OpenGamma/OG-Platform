@@ -20,15 +20,20 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.livedata.LiveDataSnapshotListener;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.MarketDataListener;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -38,10 +43,10 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * The job which schedules and executes computation cycles for a view process.
  */
-public class ViewComputationJob extends TerminatableJob implements LiveDataSnapshotListener {
+public class ViewComputationJob extends TerminatableJob implements MarketDataListener {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationJob.class);
   
-  private static final long LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS = 10000;
+  private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
   private static final long NANOS_PER_MILLISECOND = 1000000;
 
   private final ViewProcessImpl _viewProcess;
@@ -61,12 +66,12 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private int _deltasSinceLastFull;
   
   private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
-  private final Set<ValueRequirement> _liveDataSubscriptions = new HashSet<ValueRequirement>();
+  private final Set<ValueRequirement> _marketDataSubscriptions = new HashSet<ValueRequirement>();
   private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
   
-  private volatile boolean _wakeOnLiveDataChanged;
-  private volatile boolean _liveDataChanged;
+  private volatile boolean _wakeOnMarketDataChanged;
+  private volatile boolean _marketDataChanged;
   
   private enum ViewCycleType { FULL, DELTA, NONE }
   
@@ -75,7 +80,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    */
   private double _totalTimeNanos;
 
-  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private MarketDataProvider _marketDataProvider;
   
   public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
       ViewProcessContext processContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
@@ -88,11 +93,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _processContext = processContext;
     _cycleManager = cycleManager;
 
-    _executeCycles = !getExecutionOptions().isCompileOnly();
-
-    _liveDataSnapshotProvider = _processContext.getLiveDataSnapshotProvider(executionOptions);
-    
-    _liveDataSnapshotProvider.addListener(this);
+    _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
   }
 
   //-------------------------------------------------------------------------
@@ -113,12 +114,15 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   private void updateComputationTimes(long currentNanos, boolean deltaOnly) {
-    _eligibleForDeltaComputationFromNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinDeltaCalculationPeriod(), 0);
-    _deltaComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE);
+    // If time-based triggers disabled then always eligible for a cycle (if data changes), but never required
+    boolean timeTriggersEnabled = getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
+    
+    _eligibleForDeltaComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinDeltaCalculationPeriod(), 0) : 0;
+    _deltaComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
     
     if (!deltaOnly) {
-      _eligibleForFullComputationFromNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinFullCalculationPeriod(), 0);
-      _fullComputationRequiredByNanos = getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE);
+      _eligibleForFullComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinFullCalculationPeriod(), 0) : 0;
+      _fullComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
     }
   }
   
@@ -157,7 +161,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     ViewCycleExecutionOptions executionOptions = null;
     try {
       if (!getExecutionOptions().getExecutionSequence().isEmpty()) {
-        executionOptions = getExecutionOptions().getExecutionSequence().getNext();
+        executionOptions = getExecutionOptions().getExecutionSequence().getNext(getExecutionOptions().getDefaultExecutionOptions());
         s_logger.debug("Next cycle execution options: {}", executionOptions);
       }
       if (executionOptions == null) {
@@ -170,9 +174,76 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       return;
     }
     
+    if (executionOptions.getMarketDataSpecification() == null) {
+      s_logger.error("No market data specification for cycle");
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("No market data specification for cycle"));
+      return;
+    }
+    
+    MarketDataSnapshot marketDataSnapshot;
+    try {
+      if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSpecification())) {
+        // A different market data provider is required. We support this because we can, but changing provider is not the
+        // most efficient operation.
+        if (getMarketDataProvider() != null) {
+          s_logger.info("Replacing market data provider between cycles");
+        }
+        replaceMarketDataProvider(executionOptions.getMarketDataSpecification());
+      }
+      
+      // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
+      marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSpecification());
+    } catch (Exception e) {
+      s_logger.error("Error with market data provider", e);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
+      return;
+    }
+
+    Instant compilationValuationTime;
+    try {
+      if (executionOptions.getValuationTime() != null) {
+        compilationValuationTime = executionOptions.getValuationTime();
+      } else {
+        // Neither the cycle-specific options nor the defaults have overridden the valuation time so use the time
+        // associated with the market data snapshot. To avoid initialising the snapshot perhaps before the required
+        // inputs are known or even subscribed to, only ask for an indication at the moment.
+        compilationValuationTime = marketDataSnapshot.getSnapshotTimeIndication();
+        if (compilationValuationTime == null) {
+          throw new OpenGammaRuntimeException("Market data snapshot " + marketDataSnapshot + " produced a null indication of snapshot time");
+        }
+      }
+    } catch (Exception e) {
+      s_logger.error("Error obtaining compilation valuation time", e);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compilation valuation time", e));
+      return;
+    }
+    
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    try {
+      compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
+    } catch (Exception e) {
+      s_logger.error("Error obtaining compiled view definition for time {}", compilationValuationTime);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compiled view definition for time " + compilationValuationTime, e));
+      return;
+    }
+    
+    try {
+      if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA)) {
+        marketDataSnapshot.init(compiledViewDefinition.getMarketDataRequirements().keySet(), MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+      } else {
+        marketDataSnapshot.init();
+      }
+      if (executionOptions.getValuationTime() == null) {
+        executionOptions.setValuationTime(marketDataSnapshot.getSnapshotTime());
+      }
+    } catch (Exception e) {
+      s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error initializing snapshot" + marketDataSnapshot, e));
+    }
+    
     EngineResourceReference<SingleComputationCycle> cycleReference;
     try {
-      cycleReference = createCycle(executionOptions);
+      cycleReference = createCycle(executionOptions, compiledViewDefinition);
     } catch (Exception e) {
       s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
       return;
@@ -180,7 +251,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     
     if (_executeCycles) {
       try {
-        executeViewCycle(cycleType, cycleReference);
+        executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
         s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
@@ -234,6 +305,23 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
   }
   
+  private void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    try {
+      getViewProcess().viewDefinitionCompiled(compiledViewDefinition, getMarketDataProvider().getPermissionProvider());
+    } catch (Exception vpe) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view definition compilation");
+    }
+  }
+  
+  private void viewDefinitionCompilationFailed(Instant compilationTime, Exception e) {
+    try {
+      getViewProcess().viewDefinitionCompilationFailed(compilationTime, e);
+    } catch (Exception vpe) {
+      s_logger.error("Error notifying the view process " + getViewProcess() + " of the view definition compilation failure", vpe);
+    }
+  }
+  
+  
   private synchronized ViewCycleType waitForNextCycle() {
     long currentTime = System.nanoTime();
     
@@ -248,18 +336,18 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       doDeltaRecalc = true;
     }
     
-    if (_liveDataChanged) {
-      s_logger.debug("Live data has changed");
+    if (_marketDataChanged) {
+      s_logger.debug("Market data has changed");
       if (currentTime >= _eligibleForFullComputationFromNanos) {
         // Do (or upgrade to) a full computation because we're eligible for one
-        s_logger.debug("Performing a full computation for the live data change");
+        s_logger.debug("Performing a full computation for the market data change");
         doFullRecalc = true;
-        _liveDataChanged = false;
+        _marketDataChanged = false;
       } else if (currentTime >= _eligibleForDeltaComputationFromNanos) {
         // Do a delta computation
-        s_logger.debug("Performing a delta computation for the live data change");
+        s_logger.debug("Performing a delta computation for the market data change");
         doDeltaRecalc = true;
-        _liveDataChanged = false;
+        _marketDataChanged = false;
       }
     }
     
@@ -274,15 +362,15 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     // Going to sleep
     long minWakeUpTime = Math.min(_eligibleForDeltaComputationFromNanos, _eligibleForFullComputationFromNanos);
     long wakeUpTime;
-    if (_liveDataChanged) {
+    if (_marketDataChanged) {
       s_logger.debug("Sleeping until eligible to perform the next computation cycle");
       
-      // Live data has arrived but we decided not to perform a computation cycle; this must be because we're not
+      // Market data has arrived but we decided not to perform a computation cycle; this must be because we're not
       // eligible for one right now. We'll do one as soon as we are.
       wakeUpTime = minWakeUpTime;
       
-      // No amount of live data can make us eligible for a computation cycle any sooner.
-      _wakeOnLiveDataChanged = false;
+      // No amount of market data can make us eligible for a computation cycle any sooner.
+      _wakeOnMarketDataChanged = false;
     } else {
       s_logger.debug("Sleeping until forced to perform the next computation cycle");
       
@@ -290,9 +378,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       wakeUpTime = Math.min(_deltaComputationRequiredByNanos, _fullComputationRequiredByNanos);
       
       // If we're not scheduled to wake up until after we're eligible for a computation cycle, then allow us to be
-      // woken sooner by live data changing. The benefit of this is when min=max, meaning live data will never wake
+      // woken sooner by market data changing. The benefit of this is when min=max, meaning market data will never wake
       // us up.
-      _wakeOnLiveDataChanged = wakeUpTime > minWakeUpTime;
+      _wakeOnMarketDataChanged = wakeUpTime > minWakeUpTime;
     }
     
     long sleepTime = wakeUpTime - currentTime;
@@ -302,7 +390,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     s_logger.debug("Waiting for {} ms", sleepTime);
     try {
       // This could wait until end of time if both full and delta maximum recalc periods are null.
-      // In this case, only liveDataChanged() will wake it up
+      // In this case, only marketDataChanged() will wake it up
       wait(sleepTime);
     } catch (InterruptedException e) {
       // We support interruption as a signal that we have been terminated. If we're interrupted without having been
@@ -314,7 +402,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     return ViewCycleType.NONE;
   }
   
-  private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference) throws Exception {
+  private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference, MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -327,7 +415,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     try {
-      cycleReference.get().execute(deltaCycle);
+      cycleReference.get().execute(deltaCycle, marketDataSnapshot);
     } catch (InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
@@ -340,10 +428,10 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       throw e;
     }
     
-    long duration = cycleReference.get().getDurationNanos();
-    _totalTimeNanos += duration;
+    long durationNanos = cycleReference.get().getDuration().toNanosLong();
+    _totalTimeNanos += durationNanos;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
   }
     
   @Override
@@ -351,9 +439,8 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     if (_previousCycleReference != null) {
       _previousCycleReference.release();
     }
-    _liveDataSnapshotProvider.removeListener(this);
-    removeLiveDataSubscriptions();
-    _latestCompiledViewDefinition = null;
+    removeMarketDataProvider();
+    invalidateCachedCompiledViewDefinition();
   }
   
   private void processCompleted() {
@@ -366,63 +453,73 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     terminate();
   }
   
-  public synchronized void liveDataChanged() {
+  public synchronized void marketDataChanged() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
-    // high-frequency live data. See how it goes, but we could take into account the recalc periods and apply a
-    // heuristic (e.g. only wake up due to live data if max - min < e, for some e) which tries to see whether it's
+    // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
+    // heuristic (e.g. only wake up due to market data if max - min < e, for some e) which tries to see whether it's
     // worth doing all this.
     
-    s_logger.debug("Live Data changed");
-    _liveDataChanged = true;
-    if (!_wakeOnLiveDataChanged) {
+    s_logger.debug("Market Data changed");
+    _marketDataChanged = true;
+    if (!_wakeOnMarketDataChanged) {
       return;
     }
     notifyAll();
   }
   
   //-------------------------------------------------------------------------
-  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions) {
+  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    // View definition was compiled based on compilation options, which might have only included an indicative
+    // valuation time. A further check ensures that the compiled view definition is still valid.
+    if (!compiledViewDefinition.isValidFor(executionOptions.getValuationTime())) {
+      throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
+    }
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCompiledViewDefinition(executionOptions.getValuationTime());
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, _executionOptions);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions);
     return getCycleManager().manage(cycle);
   }
   
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    CompiledViewDefinitionWithGraphsImpl compiledView = getLatestCompiledViewDefinition();
-    if (compiledView != null && compiledView.isValidFor(valuationTime) && functionInitId == compiledView.getFunctionInitId()) {
-      // Existing cached model is valid (an optimisation for the common case of similar, increasing evaluation times)
-      return compiledView;
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCachedCompiledViewDefinition();
+    if (compiledViewDefinition != null && compiledViewDefinition.isValidFor(valuationTime) && functionInitId == compiledViewDefinition.getFunctionInitId()) {
+      // Existing cached model is valid (an optimisation for the common case of similar, increasing valuation times)
+      return compiledViewDefinition;
     }
     
     try {
-      compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
+      MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
+      ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
+      compiledViewDefinition = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), compilationServices, valuationTime);
     } catch (Exception e) {
-      getViewProcess().viewDefinitionCompilationFailed(valuationTime, e);
+      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException("Error compiling view definition for time " + valuationTime, e));
       throw new OpenGammaRuntimeException("Error compiling view definition", e);
     }
-    setLatestCompiledViewDefinition(compiledView);
+    setCachedCompiledViewDefinition(compiledViewDefinition);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
-    getViewProcess().viewDefinitionCompiled(compiledView);
+    viewDefinitionCompiled(compiledViewDefinition);
     
-    // Update the live data subscriptions to whatever is now required, ensuring the computation cycle can find the
+    // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
-    setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
-    return compiledView;
+    setMarketDataSubscriptions(compiledViewDefinition.getMarketDataRequirements().keySet());
+    return compiledViewDefinition;
   }
-  
+
   /**
    * Gets the cached compiled view definition which may be re-used in subsequent computation cycles.
    * <p>
    * External visibility for tests.
    * 
-   * @return the latest compiled view definition, or {@code null} if no cycles have yet completed
+   * @return the cached compiled view definition, or {@code null} if nothing is currently cached
    */
-  public CompiledViewDefinitionWithGraphsImpl getLatestCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphsImpl getCachedCompiledViewDefinition() {
     return _latestCompiledViewDefinition;
+  }
+  
+  private void invalidateCachedCompiledViewDefinition() {
+    _latestCompiledViewDefinition = null;
   }
   
   /**
@@ -432,7 +529,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    * 
    * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
    */
-  public void setLatestCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
+  public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
   
@@ -447,7 +544,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   private boolean requireDeltaCycleNext(long currentTime) {
-    if (getExecutionOptions().isRunAsFastAsPossible()) {
+    if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
       // Run as fast as possible on delta cycles, with full cycles as required by the view definition and execution options
       return true;
     }
@@ -455,32 +552,59 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
 
   //-------------------------------------------------------------------------
-  private void setLiveDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
-    final Set<ValueRequirement> currentSubscriptions = _liveDataSubscriptions;
-    final Set<ValueRequirement> unusedLiveData = Sets.difference(currentSubscriptions, requiredSubscriptions);
-    if (!unusedLiveData.isEmpty()) {
-      s_logger.debug("{} unused live data subscriptions: {}", unusedLiveData.size(), unusedLiveData);
-      removeLiveDataSubscriptions(unusedLiveData);
+  private void replaceMarketDataProvider(MarketDataSpecification marketDataSpec) {
+    removeMarketDataProvider();
+    // A different market data provider may change the availability of market data, altering the dependency graph
+    invalidateCachedCompiledViewDefinition();
+    setMarketDataProvider(marketDataSpec);
+  }
+  
+  private void removeMarketDataProvider() {
+    if (_marketDataProvider == null) {
+      return;
     }
-    final Set<ValueRequirement> newLiveData = Sets.difference(requiredSubscriptions, currentSubscriptions);
-    if (!newLiveData.isEmpty()) {
-      s_logger.debug("{} new live data requirements: {}", newLiveData.size(), newLiveData);
-      addLiveDataSubscriptions(newLiveData);
+    removeMarketDataSubscriptions();
+    _marketDataProvider.removeListener(this);
+    _marketDataProvider = null;
+  }
+  
+  private MarketDataProvider getMarketDataProvider() {
+    return _marketDataProvider;
+  }
+  
+  private void setMarketDataProvider(MarketDataSpecification marketDataSpec) {
+    _marketDataProvider = getProcessContext().getMarketDataProviderResolver().resolve(marketDataSpec);
+    _marketDataProvider.addListener(this);
+  }
+  
+  private void setMarketDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
+    final Set<ValueRequirement> currentSubscriptions = _marketDataSubscriptions;
+    final Set<ValueRequirement> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
+    if (!unusedMarketData.isEmpty()) {
+      s_logger.debug("{} unused market data subscriptions: {}", unusedMarketData.size(), unusedMarketData);
+      removeMarketDataSubscriptions(unusedMarketData);
+    }
+    final Set<ValueRequirement> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
+    if (!newMarketData.isEmpty()) {
+      s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
+      addMarketDataSubscriptions(newMarketData);
     }
   }
 
-  private void addLiveDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
-    final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", requiredSubscriptions.size());
+  //-------------------------------------------------------------------------
+  private void addMarketDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
+    final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    _liveDataSnapshotProvider.addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
-    _liveDataSubscriptions.addAll(requiredSubscriptions);
+    getMarketDataProvider().subscribe(getViewProcess().getDefinition().getMarketDataUser(), requiredSubscriptions);
+    _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
-      if (!_pendingSubscriptionLatch.await(LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+      if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
         long remainingCount = _pendingSubscriptionLatch.getCount();
-        s_logger.warn("Timed out after {} ms waiting for live data subscriptions to be made. The live data snapshot " +
-          "used in the computation cycle could be incomplete. Still waiting for {} out of {} live data subscriptions",
-          new Object[] {LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, remainingCount, _liveDataSubscriptions.size()});
+        s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
+            "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
+            "subscriptions",
+          new Object[] {MARKET_DATA_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size()});
       }
     } catch (InterruptedException ex) {
       s_logger.info("Interrupted while waiting for subscription results.");
@@ -498,14 +622,14 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
   }
   
-  private void removeLiveDataSubscriptions() {
-    removeLiveDataSubscriptions(_liveDataSubscriptions);
+  private void removeMarketDataSubscriptions() {
+    removeMarketDataSubscriptions(_marketDataSubscriptions);
   }
 
-  private void removeLiveDataSubscriptions(final Set<ValueRequirement> unusedSubscriptions) {
-    final OperationTimer timer = new OperationTimer(s_logger, "Removing {} live data subscriptions", unusedSubscriptions.size());
-    // [ENG-251] TODO getLiveDataSnapshotProvider().removeSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
-    _liveDataSubscriptions.removeAll(unusedSubscriptions);
+  private void removeMarketDataSubscriptions(final Set<ValueRequirement> unusedSubscriptions) {
+    final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
+    getMarketDataProvider().unsubscribe(getViewProcess().getDefinition().getMarketDataUser(), _marketDataSubscriptions);
+    _marketDataSubscriptions.removeAll(unusedSubscriptions);
     timer.finished();
   }
   
@@ -514,14 +638,14 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   public void subscriptionSucceeded(ValueRequirement requirement) {
     // REVIEW jonathan 2011-01-07
     // Can't tell in general whether this subscription message was relating to a subscription that we made or one that
-    // a concurrent user of the LiveDataSnapshotProvider made.
+    // a concurrent user of the MarketDataProvider made.
     s_logger.debug("Subscription succeeded: {}", requirement);
     removePendingSubscription(requirement);
   }
 
   @Override
   public void subscriptionFailed(ValueRequirement requirement, String msg) {
-    s_logger.warn("Live data subscription to {} failed. This live data may be missing from computation cycles.", requirement);
+    s_logger.warn("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
     removePendingSubscription(requirement);
   }
 
@@ -531,17 +655,17 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
 
   @Override
   public void valueChanged(ValueRequirement value) {
-    if (!getExecutionOptions().isLiveDataTriggerEnabled()) {
+    if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       return;
     }
     
-    CompiledViewDefinitionWithGraphsImpl compiledView = getLatestCompiledViewDefinition();
+    CompiledViewDefinitionWithGraphsImpl compiledView = getCachedCompiledViewDefinition();
     if (compiledView == null) {
       return;
     }
-    Map<ValueRequirement, ValueSpecification> liveDataRequirements = compiledView.getLiveDataRequirements();
-    if (liveDataRequirements.containsKey(value)) {
-      liveDataChanged();
+    Map<ValueRequirement, ValueSpecification> marketDataRequirements = compiledView.getMarketDataRequirements();
+    if (marketDataRequirements.containsKey(value)) {
+      marketDataChanged();
     }
   }
 

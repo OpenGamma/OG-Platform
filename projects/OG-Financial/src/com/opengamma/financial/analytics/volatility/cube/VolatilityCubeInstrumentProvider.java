@@ -9,15 +9,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.time.calendar.Period;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -29,6 +35,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public final class VolatilityCubeInstrumentProvider {
 
+  //TODO: other ATM surfaces
+  private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER = 
+    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy");
+  
   /**
    * Generates Bloomberg codes for volatilities given points.
    */
@@ -36,14 +49,11 @@ public final class VolatilityCubeInstrumentProvider {
 
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
-  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Identifier> _idsByPoint;
-  private final HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint> _pointsById;
-
+  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> _idsByPoint;
+  
   private VolatilityCubeInstrumentProvider() {
     //TODO not here
-
-    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Identifier>();
-    _pointsById = new HashMap<ObjectsPair<Currency, Identifier>, VolatilityPoint>();
+    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>>();
 
     InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
@@ -60,7 +70,7 @@ public final class VolatilityCubeInstrumentProvider {
         String expiryUnit = nextLine[3];
         String swapPeriod = nextLine[4];
         String swapPeriodUnit = nextLine[5];
-        String payOrReceive = nextLine[6]; //TODO
+        String payOrReceive = nextLine[6];
         String relativeStrike = nextLine[7];
         String ticker = nextLine[8];
 
@@ -71,7 +81,7 @@ public final class VolatilityCubeInstrumentProvider {
           double sign;
           if ("PY".equals(payOrReceive)) {
             sign = -1;
-          } else if ("RCV".equals(payOrReceive)) {
+          } else if ("RC".equals(payOrReceive)) {
             sign = 1;
           } else {
             throw new IllegalArgumentException();
@@ -83,10 +93,12 @@ public final class VolatilityCubeInstrumentProvider {
           VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
 
           Identifier identifier = getIdentifier(ticker + " Curncy");
-          @SuppressWarnings("unused")
-          Identifier prev = _idsByPoint.put(Pair.of(currency, point), identifier);
-          if (_pointsById.put(Pair.of(currency, identifier), point) != null) {
-            throw new IllegalArgumentException();
+
+          ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
+          if (_idsByPoint.containsKey(key)) {
+            _idsByPoint.get(key).add(identifier);
+          } else {
+            _idsByPoint.put(key, Sets.newHashSet(identifier));
           }
         }
       }
@@ -100,11 +112,42 @@ public final class VolatilityCubeInstrumentProvider {
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker);
   }
 
-  public VolatilityPoint getPoint(Currency currency, Identifier instrument) {
-    return _pointsById.get(Pair.of(currency, instrument));
+  public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
+    if ((point.getRelativeStrike() == 0.0 || point.getRelativeStrike() == -0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      Identifier instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
+      return Sets.newHashSet(instrument);
+    } else {
+      return _idsByPoint.get(Pair.of(currency, point));
+    }
   }
 
-  public Identifier getInstrument(Currency currency, VolatilityPoint point) {
-    return _idsByPoint.get(Pair.of(currency, point));
+  public Set<Currency> getAllCurrencies() {
+    HashSet<Currency> ret = new HashSet<Currency>();
+    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+      ret.add(entry.getKey().first);
+    }
+    return ret;
+  }
+  
+  public Set<VolatilityPoint> getAllPoints(Currency currency) {
+    HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
+    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+      if (entry.getKey().first.equals(currency)) {
+        ret.add(entry.getKey().second);
+      }
+    }
+    return ret;
+  }
+
+  public Identifier getStrikeInstrument(Currency currency, VolatilityPoint point) {
+    return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
+  }
+  public Identifier getStrikeInstrument(Currency currency, Tenor swapTenor, Tenor optionExpiry) {
+    if (currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      return ATM_STRIKE_INSTRUMENT_PROVIDER.getInstrument(swapTenor, optionExpiry);
+    } else {
+      //TODO other currencies
+      return null;
+    }
   }
 }

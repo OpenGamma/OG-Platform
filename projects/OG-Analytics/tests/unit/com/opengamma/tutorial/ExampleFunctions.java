@@ -17,7 +17,7 @@ public class ExampleFunctions {
   /**
    * Computes a 1D Matrix by computing the square of each element of another
    */
-  public static Function1D<DoubleMatrix1D, DoubleMatrix1D> SQUARES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  public static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SQUARES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       final int n = x.getNumberOfElements();

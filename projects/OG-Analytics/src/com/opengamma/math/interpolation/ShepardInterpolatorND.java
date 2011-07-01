@@ -39,7 +39,7 @@ public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBund
       temp = rawData.get(i);
       xi = temp.getFirst();
       yi = temp.getSecond();
-      dist = InterpolatorNDDataBundle.getDistance(x, xi);
+      dist = DistanceCalculator.getDistance(x, xi);
       if (dist == 0.0) {
         return yi;
       }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
+import javax.time.Duration;
+
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueIdentifiable;
@@ -41,9 +43,10 @@ public interface ViewCycle extends UniqueIdentifiable {
   /**
    * Gets the duration of the cycle's execution. If the cycle is currently executing, this is the current duration.
    * 
-   * @return the cycle's execution time, or -1 if the cycle has not started executing or failed to execute successfully
+   * @return the cycle's execution duration, or {@code null} if the cycle has not started executing or failed to
+   *         execute successfully
    */
-  long getDurationNanos();
+  Duration getDuration();
   
   /**
    * Gets the compiled view definition used during the cycle's execution

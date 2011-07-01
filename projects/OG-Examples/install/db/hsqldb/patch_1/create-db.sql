@@ -268,12 +268,10 @@ CREATE TABLE sec_equity (
     constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
 );
 
-CREATE TABLE sec_option (
+CREATE TABLE sec_equityindexoption (
     id bigint not null,
     security_id bigint not null,
-    option_security_type varchar(32) not null,
     option_exercise_type varchar(32) not null,
-    option_payoff_style varchar(32) not null,
     option_type varchar(32) not null,
     strike double precision not null,
     expiry_date timestamp not null,
@@ -282,30 +280,107 @@ CREATE TABLE sec_option (
     underlying_scheme varchar(255) not null,
     underlying_identifier varchar(255) not null,
     currency_id bigint not null,
-    put_currency_id bigint,
-    call_currency_id bigint,
     exchange_id bigint,
-    counterparty varchar(255),
-    power double precision,
-    cap double precision,
-    margined boolean,
     pointValue double precision,
-    payment double precision,
-    lowerbound double precision,
-    upperbound double precision,
-    choose_date timestamp,
-    choose_zone varchar(50),
-    underlyingstrike double precision,
-    underlyingexpiry_date timestamp,
-    underlyingexpiry_zone varchar(50),
-    underlyingexpiry_accuracy smallint,
-    reverse boolean,
     primary key (id),
-    constraint sec_fk_option2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_option2currency foreign key (currency_id) references sec_currency (id),
-    constraint sec_fk_option2putcurrency foreign key (put_currency_id) references sec_currency (id),
-    constraint sec_fk_option2callcurrency foreign key (call_currency_id) references sec_currency (id),
-    constraint sec_fk_option2exchange foreign key (exchange_id) references sec_exchange (id)
+    constraint sec_fk_equityindexoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_equityindexoption2currency foreign key (currency_id) references sec_currency (id),
+    constraint sec_fk_equityindexoption2exchange foreign key (exchange_id) references sec_exchange (id)
+);
+
+CREATE TABLE sec_equityoption (
+    id bigint not null,
+    security_id bigint not null,
+    option_exercise_type varchar(32) not null,
+    option_type varchar(32) not null,
+    strike double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    currency_id bigint not null,
+    exchange_id bigint,
+    pointValue double precision,
+    primary key (id),
+    constraint sec_fk_equityoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_equityoption2currency foreign key (currency_id) references sec_currency (id),
+    constraint sec_fk_equityoption2exchange foreign key (exchange_id) references sec_exchange (id)
+);
+
+CREATE TABLE sec_fxoption (
+    id bigint not null,
+    security_id bigint not null,
+    put_amount double precision not null,
+    call_amount double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    put_currency_id bigint not null,
+    call_currency_id bigint not null,
+    settlement_date timestamp not null,
+    settlement_zone varchar(50) not null,
+    primary key (id),
+    constraint sec_fk_fxoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxoption2putcurrency foreign key (put_currency_id) references sec_currency (id),
+    constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id),
+);
+
+CREATE TABLE sec_swaption (
+    id bigint not null,
+    security_id bigint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    cash_settled boolean not null,
+    is_long boolean not null,
+    primary key (id),
+    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
+);
+
+CREATE TABLE sec_irfutureoption (
+    id bigint not null,
+    security_id bigint not null,
+    option_exercise_type varchar(32) not null,
+    option_type varchar(32) not null,
+    strike double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    currency_id bigint not null,
+    exchange_id bigint not null,
+    margined boolean not null,
+    pointValue double precision not null,
+    primary key (id),
+    constraint sec_fk_irfutureoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_irfutureoption2currency foreign key (currency_id) references sec_currency (id),
+    constraint sec_fk_irfutureoption2exchange foreign key (exchange_id) references sec_exchange (id)
+);
+
+CREATE TABLE sec_fxbarrieroption (
+    id bigint not null,
+    security_id bigint not null,
+    put_amount double precision not null,
+    call_amount double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    put_currency_id bigint not null,
+    call_currency_id bigint not null,
+    settlement_date timestamp not null,
+    settlement_zone varchar(50) not null,
+    barrier_type varchar(32) not null,
+    barrier_direction varchar(32) not null,
+    monitoring_type varchar(32) not null,
+    sampling_frequency varchar(32),
+    primary key (id),
+    constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
+    constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
 CREATE TABLE sec_frequency (
@@ -419,6 +494,7 @@ CREATE TABLE sec_future (
     cashratetype_id bigint,
     unitname_id bigint,
     unitnumber double precision,
+    unit_amount double precision,
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
     bondFutureFirstDeliveryDate timestamp,
@@ -653,6 +729,11 @@ CREATE TABLE pos_trade (
     cparty_value varchar(255) not null,
     provider_scheme varchar(255),
     provider_value varchar(255),
+    premium_value double precision,
+    premium_currency varchar(255),
+    premium_date date,
+    premium_time time(6),
+    premium_zone_offset int,
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
@@ -661,6 +742,24 @@ CREATE TABLE pos_trade (
 CREATE INDEX ix_pos_trade_oid ON pos_trade(oid);
 CREATE INDEX ix_pos_trade_position_id ON pos_trade(position_id);
 CREATE INDEX ix_pos_trade_position_oid ON pos_trade(position_oid);
+
+CREATE SEQUENCE pos_trade_attr_seq as bigint
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE pos_trade_attribute (
+    id bigint not null,
+    trade_id bigint not null,
+    trade_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_tradeattr2trade foreign key (trade_id) references pos_trade (id),
+    constraint pos_chk_uq_trade_attribute unique (trade_id, key, value)
+);
+-- trade_oid is an optimization
+-- pos_trade_attribute is fully dependent of pos_trade
+CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
+CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
 
 CREATE TABLE pos_idkey (
     id bigint not null,

@@ -6,7 +6,10 @@
 package com.opengamma.financial.timeseries.model;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
@@ -21,7 +24,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.1;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MEAN, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MEAN, STD, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(NORMAL);
   private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(NORMAL);
   private static final AutoregressiveMovingAverageTimeSeriesModel MODEL = new AutoregressiveMovingAverageTimeSeriesModel(NORMAL);

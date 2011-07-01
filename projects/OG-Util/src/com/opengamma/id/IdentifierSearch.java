@@ -7,18 +7,11 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -77,7 +70,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @param identifiers  the collection of identifiers, not null
    */
   public IdentifierSearch(Iterable<Identifier> identifiers) {
-    addIdentifiers(identifiers);
+    this(identifiers, IdentifierSearchType.ANY);
   }
 
   /**
@@ -185,6 +178,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   //-------------------------------------------------------------------------
   /**
    * Checks if this search matches the identifier.
+   * <p>
+   * An EXACT match returns true if there is one stored identifier and it is equal to the passed in identifier.<br />
+   * An ALL match returns true if this is empty or has a single identifier equal to the input.<br />
+   * An ANY match returns true if the passed in identifier matches any of the stored identifiers.<br />
+   * A NONE match returns true if the passed in identifier does not match any stored identifier.<br />
    * 
    * @param otherIdentifier  the identifier to search for, not null
    * @return true if this search contains all of the keys specified
@@ -206,6 +204,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
 
   /**
    * Checks if this search matches the identifiers.
+   * <p>
+   * An EXACT match returns true if the passed in identifiers are the same set as the stored identifiers.<br />
+   * An ALL match returns true if the passed in identifiers match are a superset or equal the stored identifiers.<br />
+   * An ANY match returns true if the passed in identifiers match any of the stored identifiers.<br />
+   * A NONE match returns true if none of the passed in identifiers match a stored identifier.<br />
    * 
    * @param otherIdentifiers  the identifiers to search for, empty returns true, not null
    * @return true if this search contains all of the keys specified
@@ -225,8 +228,13 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
     return false;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks if this search contains all the keys from the specified identifiers.
+   * <p>
+   * This is the opposite check to the ALL search type in {@code matches()}.
+   * This method checks if this is a superset or equal to the passed in identifiers.
+   * The ALL check checks the superset the other way around.
    * 
    * @param otherIdentifiers  the identifiers to search for, empty returns true, not null
    * @return true if this search contains all of the keys specified
@@ -310,38 +318,6 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
         .appendWithSeparators(_identifiers, ", ")
         .append("]")
         .toString();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Serializes this identifier search to a Fudge message.
-   * 
-   * @param factory  a message creator, not null
-   * @return the serialized Fudge message
-   */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    MutableFudgeMsg msg = factory.newMessage();
-    for (Identifier identifier : getIdentifiers()) {
-      msg.add("identifier", identifier.toFudgeMsg(factory));
-    }
-    msg.add("searchType", getSearchType().name());
-    return msg;
-  }
-
-  /**
-   * Deserializes an identifier search from a Fudge message.
-   * 
-   * @param fudgeContext  the Fudge context
-   * @param msg  the Fudge message, not null
-   * @return the identifier bundle
-   */
-  public static IdentifierSearch fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
-    Set<Identifier> identifiers = new HashSet<Identifier>();
-    for (FudgeField field : msg.getAllByName("identifier")) {
-      identifiers.add(Identifier.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
-    }
-    IdentifierSearchType type = IdentifierSearchType.valueOf(msg.getString("searchType"));
-    return new IdentifierSearch(identifiers, type);
   }
 
 }
