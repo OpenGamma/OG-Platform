@@ -93,7 +93,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);

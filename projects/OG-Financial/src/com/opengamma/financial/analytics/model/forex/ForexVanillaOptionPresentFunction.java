@@ -53,7 +53,7 @@ public class ForexVanillaOptionPresentFunction extends AbstractFunction.NonCompi
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXOptionSecurity security = (FXOptionSecurity) target.getSecurity();
     final ForexConverter<?> definition = _visitor.visitFXOptionSecurity(security);

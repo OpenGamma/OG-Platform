@@ -50,7 +50,7 @@ public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
@@ -62,7 +62,7 @@ public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get());
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
     return Sets.newHashSet(new ComputedValue(specification, presentValue));
   }
 
@@ -73,6 +73,6 @@ public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
             .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-            .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get()));
+            .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get()));
   }
 }

@@ -51,7 +51,7 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
@@ -63,17 +63,17 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get());
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get());
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
     final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get());
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
     final Map<DoublesPair, Double> alpha = presentValue.getAlpha();
     final Map<DoublesPair, Double> nu = presentValue.getNu();
     final Map<DoublesPair, Double> rho = presentValue.getRho();
@@ -89,7 +89,7 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .with(ValuePropertyNames.CUBE, getHelper().getKey().getName()).get();
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), valueProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), valueProperties);
     final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), valueProperties);

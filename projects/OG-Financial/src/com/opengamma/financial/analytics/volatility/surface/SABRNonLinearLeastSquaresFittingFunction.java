@@ -88,12 +88,12 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_volCubeHelper.getKey().getCurrency());
-    final ValueProperties cubeProperties = ValueProperties.with(ValuePropertyNames.CUBE, _volCubeHelper.getKey().getName()).get();
+    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_volCubeHelper.getCurrency());
+    final ValueProperties cubeProperties = ValueProperties.with(ValuePropertyNames.CUBE, _volCubeHelper.getDefinitionName()).get();
     _cubeRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, currencyTargetSpec, cubeProperties);
     final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, _volCubeHelper.getKey().getCurrency().getCode())
-        .with(ValuePropertyNames.CUBE, _volCubeHelper.getKey().getName()).get();
+        .with(ValuePropertyNames.CURRENCY, _volCubeHelper.getCurrency().getCode())
+        .with(ValuePropertyNames.CUBE, _volCubeHelper.getDefinitionName()).get();
     _resultSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, currencyTargetSpec, resultProperties);
   }
 
@@ -167,7 +167,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     PDEUtilityTools.printSurface("Nu", nuSurface.getSurface(), 2, 30, 0.25, 20);
     PDEUtilityTools.printSurface("Rho", rhoSurface.getSurface(), 2, 30, 0.25, 20);
     PDEUtilityTools.printSurface("Chi Sq", InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, chiSq, INTERPOLATOR, "SABR chi sq surface"), 2, 30, 0.25, 20);
-    final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, _volCubeHelper.getKey().getCurrency(), DAY_COUNT);
+    final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, _volCubeHelper.getCurrency(), DAY_COUNT);
     return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces));
   }
 
@@ -181,7 +181,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return ObjectUtils.equals(target.getUniqueId(), _volCubeHelper.getKey().getCurrency().getUniqueId());
+    return ObjectUtils.equals(target.getUniqueId(), _volCubeHelper.getCurrency().getUniqueId());
   }
 
   @Override

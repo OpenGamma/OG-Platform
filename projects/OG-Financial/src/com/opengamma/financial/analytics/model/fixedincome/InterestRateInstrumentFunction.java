@@ -29,8 +29,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
@@ -80,7 +80,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);

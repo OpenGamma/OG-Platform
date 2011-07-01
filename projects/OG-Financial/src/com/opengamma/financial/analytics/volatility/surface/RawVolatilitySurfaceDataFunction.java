@@ -165,7 +165,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
-        final Clock snapshotClock = executionContext.getSnapshotClock();
+        final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         for (final Object x : _definition.getXs()) {
