@@ -186,7 +186,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _parentPositionId = copyFrom.getParentPositionId();
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
-    _attributes.putAll(copyFrom.getAttributes());
+    setAttributes(copyFrom.getAttributes());
   }
 
   //-------------------------------------------------------------------------
@@ -415,23 +415,43 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     return Collections.unmodifiableMap(_attributes);
   }
   
+  /**
+   * Add a trade attribute
+   * 
+   * @param key attribute key, not null
+   * @param value attribute value, not null
+   */
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     _attributes.put(key, value);
   }
   
+  /**
+   * Add all attributes from a given Map
+   *  
+   * @param attributes the attributes map, not null
+   */
   public void setAttributes(Map<String, String> attributes) {
     ArgumentChecker.notNull(attributes, "attributes");
+    clearAttributes();
     for (Entry<String, String> entry : attributes.entrySet()) {
       addAttribute(entry.getKey(), entry.getValue());
     }
   }
 
+  /**
+   * Remove all attributes
+   */
   public void clearAttributes() {
     _attributes.clear();
   }
 
+  /**
+   * Removes an attribute with given key
+   * 
+   * @param key the attribute key to remove, not null
+   */
   public void removeAttribute(final String key) {
     ArgumentChecker.notNull(key, "key");
     _attributes.remove(key);
