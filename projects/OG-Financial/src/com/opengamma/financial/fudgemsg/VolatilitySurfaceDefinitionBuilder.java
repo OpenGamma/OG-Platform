@@ -52,6 +52,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     final List<FudgeField> ysFields = message.getAllByName("ys");
     final List<Object> ys = new ArrayList<Object>();
     for (final FudgeField yField : ysFields) {
+
       final Object y = context.fieldValueToObject(yField);
       ys.add(y);
     }

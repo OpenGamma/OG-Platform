@@ -35,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -59,23 +58,19 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private final Currency _surfaceCurrency;
+  private String _currencyLabel;
   private final String _definitionName;
   private final String _specificationName;
   private String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public RawVolatilitySurfaceDataFunction(final String currency, final String definitionName, final String instrumentType, final String specificationName) {
-    this(Currency.of(currency), definitionName, instrumentType, specificationName);
-  }
-
-  public RawVolatilitySurfaceDataFunction(final Currency currency, final String definitionName, final String instrumentType, final String specificationName) {
-    Validate.notNull(currency, "Currency");
+  public RawVolatilitySurfaceDataFunction(final String currencyLabel, final String definitionName, final String instrumentType, final String specificationName) {
+    Validate.notNull(currencyLabel, "Currency label");
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
     Validate.notNull(specificationName, "Specification Name");
     _definition = null;
-    _surfaceCurrency = currency;
+    _currencyLabel = currencyLabel;
     _definitionName = definitionName;
     _instrumentType = instrumentType;
     _specificationName = specificationName;
@@ -83,8 +78,8 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
     _results = null;
   }
 
-  public Currency getCurveCurrency() {
-    return _surfaceCurrency;
+  public String getCurrencyLabel() {
+    return _currencyLabel;
   }
 
   public String getDefinitionName() {
@@ -99,9 +94,9 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_surfaceCurrency, _definitionName, _instrumentType);
+    _definition = volSurfaceDefinitionSource.getDefinition(_currencyLabel, _definitionName, _instrumentType);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_surfaceCurrency, _specificationName, _instrumentType);
+    _specification = volatilitySurfaceSpecificationSource.getSpecification(_currencyLabel, _specificationName, _instrumentType);
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
@@ -109,7 +104,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
   @Override
   public String getShortName() {
-    return _surfaceCurrency + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
+    return _currencyLabel + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
   }
 
   @SuppressWarnings("unchecked")
