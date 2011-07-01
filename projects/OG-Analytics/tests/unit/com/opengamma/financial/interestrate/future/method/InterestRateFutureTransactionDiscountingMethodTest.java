@@ -31,6 +31,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -84,6 +85,10 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     final double pv = METHOD.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
     final double expectedPv = (quotedPrice - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Present value from quoted price", expectedPv, pv);
+    PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
+    double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, quotedPrice);
+    assertEquals("IR future transaction Method: present value from price", pv, presentValueCalculator);
+
   }
 
   @Test
