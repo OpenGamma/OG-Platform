@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
@@ -66,7 +67,21 @@ public class InterestRateFutureOptionMarginTransactionSABRMethod extends Interes
    */
   public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
     PresentValueSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), sabrData);
-    return securitySensitivity.multiply(transaction.getQuantity());
+    return securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a transaction.
+   * @param transaction The future option transaction.
+   * @param sabrData The SABR data bundle. 
+   * @return The present value curve sensitivity.
+   */
+  public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
+    PresentValueSABRSensitivityDataBundle securitySensitivity = METHOD_SECURITY.priceSABRSensitivity(transaction.getUnderlyingOption(), sabrData);
+    securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    return securitySensitivity;
   }
 
 }

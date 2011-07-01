@@ -27,6 +27,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -178,13 +180,64 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     assertEquals("Future option curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
     InterestRateFutureOptionMarginSecuritySABRMethod methodSecurity = new InterestRateFutureOptionMarginSecuritySABRMethod();
     PresentValueSensitivity sensiSecurity = methodSecurity.priceCurveSensitivity(OPTION_EDU2, SABR_BUNDLE);
-    PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY);
+    PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY * NOTIONAL * FUTURE_FACTOR);
     for (int looppt = 0; looppt < sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).size(); looppt++) {
       assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
           .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
       assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
           .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
     }
+  }
+
+  @Test
+  public void presentValueSABRSensitivity() {
+    final PresentValueSABRSensitivityDataBundle pvcs = METHOD.presentValueSABRSensitivity(TRANSACTION, SABR_BUNDLE);
+    // SABR sensitivity vs finite difference
+    final double pv = METHOD.presentValue(TRANSACTION, SABR_BUNDLE).getAmount();
+    final double shift = 0.000001;
+    double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
+    final DoublesPair expectedExpiryDelay = new DoublesPair(OPTION_EDU2.getExpirationTime(), delay);
+    // Alpha sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shift);
+    final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES_BUNDLE);
+    final double pvAlphaBumped = METHOD.presentValue(TRANSACTION, sabrBundleAlphaBumped).getAmount();
+    final double expectedAlphaSensi = (pvAlphaBumped - pv) / shift;
+    assertEquals("Number of alpha sensitivity", pvcs.getAlpha().keySet().size(), 1);
+    assertEquals("Alpha sensitivity expiry/tenor", pvcs.getAlpha().keySet().contains(expectedExpiryDelay), true);
+    assertEquals("Alpha sensitivity value", pvcs.getAlpha().get(expectedExpiryDelay), expectedAlphaSensi, 1.0E+1);
+    // Rho sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped(shift);
+    final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES_BUNDLE);
+    final double pvRhoBumped = METHOD.presentValue(TRANSACTION, sabrBundleRhoBumped).getAmount();
+    final double expectedRhoSensi = (pvRhoBumped - pv) / shift;
+    assertEquals("Number of rho sensitivity", pvcs.getRho().keySet().size(), 1);
+    assertEquals("Rho sensitivity expiry/tenor", pvcs.getRho().keySet().contains(expectedExpiryDelay), true);
+    assertEquals("Rho sensitivity value", pvcs.getRho().get(expectedExpiryDelay), expectedRhoSensi, 1.0E+0);
+    // Alpha sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped(shift);
+    final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES_BUNDLE);
+    final double pvNuBumped = METHOD.presentValue(TRANSACTION, sabrBundleNuBumped).getAmount();
+    final double expectedNuSensi = (pvNuBumped - pv) / shift;
+    assertEquals("Number of nu sensitivity", pvcs.getNu().keySet().size(), 1);
+    assertEquals("Nu sensitivity expiry/tenor", pvcs.getNu().keySet().contains(expectedExpiryDelay), true);
+    assertEquals("Nu sensitivity value", pvcs.getNu().get(expectedExpiryDelay), expectedNuSensi, 1.0E+0);
+  }
+
+  @Test
+  /**
+   * Tests that the method return the same result as the calculator.
+   */
+  public void presentValueSABRSensitivityMethodVsCalculator() {
+    final PresentValueSABRSensitivitySABRCalculator calculator = PresentValueSABRSensitivitySABRCalculator.getInstance();
+    final PresentValueSABRSensitivityDataBundle sensiCalculator = calculator.visit(TRANSACTION, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle sensiMethod = METHOD.presentValueSABRSensitivity(TRANSACTION, SABR_BUNDLE);
+    assertEquals("Future option curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod);
+    InterestRateFutureOptionMarginSecuritySABRMethod methodSecurity = new InterestRateFutureOptionMarginSecuritySABRMethod();
+    PresentValueSABRSensitivityDataBundle sensiSecurity = methodSecurity.priceSABRSensitivity(OPTION_EDU2, SABR_BUNDLE);
+    sensiSecurity.multiply(QUANTITY * NOTIONAL * FUTURE_FACTOR);
+    assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getAlpha(), sensiSecurity.getAlpha());
+    assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getRho(), sensiSecurity.getRho());
+    assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getNu(), sensiSecurity.getNu());
   }
 
 }
