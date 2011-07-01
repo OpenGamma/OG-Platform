@@ -18,7 +18,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 public abstract class AbstractViewResultListener implements ViewResultListener {
 
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
   }
 
   @Override

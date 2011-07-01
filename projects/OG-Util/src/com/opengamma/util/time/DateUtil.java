@@ -444,12 +444,11 @@ public class DateUtil {
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.
   /**
    * Creates a clock with a fixed time-source and UTC time-zone.
-   * @param epochMilliseconds  the epoch millis
-   * @return the clock, not null
+   * @param instantProvider  the instant to be provided by the clock, not {@code null}
+   * @return the clock, not {@code null}
    */
-  public static Clock epochFixedClockUTC(long epochMilliseconds) {
-    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
-    TimeSource timeSource = TimeSource.fixed(instant);
+  public static Clock fixedClockUTC(InstantProvider instantProvider) {
+    TimeSource timeSource = TimeSource.fixed(instantProvider);
     Clock clock = Clock.clock(timeSource, TimeZone.UTC);
     return clock;
   }

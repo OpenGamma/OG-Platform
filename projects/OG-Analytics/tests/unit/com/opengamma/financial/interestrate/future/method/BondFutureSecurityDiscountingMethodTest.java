@@ -203,4 +203,27 @@ public class BondFutureSecurityDiscountingMethodTest {
     assertEquals("Bond future security: CTD - gross basis from price", grossBasisTest / 100.0 / 32.0, grossBasis[ctdIndex], 1.0E-7);
   }
 
+  @Test
+  /**
+   * Tests the gross basis computed from clean prices
+   */
+  public void grossBasis() {
+    double futurePriceTest = 1.19984375;
+    double[] pricesTest = new double[] {0.86, 0.885, 0.88, 0.8825, 0.885, 0.8725, 0.86};
+    double[] pricesCurves = new double[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      pricesCurves[loopbasket] = METHOD_BOND.cleanPriceFromCurves(BOND_FUTURE_SECURITY.getDeliveryBasket()[loopbasket], CURVES);
+    }
+    double[] basisComputedTest = METHOD.grossBasisFromPrices(BOND_FUTURE_SECURITY, pricesTest, futurePriceTest);
+    double[] basisComputedCurves = METHOD.grossBasisFromPrices(BOND_FUTURE_SECURITY, pricesCurves, futurePriceTest);
+    double[] basisExpectedTest = new double[NB_BOND];
+    double[] basisExpectedCurves = new double[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      basisExpectedTest[loopbasket] = (pricesTest[loopbasket] - futurePriceTest * CONVERSION_FACTOR[loopbasket]);
+      basisExpectedCurves[loopbasket] = (pricesCurves[loopbasket] - futurePriceTest * CONVERSION_FACTOR[loopbasket]);
+      assertEquals("Gross basis from prices", basisExpectedTest[loopbasket], basisComputedTest[loopbasket], 1.0E-10);
+      assertEquals("Gross basis from curves", basisExpectedCurves[loopbasket], basisComputedCurves[loopbasket], 1.0E-10);
+    }
+  }
+
 }

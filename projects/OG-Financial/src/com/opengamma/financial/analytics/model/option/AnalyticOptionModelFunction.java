@@ -42,7 +42,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getSnapshotClock(), option, inputs);
+    final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getValuationClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
     for (final ValueRequirement dV : desiredValues) {

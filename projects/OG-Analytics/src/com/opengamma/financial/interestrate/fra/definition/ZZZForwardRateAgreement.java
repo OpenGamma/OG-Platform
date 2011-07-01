@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.util.money.Currency;
 
@@ -119,6 +120,16 @@ public class ZZZForwardRateAgreement extends CouponFloating {
    */
   public String getForwardCurveName() {
     return _forwardCurveName;
+  }
+
+  @Override
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitZZZForwardRateAgreement(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitZZZForwardRateAgreement(this);
   }
 
   @Override

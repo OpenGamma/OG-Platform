@@ -57,7 +57,7 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_DURATION)
   public Response getDuration() {
-    return Response.ok(_cycle.getDurationNanos()).build();
+    return Response.ok(_cycle.getDuration()).build();
   }
   
   @Path(PATH_COMPILED_VIEW_DEFINITION)

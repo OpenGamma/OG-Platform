@@ -7,17 +7,10 @@ package com.opengamma.engine.view.execution;
 
 import java.util.EnumSet;
 
-import com.opengamma.id.UniqueIdentifier;
-
 /**
  * Encapsulates settings affecting the overall execution of a view process.
  */
 public interface ViewExecutionOptions {
-  
-  /**
-   * The real-time input data source
-   */
-  String REAL_TIME_DATA_SOURCE = "RealTime";
   
   /**
    * Gets the cycle execution sequence.
@@ -41,9 +34,10 @@ public interface ViewExecutionOptions {
   Integer getMaxSuccessiveDeltaCycles();
     
   /**
-   * Gets the snapshot ID used to provide live data for this cycle, or null not to use one
-   * @return the snapshot id to use, or null
+   * Gets the default execution options.
+   * 
+   * @return the default execution options, or {@code null} if not specified
    */
-  UniqueIdentifier getMarketDataSnapshotIdentifier();
+  ViewCycleExecutionOptions getDefaultExecutionOptions();
   
 }

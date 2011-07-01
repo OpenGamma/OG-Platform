@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -55,6 +56,25 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
     double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
+  }
+
+  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
+    // Forward sweep
+    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
+    double rateStrike = 1.0 - security.getStrike();
+    EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    double forward = 1 - priceFuture;
+    double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(security.getExpirationTime(), delay, rateStrike, forward);
+    BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
+    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    // Backward sweep
+    double priceBar = 1.0;
+    double volatilityBar = priceAdjoint[2] * priceBar;
+    double forwardBar = priceAdjoint[1] * priceBar + volatilityAdjoint[1] * volatilityBar;
+    double priceFutureBar = -forwardBar;
+    PresentValueSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), sabrData);
+    return priceFutureDerivative.multiply(priceFutureBar);
   }
 
 }

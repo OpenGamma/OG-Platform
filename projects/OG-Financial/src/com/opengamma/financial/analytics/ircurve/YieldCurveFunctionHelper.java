@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -129,13 +128,17 @@ public class YieldCurveFunctionHelper {
     }
     return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
   }
+  
+  public Currency getCurrency() {
+    return _currency;
+  }
+  
+  public String getCurveName() {
+    return _curveName;
+  }
 
   public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate) {
     return _curveSpecificationBuilder.buildCurve(curveDate, _definition);
-  }
-
-  public YieldCurveKey getYieldCurveKey() {
-    return new YieldCurveKey(_currency, _curveName);
   }
 
   public ValueRequirement getMarketDataValueRequirement() {

@@ -9,7 +9,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessState;
@@ -56,7 +56,7 @@ public class RemoteViewProcess implements ViewProcess {
   }
   
   @Override
-  public LiveDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjector getLiveDataOverrideInjector() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR).build();
     return new RemoteLiveDataInjector(uri);
   }

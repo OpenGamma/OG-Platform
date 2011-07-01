@@ -30,11 +30,11 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultViewComputationCacheSource implements ViewComputationCacheSource {
 
   /**
-   * Callback to receive notification of the releaseCaches message.
+   * Callback to receive notification when a computation cycle's caches are released.
    */
   public static interface ReleaseCachesCallback {
 
-    void onReleaseCaches(UniqueIdentifier viewProcessId, long timestamp);
+    void onReleaseCaches(UniqueIdentifier viewCycleId);
 
   }
 
@@ -53,7 +53,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final FudgeContext _fudgeContext;
 
   private final ConcurrentMap<ViewComputationCacheKey, DefaultViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, DefaultViewComputationCache>();
-  private final Map<Pair<UniqueIdentifier, Long>, List<ViewComputationCacheKey>> _activeCaches = new HashMap<Pair<UniqueIdentifier, Long>, List<ViewComputationCacheKey>>();
+  private final Map<UniqueIdentifier, List<ViewComputationCacheKey>> _activeCachesByCycle = new HashMap<UniqueIdentifier, List<ViewComputationCacheKey>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
   private final FudgeMessageStoreFactory _privateDataStoreFactory;
   private final FudgeMessageStoreFactory _sharedDataStoreFactory;
@@ -95,8 +95,8 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public ViewComputationCache cloneCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long timestamp) {
-    final ViewComputationCacheKey key = new ViewComputationCacheKey(viewProcessId, calculationConfigurationName, timestamp);
+  public ViewComputationCache cloneCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+    final ViewComputationCacheKey key = new ViewComputationCacheKey(viewCycleId, calculationConfigurationName);
     final DefaultViewComputationCache cache = _cachesByKey.get(key);
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
     final FudgeMessageStore dataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(), getFudgeContext());
@@ -107,8 +107,8 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public DefaultViewComputationCache getCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long timestamp) {
-    return getCache(new ViewComputationCacheKey(viewProcessId, calculationConfigurationName, timestamp));
+  public DefaultViewComputationCache getCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+    return getCache(new ViewComputationCacheKey(viewCycleId, calculationConfigurationName));
   }
 
   public DefaultViewComputationCache getCache(final ViewComputationCacheKey key) {
@@ -119,8 +119,8 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     return cache;
   }
 
-  protected DefaultViewComputationCache findCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long timestamp) {
-    return findCache(new ViewComputationCacheKey(viewProcessId, calculationConfigurationName, timestamp));
+  protected DefaultViewComputationCache findCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+    return findCache(new ViewComputationCacheKey(viewCycleId, calculationConfigurationName));
   }
 
   protected DefaultViewComputationCache findCache(final ViewComputationCacheKey key) {
@@ -139,11 +139,10 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
             : _sharedDataStoreFactory.createMessageStore(key);
         cache = createViewComputationCache(getIdentifierMap(), privateDataStore, sharedDataStore, getFudgeContext());
         _cachesByKey.put(key, cache);
-        final Pair<UniqueIdentifier, Long> releaseKey = Pair.of(key.getViewProcessId(), key.getSnapshotTimestamp());
-        List<ViewComputationCacheKey> caches = _activeCaches.get(releaseKey);
+        List<ViewComputationCacheKey> caches = _activeCachesByCycle.get(key.getViewCycleId());
         if (caches == null) {
           caches = new LinkedList<ViewComputationCacheKey>();
-          _activeCaches.put(releaseKey, caches);
+          _activeCachesByCycle.put(key.getViewCycleId(), caches);
         }
         caches.add(key);
         final MissingValueLoader loader = getMissingValueLoader();
@@ -184,16 +183,16 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public void releaseCaches(UniqueIdentifier viewProcessId, long timestamp) {
-    ArgumentChecker.notNull(viewProcessId, "viewProcessId");
+  public void releaseCaches(UniqueIdentifier viewCycleId) {
+    ArgumentChecker.notNull(viewCycleId, "viewCycleId");
     final ReleaseCachesCallback callback = getReleaseCachesCallback();
     if (callback != null) {
-      callback.onReleaseCaches(viewProcessId, timestamp);
+      callback.onReleaseCaches(viewCycleId);
     }
     DefaultViewComputationCache[] caches;
     _cacheManagementLock.lock();
     try {
-      final List<ViewComputationCacheKey> cacheKeys = _activeCaches.remove(Pair.of(viewProcessId, timestamp));
+      final List<ViewComputationCacheKey> cacheKeys = _activeCachesByCycle.remove(viewCycleId);
       if (cacheKeys == null) {
         return;
       }

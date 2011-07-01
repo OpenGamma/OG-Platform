@@ -23,7 +23,7 @@ public class InMemoryViewDeltaResultModel extends InMemoryViewResultModel implem
   /**
    * @param previousResultTimestamp the previousResultTimestamp to set
    */
-  public void setPreviousResultTimestamp(Instant previousResultTimestamp) {
+  public void setPreviousCalculationTime(Instant previousResultTimestamp) {
     _previousResultTimestamp = previousResultTimestamp;
   }
 }
