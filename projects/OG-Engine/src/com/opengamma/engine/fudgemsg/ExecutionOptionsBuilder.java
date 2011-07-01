@@ -48,7 +48,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
     if (object.getMaxSuccessiveDeltaCycles() != null) {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
-    msg.add(DEFAULT_EXECUTION_OPTIONS_FIELD, object.getDefaultExecutionOptions());
+    context.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
     return msg;
   }
 
