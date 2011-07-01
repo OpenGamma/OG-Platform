@@ -91,6 +91,15 @@ public class TradeImplTest {
     assertEquals(security, test.getSecurity());
   }
   
+  public void test_construction_copyFromPosition() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    trade.addAttribute("A", "B");
+    trade.addAttribute("C", "D");
+    
+    TradeImpl copy = new TradeImpl(trade);
+    assertEquals(copy, trade);
+  }
+  
   public void test_equals() {
     Set<TradeImpl> trades = Sets.newHashSet();
     
@@ -121,6 +130,53 @@ public class TradeImplTest {
     assertTrue(trades.contains(trade3));
     assertTrue(trades.contains(trade4));
     assertTrue(trades.contains(trade5));
+  }
+  
+  //------------------------------------------------------------------------
+  @Test(expectedExceptions=IllegalArgumentException.class)
+  public void test_addAttribute_null_key() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertTrue(trade.getAttributes().isEmpty());
+    trade.addAttribute(null, "B");
+  }
+  
+  @Test(expectedExceptions=IllegalArgumentException.class)
+  public void test_addAttribute_null_value() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertTrue(trade.getAttributes().isEmpty());
+    trade.addAttribute("A", null);
+  }
+  
+  public void test_addAttribute() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertTrue(trade.getAttributes().isEmpty());
+    trade.addAttribute("A", "B");
+    assertEquals(1, trade.getAttributes().size());
+    assertEquals("B", trade.getAttributes().get("A"));
+    trade.addAttribute("C", "D");
+    assertEquals(2, trade.getAttributes().size());
+    assertEquals("D", trade.getAttributes().get("C"));
+  }
+  
+  public void test_removeAttribute() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertTrue(trade.getAttributes().isEmpty());
+    trade.addAttribute("A", "B");
+    trade.addAttribute("C", "D");
+    assertEquals(2, trade.getAttributes().size());
+    trade.removeAttribute("A");
+    assertEquals(1, trade.getAttributes().size());
+    assertNull(trade.getAttributes().get("A"));
+  }
+  
+  public void test_clearAttributes() {
+    TradeImpl trade = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertTrue(trade.getAttributes().isEmpty());
+    trade.addAttribute("A", "B");
+    trade.addAttribute("C", "D");
+    assertEquals(2, trade.getAttributes().size());
+    trade.clearAttributes();
+    assertTrue(trade.getAttributes().isEmpty());
   }
   
 }
