@@ -19,7 +19,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -72,7 +71,7 @@ public class ShiftedLognormalVolModelTest {
   private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   @SuppressWarnings("unchecked")
-  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), (Interpolator1D<Interpolator1DDataBundle>) INTERPOLATOR_1D);
+  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), INTERPOLATOR_1D);
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
 
   private static final VolatilitySurface VOLSURFACE = new VolatilitySurface(SURFACE);
@@ -111,18 +110,15 @@ public class ShiftedLognormalVolModelTest {
     assertEquals(shiftedBlack.getShift(), 0.09950883623451598, 1e-8);
 
     double highStrike = 5.0;
-    double lowStrike = -shiftedBlack.getShift() - 0.01;
+    double lowStrike = 1e-4;
     int nSamples = 500;
     double[] strikes = new double[nSamples + 1];
     double[] prices = new double[nSamples + 1];
     double[] vols = new double[nSamples + 1];
-    System.err.println("Strike" + "," + "OTM Prices" + "," + "ImpVols");
     for (int i = 0; i <= nSamples; i++) {
       strikes[i] = lowStrike + (double) i / nSamples * (highStrike - lowStrike);
       prices[i] = shiftedBlack.priceFromRelativeStrike(strikes[i]);
       vols[i] = new BlackFormula(forward, strikes[i] * forward, expiry5, null, prices[i], strikes[i] > 1).computeImpliedVolatility();
-
-      System.err.println(strikes[i] + "," + prices[i] + "," + vols[i]); // Remember weight is 1/k^2, thus contribution is ~ price[i]/strike[i]/strike[i] * (strike[i+1]-strike[i])
     }
   }
 }
