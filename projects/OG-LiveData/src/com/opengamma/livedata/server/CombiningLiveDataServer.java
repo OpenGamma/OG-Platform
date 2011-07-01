@@ -79,7 +79,11 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
     }
     return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
   }
-
+  
+  @Override
+  public LiveDataSubscriptionResponse subscribe(LiveDataSpecification liveDataSpecificationFromClient, boolean persistent) {
+    return getServer(liveDataSpecificationFromClient).subscribe(liveDataSpecificationFromClient, persistent);
+  }
   protected abstract Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
       Collection<LiveDataSpecification> specs);
 
@@ -109,6 +113,12 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
       ret.addAll(server.getSubscriptions());
     }
     return ret;
+  }
+
+  
+  @Override
+  public Subscription getSubscription(LiveDataSpecification fullyQualifiedSpec) {
+    return getServer(fullyQualifiedSpec).getSubscription(fullyQualifiedSpec);
   }
 
   @Override
