@@ -78,7 +78,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalculationConfigurationName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
+    return new CalculationJobSpecification(getCycle().getUniqueId(), graph.getCalculationConfigurationName(), getCycle().getValuationTime(), JobIdSource.getId());
   }
 
   protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
@@ -155,7 +155,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
+    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count,
+        (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {

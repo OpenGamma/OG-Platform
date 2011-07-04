@@ -23,10 +23,10 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -39,7 +39,7 @@ public class DependencyGraphBuilder {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   // Injected Inputs:
   private String _calculationConfigurationName;
-  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private ComputationTargetResolver _targetResolver;
   private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
@@ -62,17 +62,17 @@ public class DependencyGraphBuilder {
   }
 
   /**
-   * @return the liveDataAvailabilityProvider
+   * @return the market data availability provider
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
+  public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
+    return _marketDataAvailabilityProvider;
   }
 
   /**
-   * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
+   * @param marketDataAvailabilityProvider the market data availability provider to set
    */
-  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
+  public void setMarketDataAvailabilityProvider(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
+    _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
   }
 
   /**
@@ -118,7 +118,7 @@ public class DependencyGraphBuilder {
   }
 
   protected void checkInjectedInputs() {
-    ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
+    ArgumentChecker.notNullInjected(getMarketDataAvailabilityProvider(), "marketDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
     ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");
@@ -175,17 +175,17 @@ public class DependencyGraphBuilder {
         s_logger.debug("{} producing {}", node.getFirst(), node.getSecond());
       }
       resolutionState = new ResolutionState(requirement);
-      // If it's live data, stop now. Otherwise fall through to the functions as they may be more generic than the
+      // If it's market data, stop now. Otherwise fall through to the functions as they may be more generic than the
       // composed specifications attached to the nodes found
-      if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
+      if (getMarketDataAvailabilityProvider().isAvailable(requirement)) {
         resolutionState.addExistingNodes(existingNodes);
         return resolutionState;
       }
     } else {
-      // Find live data
-      if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
-        s_logger.debug("Live Data : {} on {}", requirement, target);
-        LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
+      // Find market data
+      if (getMarketDataAvailabilityProvider().isAvailable(requirement)) {
+        s_logger.debug("Market data: {} on {}", requirement, target);
+        MarketDataSourcingFunction function = new MarketDataSourcingFunction(requirement);
         return new ResolutionState(requirement, function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), createDependencyNode(target, dependent));
       }
       resolutionState = new ResolutionState(requirement);

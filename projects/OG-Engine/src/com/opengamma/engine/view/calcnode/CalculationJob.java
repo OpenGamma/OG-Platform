@@ -12,8 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
@@ -26,8 +25,8 @@ import com.opengamma.util.ArgumentChecker;
  * a Calculation Node.
  */
 public class CalculationJob implements Serializable {
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
+  
+  private static final long serialVersionUID = 1L;
 
   private final CalculationJobSpecification _specification;
   private final long _functionInitializationIdentifier;
@@ -47,9 +46,9 @@ public class CalculationJob implements Serializable {
    */
   private boolean _cancelled;
 
-  public CalculationJob(UniqueIdentifier viewProcessId, String calcConfigName, long functionInitializationTimestamp, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems,
+  public CalculationJob(UniqueIdentifier viewCycleId, String calcConfigName, Instant valuationTime, long functionInitializationTimestamp, long jobId, List<CalculationJobItem> jobItems,
       final CacheSelectHint cacheSelect) {
-    this(new CalculationJobSpecification(viewProcessId, calcConfigName, iterationTimestamp, jobId), 0, null, jobItems, cacheSelect);
+    this(new CalculationJobSpecification(viewCycleId, calcConfigName, valuationTime, jobId), 0, null, jobItems, cacheSelect);
   }
 
   public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems,

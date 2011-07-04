@@ -93,7 +93,7 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
         riskValue.setComputationTargetId(computationTargetId);
         riskValue.setRunId(riskRunId);
         riskValue.setValue(riskValueEntry.getValue());
-        riskValue.setEvalInstant(new Date(resultModel.getResultTimestamp().toEpochMillisLong()));
+        riskValue.setEvalInstant(new Date(resultModel.getCalculationTime().toEpochMillisLong()));
         riskValue.setComputeNodeId(_computeNodeId);
         successes.add(riskValue.toSqlParameterSource());
       }

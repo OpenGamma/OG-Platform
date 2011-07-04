@@ -9,11 +9,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -228,26 +227,16 @@ public class DependencyNode {
   }
 
   /**
-   * Returns the live data requirement of this node.
+   * Returns the market data requirement of this node.
    * 
-   * @return the live data requirement.
+   * @return the market data requirement.
    */
-  public Pair<ValueRequirement, ValueSpecification> getRequiredLiveData() {
-    if (_function.getFunction() instanceof LiveDataSourcingFunction) {
-      final LiveDataSourcingFunction ldsf = ((LiveDataSourcingFunction) _function.getFunction());
-      return ldsf.getLiveDataRequirement();
+  public Pair<ValueRequirement, ValueSpecification> getRequiredMarketData() {
+    if (_function.getFunction() instanceof MarketDataSourcingFunction) {
+      final MarketDataSourcingFunction ldsf = ((MarketDataSourcingFunction) _function.getFunction());
+      return ldsf.getMarketDataRequirement();
     }
-    // [ENG-216] Remove this bit of code when getRequiredLiveData is removed. Just return the empty set.
-    final Set<ValueSpecification> liveData = _function.getFunction().getRequiredLiveData();
-    if (liveData.isEmpty()) {
-      return null;
-    }
-    if (liveData.size() > 1) {
-      // The method is deprecated, so shouldn't be being used anyway
-      throw new OpenGammaRuntimeException("[ENG-216] Multiple live data requirements from function " + _function.getFunction() + " - " + liveData);
-    }
-    final ValueSpecification spec = liveData.iterator().next();
-    return Pair.of(spec.toRequirementSpecification(), spec);
+    return null;
   }
 
   /**

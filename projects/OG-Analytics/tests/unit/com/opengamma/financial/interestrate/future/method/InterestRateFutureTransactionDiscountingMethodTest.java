@@ -31,6 +31,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -84,6 +85,10 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     final double pv = METHOD.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
     final double expectedPv = (quotedPrice - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Present value from quoted price", expectedPv, pv);
+    PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
+    double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, quotedPrice);
+    assertEquals("IR future transaction Method: present value from price", pv, presentValueCalculator);
+
   }
 
   @Test
@@ -144,6 +149,15 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     final Map<String, List<DoublesPair>> sensiCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
     final PresentValueSensitivity sensiMethod = METHOD.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
     assertEquals("Future discounting curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
+    InterestRateFutureSecurityDiscountingMethod methodSecurity = new InterestRateFutureSecurityDiscountingMethod();
+    PresentValueSensitivity sensiSecurity = methodSecurity.priceCurveSensitivity(ERU2, CURVES);
+    PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY * NOTIONAL * FUTURE_FACTOR);
+    for (int looppt = 0; looppt < sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).size(); looppt++) {
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
+          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
+    }
   }
 
   @Test

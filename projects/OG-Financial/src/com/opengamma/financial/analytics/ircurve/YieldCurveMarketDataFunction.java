@@ -15,8 +15,6 @@ import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -26,7 +24,6 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.StructuredMarketDataDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -41,7 +38,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -65,27 +61,22 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     _helper.init(context, this);
     
-    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getYieldCurveKey().getCurrency());
-    
+    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getCurrency());
     _marketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, currencySpec,
-        createValueProperties().with(ValuePropertyNames.CURVE, _helper.getYieldCurveKey().getName()).get());
+        createValueProperties().with(ValuePropertyNames.CURVE, _helper.getCurveName()).get());
     _results = Sets.newHashSet(_marketDataResult);
   }
 
   /**
    * 
    */
-  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction implements
-      StructuredMarketDataDataSourcingFunction {
+  private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
     private final Set<ValueRequirement> _requirements;
-    private final YieldCurveKey _yieldCurveKey;
 
-    private CompiledImpl(final InstantProvider earliest, final InstantProvider latest,
-        final Set<ValueRequirement> requirements, YieldCurveKey yieldCurveKey) {
+    private CompiledImpl(final InstantProvider earliest, final InstantProvider latest, final Set<ValueRequirement> requirements) {
       super(earliest, latest);
       _requirements = requirements;
-      _yieldCurveKey = yieldCurveKey;
     }
 
     @Override
@@ -107,13 +98,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     @Override
     public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
       return _results;
-    }
-
-    @Override
-    public Set<Pair<StructuredMarketDataKey, ValueSpecification>> getStructuredMarketData() {
-      HashSet<Pair<StructuredMarketDataKey, ValueSpecification>> ret = new HashSet<Pair<StructuredMarketDataKey, ValueSpecification>>();
-      ret.add(Pair.of((StructuredMarketDataKey) _yieldCurveKey, _marketDataResult));
-      return ret;
     }
 
     @Override
@@ -161,7 +145,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
     Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context,
         atInstant);
-    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context),
-        _helper.getYieldCurveKey());
+    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
   }
 }

@@ -147,6 +147,9 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
+      if (data.getLambda0() == 0.0) {
+        throw new MathException("Failed to converge");
+      }
     } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2()) || Double.isInfinite(data.getG2()));
   }
 

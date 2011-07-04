@@ -111,7 +111,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final PortfolioNode portfolio = target.getPortfolioNode();
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();

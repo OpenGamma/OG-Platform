@@ -31,7 +31,7 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
    * 
    * @return the basis view name
    */
-  String getBasisViewName(); //TODO we need to record version information
+  String getBasisViewName(); // TODO we need to record version information
 
   /**
    * Gets the global set of values.

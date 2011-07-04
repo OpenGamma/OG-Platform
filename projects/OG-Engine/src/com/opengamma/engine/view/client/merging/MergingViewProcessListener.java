@@ -26,6 +26,7 @@ import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -124,18 +125,23 @@ public class MergingViewProcessListener implements ViewResultListener {
   
   //-------------------------------------------------------------------------
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+  public UserPrincipal getUser() {
+    return getUnderlying().getUser();
+  }
+  
+  @Override
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().viewDefinitionCompiled(compiledViewDefinition);
+        getUnderlying().viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } else {
         if (_futureResultCompilationIndex != -1) {
           // Another compilation without a result in the meantime. Perhaps errors are occurring.  
           _callQueue.remove(_futureResultCompilationIndex);
         }
         _futureResultCompilationIndex = _callQueue.size();
-        _callQueue.add(new ViewDefinitionCompiledCall(compiledViewDefinition));
+        _callQueue.add(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
     } finally {

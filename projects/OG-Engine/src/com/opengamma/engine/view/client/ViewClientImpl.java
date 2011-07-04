@@ -16,7 +16,7 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -55,8 +55,12 @@ public class ViewClientImpl implements ViewClient {
   
   // Per-process state
   private volatile ViewPermissionProvider _permissionProvider;
+  
+  @SuppressWarnings("unused")
   private volatile boolean _canAccessCompiledViewDefinition;
+  @SuppressWarnings("unused")
   private volatile boolean _canAccessComputationResults;
+  
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
   private final AtomicReference<CompiledViewDefinition> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinition>();
@@ -88,11 +92,16 @@ public class ViewClientImpl implements ViewClient {
     _mergedViewProcessListener = new ViewResultListener() {
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+      public UserPrincipal getUser() {
+        return ViewClientImpl.this.getUser();
+      }
+      
+      @Override
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
         
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
-        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition, hasMarketDataPermissions);
         
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
@@ -100,7 +109,7 @@ public class ViewClientImpl implements ViewClient {
         
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.viewDefinitionCompiled(compiledViewDefinition);
+          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         }
       }
 
@@ -249,7 +258,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public LiveDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjector getLiveDataOverrideInjector() {
     // [PLAT-1174] - this shouldn't be here
     return getViewProcessor().getLiveDataOverrideInjector(getUniqueId());
   }

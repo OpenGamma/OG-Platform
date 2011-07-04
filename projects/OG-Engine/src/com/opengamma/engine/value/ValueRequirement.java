@@ -12,11 +12,9 @@ import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -177,16 +175,6 @@ public final class ValueRequirement implements Serializable {
     } else {
       return values.iterator().next();
     }
-  }
-
-  /**
-   * Creates and returns the live data specification for market data corresponding to the target.
-   * 
-   * @param securitySource  the security source to resolve securities against, not null
-   * @return the live data specification, not null
-   */
-  public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
-    return getTargetSpecification().getRequiredLiveData(securitySource);
   }
 
   /**

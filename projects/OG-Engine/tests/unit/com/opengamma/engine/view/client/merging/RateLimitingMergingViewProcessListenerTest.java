@@ -112,7 +112,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     addResults(mergingListener, 10);
     
     CompiledViewDefinitionWithGraphsImpl preCompilation = mock(CompiledViewDefinitionWithGraphsImpl.class);
-    mergingListener.viewDefinitionCompiled(preCompilation);
+    mergingListener.viewDefinitionCompiled(preCompilation, true);
     
     addResults(mergingListener, 10);
     mergingListener.cycleCompleted(mock(ViewComputationResultModel.class), getDeltaResult(1));
@@ -120,7 +120,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     mergingListener.cycleCompleted(latestResult, getDeltaResult(2));
 
     CompiledViewDefinitionWithGraphsImpl postCompilation = mock(CompiledViewDefinitionWithGraphsImpl.class);
-    mergingListener.viewDefinitionCompiled(postCompilation);
+    mergingListener.viewDefinitionCompiled(postCompilation, true);
     
     mergingListener.processCompleted();
     mergingListener.processTerminated(false);
@@ -201,7 +201,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   }
   
   private void addCompile(ViewResultListener listener) {
-    listener.viewDefinitionCompiled(mock(CompiledViewDefinitionWithGraphsImpl.class));
+    listener.viewDefinitionCompiled(mock(CompiledViewDefinitionWithGraphsImpl.class), true);
   }
 
 }

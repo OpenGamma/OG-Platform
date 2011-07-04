@@ -6,53 +6,136 @@
 package com.opengamma.engine.view.execution;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Encapsulates specific settings affecting the execution of an individual view cycle.
  */
+@PublicAPI
 public class ViewCycleExecutionOptions {
 
-  private final Instant _valuationTime;
-  private final Instant _inputDataTime;
+  private Instant _valuationTime;
+  private MarketDataSpecification _marketDataSpecification;
   
-  // TODO [PLAT-1153] Correction time
+  // TODO [PLAT-1153] view correction time - probably want either valuation time or some fixed correction time
   
-  public ViewCycleExecutionOptions(Instant time) {
-    this(time, time);
+  /**
+   * Constructs an empty instance.
+   */
+  public ViewCycleExecutionOptions() {
   }
   
-  public ViewCycleExecutionOptions(Instant valuationTime, Instant inputDataTime) {
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
-    ArgumentChecker.notNull(inputDataTime, "inputDataTime");
-    
-    _valuationTime = valuationTime;
-    _inputDataTime = inputDataTime;
+  /**
+   * Constructs an instance, specifying a valuation time.
+   * 
+   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
+   */
+  public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider) {
+    setValuationTime(valuationTimeProvider.toInstant());
+  }
+  
+  /**
+   * Constructs an instance, specifying a market data specification.
+   * 
+   * @param marketDataSpec  the market data specification, may be {@code null}
+   */
+  public ViewCycleExecutionOptions(MarketDataSpecification marketDataSpec) {
+    setMarketDataSpecification(marketDataSpec);
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
+   * @param marketDataSpec  the market data specification, may be {@code null}
+   */
+  public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
+    setValuationTime(valuationTimeProvider);
+    setMarketDataSpecification(marketDataSpec);
   }
 
   /**
-   * Gets the valuation time for use by the analytics library.
+   * Gets the valuation time. Normally the valuation time is the timestamp associated with the market data snapshot,
+   * but this valuation time will be used instead if specified. 
    * 
-   * @return the valuation time, not null
+   * @return the valuation time, or {@code null} if not specified
    */
   public Instant getValuationTime() {
     return _valuationTime;
   }
-
+  
   /**
-   * Gets the time used to determine the set of input data to use for the computation cycle.
+   * Sets the valuation time. Normally the valuation time is the timestamp associated with the market data snapshot,
+   * but this valuation time will be used instead if specified.
    * 
-   * @return the input data time, not null
+   * @param valuationTimeProvider  the valuation time provider, may be {@code null}
    */
-  public Instant getInputDataTime() {
-    return _inputDataTime;
+  public void setValuationTime(InstantProvider valuationTimeProvider) {
+    _valuationTime = valuationTimeProvider != null ? valuationTimeProvider.toInstant() : null;
   }
   
+  /**
+   * Gets the market data specification.
+   * 
+   * @return the market data specification, or {@code null} if not specified
+   */
+  public MarketDataSpecification getMarketDataSpecification() {
+    return _marketDataSpecification;
+  }
+  
+  /**
+   * Sets the market data specification.
+   * 
+   * @param marketDataSpec  the market data specification, may be {@code null}
+   */
+  public void setMarketDataSpecification(MarketDataSpecification marketDataSpec) {
+    _marketDataSpecification = marketDataSpec;
+  }
 
   @Override
   public String toString() {
-    return "ViewExecutionOptions[valuationTime=" + _valuationTime + ", inputDataTime=" + _inputDataTime + "]";
+    return "ViewCycleExecutionOptions[valuationTime=" + getValuationTime() + ", marketDataSpecification=" + getMarketDataSpecification() + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_marketDataSpecification == null) ? 0 : _marketDataSpecification.hashCode());
+    result = prime * result + ((_valuationTime == null) ? 0 : _valuationTime.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof ViewCycleExecutionOptions)) {
+      return false;
+    }
+    ViewCycleExecutionOptions other = (ViewCycleExecutionOptions) obj;
+    if (_marketDataSpecification == null) {
+      if (other._marketDataSpecification != null) {
+        return false;
+      }
+    } else if (!_marketDataSpecification.equals(other._marketDataSpecification)) {
+      return false;
+    }
+    if (_valuationTime == null) {
+      if (other._valuationTime != null) {
+        return false;
+      }
+    } else if (!_valuationTime.equals(other._valuationTime)) {
+      return false;
+    }
+    return true;
   }
   
 }

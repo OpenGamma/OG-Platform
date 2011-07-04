@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -140,10 +140,17 @@ public class RemoteViewClient implements ViewClient {
     _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     _internalResultListener = new AbstractViewResultListener() {
+      
+      @Override
+      public UserPrincipal getUser() {
+        return RemoteViewClient.this.getUser();
+      }
+      
       @Override
       public void processCompleted() {
         RemoteViewClient.this.processCompleted();
       }
+
     };
     
     Runnable runnable = new Runnable() {
@@ -232,7 +239,7 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
-  public LiveDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjector getLiveDataOverrideInjector() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
     return new RemoteLiveDataInjector(uri);
   }

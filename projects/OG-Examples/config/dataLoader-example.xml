@@ -3,7 +3,7 @@
 <beans >
 	
 	<!-- Mock data providers -->
-  <bean id="timeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
-  <bean id="securityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
+  <bean id="timeseriesLoader" class="com.opengamma.examples.marketdata.MockTimeSeriesLoader" />
+  <bean id="securityLoader" class="com.opengamma.examples.marketdata.MockSecurityLoader" />
 
 </beans>

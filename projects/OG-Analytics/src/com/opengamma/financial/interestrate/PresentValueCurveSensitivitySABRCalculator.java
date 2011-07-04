@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -106,6 +108,18 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
       return replication.presentValueSensitivity(payment, sabrBundle).getSensitivity();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(option);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
+      return method.presentValueCurveSensitivity(option, sabrBundle).getSensitivity();
+    }
+    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
   }
 
 }
