@@ -31,9 +31,9 @@ import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
@@ -203,19 +203,20 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   }
 
   @Override
-  public HistoricalTimeSeriesHistoryResult searchHistoric(final HistoricalTimeSeriesHistoryRequest request) {
+  public HistoricalTimeSeriesHistoryResult history(final HistoricalTimeSeriesHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getHistoricalTimeSeriesId(), "request.timeSeriesId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final HistoricalTimeSeriesHistoryResult result = new HistoricalTimeSeriesHistoryResult();
-    HistoricalTimeSeriesDocument doc = get(request.getHistoricalTimeSeriesId());
+    final HistoricalTimeSeriesDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public DataPointDocument updateDataPoint(DataPointDocument document) {
     ArgumentChecker.notNull(document, "dataPoint document");

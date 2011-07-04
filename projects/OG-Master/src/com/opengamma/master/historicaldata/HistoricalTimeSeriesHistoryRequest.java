@@ -8,7 +8,7 @@ package com.opengamma.master.historicaldata;
 import java.util.Map;
 
 import javax.time.Instant;
-import javax.time.calendar.LocalDate;
+import javax.time.InstantProvider;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -22,13 +22,33 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historical time-series.
+ * Request for the history of a time-series.
+ * <p>
+ * A full time-series master implements historical storage of data.
+ * History can be stored in two dimensions and this request provides searching.
+ * <p>
+ * The first historic dimension is the classic series of versions.
+ * Each new version is stored in such a manor that previous versions can be accessed.
+ * <p>
+ * The second historic dimension is corrections.
+ * A correction occurs when it is realized that the original data stored was incorrect.
+ * A simple exchange master might simply replace the original version with the corrected value.
+ * A full implementation will store the correction in such a manner that it is still possible
+ * to obtain the value before the correction was made.
+ * <p>
+ * For example, a time-series added on Monday and updated on Thursday has two versions.
+ * If it is realized on Friday that the version stored on Monday was incorrect, then a
+ * correction may be applied. There are now two versions, the first of which has one correction.
+ * This may continue, with multiple corrections allowed for each version.
+ * <p>
+ * Versions and corrections are represented by instants in the search.
  * <p>
  * This class is mutable and not thread-safe.
  */
@@ -43,45 +63,41 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
-   * The identifier of the time-series.
+   * The object identifier to match.
    */
   @PropertyDefinition
-  private UniqueIdentifier _historicalTimeSeriesId;
+  private ObjectIdentifier _objectId;
   /**
-   * The bundle of identifiers.
+   * The instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version.
    */
   @PropertyDefinition
-  private IdentifierBundle _identifiers;
+  private Instant _versionsFromInstant;
   /**
-   * The current date.
+   * The instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest version.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    */
   @PropertyDefinition
-  private LocalDate _currentDate;
+  private Instant _versionsToInstant;
   /**
-   * The data source.
+   * The instant to retrieve corrections on or after (inclusive).
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version prior to corrections.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    */
   @PropertyDefinition
-  private String _dataSource;
+  private Instant _correctionsFromInstant;
   /**
-   * The data provider.
+   * The instant to retrieve corrections before (exclusive).
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest correction.
+   * This should be equal to or later than the {@code correctionsFromInstant}.
    */
   @PropertyDefinition
-  private String _dataProvider;
-  /**
-   * The data field.
-   */
-  @PropertyDefinition
-  private String _dataField;
-  /**
-   * The observation time.
-   */
-  @PropertyDefinition
-  private String _observationTime;
-  /**
-   * The time stamp.
-   */
-  @PropertyDefinition
-  private Instant _timestamp;
+  private Instant _correctionsToInstant;
 
   /**
    * Creates an instance.
@@ -89,10 +105,42 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
   public HistoricalTimeSeriesHistoryRequest() {
   }
 
+  /**
+   * Creates an instance with object identifier.
+   * This will retrieve all versions and corrections unless the relevant fields are set.
+   * 
+   * @param objectId  the object identifier, not null
+   */
+  public HistoricalTimeSeriesHistoryRequest(final ObjectIdentifiable objectId) {
+    this(objectId, null, null);
+  }
+
+  /**
+   * Creates an instance with object identifier and optional version and correction.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param versionInstantProvider  the version instant to retrieve, null for all versions
+   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
+   */
+  public HistoricalTimeSeriesHistoryRequest(final ObjectIdentifiable objectId, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+    ArgumentChecker.notNull(objectId, "oid");
+    setObjectId(objectId.getObjectId());
+    if (versionInstantProvider != null) {
+      final Instant versionInstant = Instant.of(versionInstantProvider);
+      setVersionsFromInstant(versionInstant);
+      setVersionsToInstant(versionInstant);
+    }
+    if (correctedToInstantProvider != null) {
+      final Instant correctedToInstant = Instant.of(correctedToInstantProvider);
+      setCorrectionsFromInstant(correctedToInstant);
+      setCorrectionsToInstant(correctedToInstant);
+    }
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code HistoricalTimeSeriesSearchHistoricRequest}.
+   * The meta-bean for {@code HistoricalTimeSeriesHistoryRequest}.
    * @return the meta-bean, not null
    */
   public static HistoricalTimeSeriesHistoryRequest.Meta meta() {
@@ -109,22 +157,16 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case 529494473:  // historicalTimeSeriesId
-        return getHistoricalTimeSeriesId();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
-      case 600751303:  // currentDate
-        return getCurrentDate();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 339742651:  // dataProvider
-        return getDataProvider();
-      case -386794640:  // dataField
-        return getDataField();
-      case 951232793:  // observationTime
-        return getObservationTime();
-      case 55126294:  // timestamp
-        return getTimestamp();
+      case 90495162:  // objectId
+        return getObjectId();
+      case 825630012:  // versionsFromInstant
+        return getVersionsFromInstant();
+      case 288644747:  // versionsToInstant
+        return getVersionsToInstant();
+      case -1002076478:  // correctionsFromInstant
+        return getCorrectionsFromInstant();
+      case -1241747055:  // correctionsToInstant
+        return getCorrectionsToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -135,29 +177,20 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case 529494473:  // historicalTimeSeriesId
-        setHistoricalTimeSeriesId((UniqueIdentifier) newValue);
+      case 90495162:  // objectId
+        setObjectId((ObjectIdentifier) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((IdentifierBundle) newValue);
+      case 825630012:  // versionsFromInstant
+        setVersionsFromInstant((Instant) newValue);
         return;
-      case 600751303:  // currentDate
-        setCurrentDate((LocalDate) newValue);
+      case 288644747:  // versionsToInstant
+        setVersionsToInstant((Instant) newValue);
         return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
+      case -1002076478:  // correctionsFromInstant
+        setCorrectionsFromInstant((Instant) newValue);
         return;
-      case 339742651:  // dataProvider
-        setDataProvider((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
-        return;
-      case 55126294:  // timestamp
-        setTimestamp((Instant) newValue);
+      case -1241747055:  // correctionsToInstant
+        setCorrectionsToInstant((Instant) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -171,14 +204,11 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesHistoryRequest other = (HistoricalTimeSeriesHistoryRequest) obj;
       return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesId(), other.getHistoricalTimeSeriesId()) &&
-          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
-          JodaBeanUtils.equal(getCurrentDate(), other.getCurrentDate()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(getTimestamp(), other.getTimestamp());
+          JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
+          JodaBeanUtils.equal(getVersionsFromInstant(), other.getVersionsFromInstant()) &&
+          JodaBeanUtils.equal(getVersionsToInstant(), other.getVersionsToInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsFromInstant(), other.getCorrectionsFromInstant()) &&
+          JodaBeanUtils.equal(getCorrectionsToInstant(), other.getCorrectionsToInstant());
     }
     return false;
   }
@@ -187,14 +217,11 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrentDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimestamp());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionsToInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionsToInstant());
     return hash;
   }
 
@@ -228,207 +255,165 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the time-series.
+   * Gets the object identifier to match.
    * @return the value of the property
    */
-  public UniqueIdentifier getHistoricalTimeSeriesId() {
-    return _historicalTimeSeriesId;
+  public ObjectIdentifier getObjectId() {
+    return _objectId;
   }
 
   /**
-   * Sets the identifier of the time-series.
-   * @param historicalTimeSeriesId  the new value of the property
+   * Sets the object identifier to match.
+   * @param objectId  the new value of the property
    */
-  public void setHistoricalTimeSeriesId(UniqueIdentifier historicalTimeSeriesId) {
-    this._historicalTimeSeriesId = historicalTimeSeriesId;
+  public void setObjectId(ObjectIdentifier objectId) {
+    this._objectId = objectId;
   }
 
   /**
-   * Gets the the {@code historicalTimeSeriesId} property.
+   * Gets the the {@code objectId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> historicalTimeSeriesId() {
-    return metaBean().historicalTimeSeriesId().createProperty(this);
+  public final Property<ObjectIdentifier> objectId() {
+    return metaBean().objectId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bundle of identifiers.
+   * Gets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version.
    * @return the value of the property
    */
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
+  public Instant getVersionsFromInstant() {
+    return _versionsFromInstant;
   }
 
   /**
-   * Sets the bundle of identifiers.
-   * @param identifiers  the new value of the property
+   * Sets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version.
+   * @param versionsFromInstant  the new value of the property
    */
-  public void setIdentifiers(IdentifierBundle identifiers) {
-    this._identifiers = identifiers;
+  public void setVersionsFromInstant(Instant versionsFromInstant) {
+    this._versionsFromInstant = versionsFromInstant;
   }
 
   /**
-   * Gets the the {@code identifiers} property.
+   * Gets the the {@code versionsFromInstant} property.
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> identifiers() {
-    return metaBean().identifiers().createProperty(this);
+  public final Property<Instant> versionsFromInstant() {
+    return metaBean().versionsFromInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the current date.
+   * Gets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest version.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the value of the property
    */
-  public LocalDate getCurrentDate() {
-    return _currentDate;
+  public Instant getVersionsToInstant() {
+    return _versionsToInstant;
   }
 
   /**
-   * Sets the current date.
-   * @param currentDate  the new value of the property
+   * Sets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest version.
+   * This should be equal to or later than the {@code versionsFromInstant}.
+   * @param versionsToInstant  the new value of the property
    */
-  public void setCurrentDate(LocalDate currentDate) {
-    this._currentDate = currentDate;
+  public void setVersionsToInstant(Instant versionsToInstant) {
+    this._versionsToInstant = versionsToInstant;
   }
 
   /**
-   * Gets the the {@code currentDate} property.
+   * Gets the the {@code versionsToInstant} property.
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest version.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the property, not null
    */
-  public final Property<LocalDate> currentDate() {
-    return metaBean().currentDate().createProperty(this);
+  public final Property<Instant> versionsToInstant() {
+    return metaBean().versionsToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data source.
+   * Gets the instant to retrieve corrections on or after (inclusive).
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version prior to corrections.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the value of the property
    */
-  public String getDataSource() {
-    return _dataSource;
+  public Instant getCorrectionsFromInstant() {
+    return _correctionsFromInstant;
   }
 
   /**
-   * Sets the data source.
-   * @param dataSource  the new value of the property
+   * Sets the instant to retrieve corrections on or after (inclusive).
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version prior to corrections.
+   * This should be equal to or later than the {@code versionsFromInstant}.
+   * @param correctionsFromInstant  the new value of the property
    */
-  public void setDataSource(String dataSource) {
-    this._dataSource = dataSource;
+  public void setCorrectionsFromInstant(Instant correctionsFromInstant) {
+    this._correctionsFromInstant = correctionsFromInstant;
   }
 
   /**
-   * Gets the the {@code dataSource} property.
+   * Gets the the {@code correctionsFromInstant} property.
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
+   * A null value will retrieve values starting from the earliest version prior to corrections.
+   * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the property, not null
    */
-  public final Property<String> dataSource() {
-    return metaBean().dataSource().createProperty(this);
+  public final Property<Instant> correctionsFromInstant() {
+    return metaBean().correctionsFromInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data provider.
+   * Gets the instant to retrieve corrections before (exclusive).
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest correction.
+   * This should be equal to or later than the {@code correctionsFromInstant}.
    * @return the value of the property
    */
-  public String getDataProvider() {
-    return _dataProvider;
+  public Instant getCorrectionsToInstant() {
+    return _correctionsToInstant;
   }
 
   /**
-   * Sets the data provider.
-   * @param dataProvider  the new value of the property
+   * Sets the instant to retrieve corrections before (exclusive).
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest correction.
+   * This should be equal to or later than the {@code correctionsFromInstant}.
+   * @param correctionsToInstant  the new value of the property
    */
-  public void setDataProvider(String dataProvider) {
-    this._dataProvider = dataProvider;
+  public void setCorrectionsToInstant(Instant correctionsToInstant) {
+    this._correctionsToInstant = correctionsToInstant;
   }
 
   /**
-   * Gets the the {@code dataProvider} property.
+   * Gets the the {@code correctionsToInstant} property.
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
+   * A null value will retrieve values up to the latest correction.
+   * This should be equal to or later than the {@code correctionsFromInstant}.
    * @return the property, not null
    */
-  public final Property<String> dataProvider() {
-    return metaBean().dataProvider().createProperty(this);
+  public final Property<Instant> correctionsToInstant() {
+    return metaBean().correctionsToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data field.
-   * @return the value of the property
-   */
-  public String getDataField() {
-    return _dataField;
-  }
-
-  /**
-   * Sets the data field.
-   * @param dataField  the new value of the property
-   */
-  public void setDataField(String dataField) {
-    this._dataField = dataField;
-  }
-
-  /**
-   * Gets the the {@code dataField} property.
-   * @return the property, not null
-   */
-  public final Property<String> dataField() {
-    return metaBean().dataField().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the observation time.
-   * @return the value of the property
-   */
-  public String getObservationTime() {
-    return _observationTime;
-  }
-
-  /**
-   * Sets the observation time.
-   * @param observationTime  the new value of the property
-   */
-  public void setObservationTime(String observationTime) {
-    this._observationTime = observationTime;
-  }
-
-  /**
-   * Gets the the {@code observationTime} property.
-   * @return the property, not null
-   */
-  public final Property<String> observationTime() {
-    return metaBean().observationTime().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the time stamp.
-   * @return the value of the property
-   */
-  public Instant getTimestamp() {
-    return _timestamp;
-  }
-
-  /**
-   * Sets the time stamp.
-   * @param timestamp  the new value of the property
-   */
-  public void setTimestamp(Instant timestamp) {
-    this._timestamp = timestamp;
-  }
-
-  /**
-   * Gets the the {@code timestamp} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> timestamp() {
-    return metaBean().timestamp().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code HistoricalTimeSeriesSearchHistoricRequest}.
+   * The meta-bean for {@code HistoricalTimeSeriesHistoryRequest}.
    */
   public static class Meta extends DirectMetaBean {
     /**
@@ -442,59 +427,41 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(
         this, "pagingRequest", HistoricalTimeSeriesHistoryRequest.class, PagingRequest.class);
     /**
-     * The meta-property for the {@code historicalTimeSeriesId} property.
+     * The meta-property for the {@code objectId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _historicalTimeSeriesId = DirectMetaProperty.ofReadWrite(
-        this, "historicalTimeSeriesId", HistoricalTimeSeriesHistoryRequest.class, UniqueIdentifier.class);
+    private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(
+        this, "objectId", HistoricalTimeSeriesHistoryRequest.class, ObjectIdentifier.class);
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code versionsFromInstant} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
-        this, "identifiers", HistoricalTimeSeriesHistoryRequest.class, IdentifierBundle.class);
+    private final MetaProperty<Instant> _versionsFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionsFromInstant", HistoricalTimeSeriesHistoryRequest.class, Instant.class);
     /**
-     * The meta-property for the {@code currentDate} property.
+     * The meta-property for the {@code versionsToInstant} property.
      */
-    private final MetaProperty<LocalDate> _currentDate = DirectMetaProperty.ofReadWrite(
-        this, "currentDate", HistoricalTimeSeriesHistoryRequest.class, LocalDate.class);
+    private final MetaProperty<Instant> _versionsToInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionsToInstant", HistoricalTimeSeriesHistoryRequest.class, Instant.class);
     /**
-     * The meta-property for the {@code dataSource} property.
+     * The meta-property for the {@code correctionsFromInstant} property.
      */
-    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
-        this, "dataSource", HistoricalTimeSeriesHistoryRequest.class, String.class);
+    private final MetaProperty<Instant> _correctionsFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionsFromInstant", HistoricalTimeSeriesHistoryRequest.class, Instant.class);
     /**
-     * The meta-property for the {@code dataProvider} property.
+     * The meta-property for the {@code correctionsToInstant} property.
      */
-    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
-        this, "dataProvider", HistoricalTimeSeriesHistoryRequest.class, String.class);
-    /**
-     * The meta-property for the {@code dataField} property.
-     */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
-        this, "dataField", HistoricalTimeSeriesHistoryRequest.class, String.class);
-    /**
-     * The meta-property for the {@code observationTime} property.
-     */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
-        this, "observationTime", HistoricalTimeSeriesHistoryRequest.class, String.class);
-    /**
-     * The meta-property for the {@code timestamp} property.
-     */
-    private final MetaProperty<Instant> _timestamp = DirectMetaProperty.ofReadWrite(
-        this, "timestamp", HistoricalTimeSeriesHistoryRequest.class, Instant.class);
+    private final MetaProperty<Instant> _correctionsToInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionsToInstant", HistoricalTimeSeriesHistoryRequest.class, Instant.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "pagingRequest",
-        "historicalTimeSeriesId",
-        "identifiers",
-        "currentDate",
-        "dataSource",
-        "dataProvider",
-        "dataField",
-        "observationTime",
-        "timestamp");
+        "objectId",
+        "versionsFromInstant",
+        "versionsToInstant",
+        "correctionsFromInstant",
+        "correctionsToInstant");
 
     /**
      * Restricted constructor.
@@ -507,22 +474,16 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
       switch (propertyName.hashCode()) {
         case -2092032669:  // pagingRequest
           return _pagingRequest;
-        case 529494473:  // historicalTimeSeriesId
-          return _historicalTimeSeriesId;
-        case 1368189162:  // identifiers
-          return _identifiers;
-        case 600751303:  // currentDate
-          return _currentDate;
-        case 1272470629:  // dataSource
-          return _dataSource;
-        case 339742651:  // dataProvider
-          return _dataProvider;
-        case -386794640:  // dataField
-          return _dataField;
-        case 951232793:  // observationTime
-          return _observationTime;
-        case 55126294:  // timestamp
-          return _timestamp;
+        case 90495162:  // objectId
+          return _objectId;
+        case 825630012:  // versionsFromInstant
+          return _versionsFromInstant;
+        case 288644747:  // versionsToInstant
+          return _versionsToInstant;
+        case -1002076478:  // correctionsFromInstant
+          return _correctionsFromInstant;
+        case -1241747055:  // correctionsToInstant
+          return _correctionsToInstant;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -552,67 +513,43 @@ public class HistoricalTimeSeriesHistoryRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code historicalTimeSeriesId} property.
+     * The meta-property for the {@code objectId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> historicalTimeSeriesId() {
-      return _historicalTimeSeriesId;
+    public final MetaProperty<ObjectIdentifier> objectId() {
+      return _objectId;
     }
 
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code versionsFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> identifiers() {
-      return _identifiers;
+    public final MetaProperty<Instant> versionsFromInstant() {
+      return _versionsFromInstant;
     }
 
     /**
-     * The meta-property for the {@code currentDate} property.
+     * The meta-property for the {@code versionsToInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> currentDate() {
-      return _currentDate;
+    public final MetaProperty<Instant> versionsToInstant() {
+      return _versionsToInstant;
     }
 
     /**
-     * The meta-property for the {@code dataSource} property.
+     * The meta-property for the {@code correctionsFromInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> dataSource() {
-      return _dataSource;
+    public final MetaProperty<Instant> correctionsFromInstant() {
+      return _correctionsFromInstant;
     }
 
     /**
-     * The meta-property for the {@code dataProvider} property.
+     * The meta-property for the {@code correctionsToInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> dataProvider() {
-      return _dataProvider;
-    }
-
-    /**
-     * The meta-property for the {@code dataField} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> dataField() {
-      return _dataField;
-    }
-
-    /**
-     * The meta-property for the {@code observationTime} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> observationTime() {
-      return _observationTime;
-    }
-
-    /**
-     * The meta-property for the {@code timestamp} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> timestamp() {
-      return _timestamp;
+    public final MetaProperty<Instant> correctionsToInstant() {
+      return _correctionsToInstant;
     }
 
   }
