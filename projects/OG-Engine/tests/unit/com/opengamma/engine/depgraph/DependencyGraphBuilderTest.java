@@ -35,7 +35,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
-import com.opengamma.engine.depgraph.ResolveTask.TerminationCallback;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -60,6 +59,10 @@ public class DependencyGraphBuilderTest {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderTest.class);
 
   public void singleOutputSingleFunctionNode() {
+
+    // [PLAT-1049, PLAT-500, PLAT-1402] Graph building doesn't include speculative outputs from functions any more,
+    // so this test might no longer be relevant as the graph doesn't need to be cleaned after the build.  
+
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
 
@@ -69,7 +72,7 @@ public class DependencyGraphBuilderTest {
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
-    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec2()));
+    assertFalse(graph.getOutputSpecifications().contains(helper.getSpec2()));
 
     Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
@@ -78,13 +81,13 @@ public class DependencyGraphBuilderTest {
     assertEquals(function, node.getFunction().getFunction());
     assertEquals(function.getDefaultParameters(), node.getFunction().getParameters());
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
-    assertTrue(node.getOutputValues().contains(helper.getSpec2()));
+    assertFalse(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
     assertEquals(helper.getTarget(), node.getComputationTarget());
 
     graph.removeUnnecessaryValues();
 
-    nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
+    nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     node = nodes.iterator().next();
@@ -120,21 +123,23 @@ public class DependencyGraphBuilderTest {
     assertTrue(node.getInputNodes().isEmpty());
   }
 
-  private void blockOnTask(final ResolveTask task, final String expected) {
+  private void blockOnTask(final ResolvedValueProducer task, final String expected) {
     final CountDownLatch latch = new CountDownLatch(1);
     final AtomicReference<String> result = new AtomicReference<String>();
-    task.notifyOnTermination(new TerminationCallback() {
+    task.addCallback(new ResolvedValueCallback() {
+
       @Override
-      public void complete(ResolveTask task) {
-        result.set("COMPLETE");
+      public void failed(final ValueRequirement value) {
+        result.set("FAILED");
         latch.countDown();
       }
 
       @Override
-      public void failed(ResolveTask task) {
-        result.set("FAILED");
+      public void resolved(ValueRequirement valueRequirement, ResolvedValue resolvedValue, ResolutionPump pump) {
+        result.set("COMPLETE");
         latch.countDown();
       }
+
     });
     try {
       latch.await(com.opengamma.util.test.Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
@@ -144,11 +149,11 @@ public class DependencyGraphBuilderTest {
     assertEquals(expected, result.get());
   }
 
-  private void expectFailure(final ResolveTask task) {
+  private void expectFailure(final ResolvedValueProducer task) {
     blockOnTask(task, "FAILED");
   }
 
-  private void expectCompletion(final ResolveTask task) {
+  private void expectCompletion(final ResolvedValueProducer task) {
     blockOnTask(task, "COMPLETE");
   }
 
