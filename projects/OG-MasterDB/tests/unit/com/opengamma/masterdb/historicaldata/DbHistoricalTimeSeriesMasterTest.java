@@ -46,8 +46,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
@@ -1086,14 +1086,14 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
   }
 
   private HistoricalTimeSeriesDocument getTimeSeriesSnapShot(IdentifierBundle identifiers, ZonedDateTime timeStamp) {
-    HistoricalTimeSeriesSearchHistoricRequest searchHistoricRequest = new HistoricalTimeSeriesSearchHistoricRequest();
+    HistoricalTimeSeriesHistoryRequest searchHistoricRequest = new HistoricalTimeSeriesHistoryRequest();
     searchHistoricRequest.setDataProvider(CMPL_DATA_PROVIDER);
     searchHistoricRequest.setDataSource(BBG_DATA_SOURCE);
     searchHistoricRequest.setDataField(CLOSE_DATA_FIELD);
     searchHistoricRequest.setIdentifiers(identifiers);
     searchHistoricRequest.setObservationTime(LCLOSE_OBSERVATION_TIME);
     searchHistoricRequest.setTimestamp(timeStamp.toInstant());
-    HistoricalTimeSeriesSearchHistoricResult searchHistoric = _master.searchHistoric(searchHistoricRequest);
+    HistoricalTimeSeriesHistoryResult searchHistoric = _master.searchHistoric(searchHistoricRequest);
     assertNotNull(searchHistoric);
     List<HistoricalTimeSeriesDocument> documents = searchHistoric.getDocuments();
     //should expect one single document back

@@ -113,7 +113,7 @@ public interface HistoricalTimeSeriesMaster {
    * @param request  the search request, not null
    * @return the search result, not null
    */
-  HistoricalTimeSeriesSearchHistoricResult searchHistoric(HistoricalTimeSeriesSearchHistoricRequest request);
+  HistoricalTimeSeriesHistoryResult searchHistoric(HistoricalTimeSeriesHistoryRequest request);
 
   //-------------------------------------------------------------------------
   /**

@@ -32,8 +32,8 @@ import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
@@ -203,11 +203,11 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   }
 
   @Override
-  public HistoricalTimeSeriesSearchHistoricResult searchHistoric(final HistoricalTimeSeriesSearchHistoricRequest request) {
+  public HistoricalTimeSeriesHistoryResult searchHistoric(final HistoricalTimeSeriesHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getHistoricalTimeSeriesId(), "request.timeSeriesId");
     
-    final HistoricalTimeSeriesSearchHistoricResult result = new HistoricalTimeSeriesSearchHistoricResult();
+    final HistoricalTimeSeriesHistoryResult result = new HistoricalTimeSeriesHistoryResult();
     HistoricalTimeSeriesDocument doc = get(request.getHistoricalTimeSeriesId());
     if (doc != null) {
       result.getDocuments().add(doc);

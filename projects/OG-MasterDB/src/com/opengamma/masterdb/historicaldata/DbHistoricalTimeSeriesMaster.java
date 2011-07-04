@@ -103,8 +103,8 @@ import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
@@ -1219,11 +1219,11 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   }
 
   @Override
-  public HistoricalTimeSeriesSearchHistoricResult searchHistoric(HistoricalTimeSeriesSearchHistoricRequest request) {
+  public HistoricalTimeSeriesHistoryResult searchHistoric(HistoricalTimeSeriesHistoryRequest request) {
     ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
     ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
     UniqueIdentifier uniqueId = request.getHistoricalTimeSeriesId();
-    HistoricalTimeSeriesSearchHistoricResult  searchResult = new HistoricalTimeSeriesSearchHistoricResult();
+    HistoricalTimeSeriesHistoryResult  searchResult = new HistoricalTimeSeriesHistoryResult();
     if (uniqueId == null) {
       validateSearchHistoricRequest(request);
       String dataProvider = request.getDataProvider();
@@ -1251,7 +1251,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     return searchResult;
   }
 
-  private void validateSearchHistoricRequest(HistoricalTimeSeriesSearchHistoricRequest request) {
+  private void validateSearchHistoricRequest(HistoricalTimeSeriesHistoryRequest request) {
     ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search with null/empty identifiers");
     ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataSource()), "cannot search with blank dataSource");
     ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot search with blank dataProvider");
