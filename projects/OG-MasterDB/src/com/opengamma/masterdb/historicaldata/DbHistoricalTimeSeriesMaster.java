@@ -87,7 +87,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,12 +101,13 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
+import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.masterdb.historicaldata.hibernate.DataFieldBean;
 import com.opengamma.masterdb.historicaldata.hibernate.DataProviderBean;
 import com.opengamma.masterdb.historicaldata.hibernate.DataSourceBean;
@@ -117,7 +117,6 @@ import com.opengamma.masterdb.historicaldata.hibernate.SchemeBean;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
@@ -133,7 +132,9 @@ import com.opengamma.util.tuple.Pair;
  * Expects the subclass to provide a map for specific database SQL queries.
  */
 @Transactional(readOnly = true)
-public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMaster {
+public abstract class DbHistoricalTimeSeriesMaster
+    extends AbstractDbMaster
+    implements HistoricalTimeSeriesMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMaster.class);
@@ -188,14 +189,6 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   public static final String IDENTIFIER_SCHEME_DEFAULT = "Tss";
 
   /**
-   * The identifier scheme to use.
-   */
-  private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
-  /**
-   * The database source.
-   */
-  private final DbSource _dbSource;
-  /**
    * The map of SQL
    */
   private Map<String, String> _namedSQLMap;
@@ -213,9 +206,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
    */
   public DbHistoricalTimeSeriesMaster(
       DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    
-    _dbSource = dbSource;
+    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     checkNamedSQLMap(namedSQLMap);
     
     // see tssQueries.xml
@@ -254,24 +245,6 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the database source.
-   * 
-   * @return the database source, non null
-   */
-  public DbSource getDbSource() {
-    return _dbSource;
-  }
-
-  /**
-   * Gets the simple JDBC template.
-   * 
-   * @return the JDBC template, not null
-   */
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _dbSource.getJdbcTemplate();
-  }
-
-  /**
    * Gets whether trigger is supported.
    * 
    * @return whether trigger is supported
@@ -303,7 +276,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     long bundleId = getOrCreateIdentifierBundle(bundleName, bundleName, series.getIdentifiers());
     long tsKey = createTimeSeriesKey(bundleId, series);
     insertDataPoints(series.getTimeSeries(), tsKey);
-    return UniqueIdentifier.of(_identifierScheme, String.valueOf(tsKey));
+    return createObjectIdentifier(tsKey);
   }
 
   private String makeUniqueBundleName(IdentifierBundleWithDates identifierBundleWithDates) {
@@ -739,8 +712,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
 
   protected LocalDateDoubleTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "Uid not for TimeSeriesStorage");
-    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
+    checkScheme(uniqueId);
     int timeSeriesKey = Integer.parseInt(uniqueId.getValue());
     LocalDateDoubleTimeSeries timeSeries = loadTimeSeries(timeSeriesKey, start, end);
     return timeSeries;
@@ -1180,17 +1152,13 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     }
     return sql.toString();
   }
-  
+
   private Date toSqlDate(final LocalDate localDate) {
     Date result = null;
     if (localDate != null) {
       result = DbDateUtils.toSqlDate(localDate);
     }
     return result;
-  }
-  
-  private DbHelper getDbHelper() {
-    return getDbSource().getDialect();
   }
 
   private String createTotalCountSql(String metaDataSql) {
@@ -1219,47 +1187,30 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   }
 
   @Override
-  public HistoricalTimeSeriesSearchHistoricResult searchHistoric(HistoricalTimeSeriesSearchHistoricRequest request) {
-    ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
-    ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
-    UniqueIdentifier uniqueId = request.getHistoricalTimeSeriesId();
-    HistoricalTimeSeriesSearchHistoricResult  searchResult = new HistoricalTimeSeriesSearchHistoricResult();
-    if (uniqueId == null) {
-      validateSearchHistoricRequest(request);
-      String dataProvider = request.getDataProvider();
-      String dataSource = request.getDataSource();
-      String field = request.getDataField();
-      IdentifierBundle identifiers = request.getIdentifiers();
-      LocalDate currentDate = request.getCurrentDate();
-      uniqueId = resolveIdentifier(identifiers, currentDate, dataSource, dataProvider, field);
-      if (uniqueId == null) {
-        return searchResult;
-      }
+  public HistoricalTimeSeriesHistoryResult history(HistoricalTimeSeriesHistoryRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
+    s_logger.debug("history {}", request);
+    
+    UniqueIdentifier uniqueId = request.getObjectId().atLatestVersion();
+    HistoricalTimeSeriesGetRequest getRequest = new HistoricalTimeSeriesGetRequest(uniqueId);
+    getRequest.setLoadEarliestLatest(false);
+    getRequest.setLoadTimeSeries(false);
+    HistoricalTimeSeriesDocument doc = get(getRequest);
+    Instant timeStamp = request.getCorrectionsToInstant();
+    if (timeStamp == null) {
+      timeStamp = now();
     }
-    Instant timeStamp = request.getTimestamp();
     long tsId = validateId(uniqueId);
     LocalDateDoubleTimeSeries seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
-    ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
-    series.setDataField(request.getDataField());
-    series.setDataProvider(request.getDataProvider());
-    series.setDataSource(request.getDataSource());
-    series.setIdentifiers(IdentifierBundleWithDates.of(request.getIdentifiers()));
-    series.setObservationTime(request.getObservationTime());
-    series.setUniqueId(uniqueId);
-    series.setTimeSeries(seriesSnapshot);
-    searchResult.getDocuments().add(new HistoricalTimeSeriesDocument(series));
-    return searchResult;
+    doc.getSeries().setTimeSeries(seriesSnapshot);
+    HistoricalTimeSeriesHistoryResult result = new HistoricalTimeSeriesHistoryResult();
+    result.getDocuments().add(doc);
+    return result;
   }
 
-  private void validateSearchHistoricRequest(HistoricalTimeSeriesSearchHistoricRequest request) {
-    ArgumentChecker.isTrue(request.getIdentifiers() != null && !request.getIdentifiers().getIdentifiers().isEmpty(), "cannot search with null/empty identifiers");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataSource()), "cannot search with blank dataSource");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot search with blank dataProvider");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot search with blank dataProvider");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataField()), "cannot search with blank field");
-    ArgumentChecker.isTrue(!StringUtils.isBlank(request.getDataProvider()), "cannot add timeseries with blank dataProvider");
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public HistoricalTimeSeriesDocument update(HistoricalTimeSeriesDocument document) {
@@ -1310,7 +1261,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     } 
     getJdbcTemplate().update(insertSQL, parameterSource);
     String uniqueId = new StringBuilder(String.valueOf(tsId)).append("/").append(printDate(document.getDate())).toString();
-    document.setDataPointId(UniqueIdentifier.of(_identifierScheme, uniqueId));
+    document.setDataPointId(UniqueIdentifier.of(getIdentifierScheme(), uniqueId));
     return document;
   }
 
@@ -1337,7 +1288,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
     
     final DataPointDocument result = new DataPointDocument();
     result.setDate(tsIdDatePair.getSecond());
-    result.setHistoricalTimeSeriesId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
+    result.setHistoricalTimeSeriesId(createObjectIdentifier(tsId));
     result.setDataPointId(dataPointId);
     jdbcOperations.query(_namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID), paramSource, new RowCallbackHandler() {
       @Override
@@ -1350,8 +1301,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
 
   private ObjectsPair<Long, LocalDate> validateAndGetDataPointId(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "DataPoint UID");
-    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "UID not TSS");
-    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
+    checkScheme(uniqueId);
     String[] tokens = StringUtils.split(uniqueId.getValue(), '/');
     if (tokens.length != 2) {
       throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId);
@@ -1568,7 +1518,7 @@ public abstract class DbHistoricalTimeSeriesMaster implements HistoricalTimeSeri
   //-------------------------------------------------------------------------
   private long validateId(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "historicalTimeSeriesId scheme invalid");
+    checkScheme(uniqueId);
     try {
       return Long.parseLong(uniqueId.getValue());
     } catch (NumberFormatException ex) {

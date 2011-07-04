@@ -10,10 +10,15 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
  */
-public class InterestRateFutureOptionMarginTransactionDefinition {
+public class InterestRateFutureOptionMarginTransactionDefinition implements FixedIncomeInstrumentWithDataConverter<InterestRateFutureOptionMarginTransaction, Double> {
 
   /**
    * The underlying option future security.
@@ -78,6 +83,38 @@ public class InterestRateFutureOptionMarginTransactionDefinition {
    */
   public double getTradePrice() {
     return _tradePrice;
+  }
+
+  @Override
+  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    throw new UnsupportedOperationException("The method toDerivative of InterestRateTransactionDefinition does not support the two argument method (without margin price data).");
+  }
+
+  @Override
+  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(!date.isAfter(_underlyingOption.getExpirationDate()), "Date is after last payment date");
+    Validate.isTrue(!date.isBefore(_tradeDate), "Date is after trade date");
+    final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(date, yieldCurveNames);
+    double referencePrice;
+    if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _tradePrice;
+    }
+    InterestRateFutureOptionMarginTransaction optionTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, _quantity, referencePrice);
+    return optionTransaction;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this);
   }
 
   @Override

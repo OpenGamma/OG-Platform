@@ -21,6 +21,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -54,6 +56,11 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2011, 5, 12);
   private static final double TRADE_PRICE = 0.0050;
   private static final InterestRateFutureOptionMarginTransactionDefinition OPTION_TRANSACTION = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
+
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 5, 13);
+  private static final String DISCOUNTING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -91,6 +98,32 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
     assertFalse(OPTION_TRANSACTION.equals(modifidOption));
     modifidOption = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE - 0.00001);
     assertFalse(OPTION_TRANSACTION.equals(modifidOption));
+  }
+
+  @Test
+  public void toDerivativeTradeInPast() {
+    InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    double lastMarginPrice = 0.99;
+    InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice, CURVES_NAMES);
+    InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, lastMarginPrice);
+    assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
+  }
+
+  @Test
+  public void toDerivativeTradeToday() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate, CURVES_NAMES);
+    double lastMarginPrice = 0.99;
+    InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+    InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, TRADE_PRICE);
+    assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeTradeFuture() {
+    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, CALENDAR, -1);
+    double lastMarginPrice = 0.99;
+    OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
   }
 
 }

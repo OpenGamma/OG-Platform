@@ -240,6 +240,48 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
   }
+  
+  @Test
+  public void test_search_position_withAttributes() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    position.addAttribute("PA1", "A");
+    position.addAttribute("PA2", "B");
+    position.addAttribute("PA3", "C");
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade1.addAttribute("key11", "value11");
+    trade1.addAttribute("key12", "value12");
+    position.addTrade(trade1);
+    
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    trade2.addAttribute("key21", "value21");
+    trade2.addAttribute("key22", "value22");
+    position.addTrade(trade2);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    _posMaster.add(doc);
+    assertNotNull(trade1.getUniqueId());
+    assertNotNull(trade2.getUniqueId());
+    
+    PositionSearchRequest requestByTrade = new PositionSearchRequest();
+    requestByTrade.addTradeId(trade1.getUniqueId().getObjectId());
+    
+    PositionSearchResult test = _posMaster.search(requestByTrade);
+    assertEquals(1, test.getDocuments().size());
+    assertEquals(doc, test.getDocuments().get(0));
+    
+    PositionSearchRequest requestByPosition = new PositionSearchRequest();
+    requestByPosition.addPositionId(position.getUniqueId().getObjectId());
+    test = _posMaster.search(requestByTrade);
+    assertEquals(1, test.getDocuments().size());
+    assertEquals(doc, test.getDocuments().get(0));
+  }
+  
+  
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_tradeIds_badSchemeValidOid() {

@@ -61,7 +61,32 @@ public final class InterestRateFutureSecurityDiscountingMethod {
     final double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1)
         / future.getFixingPeriodAccrualFactor();
     return forward;
+  }
 
+  /**
+   * Compute the price sensitivity to rates of a interest rate future by discounting.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @return The price rate sensitivity.
+   */
+  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
+    double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
+    double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
+    // Backward sweep
+    double priceBar = 1.0;
+    double forwardBar = -priceBar;
+    double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
+    double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
+    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    resultMap.put(future.getForwardCurveName(), listForward);
+    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    return result;
   }
 
   /**

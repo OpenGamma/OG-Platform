@@ -17,7 +17,11 @@ import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -37,8 +41,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureSecurityConverter;
@@ -83,6 +87,7 @@ import com.opengamma.util.tuple.Triple;
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
   private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
       "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
   private final YieldCurveFunctionHelper _fundingHelper;
@@ -333,12 +338,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
             .getData();
-      } catch (final Exception e) {
-        rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
-            DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-        yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();
-
+      } catch (final Exception eLU) {
+        try {
+          s_logger.warn("Could not find root using LU decomposition and present value method for curves " +
+              _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
+          rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
+              DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+          yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
+              .getData();          
+        } catch (Exception eSV) {
+          s_logger.warn("Could not find root using SV decomposition and present value method for curves " +
+              _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + ". Error was: " + eLU.getMessage());
+          throw new OpenGammaRuntimeException(eSV.getMessage());
+        }
       }
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
       final double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
@@ -447,13 +459,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();
-      } catch (final Exception e) {
-        rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
-            DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
-        yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();
-
+            .getData();        
+      } catch (final Exception eLU) {
+        try {
+          s_logger.warn("Could not find root using LU decomposition and present value method for curve " +
+            _fundingCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
+          rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
+              DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+          yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
+              .getData();
+        } catch (Exception eSV) {
+          s_logger.warn("Could not find root using SV decomposition and present value method for curve " +
+            _fundingCurveDefinitionName + ". Error was: " + eLU.getMessage());
+          throw new OpenGammaRuntimeException(eSV.getMessage());
+        }
       }
 
       final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields,
