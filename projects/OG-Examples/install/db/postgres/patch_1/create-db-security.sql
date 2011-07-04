@@ -166,6 +166,7 @@ CREATE TABLE sec_fxoption (
     call_currency_id bigint not null,
     settlement_date timestamp not null,
     settlement_zone varchar(50) not null,
+    is_long boolean not null,
     primary key (id),
     constraint sec_fk_fxoption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxoption2putcurrency foreign key (put_currency_id) references sec_currency (id),
@@ -182,7 +183,10 @@ CREATE TABLE sec_swaption (
     expiry_accuracy smallint not null,
     cash_settled boolean not null,
     is_long boolean not null,
+    is_payer boolean not null,
+    currency_id bigint not null,
     primary key (id),
+    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
     constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
 );
 
@@ -221,8 +225,10 @@ CREATE TABLE sec_fxbarrieroption (
     settlement_zone varchar(50) not null,
     barrier_type varchar(32) not null,
     barrier_direction varchar(32) not null,
+    barrier_level double precision not null,
     monitoring_type varchar(32) not null,
     sampling_frequency varchar(32),
+    is_long boolean not null,
     primary key (id),
     constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
@@ -337,7 +343,6 @@ CREATE TABLE sec_future (
     currency3_id bigint,
     bondtype_id bigint,
     commoditytype_id bigint,
-    cashratetype_id bigint,
     unitname_id bigint,
     unitnumber double precision,
     unit_amount double precision,
@@ -356,7 +361,6 @@ CREATE TABLE sec_future (
     constraint sec_fk_future2currency3 foreign key (currency3_id) references sec_currency (id),
     constraint sec_fk_future2bondfuturetype foreign key (bondtype_id) references sec_bondfuturetype (id),
     constraint sec_fk_future2commodityfuturetype foreign key (commoditytype_id) references sec_commodityfuturetype (id),
-    constraint sec_fk_future2cashrate foreign key (cashratetype_id) references sec_cashrate (id),
     constraint sec_fk_future2unit foreign key (unitname_id) references sec_unit (id)
 );
 
@@ -405,6 +409,8 @@ CREATE TABLE sec_fra (
     end_zone varchar(50) not null,
     rate double precision not null,
     amount double precision not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
     primary key (id),
     constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fra2currency foreign key (currency_id) references sec_currency (id)
@@ -435,6 +441,7 @@ CREATE TABLE sec_swap (
     pay_notionalscheme varchar(255),
     pay_notionalid varchar(255),
     pay_rate double precision,
+    pay_isibor boolean,
     pay_spread double precision,
     pay_rateidentifierscheme varchar(255),
     pay_rateidentifierid varchar(255),
@@ -450,6 +457,7 @@ CREATE TABLE sec_swap (
     receive_notionalscheme varchar(255),
     receive_notionalid varchar(255),
     receive_rate double precision,
+    receive_isibor boolean,
     receive_spread double precision,
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),
