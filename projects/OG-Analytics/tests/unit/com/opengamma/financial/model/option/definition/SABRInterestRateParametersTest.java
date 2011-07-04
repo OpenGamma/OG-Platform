@@ -15,6 +15,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.function.DoubleFunction1D;
+import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
@@ -119,5 +121,18 @@ public class SABRInterestRateParametersTest {
     assertFalse(other.equals(OBJECT));
     other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, new SABRHaganAlternativeVolatilityFunction());
     assertFalse(other.equals(OBJECT));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCorrelation() {
+    new SABRInterestRateCorrelationParameter(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, null);
+  }
+
+  @Test
+  public void correlationGetter() {
+    double correlation = 0.50;
+    final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
+    SABRInterestRateCorrelationParameter sabrCorrelation = new SABRInterestRateCorrelationParameter(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, correlationFunction);
+    assertEquals("SABR with correlation: get correlation", correlationFunction, sabrCorrelation.getCorrelation());
   }
 }

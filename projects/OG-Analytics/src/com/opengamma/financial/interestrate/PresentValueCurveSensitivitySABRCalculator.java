@@ -13,15 +13,18 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.financial.interestrate.payments.method.CapFloorIborSABRMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
+import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameter;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -108,6 +111,21 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
       return replication.presentValueSensitivity(payment, sabrBundle).getSensitivity();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameter) {
+        final SABRInterestRateCorrelationParameter sabrCorrelation = (SABRInterestRateCorrelationParameter) sabrBundle.getSABRParameter();
+        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation());
+        return method.presentValueSensitivity(payment, sabrBundle).getSensitivity();
+      }
+    }
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRCalculator visitor visitCapFloorCMSSpread requires a SABRInterestRateDataBundle with correlation as data.");
   }
 
   @Override
