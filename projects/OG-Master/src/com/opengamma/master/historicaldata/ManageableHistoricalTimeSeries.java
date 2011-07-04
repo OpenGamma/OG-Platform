@@ -54,6 +54,12 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   @PropertyDefinition
   private IdentifierBundleWithDates _identifiers;
   /**
+   * The data field.
+   * This defines the type of data that the series represents.
+   */
+  @PropertyDefinition
+  private String _dataField;
+  /**
    * The data source.
    * The source of the data, typically a major financial data supplier.
    */
@@ -65,12 +71,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   @PropertyDefinition
   private String _dataProvider;
-  /**
-   * The data field.
-   * This defines the type of data that the series represents.
-   */
-  @PropertyDefinition
-  private String _dataField;
   /**
    * The descriptive observation time key.
    * This defines, textually, the time of day, such as LONDON_CLOSE.
@@ -113,12 +113,12 @@ public class ManageableHistoricalTimeSeries extends DirectBean
         return getUniqueId();
       case 1368189162:  // identifiers
         return getIdentifiers();
+      case -386794640:  // dataField
+        return getDataField();
       case 1272470629:  // dataSource
         return getDataSource();
       case 339742651:  // dataProvider
         return getDataProvider();
-      case -386794640:  // dataField
-        return getDataField();
       case 951232793:  // observationTime
         return getObservationTime();
       case 779431844:  // timeSeries
@@ -136,14 +136,14 @@ public class ManageableHistoricalTimeSeries extends DirectBean
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundleWithDates) newValue);
         return;
+      case -386794640:  // dataField
+        setDataField((String) newValue);
+        return;
       case 1272470629:  // dataSource
         setDataSource((String) newValue);
         return;
       case 339742651:  // dataProvider
         setDataProvider((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
         return;
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
@@ -164,9 +164,9 @@ public class ManageableHistoricalTimeSeries extends DirectBean
       ManageableHistoricalTimeSeries other = (ManageableHistoricalTimeSeries) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
     }
@@ -178,9 +178,9 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     return hash;
@@ -244,6 +244,34 @@ public class ManageableHistoricalTimeSeries extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the data field.
+   * This defines the type of data that the series represents.
+   * @return the value of the property
+   */
+  public String getDataField() {
+    return _dataField;
+  }
+
+  /**
+   * Sets the data field.
+   * This defines the type of data that the series represents.
+   * @param dataField  the new value of the property
+   */
+  public void setDataField(String dataField) {
+    this._dataField = dataField;
+  }
+
+  /**
+   * Gets the the {@code dataField} property.
+   * This defines the type of data that the series represents.
+   * @return the property, not null
+   */
+  public final Property<String> dataField() {
+    return metaBean().dataField().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the data source.
    * The source of the data, typically a major financial data supplier.
    * @return the value of the property
@@ -296,34 +324,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   public final Property<String> dataProvider() {
     return metaBean().dataProvider().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the data field.
-   * This defines the type of data that the series represents.
-   * @return the value of the property
-   */
-  public String getDataField() {
-    return _dataField;
-  }
-
-  /**
-   * Sets the data field.
-   * This defines the type of data that the series represents.
-   * @param dataField  the new value of the property
-   */
-  public void setDataField(String dataField) {
-    this._dataField = dataField;
-  }
-
-  /**
-   * Gets the the {@code dataField} property.
-   * This defines the type of data that the series represents.
-   * @return the property, not null
-   */
-  public final Property<String> dataField() {
-    return metaBean().dataField().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -406,6 +406,11 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(
         this, "identifiers", ManageableHistoricalTimeSeries.class, IdentifierBundleWithDates.class);
     /**
+     * The meta-property for the {@code dataField} property.
+     */
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", ManageableHistoricalTimeSeries.class, String.class);
+    /**
      * The meta-property for the {@code dataSource} property.
      */
     private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
@@ -415,11 +420,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
      */
     private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
         this, "dataProvider", ManageableHistoricalTimeSeries.class, String.class);
-    /**
-     * The meta-property for the {@code dataField} property.
-     */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
-        this, "dataField", ManageableHistoricalTimeSeries.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
@@ -437,9 +437,9 @@ public class ManageableHistoricalTimeSeries extends DirectBean
         this, null,
         "uniqueId",
         "identifiers",
+        "dataField",
         "dataSource",
         "dataProvider",
-        "dataField",
         "observationTime",
         "timeSeries");
 
@@ -456,12 +456,12 @@ public class ManageableHistoricalTimeSeries extends DirectBean
           return _uniqueId;
         case 1368189162:  // identifiers
           return _identifiers;
+        case -386794640:  // dataField
+          return _dataField;
         case 1272470629:  // dataSource
           return _dataSource;
         case 339742651:  // dataProvider
           return _dataProvider;
-        case -386794640:  // dataField
-          return _dataField;
         case 951232793:  // observationTime
           return _observationTime;
         case 779431844:  // timeSeries
@@ -503,6 +503,14 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     }
 
     /**
+     * The meta-property for the {@code dataField} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> dataField() {
+      return _dataField;
+    }
+
+    /**
      * The meta-property for the {@code dataSource} property.
      * @return the meta-property, not null
      */
@@ -516,14 +524,6 @@ public class ManageableHistoricalTimeSeries extends DirectBean
      */
     public final MetaProperty<String> dataProvider() {
       return _dataProvider;
-    }
-
-    /**
-     * The meta-property for the {@code dataField} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> dataField() {
-      return _dataField;
     }
 
     /**
