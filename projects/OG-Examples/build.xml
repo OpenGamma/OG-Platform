@@ -114,6 +114,4 @@
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
 
-	<target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
-
 </project>
