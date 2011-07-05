@@ -43,7 +43,7 @@ import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -182,7 +182,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final PresentValueSABRCalculator calculator = PresentValueSABRCalculator.getInstance();
-    SABRInterestRateCorrelationParameter sabrCorrelation = SABRInterestRateCorrelationParameter.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
+    SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     CurrencyAmount pvMethod = METHOD.presentValue(CMS_SPREAD, sabrBundleCor);
     double pvCalculator = calculator.visit(CMS_SPREAD, sabrBundleCor);
@@ -272,7 +272,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
-    SABRInterestRateCorrelationParameter sabrCorrelation = SABRInterestRateCorrelationParameter.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
+    SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     PresentValueSensitivity pvcsMethod = METHOD.presentValueSensitivity(CMS_SPREAD, sabrBundleCor);
     PresentValueSensitivity pvcsCalculator = new PresentValueSensitivity(calculator.visit(CMS_SPREAD, sabrBundleCor));
@@ -330,7 +330,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivitySABRCalculator calculator = PresentValueSABRSensitivitySABRCalculator.getInstance();
-    SABRInterestRateCorrelationParameter sabrCorrelation = SABRInterestRateCorrelationParameter.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
+    SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD.presentValueSABRSensitivity(CMS_SPREAD, sabrBundleCor);
     PresentValueSABRSensitivityDataBundle pvcsCalculator = calculator.visit(CMS_SPREAD, sabrBundleCor);

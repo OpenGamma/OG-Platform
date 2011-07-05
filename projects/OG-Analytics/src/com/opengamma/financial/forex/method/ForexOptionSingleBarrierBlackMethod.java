@@ -36,9 +36,10 @@ public class ForexOptionSingleBarrierBlackMethod implements ForexPricingMethod {
     double forward = spot * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
     double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
+    double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
     double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward));
     double price = BLACK_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility);
-    price *= foreignAmount * (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
+    price *= Math.abs(foreignAmount) * sign;
     CurrencyAmount priceCurrency = CurrencyAmount.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), price);
     return MultipleCurrencyAmount.of(priceCurrency);
   }
@@ -50,8 +51,35 @@ public class ForexOptionSingleBarrierBlackMethod implements ForexPricingMethod {
     return presentValue((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
+    double rateDomestic = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(payTime);
+    double rateForeign = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getInterestRate(payTime);
+    double spot = smile.getSpot();
+    double forward = spot * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
+    double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
+    double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
+    double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
+    double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward));
+    double[] priceDerivatives = new double[5];
+    double price = BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
+    price *= Math.abs(foreignAmount) * sign;
+    double deltaSpot = priceDerivatives[0];
+    CurrencyAmount[] currencyExposure = new CurrencyAmount[2];
+    // Implementation note: foreign currency (currency 1) exposure = Delta_spot * amount1.
+    currencyExposure[0] = CurrencyAmount.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), deltaSpot * Math.abs(foreignAmount) * sign);
+    // Implementation note: domestic currency (currency 2) exposure = -Delta_spot * amount1 * spot+PV
+    currencyExposure[1] = CurrencyAmount.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(),
+        -deltaSpot * Math.abs(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount()) * smile.getSpot() * sign + price);
+    return MultipleCurrencyAmount.of(currencyExposure);
+  }
+
   @Override
   public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     //TODO Not implemented yet.
     return null;
   }

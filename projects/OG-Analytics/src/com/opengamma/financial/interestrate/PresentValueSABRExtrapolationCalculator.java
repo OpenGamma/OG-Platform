@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 
 /**
  * Present value calculator for interest rate instruments using SABR volatility formula with extrapolation for high strikes.
@@ -41,8 +41,8 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
+        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(cap, sabr).getAmount();
       }
@@ -56,8 +56,8 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
+        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(swaption, sabr);
       }
@@ -71,8 +71,8 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
+        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return method.presentValue(swaption, sabr);
       }
@@ -86,8 +86,8 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
+        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return replication.presentValue(payment, sabr);
       }
@@ -101,8 +101,8 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
-        final SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
+        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
         return replication.presentValue(payment, sabr).getAmount();
       }

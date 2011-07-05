@@ -125,14 +125,14 @@ public class SABRInterestRateParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCorrelation() {
-    new SABRInterestRateCorrelationParameter(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, null);
+    new SABRInterestRateCorrelationParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, null);
   }
 
   @Test
   public void correlationGetter() {
     double correlation = 0.50;
     final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    SABRInterestRateCorrelationParameter sabrCorrelation = new SABRInterestRateCorrelationParameter(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, correlationFunction);
+    SABRInterestRateCorrelationParameters sabrCorrelation = new SABRInterestRateCorrelationParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, correlationFunction);
     assertEquals("SABR with correlation: get correlation", correlationFunction, sabrCorrelation.getCorrelation());
   }
 }

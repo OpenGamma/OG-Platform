@@ -14,7 +14,7 @@ import com.opengamma.math.function.DoubleFunction1D;
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling and the correlation parameters for CMS spread modeling.
  */
-public class SABRInterestRateCorrelationParameter extends SABRInterestRateParameters {
+public class SABRInterestRateCorrelationParameters extends SABRInterestRateParameters {
 
   /**
    * The correlation as function of the strike.
@@ -30,7 +30,7 @@ public class SABRInterestRateCorrelationParameter extends SABRInterestRateParame
    * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param correlation The correlation function.
    */
-  public SABRInterestRateCorrelationParameter(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, final DoubleFunction1D correlation) {
+  public SABRInterestRateCorrelationParameters(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, final DoubleFunction1D correlation) {
     super(alpha, beta, rho, nu, dayCount);
     Validate.notNull(correlation, "Correlation");
     _correlation = correlation;
@@ -42,9 +42,9 @@ public class SABRInterestRateCorrelationParameter extends SABRInterestRateParame
    * @param correlation The correlation function.
    * @return The SABR with correlation object.
    */
-  public static SABRInterestRateCorrelationParameter from(final SABRInterestRateParameters sabr, final DoubleFunction1D correlation) {
+  public static SABRInterestRateCorrelationParameters from(final SABRInterestRateParameters sabr, final DoubleFunction1D correlation) {
     Validate.notNull(sabr, "SABR parameters");
-    return new SABRInterestRateCorrelationParameter(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), correlation);
+    return new SABRInterestRateCorrelationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), correlation);
   }
 
   /**

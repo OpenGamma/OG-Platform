@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
-import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 
 /**
@@ -105,8 +105,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameter) {
-        final SABRInterestRateCorrelationParameter sabrCorrelation = (SABRInterestRateCorrelationParameter) sabrBundle.getSABRParameter();
+      if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
+        final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabrBundle.getSABRParameter();
         final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation());
         return method.presentValue(payment, sabrBundle).getAmount();
       }

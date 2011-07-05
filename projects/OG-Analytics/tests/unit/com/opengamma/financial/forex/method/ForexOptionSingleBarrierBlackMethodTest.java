@@ -149,4 +149,38 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     assertEquals("Barrier price: generic vs specific", priceSpecific, priceGeneric);
   }
 
+  @Test
+  /**
+   * Tests the currency exposure vs a finite difference computation. The computation is with fixed Black volatility (Black world). 
+   * The volatility used in the shifted price is flat with the volatility equal to the volatility used for the original price.
+   */
+  public void currencyExposure() {
+    MultipleCurrencyAmount ce = METHOD_BARRIER.currencyExposure(OPTION_BARRIER, SMILE_BUNDLE);
+    double shiftSpotEURUSD = 1E-6;
+    MultipleCurrencyAmount pv = METHOD_BARRIER.presentValue(OPTION_BARRIER, SMILE_BUNDLE);
+    double payTime = OPTION_VANILLA.getUnderlyingForex().getPaymentTime();
+    double rateDomestic = CURVES.getCurve(CURVES_NAME[1]).getInterestRate(payTime);
+    double rateForeign = CURVES.getCurve(CURVES_NAME[0]).getInterestRate(payTime);
+    double forward = SPOT * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
+    double volatility = SMILE_TERM.getVolatility(OPTION_VANILLA.getTimeToExpiry(), STRIKE, forward);
+    double[] atmFlat = {volatility, volatility, volatility, volatility, volatility};
+    double[][] rrFlat = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+    double[][] sFlat = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+    final SmileDeltaTermStructureParameter smileTermFlat = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, atmFlat, rrFlat, sFlat);
+    SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(smileTermFlat, SPOT + shiftSpotEURUSD, CURVES);
+    MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
+    double ceDomesticFD = (pvBumpedSpot.getAmount(CUR_2) - pv.getAmount(CUR_2));
+    assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(CUR_1) * shiftSpotEURUSD, 2.0E-4);
+    double spotGBPUSD = 1.60;
+    double spotGBPEUR = spotGBPUSD / SPOT;
+    double shiftSpotGBPUSD = 2.0E-6;
+    double spotEURUSDshifted = SPOT + shiftSpotEURUSD;
+    double spotGBPUSDshifted = spotGBPUSD + shiftSpotGBPUSD;
+    double spotGBPEURshifted = spotGBPUSDshifted / spotEURUSDshifted;
+    double pvInGBPBeforeShift = pv.getAmount(CUR_2) / spotGBPUSD;
+    double pvInGBPAfterShift = pvBumpedSpot.getAmount(CUR_2) / spotGBPUSDshifted;
+    assertEquals("Barrier currency exposure: all currencies", pvInGBPAfterShift - pvInGBPBeforeShift, ce.getAmount(CUR_1) * (1 / spotGBPEURshifted - 1 / spotGBPEUR) + ce.getAmount(CUR_2)
+        * (1 / spotGBPUSDshifted - 1 / spotGBPUSD), 1.0E-4);
+  }
+
 }

@@ -11,7 +11,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 /**
  * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modeling.
  */
-public class SABRInterestRateExtrapolationParameter extends SABRInterestRateParameters {
+public class SABRInterestRateExtrapolationParameters extends SABRInterestRateParameters {
 
   /**
    * The cut-off strike above which the extrapolation is used.
@@ -32,7 +32,7 @@ public class SABRInterestRateExtrapolationParameter extends SABRInterestRatePara
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
    */
-  public SABRInterestRateExtrapolationParameter(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, double cutOffStrike, double mu) {
+  public SABRInterestRateExtrapolationParameters(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, double cutOffStrike, double mu) {
     super(alpha, beta, rho, nu, dayCount);
     this._cutOffStrike = cutOffStrike;
     this._mu = mu;
@@ -45,8 +45,8 @@ public class SABRInterestRateExtrapolationParameter extends SABRInterestRatePara
    * @param mu The tail thickness parameter.
    * @return The SABR with extrapolation parameters.
    */
-  public static SABRInterestRateExtrapolationParameter from(final SABRInterestRateParameters sabr, final double cutOffStrike, final double mu) {
-    return new SABRInterestRateExtrapolationParameter(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), cutOffStrike, mu);
+  public static SABRInterestRateExtrapolationParameters from(final SABRInterestRateParameters sabr, final double cutOffStrike, final double mu) {
+    return new SABRInterestRateExtrapolationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), cutOffStrike, mu);
   }
 
   /**
