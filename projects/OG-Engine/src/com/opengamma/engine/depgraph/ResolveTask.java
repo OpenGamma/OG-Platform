@@ -75,11 +75,11 @@ import com.opengamma.engine.value.ValueSpecification;
     }
 
     protected void run(final DependencyGraphBuilder builder) {
-      throw new UnsupportedOperationException("Not runnable state");
+      throw new UnsupportedOperationException("Not runnable state (" + toString() + ")");
     }
 
     protected void pump() {
-      throw new UnsupportedOperationException("Not pumpable state");
+      throw new UnsupportedOperationException("Not pumpable state (" + toString() + ")");
     }
 
   }
@@ -118,6 +118,7 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   protected void finished() {
     _state = null;
+    super.finished();
   }
 
   protected void setComputationTarget(final ComputationTarget target) {
@@ -140,11 +141,20 @@ import com.opengamma.engine.value.ValueSpecification;
   public boolean hasParent(final ResolveTask task) {
     if (task == this) {
       return true;
-    }
-    if (getParent() == null) {
+    } else if (getParent() == null) {
       return false;
     } else {
       return getParent().hasParent(task);
+    }
+  }
+
+  public boolean hasParent(final ValueRequirement valueRequirement) {
+    if (valueRequirement.equals(getValueRequirement())) {
+      return true;
+    } else if (getParent() == null) {
+      return false;
+    } else {
+      return getParent().hasParent(valueRequirement);
     }
   }
 
@@ -193,7 +203,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void pumpImpl() {
     getState().pump();
   }
-  
+
   @Override
   public String toString() {
     return "Resolve " + getValueRequirement() + " " + getState();

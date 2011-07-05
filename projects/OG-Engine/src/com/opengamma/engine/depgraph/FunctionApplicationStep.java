@@ -7,7 +7,9 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,35 +96,151 @@ import com.opengamma.util.tuple.Pair;
   protected static final class PumpingState extends NextFunctionStep {
 
     private final ValueSpecification _valueSpecification;
+    private final Set<ValueSpecification> _outputs;
     private final ParameterizedFunction _function;
     private final DependencyGraphBuilder _builder;
     private final FunctionApplicationWorker _worker;
 
     private PumpingState(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions, final ValueSpecification valueSpecification,
-        final ParameterizedFunction function, final DependencyGraphBuilder builder, final FunctionApplicationWorker worker) {
+        final Set<ValueSpecification> outputs, final ParameterizedFunction function, final DependencyGraphBuilder builder, final FunctionApplicationWorker worker) {
       super(task, functions);
       _valueSpecification = valueSpecification;
+      _outputs = outputs;
       _function = function;
       _builder = builder;
       _worker = worker;
     }
 
-    public void inputsAvailable(final Set<ValueSpecification> inputs) {
-      s_logger.debug("Function inputs available {} for {}", inputs, _valueSpecification);
-      // TODO: getResults () and getAdditionalRequirements () before we can push the values
+    private ValueSpecification getValueSpecification() {
+      return _valueSpecification;
+    }
+
+    private Set<ValueSpecification> getOutputs() {
+      return _outputs;
+    }
+
+    private ParameterizedFunction getFunction() {
+      return _function;
+    }
+
+    private DependencyGraphBuilder getBuilder() {
+      return _builder;
+    }
+
+    private FunctionApplicationWorker getWorker() {
+      return _worker;
+    }
+
+    public void inputsAvailable(final Map<ValueSpecification, ValueRequirement> inputs) {
+      s_logger.debug("Function inputs available {} for {}", inputs, getValueSpecification());
+      // Late resolution of the output based on the actual inputs used (skip if everything was strict)
+      ValueSpecification resolvedOutput = getValueSpecification();
+      boolean strictConstraints = resolvedOutput.getProperties().isStrict();
+      if (strictConstraints) {
+        for (ValueRequirement input : inputs.values()) {
+          if (!input.getConstraints().isStrict()) {
+            strictConstraints = false;
+            break;
+          }
+        }
+      }
+      if (!strictConstraints) {
+        Set<ValueSpecification> newOutputValues = null;
+        try {
+          newOutputValues = getFunction().getFunction().getResults(getBuilder().getCompilationContext(), getComputationTarget(), inputs);
+        } catch (Throwable t) {
+          s_logger.warn("Exception thrown by getResults", t);
+          getBuilder().postException(t);
+        }
+        if (newOutputValues == null) {
+          s_logger.debug("Function {} returned NULL for getResults on {}", getFunction(), inputs);
+          pump();
+          return;
+        }
+        if (!getOutputs().equals(newOutputValues)) {
+          getOutputs().clear();
+          resolvedOutput = null;
+          for (ValueSpecification outputValue : newOutputValues) {
+            if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
+              resolvedOutput = outputValue.compose(getValueRequirement());
+              s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
+              getOutputs().add(resolvedOutput);
+            } else {
+              getOutputs().add(outputValue);
+            }
+          }
+          if (resolvedOutput != null) {
+            // TODO: has the resolved output now reduced this to something already produced in the graph?
+            s_logger.error("Don't know how to check whether a node reduction has taken place");
+          } else {
+            s_logger.debug("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
+            pump();
+            return;
+          }
+        }
+        // Fetch any additional input requirements now needed as a result of input and output resolution
+        Set<ValueRequirement> additionalRequirements = null;
+        try {
+          additionalRequirements = getFunction().getFunction().getAdditionalRequirements(getBuilder().getCompilationContext(), getComputationTarget(), inputs.keySet(), getOutputs());
+        } catch (Throwable t) {
+          s_logger.warn("Exception thrown by getAdditionalRequirements", t);
+          getBuilder().postException(t);
+        }
+        if (additionalRequirements == null) {
+          s_logger.debug("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
+          pump();
+          return;
+        }
+        if (!additionalRequirements.isEmpty()) {
+          s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
+          final AtomicInteger lock = new AtomicInteger(1);
+          final ResolvedValueCallback callback = new ResolvedValueCallback() {
+
+            @Override
+            public void failed(final ValueRequirement value) {
+              s_logger.debug("Couldn't resolve additional requirement {} for {}", value, getFunction());
+              pump();
+            }
+
+            @Override
+            public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+              inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
+              if (lock.decrementAndGet() == 0) {
+                s_logger.debug("Additional requirements complete");
+                pushResult(inputs);
+              }
+            }
+
+          };
+          for (ValueRequirement inputRequirement : additionalRequirements) {
+            final ResolvedValueProducer inputProducer = getBuilder().resolveRequirement(inputRequirement, getTask());
+            lock.incrementAndGet();
+            inputProducer.addCallback(callback);
+          }
+          if (lock.decrementAndGet() == 0) {
+            s_logger.debug("Additional requirements complete");
+            pushResult(inputs);
+          }
+          return;
+        }
+      }
+      pushResult(inputs);
+    }
+
+    private void pushResult(final Map<ValueSpecification, ValueRequirement> inputs) {
       // TODO: we could be pushing a DependencyNode object to the builder that has all the second stage results values
-      ResolvedValue result = createResult(_valueSpecification, _function, inputs);
-      _worker.pushResult(result);
+      final ResolvedValue result = createResult(getValueSpecification(), getFunction(), inputs.keySet());
+      getWorker().pushResult(result);
       pushResult(result);
     }
-    
+
     public void finished() {
-      setRunnableTaskState(this, _builder);
+      setRunnableTaskState(this, getBuilder());
     }
 
     @Override
     protected void pump() {
-      _worker.pumpImpl();
+      getWorker().pumpImpl();
     }
 
     @Override
@@ -178,17 +296,17 @@ import com.opengamma.util.tuple.Pair;
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), builder);
         return;
       }
-      final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), getFunction(), builder, worker);
+      final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), builder, worker);
       setTaskState(state);
       if (inputRequirements.isEmpty()) {
-        state.inputsAvailable(Collections.<ValueSpecification>emptySet());
+        state.inputsAvailable(Collections.<ValueSpecification, ValueRequirement>emptyMap());
         state.finished();
       } else {
+        worker.setPumpingState(state, inputRequirements.size());
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = builder.resolveRequirement(inputRequirement, getTask());
           worker.addInput(inputRequirement, inputProducer);
         }
-        worker.setPumpingState(state);
       }
     } else {
       // Another task is working on this, so delegate to it
@@ -200,8 +318,13 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  protected void pump() {
+    s_logger.debug("Ignoring pump - applying {} to produce {}", getFunction(), getResolvedOutput());
+  }
+
+  @Override
   public String toString() {
-    return "APPLY_FUNCTION";
+    return "Apply function " + getFunction() + " to produce " + getResolvedOutput();
   }
 
 }

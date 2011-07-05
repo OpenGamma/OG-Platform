@@ -601,7 +601,7 @@ public class DependencyGraphBuilderTest {
         assertEquals(1, inputs.size());
         assertTrue(inputs.contains(helper.getSpec2Bar()));
         assertEquals(1, outputs.size());
-        assertTrue(outputs.contains(_result.compose(helper.getRequirement1Bar())));
+        //assertTrue(outputs.contains(_result.compose(helper.getRequirement1Bar())));
         return Collections.singleton(helper.getRequirement1Foo());
       }
 

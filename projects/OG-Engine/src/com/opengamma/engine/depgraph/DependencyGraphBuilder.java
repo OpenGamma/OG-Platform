@@ -48,6 +48,11 @@ public class DependencyGraphBuilder {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
+  // DON'T CHECK IN WITH =true
+  private static final boolean NO_BACKGROUND_THREADS = true;
+
+  private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : Runtime.getRuntime().availableProcessors();
+
   // Injected Inputs:
   private String _calculationConfigurationName;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -61,7 +66,7 @@ public class DependencyGraphBuilder {
    * as a thread blocked on graph construction in the call to {@link #getDependencyGraph} will join in with
    * the remaining construction.
    */
-  private volatile int _maxAdditionalThreads = Runtime.getRuntime().availableProcessors();
+  private volatile int _maxAdditionalThreads = s_defaultMaxAdditionalThreads;
 
   // State:
   private final int _objectId = s_nextObjectId.incrementAndGet();
@@ -131,8 +136,10 @@ public class DependencyGraphBuilder {
           // may not overlap at all and they should be concurrent executions.
 
           // Answer: call getResults on the union of the inputs of this and the new resolution and see if the outputs
-          // are then present in both. If the function is unhappy with the merge or the outputs are not present in
-          // both then it can't be used for both.
+          // are then present. If the function is unhappy with the merge or the outputs are not both present then it
+          // can't be used. To be valid, there must be output values that satisfy the existing outputs of the node. One
+          // of these must also match the additional value specification; or there must be another output value that
+          // satisfies the additional value specification.
 
           useExisting = existingNode;
           break;
@@ -366,13 +373,22 @@ public class DependencyGraphBuilder {
 
   protected ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
     s_logger.debug("addTargetImpl {}", requirement);
+    if ((dependent != null) && dependent.hasParent(requirement)) {
+      s_logger.debug("Can't introduce a ValueRequirement loop");
+      return new ResolvedValueProducer() {
+        @Override
+        public void addCallback(final ResolvedValueCallback callback) {
+          callback.failed(requirement);
+        }
+      };
+    }
     RequirementResolver resolver = null;
     for (ResolveTask task : getTasksResolving(requirement)) {
       if (dependent.hasParent(task)) {
         // Can't use this task; a loop would be introduced
         continue;
       }
-      if (resolver != null) {
+      if (resolver == null) {
         resolver = new RequirementResolver(requirement, dependent);
       }
       resolver.addTask(task);
