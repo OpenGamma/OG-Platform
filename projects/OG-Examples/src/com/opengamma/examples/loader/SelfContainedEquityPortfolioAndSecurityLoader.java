@@ -38,10 +38,11 @@ import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
 
 /**
- * Example code to load a simple equity portfolio.
+ * Example code to load a very simple equity portfolio.
  * <p>
- * This loads all equity securities previously stored in the master and
- * categorizes them by GICS code.
+ * This code is kept deliberately as simple as possible.  There are no checks for the securities or portfolios already existing, so if you run it 
+ * more than once you will get multiple copies portfolios and securities with the same names.  It is designed to run against the HSQLDB example
+ * database.  It should be possible to run this class with no extra parameters.
  */
 public class SelfContainedEquityPortfolioAndSecurityLoader {
 
@@ -69,8 +70,17 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
   public void setLoaderContext(final LoaderContext loaderContext) {
     _loaderContext = loaderContext;
   }
+  
+  /**
+   * Gets the loader context.
+   * <p>
+   * This lets us access the masters that should have been initialized via Spring.
+   * @return the loader context
+   */
+  public LoaderContext getLoaderContext() {
+    return _loaderContext;
+  }
 
-  //-------------------------------------------------------------------------
   /**
    * Loads the test portfolio into the position master.
    */
@@ -214,7 +224,8 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      PlatformConfigUtils.configureSystemProperties(RunMode.SHAREDDEV);
+      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
+      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
       System.out.println("Starting connections");
       AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
       appContext.start();
