@@ -10,7 +10,6 @@
 		<config>config/example-beans.xml</config>
 		<config>config/engine-spring.xml</config>
 		<config>config/dataLoader-example.xml</config>
-		<config>config/liveData-example.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

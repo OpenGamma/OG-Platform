@@ -46,8 +46,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaldata.DataPointDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesGetRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchHistoricResult;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryRequest;
+import com.opengamma.master.historicaldata.HistoricalTimeSeriesHistoryResult;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
 import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
 import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
@@ -1082,46 +1082,49 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
     assertEquals(timeStampTSMap.get(timeStampTSMap.lastKey()), doc.getSeries().getTimeSeries());
     snapshotDoc = getTimeSeriesSnapShot(identifiers, afterDelta);
     assertEquals(doc.getSeries().getTimeSeries(), snapshotDoc.getSeries().getTimeSeries());
-    
   }
 
   private HistoricalTimeSeriesDocument getTimeSeriesSnapShot(IdentifierBundle identifiers, ZonedDateTime timeStamp) {
-    HistoricalTimeSeriesSearchHistoricRequest searchHistoricRequest = new HistoricalTimeSeriesSearchHistoricRequest();
-    searchHistoricRequest.setDataProvider(CMPL_DATA_PROVIDER);
-    searchHistoricRequest.setDataSource(BBG_DATA_SOURCE);
-    searchHistoricRequest.setDataField(CLOSE_DATA_FIELD);
-    searchHistoricRequest.setIdentifiers(identifiers);
-    searchHistoricRequest.setObservationTime(LCLOSE_OBSERVATION_TIME);
-    searchHistoricRequest.setTimestamp(timeStamp.toInstant());
-    HistoricalTimeSeriesSearchHistoricResult searchHistoric = _master.searchHistoric(searchHistoricRequest);
-    assertNotNull(searchHistoric);
-    List<HistoricalTimeSeriesDocument> documents = searchHistoric.getDocuments();
+    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest();
+    searchRequest.setDataProvider(CMPL_DATA_PROVIDER);
+    searchRequest.setDataSource(BBG_DATA_SOURCE);
+    searchRequest.setDataField(CLOSE_DATA_FIELD);
+    searchRequest.setIdentifiers(identifiers);
+    searchRequest.setObservationTime(LCLOSE_OBSERVATION_TIME);
+    HistoricalTimeSeriesDocument doc = _master.search(searchRequest).getDocuments().get(0);
+    
+    HistoricalTimeSeriesHistoryRequest historyRequest = new HistoricalTimeSeriesHistoryRequest(doc.getUniqueId());
+    historyRequest.setCorrectionsToInstant(timeStamp.toInstant());
+    HistoricalTimeSeriesHistoryResult history = _master.history(historyRequest);
+    assertNotNull(history);
+    
+    List<HistoricalTimeSeriesDocument> documents = history.getDocuments();
     //should expect one single document back
     assertTrue(documents.size() == 1);
     return documents.get(0);
   }
-  
+
   private void assertEqualTimeSeriesDocument(HistoricalTimeSeriesDocument expectedDoc, HistoricalTimeSeriesDocument actualDoc) {
     assertNotNull(expectedDoc);
     assertNotNull(actualDoc);
     assertEquals(expectedDoc.getUniqueId(), actualDoc.getUniqueId());
     assertEquals(expectedDoc.getSeries(), actualDoc.getSeries());
   }
-  
+
   public LocalDateDoubleTimeSeries makeRandomTimeSeries(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
-  
+
   public LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, int numDays) {
     MapLocalDateDoubleTimeSeries tsMap = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, numDays);
     return getTimeSeries(tsMap);
   }
-  
+
   private static boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
-  
+
   @Test
   public void identifiersWithDates() throws Exception {
     addAndTestTimeSeries();
