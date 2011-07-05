@@ -104,8 +104,11 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
       FudgeMsg msg) {
     HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
 
-    Pair<Tenor, Tenor> key = null;
     FudgeMsg valuesMessage = msg.getMessage("strikes");
+    if (valuesMessage == null) {
+      return values;
+    }
+    Pair<Tenor, Tenor> key = null;
     for (FudgeField fudgeField : valuesMessage) {
       Integer ordinal = fudgeField.getOrdinal();
       if (ordinal == null) {
