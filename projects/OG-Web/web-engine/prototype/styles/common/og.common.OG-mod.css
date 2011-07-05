@@ -1,0 +1,170 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+/* A generic module for displaying a header with some content, links, text etc */
+
+/* Layout and default styling */
+.OG-mod-0,
+.OG-mod-1 {
+  margin: 30px 0 0 0;
+}
+
+.OG-mod-0 h3 {
+  border-bottom: 4px solid #ededed;
+  margin-bottom: 1px;
+}
+
+.OG-mod-0 .og-mod-content {
+  background-color: #ecf5fa;
+  padding: 5px;
+}
+
+.OG-mod-1 h3 {
+  line-height: 29px;
+  margin: 0;
+  position: relative;
+}
+
+.OG-mod-1 h3:before {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background: #eee;
+  content: '';
+  height: 4px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+}
+
+/**
+ *
+ * Slick grid
+ *
+ */
+.OG-mod-1 .slick-viewport {
+  background: #ecf5fa;
+}
+
+.OG-mod-1 .ui-widget-content.slick-row {
+  background: #ecf5fa;
+}
+
+.OG-mod-1 .ui-widget-content.slick-row:hover {
+  background: #d7e7f2;
+}
+
+.OG-mod-1 .slick-header {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  margin: 1px 0;
+  padding: 0;
+}
+
+.OG-mod-1 > div,
+.OG-mod-1 > table {
+  padding-right: 10px;
+}
+
+.OG-mod-1 header {
+  border-bottom: 4px solid #eee;
+  line-height: 25px;
+}
+
+/**
+ *
+ * Table
+ *
+ */
+
+.OG-mod-1 table {
+  line-height: 22px;
+  border-collapse: separate;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.OG-mod-1 thead td {
+  border-bottom: 4px solid #eee;
+  color: #999;
+  outline: 1px solid #fff;
+}
+
+.OG-mod-1 thead td:first-child {
+  font-size: 16px;
+  color: #555;
+}
+
+.OG-mod-1 tbody tr:last-child td {
+  padding-bottom: 3px;
+  padding-top: 2px;
+}
+
+.OG-mod-1 tbody {
+  background: #ecf5fa;
+  border-top: 1px solid #f00;
+}
+
+.OG-mod-1 tbody td {
+  padding: 3px 5px;
+  position: relative;
+  white-space: nowrap;
+  background-color: #ecf5fa;
+}
+
+.OG-mod-1 tbody tr td:first-child {
+  color: #999;
+}
+
+.OG-mod-1 tbody .og-break td {
+  background-color: #fff;
+}
+
+/**
+ *
+ * Style 2
+ *
+ */
+
+.OG-mod-1.og-style-2 .og-mod-content {
+  background-color: transparent;
+}
+
+/**
+ *
+ * Dotted lines in table
+ *
+ */
+
+.OG-mod-1 .og-dotted tr td:first-child::after {
+  content: ' .........................................................................................................................................';
+  position: absolute;
+  overflow: hidden;
+  left: 10px;
+  right: 0;
+  color: #ddd;
+}
+
+.OG-mod-1 .og-dotted td span {
+  background-color: #ecf5fa;
+  position: relative;
+  z-index: 1;
+}
+
+
+.OG-mod-1.og-style-2 .og-dotted td span {
+  background-color: #fff;
+}
+
+.OG-mod-1.og-style-2 .og-dotted td {
+  background-color: #fff;
+}

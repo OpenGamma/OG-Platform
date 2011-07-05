@@ -24,6 +24,7 @@ $.register_module({
                     jquery: {
                         resizable: true, 'min-height': 140, modal: true,
                         position: 'center', dialogClass: 'OG-shadow',
+                        width: '400', 'min-height': '200',
                         buttons: {'Cancel': function () {$(this).dialog('close')}},
                         open: function () {
                             if (obj.type === 'input')
@@ -34,15 +35,15 @@ $.register_module({
                     }
                 },
                 confirm: {
-                    html: '<div class="' + class_name + '" title="Delete?"><p></p></div>',
+                    html: '<div class="' + class_name + '"><p></p></div>',
                     jquery: {buttons: {'Delete': function () {$(this).dialog('close')}}}
                 },
                 input: {
-                    html: '<div class="' + class_name + '" title=""></div>',
+                    html: '<div class="' + class_name + '"></div>',
                     jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
                 },
                 'error': {
-                    html: '<div class="' + class_name + '" title=""></div>',
+                    html: '<div class="' + class_name + '"></div>',
                     jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
                 }
             };
@@ -118,12 +119,13 @@ $.register_module({
                                 str += '</select>';
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
                             }
-                            return str;
+                            return '<div>' + str + '</div>';
                         })();
                     }, ''));
                 }
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
+            $obj.parent('.ui-dialog').addClass(class_name + '-container');
         }
     }
 });

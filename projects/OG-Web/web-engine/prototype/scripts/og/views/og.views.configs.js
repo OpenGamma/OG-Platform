@@ -76,10 +76,22 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'configs',
+                    'selector': '.OG-js-search', 'page_type': 'configs',
                     'columns': [
                         {
-                            id: 'type', name: 'Type', field: 'type', width: 160,
+                            id: 'type',
+                            name: '<select class="og-js-type-filter" style="width: 140px">'
+                                + '  <option value="">Type</option>'
+                                + '  <option>CurrencyMatrix</option>'
+                                + '  <option>CurveSpecificationBuilderConfiguration</option>'
+                                + '  <option>SimpleCurrencyMatrix</option>'
+                                + '  <option>TimeSeriesMetaDataConfiguration</option>'
+                                + '  <option>ViewDefinition</option>'
+                                + '  <option>VolatilitySurfaceSpecification</option>'
+                                + '  <option>VolatilitySurfaceDefinition</option>'
+                                + '  <option>YieldCurveDefinition</option>'
+                                + '</select>',
+                            field: 'type', width: 160,
                             filter_type: 'select',
                             filter_type_options: [
                                 'CurrencyMatrix',
@@ -92,32 +104,25 @@ $.register_module({
                                 'YieldCurveDefinition'
                             ]
                         },
-                        {
-                            id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
-                            filter_type: 'input'
+                        {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -134,11 +139,11 @@ $.register_module({
                         favorites_list: history.get_html('history.configs.favorites') || 'no favorited configs',
                         recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs',
                         new_list: history.get_html('history.configs.new') || 'no new configs'
-                    }).appendTo($('#OG-details .og-main').empty());
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -153,11 +158,13 @@ $.register_module({
                                 warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';
-                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
+                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .OG-warning-message');
                             if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            ui.toolbar(options.toolbar.active);
+                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -217,7 +224,7 @@ $.register_module({
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({location: '.OG-js-details-panel', message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
             },
@@ -245,7 +252,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

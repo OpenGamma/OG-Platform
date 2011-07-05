@@ -35,31 +35,28 @@ $.register_module({
             exchanges,
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'exchanges',
+                    'selector': '.OG-js-search', 'page_type': 'exchanges',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'}
+                        {
+                            id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'
+                        }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -69,15 +66,14 @@ $.register_module({
                         name: 'Exchanges',
                         favorites_list: history.get_html('history.exchanges.favorites') || 'no favorited exchanges',
                         recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
-                    }).appendTo($('#OG-details .og-main').empty());
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
                 }});
             },
             details_page = function(args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.exchanges.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var f = details.exchange_functions;
                         details_json = result.data;
                         history.put({
                             name: details_json.template_data.name,
@@ -85,16 +81,22 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
-                            f.render_info('.OG-exchange .og-js-info', details_json);
+                            $.tmpl(template, details_json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            ui.toolbar(options.toolbar.active);
+                            ui.expand_height_to_window_bottom({element: '.OG-details-container', offsetpx: -41});
+                            ui.expand_height_to_window_bottom({
+                                element: '.OG-details-container .og-details-content', offsetpx: -48
+                            });
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                         }});
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
-                    }
+                        ui.message({
+                            location: '.OG-js-details-panel',
+                            message: {0: 'loading...', 3000: 'still loading...'}});
+                        }
                 });
             };
         module.rules = {
@@ -113,7 +115,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

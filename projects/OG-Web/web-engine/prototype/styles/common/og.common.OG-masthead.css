@@ -1,86 +1,84 @@
 /*
- * Page Masthead styles
- *
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
- */
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
 
-#OG-masthead {
-  border-bottom: 4px solid #4d7d94;
-  margin-top: -1px;
-  position: relative;
+.OG-masthead {
+  top: 5px;
+  left: 8px;
+  position: absolute;
+  right: 5px;
+  height: 3em;
 }
 
-#OG-masthead nav {
-  background-color: #fff;
-  border-bottom: 1px solid #487287;
-}
-
-#OG-masthead ul {
-  bottom: -1px;
+.OG-masthead li {
   display: inline-block;
-  position: relative;
+  font-family: 'Microsoft New Tai Lue';
+  margin: 0 5px 0 0;
 }
 
-#OG-masthead li {
+.OG-masthead a {
+  color: #555;
   display: inline-block;
-  position: relative;
-}
-
-#OG-masthead a {
-  display: inline-block;
-  height: 20px;
-  line-height: 20px;
-  padding: 3px 8px;
+  padding: 7px 5px 14px 5px;
   text-decoration: none;
 }
 
-#OG-masthead a:focus {
-  outline: none;
+.OG-masthead a:hover {
+  color: #fff;
 }
 
-/**
- * Active Tab
- */
-#OG-masthead .og-active {
-  background-color: #4d7d94;
-  border: 1px solid #487287;
-  border-bottom: none;
-}
-
-#OG-masthead .og-active > a {
+.OG-masthead .og-active {
+  -webkit-border-top-left-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-topright: 2px;
+  background: #363f47;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
   color: #fff;
   position: relative;
-  text-shadow: 0 1px 0 #4a768c;
-  z-index: 2;
 }
 
-#OG-masthead .og-active:before {
-  -moz-box-shadow: 0 28px 0.7em #fff;
-  -webkit-box-shadow: 0 28px 0.7em #fff;
+.OG-masthead .og-active:before {
+  -moz-box-shadow: 0 100px 1.5em #fff;
+  -webkit-box-shadow: 0 100px 1.5em #fff;
   background-color: transparent;
   content: "";
   display: inline-block;
-  height: 100%;
+  height: 80%;
   opacity: 0.2;
   position: absolute;
-  top: -26px;
-  width: 100%;
+  top: -96px;
+  left: 10%;
+  width: 80%;
 }
 
-/**
- * Search
- */
-#OG-masthead .og-search {
-  float: right;
+.OG-masthead a:hover.og-home:after {
+  background-position: -20px -75px;
 }
 
-#OG-masthead .og-search input {
-  border-width: 1px;
-  border-left: 2px solid #cfcfcf;
-  color: #a0a0a0;
-  height: 23px;
-  line-height: 21px;
-  padding-left: 5px;
-  width: 200px;
+.OG-masthead .og-home.og-active:before {
+  background-position: -20px -75px;
+}
+
+.OG-masthead .og-home {
+  width: 18px;
+}
+
+.OG-masthead a {
+  border-bottom: none;
+}
+
+.OG-masthead .og-home:after {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  cursor: pointer;
+  background-position: 0 -75px;
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  top: 8px; left: 6px;
 }

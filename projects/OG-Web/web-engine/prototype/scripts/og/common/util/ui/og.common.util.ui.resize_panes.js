@@ -6,11 +6,11 @@
  * The resize bar should sit in one of the other elements.
  * Stores the new size of each panel in localStorage
  *
- * @param {String} leftPane CSS selector
- * @param {String} rightPane CSS selector
- * @param {String} resizeBar CSS selector
+ * @param {String} left_pane CSS selector
+ * @param {String} right_pane CSS selector
+ * @param {String} resize_bar CSS selector
  *
- * TODO: Doubclick to set to center (or 40/60?)
+ * TODO: Double click to set to go back to default
  *
  */
 $.register_module({
@@ -33,13 +33,14 @@ $.register_module({
                         percentage_right = 100 - percentage_left;
                         $lp.width(percentage_left + '%');
                         $rp.width(percentage_right + '%');
-                        $tmp_bar.css('left', page_x + 'px');
+                        $tmp_bar.css('left', page_x - 4 + 'px');
                     };
+                $rb.css({'visibility': 'hidden'});
                 $lp.disableSelection(); // Undocumented JQuery UI method
                 $rp.disableSelection();
-                rb_width = $rb.width() * 2;
+                rb_width = $rb.width();
                 rb_height = $rb.height();
-                $rb_position = $rb.position();
+                $rb_position = $rb.offset();
                 rb_left = $rb_position.left;
                 rb_top = $rb_position.top;
                 rb_margin_left = $rb.css('margin-left');
@@ -58,21 +59,29 @@ $.register_module({
                  * Temporary resizeBar that sits over the real one
                  */
                 $glass_pane.after($tmp_bar).next().css({
-                    position: 'absolute', 'background-color': '#ccc',
+                    position: 'absolute',
                     'margin-left': rb_margin_left, 'margin-right': rb_margin_right,
                     width: rb_width, height: rb_height,
                     left: rb_left, top: rb_top
-                });
+                }).addClass('OG-resizeBar-active');
                 $body.one('mouseup', function () {
                     localStorage['resize_panes_' + left_pane] = percentage_left + '%';
                     localStorage['resize_panes_' + right_pane] = percentage_right + '%';
                     $body.unbind('mousemove', move_panes);
+                    $rb.css({'visibility': 'visible'});
                     $lp.enableSelection(); // Undocumented JQuery UI method
                     $rp.enableSelection();
                     $('.og-js-rb').remove();
                     $('.og-js-glass-pane').remove();
                 });
             });
+            /**
+             * Initial Load
+             */
+            if (localStorage['resize_panes_' + left_pane] && localStorage['resize_panes_' + right_pane]) {
+                $lp.width(localStorage['resize_panes_' + left_pane]);
+                $rp.width(localStorage['resize_panes_' + right_pane]);
+            }
         };
     }
 });

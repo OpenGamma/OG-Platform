@@ -13,6 +13,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.util.ui.expand_height_to_window_bottom',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -30,7 +31,6 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             timeseries,
             toolbar_buttons = {
                 'new': function () {
@@ -99,40 +99,54 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'timeseries',
+                    'selector': '.OG-js-search', 'page_type': 'timeseries',
                     'columns': [
-                        {id: 'data_source', name: 'Datasource', field: 'data_source', width: 90,
-                            cssClass: 'og-uppercase', filter_type: 'input'},
-                        {id: 'identifier', name: 'Identifiers', field: 'identifier', width: 150,
-                            cssClass: 'og-link', filter_type: 'input'},
-                        {id: 'data_provider', name: 'Data Provider',  field: 'data_provider', width: 85,
-                            cssClass: 'og-link', filter_type: 'input'},
-                        {id: 'data_field', name: 'Data Field', field: 'data_field', width: 70, cssClass: 'og-link',
-                            filter_type: 'input'},
-                        {id: 'observation_time', name: 'Observation Time', field: 'observation_time', width: 120,
-                            cssClass: 'og-link', filter_type: 'input'}
+                        {
+                            id: 'data_source',
+                            name: '<input type="text" placeholder="data source" '
+                                + 'class="og-js-data_source-filter" style="width: 70px;">',
+                            field: 'data_source', width: 90, cssClass: 'og-uppercase', filter_type: 'input'
+                        },
+                        {
+                            id: 'identifier',
+                            name: '<input type="text" placeholder="identifier" '
+                                + 'class="og-js-identifier-filter" style="width: 130px;">',
+                            field: 'identifier', width: 150, cssClass: 'og-link', filter_type: 'input'
+                        },
+                        {
+                            id: 'data_provider',
+                            name: '<input type="text" placeholder="data provider" '
+                                + 'class="og-js-data_provider-filter" style="width: 65px;">',
+                            field: 'data_provider', width: 85, cssClass: 'og-link', filter_type: 'input'
+                        },
+                        {
+                            id: 'data_field',
+                            name: '<input type="text" placeholder="data field" '
+                                + 'class="og-js-data_field-filter" style="width: 50px;">',
+                            field: 'data_field', width: 70, cssClass: 'og-link', filter_type: 'input'
+                        },
+                        {
+                            id: 'observation_time',
+                            name: '<input type="text" placeholder="observation time" '
+                                + 'class="og-js-observation_time-filter" style="width: 100px;">',
+                            field: 'observation_time', width: 120, cssClass: 'og-link', filter_type: 'input'
+                        }
                     ]
                 },
                 toolbar: {
                     'default':  {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -146,44 +160,48 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Timeseries',
-                        favorites_list: history.get_html('history.timeseries.favorites') || 'no favorited timeseries',
-                        recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries',
-                        new_list: history.get_html('history.timeseries.new') || 'no new timeseries'
-                    }).appendTo($('#OG-details .og-main').empty());
+                        recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries'
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var f = details.timeseries_functions;
-                        details_json = result.data;
+                        var f = details.timeseries_functions,
+                            json = result.data;
                         history.put({
-                            name: details_json.template_data.id,
+                            name: json.template_data.object_id,
                             item: 'history.timeseries.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
-                            f.render_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
-                            ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
+                            var stop_loading = ui.message.partial({location: '.OG-js-details-panel', destroy: true});
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            f.render_identifiers('.OG-timeseries .og-js-identifiers', json.identifiers);
+                            ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {
-                                'fieldLabels': details_json.timeseries.fieldLabels,
-                                'data': details_json.timeseries.data
+                                'fieldLabels': json.timeseries.fieldLabels,
+                                'data': json.timeseries.data
                             }, stop_loading);
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
-                            ui.expand_height_to_window_bottom({element: '.OG-timeseries .og-dataPoints tbody'});
-                            ui.expand_height_to_window_bottom({element: '.OG-timeseries .og-dataPoints table'});
+                            ui.toolbar(options.toolbar.active);
+                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
+                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+
+//                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({
+                            location: '.OG-js-details-panel',
+                            message: {0: 'loading...', 3000: 'still loading...'}
+                        });
                     }
                 });
             };
@@ -213,7 +231,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

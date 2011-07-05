@@ -13,12 +13,10 @@ $.register_module({
     obj: function () {
         return {
             init: function () {
-                $('#container').show();
-                og.common.util.ui.resize_panes('#OG-sr', '#OG-details', '.OG-resizeBar');
-                og.common.layout.resize();
-                og.common.search_results.minimize('.OG-JS-minimize-search-results', '.OG-JS-maximize-search-results');
-                og.common.util.ui.toggle_text_on_focus.set_selector('#OG-masthead .og-search input');
-                $(window).resize(function() {og.common.layout.resize();}); // TODO: need to reload slickgrid on resize
+                $('.OG-container').show();
+                og.common.util.ui.resize_panes('.OG-js-search-panel', '.OG-js-details-panel', '.OG-resizeBar');
+                og.common.layout.resize('defaults');
+                $(window).resize(function () {setTimeout(og.common.layout.resize, 150)});
             }
         };
     }

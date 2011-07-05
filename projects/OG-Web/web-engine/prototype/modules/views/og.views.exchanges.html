@@ -1,6 +1,26 @@
-<div class="OG-exchange">
-  <h1>
-    <span class="OG-editable" data-og-editable='name'>${name}</span>
-  </h1>
-  <div class="OG-field-box og-js-info"></div>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1>${template_data.name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-exchanges">
+  <div class="OG-c10 og-grid-last OG-max-width-l">
+    <section class="OG-mod-1 OG-c6">
+      <table>
+        <col style="width: 40%" />
+        <col style="width: 60%" />
+        <tbody class="og-mod-content og-dotted og-js-info">
+          <tr>
+            <td><span>Region ID</span></td>
+            <td>${regionKey['Region id']}</td>
+          </tr>
+          <tr>
+            <td><span>Key</span></td>
+            <td>${identifiers.Key}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
 </div>

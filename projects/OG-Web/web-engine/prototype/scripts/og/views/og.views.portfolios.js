@@ -14,8 +14,10 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.util.ui.expand_height_to_window_bottom',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.common.layout.resize'
     ],
     obj: function () {
         var api = og.api,
@@ -85,31 +87,29 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': page_name,
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'}
+                        {
+                            id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
+                        }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -120,15 +120,14 @@ $.register_module({
                         favorites_list: history.get_html('history.portfolios.favorites') || 'no favorited portfolios',
                         recent_list: history.get_html('history.portfolios.recent') || 'no recently viewed portfolios',
                         new_list: history.get_html('history.portfolios.new') || 'no new portfolios'
-                    }).appendTo($('#OG-details .og-main').empty());
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), common.layout.resize();
                 }});
             },
             details_page = function (args) {
                 var hook_up_add_portfolio_form = function () {
-                        var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button'),
-                            do_update;
-                        do_update = function () {
-                            if ($input.val() === ('' || 'name')) return;
+                        var do_update = function () {
                             api.rest.portfolios.put({
                                 handler: function (r) {
                                     if (r.error) {ui.dialog({type: 'error', message: r.message}); return}
@@ -136,22 +135,30 @@ $.register_module({
                                             $.extend({},routes.current().args, {'new': true})
                                     ));
                                 },
-                                name: $input.val(),
+                                name: ui.dialog({return_field_value: 'name'}),
                                 id: details_json.template_data.object_id,
                                 node: details_json.template_data.node,
                                 'new': true
                             });
                         };
-                        $input.unbind('keydown').bind('keydown',
-                                function (e) {if (e.keyCode + '' === '13') do_update();});
-                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
-                        ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-create-portfolio-node');
+                        $('.OG-js-add-sub-portfolio').click(function () {
+                            ui.dialog({
+                                type: 'input',
+                                title: 'Add New sub Portfolio',
+                                fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
+                                buttons: {
+                                    "Ok": function () {
+                                        if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                        $(this).dialog('close');
+                                        do_update();
+                                    }
+                                }
+                            });
+                            return false;
+                        });
                     },
                     hook_up_add_position_form = function () {
-                        var $input = $('.OG-portfolio .og-js-add-position'), $button = $input.find('+ button'),
-                            do_update;
-                        do_update = function (e, id) {
-                            if (e && e.keyCode === 13) return; // If enter was pressed on the autosuggest list
+                        var do_update = function (e, id) {
                             api.rest.portfolios.put({
                                 handler: function (r) {
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
@@ -165,71 +172,82 @@ $.register_module({
                                 id: details_json.template_data.object_id,
                                 node: details_json.template_data.node
                            });
+                           ui.dialog({type: 'input', action: 'close'});
                         };
-                        $input.autocomplete({
-                            source: function (obj, callback) {
-                                api.rest.positions.get({
-                                    handler: function (r) {
-                                        callback(
-                                            r.data.data.map(function (val) {
-                                                var arr = val.split('|');
-                                                return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                            })
-                                        );
-                                    },
-                                    loading: '', page_size: 10, page: 1,
-                                    identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                                });
-                            },
-                            minLength: 1,
-                            select: function (e, ui) {do_update(e, ui);}
+                        $('.OG-js-add-position').click(function () {
+                            ui.dialog({
+                                type: 'input',
+                                title: 'Add Position',
+                                fields: [{type: 'input', name: 'Identifier', id: 'name'}],
+                                buttons: {
+                                    "Ok": function () {
+                                        if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                        do_update();
+                                        $(this).dialog('close');
+                                    }
+                                }
+                            });
+                            $('#og-js-dialog-name').autocomplete({
+                                source: function (obj, callback) {
+                                    api.rest.positions.get({
+                                        handler: function (r) {
+                                            callback(
+                                                r.data.data.map(function (val) {
+                                                    var arr = val.split('|');
+                                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                                })
+                                            );
+                                        },
+                                        loading: '', page_size: 10, page: 1,
+                                        identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
+                                    });
+                                },
+                                minLength: 1,
+                                select: function (e, ui) {do_update(e, ui);}
+                            });
+                            return false;
                         });
-                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
-                        $input.bind('keydown', function (e) {if (e.keyCode + '' === '13') do_update();});
-                        ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position');
                     },
-                    render_portfolio_rows = function (selector, json, handler) {
-                        var $parent = $(selector), id = json.template_data.object_id, portfolios = json.portfolios,
-                            rule = og.views.portfolios.rules['load_portfolios'], length = portfolios.length,
-                            render, iterator, CHUNK = 500;
-                        if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();
-                        $parent.empty();
-                        iterator = function (acc, val) {
-                            acc.push(
-                                '<tr><td><a href="#', routes.hash(rule, {id: id, node: val.id}), '">',
-                                val.name, '</a></td></tr>'
-                            );
-                            return acc;
-                        };
-                        render = function (start, end) {
-                            if (start >= length) return handler();
-                            var str = portfolios.slice(start, end).reduce(iterator, []).join('');
-                            $parent.append(str);
-                            setTimeout(render.partial(end, end + CHUNK), 0);
-                        };
-                        render(0, CHUNK);
+                    render_portfolio_rows = function (selector, json) {
+                        var display_columns = [], data_columns = [];
+                        if (!!json.portfolios[0]) {
+                            display_columns = [{id:"name", name:"Name", field:"name", width: 300,
+                                formatter: og.common.slickgrid.formatters.portfolios}],
+                            data_columns = [{id:"id", name:"Id", field:"id", width: 100,
+                                formatter: og.common.slickgrid.formatters.portfolios}];
+                        }
+                        if (!json.portfolios[0]) {
+                            display_columns = [{id:"name", name:"Name", field:"name", width: 300}],
+                            json.portfolios = [{name: 'No portfolios', id: ''}]
+                        }
+                        slick = new Slick.Grid(selector, json.portfolios, display_columns.concat(data_columns));
+                        slick.setColumns(display_columns);
+                        og.common.layout.resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     },
-                    render_position_rows = function (selector, json, handler) {
-                        var $parent = $(selector), positions = json.positions, length = positions.length, render,
-                            iterator, rule = og.views.positions.rules['load_positions'], CHUNK = 500;
-                        if (!positions[0]) return $parent.html('<tr><td colspan="2">No Positions</td></tr>'), handler();
-                        $parent.empty();
-                        iterator = function (acc, val) {
-                            acc.push(
-                                '<tr><td><a href="#', routes.hash(rule, {id: val.id}), '">', val.name,
-                                '</a></td><td>', val.quantity, '</td></tr>'
-                            );
-                            return acc;
-                        };
-                        render = function (start, end) {
-                            if (start >= length) return handler();
-                            var str = positions.slice(start, end).reduce(iterator, []).join('');
-                            $parent.append(str);
-                            setTimeout(render.partial(end, end + CHUNK), 0);
-                        };
-                        render(0, CHUNK);
+                    render_position_rows = function (selector, json) {
+                        var display_columns = [], data_columns = [];
+                        if (!!json.positions[0]) {
+                            display_columns = [
+                                {id:"name", name:"Name", field:"name", width: 300,
+                                    formatter: og.common.slickgrid.formatters.positions},
+                                {id:"quantity", name:"Quantity", field:"quantity", width: 80}
+                            ],
+                            data_columns = [
+                                {id:"id", name:"Id", field:"id", width: 100,
+                                    formatter: og.common.slickgrid.formatters.positions}
+                            ];
+                        }
+                        if (!json.positions[0]) {
+                            display_columns = [
+                                {id:"name", name:"Name", field:"name", width: 300},
+                                {id:"quantity", name:"Quantity", field:"quantity", width: 80}
+                            ],
+                            json.positions = [{name: 'No positions', quantity:'', id: ''}]
+                        }
+                        slick = new Slick.Grid(selector, json.positions, display_columns.concat(data_columns));
+                        slick.setColumns(display_columns);
+                        og.common.layout.resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     };
-                ui.toolbar(options.toolbar.active);
                 api.rest.portfolios.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
@@ -240,21 +258,20 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var stop_loading = (function () {
-                                var total_parts = 2, parts_loaded = 0;
-                                return function () {
-                                    if (++parts_loaded !== total_parts) return;
-                                    ui.message({location: '#OG-details', destroy: true})
-                                };
-                            })(),
-                            $warning, warning_message = 'This portfolio has been deleted';
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
-                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
-                                else $warning.empty().hide();
+                            var $warning, warning_message = 'This portfolio has been deleted';
+                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (details_json.template_data && details_json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                common.layout.resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), common.layout.resize();}
                             hook_up_add_portfolio_form(), hook_up_add_position_form();
-                            render_portfolio_rows('.OG-portfolio .og-js-portfolios', details_json, stop_loading);
-                            render_position_rows('.OG-portfolio .og-js-positions', details_json, stop_loading);
+                            render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', details_json);
+                            render_position_rows('.OG-js-details-panel .og-js-positions', details_json);
+                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
+                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -314,7 +331,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

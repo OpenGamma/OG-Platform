@@ -1,0 +1,16 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+.OG-header-generic {
+  position: relative;
+}
+
+.OG-header-generic small {
+  color: #999;
+  display: block;
+  font-size: 10px;
+}

@@ -1,33 +1,15 @@
-<header id="OG-masthead">
-<nav>
+<section class="OG-masthead">
   <ul>
-    <li class="og-analytics">
-      <a href="#/analytics/" class="OG-icon">Analytics</a><!-- og-icon-header-dropdown -->
-      <div class="og-dd-menu" style="display:none">
-        <div class="OG-shadow">
-          <script id="OG-js-analytics-menu-template" type="text/x-jquery-tmpl">
-            <li><a href="#/analytics/${'$'}{hash}">${'$'}{title}</a></li>
-          </script>
-          <ul class="OG-js-analytics-menu">
-          </ul>
-          </div>
-        </div>
-    </li>
-    <li class="og-portfolios"><a href="#/portfolios/">Portfolios</a></li>
-    <li class="og-positions"><a href="#/positions/">Positions</a></li>
-    <li class="og-securities"><a href="#/securities/">Securities</a></li>
-    <li class="og-exchanges"><a href="#/exchanges/">Exchanges</a></li>
-    <li class="og-timeseries"><a href="#/timeseries/">Time Series</a></li>
-  </ul><ul><!-- BUGFIX: white space -->
-    <li class="og-holidays"><a href="#/holidays">Holidays</a></li>
-    <li class="og-regions"><a href="#/regions/">Regions</a></li>
-    <li class="og-configs"><a href="#/configs/">Configurations</a></li>
-    <li class="og-batches"><a href="#/batches/">Batches</a></li>
-  </ul>
-  <div class="og-search" style="display: none">
-    <form>
-      <input type="text" autocomplete="off" value="search..." />
-    </form>
-  </div>
-</nav>
-</header>
+    <li><a href="#/" class="og-home">&nbsp;</a></li>
+    <li><a href="#/analytics/" class="og-analytics">analytics</a></li>
+    <li><a href="#/portfolios/" class="og-portfolios og-active">portfolios</a></li>
+    <li><a href="#/positions/" class="og-positions">positions</a></li>
+    <li><a href="#/securities/" class="og-securities">securities</a></li>
+    <li><a href="#/exchanges/" class="og-exchanges">exchanges</a></li>
+    <li><a href="#/timeseries/" class="og-timeseries">timeseries</a></li>
+    <li><a href="#/holidays" class="og-holidays">holidays</a></li>
+    <li><a href="#/regions/" class="og-regions">regions</a></li>
+    <li><a href="#/configs/" class="og-configs">configurations</a></li>
+    <li><a href="#/batches/" class="og-batches">batches</a></li>
+  </ui>
+</section>

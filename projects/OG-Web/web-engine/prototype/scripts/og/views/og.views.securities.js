@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.util.ui.expand_height_to_window_bottom',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -57,9 +58,9 @@ $.register_module({
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     if (r.data.data.length === 1) {
                                         routes.go(routes.hash(module.rules.load_new_securities,
-                                                $.extend({}, routes.last().args, {
-                                                    id: r.data.data[0].split('|')[1], 'new': true
-                                                })
+                                            $.extend({}, routes.last().args, {
+                                                id: r.data.data[0].split('|')[1], 'new': true
+                                            })
                                         ));
                                     } else routes.go(routes.hash(module.rules.load));
                                 },
@@ -81,7 +82,7 @@ $.register_module({
                                     var last = routes.last();
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
                                     routes.go(routes.hash(module.rules.load_delete,
-                                            $.extend(true, {deleted: true}, last.args)
+                                        $.extend(true, {deleted: true}, last.args)
                                     ));
                                 }
                             };
@@ -93,39 +94,45 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'securities',
+                    'selector': '.OG-js-search', 'page_type': 'securities',
                     'columns': [
                         {
-                            id: 'type', name: 'Type', field: 'type', width: 80,
-                            filter_type: 'select',
-                            filter_type_options: null
+                            id: 'type',
+                            name: '<select class="og-js-type-filter" style="width: 80px">'
+                                + '  <option value="">Type</option>'
+                                + '  <option>BOND</option>'
+                                + '  <option>CASH</option>'
+                                + '  <option>EQUITY_OPTION</option>'
+                                + '  <option>FRA</option>'
+                                + '  <option>FUTURE</option>'
+                                + '  <option>EQUITY</option>'
+                                + '  <option>SWAP</option>'
+                                + '</select>',
+                            field: 'type', width: 100, filter_type: 'select',
+                            filter_type_options: ['BOND', 'CASH', 'EQUITY_OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
                         },
                         {
-                            id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
-                            filter_type: 'input'
+                            id: 'name',
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">',
+                            field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'
                         }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -139,42 +146,50 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Securities',
-                        favorites_list: history.get_html('history.securities.favorites') || 'no favorited securities',
-                        recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities',
-                        new_list: history.get_html('history.securities.new') || 'no new securities'
-                    }).appendTo($('#OG-details .og-main').empty());
+                        recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities'
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var details_json = result.data,
-                            template = details_json.template_data.securityType.toLowerCase();
+                        var json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + template, handler: function (template) {
+                        api.text({module: module.name + '.' + json.template_data.securityType,
+                                handler: function (template) {
                             var $warning, warning_message = 'This security has been deleted',
-                                html = [], id, json = details_json.identifiers;
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
-                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
+                                html = [], id, json_id = json.identifiers;
+                            $.tmpl(template, json.template_data)
+                                    .appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .OG-warning-message');
+                            if (json.template_data.deleted) $warning.html(warning_message).show();
                                 else $warning.empty().hide();
-                            for (id in json) if (json.hasOwnProperty(id))
-                                    html.push('<div><strong>', json[id], '</strong></div>');
+                            for (id in json_id) {
+                                if (json_id.hasOwnProperty(id)) {
+                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
+                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
+                                }
+                            }
                             $('.OG-security .og-js-identifiers').html(html.join(''));
+                            ui.toolbar(options.toolbar.active);
+                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
+                            og.common.layout.resize({
+                                element: '.OG-details-container .og-details-content', offsetpx: -48
+                            });
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '#OG-details',
+                            location: '.OG-js-details-panel',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -206,15 +221,8 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
-                var search_filter = function () {
-                        var filter_options = options.slickgrid.columns[0].filter_type_options;
-                        if (!filter_options || filter_options === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
-                    };
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -225,7 +233,7 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                search_filter();
+                search.filter($.extend(args, {filter: true}));
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
@@ -233,19 +241,7 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
             },
-            search: function (args) {
-                if (options.slickgrid.columns[0].filter_type_options === 'loading')
-                    return setTimeout(securities.search.partial(args), 500);
-                if (options.slickgrid.columns[0].filter_type_options === null) return api.rest.securities.get({
-                    meta: true,
-                    handler: function (result) {
-                        options.slickgrid.columns[0].filter_type_options = result.data.types;
-                        securities.search(args);
-                    },
-                    loading: function () {options.slickgrid.columns[0].filter_type_options = 'loading';}
-                });
-                search.load($.extend(options.slickgrid, {url: args}));
-            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

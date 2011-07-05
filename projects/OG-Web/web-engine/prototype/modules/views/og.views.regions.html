@@ -1,39 +1,43 @@
-<div class="OG-region">
-  <h1>
-    <span class="OG-editable" og-edit="name">${name}</span>
-  </h1>
-
-  <div class="OG-field-box">
-    <div class="og-lbl">
-      <div>Full Name</div>
-      <div>Classification</div>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1>${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-region">
+  <div class="OG-c10 og-grid-last OG-max-width-l">
+    <div class="OG-field-box">
+      <div class="og-lbl">
+        <div>Full Name</div>
+        <div>Classification</div>
+      </div>
+      <div>
+        <div><strong class="OG-editable" og-edit="name">${full_name}</strong></div>
+        <div><strong class="OG-editable" og-edit="name">${classification}</strong></div>
+      </div>
     </div>
-    <div>
-      <div><strong class="OG-editable" og-edit="name">${full_name}</strong></div>
-      <div><strong class="OG-editable" og-edit="name">${classification}</strong></div>
-    </div>
-  </div>
 
-  <div class="OG-field-box og-js-keys"></div>
-  
-  <div class="og-treeLines">
-      <table class="OG-table-style-01">
+    <div class="OG-field-box og-js-keys"></div>
+
+    <div class="og-treeLines">
+        <table class="OG-table-style-01">
+          <thead>
+            <tr>
+              <td><strong>Parent regions</strong></td>
+            </tr>
+          </thead>
+          <tbody class="og-js-parent_regions"></tbody>
+        </table>
+      </div>
+    <div class="og-treeLines og-treeLinesLast">
+        <table class="OG-table-style-01">
         <thead>
           <tr>
-            <td><strong>Parent regions</strong></td>
+            <td><strong>Child regions</strong></td>
           </tr>
         </thead>
-        <tbody class="og-js-parent_regions"></tbody>
+        <tbody class="og-js-child_regions"></tbody>
       </table>
     </div>
-  <div class="og-treeLines og-treeLinesLast">
-      <table class="OG-table-style-01">
-      <thead>
-        <tr>
-          <td><strong>Child regions</strong></td>
-        </tr>
-      </thead>
-      <tbody class="og-js-child_regions"></tbody>
-    </table>
-    </div>
+  </div>
+</div>
 </div>

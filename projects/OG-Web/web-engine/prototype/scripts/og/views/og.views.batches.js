@@ -34,34 +34,30 @@ $.register_module({
             batches,
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'batches',
+                    'selector': '.OG-js-search', 'page_type': 'batches',
                     'columns': [
-                        {id: 'ob_date', name: 'ObservationDate', field: 'date', width: 130, cssClass: 'og-link',
-                            filter_type: 'input'},
-                        {id: 'ob_time', name: 'ObservationTime', field: 'time', width: 130, filter_type: 'input'},
-                        {id: 'status', name: 'Status', field: 'status', width: 130}
+                        {id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="observation date" class="og-js-ob_date-filter" style="width: 110px;">'},
+                        {id: 'ob_time', field: 'time', width: 130, filter_type: 'input',
+                            name: '<input type="text" placeholder="observation time" class="og-js-ob_time-filter" style="width: 110px;">'},
+                        {id: 'status', field: 'status', width: 130,
+                            name: 'Status'}
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -72,11 +68,11 @@ $.register_module({
                         favorites_list: history.get_html('history.batches.favorites') || 'no favorited batches',
                         recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches',
                         new_list: history.get_html('history.batches.new') || 'no new batches'
-                    }).appendTo($('#OG-details .og-main').empty());
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
                 }});
             },
             details_page = function (args){
-                ui.toolbar(options.toolbar.active);
                 api.rest.batches.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -88,16 +84,20 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
                             f.results('.OG-batch .og-js-results', details_json.data.batch_results);
                             f.errors('.OG-batch .og-js-errors', details_json.data.batch_errors);
-                            ui.message({location: '#OG-details', destroy: true});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.toolbar(options.toolbar.active);
+                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({
+                            location: '.OG-js-details-panel',
+                            message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
             };
@@ -118,7 +118,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

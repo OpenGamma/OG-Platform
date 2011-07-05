@@ -1,0 +1,21 @@
+/*
+ * Common generic styles
+ *
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ */
+
+.OG-footer {
+  bottom: 5px;
+  left: 5px;
+  position: absolute;
+  height: 25px;
+  right: 5px;
+}
+
+.OG-footer small {
+  color: #fff;
+  padding: 5px 0 0 135px;
+  display: inline-block;
+}
