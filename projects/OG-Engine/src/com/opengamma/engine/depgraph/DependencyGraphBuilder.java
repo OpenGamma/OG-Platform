@@ -22,7 +22,13 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +73,26 @@ public class DependencyGraphBuilder {
    * the remaining construction.
    */
   private volatile int _maxAdditionalThreads = s_defaultMaxAdditionalThreads;
+
+  private final ExecutorService _executor = Executors.newCachedThreadPool(new ThreadFactory() {
+
+    @Override
+    public Thread newThread(final Runnable r) {
+      final Thread t = new Thread(r) {
+        @Override
+        public void start() {
+          super.start();
+          s_logger.info("Starting background thread {}", this);
+        }
+      };
+      t.setDaemon(true);
+      synchronized (_activeJobs) {
+        t.setName(DependencyGraphBuilder.this.toString() + "-" + (_nextJobThreadId++));
+      }
+      return t;
+    }
+
+  });
 
   // State:
   private final int _objectId = s_nextObjectId.incrementAndGet();
@@ -340,6 +366,44 @@ public class DependencyGraphBuilder {
   }
 
   /**
+   * For compatability with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. When
+   * branch is merged with the mainline, remove this.
+   * 
+   * @param requirement requirement to add, not {@code null}
+   * @deprecated update OG-Integration and remove this when the branch is merged
+   */
+  @Deprecated
+  protected void addTargetImpl(final ValueRequirement requirement) {
+    final ResolvedValueProducer resolvedValue = resolveRequirement(requirement, null);
+    resolvedValue.addCallback(_getTerminalValuesCallback);
+    startBackgroundConstructionJob();
+    final CountDownLatch latch = new CountDownLatch(1);
+    final AtomicReference<RuntimeException> exception = new AtomicReference<RuntimeException>();
+    resolvedValue.addCallback(new ResolvedValueCallback() {
+
+      @Override
+      public void failed(final ValueRequirement value) {
+        exception.set(new UnsatisfiableDependencyGraphException(value));
+      }
+
+      @Override
+      public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+        exception.set(null);
+      }
+
+    });
+    try {
+      latch.await(1000, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
+    RuntimeException ex = exception.get();
+    if (ex != null) {
+      throw ex;
+    }
+  }
+
+  /**
    * Adds target requirements to the graph. The requirements are queued and the call returns; construction
    * of the graph will happen on a background thread (if additional threads is non-zero), or when the
    * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements
@@ -450,11 +514,7 @@ public class DependencyGraphBuilder {
         synchronized (_activeJobs) {
           final Job job = createConstructionJob();
           _activeJobs.add(job);
-          final Thread t = new Thread(job);
-          t.setDaemon(true);
-          t.setName(toString() + "-" + (_nextJobThreadId++));
-          t.start();
-          s_logger.info("Started background thread {}", t);
+          _executor.execute(job);
         }
         return true;
       }
@@ -660,7 +720,7 @@ public class DependencyGraphBuilder {
     for (ValueSpecification valueSpecification : _terminalOutputs.values()) {
       graph.addTerminalOutputValue(valueSpecification);
     }
-    graph.dumpStructureASCII(System.out);
+    //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
         final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));

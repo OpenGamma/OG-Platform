@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
+  
+  private static final AtomicInteger s_nextIdentifier = new AtomicInteger ();
 
+  private final int _identifier = s_nextIdentifier.incrementAndGet();
   private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
@@ -95,10 +99,13 @@ import com.opengamma.engine.value.ValueSpecification;
           resolvedValues.put(input.getValue(), input.getKey());
         }
         state = _taskState;
+        s_logger.debug("Full input set available");
+      } else {
+        s_logger.debug("Waiting for {} other inputs", _pendingInputs);
       }
       _pumps.add(pump);
     }
-    if (resolvedValue != null) {
+    if (resolvedValues != null) {
       state.inputsAvailable(resolvedValues);
     }
   }
@@ -115,12 +122,33 @@ import com.opengamma.engine.value.ValueSpecification;
     synchronized (this) {
       _taskState = state;
       _validInputs = validInputs;
+      _pendingInputs = (validInputs > 0) ? 1 : 0;
+    }
+  }
+
+  public void start() {
+    FunctionApplicationStep.PumpingState state = null;
+    Map<ValueSpecification, ValueRequirement> resolvedValues = null;
+    synchronized (this) {
+      if (--_pendingInputs == 0) {
+        if (_validInputs > 0) {
+          // We've got a full set of inputs; notify the task state
+          resolvedValues = Maps.<ValueSpecification, ValueRequirement>newHashMapWithExpectedSize(_inputs.size());
+          for (Map.Entry<ValueRequirement, ValueSpecification> input : _inputs.entrySet()) {
+            resolvedValues.put(input.getValue(), input.getKey());
+          }
+          state = _taskState;
+        }
+      }
+    }
+    if (resolvedValues != null) {
+      state.inputsAvailable(resolvedValues);
     }
   }
 
   @Override
   public String toString() {
-    return "Worker[" + getValueRequirement() + "]";
+    return "Worker[" + _identifier + ", " + getValueRequirement() + "]";
   }
 
 }

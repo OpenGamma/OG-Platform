@@ -48,11 +48,12 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   public void resolved(final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
-    pushResult(value);
+    s_logger.debug("Received {} for {}", value, valueRequirement);
     synchronized (this) {
       _pendingTasks--;
       _pumps.add(pump);
     }
+    pushResult(value);
   }
 
   @Override

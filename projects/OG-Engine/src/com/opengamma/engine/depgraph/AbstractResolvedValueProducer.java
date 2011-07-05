@@ -169,7 +169,6 @@ import com.opengamma.engine.value.ValueRequirement;
       }
     } else {
       s_logger.debug("No pumped callbacks to propogate failure to", this);
-      // Should this ever happen? At least one must be pumped if we are in a receive state?
     }
   }
 

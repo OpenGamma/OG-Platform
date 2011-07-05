@@ -45,10 +45,14 @@ import com.opengamma.util.tuple.Pair;
     final Map<ResolveTask, ResolvedValueProducer> existingTasks = builder.getTasksProducing(resolvedOutput);
     if (existingTasks.isEmpty()) {
       // We're going to work on producing
+      s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
       final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
       setRunnableTaskState(state, builder);
     } else {
       // Other tasks are working on it, or have already worked on it
+      s_logger.debug("Delegating to existing producers for {} (original={})", resolvedOutput, originalOutput);
+      final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), getFunctions(), builder, resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+      setTaskState(state);
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
       for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
         if (getTask().hasParent(existingTask.getKey())) {
@@ -57,10 +61,8 @@ import com.opengamma.util.tuple.Pair;
         }
         aggregate.addProducer(existingTask.getValue());
       }
-      aggregate.start();
-      final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), getFunctions(), builder, resolvedFunction.getFirst(), originalOutput, resolvedOutput);
       aggregate.addCallback(state);
-      setTaskState(state);
+      aggregate.start();
     }
   }
 

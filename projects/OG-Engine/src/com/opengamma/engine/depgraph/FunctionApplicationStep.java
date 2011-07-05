@@ -161,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (getOutputs().equals(newOutputValues)) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput);
+        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput, false);
         return;
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
@@ -183,7 +183,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
         // The resolved output has not changed
-        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput);
+        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput, false);
         return;
       }
       // Has the resolved output now reduced this to something already produced elsewhere
@@ -215,8 +215,7 @@ import com.opengamma.util.tuple.Pair;
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = getBuilder().declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
-        getAdditionalRequirementsAndPushResults(newWorker, inputs, resolvedOutput);
-        newWorker.finished();
+        getAdditionalRequirementsAndPushResults(newWorker, inputs, resolvedOutput, true);
       } else {
         // An equivalent task is producing the revised value specification
         final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
@@ -267,7 +266,8 @@ import com.opengamma.util.tuple.Pair;
 
     }
 
-    private void getAdditionalRequirementsAndPushResults(final FunctionApplicationWorker worker, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput) {
+    private void getAdditionalRequirementsAndPushResults(final FunctionApplicationWorker worker, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
+        final boolean killWorkerAfterwards) {
       Set<ValueRequirement> additionalRequirements = null;
       try {
         additionalRequirements = getFunction().getFunction().getAdditionalRequirements(getBuilder().getCompilationContext(), getComputationTarget(), inputs.keySet(), getOutputs());
@@ -277,11 +277,17 @@ import com.opengamma.util.tuple.Pair;
       }
       if (additionalRequirements == null) {
         s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
+        if (killWorkerAfterwards) {
+          worker.finished();
+        }
         pump();
         return;
       }
       if (additionalRequirements.isEmpty()) {
         pushResult(worker, inputs, resolvedOutput);
+        if (killWorkerAfterwards) {
+          worker.finished();
+        }
         return;
       }
       s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
@@ -292,6 +298,9 @@ import com.opengamma.util.tuple.Pair;
         @Override
         public void failed(final ValueRequirement value) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
+          if (killWorkerAfterwards) {
+            worker.finished();
+          }
           pump();
         }
 
@@ -301,6 +310,9 @@ import com.opengamma.util.tuple.Pair;
           if (lock.decrementAndGet() == 0) {
             s_logger.debug("Additional requirements complete");
             pushResult(workerCopy, inputs, resolvedOutput);
+            if (killWorkerAfterwards) {
+              worker.finished();
+            }
           }
         }
 
@@ -318,6 +330,9 @@ import com.opengamma.util.tuple.Pair;
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
         pushResult(worker, inputs, resolvedOutput);
+        if (killWorkerAfterwards) {
+          worker.finished();
+        }
       }
     }
 
@@ -365,6 +380,7 @@ import com.opengamma.util.tuple.Pair;
       if (originalOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), builder);
+        worker.finished();
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
@@ -391,6 +407,7 @@ import com.opengamma.util.tuple.Pair;
       if (inputRequirements == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), builder);
+        worker.finished();
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), builder, worker);
@@ -406,6 +423,7 @@ import com.opengamma.util.tuple.Pair;
           final ResolvedValueProducer inputProducer = builder.resolveRequirement(inputRequirement, getTask());
           worker.addInput(inputRequirement, inputProducer);
         }
+        worker.start();
       }
     } else {
       // Another task is working on this, so delegate to it

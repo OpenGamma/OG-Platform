@@ -56,7 +56,10 @@ import com.opengamma.util.tuple.Pair;
           .singleton(function.getResult()));
       builder.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
       pushResult(result);
-      setTaskStateFinished();
+      if (!getTask().isFinished()) {
+        // Wasn't immediately pumped, so declare a finished state 
+        setTaskStateFinished();
+      }
     } else {
       final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = builder.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
       if (itr.hasNext()) {
@@ -67,6 +70,12 @@ import com.opengamma.util.tuple.Pair;
         setTaskStateFinished();
       }
     }
+  }
+
+  @Override
+  protected void pump() {
+    // Might be pumped while pushing the live data result; this will go straight to the finished state
+    setTaskStateFinished();
   }
 
   @Override

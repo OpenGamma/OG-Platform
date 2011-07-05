@@ -117,6 +117,10 @@ import com.opengamma.engine.value.ValueSpecification;
     _state = state;
   }
 
+  protected boolean isFinished() {
+    return _state == null;
+  }
+
   @Override
   protected void finished() {
     _state = null;
