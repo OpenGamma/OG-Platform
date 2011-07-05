@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -65,31 +66,28 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public void failed(final ValueRequirement value) {
+      s_logger.debug("Failed {} at {}", value, this);
       _pump = null;
       _builder.addToRunQueue(getTask());
     }
 
     @Override
     public void resolved(final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
+      s_logger.debug("Resolved {} to {}", valueRequirement, value);
       pushResult(value);
       _pump = pump;
     }
 
     @Override
     protected void pump() {
-      if (_pump == null) {
-        // Either pump called twice for a resolve, called before the first resolve, or after failed
-        throw new IllegalStateException();
-      } else {
-        s_logger.debug("Pumping {} from {}", _pump, this);
-        _pump.pump();
-        _pump = null;
-      }
+      s_logger.debug("Pumping {} from {}", _pump, this);
+      _pump.pump();
+      _pump = null;
     }
 
     @Override
     public String toString() {
-      return "DELEGATE";
+      return "Delegate";
     }
 
   }
@@ -145,99 +143,188 @@ import com.opengamma.util.tuple.Pair;
           }
         }
       }
-      if (!strictConstraints) {
-        Set<ValueSpecification> newOutputValues = null;
-        try {
-          newOutputValues = getFunction().getFunction().getResults(getBuilder().getCompilationContext(), getComputationTarget(), inputs);
-        } catch (Throwable t) {
-          s_logger.warn("Exception thrown by getResults", t);
-          getBuilder().postException(t);
-        }
-        if (newOutputValues == null) {
-          s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
-          pump();
-          return;
-        }
-        if (!getOutputs().equals(newOutputValues)) {
-          getOutputs().clear();
-          resolvedOutput = null;
-          for (ValueSpecification outputValue : newOutputValues) {
-            if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
-              resolvedOutput = outputValue.compose(getValueRequirement());
-              s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
-              getOutputs().add(resolvedOutput);
-            } else {
-              getOutputs().add(outputValue);
-            }
-          }
-          if (resolvedOutput != null) {
-            // TODO: has the resolved output now reduced this to something already produced in the graph?
-            s_logger.error("Don't know how to check whether a node reduction has taken place");
-          } else {
-            s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
-            pump();
-            return;
-          }
-        }
+      if (strictConstraints) {
+        pushResult(getWorker(), inputs, resolvedOutput);
+        return;
+      }
+      Set<ValueSpecification> newOutputValues = null;
+      try {
+        newOutputValues = getFunction().getFunction().getResults(getBuilder().getCompilationContext(), getComputationTarget(), inputs);
+      } catch (Throwable t) {
+        s_logger.warn("Exception thrown by getResults", t);
+        getBuilder().postException(t);
+      }
+      if (newOutputValues == null) {
+        s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
+        pump();
+        return;
+      }
+      if (getOutputs().equals(newOutputValues)) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        Set<ValueRequirement> additionalRequirements = null;
-        try {
-          additionalRequirements = getFunction().getFunction().getAdditionalRequirements(getBuilder().getCompilationContext(), getComputationTarget(), inputs.keySet(), getOutputs());
-        } catch (Throwable t) {
-          s_logger.warn("Exception thrown by getAdditionalRequirements", t);
-          getBuilder().postException(t);
-        }
-        if (additionalRequirements == null) {
-          s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
-          pump();
-          return;
-        }
-        if (!additionalRequirements.isEmpty()) {
-          s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
-          final AtomicInteger lock = new AtomicInteger(1);
-          final ResolvedValueCallback callback = new ResolvedValueCallback() {
-
-            @Override
-            public void failed(final ValueRequirement value) {
-              s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
-              pump();
-            }
-
-            @Override
-            public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-              inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
-              if (lock.decrementAndGet() == 0) {
-                s_logger.debug("Additional requirements complete");
-                pushResult(inputs);
-              }
-            }
-
-            @Override
-            public String toString() {
-              return "AdditionalRequirements[" + getFunction() + ", " + inputs + "]";
-            }
-
-          };
-          for (ValueRequirement inputRequirement : additionalRequirements) {
-            final ResolvedValueProducer inputProducer = getBuilder().resolveRequirement(inputRequirement, getTask());
-            lock.incrementAndGet();
-            inputProducer.addCallback(callback);
-          }
-          if (lock.decrementAndGet() == 0) {
-            s_logger.debug("Additional requirements complete");
-            pushResult(inputs);
-          }
-          return;
+        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput);
+        return;
+      }
+      // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
+      getOutputs().clear();
+      resolvedOutput = null;
+      for (ValueSpecification outputValue : newOutputValues) {
+        if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
+          resolvedOutput = outputValue.compose(getValueRequirement());
+          s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
+          getOutputs().add(resolvedOutput);
+        } else {
+          getOutputs().add(outputValue);
         }
       }
-      pushResult(inputs);
+      if (resolvedOutput == null) {
+        s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
+        pump();
+        return;
+      }
+      if (resolvedOutput.equals(getValueSpecification())) {
+        // The resolved output has not changed
+        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput);
+        return;
+      }
+      // Has the resolved output now reduced this to something already produced elsewhere
+      final Map<ResolveTask, ResolvedValueProducer> reducingTasks = getBuilder().getTasksProducing(resolvedOutput);
+      if (reducingTasks.isEmpty()) {
+        produceSubstitute(inputs, resolvedOutput);
+        return;
+      }
+      final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
+      for (Map.Entry<ResolveTask, ResolvedValueProducer> reducingTask : reducingTasks.entrySet()) {
+        if (!getTask().hasParent(reducingTask.getKey())) {
+          // Task that's not our parent may produce the value for us
+          aggregate.addProducer(reducingTask.getValue());
+        }
+      }
+      final ValueSpecification resolvedOutputCopy = resolvedOutput;
+      final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
+        @Override
+        public void failedImpl() {
+          produceSubstitute(inputs, resolvedOutputCopy);
+        }
+      };
+      setTaskState(delegate);
+      aggregate.addCallback(delegate);
+      aggregate.start();
     }
 
-    private void pushResult(final Map<ValueSpecification, ValueRequirement> inputs) {
-      // TODO: we could be pushing a DependencyNode object to the builder that has all the second stage results values
-      final ResolvedValue result = createResult(getValueSpecification(), getFunction(), inputs.keySet());
+    private void produceSubstitute(final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput) {
+      final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
+      final ResolvedValueProducer producer = getBuilder().declareTaskProducing(resolvedOutput, getTask(), newWorker);
+      if (producer == newWorker) {
+        getAdditionalRequirementsAndPushResults(newWorker, inputs, resolvedOutput);
+        newWorker.finished();
+      } else {
+        // An equivalent task is producing the revised value specification
+        final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
+          @Override
+          protected void failedImpl() {
+            getWorker().pumpImpl();
+          }
+        };
+        setTaskState(delegate);
+        producer.addCallback(delegate);
+      }
+    }
+
+    private abstract class ResolutionSubstituteDelegate extends State implements ResolvedValueCallback {
+
+      private ResolutionPump _pump;
+
+      protected ResolutionSubstituteDelegate(final ResolveTask task) {
+        super(task);
+      }
+
+      @Override
+      public void failed(final ValueRequirement value) {
+        // Go back to the original state
+        setTaskState(PumpingState.this);
+        // Do the required action
+        failedImpl();
+      }
+
+      protected abstract void failedImpl();
+
+      @Override
+      public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+        _pump = pump;
+        pushResult(resolvedValue);
+      }
+
+      @Override
+      public void pump() {
+        _pump.pump();
+        _pump = null;
+      }
+
+      @Override
+      public String toString() {
+        return "ResolutionSubstituteDelegate[" + getFunction() + ", " + getValueSpecification() + "]";
+      }
+
+    }
+
+    private void getAdditionalRequirementsAndPushResults(final FunctionApplicationWorker worker, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput) {
+      Set<ValueRequirement> additionalRequirements = null;
+      try {
+        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(getBuilder().getCompilationContext(), getComputationTarget(), inputs.keySet(), getOutputs());
+      } catch (Throwable t) {
+        s_logger.warn("Exception thrown by getAdditionalRequirements", t);
+        getBuilder().postException(t);
+      }
+      if (additionalRequirements == null) {
+        s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
+        pump();
+        return;
+      }
+      if (additionalRequirements.isEmpty()) {
+        pushResult(worker, inputs, resolvedOutput);
+        return;
+      }
+      s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
+      final AtomicInteger lock = new AtomicInteger(1);
+      final FunctionApplicationWorker workerCopy = worker;
+      final ResolvedValueCallback callback = new ResolvedValueCallback() {
+
+        @Override
+        public void failed(final ValueRequirement value) {
+          s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
+          pump();
+        }
+
+        @Override
+        public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+          inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
+          if (lock.decrementAndGet() == 0) {
+            s_logger.debug("Additional requirements complete");
+            pushResult(workerCopy, inputs, resolvedOutput);
+          }
+        }
+
+        @Override
+        public String toString() {
+          return "AdditionalRequirements[" + getFunction() + ", " + inputs + "]";
+        }
+
+      };
+      for (ValueRequirement inputRequirement : additionalRequirements) {
+        final ResolvedValueProducer inputProducer = getBuilder().resolveRequirement(inputRequirement, getTask());
+        lock.incrementAndGet();
+        inputProducer.addCallback(callback);
+      }
+      if (lock.decrementAndGet() == 0) {
+        s_logger.debug("Additional requirements complete");
+        pushResult(worker, inputs, resolvedOutput);
+      }
+    }
+
+    private void pushResult(final FunctionApplicationWorker worker, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput) {
+      final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), getOutputs());
       s_logger.info("Result {} for {}", result, getValueRequirement());
-      getWorker().pushResult(result);
+      worker.pushResult(result);
       pushResult(result);
     }
 
@@ -327,11 +414,6 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(state);
       producer.addCallback(state);
     }
-  }
-
-  @Override
-  protected void pump() {
-    s_logger.debug("Ignoring pump - applying {} to produce {}", getFunction(), getResolvedOutput());
   }
 
   @Override

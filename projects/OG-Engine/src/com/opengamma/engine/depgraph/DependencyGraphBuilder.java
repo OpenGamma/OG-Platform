@@ -71,7 +71,8 @@ public class DependencyGraphBuilder {
   // State:
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
-  private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>> _specifications = new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>>();
+  private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>> _specifications =
+      new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>>();
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ResolveTask> _runQueue = new ConcurrentLinkedQueue<ResolveTask>();
@@ -96,7 +97,8 @@ public class DependencyGraphBuilder {
   private final ResolvedValueCallback _getTerminalValuesCallback = new ResolvedValueCallback() {
 
     private final ConcurrentMap<ValueSpecification, DependencyNode> _spec2Node = new ConcurrentHashMap<ValueSpecification, DependencyNode>();
-    private final ConcurrentMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>> _func2target2nodes = new ConcurrentHashMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>>();
+    private final ConcurrentMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>> _func2target2nodes =
+        new ConcurrentHashMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>>();
 
     @Override
     public void failed(final ValueRequirement value) {
@@ -124,25 +126,42 @@ public class DependencyGraphBuilder {
       return nodes;
     }
 
+    private boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
+      for (ValueSpecification a : as) {
+        if (bs.contains(a)) {
+          // Exact match
+          continue;
+        }
+        for (ValueSpecification b : bs) {
+          if (a.getValueName() == b.getValueName()) {
+            // Match the name, but other data wasn't exact so reject
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    private boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
+      return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
+    }
+
     private DependencyNode getOrCreateNode(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
       s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
       final List<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
       final DependencyNode node;
       synchronized (nodes) {
         DependencyNode useExisting = null;
+        // [PLAT-346] Here is a good spot to tackle PLAT-346; what do we merge into a single node, and which outputs
+        // do we discard if there are multiple functions that can produce them.
         for (DependencyNode existingNode : nodes) {
-          // TODO: how can we test to see if the existing node can support this additional output? e.g. it could
-          // be bad if we tried to get a single function instance to work on "Foo[X=1]" and "Foo[X=2]" as the data
-          // may not overlap at all and they should be concurrent executions.
-
-          // Answer: call getResults on the union of the inputs of this and the new resolution and see if the outputs
-          // are then present. If the function is unhappy with the merge or the outputs are not both present then it
-          // can't be used. To be valid, there must be output values that satisfy the existing outputs of the node. One
-          // of these must also match the additional value specification; or there must be another output value that
-          // satisfies the additional value specification.
-
-          useExisting = existingNode;
-          break;
+          if (mismatchUnion(existingNode.getOutputValues(), resolvedValue.getFunctionOutputs())) {
+            s_logger.debug("Can't reuse {} for {}", existingNode, resolvedValue);
+          } else {
+            s_logger.debug("Reusing {} for {}", existingNode, resolvedValue);
+            useExisting = existingNode;
+            break;
+          }
         }
         if (useExisting != null) {
           node = useExisting;
@@ -152,7 +171,9 @@ public class DependencyGraphBuilder {
           nodes.add(node);
         }
       }
-      node.addOutputValue(resolvedValue.getValueSpecification());
+      for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
+        node.addOutputValue(output);
+      }
       for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
         node.addInputValue(input);
         DependencyNode inputNode = _spec2Node.get(input);

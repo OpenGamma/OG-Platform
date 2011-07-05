@@ -52,7 +52,8 @@ import com.opengamma.util.tuple.Pair;
     if (builder.getLiveDataAvailabilityProvider().isAvailable(getValueRequirement())) {
       s_logger.info("Found live data for {}", getValueRequirement());
       final LiveDataSourcingFunction function = new LiveDataSourcingFunction(getValueRequirement());
-      final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet());
+      final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
+          .singleton(function.getResult()));
       builder.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
       pushResult(result);
       setTaskStateFinished();

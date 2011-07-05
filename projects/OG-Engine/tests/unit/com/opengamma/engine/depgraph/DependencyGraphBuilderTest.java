@@ -60,9 +60,6 @@ public class DependencyGraphBuilderTest {
 
   public void singleOutputSingleFunctionNode() {
 
-    // [PLAT-1049, PLAT-500, PLAT-1402] Graph building doesn't include speculative outputs from functions any more,
-    // so this test might no longer be relevant as the graph doesn't need to be cleaned after the build.  
-
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
 
@@ -72,7 +69,7 @@ public class DependencyGraphBuilderTest {
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
-    assertFalse(graph.getOutputSpecifications().contains(helper.getSpec2()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec2()));
 
     Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
@@ -81,7 +78,7 @@ public class DependencyGraphBuilderTest {
     assertEquals(function, node.getFunction().getFunction());
     assertEquals(function.getDefaultParameters(), node.getFunction().getParameters());
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
-    assertFalse(node.getOutputValues().contains(helper.getSpec2()));
+    assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
     assertEquals(helper.getTarget(), node.getComputationTarget());
 

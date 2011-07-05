@@ -58,12 +58,14 @@ import com.opengamma.engine.value.ValueSpecification;
       getTask().pushResult(resolvedValue);
     }
 
-    protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs) {
-      return new ResolvedValue(valueSpecification, parameterizedFunction, getComputationTarget(), functionInputs);
+    protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
+        final Set<ValueSpecification> functionOutputs) {
+      return new ResolvedValue(valueSpecification, parameterizedFunction, getComputationTarget(), functionInputs, functionOutputs);
     }
 
-    protected void pushResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs) {
-      pushResult(createResult(valueSpecification, parameterizedFunction, functionInputs));
+    protected void pushResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
+        final Set<ValueSpecification> functionOutputs) {
+      pushResult(createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
     }
 
     protected ValueRequirement getValueRequirement() {
