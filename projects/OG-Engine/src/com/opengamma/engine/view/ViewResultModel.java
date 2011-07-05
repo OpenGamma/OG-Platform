@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -49,7 +50,14 @@ public interface ViewResultModel {
    * 
    * @return the time at which the results were posted
    */
-  Instant getResultTimestamp();
+  Instant getCalculationTime();
+  
+  /**
+   * Gets the time taken to perform the calculation.
+   * 
+   * @return the time taken to perform the calculation, not {@code null}
+   */
+  Duration getCalculationDuration();
 
   /**
    * Returns all of the target specifications for the terminal outputs.

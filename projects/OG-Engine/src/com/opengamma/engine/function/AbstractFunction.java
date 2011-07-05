@@ -55,12 +55,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
     public final FunctionDefinition getFunctionDefinition() {
       return AbstractFunction.this;
     }
-
-    @Override
-    public Set<ValueSpecification> getRequiredLiveData() {
-      return getRequiredLiveDataImpl();
-    }
-
+    
     /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
      * @param context The compilation context with view-specific parameters and configurations.
@@ -183,15 +178,6 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   /**
-   * Default implementation of {@link CompiledFunctionDefinition#getRequiredLiveData ()}.
-   * 
-   * @return the empty set indicating no live data requirement
-   */
-  protected static Set<ValueSpecification> getRequiredLiveDataImpl() {
-    return Collections.emptySet();
-  }
-
-  /**
    * Default implementation of {@link CompiledFunctionDefinition#getAdditionalRequirements (FunctionCompilationContext, ComputationTarget, Set<ValueSpecification>)}.
    * 
    * @param context the function compilation context
@@ -231,11 +217,6 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public final FunctionDefinition getFunctionDefinition() {
       return this;
-    }
-
-    @Override
-    public Set<ValueSpecification> getRequiredLiveData() {
-      return getRequiredLiveDataImpl();
     }
 
     @Override

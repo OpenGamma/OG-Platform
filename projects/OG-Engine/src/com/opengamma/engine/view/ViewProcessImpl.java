@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -32,7 +34,9 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of {@link ViewProcess}.
@@ -64,7 +68,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
 
-  private final AtomicReference<CompiledViewDefinitionWithGraphsImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionWithGraphsImpl>();
+  private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
+      new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
   /**
@@ -112,7 +117,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
   
   @Override
-  public LiveDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjector getLiveDataOverrideInjector() {
     return getProcessContext().getLiveDataOverrideInjector();
   }
 
@@ -193,13 +198,16 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return UniqueIdentifier.of(_cycleObjectId, cycleVersion);
   }
   
-  public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+  public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, MarketDataPermissionProvider permissionProvider) {
     lock();
     try {
-      _latestCompiledViewDefinition.set(compiledViewDefinition);
+      _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
+      final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
       for (ViewResultListener listener : _listeners) {
         try {
-          listener.viewDefinitionCompiled(compiledViewDefinition);
+          UserPrincipal listenerUser = listener.getUser();
+          boolean hasMarketDataPermissions = permissionProvider.canAccessMarketData(listenerUser, marketDataRequirements);
+          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         } catch (Exception e) {
           logListenerError(listener, e);
         }
@@ -209,11 +217,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
   
-  public void viewDefinitionCompilationFailed(Instant instant, Exception exception) {
-    s_logger.error("View definition compilation failed for " + instant + ": ", exception);
+  public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+    s_logger.error("View definition compilation failed for " + valuationTime + ": ", exception);
     for (ViewResultListener listener : _listeners) {
       try {
-        listener.viewDefinitionCompilationFailed(instant, exception);
+        listener.viewDefinitionCompilationFailed(valuationTime, exception);
       } catch (Exception e) {
         logListenerError(listener, e);
       }
@@ -378,9 +386,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         } else {
           // Push initial state to listener
           try {
-            CompiledViewDefinitionWithGraphsImpl latestCompilation = _latestCompiledViewDefinition.get();
+            Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider> latestCompilation = _latestCompiledViewDefinition.get();
             if (latestCompilation != null) {
-              listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
+              CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
+              MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
+              boolean hasMarketDataPermissions = permissionProvider.canAccessMarketData(listener.getUser(), compiledViewDefinition.getMarketDataRequirements().keySet());
+              listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
               ViewComputationResultModel latestResult = _latestResult.get();
               if (latestResult != null) {
                 listener.cycleCompleted(latestResult, null);

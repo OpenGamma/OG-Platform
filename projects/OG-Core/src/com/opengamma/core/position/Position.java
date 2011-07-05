@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.position;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.id.UniqueIdentifier;
@@ -39,5 +40,12 @@ public interface Position extends PositionOrTrade {
    * @return the trades, unmodifiable, not null
    */
   Set<Trade> getTrades();
+  
+  /**
+   * Gets the attributes to use for position aggregation.
+   * 
+   * @return the attributes, not null
+   */
+  Map<String, String> getAttributes();
 
 }

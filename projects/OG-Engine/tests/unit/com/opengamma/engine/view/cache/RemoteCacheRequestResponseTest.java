@@ -210,8 +210,7 @@ public class RemoteCacheRequestResponseTest {
     DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
     conduit.connectEnd2  (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
-    final long timestamp = System.currentTimeMillis();
-    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
+    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewCycle1"), "Config1"));
 
     // Single value
     final MutableFudgeMsg inputValue1 = s_fudgeContext.newMessage();
@@ -257,9 +256,8 @@ public class RemoteCacheRequestResponseTest {
     DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
     conduit.connectEnd2 (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
-    final long timestamp = System.currentTimeMillis();
     FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(
-        UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
+        UniqueIdentifier.of("Test", "ViewCycle1"), "Config1"));
     final MutableFudgeMsg inputValue = s_fudgeContext.newMessage();
     for (int i = 0; i < 32; i++) {
       inputValue.add(i, Integer.toString(i));

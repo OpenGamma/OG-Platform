@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -89,6 +90,7 @@ public class ForexOptionVanillaMethodTest {
   private static final ForexDiscountingMethod METHOD_DISC = new ForexDiscountingMethod();
   private static final PresentValueForexCalculator PVC = PresentValueForexCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC = CurrencyExposureForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
   private static final boolean IS_CALL = true;
@@ -350,6 +352,16 @@ public class ForexOptionVanillaMethodTest {
 
   @Test
   /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_FX.visit(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
+  }
+
+  @Test
+  /**
    * Tests present value volatility sensitivity.
    */
   public void volatilitySensitivity() {
@@ -378,10 +390,12 @@ public class ForexOptionVanillaMethodTest {
    */
   public void volatilityNodeSensitivity() {
     PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
+    assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
     Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     PresentValueVolatilitySensitivityDataBundle pointSensitivity = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
-    double[][] nodeWeight = new double[NB_EXP][NB_STRIKE];
+    double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
     SMILE_TERM.getVolatilityAdjoint(FOREX_OPTION.getTimeToExpiry(), STRIKE, forward, nodeWeight);

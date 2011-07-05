@@ -94,6 +94,25 @@ public class BondFutureSecurityDiscountingMethod {
   }
 
   /**
+   * Computes the gross basis of the bonds in the underlying basket from the curves.
+   * @param future The future security.
+   * @param curves The curves.
+   * @param futurePrice The future price.
+   * @return The gross basis for each bond in the basket.
+   */
+  public double[] grossBasisFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves, final double futurePrice) {
+    int nbBasket = future.getDeliveryBasket().length;
+    double[] grossBasis = new double[nbBasket];
+    double[] cleanPrices = new double[nbBasket];
+    for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
+      cleanPrices[loopbasket] = BOND_METHOD.cleanPriceFromCurves(future.getDeliveryBasket()[loopbasket], curves);
+      grossBasis[loopbasket] = cleanPrices[loopbasket] - futurePrice * future.getConversionFactor()[loopbasket];
+    }
+    return grossBasis;
+
+  }
+
+  /**
    * Computes the net basis of the bonds in the underlying basket from the curves and the future price.
    * @param future The future security.
    * @param curves The curves.

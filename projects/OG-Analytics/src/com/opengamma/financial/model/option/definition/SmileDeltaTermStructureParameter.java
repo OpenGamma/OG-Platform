@@ -75,6 +75,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * @return The volatility.
    */
   public double getVolatility(double time, double strike, double forward) {
+    Validate.isTrue(time >= 0, "Positive time");
     int nbVol = _volatilityTerm[0].getVolatility().length;
     int nbTime = _timeToExpiration.length;
     ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
@@ -83,13 +84,17 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     double[] volatilityT = new double[nbVol];
     double[] variancePeriod0 = new double[nbVol];
     double[] variancePeriod1 = new double[nbVol];
-    double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
-    // Implementation note: Linear interpolation on variance over the period (s^2*t).
-    for (int loopvol = 0; loopvol < nbVol; loopvol++) {
-      variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
-      variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
-      variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
-      volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
+    if (time < 1.0E-10) {
+      volatilityT = _volatilityTerm[indexLower].getVolatility();
+    } else {
+      double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+      // Implementation note: Linear interpolation on variance over the period (s^2*t).
+      for (int loopvol = 0; loopvol < nbVol; loopvol++) {
+        variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
+        variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
+        variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
+        volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
+      }
     }
     SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
     double[] strikes = smile.getStrike(forward);

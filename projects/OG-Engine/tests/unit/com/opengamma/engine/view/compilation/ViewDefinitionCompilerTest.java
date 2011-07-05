@@ -32,7 +32,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.test.MockSecuritySource;
@@ -68,7 +68,7 @@ public class ViewDefinitionCompilerTest {
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(defSec);
 
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
@@ -86,7 +86,7 @@ public class ViewDefinitionCompilerTest {
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
     assertEquals(0, compiledViewDefinition.getComputationTargets().size());
   }
@@ -108,7 +108,7 @@ public class ViewDefinitionCompilerTest {
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(defSec);
 
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
     // This function doesn't actually require anything, so it can compute at the node level without anything else.
     // Hence, the only target will be the node.
@@ -140,7 +140,7 @@ public class ViewDefinitionCompilerTest {
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Fibble"));
     assertTargets(compiledViewDefinition, pn.getUniqueId());
@@ -168,7 +168,7 @@ public class ViewDefinitionCompilerTest {
     securitySource.addSecurity(sec1);
     securitySource.addSecurity(sec2);
 
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
     MockFunction fn2 = MockFunction.getMockFunction("fn2", new ComputationTarget(sec2), 14.2);
     MockFunction fn1 = MockFunction.getMockFunction("fn1", new ComputationTarget(pn), 14.2, fn2);
@@ -194,11 +194,11 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     DependencyGraph dg = compiledViewDefinition.getDependencyGraph("Fibble");
     assertNotNull(dg);
-    assertTrue(dg.getAllRequiredLiveData().isEmpty());
+    assertTrue(dg.getAllRequiredMarketData().isEmpty());
     assertEquals(2, dg.getDependencyNodes().size());
 
     // Expect the node and the security, since we've turned off position-level outputs and not actually provided a
@@ -213,7 +213,7 @@ public class ViewDefinitionCompilerTest {
 
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
 
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     MockFunction f1 = MockFunction.getMockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
@@ -231,7 +231,7 @@ public class ViewDefinitionCompilerTest {
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
 
-    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
     assertTargets(compiledViewDefinition, t1);
@@ -250,7 +250,7 @@ public class ViewDefinitionCompilerTest {
 
     UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
 
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     MockFunction f1 = MockFunction.getMockFunction("f1", new ComputationTarget(ComputationTargetType.PRIMITIVE, t1), 42);
@@ -272,7 +272,7 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
     assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);

@@ -8,7 +8,6 @@ package com.opengamma.engine.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -17,17 +16,15 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.engine.view.permission.ViewPermissionProviderFactory;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -48,16 +45,13 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private CachingComputationTargetResolver _computationTargetResolver;
   private CompiledFunctionService _functionCompilationService;
   private FunctionResolver _functionResolver;
-  private LiveDataClient _liveDataClient;
-  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private MarketDataProviderResolver _marketDataProviderResolver;
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
-  private ViewPermissionProviderFactory _permissionProviderFactory;
-  private MarketDataSnapshotSource _marketDataSnapshotSource;
+  private ViewPermissionProvider _viewPermissionProvider;
   
   //-------------------------------------------------------------------------
   public Long getId() {
@@ -116,28 +110,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _functionResolver = functionResolver;
   }
 
-  public LiveDataClient getLiveDataClient() {
-    return _liveDataClient;
+  public MarketDataProviderResolver getMarketDataProviderResolver() {
+    return _marketDataProviderResolver;
   }
 
-  public void setLiveDataClient(LiveDataClient liveDataClient) {
-    _liveDataClient = liveDataClient;
-  }
-
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
-  }
-
-  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-  }
-
-  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
-    return _liveDataSnapshotProvider;
-  }
-
-  public void setLiveDataSnapshotProvider(LiveDataSnapshotProvider liveDataSnapshotProvider) {
-    _liveDataSnapshotProvider = liveDataSnapshotProvider;
+  public void setMarketDataProviderResolver(MarketDataProviderResolver marketDataProviderResolver) {
+    _marketDataProviderResolver = marketDataProviderResolver;
   }
 
   public ViewComputationCacheSource getComputationCacheSource() {
@@ -180,20 +158,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _graphExecutionStatistics = graphExecutionStatistics;
   }
   
-  public ViewPermissionProviderFactory getViewPermissionProviderFactory() {
-    return _permissionProviderFactory;
+  public ViewPermissionProvider getViewPermissionProvider() {
+    return _viewPermissionProvider;
   }
   
-  public void setViewPermissionProviderFactory(ViewPermissionProviderFactory permissionProviderFactory) {
-    _permissionProviderFactory = permissionProviderFactory;
-  }
-  
-  public MarketDataSnapshotSource getMarketDataSnapshotSource() {
-    return _marketDataSnapshotSource;
-  }
-
-  public void setMarketDataSnapshotSource(MarketDataSnapshotSource marketDataSnapshotSource) {
-    _marketDataSnapshotSource = marketDataSnapshotSource;
+  public void setViewPermissionProvider(ViewPermissionProvider viewPermissionProvider) {
+    _viewPermissionProvider = viewPermissionProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -211,12 +181,10 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     if (getComputationTargetResolver() == null) {
       setComputationTargetResolver(new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(getSecuritySource(), getPositionSource()), EHCacheUtils.createCacheManager()));
     }
-    ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
-    ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
+    ArgumentChecker.notNullInjected(getMarketDataProviderResolver(), "marketDataProviderResolver");
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
-    ArgumentChecker.notNullInjected(getViewPermissionProviderFactory(), "viewPermissionProviderFactory");
-    ArgumentChecker.notNullInjected(getMarketDataSnapshotSource(), "marketDataSnapshotSource");
+    ArgumentChecker.notNullInjected(getViewPermissionProvider(), "viewPermissionProvider");
   }
 
   @Override
@@ -230,16 +198,13 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getComputationTargetResolver(),
         getFunctionCompilationService(),
         getFunctionResolver(),
-        getLiveDataClient(),
-        getLiveDataAvailabilityProvider(),
-        getLiveDataSnapshotProvider(),
+        getMarketDataProviderResolver(),
         getComputationCacheSource(),
         getComputationJobDispatcher(),
         getViewProcessorQueryReceiver(),
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
-        getViewPermissionProviderFactory(),
-        getMarketDataSnapshotSource());
+        getViewPermissionProvider());
   }
 
 }

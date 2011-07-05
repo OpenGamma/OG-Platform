@@ -9,16 +9,16 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
- * Provides access to a remote {@link LiveDataInjector}.
+ * Provides access to a remote {@link MarketDataInjector}.
  */
-public class RemoteLiveDataInjector implements LiveDataInjector {
+public class RemoteLiveDataInjector implements MarketDataInjector {
 
   private final URI _baseUri;
   private final FudgeRestClient _client;

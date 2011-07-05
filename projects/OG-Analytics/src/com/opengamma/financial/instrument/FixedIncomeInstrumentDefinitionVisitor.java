@@ -17,6 +17,8 @@ import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -104,6 +106,14 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, T data);
 
   U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future);
+
+  U visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future, T data);
+
+  U visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future);
+
+  U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future, T data);
+
+  U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future);
 
   U visitPaymentFixed(PaymentFixedDefinition payment, T data);
 

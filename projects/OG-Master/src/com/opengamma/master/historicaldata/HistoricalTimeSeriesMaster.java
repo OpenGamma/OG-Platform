@@ -106,14 +106,15 @@ public interface HistoricalTimeSeriesMaster {
   void remove(final UniqueIdentifier uniqueId);
 
   /**
-   * Searches for time-series matching the specified search criteria.
+   * Queries the history of a single time-series.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the time-series.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the time-series history, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  HistoricalTimeSeriesSearchHistoricResult searchHistoric(HistoricalTimeSeriesSearchHistoricRequest request);
+  HistoricalTimeSeriesHistoryResult history(HistoricalTimeSeriesHistoryRequest request);
 
   //-------------------------------------------------------------------------
   /**

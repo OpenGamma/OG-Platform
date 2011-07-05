@@ -266,6 +266,35 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument test = _posMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
+  
+  @Test
+  public void test_addWithTradesAndAttributes_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    position.addAttribute("PA1", "A");
+    position.addAttribute("PA2", "B");
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade1.addAttribute("TA11", "C");
+    trade1.addAttribute("TA12", "D");
+    trade1.addAttribute("TA13", "E");
+    position.getTrades().add(trade1);
+    
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.ONE, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade2.addAttribute("TA21", "F");
+    trade2.addAttribute("TA22", "G");
+    trade2.addAttribute("TA23", "H");
+    trade2.addAttribute("TA24", "I");
+    position.getTrades().add(trade2);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument added = _posMaster.add(doc);
+    
+    PositionDocument test = _posMaster.get(added.getUniqueId());
+    assertEquals(added, test);
+  }
 
   @Test
   public void test_addWithOneTrade_addThenGet() {

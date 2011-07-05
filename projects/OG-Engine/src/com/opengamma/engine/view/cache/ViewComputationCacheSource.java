@@ -15,12 +15,11 @@ public interface ViewComputationCacheSource {
   /**
    * Generates a new computation cache, or returns the existing one, for the given identifying arguments.
    * 
-   * @param viewProcessId  the unique identifier of the view process
-   * @param calculationConfigurationName  the name of the view calculation configuration 
-   * @param evaluationTime  the view evaluation time
+   * @param viewCycleId  the unique identifier of the view cycle, not {@code null}
+   * @param calculationConfigurationName  the name of the view calculation configuration, not {@code null} 
    * @return the computation cache for the given arguments
    */
-  ViewComputationCache getCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long evaluationTime);
+  ViewComputationCache getCache(UniqueIdentifier viewCycleId, String calculationConfigurationName);
   
   // REVIEW kirk 2010-08-07 -- This might be better suited with another method. It's not currently
   // being called by anything.
@@ -28,20 +27,18 @@ public interface ViewComputationCacheSource {
    * Takes a deep copy of the cache identified by the arguments, usually to pass it over to a viewer or other tool. The
    * clone does not need to be released after use.
    * 
-   * @param viewProcessId  the unique identifier of the view process
-   * @param calculationConfigurationName  the name of the view calculation configuration 
-   * @param evaluationTime  the view evaluation time
+   * @param viewCycleId  the unique identifier of the view cycle, not {@code null}
+   * @param calculationConfigurationName  the name of the view calculation configuration, not {@code null} 
    * @return the cloned cache
    */
-  ViewComputationCache cloneCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long evaluationTime);
+  ViewComputationCache cloneCache(UniqueIdentifier viewCycleId, String calculationConfigurationName);
   
   /**
-   * Releases all caches previously generated using {@link #getCache(UniqueIdentifier, String, long)} for the given
-   * view and evaluation time.
+   * Releases all caches previously generated using {@link #getCache(UniqueIdentifier, String)} for the given
+   * view cycle.
    * 
-   * @param viewProcessId  the unique identifier of the view process
-   * @param evaluationTime  the view evaluation time
+   * @param viewCycleId  the unique identifier of the view cycle
    */
-  void releaseCaches(UniqueIdentifier viewProcessId, long evaluationTime);
+  void releaseCaches(UniqueIdentifier viewCycleId);
   
 }

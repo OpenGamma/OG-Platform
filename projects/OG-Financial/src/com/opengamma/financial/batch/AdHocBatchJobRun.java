@@ -86,7 +86,7 @@ public class AdHocBatchJobRun extends BatchJobRun {
 
   @Override
   public Instant getCreationTime() {
-    return getResultModel().getResultTimestamp();
+    return getResultModel().getCalculationTime();
   }
 
   @Override

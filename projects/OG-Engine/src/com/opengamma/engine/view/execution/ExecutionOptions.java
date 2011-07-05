@@ -5,11 +5,12 @@
  */
 package com.opengamma.engine.view.execution;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
-import javax.time.Instant;
+import javax.time.InstantProvider;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -19,10 +20,10 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ExecutionOptions implements ViewExecutionOptions {
 
-  private ViewCycleExecutionSequence _executionSequence;
+  private final ViewCycleExecutionSequence _executionSequence;
   private final EnumSet<ViewExecutionFlags> _flags;
   private final Integer _maxSuccessiveDeltaCycles;
-  private final UniqueIdentifier _marketDataSnapshotIdentifier;
+  private final ViewCycleExecutionOptions _defaultExecutionOptions;
   
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags) {
     this(executionSequence, flags, null, null);
@@ -32,76 +33,22 @@ public class ExecutionOptions implements ViewExecutionOptions {
     this(executionSequence, flags, maxSuccessiveDeltaCycles, null);
   }
   
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, UniqueIdentifier marketDataSnapshotId) {
-    this(executionSequence, flags, null, marketDataSnapshotId);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, ViewCycleExecutionOptions defaultExecutionOptions) {
+    this(executionSequence, flags, null, defaultExecutionOptions);
   }
     
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
-      Integer maxSuccessiveDeltaCycles, UniqueIdentifier marketDataSnapshotIdentifier) {
+      Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     ArgumentChecker.notNull(flags, "flags");
     
     _executionSequence = executionSequence;
     _flags = flags;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
-    _marketDataSnapshotIdentifier = marketDataSnapshotIdentifier;
+    _defaultExecutionOptions = defaultExecutionOptions;
   }
   
-  public static ViewExecutionOptions realTime() {
-    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().get());
-  }
-  
-  public static ViewExecutionOptions likeRealTime(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.triggersEnabled().get());
-  }
-  
-  public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.none().runAsFastAsPossible().get());
-  }
-
-  public static ViewExecutionOptions singleCycle() {
-    return singleCycle(Instant.now());
-  }
-  
-  public static ViewExecutionOptions singleCycle(long valuationTimeMillis) {
-    return singleCycle(Instant.ofEpochMillis(valuationTimeMillis));
-  }
-  
-  public static ViewExecutionOptions singleCycle(Instant valuationTime) {
-    return new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(valuationTime), ExecutionFlags.none().runAsFastAsPossible().get());
-  }
-  
-  /**
-   * Creates execution options for running using a snapshot against the current time. Execution will never complete,
-   * allowing changes to the snapshot or changes due to time passing to trigger a further cycle.
-   * 
-   * @param snapshotIdentifier  the identifier of the snapshot, not {@code null}
-   * @return the execution options, not {@code null}
-   */
-  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
-    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), ExecutionFlags.triggersEnabled().get(), snapshotIdentifier);
-  }
-  
-  /**
-   * Creates execution options for running using a snapshot, with a fixed valuation time. Execution will never
-   * complete, allowing changes to the snapshot data to trigger a further cycle for this valuation time.
-   * 
-   * @param snapshotIdentifier  the identifier of the snapshot, not {@code null}
-   * @param valuationTime  the fixed valuation time, not {@code null}
-   * @return the execution options, not {@code null}
-   */
-  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, Instant valuationTime) {
-    return new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(valuationTime), ExecutionFlags.none().triggerOnLiveData().get(), snapshotIdentifier);
-  }
-  
-  public static ViewExecutionOptions compileOnly() {
-    return compileOnly(ArbitraryViewCycleExecutionSequence.of(Instant.now()));
-  }
-  
-  public static ViewExecutionOptions compileOnly(ViewCycleExecutionSequence cycleExecutionSequence) {
-    return new ExecutionOptions(cycleExecutionSequence, ExecutionFlags.none().compileOnly().get());
-  }
-  
+  //-------------------------------------------------------------------------
   @Override
   public ViewCycleExecutionSequence getExecutionSequence() {
     return _executionSequence;
@@ -113,8 +60,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
 
   @Override
-  public UniqueIdentifier getMarketDataSnapshotIdentifier() {
-    return _marketDataSnapshotIdentifier;
+  public ViewCycleExecutionOptions getDefaultExecutionOptions() {
+    return _defaultExecutionOptions;
   }
   
   @Override
@@ -128,7 +75,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     int result = 1;
     result = prime * result + ((_executionSequence == null) ? 0 : _executionSequence.hashCode());
     result = prime * result + ((_flags == null) ? 0 : _flags.hashCode());
-    result = prime * result + ((_marketDataSnapshotIdentifier == null) ? 0 : _marketDataSnapshotIdentifier.hashCode());
+    result = prime * result + ((_defaultExecutionOptions == null) ? 0 : _defaultExecutionOptions.hashCode());
     result = prime * result + ((_maxSuccessiveDeltaCycles == null) ? 0 : _maxSuccessiveDeltaCycles.hashCode());
     return result;
   }
@@ -151,11 +98,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (!_flags.equals(other._flags)) {
       return false;
     }
-    if (_marketDataSnapshotIdentifier == null) {
-      if (other._marketDataSnapshotIdentifier != null) {
+    if (_defaultExecutionOptions == null) {
+      if (other._defaultExecutionOptions != null) {
         return false;
       }
-    } else if (!_marketDataSnapshotIdentifier.equals(other._marketDataSnapshotIdentifier)) {
+    } else if (!_defaultExecutionOptions.equals(other._defaultExecutionOptions)) {
       return false;
     }
     if (_maxSuccessiveDeltaCycles == null) {
@@ -168,4 +115,91 @@ public class ExecutionOptions implements ViewExecutionOptions {
     return true;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a custom execution sequence.
+   * 
+   * @param cycleExecutionSequence  the execution sequence, not {@code null}
+   * @param flags  execution flags, not {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence, EnumSet<ViewExecutionFlags> flags) {
+    ArgumentChecker.notNull(cycleExecutionSequence, "cycleExecutionSequence");
+    ArgumentChecker.notNull(flags, "flags");
+    return of(cycleExecutionSequence, null, flags);
+  }
+  
+  /**
+   * Creates a custom execution sequence.
+   * 
+   * @param cycleExecutionSequence  the execution sequence, not {@code null}
+   * @param defaultCycleOptions  the default view cycle execution options, may be {@code null}
+   * @param flags  the execution flags, not {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions, EnumSet<ViewExecutionFlags> flags) {
+    ArgumentChecker.notNull(cycleExecutionSequence, "cycleExecutionSequence");
+    ArgumentChecker.notNull(flags, "flags");
+    return new ExecutionOptions(cycleExecutionSequence, flags, defaultCycleOptions);
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data and all triggers enabled.
+   * Execution will continue for as long as there is demand.
+   * <p>
+   * For the classic execution sequence for real-time calculations against live market data, use
+   * <pre>
+   *  ExecutionOptions.infinite(MarketData.live());
+   * </pre>
+   * 
+   * @param marketDataSpec  the market data specification, not {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec) {
+    return infinite(marketDataSpec, ExecutionFlags.triggersEnabled().get());
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
+   * for as long as there is demand.
+   * 
+   * @param marketDataSpec  the market data specification, not {@code null}
+   * @param flags  the execution flags, not {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
+    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
+    defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
+    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
+  }
+  
+  /**
+   * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the
+   * sequence is instead configured to run as fast as possible.
+   * 
+   * @param cycleExecutionSequence  the execution sequence, not {@code null}
+   * @param defaultCycleOptions  the default view cycle execution options, may be {@code null}
+   * @return the execution sequence, not {@code null}
+   */
+  public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions) {
+    return of(cycleExecutionSequence, defaultCycleOptions, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+  }
+
+  /**
+   * Creates an execution sequence to run a single cycle.
+   * 
+   * @param valuationTimeProvider  the valuation time provider, or {@code null} to use the market data time
+   * @param marketDataSpec  the market data specificaiton, not {@code null}
+   * @return an execution sequence representing the single cycle, not {@code null}
+   */
+  public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
+    ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
+    if (valuationTimeProvider != null) {
+      cycleOptions.setValuationTime(valuationTimeProvider);
+    }
+    ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
+    return of(sequence, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+  }
+  
 }

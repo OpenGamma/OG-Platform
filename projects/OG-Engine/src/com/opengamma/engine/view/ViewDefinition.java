@@ -34,10 +34,12 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
+  private static final long serialVersionUID = 1L;
+  
   private UniqueIdentifier _uniqueIdentifier;
   private final String _name;
   private final UniqueIdentifier _portfolioId;
-  private final UserPrincipal _liveDataUser;
+  private final UserPrincipal _marketDataUser;
 
   private final ResultModelDefinition _resultModelDefinition;
 
@@ -83,21 +85,21 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, without a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param liveDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition
    */
-  public ViewDefinition(String name, UserPrincipal liveDataUser) {
-    this(name, null, liveDataUser);
+  public ViewDefinition(String name, UserPrincipal marketDataUser) {
+    this(name, null, marketDataUser);
   }
 
   /**
    * Constructs an instance, without a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param liveDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
    */
-  public ViewDefinition(String name, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
-    this(name, null, liveDataUser, resultModelDefinition);
+  public ViewDefinition(String name, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+    this(name, null, marketDataUser, resultModelDefinition);
   }
 
   /**
@@ -106,10 +108,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param name  the name of the view definition
    * @param portfolioId  the unique identifier of the reference portfolio for this view definition, or
    *                     <code>null</code> if no reference portfolio is required
-   * @param liveDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser) {
-    this(name, portfolioId, liveDataUser, new ResultModelDefinition());
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal marketDataUser) {
+    this(name, portfolioId, marketDataUser, new ResultModelDefinition());
   }
 
   /**
@@ -118,17 +120,17 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param name  the name of the view definition
    * @param portfolioId  the unique identifier of the reference portfolio for this view definition, or
    *                     <code>null</code> if no reference portfolio is required
-   * @param liveDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
-    ArgumentChecker.notNull(liveDataUser, "User name");
+    ArgumentChecker.notNull(marketDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
 
     _name = name;
     _portfolioId = portfolioId;
-    _liveDataUser = liveDataUser;
+    _marketDataUser = marketDataUser;
     _resultModelDefinition = resultModelDefinition;
   }
 
@@ -168,14 +170,12 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   }
 
   /**
-   * Returns the user who 'owns' the view. The LiveData user should be used to create subscriptions. It ensures that the
-   * view can be created and initialized without any end users trying to use it. Authorizing end users to interact with
-   * the view is a separate matter and independent of this user. 
+   * Gets the user to be associated with any market data subscriptions made for the view.
    * 
-   * @return The LiveData user to create LiveData subscriptions for the view  
+   * @return the user to be associated with market data subscriptions
    */
-  public UserPrincipal getLiveDataUser() {
-    return _liveDataUser;
+  public UserPrincipal getMarketDataUser() {
+    return _marketDataUser;
   }
 
   /**
@@ -285,7 +285,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   // -------------------------------------------------------------------------
   /**
    * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
-   * when live computations are running. Delta calculations involve only those nodes in the dependency graph whose
+   * before another cycle may be triggered. Delta calculations involve only those nodes in the dependency graph whose
    * inputs have changed since the previous calculation.
    * 
    * @return the minimum period between the start of two delta calculations, in milliseconds, or <code>null</code> to
@@ -297,7 +297,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Sets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
-   * when live computations are running. Delta calculations involve only those nodes in the dependency graph whose
+   * before another cycle may be triggered. Delta calculations involve only those nodes in the dependency graph whose
    * inputs have changed since the previous calculation.
    * 
    * @param minDeltaCalculationPeriod  the minimum period between the start of two delta calculations, in milliseconds,
@@ -309,10 +309,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Gets the maximum period, in milliseconds, which can elapse since the start of the last full or delta calculation
-   * before a delta recalculation is forced when live computations are running. In between the minimum and maximum
-   * period, any relevant live data changes will immediately trigger a recalculation. The maximum calculation period is
-   * therefore a fall-back which can be used to ensure that the view has always been calculated recently, even when no
-   * live data changes have occurred. 
+   * before a delta recalculation may be forced. In between the minimum and maximum period, any relevant market data
+   * changes may immediately trigger a recalculation. The maximum calculation period is therefore a fall-back which can
+   * be used to ensure that the view has always been calculated recently, even when no market data changes have
+   * occurred. 
    * 
    * @return the maximum period allowed since the start of the last full or delta calculation, in milliseconds, or
    *         <code>null</code> if no maximum period is required.
@@ -323,10 +323,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Sets the maximum period, in milliseconds, which can elapse since the start of the last full or delta calculation
-   * before a delta recalculation is forced when live computations are running. In between the minimum and maximum
-   * period, any relevant live data changes will immediately trigger a recalculation. The maximum calculation period is
-   * therefore a fall-back which can be used to ensure that the view has always been calculated recently, even when no
-   * live data changes have occurred. 
+   * before a delta recalculation may be  forced. In between the minimum and maximum period, any relevant market data
+   * changes may immediately trigger a recalculation. The maximum calculation period is therefore a fall-back which can
+   * be used to ensure that the view has always been calculated recently, even when no market data changes have
+   * occurred.
    * 
    * @param maxDeltaCalculationPeriod  the maximum period allowed since the start of the last full or delta
    *                                   calculation, in milliseconds, or <code>null</code> if no maximum period is
@@ -338,7 +338,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last full calculation
-   * when live computations are running. Full calculations involve recalculating every node in the dependency graph,
+   * before another cycle may be triggered. Full calculations involve recalculating every node in the dependency graph,
    * regardless of whether their inputs have changed.
    * 
    * @return the minimum period between the start of two full calculations, in milliseconds, or <code>null</code> to
@@ -350,7 +350,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Sets the minimum period, in milliseconds, which must have elapsed since the start of the last full calculation
-   * when live computations are running. Full calculations involve recalculating every node in the dependency graph,
+   * before another cycle may be triggered. Full calculations involve recalculating every node in the dependency graph,
    * regardless of whether their inputs have changed.
    * 
    * @param minFullCalculationPeriod  the minimum period between the start of two full calculations, in milliseconds,
@@ -362,10 +362,9 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Gets the maximum period, in milliseconds, which can elapse since the start of the last full calculation before a
-   * full recalculation is forced when live computations are running. In between the minimum and maximum period, any
-   * relevant live data changes will immediately trigger a recalculation. The maximum calculation period is therefore a
-   * fall-back which can be used to ensure that the view has always been calculated recently, even when no live data
-   * changes have occurred. 
+   * full recalculation is forced. In between the minimum and maximum period, any relevant market data changes may
+   * immediately trigger a recalculation. The maximum calculation period is therefore a fall-back which can be used to
+   * ensure that the view has always been calculated recently, even when no market data changes have occurred. 
    * 
    * @return the maximum period allowed since the start of the last full calculation, in milliseconds, or
    *         <code>null</code> if no maximum period is required.
@@ -376,10 +375,9 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   /**
    * Sets the maximum period, in milliseconds, which can elapse since the start of the last full calculation before a
-   * full recalculation is forced when live computations are running. In between the minimum and maximum period, any
-   * relevant live data changes will immediately trigger a recalculation. The maximum calculation period is therefore a
-   * fall-back which can be used to ensure that the view has always been calculated recently, even when no live data
-   * changes have occurred. 
+   * full recalculation is forced. In between the minimum and maximum period, any relevant market data changes may
+   * immediately trigger a recalculation. The maximum calculation period is therefore a fall-back which can be used to
+   * ensure that the view has always been calculated recently, even when no market data changes have occurred. 
    * 
    * @param maxFullCalculationPeriod  the maximum period allowed since the start of the last full calculation, in
    *                                  milliseconds, or <code>null</code> if no maximum period is required.
@@ -429,7 +427,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
     int result = 1;
     result = prime * result + ObjectUtils.hashCode(getName());
     result = prime * result + ObjectUtils.hashCode(getPortfolioId());
-    result = prime * result + ObjectUtils.hashCode(getLiveDataUser());
+    result = prime * result + ObjectUtils.hashCode(getMarketDataUser());
     return result;
   }
 
@@ -445,7 +443,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
     ViewDefinition other = (ViewDefinition) obj;
     boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
-        && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
+        && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getMarketDataUser(), other.getMarketDataUser())
         && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod) && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
         && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod) && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)
         && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk) && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames())
