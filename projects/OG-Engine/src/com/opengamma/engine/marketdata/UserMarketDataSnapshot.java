@@ -8,8 +8,8 @@ package com.opengamma.engine.marketdata;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
@@ -35,6 +35,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 // REVIEW jonathan 2011-06-29 -- The user market data provider classes, including this, no longer need to be in the
 // engine and they simply introduce dependencies on the MarketDataSnapshotSource and specific StructuredMarketDataKeys.
@@ -251,20 +253,41 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
   }
   
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
-    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-    for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
+    Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();
+    HashMap<VolatilityPoint, Double> dataPoints = buildVolValues(values);
+    HashMap<Pair<Tenor, Tenor>, Double> strikes = buildVolStrikes(volCubeSnapshot.getStrikes());
+    SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
+    
+    VolatilityCubeData ret = new VolatilityCubeData();
+    ret.setDataPoints(dataPoints);
+    ret.setOtherData(otherData);
+    ret.setStrikes(strikes);
+    
+    return ret;
+  }
+
+  private HashMap<Pair<Tenor, Tenor>, Double> buildVolStrikes(Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
+    HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
+    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
       ValueSnapshot value = entry.getValue();
       Double query = query(value);
       if (query != null) {
         dataPoints.put(entry.getKey(), query);
       }
     }
-    SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
-    VolatilityCubeData ret = new VolatilityCubeData();
-    ret.setDataPoints(dataPoints);
-    
-    ret.setOtherData(otherData);
-    return ret;
+    return dataPoints;
+  }
+
+  private HashMap<VolatilityPoint, Double> buildVolValues(Map<VolatilityPoint, ValueSnapshot> values) {
+    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    for (Entry<VolatilityPoint, ValueSnapshot> entry : values.entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
+    return dataPoints;
   }
 
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {
