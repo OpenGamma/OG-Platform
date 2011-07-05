@@ -63,9 +63,9 @@ public class MarketDataProviderWithOverrideTest {
     verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionSucceeded(Mockito.<ValueRequirement>anyObject());
     verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionFailed(Mockito.<ValueRequirement>anyObject(), Mockito.anyString());
     
-    p1.valueChanged(Collections.singleton(req));
-    p2.valueChanged(Collections.singleton(req));
-    verify(listener, VerificationModeFactory.times(2)).valueChanged(req);
+    p1.valuesChanged(Collections.singleton(req));
+    p2.valuesChanged(Collections.singleton(req));
+    verify(listener, VerificationModeFactory.times(2)).valuesChanged(Collections.singleton(req));
   }
   
   public void testSnapshotNoOverrides() throws InterruptedException {
