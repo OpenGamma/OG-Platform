@@ -5,7 +5,21 @@
 
   <property file="${test.properties.dir}/db.properties"/>
 
-  <available property="dbscript.create" value="${basedir}/create" file="${basedir}/create-db-common.sql" />
+	<!-- ================================================================ -->
+  <target name="create-db-sql" description="--> create a single .sql files from the component ones">
+    <delete verbose="true" >
+      <fileset dir="${basedir}" includes="**/create-db.sql" />
+    </delete>
+
+    <subant target="create-db-sql-impl" genericantfile="${basedir}/build.xml">
+      <property name="parent.dir" value="${basedir}" />
+      <property name="common.dir" value="${common.dir}" />
+      <dirset dir="${install.dir}/db" includes="*/patch_*" />
+    </subant>
+  </target>
+  <target name="create-db-sql-impl" depends="dbscript-create-db-sql,dbscript-upgrade-db-sql" />
+
+	<available property="dbscript.create" value="${basedir}/create" file="${basedir}/create-db-common.sql" />
   <target name="dbscript-create-db-sql" if="dbscript.create">
     <antcall target="create-db-sql-impl-2">
       <param name="dbscript.prefix" value="create" />
@@ -17,8 +31,8 @@
       <param name="dbscript.prefix" value="upgrade" />
     </antcall>
   </target>
-  <target name="create-db-sql-impl" depends="dbscript-create-db-sql,dbscript-upgrade-db-sql" />
-  <target name="create-db-sql-impl-2" if="dbscript.prefix">
+
+	<target name="create-db-sql-impl-2" if="dbscript.prefix">
     <echo>Writing ${basedir}/${dbscript.prefix}-db.sql</echo>
     <concat fixlastline="yes" force="no" destfile="${basedir}/${dbscript.prefix}-db.sql">
       <header filtering="no" trimleading="true">-- IMPORTANT:
@@ -40,19 +54,10 @@
       <fileset file="${basedir}/${dbscript.prefix}-db-security.sql" />
       <fileset file="${basedir}/${dbscript.prefix}-db-timeseries.sql" />
     </concat>
+		<fixcrlf file="${basedir}/${dbscript.prefix}-db.sql" />
   </target>
-  <target name="create-db-sql" description="--> create a single .sql files from the component ones">
-    <delete verbose="true" >
-      <fileset dir="${basedir}" includes="**/create-db.sql" />
-    </delete>
 
-    <subant target="create-db-sql-impl" genericantfile="${basedir}/build.xml">
-      <property name="parent.dir" value="${basedir}" />
-      <property name="common.dir" value="${common.dir}" />
-      <dirset dir="${install.dir}/db" includes="*/patch_*" />
-    </subant>
-  </target>
-  
+	<!-- ================================================================ -->
   <target name="create-postgres-fin" description="--> run scripts to create database/user/schema/tables for financial db">
     <exec executable="${psql.path}" failonerror="true">
         <arg value="--username"/>
