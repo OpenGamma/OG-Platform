@@ -28,6 +28,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
 
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("USD", "DEFAULT", "SWAPTION", "DEFAULT")));
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("USD", "DEFAULT", "IR_FUTURE", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("EURUSD", "DEFAULT", "FX_VANILLA_OPTION", "DEFAULT")));
 
     return new RepositoryConfiguration(configs);
   }

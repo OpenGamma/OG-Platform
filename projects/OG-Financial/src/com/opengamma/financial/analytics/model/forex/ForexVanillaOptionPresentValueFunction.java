@@ -37,13 +37,13 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexVanillaOptionPresentFunction extends AbstractFunction.NonCompiledInvoker {
+public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
   private final String _putCurveName;
   private final String _callCurveName;
   private final ForexVanillaOptionSecurityConverter _visitor;
 
-  public ForexVanillaOptionPresentFunction(final String putCurveName, final String callCurveName) {
+  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName) {
     Validate.notNull(putCurveName, "put curve name");
     Validate.notNull(callCurveName, "call curve name");
     _putCurveName = putCurveName;
@@ -60,7 +60,7 @@ public class ForexVanillaOptionPresentFunction extends AbstractFunction.NonCompi
     final ForexDerivative fxOption = definition.toDerivative(now, _putCurveName, _callCurveName);
     final MultipleCurrencyAmount presentValue = CALCULATOR.visit(fxOption);
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _putCurveName).with(ValuePropertyNames.CURVE, _callCurveName).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, presentValue));
   }
 
@@ -88,7 +88,7 @@ public class ForexVanillaOptionPresentFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _putCurveName).with(ValuePropertyNames.CURVE, _callCurveName).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(),
         properties));
   }
 

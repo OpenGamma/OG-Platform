@@ -28,7 +28,7 @@ public class ForexVanillaOptionSecurityConverter implements FXOptionSecurityVisi
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     final double putAmount = fxOptionSecurity.getPutAmount();
     final double callAmount = fxOptionSecurity.getCallAmount();
-    final double fxRate = -putAmount / callAmount;
+    final double fxRate = putAmount / callAmount;
     final ZonedDateTime expiry = fxOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter

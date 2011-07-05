@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Integer, FXVolQuoteType>> {
+public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
   private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER;
 
   enum FXVolQuoteType {
@@ -56,19 +56,19 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
   }
 
   @Override
-  public Identifier getInstrument(final Tenor tenor, final Pair<Integer, FXVolQuoteType> volDeltaQuoteType) {
+  public Identifier getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
     return createFXVolatilityCode(tenor, volDeltaQuoteType);
   }
 
   @Override
-  public Identifier getInstrument(final Tenor tenor, final Pair<Integer, FXVolQuoteType> volDeltaQuoteType, final LocalDate surfaceDate) {
+  public Identifier getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType, final LocalDate surfaceDate) {
     return createFXVolatilityCode(tenor, volDeltaQuoteType);
   }
 
-  private Identifier createFXVolatilityCode(final Tenor tenor, final Pair<Integer, FXVolQuoteType> volDeltaQuoteType) {
+  private Identifier createFXVolatilityCode(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_fxPrefix);
-    final int delta = volDeltaQuoteType.getFirst();
+    final int delta = volDeltaQuoteType.getFirst().intValue();
     final FXVolQuoteType quoteType = volDeltaQuoteType.getSecond();
     String bbgCode = "";
     if (delta == 0) {
@@ -97,7 +97,7 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     } else if (tenor.getPeriod().getMonths() != 0) {
       bbgCode += tenor.getPeriod().getMonths() + "M";
     } else if (tenor.getPeriod().getDays() != 0 && tenor.getPeriod().getDays() % 7 == 0) {
-      bbgCode += tenor.getPeriod().getDays() + "W";
+      bbgCode += tenor.getPeriod().getDays() / 7 + "W";
     } else {
       throw new OpenGammaRuntimeException("Can only handle periods of year, month and week");
     }

@@ -173,8 +173,10 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
             final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
             final Identifier identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
-            final Double volatility = (Double) inputs.getValue(requirement);
-            volatilityValues.put(Pair.of(x, y), volatility / 100);
+            if (inputs.getValue(requirement) != null) {
+              final Double volatility = (Double) inputs.getValue(requirement);
+              volatilityValues.put(Pair.of(x, y), volatility / 100);
+            }
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),

@@ -31,10 +31,18 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
     for (final Object x : object.getXs()) {
-      context.addToMessageWithClassHeaders(message, "xs", null, x);
+      if (x instanceof Number) {
+        context.addToMessageWithClassHeaders(message, "xs", null, x);
+      } else {
+        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      }
     }
     for (final Object y : object.getYs()) {
-      context.addToMessageWithClassHeaders(message, "ys", null, y);
+      if (y instanceof Number) {
+        context.addToMessageWithClassHeaders(message, "ys", null, y);
+      } else {
+        message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+      }
     }
     return message;
   }
@@ -52,7 +60,6 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     final List<FudgeField> ysFields = message.getAllByName("ys");
     final List<Object> ys = new ArrayList<Object>();
     for (final FudgeField yField : ysFields) {
-
       final Object y = context.fieldValueToObject(yField);
       ys.add(y);
     }
