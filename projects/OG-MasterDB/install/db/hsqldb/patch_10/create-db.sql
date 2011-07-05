@@ -9,6 +9,435 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
+-------------------------------------
+-- Static data
+-------------------------------------
+
+create table rsk_observation_time (
+    id int not null,
+    label varchar(255) not null,                -- LDN_CLOSE
+    
+    primary key (id),
+    
+    constraint rsk_chk_uq_obs_time unique (label)
+);
+
+create table rsk_observation_datetime (
+	id int not null,
+	date_part date not null,  
+	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
+	observation_time_id int not null,    		  
+	
+	primary key (id),
+	
+	constraint rsk_fk_obs_datetime2obs_time
+	    foreign key (observation_time_id) references rsk_observation_time (id),
+	    
+	constraint rsk_chk_obs_datetime check 
+	    (time_part is not null or observation_time_id is not null), 
+	
+	constraint rsk_chk_uq_obs_datetime unique (date_part, observation_time_id)
+);
+
+create table rsk_compute_host (
+	id int not null,
+	host_name varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_compute_host unique (host_name)
+);
+
+create table rsk_compute_node (
+	id int not null,
+	compute_host_id int not null,
+	node_name varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_fk_cmpt_node2cmpt_host
+	    foreign key (compute_host_id) references rsk_compute_host (id),
+	    
+	constraint rsk_chk_uq_compute_node unique (node_name)
+);
+
+create table rsk_opengamma_version (
+	id int not null,
+	version varchar(255) not null, 
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_opengamma_version unique (version)
+);
+
+-- DBTOOLDONOTCLEAR
+create table rsk_computation_target_type (
+	id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_cmpt_target_type check
+        ((id = 0 and name = 'PORTFOLIO_NODE') or
+         (id = 1 and name = 'POSITION') or 
+         (id = 2 and name = 'SECURITY') or
+         (id = 3 and name = 'PRIMITIVE'))
+);
+
+insert into rsk_computation_target_type (id, name) values (0, 'PORTFOLIO_NODE');
+insert into rsk_computation_target_type (id, name) values (1, 'POSITION');
+insert into rsk_computation_target_type (id, name) values (2, 'SECURITY');
+insert into rsk_computation_target_type (id, name) values (3, 'PRIMITIVE');
+
+create table rsk_computation_target (
+	id int not null,
+	type_id int not null,
+	id_scheme varchar(255) not null,
+	id_value varchar(255) not null,
+	id_version varchar(255) null,
+	name varchar(255) null,
+	
+	primary key (id),
+	
+	constraint rsk_fk_cmpt_target2tgt_type 
+	    foreign key (type_id) references rsk_computation_target_type (id),
+	    
+	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value, id_version)
+);
+
+create table rsk_function_unique_id (
+	id int not null,
+	unique_id varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_function_unique_id unique (unique_id)
+);
+
+-------------------------------------
+-- LiveData inputs
+-------------------------------------
+
+create table rsk_live_data_field (
+	id int not null,
+	name varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_live_data_field unique (name)
+);
+
+create table rsk_live_data_snapshot (
+	id int not null,
+	observation_datetime_id int not null,
+	
+	primary key (id),
+	
+	constraint rsk_fk_lv_data_snap2ob_dttime
+	    foreign key (observation_datetime_id) references rsk_observation_datetime (id),
+	    
+	constraint rsk_chk_uq_live_data_snapshot unique (observation_datetime_id)
+);
+
+create table rsk_live_data_snapshot_entry (
+	id bigint not null,
+	snapshot_id int not null,
+	computation_target_id int not null,
+	field_id int not null,
+	value double precision,
+	
+	primary key (id),
+	
+	constraint rsk_fk_snpsht_entry2snpsht
+		foreign key (snapshot_id) references rsk_live_data_snapshot (id),
+	constraint rsk_fk_spsht_entry2cmp_target
+	    foreign key (computation_target_id) references rsk_computation_target (id),
+	    
+	constraint rsk_chk_uq_snapshot_entry unique (snapshot_id, computation_target_id, field_id) 	
+);
+
+-------------------------------------
+-- Risk run
+-------------------------------------
+
+create table rsk_run (
+    id int not null,
+    opengamma_version_id int not null,
+    master_process_host_id int not null,    -- machine where 'master' batch process was started
+    run_time_id int not null,
+    live_data_snapshot_id int not null,
+    create_instant timestamp not null,
+    start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
+    end_instant	timestamp,
+    num_restarts int not null,
+    complete boolean not null,
+    
+    primary key (id),
+    
+    constraint rsk_fk_run2opengamma_version
+        foreign key (opengamma_version_id) references rsk_opengamma_version (id),
+    constraint rsk_fk_run2compute_host
+        foreign key (master_process_host_id) references rsk_compute_host (id),
+    constraint rsk_fk_run2obs_datetime
+        foreign key (run_time_id) references rsk_observation_datetime (id),
+    constraint rsk_fk_run2live_data_snapshot
+        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
+
+    constraint rsk_chk_uq_run unique (run_time_id)
+);
+
+create table rsk_calculation_configuration (
+	id int not null,
+	run_id int not null,
+	name varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_fk_calc_conf2run
+	    foreign key (run_id) references rsk_run (id),
+	
+	constraint rsk_chk_uq_calc_conf unique (run_id, name)
+);
+
+-- Properties should be filled once only. If already there, use existing value.
+--
+-- Example properties:
+-- 	- PositionMasterTime = 20100615170000
+--  - GlobalRandomSeed = 54321
+create table rsk_run_property (		
+	id int not null,
+	run_id int not null,
+	property_key varchar(255) not null,
+	property_value varchar(2000) not null,		    -- varchar(255) not enough
+	
+	primary key (id),
+
+	constraint rsk_fk_run_property2run 
+	    foreign key (run_id) references rsk_run (id)
+);
+
+-- DBTOOLDONOTCLEAR
+create table rsk_run_status_code (
+    id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_rsk_run_status_code check
+        ((id = 0 and name = 'SUCCESS') or
+         (id = 1 and name = 'FAILURE') or 
+         (id = 2 and name = 'RUNNING') or
+         (id = 3 and name = 'NOT_RUNNING'))
+);
+
+insert into rsk_run_status_code (id, name) values (0, 'SUCCESS');
+insert into rsk_run_status_code (id, name) values (1, 'FAILURE');
+insert into rsk_run_status_code (id, name) values (2, 'RUNNING');
+insert into rsk_run_status_code (id, name) values (3, 'NOT_RUNNING');
+
+create table rsk_run_status (
+    id bigint not null, 
+    calculation_configuration_id int not null,
+    computation_target_id int not null,
+    status int not null,
+
+    constraint rsk_fk_run_status2calc_conf
+        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
+    constraint rsk_fk_run_status2comp_tgt
+        foreign key (computation_target_id) references rsk_computation_target (id),
+    constraint rsk_fk_run_status2code
+        foreign key (status) references rsk_run_status_code (id),
+
+    constraint rsk_chk_uq_run_status unique (calculation_configuration_id, computation_target_id)
+);
+
+
+-------------------------------------
+-- Risk
+-------------------------------------
+
+create table rsk_value_name (
+    id int not null,
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_uq_value_name unique (name)
+);
+
+create table rsk_value (
+    id bigint not null,
+    calculation_configuration_id int not null,
+    value_name_id int not null,
+    function_unique_id int not null,
+    computation_target_id int not null,        
+    run_id int not null,             	       -- shortcut
+    value double precision not null,
+    eval_instant timestamp not null,
+    compute_node_id int not null,
+    
+    primary key (id),
+    
+    -- performance implications of these constraints?
+    constraint rsk_fk_value2calc_conf
+        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
+    constraint rsk_fk_value2run 
+        foreign key (run_id) references rsk_run (id),
+    constraint rsk_fk_value2value_name
+        foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_value2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id),
+    constraint rsk_fk_value2comp_target
+        foreign key (computation_target_id) references rsk_computation_target (id),
+    constraint rsk_fk_value2compute_node
+        foreign key (compute_node_id) references rsk_compute_node (id),
+        
+    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, computation_target_id)
+);
+
+
+create table rsk_compute_failure (			
+    id bigint not null,
+    function_id varchar(255) not null,
+    exception_class varchar(255) not null,
+    exception_msg varchar(255) not null,                  
+    stack_trace varchar(2000) not null,         -- first 2000 chars. not including msg
+    
+    primary key (id),
+    
+    constraint rsk_chk_uq_compute_failure unique (function_id, exception_class, exception_msg, stack_trace)
+);
+
+-- how to aggregate risk failures?
+create table rsk_failure (			
+    id bigint not null,
+    calculation_configuration_id int not null,
+    value_name_id int not null,
+    function_unique_id int not null,
+    computation_target_id int not null,
+    run_id int not null,             	       -- shortcut
+    eval_instant timestamp not null,
+    compute_node_id int not null,
+    
+    primary key (id),
+    
+    constraint rsk_fk_failure2calc_conf 
+        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
+    constraint rsk_fk_failure2run 
+        foreign key (run_id) references rsk_run (id),
+    constraint rsk_fk_failure2value_name
+        foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_failure2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id),
+    constraint rsk_fk_failure2com_target
+        foreign key (computation_target_id) references rsk_computation_target (id),
+    constraint rsk_fk_failure2node
+       foreign key (compute_node_id) references rsk_compute_node (id),
+        
+    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, computation_target_id)
+);    
+
+create table rsk_failure_reason (
+   id bigint not null,
+   rsk_failure_id bigint not null,
+   compute_failure_id bigint not null,
+   
+   primary key (id),
+   
+   constraint rsk_fk_fail_reason2failure
+       foreign key (rsk_failure_id) references rsk_failure (id)
+       on delete cascade,
+   constraint rsk_fk_fail_reason2cmpt_fail
+       foreign key (compute_failure_id) references rsk_compute_failure (id),
+
+   constraint rsk_chk_uq_failure_reason unique (rsk_failure_id, compute_failure_id)
+);
+
+
+-------------------------------------
+-- Views
+-------------------------------------
+
+create view vw_rsk as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_computation_target.id_version as comp_target_id_version,
+rsk_computation_target.name as comp_target_name,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_function_unique_id.unique_id as function_unique_id,
+rsk_value.value, 
+rsk_value.eval_instant
+from 
+rsk_value, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time,
+rsk_function_unique_id
+where
+rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_value.value_name_id = rsk_value_name.id and
+rsk_value.function_unique_id = rsk_function_unique_id.id and
+rsk_value.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_value.run_id = rsk_run.id and
+rsk_value.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+create view vw_rsk_failure as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_computation_target.id_version as comp_target_id_version,
+rsk_computation_target.name as comp_target_name,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_function_unique_id.unique_id as function_unique_id,
+rsk_failure.eval_instant,
+rsk_compute_failure.function_id as failed_function,
+rsk_compute_failure.exception_class,
+rsk_compute_failure.exception_msg,
+rsk_compute_failure.stack_trace 
+from 
+rsk_failure, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time,
+rsk_function_unique_id,
+rsk_failure_reason,
+rsk_compute_failure
+where
+rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_failure.value_name_id = rsk_value_name.id and
+rsk_failure.function_unique_id = rsk_function_unique_id.id and
+rsk_failure.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_failure.run_id = rsk_run.id and
+rsk_failure.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
+rsk_failure_reason.rsk_failure_id = rsk_failure.id and
+rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -46,75 +475,19 @@ CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 
 
--- create-db-refdata.sql
+-- create-db-marketdatasnapshot.sql
 
--- Holiday Master design has one document
---  holiday and associated dates
+-- MarketDataSnapshotMaster design has one document
+--  snapshot
 -- bitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE hol_holiday_seq as bigint
+CREATE SEQUENCE snp_snapshot_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
-CREATE TABLE hol_holiday (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    name varchar(255) not null,
-    provider_scheme varchar(255),
-    provider_value varchar(255),
-    hol_type varchar(255) not null,
-    region_scheme varchar(255),
-    region_value varchar(255),
-    exchange_scheme varchar(255),
-    exchange_value varchar(255),
-    currency_iso varchar(255),
-    primary key (id),
-    constraint hol_chk_holiday_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint hol_chk_holiday_corr_order check (corr_from_instant <= corr_to_instant)
-);
-CREATE INDEX ix_hol_holiday_oid ON hol_holiday(oid);
-CREATE INDEX ix_hol_holiday_ver_from_instant ON hol_holiday(ver_from_instant);
-CREATE INDEX ix_hol_holiday_ver_to_instant ON hol_holiday(ver_to_instant);
-CREATE INDEX ix_hol_holiday_corr_from_instant ON hol_holiday(corr_from_instant);
-CREATE INDEX ix_hol_holiday_corr_to_instant ON hol_holiday(corr_to_instant);
-CREATE INDEX ix_hol_holiday_name ON hol_holiday(name);
--- CREATE INDEX ix_hol_holiday_nameu ON hol_holiday(upper(name));
-CREATE INDEX ix_hol_holiday_provider_scheme ON hol_holiday(provider_scheme);
-CREATE INDEX ix_hol_holiday_provider_value ON hol_holiday(provider_value);
-CREATE INDEX ix_hol_holiday_holiday_type ON hol_holiday(hol_type);
-CREATE INDEX ix_hol_holiday_region_scheme ON hol_holiday(region_scheme);
-CREATE INDEX ix_hol_holiday_region_value ON hol_holiday(region_value);
-CREATE INDEX ix_hol_holiday_exchange_scheme ON hol_holiday(exchange_scheme);
-CREATE INDEX ix_hol_holiday_exchange_value ON hol_holiday(exchange_value);
-CREATE INDEX ix_hol_holiday_currency_iso ON hol_holiday(currency_iso);
-
-CREATE TABLE hol_date (
-    holiday_id bigint not null,
-    hol_date date not null,
-    constraint hol_fk_date2hol foreign key (holiday_id) references hol_holiday (id)
-);
-CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
-
-
--- Exchange Master design has one document
---  exchange and associated identifiers
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-CREATE SEQUENCE exg_exchange_seq as bigint
-    start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE exg_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby/HSQL, not accepted by Postgresql
-
-CREATE TABLE exg_exchange (
+CREATE TABLE snp_snapshot (
     id bigint not null,
     oid bigint not null,
     ver_from_instant timestamp not null,
@@ -125,33 +498,188 @@ CREATE TABLE exg_exchange (
     time_zone varchar(255),
     detail blob not null,
     primary key (id),
-    constraint exg_chk_exchange_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint exg_chk_exchange_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint snp_chk_snapshot_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint snp_chk_snapshot_corr_order check (corr_from_instant <= corr_to_instant)
 );
-CREATE INDEX ix_exg_exchange_oid ON exg_exchange(oid);
-CREATE INDEX ix_exg_exchange_ver_from_instant ON exg_exchange(ver_from_instant);
-CREATE INDEX ix_exg_exchange_ver_to_instant ON exg_exchange(ver_to_instant);
-CREATE INDEX ix_exg_exchange_corr_from_instant ON exg_exchange(corr_from_instant);
-CREATE INDEX ix_exg_exchange_corr_to_instant ON exg_exchange(corr_to_instant);
-CREATE INDEX ix_exg_exchange_name ON exg_exchange(name);
--- CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(upper(name));
+CREATE INDEX ix_snp_snapshot_oid ON snp_snapshot(oid);
+CREATE INDEX ix_snp_snapshot_ver_from_instant ON snp_snapshot(ver_from_instant);
+CREATE INDEX ix_snp_snapshot_ver_to_instant ON snp_snapshot(ver_to_instant);
+CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant);
+CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
+CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
+-- create-db-portfolio.sql: Portfolio Master
 
-CREATE TABLE exg_idkey (
+-- design has one document
+--  portfolio, tree of nodes (nested set model) and position ids
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+CREATE SEQUENCE prt_master_seq as bigint
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby, not accepted by Postgresql
+
+CREATE TABLE prt_portfolio (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    name varchar(255) not null,
+    primary key (id),
+    constraint prt_fk_port2port foreign key (oid) references prt_portfolio (id),
+    constraint prt_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint prt_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
+);
+CREATE INDEX ix_prt_portfolio_oid ON prt_portfolio(oid);
+CREATE INDEX ix_prt_portfolio_ver_from_instant ON prt_portfolio(ver_from_instant);
+CREATE INDEX ix_prt_portfolio_ver_to_instant ON prt_portfolio(ver_to_instant);
+CREATE INDEX ix_prt_portfolio_corr_from_instant ON prt_portfolio(corr_from_instant);
+CREATE INDEX ix_prt_portfolio_corr_to_instant ON prt_portfolio(corr_to_instant);
+CREATE INDEX ix_prt_portfolio_name ON prt_portfolio(name);
+-- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(upper(name));
+
+CREATE TABLE prt_node (
+    id bigint not null,
+    oid bigint not null,
+    portfolio_id bigint not null,
+    portfolio_oid bigint not null,
+    parent_node_id bigint,
+    parent_node_oid bigint,
+    depth int,
+    tree_left bigint not null,
+    tree_right bigint not null,
+    name varchar(255),
+    primary key (id),
+    constraint prt_fk_node2node foreign key (oid) references prt_node (id),
+    constraint prt_fk_node2portfolio foreign key (portfolio_id) references prt_portfolio (id),
+    constraint prt_fk_node2parentnode foreign key (parent_node_id) references prt_node (id)
+);
+-- prt_node is fully dependent of prt_portfolio
+-- portfolio_oid is an optimization (can be derived via portfolio_id)
+-- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
+-- depth is an optimization (tree_left/tree_right hold all the tree structure)
+CREATE INDEX ix_prt_node_oid ON prt_node(oid);
+CREATE INDEX ix_prt_node_portfolio_id ON prt_node(portfolio_id);
+CREATE INDEX ix_prt_node_portfolio_oid ON prt_node(portfolio_oid);
+CREATE INDEX ix_prt_node_parent_node_id ON prt_node(parent_node_id);
+CREATE INDEX ix_prt_node_parent_node_oid ON prt_node(parent_node_oid);
+CREATE INDEX ix_prt_node_depth ON prt_node(depth);
+
+CREATE TABLE prt_position (
+    node_id bigint not null,
+    key_scheme varchar(255) not null,
+    key_value varchar(255) not null,
+    constraint prt_fk_pos2node foreign key (node_id) references prt_node (id)
+);
+-- prt_position is fully dependent of prt_portfolio
+CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
+
+-- create-db-position.sql: Position Master
+
+-- design has one document
+--  position, trades and associated security ids
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+CREATE SEQUENCE pos_master_seq as bigint
+    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE pos_idkey_seq as bigint
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby, not accepted by Postgresql
+
+CREATE TABLE pos_position (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
+    quantity decimal(31,8) not null,
+    primary key (id),
+    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
+    constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
+);
+CREATE INDEX ix_pos_position_oid ON pos_position(oid);
+CREATE INDEX ix_pos_position_ver_from_instant ON pos_position(ver_from_instant);
+CREATE INDEX ix_pos_position_ver_to_instant ON pos_position(ver_to_instant);
+CREATE INDEX ix_pos_position_corr_from_instant ON pos_position(corr_from_instant);
+CREATE INDEX ix_pos_position_corr_to_instant ON pos_position(corr_to_instant);
+CREATE INDEX ix_pos_position_quantity ON pos_position(quantity);
+
+CREATE TABLE pos_trade (
+    id bigint not null,
+    oid bigint not null,
+    position_id bigint not null,
+    position_oid bigint not null,
+    quantity decimal(31,8) not null,
+    trade_date date not null,
+    trade_time time(6) null,
+    zone_offset int null,
+    cparty_scheme varchar(255) not null,
+    cparty_value varchar(255) not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
+    premium_value double precision,
+    premium_currency varchar(255),
+    premium_date date,
+    premium_time time(6),
+    premium_zone_offset int,
+    primary key (id),
+    constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
+);
+-- position_oid is an optimization
+-- pos_trade is fully dependent of pos_position
+CREATE INDEX ix_pos_trade_oid ON pos_trade(oid);
+CREATE INDEX ix_pos_trade_position_id ON pos_trade(position_id);
+CREATE INDEX ix_pos_trade_position_oid ON pos_trade(position_oid);
+
+CREATE SEQUENCE pos_trade_attr_seq as bigint
+    start with 1000 increment by 1 no cycle;
+
+CREATE TABLE pos_trade_attribute (
+    id bigint not null,
+    trade_id bigint not null,
+    trade_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_tradeattr2trade foreign key (trade_id) references pos_trade (id),
+    constraint pos_chk_uq_trade_attribute unique (trade_id, key, value)
+);
+-- trade_oid is an optimization
+-- pos_trade_attribute is fully dependent of pos_trade
+CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
+CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
+
+CREATE TABLE pos_idkey (
     id bigint not null,
     key_scheme varchar(255) not null,
     key_value varchar(255) not null,
     primary key (id),
-    constraint exg_chk_idkey unique (key_scheme, key_value)
+    constraint pos_chk_idkey unique (key_scheme, key_value)
 );
 
-CREATE TABLE exg_exchange2idkey (
-    exchange_id bigint not null,
+CREATE TABLE pos_position2idkey (
+    position_id bigint not null,
     idkey_id bigint not null,
-    primary key (exchange_id, idkey_id),
-    constraint exg_fk_exgidkey2exg foreign key (exchange_id) references exg_exchange (id),
-    constraint exg_fk_exgidkey2idkey foreign key (idkey_id) references exg_idkey (id)
+    primary key (position_id, idkey_id),
+    constraint pos_fk_posidkey2pos foreign key (position_id) references pos_position (id),
+    constraint pos_fk_posidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
--- exg_exchange2idkey is fully dependent of exg_exchange
+
+CREATE TABLE pos_trade2idkey (
+    trade_id bigint not null,
+    idkey_id bigint not null,
+    primary key (trade_id, idkey_id),
+    constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
+    constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
+);
 
 
 -- create-db-security.sql: Security Master
@@ -651,609 +1179,6 @@ CREATE TABLE sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
--- create-db-portfolio.sql: Portfolio Master
-
--- design has one document
---  portfolio, tree of nodes (nested set model) and position ids
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-CREATE SEQUENCE prt_master_seq as bigint
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby, not accepted by Postgresql
-
-CREATE TABLE prt_portfolio (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    name varchar(255) not null,
-    primary key (id),
-    constraint prt_fk_port2port foreign key (oid) references prt_portfolio (id),
-    constraint prt_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint prt_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
-);
-CREATE INDEX ix_prt_portfolio_oid ON prt_portfolio(oid);
-CREATE INDEX ix_prt_portfolio_ver_from_instant ON prt_portfolio(ver_from_instant);
-CREATE INDEX ix_prt_portfolio_ver_to_instant ON prt_portfolio(ver_to_instant);
-CREATE INDEX ix_prt_portfolio_corr_from_instant ON prt_portfolio(corr_from_instant);
-CREATE INDEX ix_prt_portfolio_corr_to_instant ON prt_portfolio(corr_to_instant);
-CREATE INDEX ix_prt_portfolio_name ON prt_portfolio(name);
--- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(upper(name));
-
-CREATE TABLE prt_node (
-    id bigint not null,
-    oid bigint not null,
-    portfolio_id bigint not null,
-    portfolio_oid bigint not null,
-    parent_node_id bigint,
-    parent_node_oid bigint,
-    depth int,
-    tree_left bigint not null,
-    tree_right bigint not null,
-    name varchar(255),
-    primary key (id),
-    constraint prt_fk_node2node foreign key (oid) references prt_node (id),
-    constraint prt_fk_node2portfolio foreign key (portfolio_id) references prt_portfolio (id),
-    constraint prt_fk_node2parentnode foreign key (parent_node_id) references prt_node (id)
-);
--- prt_node is fully dependent of prt_portfolio
--- portfolio_oid is an optimization (can be derived via portfolio_id)
--- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
--- depth is an optimization (tree_left/tree_right hold all the tree structure)
-CREATE INDEX ix_prt_node_oid ON prt_node(oid);
-CREATE INDEX ix_prt_node_portfolio_id ON prt_node(portfolio_id);
-CREATE INDEX ix_prt_node_portfolio_oid ON prt_node(portfolio_oid);
-CREATE INDEX ix_prt_node_parent_node_id ON prt_node(parent_node_id);
-CREATE INDEX ix_prt_node_parent_node_oid ON prt_node(parent_node_oid);
-CREATE INDEX ix_prt_node_depth ON prt_node(depth);
-
-CREATE TABLE prt_position (
-    node_id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    constraint prt_fk_pos2node foreign key (node_id) references prt_node (id)
-);
--- prt_position is fully dependent of prt_portfolio
-CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
-
--- create-db-position.sql: Position Master
-
--- design has one document
---  position, trades and associated security ids
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-CREATE SEQUENCE pos_master_seq as bigint
-    start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE pos_idkey_seq as bigint
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby, not accepted by Postgresql
-
-CREATE TABLE pos_position (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    provider_scheme varchar(255),
-    provider_value varchar(255),
-    quantity decimal(31,8) not null,
-    primary key (id),
-    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
-    constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
-);
-CREATE INDEX ix_pos_position_oid ON pos_position(oid);
-CREATE INDEX ix_pos_position_ver_from_instant ON pos_position(ver_from_instant);
-CREATE INDEX ix_pos_position_ver_to_instant ON pos_position(ver_to_instant);
-CREATE INDEX ix_pos_position_corr_from_instant ON pos_position(corr_from_instant);
-CREATE INDEX ix_pos_position_corr_to_instant ON pos_position(corr_to_instant);
-CREATE INDEX ix_pos_position_quantity ON pos_position(quantity);
-
-CREATE TABLE pos_trade (
-    id bigint not null,
-    oid bigint not null,
-    position_id bigint not null,
-    position_oid bigint not null,
-    quantity decimal(31,8) not null,
-    trade_date date not null,
-    trade_time time(6) null,
-    zone_offset int null,
-    cparty_scheme varchar(255) not null,
-    cparty_value varchar(255) not null,
-    provider_scheme varchar(255),
-    provider_value varchar(255),
-    premium_value double precision,
-    premium_currency varchar(255),
-    premium_date date,
-    premium_time time(6),
-    premium_zone_offset int,
-    primary key (id),
-    constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
-);
--- position_oid is an optimization
--- pos_trade is fully dependent of pos_position
-CREATE INDEX ix_pos_trade_oid ON pos_trade(oid);
-CREATE INDEX ix_pos_trade_position_id ON pos_trade(position_id);
-CREATE INDEX ix_pos_trade_position_oid ON pos_trade(position_oid);
-
-CREATE SEQUENCE pos_trade_attr_seq as bigint
-    start with 1000 increment by 1 no cycle;
-
-CREATE TABLE pos_trade_attribute (
-    id bigint not null,
-    trade_id bigint not null,
-    trade_oid bigint not null,
-    key varchar(255) not null,
-    value varchar(255) not null,
-    primary key (id),
-    constraint pos_fk_tradeattr2trade foreign key (trade_id) references pos_trade (id),
-    constraint pos_chk_uq_trade_attribute unique (trade_id, key, value)
-);
--- trade_oid is an optimization
--- pos_trade_attribute is fully dependent of pos_trade
-CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
-CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
-
-CREATE TABLE pos_idkey (
-    id bigint not null,
-    key_scheme varchar(255) not null,
-    key_value varchar(255) not null,
-    primary key (id),
-    constraint pos_chk_idkey unique (key_scheme, key_value)
-);
-
-CREATE TABLE pos_position2idkey (
-    position_id bigint not null,
-    idkey_id bigint not null,
-    primary key (position_id, idkey_id),
-    constraint pos_fk_posidkey2pos foreign key (position_id) references pos_position (id),
-    constraint pos_fk_posidkey2idkey foreign key (idkey_id) references pos_idkey (id)
-);
-
-CREATE TABLE pos_trade2idkey (
-    trade_id bigint not null,
-    idkey_id bigint not null,
-    primary key (trade_id, idkey_id),
-    constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
-    constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
-);
-
--------------------------------------
--- Static data
--------------------------------------
-
-create table rsk_observation_time (
-    id int not null,
-    label varchar(255) not null,                -- LDN_CLOSE
-    
-    primary key (id),
-    
-    constraint rsk_chk_uq_obs_time unique (label)
-);
-
-create table rsk_observation_datetime (
-	id int not null,
-	date_part date not null,  
-	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
-	observation_time_id int not null,    		  
-	
-	primary key (id),
-	
-	constraint rsk_fk_obs_datetime2obs_time
-	    foreign key (observation_time_id) references rsk_observation_time (id),
-	    
-	constraint rsk_chk_obs_datetime check 
-	    (time_part is not null or observation_time_id is not null), 
-	
-	constraint rsk_chk_uq_obs_datetime unique (date_part, observation_time_id)
-);
-
-create table rsk_compute_host (
-	id int not null,
-	host_name varchar(255) not null,
-	
-	primary key (id),
-	
-	constraint rsk_chk_uq_compute_host unique (host_name)
-);
-
-create table rsk_compute_node (
-	id int not null,
-	compute_host_id int not null,
-	node_name varchar(255) not null,
-	
-	primary key (id),
-	
-	constraint rsk_fk_cmpt_node2cmpt_host
-	    foreign key (compute_host_id) references rsk_compute_host (id),
-	    
-	constraint rsk_chk_uq_compute_node unique (node_name)
-);
-
-create table rsk_opengamma_version (
-	id int not null,
-	version varchar(255) not null, 
-	
-	primary key (id),
-	
-	constraint rsk_chk_uq_opengamma_version unique (version)
-);
-
--- DBTOOLDONOTCLEAR
-create table rsk_computation_target_type (
-	id int not null,	 	            
-    name varchar(255) not null,
-    
-    primary key (id),
-    
-    constraint rsk_chk_cmpt_target_type check
-        ((id = 0 and name = 'PORTFOLIO_NODE') or
-         (id = 1 and name = 'POSITION') or 
-         (id = 2 and name = 'SECURITY') or
-         (id = 3 and name = 'PRIMITIVE'))
-);
-
-insert into rsk_computation_target_type (id, name) values (0, 'PORTFOLIO_NODE');
-insert into rsk_computation_target_type (id, name) values (1, 'POSITION');
-insert into rsk_computation_target_type (id, name) values (2, 'SECURITY');
-insert into rsk_computation_target_type (id, name) values (3, 'PRIMITIVE');
-
-create table rsk_computation_target (
-	id int not null,
-	type_id int not null,
-	id_scheme varchar(255) not null,
-	id_value varchar(255) not null,
-	id_version varchar(255) null,
-	name varchar(255) null,
-	
-	primary key (id),
-	
-	constraint rsk_fk_cmpt_target2tgt_type 
-	    foreign key (type_id) references rsk_computation_target_type (id),
-	    
-	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value, id_version)
-);
-
-create table rsk_function_unique_id (
-	id int not null,
-	unique_id varchar(255) not null,
-	
-	primary key (id),
-	
-	constraint rsk_chk_uq_function_unique_id unique (unique_id)
-);
-
--------------------------------------
--- LiveData inputs
--------------------------------------
-
-create table rsk_live_data_field (
-	id int not null,
-	name varchar(255) not null,
-	
-	primary key (id),
-	
-	constraint rsk_chk_uq_live_data_field unique (name)
-);
-
-create table rsk_live_data_snapshot (
-	id int not null,
-	observation_datetime_id int not null,
-	
-	primary key (id),
-	
-	constraint rsk_fk_lv_data_snap2ob_dttime
-	    foreign key (observation_datetime_id) references rsk_observation_datetime (id),
-	    
-	constraint rsk_chk_uq_live_data_snapshot unique (observation_datetime_id)
-);
-
-create table rsk_live_data_snapshot_entry (
-	id bigint not null,
-	snapshot_id int not null,
-	computation_target_id int not null,
-	field_id int not null,
-	value double precision,
-	
-	primary key (id),
-	
-	constraint rsk_fk_snpsht_entry2snpsht
-		foreign key (snapshot_id) references rsk_live_data_snapshot (id),
-	constraint rsk_fk_spsht_entry2cmp_target
-	    foreign key (computation_target_id) references rsk_computation_target (id),
-	    
-	constraint rsk_chk_uq_snapshot_entry unique (snapshot_id, computation_target_id, field_id) 	
-);
-
--------------------------------------
--- Risk run
--------------------------------------
-
-create table rsk_run (
-    id int not null,
-    opengamma_version_id int not null,
-    master_process_host_id int not null,    -- machine where 'master' batch process was started
-    run_time_id int not null,
-    live_data_snapshot_id int not null,
-    create_instant timestamp not null,
-    start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
-    end_instant	timestamp,
-    num_restarts int not null,
-    complete boolean not null,
-    
-    primary key (id),
-    
-    constraint rsk_fk_run2opengamma_version
-        foreign key (opengamma_version_id) references rsk_opengamma_version (id),
-    constraint rsk_fk_run2compute_host
-        foreign key (master_process_host_id) references rsk_compute_host (id),
-    constraint rsk_fk_run2obs_datetime
-        foreign key (run_time_id) references rsk_observation_datetime (id),
-    constraint rsk_fk_run2live_data_snapshot
-        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
-
-    constraint rsk_chk_uq_run unique (run_time_id)
-);
-
-create table rsk_calculation_configuration (
-	id int not null,
-	run_id int not null,
-	name varchar(255) not null,
-	
-	primary key (id),
-	
-	constraint rsk_fk_calc_conf2run
-	    foreign key (run_id) references rsk_run (id),
-	
-	constraint rsk_chk_uq_calc_conf unique (run_id, name)
-);
-
--- Properties should be filled once only. If already there, use existing value.
---
--- Example properties:
--- 	- PositionMasterTime = 20100615170000
---  - GlobalRandomSeed = 54321
-create table rsk_run_property (		
-	id int not null,
-	run_id int not null,
-	property_key varchar(255) not null,
-	property_value varchar(2000) not null,		    -- varchar(255) not enough
-	
-	primary key (id),
-
-	constraint rsk_fk_run_property2run 
-	    foreign key (run_id) references rsk_run (id)
-);
-
--- DBTOOLDONOTCLEAR
-create table rsk_run_status_code (
-    id int not null,	 	            
-    name varchar(255) not null,
-    
-    primary key (id),
-    
-    constraint rsk_chk_rsk_run_status_code check
-        ((id = 0 and name = 'SUCCESS') or
-         (id = 1 and name = 'FAILURE') or 
-         (id = 2 and name = 'RUNNING') or
-         (id = 3 and name = 'NOT_RUNNING'))
-);
-
-insert into rsk_run_status_code (id, name) values (0, 'SUCCESS');
-insert into rsk_run_status_code (id, name) values (1, 'FAILURE');
-insert into rsk_run_status_code (id, name) values (2, 'RUNNING');
-insert into rsk_run_status_code (id, name) values (3, 'NOT_RUNNING');
-
-create table rsk_run_status (
-    id bigint not null, 
-    calculation_configuration_id int not null,
-    computation_target_id int not null,
-    status int not null,
-
-    constraint rsk_fk_run_status2calc_conf
-        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint rsk_fk_run_status2comp_tgt
-        foreign key (computation_target_id) references rsk_computation_target (id),
-    constraint rsk_fk_run_status2code
-        foreign key (status) references rsk_run_status_code (id),
-
-    constraint rsk_chk_uq_run_status unique (calculation_configuration_id, computation_target_id)
-);
-
-
--------------------------------------
--- Risk
--------------------------------------
-
-create table rsk_value_name (
-    id int not null,
-    name varchar(255) not null,
-    
-    primary key (id),
-    
-    constraint rsk_chk_uq_value_name unique (name)
-);
-
-create table rsk_value (
-    id bigint not null,
-    calculation_configuration_id int not null,
-    value_name_id int not null,
-    function_unique_id int not null,
-    computation_target_id int not null,        
-    run_id int not null,             	       -- shortcut
-    value double precision not null,
-    eval_instant timestamp not null,
-    compute_node_id int not null,
-    
-    primary key (id),
-    
-    -- performance implications of these constraints?
-    constraint rsk_fk_value2calc_conf
-        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint rsk_fk_value2run 
-        foreign key (run_id) references rsk_run (id),
-    constraint rsk_fk_value2value_name
-        foreign key (value_name_id) references rsk_value_name (id),
-    constraint rsk_fk_value2function_id
-        foreign key (function_unique_id) references rsk_function_unique_id (id),
-    constraint rsk_fk_value2comp_target
-        foreign key (computation_target_id) references rsk_computation_target (id),
-    constraint rsk_fk_value2compute_node
-        foreign key (compute_node_id) references rsk_compute_node (id),
-        
-    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, computation_target_id)
-);
-
-
-create table rsk_compute_failure (			
-    id bigint not null,
-    function_id varchar(255) not null,
-    exception_class varchar(255) not null,
-    exception_msg varchar(255) not null,                  
-    stack_trace varchar(2000) not null,         -- first 2000 chars. not including msg
-    
-    primary key (id),
-    
-    constraint rsk_chk_uq_compute_failure unique (function_id, exception_class, exception_msg, stack_trace)
-);
-
--- how to aggregate risk failures?
-create table rsk_failure (			
-    id bigint not null,
-    calculation_configuration_id int not null,
-    value_name_id int not null,
-    function_unique_id int not null,
-    computation_target_id int not null,
-    run_id int not null,             	       -- shortcut
-    eval_instant timestamp not null,
-    compute_node_id int not null,
-    
-    primary key (id),
-    
-    constraint rsk_fk_failure2calc_conf 
-        foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
-    constraint rsk_fk_failure2run 
-        foreign key (run_id) references rsk_run (id),
-    constraint rsk_fk_failure2value_name
-        foreign key (value_name_id) references rsk_value_name (id),
-    constraint rsk_fk_failure2function_id
-        foreign key (function_unique_id) references rsk_function_unique_id (id),
-    constraint rsk_fk_failure2com_target
-        foreign key (computation_target_id) references rsk_computation_target (id),
-    constraint rsk_fk_failure2node
-       foreign key (compute_node_id) references rsk_compute_node (id),
-        
-    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, computation_target_id)
-);    
-
-create table rsk_failure_reason (
-   id bigint not null,
-   rsk_failure_id bigint not null,
-   compute_failure_id bigint not null,
-   
-   primary key (id),
-   
-   constraint rsk_fk_fail_reason2failure
-       foreign key (rsk_failure_id) references rsk_failure (id)
-       on delete cascade,
-   constraint rsk_fk_fail_reason2cmpt_fail
-       foreign key (compute_failure_id) references rsk_compute_failure (id),
-
-   constraint rsk_chk_uq_failure_reason unique (rsk_failure_id, compute_failure_id)
-);
-
-
--------------------------------------
--- Views
--------------------------------------
-
-create view vw_rsk as
-select
-rsk_computation_target_type.name as comp_target_type,
-rsk_computation_target.id_scheme as comp_target_id_scheme,
-rsk_computation_target.id_value as comp_target_id_value,
-rsk_computation_target.id_version as comp_target_id_version,
-rsk_computation_target.name as comp_target_name,
-rsk_run.id as rsk_run_id,
-rsk_observation_datetime.date_part as run_date,
-rsk_observation_time.label as run_time,
-rsk_calculation_configuration.name as calc_conf_name,
-rsk_value_name.name,
-rsk_function_unique_id.unique_id as function_unique_id,
-rsk_value.value, 
-rsk_value.eval_instant
-from 
-rsk_value, 
-rsk_calculation_configuration,
-rsk_value_name,
-rsk_computation_target,
-rsk_computation_target_type,
-rsk_run,
-rsk_compute_node,
-rsk_observation_datetime,
-rsk_observation_time,
-rsk_function_unique_id
-where
-rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
-rsk_value.value_name_id = rsk_value_name.id and
-rsk_value.function_unique_id = rsk_function_unique_id.id and
-rsk_value.computation_target_id = rsk_computation_target.id and
-rsk_computation_target.type_id = rsk_computation_target_type.id and
-rsk_value.run_id = rsk_run.id and
-rsk_value.compute_node_id = rsk_compute_node.id and
-rsk_run.run_time_id = rsk_observation_datetime.id and
-rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
-
-create view vw_rsk_failure as
-select
-rsk_computation_target_type.name as comp_target_type,
-rsk_computation_target.id_scheme as comp_target_id_scheme,
-rsk_computation_target.id_value as comp_target_id_value,
-rsk_computation_target.id_version as comp_target_id_version,
-rsk_computation_target.name as comp_target_name,
-rsk_run.id as rsk_run_id,
-rsk_observation_datetime.date_part as run_date,
-rsk_observation_time.label as run_time,
-rsk_calculation_configuration.name as calc_conf_name,
-rsk_value_name.name,
-rsk_function_unique_id.unique_id as function_unique_id,
-rsk_failure.eval_instant,
-rsk_compute_failure.function_id as failed_function,
-rsk_compute_failure.exception_class,
-rsk_compute_failure.exception_msg,
-rsk_compute_failure.stack_trace 
-from 
-rsk_failure, 
-rsk_calculation_configuration,
-rsk_value_name,
-rsk_computation_target,
-rsk_computation_target_type,
-rsk_run,
-rsk_compute_node,
-rsk_observation_datetime,
-rsk_observation_time,
-rsk_function_unique_id,
-rsk_failure_reason,
-rsk_compute_failure
-where
-rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
-rsk_failure.value_name_id = rsk_value_name.id and
-rsk_failure.function_unique_id = rsk_function_unique_id.id and
-rsk_failure.computation_target_id = rsk_computation_target.id and
-rsk_computation_target.type_id = rsk_computation_target_type.id and
-rsk_failure.run_id = rsk_run.id and
-rsk_failure.compute_node_id = rsk_compute_node.id and
-rsk_run.run_time_id = rsk_observation_datetime.id and
-rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
-rsk_failure_reason.rsk_failure_id = rsk_failure.id and
-rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 CREATE TABLE tss_data_source (
 	id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
@@ -1371,37 +1296,4 @@ CREATE TABLE tss_identifier (
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
 
-
--- create-db-marketdatasnapshot.sql
-
--- MarketDataSnapshotMaster design has one document
---  snapshot
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-CREATE SEQUENCE snp_snapshot_seq as bigint
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby/HSQL, not accepted by Postgresql
-
-CREATE TABLE snp_snapshot (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    name varchar(255) not null,
-    time_zone varchar(255),
-    detail blob not null,
-    primary key (id),
-    constraint snp_chk_snapshot_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint snp_chk_snapshot_corr_order check (corr_from_instant <= corr_to_instant)
-);
-CREATE INDEX ix_snp_snapshot_oid ON snp_snapshot(oid);
-CREATE INDEX ix_snp_snapshot_ver_from_instant ON snp_snapshot(ver_from_instant);
-CREATE INDEX ix_snp_snapshot_ver_to_instant ON snp_snapshot(ver_to_instant);
-CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant);
-CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
-CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
 
