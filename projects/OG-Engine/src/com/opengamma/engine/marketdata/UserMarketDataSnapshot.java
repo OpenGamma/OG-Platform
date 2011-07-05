@@ -90,7 +90,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
         if (curveName == null) {
-          throw new IllegalArgumentException("Must specify a curve name");
+          return new YieldCurveKey(currency, null);
         }
         return new YieldCurveKey(currency, curveName);
       }
@@ -194,7 +194,8 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
   private Object queryStructured(StructuredMarketDataKey marketDataKey) {
     if (marketDataKey instanceof YieldCurveKey) {
-      YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(marketDataKey);
+      YieldCurveKey yieldcurveKey = (YieldCurveKey) marketDataKey;
+      YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot(yieldcurveKey);
       if (yieldCurveSnapshot == null) {
         return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
       }
@@ -208,6 +209,22 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       return buildVolatilityCubeData(volCubeSnapshot);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
+    }
+  }
+
+  private YieldCurveSnapshot getYieldCurveSnapshot(YieldCurveKey yieldcurveKey) {
+    if (yieldcurveKey.getName() == null) {
+      //Any curve will do
+      for (Entry<YieldCurveKey, YieldCurveSnapshot> entry : getSnapshot().getYieldCurves().entrySet()) {
+        //This could return any old value, but hey, that's what they asked for right?
+        if (entry.getKey().getCurrency().equals(yieldcurveKey.getCurrency())) {
+          return entry.getValue();
+        }
+      }
+      return null;
+    } else {
+      YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(yieldcurveKey);
+      return yieldCurveSnapshot;
     }
   }
 
