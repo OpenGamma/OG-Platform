@@ -107,7 +107,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
         if (cubeName == null) {
-          throw new IllegalArgumentException("Must specify a cube name");
+          return new VolatilityCubeKey(currency, null);
         }
         return new VolatilityCubeKey(currency, cubeName);
       }
@@ -200,13 +200,30 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       }
       return buildSnapshot(yieldCurveSnapshot);
     } else if (marketDataKey instanceof VolatilityCubeKey) {
-      VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(marketDataKey);
+      VolatilityCubeKey volCubeKey = (VolatilityCubeKey) marketDataKey;
+      VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot(volCubeKey);
       if (volCubeSnapshot == null) {
         return new VolatilityCubeData(); //NOTE: this is not the same as return null;
       }
       return buildVolatilityCubeData(volCubeSnapshot);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
+    }
+  }
+
+  private VolatilityCubeSnapshot getVolCubeSnapshot(VolatilityCubeKey volCubeKey) {
+    if (volCubeKey.getName() == null) {
+      //Any cube will do
+      for (Entry<VolatilityCubeKey, VolatilityCubeSnapshot> entry : getSnapshot().getVolatilityCubes().entrySet()) {
+        //This could return any old cube, but hey, that's what they asked for right?
+        if (entry.getKey().getCurrency().equals(volCubeKey.getCurrency())) {
+          return entry.getValue();
+        }
+      }
+      return null;
+    } else {
+      VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(volCubeKey);
+      return volCubeSnapshot;
     }
   }
   
