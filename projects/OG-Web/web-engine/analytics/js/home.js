@@ -296,8 +296,8 @@
   }
   
   function afterUpdateReceived(update) {
-    var resultDate = new Date(update.timestamp);
-    var resultTitle = "calculated " + resultDate.toUTCString() + " in " + update.latency + " ms";
+    var valuationDate = new Date(update.valuationTime);
+    var resultTitle = "valued at " + valuationDate.toUTCString() + ", calculated in " + update.calculationDuration + " ms";
     setResultTitle(resultTitle);
     updateStatusText();
   }

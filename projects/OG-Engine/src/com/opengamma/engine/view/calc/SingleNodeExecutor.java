@@ -59,7 +59,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   @Override
   public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewProcessId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getUniqueId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime(), jobId);
 
     List<DependencyNode> order = graph.getExecutionOrder();
 

@@ -21,6 +21,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
@@ -30,9 +32,11 @@ import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverag
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -112,6 +116,14 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     temp.add(s2);
     result.put(liborCurveName, temp);
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(fra);
+    final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
+    return method.presentValueCurveSensitivity(fra, curves).getSensitivity();
   }
 
   @Override
@@ -319,6 +331,12 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   public Map<String, List<DoublesPair>> visitCouponCMS(CouponCMS payment, YieldCurveBundle data) {
     CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
     return method.presentValueSensitivity(payment, data).getSensitivity();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
+    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    return method.presentValueCurveSensitivity(coupon, curves).getSensitivity();
   }
 
   /**

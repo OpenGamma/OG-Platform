@@ -21,6 +21,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -49,6 +51,12 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
   private static final double STRIKE = 0.9895;
   private static final boolean IS_CALL = true;
   private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2 = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, IS_CALL);
+
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final String DISCOUNTING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -86,5 +94,14 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
     assertFalse(OPTION_ERU2.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, !IS_CALL);
     assertFalse(OPTION_ERU2.equals(modifiedFuture));
+  }
+
+  @Test
+  public void toDerivative() {
+    double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
+    InterestRateFutureSecurity underlyingFuture = ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    InterestRateFutureOptionMarginSecurity security = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, STRIKE, IS_CALL);
+    InterestRateFutureOptionMarginSecurity convertedSecurity = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    assertTrue("Rate future option with margining security converter", security.equals(convertedSecurity));
   }
 }

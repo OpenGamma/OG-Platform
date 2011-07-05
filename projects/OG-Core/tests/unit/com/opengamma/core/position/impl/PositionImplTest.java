@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.position.impl;
 
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
@@ -146,6 +147,15 @@ public class PositionImplTest {
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullSecurity() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (Security) null);
   }
+  
+  public void test_construction_copyFromPosition() {
+    PositionImpl position = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    position.addAttribute("A", "B");
+    position.addAttribute("C", "D");
+    
+    PositionImpl copy = new PositionImpl(position);
+    assertEquals(copy, position);
+  }
 
   //-------------------------------------------------------------------------
   public void test_setUniqueId() {
@@ -249,6 +259,53 @@ public class PositionImplTest {
       //do nothing
     }
     assertEquals(sizeBeforeAddition, testPosition.getTrades().size());
+  }
+  
+  //------------------------------------------------------------------------
+  @Test(expectedExceptions=IllegalArgumentException.class)
+  public void test_addAttribute_null_key() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getAttributes().isEmpty());
+    testPosition.addAttribute(null, "B");
+  }
+  
+  @Test(expectedExceptions=IllegalArgumentException.class)
+  public void test_addAttribute_null_value() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getAttributes().isEmpty());
+    testPosition.addAttribute("A", null);
+  }
+  
+  public void test_addAttribute() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getAttributes().isEmpty());
+    testPosition.addAttribute("A", "B");
+    assertEquals(1, testPosition.getAttributes().size());
+    assertEquals("B", testPosition.getAttributes().get("A"));
+    testPosition.addAttribute("C", "D");
+    assertEquals(2, testPosition.getAttributes().size());
+    assertEquals("D", testPosition.getAttributes().get("C"));
+  }
+  
+  public void test_removeAttribute() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getAttributes().isEmpty());
+    testPosition.addAttribute("A", "B");
+    testPosition.addAttribute("C", "D");
+    assertEquals(2, testPosition.getAttributes().size());
+    testPosition.removeAttribute("A");
+    assertEquals(1, testPosition.getAttributes().size());
+    assertNull(testPosition.getAttributes().get("A"));
+  }
+  
+  public void test_clearAttributes() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getAttributes().isEmpty());
+    testPosition.addAttribute("A", "B");
+    testPosition.addAttribute("C", "D");
+    assertEquals(2, testPosition.getAttributes().size());
+    testPosition.clearAttributes();
+    assertTrue(testPosition.getAttributes().isEmpty());
   }
 
 }

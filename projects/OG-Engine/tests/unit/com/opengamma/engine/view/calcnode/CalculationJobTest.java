@@ -12,6 +12,8 @@ import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.List;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -38,7 +40,7 @@ public class CalculationJobTest {
 
   public void fudgeEncodingNoInputsOutputs() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
@@ -71,7 +73,7 @@ public class CalculationJobTest {
 
   public void fudgeEncodingOneInputOneOutput() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
 
     ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));

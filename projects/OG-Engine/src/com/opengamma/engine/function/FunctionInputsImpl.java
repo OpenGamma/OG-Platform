@@ -24,6 +24,9 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
+  
+  private static final long serialVersionUID = 1L;
+  
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
   private final Map<String, Object> _valuesByRequirementName = new HashMap<String, Object>();
   private final Map<Pair<String, ComputationTargetSpecification>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, ComputationTargetSpecification>, ComputedValue[]>();

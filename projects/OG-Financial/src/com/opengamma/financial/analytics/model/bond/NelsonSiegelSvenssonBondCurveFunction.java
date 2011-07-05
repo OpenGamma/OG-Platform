@@ -107,7 +107,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-        final Clock snapshotClock = executionContext.getSnapshotClock();
+        final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final BondSecurityToBondDefinitionConverter converter = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);

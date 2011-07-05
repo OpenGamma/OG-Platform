@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.server;
 
-import com.opengamma.examples.livedata.MockServerConstants;
+import com.opengamma.examples.marketdata.MockServerConstants;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
 

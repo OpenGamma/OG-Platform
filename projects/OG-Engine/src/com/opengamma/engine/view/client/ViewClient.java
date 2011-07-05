@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.client;
 
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -139,7 +139,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @return  the live data override injector, not null
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  LiveDataInjector getLiveDataOverrideInjector();
+  MarketDataInjector getLiveDataOverrideInjector();
   
   /**
    * Gets the view definition currently being operated on by the view process to which the client is attached. This

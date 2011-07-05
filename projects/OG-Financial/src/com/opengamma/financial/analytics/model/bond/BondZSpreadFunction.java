@@ -56,7 +56,7 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
     if (curveName == null) {
       throw new NullPointerException("Curve name not specified as value constraint in " + desiredValues);
     }
-    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext

@@ -98,8 +98,8 @@ public class LiveDataDeltaCalculator {
 
     if (!hasChanged) {
       // if no children changed, the node may still require recomputation
-      // due to LiveData changes affecting the function of the node.
-      Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
+      // due to market data changes affecting the function of the node.
+      Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredMarketData();
       if (liveData != null) {
         Object oldValue = _previousCache.getValue(liveData.getSecond());
         Object newValue = _cache.getValue(liveData.getSecond());

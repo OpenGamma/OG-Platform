@@ -63,7 +63,7 @@ public class DependencyGraph {
 
   private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications = Maps.newHashMap(); // TODO
 
-  private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredLiveData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
+  private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredMarketData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
   private final Set<ComputationTarget> _allComputationTargets = new HashSet<ComputationTarget>();
 
   /**
@@ -206,15 +206,14 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns the set of live data required for successful execution of the graph. Each live data
-   * entry is given as a requirement/specification pair. The requirement may be passed to a live data
-   * provider. The corresponding specification may be used to add the live data to a computation
-   * value cache.
+   * Returns the set of market data required for successful execution of the graph. Each market data entry is given as
+   * a requirement/specification pair. The requirement may be passed to a market data provider. The corresponding
+   * specification may be used to add the market data to a computation value cache.
    * 
-   * @return the set of live data requirements. 
+   * @return the set of market data requirements. 
    */
-  public Set<Pair<ValueRequirement, ValueSpecification>> getAllRequiredLiveData() {
-    return Collections.unmodifiableSet(_allRequiredLiveData);
+  public Set<Pair<ValueRequirement, ValueSpecification>> getAllRequiredMarketData() {
+    return Collections.unmodifiableSet(_allRequiredMarketData);
   }
 
   /**
@@ -297,9 +296,9 @@ public class DependencyGraph {
     }
     _outputSpecifications.addAll(node.getOutputValues());
     _terminalOutputValues.addAll(node.getTerminalOutputValues());
-    Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
-    if (liveData != null) {
-      _allRequiredLiveData.add(liveData);
+    Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    if (marketData != null) {
+      _allRequiredMarketData.add(marketData);
     }
     _allComputationTargets.add(node.getComputationTarget());
 
@@ -359,9 +358,9 @@ public class DependencyGraph {
     }
     _outputSpecifications.removeAll(node.getOutputValues());
     _terminalOutputValues.removeAll(node.getTerminalOutputValues());
-    final Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
-    if (liveData != null) {
-      _allRequiredLiveData.remove(liveData);
+    final Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    if (marketData != null) {
+      _allRequiredMarketData.remove(marketData);
     }
     // Note: a target may be shared by multiple nodes so don't remove target from _allComputationTargets - this is wrong in some cases
     for (ValueSpecification output : node.getOutputValues()) {
@@ -445,7 +444,7 @@ public class DependencyGraph {
       _dependencyNodes.removeAll(unnecessaryNodes);
       _rootNodes.removeAll(unnecessaryNodes);
       for (DependencyNode node : unnecessaryNodes) {
-        _allRequiredLiveData.remove(node.getRequiredLiveData());
+        _allRequiredMarketData.remove(node.getRequiredMarketData());
         _computationTargetType2DependencyNode.get(node.getComputationTarget().getType()).remove(node);
         node.clearInputs();
       }

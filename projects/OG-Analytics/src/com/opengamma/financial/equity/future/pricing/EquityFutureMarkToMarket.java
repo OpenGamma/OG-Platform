@@ -20,4 +20,9 @@ public abstract class EquityFutureMarkToMarket {
     Validate.notNull(mktPrice, "Market Price");
     return (mktPrice - future.getStrike()) * future.getUnitAmount();
   }
+
+  public static double delta(final EquityFuture future) {
+    Validate.notNull(future, "Future");
+    return future.getUnitAmount();
+  }
 }

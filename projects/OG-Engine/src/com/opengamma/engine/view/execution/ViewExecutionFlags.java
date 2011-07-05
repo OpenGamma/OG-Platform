@@ -6,18 +6,24 @@
 package com.opengamma.engine.view.execution;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Represents options which can apply to a {@link ViewExecutionOptions} instance. These are not necessarily mutually
  * compatible; incorrect combinations may result in execution errors or unexpected behaviour.
  */
+@PublicAPI
 public enum ViewExecutionFlags {
 
   /**
-   * Indicates that a computation cycle should be triggered whenever live data inputs change. For example, this could
-   * be caused by a market data tick or an alteration to a snapshot.
+   * Indicates that all market data should be present before a cycle is allowed to run.
    */
-  TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED,
+  AWAIT_MARKET_DATA,
+  
+  /**
+   * Indicates that a computation cycle should be triggered whenever market data inputs change.
+   */
+  TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED,
   
   /**
    * Indicates that a computation cycle should be triggered after a certain time period has elapsed since the last
