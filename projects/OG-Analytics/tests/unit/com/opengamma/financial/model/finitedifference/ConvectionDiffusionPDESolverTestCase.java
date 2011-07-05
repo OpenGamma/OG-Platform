@@ -70,12 +70,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static final ConvectionDiffusionPDEDataBundle DATA;
   private static final ConvectionDiffusionPDEDataBundle LN_DATA;
   private static final ConvectionDiffusionPDEDataBundle BETA_DATA;
-  //  private static Surface<Double, Double, Double> A;
-  //  private static Surface<Double, Double, Double> B;
-  //  private static Surface<Double, Double, Double> LN_A;
-  //  private static Surface<Double, Double, Double> LN_B;
-  //  private static Surface<Double, Double, Double> BETA_A;
-  //  private static Surface<Double, Double, Double> C;
+
 
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;
@@ -150,67 +145,6 @@ public class ConvectionDiffusionPDESolverTestCase {
     LN_LOWER = new DirichletBoundaryCondition(logSpotZeroPrice, logGridLow);
     LN_UPPER = new DirichletBoundaryCondition(0.0, logGridHi); // put only
 
-    //    final Function<Double, Double> a = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double s = ts[1];
-    //        return -s * s * ATM_VOL * ATM_VOL / 2;
-    //      }
-    //    };
-    //
-    //    final Function<Double, Double> b = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double s = ts[1];
-    //        return -s * RATE;
-    //      }
-    //    };
-
-    //    final Function<Double, Double> ln_a = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        return -ATM_VOL * ATM_VOL / 2;
-    //      }
-    //    };
-    //
-    //    final Function<Double, Double> ln_b = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        return ATM_VOL * ATM_VOL / 2 - RATE;
-    //      }
-    //    };
-
-    //    final Function<Double, Double> beta_a = new Function<Double, Double>() {
-    //      @SuppressWarnings("synthetic-access")
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        double t = ts[0];
-    //        double s = ts[1];
-    //        return -Math.exp(2. * RATE * (BETA - 1) * t) * VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
-    //        // return -VOL_BETA * VOL_BETA * Math.pow(s, 2 * BETA) / 2;
-    //      }
-    //    };
-
-    //    final Function<Double, Double> c = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        return RATE;
-    //      }
-    //    };
-
-    //    final Function<Double, Double> zero = new Function<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double... ts) {
-    //        Validate.isTrue(ts.length == 2);
-    //        return 0.0;
-    //      }
-    //    };
 
     final Function<Double, Double> payoff = new Function<Double, Double>() {
 
@@ -226,26 +160,9 @@ public class ConvectionDiffusionPDESolverTestCase {
 
     };
 
-    //    final Function1D<Double, Double> lnPayoff = new Function1D<Double, Double>() {
-    //
-    //      @Override
-    //      public Double evaluate(Double x) {
-    //        double s = Math.exp(x);
-    //        return payoff.evaluate(s);
-    //      }
-    //    };
-
-    //    A = FunctionalDoublesSurface.from(a);
-    //    B = FunctionalDoublesSurface.from(b);
-    // LN_A = FunctionalDoublesSurface.from(ln_a);
-    //  BETA_A = FunctionalDoublesSurface.from(beta_a);
-    // LN_B = FunctionalDoublesSurface.from(ln_b);
-
-    //    C = FunctionalDoublesSurface.from(c);
 
     AMERICAN_PAYOFF = FunctionalDoublesSurface.from(payoff);
 
-    //   ZERO_SURFACE = FunctionalDoublesSurface.from(zero);
 
     DATA = PDE_DATA_PROVIDER.getBackwardsBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
     LN_DATA = PDE_DATA_PROVIDER.getBackwardsLogBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);

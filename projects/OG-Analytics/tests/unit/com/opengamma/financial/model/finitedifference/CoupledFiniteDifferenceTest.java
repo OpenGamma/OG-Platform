@@ -10,6 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -27,13 +30,14 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 @SuppressWarnings("unused")
 public class CoupledFiniteDifferenceTest {
-
+  
+  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
 
   private static final double SPOT = 100;
-  private static final double FORWARD;
+  private static final ForwardCurve FORWARD;
   private static final double STRIKE;
   private static final double T = 5.0;
   private static final double RATE = 0.0; //TODO this is not working properly with non-zero rate. Why?
@@ -45,65 +49,26 @@ public class CoupledFiniteDifferenceTest {
 
   static {
 
-    FORWARD = SPOT / YIELD_CURVE.getDiscountFactor(T);
-    STRIKE = FORWARD; // ATM option
-    OPTION = new EuropeanVanillaOption(FORWARD, T, true); // true option
+    FORWARD = new ForwardCurve(SPOT, RATE);
+    STRIKE = FORWARD.getForward(T); // ATM option
+    OPTION = new EuropeanVanillaOption(FORWARD.getForward(T), T, true); // true option
 
     LOWER = new DirichletBoundaryCondition(0.0, 0.0);// call is worth 0 when stock falls to zero
     //UPPER = new DirichletBoundaryCondition(10 * SPOT - STRIKE, 10.0 * SPOT);
-    UPPER = new NeumannBoundaryCondition(1.0, 10 * FORWARD, false);
+    UPPER = new NeumannBoundaryCondition(1.0, 10 * STRIKE, false);
     // UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 10 * FORWARD, false);
 
   }
 
-  private CoupledPDEDataBundle getCoupledPDEDataBundle(final double vol, final double rate, final double strike, final double lambda) {
-
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        final double s = ts[1];
-        return -s * s * vol * vol / 2;
-      }
-    };
-
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        final double s = ts[1];
-        return -s * rate;
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return rate + lambda;
-      }
-    };
-
-    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double x) {
-        return Math.max(0, x - STRIKE);
-      }
-    };
-
-    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda, payoff);
-  }
-
   @Test
   public void testNoCoupling() {
-    //making theta 0.55 (rather than 0.5 Crank-Nicolson) cuts down ATm oscillations 
+    //making theta 0.55 (rather than 0.5 Crank-Nicolson) cuts down ATM oscillations 
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
     final double lambda12 = 0.0;
     final double lambda21 = 0.0;
-    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+
+    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 0.5);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -125,7 +90,7 @@ public class CoupledFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -160,8 +125,9 @@ public class CoupledFiniteDifferenceTest {
     final CoupledFiniteDifference solver = new CoupledFiniteDifference();
     final double lambda12 = 0.2;
     final double lambda21 = 0.5;
-    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
+
+    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, lambda12, lambda21, 0.5);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -183,7 +149,7 @@ public class CoupledFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -205,7 +171,7 @@ public class CoupledFiniteDifferenceTest {
       } catch (final Exception e) {
         impVol2 = 0.0;
       }
-      //      System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
+         //  System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
         assertEquals(impVol1, impVol2, 1e-8);
         assertEquals(VOL1, impVol1, 2e-3);
@@ -244,11 +210,12 @@ public class CoupledFiniteDifferenceTest {
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
     final double lambda12 = 0.2;
     final double lambda21 = 2.0;
-    final CoupledPDEDataBundle data1 = getCoupledPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
-    final CoupledPDEDataBundle data2 = getCoupledPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
+
+    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 1.0);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
-    final double lowerMoneyness = 0.0;
+    final double lowerMoneyness = 0.3;
     final double upperMoneyness = 3.0;
 
     final MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
@@ -270,7 +237,7 @@ public class CoupledFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    final PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, LOWER, UPPER, null);
+    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -303,10 +270,9 @@ public class CoupledFiniteDifferenceTest {
       } catch (final Exception e) {
         impVol_mc = 0.0;
       }
-      // System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2 + "\t" + delta + "\t" + gamma);
+    //   System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2 + "\t" + delta + "\t" + gamma);
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
         assertEquals(impVol_mc, impVol1, 1e-2);
-        // assertEquals(VOL1, impVol2, 1e-3);
       }
     }
   }

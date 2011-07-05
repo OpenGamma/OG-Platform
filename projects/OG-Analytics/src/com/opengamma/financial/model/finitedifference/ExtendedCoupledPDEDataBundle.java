@@ -8,9 +8,6 @@ package com.opengamma.financial.model.finitedifference;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.Surface;
 
-/**
- * 
- */
 public class ExtendedCoupledPDEDataBundle extends ExtendedConvectionDiffusionPDEDataBundle {
 
   private final double _lambda;
