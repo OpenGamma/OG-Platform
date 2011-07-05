@@ -1,11 +1,6 @@
-<!-- split "index" -->
 <p>Here are some examples:</p>
-{% for k in d.keys() -%}{% if k.endswith(".py|idio|jythoni|pyg") and not "/" in k %}
-<!-- split "{{ a["examples/%s" % k].canonical_basename() }}" -->
-<p><a href="./">return to examples list</a></p>
-<h2>Example {{ a["examples/%s" % k].canonical_basename() }}</h2>
-<br />
-{{ r["examples/%s" % k] }}
-{% endif -%}{% endfor -%}
-<!-- endsplit -->
-
+<ul>
+    {% for subdir in subdirectories -%}
+    <li><a href="{{ subdir }}">{{ subdir }}</a></li>
+    {% endfor -%}
+</ul>

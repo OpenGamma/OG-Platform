@@ -104,4 +104,73 @@ public class SmileDeltaTermStructureParameterTest {
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volComputed, volTriple, 1.0E-10);
   }
 
+  @Test
+  /**
+   * Tests the interpolation and its derivative with respect to the data.
+   */
+  public void volatilityAjoint() {
+    double forward = 1.40;
+    double timeToExpiration = 0.75;
+    double strike = 1.50;
+    double vol = SMILE_TERM.getVolatility(timeToExpiration, strike, forward);
+    double[][] bucketSensi = new double[TIME_TO_EXPIRY.length][2 * DELTA.length + 1];
+    double[][] bucketTest = new double[TIME_TO_EXPIRY.length][2 * DELTA.length + 1];
+    double volComputed = SMILE_TERM.getVolatilityAdjoint(timeToExpiration, strike, forward, bucketSensi);
+    assertEquals("Smile by delta term structure: volatility adjoint", vol, volComputed, 1.0E-10);
+    SmileDeltaParameter[] volData = new SmileDeltaParameter[TIME_TO_EXPIRY.length];
+    double[] volBumped = new double[2 * DELTA.length + 1];
+    double shift = 0.00001;
+    for (int loopexp = 0; loopexp < TIME_TO_EXPIRY.length; loopexp++) {
+      for (int loopsmile = 0; loopsmile < 2 * DELTA.length + 1; loopsmile++) {
+        System.arraycopy(SMILE_TERM.getVolatilityTerm(), 0, volData, 0, TIME_TO_EXPIRY.length);
+        System.arraycopy(SMILE_TERM.getVolatilityTerm()[loopexp].getVolatility(), 0, volBumped, 0, 2 * DELTA.length + 1);
+        volBumped[loopsmile] += shift;
+        volData[loopexp] = new SmileDeltaParameter(TIME_TO_EXPIRY[loopexp], DELTA, volBumped);
+        SmileDeltaTermStructureParameter smileTermBumped = new SmileDeltaTermStructureParameter(volData);
+        bucketTest[loopexp][loopsmile] = (smileTermBumped.getVolatility(timeToExpiration, strike, forward) - volComputed) / shift;
+        // FIXME: the strike sensitivity to volatility is missing. To be corrected when [PLAT-1396] is fixed.
+        assertEquals("Smile by delta term structure: volatility bucket sensitivity " + loopexp + " - " + loopsmile, bucketTest[loopexp][loopsmile], bucketSensi[loopexp][loopsmile], 3.0E-2);
+      }
+    }
+  }
+
+  //  @Test
+  //  public void deltaSmile() {
+  //    double forward = 1.40;
+  //    double expiryMax = 2.0;
+  //    int nbExp = 50;
+  //    int nbVol = 2 * DELTA.length + 1;
+  //    double[][] strikes = new double[nbExp][nbVol];
+  //    double[] expiries = new double[nbExp];
+  //    double[] variancePeriodT = new double[nbVol];
+  //    double[] volatilityT = new double[nbVol];
+  //    double[] variancePeriod0 = new double[nbVol];
+  //    double[] variancePeriod1 = new double[nbVol];
+  //    for (int loopexp = 0; loopexp < nbExp; loopexp++) {
+  //      expiries[loopexp] = loopexp * expiryMax / nbExp;
+  //      ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(TIME_TO_EXPIRY, new double[NB_EXP]);
+  //      int indexLower = interpData.getLowerBoundIndex(expiries[loopexp]);
+  //      if (expiries[loopexp] < 1.0E-10) {
+  //        for (int loopvol = 0; loopvol < nbVol; loopvol++) {
+  //          volatilityT[loopvol] = SMILE_TERM.getVolatilityTerm()[indexLower].getVolatility()[loopvol];
+  //        }
+  //      } else {
+  //        double weight0 = (TIME_TO_EXPIRY[indexLower + 1] - expiries[loopexp]) / (TIME_TO_EXPIRY[indexLower + 1] - TIME_TO_EXPIRY[indexLower]);
+  //        // Implementation note: Linear interpolation on variance over the period (s^2*t).
+  //        for (int loopvol = 0; loopvol < nbVol; loopvol++) {
+  //          variancePeriod0[loopvol] = SMILE_TERM.getVolatilityTerm()[indexLower].getVolatility()[loopvol] * SMILE_TERM.getVolatilityTerm()[indexLower].getVolatility()[loopvol]
+  //              * TIME_TO_EXPIRY[indexLower];
+  //          variancePeriod1[loopvol] = SMILE_TERM.getVolatilityTerm()[indexLower + 1].getVolatility()[loopvol] * SMILE_TERM.getVolatilityTerm()[indexLower + 1].getVolatility()[loopvol]
+  //              * TIME_TO_EXPIRY[indexLower + 1];
+  //          variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
+  //          volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / expiries[loopexp]);
+  //        }
+  //      }
+  //      SmileDeltaParameter smile = new SmileDeltaParameter(expiries[loopexp], DELTA, volatilityT);
+  //      strikes[loopexp] = smile.getStrike(forward);
+  //    }
+  //    double test = 0.0;
+  //    test++;
+  //  }
+
 }

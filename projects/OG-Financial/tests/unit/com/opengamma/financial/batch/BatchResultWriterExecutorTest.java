@@ -14,6 +14,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.concurrent.Future;
 
+import javax.time.Instant;
+
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -29,7 +31,7 @@ public class BatchResultWriterExecutorTest {
   @Test
   public void basicOperation() throws Exception {
     
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", Instant.now(), 1L);
     CalculationJobResult result = new CalculationJobResult(spec, 
         500, 
         Collections.<CalculationJobResultItem>emptyList(),

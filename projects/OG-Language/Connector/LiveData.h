@@ -11,6 +11,7 @@
 #include "com_opengamma_language_livedata_Available.h"
 #include "com_opengamma_language_livedata_QueryAvailable.h"
 
+/// Message builder for LiveData/QueryAvailable.
 REQUESTBUILDER_BEGIN(CLiveDataQueryAvailable)
 	REQUESTBUILDER_REQUEST (com_opengamma_language_livedata_QueryAvailable)
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_livedata_Available)

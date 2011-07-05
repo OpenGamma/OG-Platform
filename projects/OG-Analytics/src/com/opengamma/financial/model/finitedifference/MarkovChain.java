@@ -33,10 +33,10 @@ public class MarkovChain {
   private final MersenneTwister _rand;
 
   public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21, final double probState1) {
-    this(vol1, vol2, lambda12, lambda21, probState1, MersenneTwister64.DEFAULT_SEED);
+    this(vol1, vol2, lambda12, lambda21, probState1, MersenneTwister.DEFAULT_SEED);
   }
 
-  public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21, final double probState1, int seed) {
+  public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21, final double probState1, final int seed) {
     Validate.isTrue(vol1 >= 0);
     Validate.isTrue(vol2 >= 0);
     Validate.isTrue(lambda12 >= 0);
@@ -51,51 +51,51 @@ public class MarkovChain {
     _rand = new MersenneTwister64(seed);
   }
 
-  public double price(final double forward, final double df, final double strike, final double timeToExiry, double[] sigmas) {
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExiry, true);
-    BlackPriceFunction func = new BlackPriceFunction();
-    Function1D<BlackFunctionData, Double> priceFunc = func.getPriceFunction(option);
+  public double price(final double forward, final double df, final double strike, final double timeToExiry, final double[] sigmas) {
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExiry, true);
+    final BlackPriceFunction func = new BlackPriceFunction();
+    final Function1D<BlackFunctionData, Double> priceFunc = func.getPriceFunction(option);
     double sum = 0;
-    for (double sigma : sigmas) {
-      BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
+    for (final double sigma : sigmas) {
+      final BlackFunctionData data = new BlackFunctionData(forward, df, sigma);
       sum += priceFunc.evaluate(data);
     }
     return sum / sigmas.length;
   }
 
-  public double priceCEV(final double forward, final double df, final double strike, final double timeToExiry, final double beta, double[] sigmas) {
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExiry, true);
-    CEVPriceFunction func = new CEVPriceFunction();
-    Function1D<CEVFunctionData, Double> priceFunc = func.getPriceFunction(option);
+  public double priceCEV(final double forward, final double df, final double strike, final double timeToExiry, final double beta, final double[] sigmas) {
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, timeToExiry, true);
+    final CEVPriceFunction func = new CEVPriceFunction();
+    final Function1D<CEVFunctionData, Double> priceFunc = func.getPriceFunction(option);
     double sum = 0;
-    for (double sigma : sigmas) {
-      CEVFunctionData data = new CEVFunctionData(forward, df, sigma, beta);
+    for (final double sigma : sigmas) {
+      final CEVFunctionData data = new CEVFunctionData(forward, df, sigma, beta);
       sum += priceFunc.evaluate(data);
     }
     return sum / sigmas.length;
   }
 
-  public double[][] price(final double[] forwards, final double[] df, final double[] strike, final double[] expiries, double[][] sigmas) {
-    int nTime = forwards.length;
-    int nStrikes = strike.length;
+  public double[][] price(final double[] forwards, final double[] df, final double[] strike, final double[] expiries, final double[][] sigmas) {
+    final int nTime = forwards.length;
+    final int nStrikes = strike.length;
     Validate.isTrue(nTime == df.length);
     Validate.isTrue(nTime == expiries.length);
     Validate.isTrue(nTime == sigmas.length);
 
-    BlackPriceFunction func = new BlackPriceFunction();
-    double[][] price = new double[nTime][nStrikes];
+    final BlackPriceFunction func = new BlackPriceFunction();
+    final double[][] price = new double[nTime][nStrikes];
 
     double t, k;
     for (int j = 0; j < nTime; j++) {
       t = expiries[j];
-      double[] tSigmas = sigmas[j];
+      final double[] tSigmas = sigmas[j];
       for (int i = 0; i < nStrikes; i++) {
         k = strike[i];
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        Function1D<BlackFunctionData, Double> priceFunc = func.getPriceFunction(option);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final Function1D<BlackFunctionData, Double> priceFunc = func.getPriceFunction(option);
         double sum = 0;
-        for (double sigma : tSigmas) {
-          BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], sigma);
+        for (final double sigma : tSigmas) {
+          final BlackFunctionData data = new BlackFunctionData(forwards[j], df[j], sigma);
           sum += priceFunc.evaluate(data);
         }
         price[j][i] = sum / tSigmas.length;
@@ -106,30 +106,30 @@ public class MarkovChain {
     return price;
   }
 
-  public double[] getMoments(double t, double[] sigmas) {
+  public double[] getMoments(final double t, final double[] sigmas) {
     double sum1 = 0;
     double sum2 = 0;
     double sum3 = 0;
-    for (double sigma : sigmas) {
-      double var = sigma * sigma;
+    for (final double sigma : sigmas) {
+      final double var = sigma * sigma;
       sum1 += var;
       sum2 += var * var;
       sum3 += var * var * var;
     }
 
-    int n = sigmas.length;
-    double m1 = sum1 / n;
-    double m2 = (sum2 - n * m1 * m1) / (n - 1);
-    double m3 = (sum3 - 3 * m1 * sum2 + 2 * n * m1 * m1 * m1) / n;
+    final int n = sigmas.length;
+    final double m1 = sum1 / n;
+    final double m2 = (sum2 - n * m1 * m1) / (n - 1);
+    final double m3 = (sum3 - 3 * m1 * sum2 + 2 * n * m1 * m1 * m1) / n;
 
     //System.out.println("MC m1: " + m1 + " m2: " + m2 + " m3: " + m3);
-    return new double[] {m1, m2, m3 };
+    return new double[] {m1, m2, m3};
   }
 
-  public double[] simulate(double timeToExpiry, int n) {
+  public double[] simulate(final double timeToExpiry, final int n) {
 
     double vol, lambda, tau;
-    double[] vols = new double[n];
+    final double[] vols = new double[n];
     double sum = 0;
     for (int i = 0; i < n; i++) {
       boolean state1 = _probState1 > _rand.nextDouble();
@@ -163,7 +163,7 @@ public class MarkovChain {
     return vols;
   }
 
-  public double[][] simulate(double[] expiries, int n) {
+  public double[][] simulate(final double[] expiries, final int n) {
     return simulate(expiries, n, 0.0, 1.0);
   }
 
@@ -172,14 +172,14 @@ public class MarkovChain {
     Validate.isTrue(b > a, "need b > a");
     Validate.isTrue(a >= 0.0, "Nedd a >= 0.0");
     Validate.isTrue(b <= 1.0, "Nedd b <= 1.0");
-    int m = expiries.length;
+    final int m = expiries.length;
     Validate.isTrue(m > 0);
     for (int j = 1; j < m; j++) {
       Validate.isTrue(expiries[j] > expiries[j - 1]);
     }
 
     double vol, lambda, tau;
-    double[][] vols = new double[m][n];
+    final double[][] vols = new double[m][n];
     // double[] sum = new double[m];
 
     for (int i = 0; i < n; i++) {

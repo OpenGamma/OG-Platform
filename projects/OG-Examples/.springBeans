@@ -8,11 +8,8 @@
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
 		<config>config/example-beans.xml</config>
-		<config>config/common.xml</config>
-		<config>config/demoIntegrationMasters.xml</config>
-		<config>config/demoViewProcessor.xml</config>
 		<config>config/engine-spring.xml</config>
-		<config>config/liveData-shareddev.xml</config>
+		<config>config/dataLoader-example.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

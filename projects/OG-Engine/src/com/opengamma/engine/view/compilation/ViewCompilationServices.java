@@ -12,7 +12,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-05-22 -- I don't like this name but couldn't come up with a better
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * All the injected services necessary for view compilation.
  */
 public class ViewCompilationServices {
-  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
@@ -33,25 +33,25 @@ public class ViewCompilationServices {
   /**
    * Constructs an instance, without a position source or security source.
    * 
-   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param marketDataAvailabilityProvider  the market data availability provider
    * @param functionResolver  the function resolver
    * @param compilationContext  the function compilation context
    * @param computationTargetResolver  the computation target resolver
    * @param executorService  the executor service
    */
   public ViewCompilationServices(
-    LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-    FunctionResolver functionResolver,
-    FunctionCompilationContext compilationContext,
-    CachingComputationTargetResolver computationTargetResolver,
-    ExecutorService executorService) {
-    this(liveDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, null, null);
+      MarketDataAvailabilityProvider marketDataAvailabilityProvider,
+      FunctionResolver functionResolver,
+      FunctionCompilationContext compilationContext,
+      CachingComputationTargetResolver computationTargetResolver,
+      ExecutorService executorService) {
+    this(marketDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, null, null);
   }
   
   /**
    * Constructs an instance, without a position source.
    * 
-   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param marketDataAvailabilityProvider  the market data availability provider
    * @param functionResolver  the function resolver
    * @param compilationContext  the function compilation context
    * @param computationTargetResolver  the computation target resolver
@@ -59,19 +59,19 @@ public class ViewCompilationServices {
    * @param securitySource  the security source
    */
   public ViewCompilationServices(
-    LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-    FunctionResolver functionResolver,
-    FunctionCompilationContext compilationContext,
-    CachingComputationTargetResolver computationTargetResolver,
-    ExecutorService executorService,
-    SecuritySource securitySource) {
-    this(liveDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, securitySource, null);
+      MarketDataAvailabilityProvider marketDataAvailabilityProvider,
+      FunctionResolver functionResolver,
+      FunctionCompilationContext compilationContext,
+      CachingComputationTargetResolver computationTargetResolver,
+      ExecutorService executorService,
+      SecuritySource securitySource) {
+    this(marketDataAvailabilityProvider, functionResolver, compilationContext, computationTargetResolver, executorService, securitySource, null);
   }
   
   /**
    * Constructs an instance
    * 
-   * @param liveDataAvailabilityProvider  the live data availability provider
+   * @param marketDataAvailabilityProvider  the market data availability provider
    * @param functionResolver  the function resolver
    * @param compilationContext  the function compilation context
    * @param computationTargetResolver  the computation target resolver
@@ -80,20 +80,20 @@ public class ViewCompilationServices {
    * @param positionSource  the position source
    */
   public ViewCompilationServices(
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
+      MarketDataAvailabilityProvider marketDataAvailabilityProvider,
       FunctionResolver functionResolver,
       FunctionCompilationContext compilationContext,
       CachingComputationTargetResolver computationTargetResolver,
       ExecutorService executorService,
       SecuritySource securitySource,
       PositionSource positionSource) {
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
+    ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(executorService, "executorService");
     
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
+    _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
     _functionResolver = functionResolver;
     _compilationContext = compilationContext;
     _executorService = executorService;
@@ -104,11 +104,12 @@ public class ViewCompilationServices {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the live data.
-   * @return the live data availability provider, not null
+   * Gets the market data availability provider.
+   * 
+   * @return the market data availability provider, not {@code null}
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
+  public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
+    return _marketDataAvailabilityProvider;
   }
 
   /**

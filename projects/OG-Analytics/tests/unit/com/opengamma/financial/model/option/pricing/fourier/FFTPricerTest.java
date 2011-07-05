@@ -6,7 +6,9 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
@@ -31,133 +33,102 @@ public class FFTPricerTest {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(MU, SIGMA);
   private static final FFTPricer PRICER = new FFTPricer();
-  private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(FORWARD, T, true);
   private static final double ALPHA = -0.5;
   private static final double TOL = 1e-8;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData1() {
-    PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, TOL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullOption1() {
-    PRICER.price(DATA, null, CEF, 10, 10, ALPHA, TOL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent1() {
-    PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, null, 10, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance1() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, -TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNStrikes() {
-    PRICER.price(DATA, OPTION, CEF, -10, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, -10, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeMaxDeltaMoneyness() {
-    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeVol1() {
-    PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, -0.3, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha1() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, 0, TOL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData2() {
-    PRICER.price(null, OPTION, CEF, 10, 110, 10, ALPHA, TOL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullOption2() {
-    PRICER.price(DATA, null, CEF, 10, 110, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, 0, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent2() {
-    PRICER.price(DATA, OPTION, null, 10, 110, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, null, 10, 110, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance2() {
-    PRICER.price(DATA, OPTION, CEF, 10, 110, 10, ALPHA, -TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 110, 10, SIGMA, ALPHA, -TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeVol2() {
-    PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 110, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 110, 10, -0.5, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha2() {
-    PRICER.price(DATA, OPTION, CEF, 10, 110, 10, 0, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 110, 10, SIGMA, 0, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLowStrike() {
-    PRICER.price(DATA, OPTION, CEF, FORWARD + 10, 110, 10, ALPHA, TOL);
+    PRICER.price(FORWARD, DF, T, true, CEF, FORWARD + 10, 110, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongHighStrike() {
-    PRICER.price(DATA, OPTION, CEF, 10, FORWARD, 10, ALPHA, TOL);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData3() {
-    PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 20);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullOption3() {
-    PRICER.price(DATA, null, CEF, 10, 10, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, FORWARD, 10, SIGMA, ALPHA, TOL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent3() {
-    PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, null, 10, 10, SIGMA, ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha3() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, 0, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, 0, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesAboveATM() {
-    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, SIGMA, ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesBelowATM() {
-    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, SIGMA, ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDelta() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, -0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeM() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, -10);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, 0.5, 64, -10);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongN() {
-    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 128);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, 0.5, 64, 128);
   }
 
   @Test
@@ -169,8 +140,8 @@ public class FFTPricerTest {
     final int nL = 550;
     final int nH = 600;
     final double alpha = -0.5;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(100, T, isCall);
-    final double[][] temp = PRICER.price(DATA, option, CEF, nL, nH, alpha, delta, n, m);
+
+    final double[][] temp = PRICER.price(FORWARD, DF, T, isCall, CEF, nL, nH, SIGMA, alpha, delta, n, m);
     assertEquals(n + 1, temp.length);
   }
 
@@ -181,9 +152,8 @@ public class FFTPricerTest {
     final double deltaMoneyness = 0.01;
     final double alpha = -0.5;
     final double tol = 1e-10;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(100, T, isCall);
 
-    final double[][] strikeNprice = PRICER.price(DATA, option, CEF, nStrikes, deltaMoneyness, alpha, tol);
+    final double[][] strikeNprice = PRICER.price(FORWARD, DF, T, isCall, CEF, nStrikes, deltaMoneyness, SIGMA, alpha, tol);
 
     assertEquals(nStrikes, strikeNprice.length);
     double k;
@@ -210,9 +180,9 @@ public class FFTPricerTest {
       final double alpha = -1.6 + i * 0.5;
       for (int j = 0; j < 1; j++) {
         isCall = (j == 0);
-        final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0.3);
+
         final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, isCall);
-        final double[][] strikeNprice = PRICER.price(data, option, CEF, FORWARD, FORWARD, 1, alpha, tol);
+        final double[][] strikeNprice = PRICER.price(FORWARD, DF, T, isCall, CEF, FORWARD, FORWARD, 1, 0.3, alpha, tol);
         assertEquals(FORWARD, strikeNprice[0][0], 1e-9);
         assertEquals(SIGMA, BLACK_IMPLIED_VOL.getImpliedVolatility(DATA, option, strikeNprice[0][1]), 1e-7);
       }
@@ -233,10 +203,9 @@ public class FFTPricerTest {
     final double rho = -0.7;
     final double t = 2.0;
 
-    BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0.3);
     EuropeanVanillaOption option = new EuropeanVanillaOption(100, t, isCall);
     final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
-    final double[][] strikeNPrice = PRICER.price(data, option, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, -0.5, 1e-10);
+    final double[][] strikeNPrice = PRICER.price(FORWARD, DF, t, isCall, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, 0.3, -0.5, 1e-10);
 
     final int n = strikeNPrice.length;
 
@@ -244,18 +213,16 @@ public class FFTPricerTest {
     final double[] vol = new double[n];
     for (int i = 0; i < n; i++) {
       k[i] = strikeNPrice[i][0];
-      option = new EuropeanVanillaOption(k[i], t, isCall);
-      vol[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, strikeNPrice[i][1]);
+      vol[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(FORWARD, DF, 0.0), new EuropeanVanillaOption(k[i], t, isCall), strikeNPrice[i][1]);
     }
 
     final Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(k, vol);
-    data = new BlackFunctionData(FORWARD, DF, 0.2);
-    final double[][] strikeNPrice2 = PRICER.price(data, option, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, 0.75, 1e-8);
+    final double[][] strikeNPrice2 = PRICER.price(FORWARD, DF, t, isCall, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, 0.2, 0.75, 1e-8);
     final int m = strikeNPrice2.length;
     for (int i = 0; i < m; i++) {
       final double strike = strikeNPrice2[i][0];
       option = new EuropeanVanillaOption(strike, t, isCall);
-      final double sigma = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, strikeNPrice2[i][1]);
+      final double sigma = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(FORWARD, DF, 0.0), new EuropeanVanillaOption(strike, t, isCall), strikeNPrice2[i][1]);
       assertEquals(sigma, INTERPOLATOR.interpolate(dataBundle, strike), 1e-5);
     }
 

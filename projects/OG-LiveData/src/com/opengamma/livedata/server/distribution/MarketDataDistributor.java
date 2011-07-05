@@ -6,7 +6,6 @@
 package com.opengamma.livedata.server.distribution;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeMsg;
@@ -134,10 +133,6 @@ public class MarketDataDistributor {
         getLastKnownValues());
   }
   
-  
-  public Collection<MarketDataSender> getMarketDataSenders() {
-    return Collections.unmodifiableCollection(_marketDataSenders);
-  }
   
   public Subscription getSubscription() {
     return _subscription;

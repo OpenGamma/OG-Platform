@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -25,7 +26,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class GridInterpolator2DTest {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<DoublesPair, Double>();
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
 

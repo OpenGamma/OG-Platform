@@ -9,11 +9,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wrapper to provide RESTful access to a {@link LiveDataInjector}.
+ * Wrapper to provide RESTful access to a {@link MarketDataInjector}.
  */
 public class LiveDataInjectorResource {
   
@@ -22,9 +22,9 @@ public class LiveDataInjectorResource {
   public static final String PATH_REMOVE = "remove";
   //CSON: just constants
   
-  private final LiveDataInjector _injector;
+  private final MarketDataInjector _injector;
   
-  public LiveDataInjectorResource(LiveDataInjector injector) {
+  public LiveDataInjectorResource(MarketDataInjector injector) {
     ArgumentChecker.notNull(injector, "injector");
     _injector = injector;
   }

@@ -38,7 +38,7 @@ public class ViewDeltaResultModelBuilder extends ViewResultModelBuilder implemen
     InMemoryViewDeltaResultModel viewDeltaResultModel = (InMemoryViewDeltaResultModel) bootstrapCommonDataFromMessage(context, message);
     
     final Instant parentResultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_PREVIOUSTS));
-    viewDeltaResultModel.setPreviousResultTimestamp(parentResultTimestamp);
+    viewDeltaResultModel.setPreviousCalculationTime(parentResultTimestamp);
     
     return viewDeltaResultModel;
   }

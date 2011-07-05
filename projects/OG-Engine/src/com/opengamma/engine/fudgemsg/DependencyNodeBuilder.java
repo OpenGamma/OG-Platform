@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -136,11 +135,6 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
     @Override
     public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
       throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<ValueSpecification> getRequiredLiveData() {
-      return Collections.emptySet();
     }
 
     @Override

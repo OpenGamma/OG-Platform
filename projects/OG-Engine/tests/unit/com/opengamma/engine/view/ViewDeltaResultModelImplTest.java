@@ -19,7 +19,7 @@ public class ViewDeltaResultModelImplTest {
     InMemoryViewDeltaResultModel model = new InMemoryViewDeltaResultModel();
     ViewComputationResultModelImplTest.checkModel(model);
     
-    model.setPreviousResultTimestamp(Instant.ofEpochMillis(200));
+    model.setPreviousCalculationTime(Instant.ofEpochMillis(200));
     assertEquals(Instant.ofEpochMillis(200), model.getPreviousResultTimestamp());
   }
 

@@ -60,6 +60,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
    * @return An array with [0] the price, [1] the derivative with respect to the forward, [2] the derivative with respect to the volatility and 
    * [3] the derivative with respect to the strike.
    */
+  //TODO Refactor the method call to have the price as output and the derivatives as an array (like getPriceAdjoint2).
   public double[] getPriceAdjoint(final EuropeanVanillaOption option, final BlackFunctionData data) {
     /**
      * The array storing the price and derivatives.

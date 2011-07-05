@@ -58,7 +58,8 @@ public class CompiledFunctionService {
 
   };
 
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(final FunctionRepository functionRepository,
+      final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");

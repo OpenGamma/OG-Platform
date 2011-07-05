@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,8 +6,6 @@
 
 #ifndef __inc_og_language_connector_settings_h
 #define __inc_og_language_connector_settings_h
-
-// Runtime configuration options
 
 #include <Service/Public.h>
 
@@ -28,6 +26,7 @@
 
 #define CSettings CConnectorSettings
 
+/// Configuration settings for the Connector library components.
 class CSettings : public CAbstractSettings {
 private:
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) const { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }

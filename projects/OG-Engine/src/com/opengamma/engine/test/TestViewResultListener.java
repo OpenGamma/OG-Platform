@@ -26,6 +26,7 @@ import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Provides generic result handing and waiting functionality.
@@ -180,8 +181,13 @@ public class TestViewResultListener implements ViewResultListener {
   
   //-------------------------------------------------------------------------
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
-    callReceived(new ViewDefinitionCompiledCall(compiledViewDefinition));
+  public UserPrincipal getUser() {
+    return UserPrincipal.getTestUser();
+  }
+  
+  @Override
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+    callReceived(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
   }
 
   @Override

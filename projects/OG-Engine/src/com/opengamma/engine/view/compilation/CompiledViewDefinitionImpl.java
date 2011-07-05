@@ -68,10 +68,10 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   }
 
   @Override
-  public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
+  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
     Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      allRequirements.putAll(compiledCalcConfig.getLiveDataRequirements());
+      allRequirements.putAll(compiledCalcConfig.getMarketDataRequirements());
     }
     return Collections.unmodifiableMap(allRequirements);
   }
@@ -97,10 +97,10 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   
   //-------------------------------------------------------------------------
   /**
-   * Checks whether the compilation results encapsulated in this instance are valid for a specific valuation time.
-   * Note that this does not ensure that the view definition used for compilation is still up-to-date.
+   * Checks whether the compilation results encapsulated in this instance are valid for a specific cycle. Note that
+   * this does not ensure that the view definition used for compilation is still up-to-date.
    * 
-   * @param valuationTimeProvider  the valuation time
+   * @param valuationTimeProvider  the valuation time, not {@code null}
    * @return  {@code true} if the compilation results are valid for the valuation time, {@code false} otherwise
    */
   public boolean isValidFor(final InstantProvider valuationTimeProvider) {

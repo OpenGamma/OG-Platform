@@ -4,54 +4,41 @@
 package com.opengamma.engine.view.cache.msg;
 public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitReleaseCacheMessage (this); }
-  private static final long serialVersionUID = -51557833422991l;
-  private com.opengamma.id.UniqueIdentifier _viewProcessId;
-  public static final String VIEW_PROCESS_ID_KEY = "viewProcessId";
-  private long _timestamp;
-  public static final String TIMESTAMP_KEY = "timestamp";
-  public ReleaseCacheMessage (com.opengamma.id.UniqueIdentifier viewProcessId, long timestamp) {
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+  private static final long serialVersionUID = 36725889396l;
+  private com.opengamma.id.UniqueIdentifier _viewCycleId;
+  public static final String VIEW_CYCLE_ID_KEY = "viewCycleId";
+  public ReleaseCacheMessage (com.opengamma.id.UniqueIdentifier viewCycleId) {
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
-    _timestamp = timestamp;
   }
   protected ReleaseCacheMessage (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (VIEW_PROCESS_ID_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewProcessId' is not present");
+    fudgeField = fudgeMsg.getByName (VIEW_CYCLE_ID_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewCycleId' is not present");
     try {
-      _viewProcessId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _viewCycleId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewProcessId' is not UniqueIdentifier message", e);
-    }
-    fudgeField = fudgeMsg.getByName (TIMESTAMP_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'timestamp' is not present");
-    try {
-      _timestamp = fudgeMsg.getFieldValue (Long.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'timestamp' is not long", e);
+      throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewCycleId' is not UniqueIdentifier message", e);
     }
   }
-  public ReleaseCacheMessage (Long correlationId, com.opengamma.id.UniqueIdentifier viewProcessId, long timestamp) {
+  public ReleaseCacheMessage (Long correlationId, com.opengamma.id.UniqueIdentifier viewCycleId) {
     super (correlationId);
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
-    _timestamp = timestamp;
   }
   protected ReleaseCacheMessage (final ReleaseCacheMessage source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._viewProcessId == null) _viewProcessId = null;
+    if (source._viewCycleId == null) _viewCycleId = null;
     else {
-      _viewProcessId = source._viewProcessId;
+      _viewCycleId = source._viewCycleId;
     }
-    _timestamp = source._timestamp;
   }
   public ReleaseCacheMessage clone () {
     return new ReleaseCacheMessage (this);
@@ -64,12 +51,11 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
-    if (_viewProcessId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewProcessId.getClass (), com.opengamma.id.UniqueIdentifier.class);
-      _viewProcessId.toFudgeMsg (fudgeContext, fudge1);
-      msg.add (VIEW_PROCESS_ID_KEY, null, fudge1);
+    if (_viewCycleId != null)  {
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewCycleId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      _viewCycleId.toFudgeMsg (fudgeContext, fudge1);
+      msg.add (VIEW_CYCLE_ID_KEY, null, fudge1);
     }
-    msg.add (TIMESTAMP_KEY, null, _timestamp);
   }
   public static ReleaseCacheMessage fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -85,20 +71,14 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
     }
     return new ReleaseCacheMessage (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getViewProcessId () {
-    return _viewProcessId;
+  public com.opengamma.id.UniqueIdentifier getViewCycleId () {
+    return _viewCycleId;
   }
-  public void setViewProcessId (com.opengamma.id.UniqueIdentifier viewProcessId) {
-    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+  public void setViewCycleId (com.opengamma.id.UniqueIdentifier viewCycleId) {
+    if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
-      _viewProcessId = viewProcessId;
+      _viewCycleId = viewCycleId;
     }
-  }
-  public long getTimestamp () {
-    return _timestamp;
-  }
-  public void setTimestamp (long timestamp) {
-    _timestamp = timestamp;
   }
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);

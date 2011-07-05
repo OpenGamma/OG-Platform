@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Runtime configuration options
-
 #include "Settings.h"
 #ifdef _WIN32
 #include <Util/DllVersion.h>
@@ -47,44 +44,82 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_START_TIMEOUT		30000	/* 30s default */
 #define DEFAULT_STOP_TIMEOUT		2000	/* 2s default */
 
+/// Returns the name of the pipe for sending connection messages to the JVM host process (service).
+///
+/// @return the pipe name
 const TCHAR *CSettings::GetConnectionPipe () const {
 	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
+/// Returns the connection timeout in milliseconds.
+///
+/// @return the timeout in milliseconds
 int CSettings::GetConnectTimeout () const {
 	return GetConnectTimeout (DEFAULT_CONNECT_TIMEOUT);
 }
 
+/// Returns whether "alert"s are enabled. These are attached to a system tray icon in Windows.
+///
+/// @return TRUE if enabled, FALSE to disable
 bool CSettings::IsDisplayAlerts () const {
 	return IsDisplayAlerts (DEFAULT_DISPLAY_ALERTS);
 }
 
+/// Returns the heartbeat timeout in milliseconds. Each end of the connection should expect there
+/// to be no more than this length of time between messages; requiring each to send messages at
+/// least that often (using the no-op heartbeat message if there is no genuine traffic).
+///
+/// @return the timeout in milliseconds
 int CSettings::GetHeartbeatTimeout () const {
 	return GetHeartbeatTimeout (DEFAULT_HEARTBEAT_TIMEOUT);
 }
 
+/// Returns the prefix to use at the start of pipe names for inbound traffic. This should include
+/// a path in the case of Posix and named pipes, or the \\.\pipe\ prefix in the case of Win32.
+///
+/// @return the pipe prefix
 const TCHAR *CSettings::GetInputPipePrefix () const {
 	return GetInputPipePrefix (DEFAULT_INPUT_PIPE_PREFIX);
 }
 
+/// Returns the full path to the LOG4CXX configuration file.
+///
+/// @return the path
 const TCHAR *CSettings::GetLogConfiguration () const {
 	return GetLogConfiguration (DEFAULT_LOG_CONFIGURATION);
 }
 
+/// Returns the maximum number of times to try and create the pipes. Pipe creation is retried to
+/// allow different names to be generated to avoid naming conflicts with other processes.
+///
+/// @return the number of attempts
 int CSettings::GetMaxPipeAttempts () const {
 	return GetMaxPipeAttempts (DEFAULT_MAX_PIPE_ATTEMPTS);
 }
 
+/// Returns the prefix to use at the start of pipe names for outgoing traffic. This should include
+/// a path in the case of Posix and named pipes, or the \\.\pipe\ prefix in the case of Win32.
+///
+/// @return the pipe prefix
 const TCHAR *CSettings::GetOutputPipePrefix () const {
 	return GetOutputPipePrefix (DEFAULT_OUTPUT_PIPE_PREFIX);
 }
 
+/// Returns the timeout for sending messages to the Java stack in milliseconds.
+///
+/// @return the timeout in milliseconds
 int CSettings::GetSendTimeout () const {
 	return GetSendTimeout (DEFAULT_SEND_TIMEOUT);
 }
 
+/// Locates a path to the ServiceRunner executable in the same folder as the executing code
+/// module.
 class CServiceExecutableDefault : public CAbstractSettingProvider {
 protected:
+
+	/// Locates the directory of the current module, and looks alongside it for the service executable.
+	///
+	/// @return the path to the executable, or a default best guess if none was found
 	TCHAR *CalculateString () const {
 		TCHAR *pszExecutable = NULL;
 #ifdef _WIN32
@@ -140,26 +175,45 @@ protected:
 		}
 		return pszExecutable;
 	}
+
 };
 
+/// Instance of the provider to retrieve the default service executable path.
 static CServiceExecutableDefault g_oServiceExecutableDefault;
 
+/// Returns the path to the ServiceRunner executable.
+///
+/// @return the path
 const TCHAR *CSettings::GetServiceExecutable () const {
 	return GetServiceExecutable (&g_oServiceExecutableDefault);
 }
 
+/// Returns the name of the service the JVM host is installed as. The exact meaning of a service
+/// is O/S dependent.
+///
+/// @return the service name
 const TCHAR *CSettings::GetServiceName () const {
 	return GetServiceName (ServiceDefaultServiceName ());
 }
 
+/// Returns the polling period in milliseconds for querying the state of a service (i.e. running
+/// or stopped).
+///
+/// @return the period in milliseconds
 int CSettings::GetServicePoll () const {
 	return GetServicePoll (DEFAULT_SERVICE_POLL);
 }
 
+/// Returns the time to wait for a service or executable to startup in milliseconds.
+///
+/// @return the timeout in milliseconds
 int CSettings::GetStartTimeout () const {
 	return GetStartTimeout (DEFAULT_START_TIMEOUT);
 }
 
+/// Returns the time to wait for a service or executable to stop on being sent a terminate.
+///
+/// @return the timeout in milliseconds.
 int CSettings::GetStopTimeout () const {
 	return GetStopTimeout (DEFAULT_STOP_TIMEOUT);
 }

@@ -20,6 +20,8 @@ import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -32,6 +34,8 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   private Map<VolatilityPoint, ValueSnapshot> _values;
   
   private UnstructuredMarketDataSnapshot _otherValues;
+  
+  private Map<Pair<Tenor, Tenor>, ValueSnapshot> _strikes;
 
   @Override
   public Map<VolatilityPoint, ValueSnapshot> getValues() {
@@ -46,6 +50,17 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializationContext context) {
     MutableFudgeMsg ret = context.newMessage();
     FudgeSerializationContext.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
+    MutableFudgeMsg valuesMsg = getValuesMessage(context);
+    MutableFudgeMsg strikesMsg = getStrikesMessage(context);
+    
+    ret.add("values", valuesMsg);
+    ret.add("otherValues", context.objectToFudgeMsg(_otherValues));
+    ret.add("strikes", strikesMsg);
+    
+    return ret;
+  }
+
+  private MutableFudgeMsg getValuesMessage(FudgeSerializationContext context) {
     MutableFudgeMsg valuesMsg = context.newMessage();
     for (Entry<VolatilityPoint, ValueSnapshot> entry : _values.entrySet()) {
       context.addToMessage(valuesMsg, null, 1, entry.getKey());
@@ -55,17 +70,69 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
         context.addToMessage(valuesMsg, null, 2, entry.getValue());
       }
     }
-    ret.add("values", valuesMsg);
-    ret.add("otherValues", context.objectToFudgeMsg(_otherValues));
-    return ret;
+    return valuesMsg;
+  }
+  
+  private MutableFudgeMsg getStrikesMessage(FudgeSerializationContext context) {
+    MutableFudgeMsg msg = context.newMessage();
+    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
+      context.addToMessage(msg, null, 1, entry.getKey());
+      if (entry.getValue() == null) {
+        msg.add(2, IndicatorType.INSTANCE);
+      } else {
+        context.addToMessage(msg, null, 2, entry.getValue());
+      }
+    }
+    return msg;
   }
 
   public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializationContext context, FudgeMsg msg) {
 
+    HashMap<VolatilityPoint, ValueSnapshot> values = readValues(context, msg);
+    UnstructuredMarketDataSnapshot otherValues = context.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
+    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = readStrikes(context, msg);
+        
+    ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
+    ret.setValues(values);
+    ret.setOtherValues(otherValues);
+    ret.setStrikes(strikes);
+    return ret;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializationContext context,
+      FudgeMsg msg) {
+    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
+
+    FudgeMsg valuesMessage = msg.getMessage("strikes");
+    if (valuesMessage == null) {
+      return values;
+    }
+    Pair<Tenor, Tenor> key = null;
+    for (FudgeField fudgeField : valuesMessage) {
+      Integer ordinal = fudgeField.getOrdinal();
+      if (ordinal == null) {
+        continue;
+      }
+
+      int intValue = ordinal.intValue();
+      if (intValue == 1) {
+        key = context.fieldValueToObject(Pair.class, fudgeField);
+      } else if (intValue == 2) {
+        ValueSnapshot value = context.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        values.put(key, value);
+        key = null;
+      }
+    }
+    return values;
+  }
+
+  private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializationContext context, FudgeMsg msg) {
     HashMap<VolatilityPoint, ValueSnapshot> values = new HashMap<VolatilityPoint, ValueSnapshot>();
 
     VolatilityPoint key = null;
-    for (FudgeField fudgeField : msg.getMessage("values")) {
+    FudgeMsg valuesMessage = msg.getMessage("values");
+    for (FudgeField fudgeField : valuesMessage) {
       Integer ordinal = fudgeField.getOrdinal();
       if (ordinal == null) {
         continue;
@@ -80,12 +147,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
         key = null;
       }
     }
-
-    UnstructuredMarketDataSnapshot otherValues = context.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
-    ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
-    ret.setValues(values);
-    ret.setOtherValues(otherValues);
-    return ret;
+    return values;
   }
 
   public void setOtherValues(UnstructuredMarketDataSnapshot otherValues) {
@@ -94,5 +156,13 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
   public UnstructuredMarketDataSnapshot getOtherValues() {
     return _otherValues;
+  }
+
+  public Map<Pair<Tenor, Tenor>, ValueSnapshot> getStrikes() {
+    return _strikes;
+  }
+
+  public void setStrikes(Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
+    _strikes = strikes;
   }
 }

@@ -5,9 +5,19 @@
  */
 package com.opengamma.financial.interestrate.payments.method;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -20,12 +30,14 @@ import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS spread cap/floor with the binormal approach with correlation by strike.
- *  OpenGamma implementation note: Binormal with correlation by strike approach to CMS spread pricing, version 1.0, May 2011.
+ *  OpenGamma implementation note: Binormal with correlation by strike approach to CMS spread pricing, version 1.1, June 2011.
  */
-public class CapFloorCMSSpreadSABRBinormalMethod {
+public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
 
   /**
    * The method to compute the price of CMS cap/floors.
@@ -62,12 +74,20 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
   }
 
   /**
+   * Gets the correlation (rho) as function of the strike.
+   * @return The correlation
+   */
+  public DoubleFunction1D getCorrelation() {
+    return _correlation;
+  }
+
+  /**
    * Compute the present value of a CMS spread cap/floor in the binormal approach. 
    * @param cmsSpread The CMS spread cap/floor.
    * @param sabrData The SABR data bundle.
    * @return The present value.
    */
-  public double presentValue(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
     double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
     double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
     CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
@@ -94,7 +114,14 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
     EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
     Function1D<BlackFunctionData, Double> normalFunction = NORMAL_PRICE.getPriceFunction(optionSpread);
     double cmsSpreadPrice = normalFunction.evaluate(dataSpread);
-    return cmsSpreadPrice;
+    return CurrencyAmount.of(cmsSpread.getCurrency(), cmsSpreadPrice);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof CapFloorCMSSpread, "CMS spread cap/floor");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    return presentValue((CapFloorCMSSpread) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**
@@ -109,6 +136,148 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
     BrentSingleRootFinder finder = new BrentSingleRootFinder();
     double correlation = finder.getRoot(function, -0.999, 0.999);
     return correlation;
+  }
+
+  /**
+   * Computes the present value curves sensitivity of a CMS spread cap/floor in the binormal approach. 
+   * For the CMS cap/floor volatility calibration, ATM forward strikes are used. The change of strike due to curve change is not taken into account in the curve sensitivity;
+   * it is the sensitivity with constant calibration strikes.
+   * @param cmsSpread The CMS spread cap/floor.
+   * @param sabrData The SABR data bundle.
+   * @return The present value curve sensitivity.
+   */
+  public PresentValueSensitivity presentValueSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
+    // Forward sweep
+    double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
+    double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
+    CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
+    CouponCMS cmsCoupon2 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap2(), cmsSpread.getSettlementTime());
+    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
+    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
+    double cmsCoupon1Price = METHOD_CMS_COUPON.presentValue(cmsCoupon1, sabrData);
+    double cmsCoupon2Price = METHOD_CMS_COUPON.presentValue(cmsCoupon2, sabrData);
+    double cmsCap1Price = METHOD_CMS_CAP.presentValue(cmsCap1, sabrData).getAmount();
+    double cmsCap2Price = METHOD_CMS_CAP.presentValue(cmsCap2, sabrData).getAmount();
+    double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
+    double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
+    double expectation1 = cmsCoupon1Price / factor;
+    double expectation2 = cmsCoupon2Price / factor;
+    BlackFunctionData dataCap1 = new BlackFunctionData(expectation1, factor, 0.0);
+    EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, cmsSpread.getFixingTime(), true);
+    double cmsCap1ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price);
+    BlackFunctionData dataCap2 = new BlackFunctionData(expectation2, factor, cmsCap1ImpliedVolatility);
+    EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, cmsSpread.getFixingTime(), true);
+    double cmsCap2ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price);
+    double rho = _correlation.evaluate(cmsSpread.getStrike());
+    double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
+        * cmsCap2ImpliedVolatility);
+    BlackFunctionData dataSpread = new BlackFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(), cmsSpreadImpliedVolatility);
+    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
+    double[] cmsSpreadPriceDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionSpread, dataSpread, cmsSpreadPriceDerivative);
+    // Backward sweep
+    double cmsSpreadPriceBar = 1.0;
+    double cmsSpreadImpliedVolatilityBar = cmsSpreadPriceDerivative[1] * cmsSpreadPriceBar;
+    double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    dataCap2 = new BlackFunctionData(expectation2, factor, cmsCap2ImpliedVolatility);
+    double[] cmsCap2PriceNormalDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionCap2, dataCap2, cmsCap2PriceNormalDerivative);
+    double expectation2Bar = -cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    dataCap1 = new BlackFunctionData(expectation1, factor, cmsCap1ImpliedVolatility);
+    double[] cmsCap1PriceNormalDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionCap1, dataCap1, cmsCap1PriceNormalDerivative);
+    double expectation1Bar = cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    double factorBar = -cmsCoupon1Price / (factor * factor) * expectation1Bar + -cmsCoupon2Price / (factor * factor) * expectation2Bar - cmsCap2Price / factor / cmsCap2PriceNormalDerivative[1]
+        * cmsCap2ImpliedVolatilityBar - cmsCap1Price / factor / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    double discountFactorPaymentBar = cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction() * factorBar;
+    double cmsCap2PriceBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    double cmsCoupon2PriceBar = expectation2Bar / factor;
+    double cmsCoupon1PriceBar = expectation1Bar / factor;
+    PresentValueSensitivity cmsCoupon1CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon1, sabrData);
+    PresentValueSensitivity cmsCoupon2CurveSensitivity = METHOD_CMS_COUPON.presentValueSensitivity(cmsCoupon2, sabrData);
+    PresentValueSensitivity cmsCap1CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap1, sabrData);
+    PresentValueSensitivity cmsCap2CurveSensitivity = METHOD_CMS_CAP.presentValueSensitivity(cmsCap2, sabrData);
+    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    list.add(new DoublesPair(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    resultMap.put(cmsSpread.getFundingCurveName(), list);
+    PresentValueSensitivity dfCurveSensitivity = new PresentValueSensitivity(resultMap);
+    PresentValueSensitivity result;
+    result = dfCurveSensitivity.multiply(discountFactorPaymentBar);
+    result = result.add(cmsCoupon1CurveSensitivity.multiply(cmsCoupon1PriceBar));
+    result = result.add(cmsCoupon2CurveSensitivity.multiply(cmsCoupon2PriceBar));
+    result = result.add(cmsCap1CurveSensitivity.multiply(cmsCap1PriceBar));
+    result = result.add(cmsCap2CurveSensitivity.multiply(cmsCap2PriceBar));
+    return result;
+  }
+
+  /**
+   * Computes the present value sensitivity to the SABR parameters of a CMS spread cap/floor in the SABR framework. 
+   * @param cmsSpread The CMS spread cap/floor.
+   * @param sabrData The SABR data bundle.
+   * @return The present value SABR sensitivity.
+   */
+  public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
+    // Forward sweep
+    double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
+    double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
+    CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
+    CouponCMS cmsCoupon2 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap2(), cmsSpread.getSettlementTime());
+    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
+    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
+    double cmsCoupon1Price = METHOD_CMS_COUPON.presentValue(cmsCoupon1, sabrData);
+    double cmsCoupon2Price = METHOD_CMS_COUPON.presentValue(cmsCoupon2, sabrData);
+    double cmsCap1Price = METHOD_CMS_CAP.presentValue(cmsCap1, sabrData).getAmount();
+    double cmsCap2Price = METHOD_CMS_CAP.presentValue(cmsCap2, sabrData).getAmount();
+    double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
+    double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
+    double expectation1 = cmsCoupon1Price / factor;
+    double expectation2 = cmsCoupon2Price / factor;
+    BlackFunctionData dataCap1 = new BlackFunctionData(expectation1, factor, 0.0);
+    EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, cmsSpread.getFixingTime(), true);
+    double cmsCap1ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price);
+    BlackFunctionData dataCap2 = new BlackFunctionData(expectation2, factor, cmsCap1ImpliedVolatility);
+    EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, cmsSpread.getFixingTime(), true);
+    double cmsCap2ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price);
+    double rho = _correlation.evaluate(cmsSpread.getStrike());
+    double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
+        * cmsCap2ImpliedVolatility);
+    BlackFunctionData dataSpread = new BlackFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(), cmsSpreadImpliedVolatility);
+    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
+    double[] cmsSpreadPriceDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionSpread, dataSpread, cmsSpreadPriceDerivative);
+    // Backward sweep
+    double cmsSpreadPriceBar = 1.0;
+    double cmsSpreadImpliedVolatilityBar = cmsSpreadPriceDerivative[1] * cmsSpreadPriceBar;
+    double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    dataCap2 = new BlackFunctionData(expectation2, factor, cmsCap2ImpliedVolatility);
+    double[] cmsCap2PriceNormalDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionCap2, dataCap2, cmsCap2PriceNormalDerivative);
+    double expectation2Bar = -cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    dataCap1 = new BlackFunctionData(expectation1, factor, cmsCap1ImpliedVolatility);
+    double[] cmsCap1PriceNormalDerivative = new double[3];
+    NORMAL_PRICE.getPriceAdjoint(optionCap1, dataCap1, cmsCap1PriceNormalDerivative);
+    double expectation1Bar = cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    double cmsCap2PriceBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    double cmsCoupon2PriceBar = expectation2Bar / factor;
+    double cmsCoupon1PriceBar = expectation1Bar / factor;
+    PresentValueSABRSensitivityDataBundle cmsCoupon1SABRSensitivity = METHOD_CMS_COUPON.presentValueSABRSensitivity(cmsCoupon1, sabrData);
+    PresentValueSABRSensitivityDataBundle cmsCoupon2SABRSensitivity = METHOD_CMS_COUPON.presentValueSABRSensitivity(cmsCoupon2, sabrData);
+    PresentValueSABRSensitivityDataBundle cmsCap1SABRSensitivity = METHOD_CMS_CAP.presentValueSABRSensitivity(cmsCap1, sabrData);
+    PresentValueSABRSensitivityDataBundle cmsCap2SABRSensitivity = METHOD_CMS_CAP.presentValueSABRSensitivity(cmsCap2, sabrData);
+    cmsCoupon1SABRSensitivity.multiply(cmsCoupon1PriceBar);
+    cmsCoupon2SABRSensitivity.multiply(cmsCoupon2PriceBar);
+    cmsCap1SABRSensitivity.multiply(cmsCap1PriceBar);
+    cmsCap2SABRSensitivity.multiply(cmsCap2PriceBar);
+    PresentValueSABRSensitivityDataBundle result = cmsCoupon1SABRSensitivity;
+    result = result.plus(cmsCoupon2SABRSensitivity);
+    result = result.plus(cmsCap1SABRSensitivity);
+    result = result.plus(cmsCap2SABRSensitivity);
+    return result;
   }
 
   /**
@@ -143,16 +312,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod {
     @Override
     public Double evaluate(Double x) {
       CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x}));
-      return method.presentValue(_cmsSpread, _sabrData) - _price;
+      return method.presentValue(_cmsSpread, _sabrData).getAmount() - _price;
     }
-  }
-
-  /**
-   * Gets the correlation (rho) as function of the strike.
-   * @return The correlation
-   */
-  public DoubleFunction1D getCorrelation() {
-    return _correlation;
   }
 
 }

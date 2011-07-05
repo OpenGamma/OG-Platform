@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.Assert;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -18,7 +19,7 @@ import cern.jet.random.engine.RandomEngine;
 public abstract class ProbabilityDistributionTestCase {
 
   protected static final double EPS = 1e-5;
-  protected static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   protected void assertCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
     assertCDFWithNull(dist);

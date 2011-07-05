@@ -7,8 +7,11 @@ package com.opengamma.web.bundle;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import com.opengamma.web.bundle.BundleManager;
@@ -22,10 +25,10 @@ import com.opengamma.web.bundle.Fragment;
 public class BundleParserTest {
 
   public void testParser() throws Exception {
-    File xmlFile = new File(getClass().getResource("uiResourceConfig.xml").getPath());
+    InputStream xmlStream = getClass().getResourceAsStream("uiResourceConfig.xml");
     
-    BundleParser bundleParser = new BundleParser(xmlFile);
-    BundleManager bundleManager = bundleParser.parse();
+    BundleParser bundleParser = new BundleParser();
+    BundleManager bundleManager = bundleParser.parse(xmlStream);
     assertNotNull(bundleManager);
     
     List<Fragment> cssBundleCommon = bundleManager.getBundle("cssBundleCommon.css").getAllFragments();
@@ -65,6 +68,8 @@ public class BundleParserTest {
     for (Fragment fragment : jsBundleCommon) {
       assertEquals(fragment, jsOgCommon.get(j++));
     }    
+    
+    IOUtils.closeQuietly(xmlStream);
   }
 
 }

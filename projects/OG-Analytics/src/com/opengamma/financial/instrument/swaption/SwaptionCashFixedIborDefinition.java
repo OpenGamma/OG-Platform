@@ -110,6 +110,10 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
     return _settlementDate;
   }
 
+  /**
+   * Gets the swaption expiry date.
+   * @return The expiry date.
+   */
   public Expiry getExpiry() {
     return _expiry;
   }
@@ -123,16 +127,27 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
   }
 
   @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitSwaptionCashFixedIborDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitSwaptionCashFixedIborDefinition(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -142,21 +157,17 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
+    SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }
-    return ObjectUtils.equals(_underlyingSwap, other._underlyingSwap);
-  }
-
-  @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null;
-  }
-
-  @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
+      return false;
+    }
+    return true;
   }
 
 }
