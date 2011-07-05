@@ -40,19 +40,19 @@ public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDe
 
   @Override
   public PresentValueSensitivity visitForex(Forex derivative, YieldCurveBundle data) {
-    ForexDiscountingMethod method = new ForexDiscountingMethod();
+    ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
   public PresentValueSensitivity visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
-    ForexSwapDiscountingMethod method = new ForexSwapDiscountingMethod();
+    ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
   public PresentValueSensitivity visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaMethod method = new ForexOptionVanillaMethod();
+    ForexOptionVanillaMethod method = ForexOptionVanillaMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 

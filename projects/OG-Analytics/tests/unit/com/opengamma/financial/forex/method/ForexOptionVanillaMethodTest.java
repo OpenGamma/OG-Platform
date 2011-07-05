@@ -86,8 +86,8 @@ public class ForexOptionVanillaMethodTest {
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(SMILE_TERM, SPOT, CURVES);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  private static final ForexOptionVanillaMethod METHOD_OPTION = new ForexOptionVanillaMethod();
-  private static final ForexDiscountingMethod METHOD_DISC = new ForexDiscountingMethod();
+  private static final ForexOptionVanillaMethod METHOD_OPTION = ForexOptionVanillaMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
   private static final PresentValueForexCalculator PVC = PresentValueForexCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();

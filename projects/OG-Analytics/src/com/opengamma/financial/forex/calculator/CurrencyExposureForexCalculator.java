@@ -35,24 +35,24 @@ public class CurrencyExposureForexCalculator extends AbstractForexDerivativeVisi
   /**
    * Constructor.
    */
-  CurrencyExposureForexCalculator() {
+  public CurrencyExposureForexCalculator() {
   }
 
   @Override
-  public MultipleCurrencyAmount visitForex(Forex derivative, YieldCurveBundle data) {
-    ForexDiscountingMethod method = new ForexDiscountingMethod();
+  public MultipleCurrencyAmount visitForex(final Forex derivative, final YieldCurveBundle data) {
+    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
-    ForexSwapDiscountingMethod method = new ForexSwapDiscountingMethod();
+  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
+    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaMethod method = new ForexOptionVanillaMethod();
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaMethod method = ForexOptionVanillaMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 

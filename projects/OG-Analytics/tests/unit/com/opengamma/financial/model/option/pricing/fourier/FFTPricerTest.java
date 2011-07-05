@@ -203,7 +203,6 @@ public class FFTPricerTest {
     final double rho = -0.7;
     final double t = 2.0;
 
-    EuropeanVanillaOption option = new EuropeanVanillaOption(100, t, isCall);
     final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
     final double[][] strikeNPrice = PRICER.price(FORWARD, DF, t, isCall, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, 0.3, -0.5, 1e-10);
 
@@ -221,7 +220,6 @@ public class FFTPricerTest {
     final int m = strikeNPrice2.length;
     for (int i = 0; i < m; i++) {
       final double strike = strikeNPrice2[i][0];
-      option = new EuropeanVanillaOption(strike, t, isCall);
       final double sigma = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(FORWARD, DF, 0.0), new EuropeanVanillaOption(strike, t, isCall), strikeNPrice2[i][1]);
       assertEquals(sigma, INTERPOLATOR.interpolate(dataBundle, strike), 1e-5);
     }

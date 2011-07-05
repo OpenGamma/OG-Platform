@@ -46,7 +46,8 @@ public final class YieldCurveFunction {
   private YieldCurveFunction() {
   }
 
-  private static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     if ((curveNames == null) || (curveNames.size() != 1)) {
       return null;
@@ -55,7 +56,8 @@ public final class YieldCurveFunction {
     }
   }
 
-  private static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
     s_logger.debug("propertyName={} requirement={}", propertyName, requirement);
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     final Set<String> defaultCurves;
@@ -82,7 +84,7 @@ public final class YieldCurveFunction {
       default:
         defaultCurves = context.getViewCalculationConfiguration().getDefaultProperties().getValues(propertyName);
         String foundCurve = null;
-        for (String curveName : curveNames) {
+        for (final String curveName : curveNames) {
           if (defaultCurves.contains(curveName)) {
             if (foundCurve == null) {
               foundCurve = curveName;
@@ -160,7 +162,7 @@ public final class YieldCurveFunction {
   public static Pair<String, String> getDesiredValueCurveNames(final Set<ValueRequirement> desiredValues) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       if (forwardCurveName == null) {
         final String curveName = getForwardCurveName(desiredValue);
         if (curveName != null) {
@@ -211,7 +213,7 @@ public final class YieldCurveFunction {
   public static Pair<String, String> getInputCurveNames(final Map<ValueSpecification, ValueRequirement> inputs) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
         if (curveName.equals(input.getValue().getConstraint(PROPERTY_FORWARD_CURVE))) {

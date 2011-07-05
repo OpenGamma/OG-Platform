@@ -29,7 +29,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   /**
    * The method to compute interest rate future prices.
    */
-  private static final InterestRateFutureTransactionDiscountingMethod METHOD_RATE_FUTURE = new InterestRateFutureTransactionDiscountingMethod();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.

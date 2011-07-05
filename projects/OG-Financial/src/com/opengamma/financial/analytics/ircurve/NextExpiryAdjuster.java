@@ -15,11 +15,15 @@ import javax.time.calendar.MonthOfYear;
 
 import com.google.common.collect.Sets;
 
-class NextExpiryAdjuster implements DateAdjuster {
+/**
+ * 
+ */
+public class NextExpiryAdjuster implements DateAdjuster {
   private static final DateAdjuster s_thirdWedAdjuster = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
   private static final DateAdjuster s_nextQuarterAdjuster = new NextQuarterAdjuster();
-  
+
   private final Set<MonthOfYear> _futureQuarters = Sets.newHashSet(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+
   @Override
   public LocalDate adjustDate(final LocalDate date) {
     if (_futureQuarters.contains(date.getMonthOfYear()) &&

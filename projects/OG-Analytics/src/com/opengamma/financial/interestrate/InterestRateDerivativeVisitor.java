@@ -15,12 +15,10 @@ import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
@@ -32,6 +30,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -91,13 +90,9 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, S data);
 
-  //  T visitFloatingRateNote(FloatingRateNote frn, S data);
-
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
   T visitCash(Cash cash, S data);
-
-  T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
 
@@ -115,6 +110,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedPayment(PaymentFixed payment, S data);
 
+  T visitCouponFloating(CouponFloating payment, S data);
+
   T visitFixedCouponPayment(CouponFixed payment, S data);
 
   T visitCouponIbor(CouponIbor payment, S data);
@@ -128,8 +125,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitCapFloorCMS(CapFloorCMS payment, S data);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
-
-  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, S data);
 
   // One argument
 
@@ -177,8 +172,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCash(Cash cash);
 
-  T visitInterestRateFuture(InterestRateFuture future);
-
   T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
 
   T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
@@ -197,6 +190,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedCouponPayment(CouponFixed payment);
 
+  T visitCouponFloating(CouponFloating payment);
+
   T visitCouponIbor(CouponIbor payment);
 
   T visitCouponIborGearing(CouponIborGearing payment);
@@ -209,6 +204,5 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
 
-  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra);
-
+  //TODO cap / floor CMS spread
 }

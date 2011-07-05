@@ -26,38 +26,44 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceDefinition<?, ?> object) {
-    MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final VolatilitySurfaceDefinition<?, ?> object) {
+    final MutableFudgeMsg message = context.newMessage();
     context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
-    message.add("interpolatorName", object.getInterpolatorName());
-    for (Object x : object.getXs()) {
-      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+    for (final Object x : object.getXs()) {
+      if (x instanceof Number) {
+        context.addToMessageWithClassHeaders(message, "xs", null, x);
+      } else {
+        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      }
     }
-    for (Object y : object.getYs()) {
-      message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
-    }    
-    return message; 
+    for (final Object y : object.getYs()) {
+      if (y instanceof Number) {
+        context.addToMessageWithClassHeaders(message, "ys", null, y);
+      } else {
+        message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+      }
+    }
+    return message;
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
-    String name = message.getString("name");
-    String interpolatorName = message.getString("interpolatorName");
-    List<FudgeField> xsFields = message.getAllByName("xs");
-    List<Object> xs = new ArrayList<Object>();
-    for (FudgeField xField : xsFields) {
-      Object x = context.fieldValueToObject(xField);
+  public VolatilitySurfaceDefinition<?, ?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    final String name = message.getString("name");
+    final List<FudgeField> xsFields = message.getAllByName("xs");
+    final List<Object> xs = new ArrayList<Object>();
+    for (final FudgeField xField : xsFields) {
+      final Object x = context.fieldValueToObject(xField);
       xs.add(x);
     }
-    List<FudgeField> ysFields = message.getAllByName("ys");
-    List<Object> ys = new ArrayList<Object>();
-    for (FudgeField yField : ysFields) {
-      Object y = context.fieldValueToObject(yField);
+    final List<FudgeField> ysFields = message.getAllByName("ys");
+    final List<Object> ys = new ArrayList<Object>();
+    for (final FudgeField yField : ysFields) {
+      final Object y = context.fieldValueToObject(yField);
       ys.add(y);
-    }    
-    return new VolatilitySurfaceDefinition<Object, Object>(name, currency, interpolatorName, xs.toArray(), ys.toArray());
+    }
+    return new VolatilitySurfaceDefinition<Object, Object>(name, currency, xs.toArray(), ys.toArray());
   }
 
 }

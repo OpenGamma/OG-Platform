@@ -29,12 +29,20 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  */
-public class ForexOptionVanillaMethod implements ForexPricingMethod {
+public final class ForexOptionVanillaMethod implements ForexPricingMethod {
 
   /**
    * The Black function used in the pricing.
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  private static final ForexOptionVanillaMethod INSTANCE = new ForexOptionVanillaMethod();
+
+  public static ForexOptionVanillaMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private ForexOptionVanillaMethod() {
+  }
 
   /**
    * Computes the present value of the vanilla option with the Black function and a volatility from a volatility surface.
@@ -108,24 +116,24 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
   public PresentValueSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    double spot = smile.getSpot();
-    double payTime = optionForex.getUnderlyingForex().getPaymentTime();
-    String domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
-    String foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+    final double spot = smile.getSpot();
+    final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
+    final String domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+    final String foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     // Forward sweep
-    double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
-    double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
-    double forward = spot * dfForeign / dfDomestic;
-    double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getTimeToExpiry(), optionForex.getStrike(), forward));
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
+    final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
+    final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getTimeToExpiry(), optionForex.getStrike(), forward));
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     // Backward sweep
-    double priceBar = 1.0;
-    double forwardBar = priceAdjoint[1] * dfDomestic;
-    double dfForeignBar = spot / dfDomestic * forwardBar;
-    double dfDomesticBar = -spot / (dfDomestic * dfDomestic) * dfForeign * forwardBar + priceAdjoint[0] * priceBar;
-    double rForeignBar = -payTime * dfForeign * dfForeignBar;
-    double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
+    final double priceBar = 1.0;
+    final double forwardBar = priceAdjoint[1] * dfDomestic;
+    final double dfForeignBar = spot / dfDomestic * forwardBar;
+    final double dfDomesticBar = -spot / (dfDomestic * dfDomestic) * dfForeign * forwardBar + priceAdjoint[0] * priceBar;
+    final double rForeignBar = -payTime * dfForeign * dfForeignBar;
+    final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
     final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
     listForeign.add(new DoublesPair(payTime, rForeignBar * optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));

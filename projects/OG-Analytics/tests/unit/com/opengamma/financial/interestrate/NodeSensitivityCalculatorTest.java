@@ -37,7 +37,7 @@ public class NodeSensitivityCalculatorTest {
 
   private static final String FUNDING_CURVE_NAME = "funding";
   private static final String LIBOR_CURVE_NAME = "libor";
-  private static final NodeSensitivityCalculator NSC = new NodeSensitivityCalculator();
+  private static final NodeSensitivityCalculator NSC = NodeSensitivityCalculator.getInstance();
   private static final InterestRateDerivative IRD;
   private static final LinkedHashMap<String, YieldAndDiscountCurve> INTERPOLATED_CURVES;
   private static final YieldAndDiscountCurve FUNDING_CURVE;

@@ -8,8 +8,10 @@ package com.opengamma.financial.interestrate.payments;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,11 +23,11 @@ public class CouponTest {
   private static final String NAME = "D";
   private static final double ACCRUAL_TIME = 0.51;
   private static final double NOTIONAL = 100;
-  private static final Coupon COUPON = new Coupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
+  private static final Coupon COUPON = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeAccrualTime() {
-    new Coupon(CCY, PAYMENT_TIME, NAME, -ACCRUAL_TIME, NOTIONAL);
+    new MyCoupon(CCY, PAYMENT_TIME, NAME, -ACCRUAL_TIME, NOTIONAL);
   }
 
   @Test
@@ -36,19 +38,37 @@ public class CouponTest {
     assertEquals(PAYMENT_TIME, COUPON.getPaymentTime(), 0);
     assertEquals(ACCRUAL_TIME, COUPON.getPaymentYearFraction(), 0);
     assertEquals(NOTIONAL, COUPON.getReferenceAmount(), 0);
-    Coupon other = new Coupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
+    Coupon other = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertEquals(COUPON, other);
     assertEquals(COUPON.hashCode(), other.hashCode());
     assertEquals(COUPON.toString(), "\n Currency=AUD, Payment time=0.5, Funding curve=D, year fraction = 0.51, notional = 100.0");
-    other = new Coupon(Currency.CAD, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
+    other = new MyCoupon(Currency.CAD, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertFalse(other.equals(COUPON));
-    other = new Coupon(CCY, PAYMENT_TIME + 1, NAME, ACCRUAL_TIME, NOTIONAL);
+    other = new MyCoupon(CCY, PAYMENT_TIME + 1, NAME, ACCRUAL_TIME, NOTIONAL);
     assertFalse(other.equals(COUPON));
-    other = new Coupon(CCY, PAYMENT_TIME, NAME + "_", ACCRUAL_TIME, NOTIONAL);
+    other = new MyCoupon(CCY, PAYMENT_TIME, NAME + "_", ACCRUAL_TIME, NOTIONAL);
     assertFalse(other.equals(COUPON));
-    other = new Coupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME + 1, NOTIONAL);
+    other = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME + 1, NOTIONAL);
     assertFalse(other.equals(COUPON));
-    other = new Coupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL + 1);
+    other = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL + 1);
     assertFalse(other.equals(COUPON));
+  }
+
+  private static class MyCoupon extends Coupon {
+
+    public MyCoupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional) {
+      super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
+    }
+
+    @Override
+    public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+      throw new NotImplementedException();
+    }
+
   }
 }

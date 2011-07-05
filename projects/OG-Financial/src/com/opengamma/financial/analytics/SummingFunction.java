@@ -6,8 +6,11 @@
 package com.opengamma.financial.analytics;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,10 +25,12 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.tuple.DoublesPair;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
 // For non-linear aggregates and large portfolios, you'll want to use a more refined
@@ -44,12 +49,12 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected String[] getPreservedProperties() {
-    return new String[] {
-      ValuePropertyNames.CURRENCY,
-      ValuePropertyNames.CURVE,
-      ValuePropertyNames.CURVE_CURRENCY,
-      YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-      YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+    return new String[] {ValuePropertyNames.CUBE,
+                         ValuePropertyNames.CURRENCY,
+                         ValuePropertyNames.CURVE,
+                         ValuePropertyNames.CURVE_CURRENCY,
+                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
   }
 
   private final String _requirementName;
@@ -108,8 +113,40 @@ public class SummingFunction extends PropertyPreservingFunction {
       final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) previousSum;
       final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) currentValue;
       return previousMatrix.add(currentMatrix);
+    } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
+      @SuppressWarnings("unchecked")
+      final Map<String, List<DoublesPair>> previousMap = (Map<String, List<DoublesPair>>) previousSum;
+      @SuppressWarnings("unchecked")
+      final Map<String, List<DoublesPair>> currentMap = (Map<String, List<DoublesPair>>) currentValue;
+      final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+      for (final String name : previousMap.keySet()) {
+        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+        for (final DoublesPair pair : previousMap.get(name)) {
+          temp.add(pair);
+        }
+        if (currentMap.containsKey(name)) {
+          for (final DoublesPair pair : currentMap.get(name)) {
+            temp.add(pair);
+          }
+        }
+        result.put(name, temp);
+      }
+      for (final String name : currentMap.keySet()) {
+        if (!result.containsKey(name)) {
+          final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+          for (final DoublesPair pair : currentMap.get(name)) {
+            temp.add(pair);
+          }
+          result.put(name, temp);
+        }
+      }
+    } else if (currentValue instanceof DoubleLabelledMatrix2D) {
+      final DoubleLabelledMatrix2D previousMatrix = (DoubleLabelledMatrix2D) previousSum;
+      final DoubleLabelledMatrix2D currentMatrix = (DoubleLabelledMatrix2D) currentValue;
+      return previousMatrix.add(currentMatrix, 0.005, 0.005);
     }
-    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime) right now.");
+    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
+        "or present value curve sensitivities right now.");
   }
 
   @Override

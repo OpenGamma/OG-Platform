@@ -18,11 +18,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
@@ -81,47 +79,23 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final double ta = cash.getTradeTime();
     final double tb = cash.getMaturity();
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta);
+    return cash.getNotional() * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta);
   }
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(fra);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double fv = (forward - fra.getStrike()) * fwdAlpha / (1 + forward * discountAlpha);
-    return fv * fundingCurve.getDiscountFactor(fra.getSettlementDate());
+    return ForwardRateAgreementDiscountingMethod.getInstance().presentValue(fra, curves).getAmount();
   }
 
-  @Override
-  public Double visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(fra);
-    final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
-    return method.presentValue(fra, curves).getAmount();
-  }
-
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(future);
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(future.getCurveName());
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-    final double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / future.getIndexYearFraction();
-    return future.getValueYearFraction() * (1 - rate - future.getPrice() / 100);
-  }
-
-  @Override
   /**
+   * {@inheritDoc}
    * Future transaction pricing without convexity adjustment.
    */
+  @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
     return method.presentValue(future, curves).getAmount();
   }
 
@@ -256,13 +230,13 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
-    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
     return method.presentValue(cmsCoupon, curves);
   }
 
   @Override
   public Double visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
-    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValue(coupon, curves).getAmount();
   }
 

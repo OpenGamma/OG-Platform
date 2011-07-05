@@ -1,0 +1,37 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.capfloor {
+
+  /** 
+   * A security modelling a cap/floor CMS spread security
+   */
+   
+  message CapFloorCMSSpreadSecurity extends FinancialSecurity {
+    
+    required string securityType [default = "CAP/FLOOR CMS SPREAD"];
+    required javax.time.calendar.ZonedDateTime startDate;
+    required javax.time.calendar.ZonedDateTime maturityDate;
+    required double notional;
+    required id.Identifier longIdentifier;
+    required id.Identifier shortIdentifier;
+    required double strike;
+    required com.opengamma.financial.convention.frequency.Frequency frequency;
+    required com.opengamma.util.money.Currency currency;
+    required com.opengamma.financial.convention.daycount.DayCount dayCount;
+    required boolean isPayer;
+    required boolean isCap;
+    
+    binding Java {
+      body <<<JAVA
+        public <T> T accept(CapFloorCMSSpreadSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); };
+        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); }
+JAVA;
+    }
+  }
+}
+  }
+}

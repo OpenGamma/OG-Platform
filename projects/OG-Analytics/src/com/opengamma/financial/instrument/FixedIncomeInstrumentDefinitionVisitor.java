@@ -13,8 +13,7 @@ import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
-import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -83,13 +82,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitCashDefinition(CashDefinition cash);
 
-  U visitFRADefinition(FRADefinition fra, T data);
+  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, T data);
 
-  U visitFRADefinition(FRADefinition fra);
-
-  U visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra, T data);
-
-  U visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra);
+  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
 
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data);
 
@@ -143,9 +138,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
 
-  U visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap, T data);
+  U visitSwapDefinition(SwapDefinition swap, T data);
 
-  U visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap);
+  U visitSwapDefinition(SwapDefinition swap);
 
   U visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, T data);
 

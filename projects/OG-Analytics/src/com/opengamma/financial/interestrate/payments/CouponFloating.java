@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -28,7 +29,7 @@ public class CouponFloating extends Coupon {
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    */
-  public CouponFloating(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime) {
+  public CouponFloating(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(fixingTime >= 0.0, "fixing time < 0");
     _fixingTime = fixingTime;
@@ -58,7 +59,7 @@ public class CouponFloating extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -68,11 +69,21 @@ public class CouponFloating extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFloating other = (CouponFloating) obj;
+    final CouponFloating other = (CouponFloating) obj;
     if (Double.doubleToLongBits(_fixingTime) != Double.doubleToLongBits(other._fixingTime)) {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCouponFloating(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCouponFloating(this);
   }
 
 }

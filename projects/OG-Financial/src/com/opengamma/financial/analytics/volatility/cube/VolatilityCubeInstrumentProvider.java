@@ -25,6 +25,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.Identifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -37,11 +38,11 @@ public final class VolatilityCubeInstrumentProvider {
 
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
-  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER = 
-    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
-  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER = 
-    new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", true, false, " Curncy");
-  
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER =
+      new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy", MarketDataRequirementNames.MARKET_VALUE);
+  private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER =
+      new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", false, true, " Curncy", MarketDataRequirementNames.MARKET_VALUE);
+
   /**
    * Generates Bloomberg codes for volatilities given points.
    */
@@ -50,34 +51,34 @@ public final class VolatilityCubeInstrumentProvider {
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
   private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> _idsByPoint;
-  
+
   private VolatilityCubeInstrumentProvider() {
     //TODO not here
     _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>>();
 
-    InputStream is = getClass().getResourceAsStream(TICKER_FILE);
+    final InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
       throw new OpenGammaRuntimeException("Unable to locate " + TICKER_FILE);
     }
-    CSVReader csvReader = new CSVReader(new InputStreamReader(is), CSVParser.DEFAULT_SEPARATOR,
+    final CSVReader csvReader = new CSVReader(new InputStreamReader(is), CSVParser.DEFAULT_SEPARATOR,
         CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, 1);
     String[] nextLine;
     try {
       while ((nextLine = csvReader.readNext()) != null) {
         //TODO: are these the right way round (copied from VolatilityCubeConfigPopulator)
-        String currencyIso = nextLine[1];
-        String expiry = nextLine[2];
-        String expiryUnit = nextLine[3];
-        String swapPeriod = nextLine[4];
-        String swapPeriodUnit = nextLine[5];
-        String payOrReceive = nextLine[6];
-        String relativeStrike = nextLine[7];
-        String ticker = nextLine[8];
+        final String currencyIso = nextLine[1];
+        final String expiry = nextLine[2];
+        final String expiryUnit = nextLine[3];
+        final String swapPeriod = nextLine[4];
+        final String swapPeriodUnit = nextLine[5];
+        final String payOrReceive = nextLine[6];
+        final String relativeStrike = nextLine[7];
+        final String ticker = nextLine[8];
 
         if (ticker != null) {
-          Currency currency = Currency.of(currencyIso);
-          Tenor swapTenor = new Tenor(Period.parse("P" + swapPeriod + swapPeriodUnit));
-          Tenor optionExpiry = new Tenor(Period.parse("P" + expiry + expiryUnit));
+          final Currency currency = Currency.of(currencyIso);
+          final Tenor swapTenor = new Tenor(Period.parse("P" + swapPeriod + swapPeriodUnit));
+          final Tenor optionExpiry = new Tenor(Period.parse("P" + expiry + expiryUnit));
           double sign;
           if ("PY".equals(payOrReceive)) {
             sign = -1;
@@ -87,14 +88,14 @@ public final class VolatilityCubeInstrumentProvider {
             throw new IllegalArgumentException();
           }
 
-          Double relativeStrikeRaw = Double.valueOf(relativeStrike);
-          double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
-          Double relativeStrikeBps = sign * normalizedStrike;
-          VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
+          final Double relativeStrikeRaw = Double.valueOf(relativeStrike);
+          final double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
+          final Double relativeStrikeBps = sign * normalizedStrike;
+          final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
 
-          Identifier identifier = getIdentifier(ticker + " Curncy");
+          final Identifier identifier = getIdentifier(ticker + " Curncy");
 
-          ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
+          final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
           if (_idsByPoint.containsKey(key)) {
             _idsByPoint.get(key).add(identifier);
           } else {
@@ -103,18 +104,18 @@ public final class VolatilityCubeInstrumentProvider {
         }
       }
       csvReader.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new OpenGammaRuntimeException("Unable to read from " + TICKER_FILE, e);
     }
   }
 
-  private Identifier getIdentifier(String ticker) {
+  private Identifier getIdentifier(final String ticker) {
     return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker);
   }
 
-  public Set<Identifier> getInstruments(Currency currency, VolatilityPoint point) {
+  public Set<Identifier> getInstruments(final Currency currency, final VolatilityPoint point) {
     if ((point.getRelativeStrike() == 0.0 || point.getRelativeStrike() == -0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-      Identifier instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
+      final Identifier instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
       return _idsByPoint.get(Pair.of(currency, point));
@@ -122,16 +123,16 @@ public final class VolatilityCubeInstrumentProvider {
   }
 
   public Set<Currency> getAllCurrencies() {
-    HashSet<Currency> ret = new HashSet<Currency>();
-    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+    final HashSet<Currency> ret = new HashSet<Currency>();
+    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
       ret.add(entry.getKey().first);
     }
     return ret;
   }
-  
-  public Set<VolatilityPoint> getAllPoints(Currency currency) {
-    HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
-    for (Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
+
+  public Set<VolatilityPoint> getAllPoints(final Currency currency) {
+    final HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
+    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<Identifier>> entry : _idsByPoint.entrySet()) {
       if (entry.getKey().first.equals(currency)) {
         ret.add(entry.getKey().second);
       }
@@ -139,10 +140,11 @@ public final class VolatilityCubeInstrumentProvider {
     return ret;
   }
 
-  public Identifier getStrikeInstrument(Currency currency, VolatilityPoint point) {
+  public Identifier getStrikeInstrument(final Currency currency, final VolatilityPoint point) {
     return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
   }
-  public Identifier getStrikeInstrument(Currency currency, Tenor swapTenor, Tenor optionExpiry) {
+
+  public Identifier getStrikeInstrument(final Currency currency, final Tenor swapTenor, final Tenor optionExpiry) {
     if (currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
       return ATM_STRIKE_INSTRUMENT_PROVIDER.getInstrument(swapTenor, optionExpiry);
     } else {

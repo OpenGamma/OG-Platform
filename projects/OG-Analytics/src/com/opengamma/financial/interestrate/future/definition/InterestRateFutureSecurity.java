@@ -64,7 +64,7 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
    * @param lastTradingTime Future last trading time.
    * @param iborIndex Ibor index associated to the future.
    * @param fixingPeriodStartTime Fixing period of the reference Ibor starting time.
-   * @param fixingPeriodEndIme Fixing period of the reference Ibor end time.
+   * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
    * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor. 
@@ -72,7 +72,7 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
    */
-  public InterestRateFutureSecurity(double lastTradingTime, IborIndex iborIndex, double fixingPeriodStartTime, double fixingPeriodEndIme, double fixingPeriodAccrualFactor, double notional,
+  public InterestRateFutureSecurity(double lastTradingTime, IborIndex iborIndex, double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingPeriodAccrualFactor, double notional,
       double paymentAccrualFactor, String name, String discountingCurveName, String forwardCurveName) {
     Validate.notNull(iborIndex, "Ibor index");
     Validate.notNull(name, "Name");
@@ -81,7 +81,7 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
     this._lastTradingTime = lastTradingTime;
     this._iborIndex = iborIndex;
     this._fixingPeriodStartTime = fixingPeriodStartTime;
-    this._fixingPeriodEndTime = fixingPeriodEndIme;
+    this._fixingPeriodEndTime = fixingPeriodEndTime;
     this._fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;

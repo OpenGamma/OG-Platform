@@ -51,6 +51,16 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * The par rate sensitivity calculator.
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
+  private static final CapFloorCMSSABRReplicationMethod INSTANCE = new CapFloorCMSSABRReplicationMethod();
+
+  /** 
+   * Returns a default instance of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
+   * @return The calculation method
+   */
+  public static CapFloorCMSSABRReplicationMethod getDefaultInstance() {
+    return INSTANCE;
+  }
+
   /**
    * Range of the integral. Used only for caps. Represent the approximation of infinity in the strike dimension.
    * The range is [strike, strike+integrationInterval].
@@ -64,7 +74,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   /** 
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    */
-  public CapFloorCMSSABRReplicationMethod() {
+  private CapFloorCMSSABRReplicationMethod() {
     _integrationInterval = 1.00;
   }
 
@@ -125,7 +135,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorCMS, "CMS cap/floor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((CapFloorCMS) instrument, (SABRInterestRateDataBundle) curves);

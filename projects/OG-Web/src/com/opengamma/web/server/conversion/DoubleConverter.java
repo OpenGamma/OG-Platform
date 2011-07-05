@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -284,11 +285,14 @@ public class DoubleConverter implements ResultConverter<Object> {
     double doubleValue;
     if (value instanceof Double) {
       doubleValue = (Double) value;
-    } else {
+    } else if (value instanceof CurrencyAmount) {
       doubleValue = ((CurrencyAmount) value).getAmount();
+    } else {
+      throw new OpenGammaRuntimeException("Cannot convert objects of type " + value.getClass());
     }
+    //REVIEW emcleod 7-6-2011 This is awful - 0 is a legitimate value to return, whereas NaN or infinity show an error in the calculation
     if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
-      doubleValue = 0;
+      doubleValue = 0; 
     }
     return doubleValue;
   }

@@ -109,7 +109,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD = new CapFloorCMSSABRReplicationMethod();
+  private static final CapFloorCMSSABRReplicationMethod METHOD = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
   @Test
   /**

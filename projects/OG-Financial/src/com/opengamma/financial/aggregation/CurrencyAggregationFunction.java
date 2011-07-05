@@ -18,7 +18,7 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
   
   @Override
   public Currency classifyPosition(Position position) {
-    return FinancialSecurityUtils.getCurrencyUnit(position.getSecurity());
+    return FinancialSecurityUtils.getCurrency(position.getSecurity());
   }
 
   public String getName() {

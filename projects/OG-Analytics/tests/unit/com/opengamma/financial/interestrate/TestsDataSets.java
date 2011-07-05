@@ -9,7 +9,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameter;
+import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -236,9 +236,9 @@ public class TestsDataSets {
    * @param mu The tail thickness parameter.
    * @return The SABR surface with extrapolation parameters.
    */
-  public static SABRInterestRateExtrapolationParameter createSABRExtrapolation1(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double cutOffStrike, final double mu) {
+  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double cutOffStrike, final double mu) {
     final SABRInterestRateParameters sabr = createSABR1();
-    return SABRInterestRateExtrapolationParameter.from(sabr, cutOffStrike, mu);
+    return SABRInterestRateExtrapolationParameters.from(sabr, cutOffStrike, mu);
   }
 
   /**
@@ -247,7 +247,7 @@ public class TestsDataSets {
    * @param mu The tail thickness parameter.
    * @return The SABR surface with extrapolation parameters.
    */
-  public static SABRInterestRateExtrapolationParameter createSABRExtrapolation1(final double cutOffStrike, final double mu) {
+  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final double cutOffStrike, final double mu) {
     return createSABRExtrapolation1(new SABRHaganVolatilityFunction(), cutOffStrike, mu);
   }
 
@@ -267,7 +267,7 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a yield curve bundle with tthree curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */

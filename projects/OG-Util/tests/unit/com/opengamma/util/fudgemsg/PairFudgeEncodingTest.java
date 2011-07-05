@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.IntDoublePair;
 import com.opengamma.util.tuple.LongDoublePair;

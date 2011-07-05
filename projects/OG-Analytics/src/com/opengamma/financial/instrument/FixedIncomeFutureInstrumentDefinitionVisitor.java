@@ -6,7 +6,6 @@
 package com.opengamma.financial.instrument;
 
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.financial.instrument.future.IRFutureDefinition;
 
 /**
  * 
@@ -18,9 +17,5 @@ public interface FixedIncomeFutureInstrumentDefinitionVisitor<T, U> {
   U visitBondFutureDefinition(BondFutureDefinition bondFuture, T data);
 
   U visitBondFutureDefinition(BondFutureDefinition bondFuture);
-
-  U visitIRFutureDefinition(IRFutureDefinition irFuture, T data);
-
-  U visitIRFutureDefinition(IRFutureDefinition irFuture);
 
 }

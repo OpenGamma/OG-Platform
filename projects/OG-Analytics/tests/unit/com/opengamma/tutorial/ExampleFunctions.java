@@ -14,6 +14,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  * Menu of functions used in the tutorials
  */
 public class ExampleFunctions {
+
   /**
    * Computes a 1D Matrix by computing the square of each element of another
    */
@@ -29,4 +30,5 @@ public class ExampleFunctions {
       return new DoubleMatrix1D(y);
     }
   };
+
 }

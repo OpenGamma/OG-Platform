@@ -111,7 +111,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY");
     
     //These need to be replaced with meaningful cube defns
-    addVolatilityCubeFunction(configs, "USD", "DEFAULT");
+    addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
     
     Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {

@@ -75,7 +75,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(SMILE_TERM, SPOT, CURVES);
-  private static final ForexOptionVanillaMethod METHOD_VANILLA = new ForexOptionVanillaMethod();
+  private static final ForexOptionVanillaMethod METHOD_VANILLA = ForexOptionVanillaMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = new ForexOptionSingleBarrierBlackMethod();
   private static final BlackBarrierPriceFunction BLACK_BARRIER_FUNCTION = new BlackBarrierPriceFunction();
   // Option

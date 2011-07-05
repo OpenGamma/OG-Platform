@@ -129,7 +129,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -139,7 +139,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
+    final SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }

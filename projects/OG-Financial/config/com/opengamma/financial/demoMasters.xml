@@ -71,7 +71,7 @@
     <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
   <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader, cubeLoader"> -->
-  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="currencyMatrixLoader,surfaceLoader, cubeLoader">
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="currencyMatrixLoader, swaptionSurfaceLoader, irFutureSurfaceLoader, fxVolatilitySurfaceLoader, cubeLoader">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <!-- Config loaders, should be commented out most of the time -->
@@ -81,7 +81,13 @@
   <bean id="currencyMatrixLoader" class="com.opengamma.financial.currency.CurrencyMatrixConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
-  <bean id="surfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator ">
+  <bean id="swaptionSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator">
+    <constructor-arg ref="sharedConfigMaster" />
+  </bean>
+  <bean id="irFutureSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator">
+    <constructor-arg ref="sharedConfigMaster" />
+  </bean>
+  <bean id="fxVolatilitySurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <bean id="cubeLoader" class="com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator">

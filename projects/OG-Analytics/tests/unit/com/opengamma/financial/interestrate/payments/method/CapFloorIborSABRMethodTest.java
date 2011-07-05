@@ -77,7 +77,7 @@ public class CapFloorIborSABRMethodTest {
   private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
   private static final CapFloorIborDefinition FLOOR_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP);
   // Methods and calculator
-  private static final CapFloorIborSABRMethod METHOD = new CapFloorIborSABRMethod();
+  private static final CapFloorIborSABRMethod METHOD = CapFloorIborSABRMethod.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();

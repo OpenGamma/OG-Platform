@@ -21,14 +21,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -62,15 +62,15 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final double FRA_RATE = 0.05;
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
-  private static final ZZZForwardRateAgreementDefinition FRA_DEFINITION = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
       NOTIONAL, FIXING_DATE, INDEX, FRA_RATE);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 10, 9);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final ZZZForwardRateAgreement FRA = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-  private static final ForwardRateAgreementDiscountingMethod FRA_METHOD = new ForwardRateAgreementDiscountingMethod();
+  private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+  private static final ForwardRateAgreementDiscountingMethod FRA_METHOD = ForwardRateAgreementDiscountingMethod.getInstance();
 
   @Test
   public void parRate() {
@@ -87,7 +87,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
     final double dfSettle = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(FRA.getPaymentTime());
-    final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getFixingYearFraction() * forward);
+    final double expectedPv = FRA.getNotional() * dfSettle * FRA.getFixingYearFraction() * (forward - FRA_RATE) / (1 + FRA.getFixingYearFraction() * forward);
     final CurrencyAmount pv = FRA_METHOD.presentValue(FRA, curves);
     assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
   }
@@ -104,9 +104,9 @@ public class ForwardRateAgreementDiscountingMethodTest {
   @Test
   public void presentValueBuySellParity() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final ZZZForwardRateAgreementDefinition fraDefinitionSell = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
+    final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, INDEX, FRA_RATE);
-    final ZZZForwardRateAgreement fraSell = (ZZZForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVES);
+    final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVES);
     final CurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, curves);
     final CurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, curves);
     assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(), -pvBuy.getAmount(), 1.0E-2);
@@ -128,7 +128,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
-    final ZZZForwardRateAgreement fraBumpedForward = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
+    final ForwardRateAgreement fraBumpedForward = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final double[] timeForward = new double[2];
     timeForward[0] = FRA.getFixingPeriodStartTime();
@@ -164,7 +164,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     }
     // 2. Funding curve sensitivity
     final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
-    final ZZZForwardRateAgreement fraBumped = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
+    final ForwardRateAgreement fraBumped = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
     final double[] yieldsFunding = new double[2];
     final double[] nodeTimesFunding = new double[2];
@@ -193,7 +193,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
-    final ZZZForwardRateAgreement fraBumpedForward = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
+    final ForwardRateAgreement fraBumpedForward = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final double[] timeForward = new double[2];
     timeForward[0] = FRA.getFixingPeriodStartTime();
@@ -217,8 +217,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
       sensiPvForwardFD[i] = (bumpedPv - pv) / deltaShift;
     }
 
-    double[] nodeTimesForwardMethod = new double[] {FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
+    final double[] nodeTimesForwardMethod = new double[] {FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime()};
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       assertEquals("Sensitivity finite difference method: node sensitivity", sensiPvForwardFD[loopnode], sensiForwardMethod[loopnode]);
@@ -226,7 +226,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
     // 2. Funding curve sensitivity
     final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
-    final ZZZForwardRateAgreement fraBumped = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
+    final ForwardRateAgreement fraBumped = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
     final double[] yieldsFunding = new double[2];
     final double[] nodeTimesFunding = new double[2];
@@ -239,11 +239,11 @@ public class ForwardRateAgreementDiscountingMethodTest {
     curvesBumped.addAll(curves);
     curvesBumped.replaceCurve("Bumped Curve", bumpedCurve);
     final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped).getAmount();
-    double[] resDsc = new double[1];
+    final double[] resDsc = new double[1];
     resDsc[0] = (bumpedPvDsc - pv) / deltaShift;
 
-    double[] nodeTimesFundingMethod = new double[] {FRA.getPaymentTime()};
-    double[] sensiFundingMethod = SensitivityFiniteDifference.curveSensitivity(fraBumped, curves, pv, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesFundingMethod, deltaShift, FRA_METHOD);
+    final double[] nodeTimesFundingMethod = new double[] {FRA.getPaymentTime()};
+    final double[] sensiFundingMethod = SensitivityFiniteDifference.curveSensitivity(fraBumped, curves, pv, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesFundingMethod, deltaShift, FRA_METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiFundingMethod.length);
     for (int loopnode = 0; loopnode < sensiFundingMethod.length; loopnode++) {
       assertEquals("Sensitivity finite difference method: node sensitivity", resDsc[loopnode], sensiFundingMethod[loopnode]);

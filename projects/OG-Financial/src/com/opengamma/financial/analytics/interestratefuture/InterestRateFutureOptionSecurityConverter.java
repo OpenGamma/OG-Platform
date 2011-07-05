@@ -33,7 +33,7 @@ public class InterestRateFutureOptionSecurityConverter {
   public Object convert(final IRFutureOptionSecurity security) {
     Validate.notNull(security, "security");
     final InterestRateFutureSecurity underlyingSecurity = null; //TODO
-    final InterestRateFutureSecurityDefinition underlyingFuture = _underlyingConverter.convert(underlyingSecurity);
+    final InterestRateFutureSecurityDefinition underlyingFuture = (InterestRateFutureSecurityDefinition) _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike();
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;

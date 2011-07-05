@@ -11,6 +11,8 @@ import com.opengamma.masterdb.security.hibernate.bond.GuaranteeTypeBean;
 import com.opengamma.masterdb.security.hibernate.bond.IssuerTypeBean;
 import com.opengamma.masterdb.security.hibernate.bond.MarketBean;
 import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
+import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBean;
+import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
@@ -21,6 +23,8 @@ import com.opengamma.masterdb.security.hibernate.future.CommodityFutureTypeBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
 import com.opengamma.masterdb.security.hibernate.future.UnitBean;
+import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBean;
+import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXBarrierOptionSecurityBean;
@@ -75,6 +79,10 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       FXBarrierOptionSecurityBean.class,
       
       SwapSecurityBean.class,
+      FXSecurityBean.class,
+      FXForwardSecurityBean.class,
+      CapFloorSecurityBean.class,
+      CapFloorCMSSpreadSecurityBean.class,
     };
   }
 

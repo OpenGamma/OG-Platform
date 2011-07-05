@@ -381,6 +381,8 @@
     <property name="positionSource" ref="positionSource" />
     <property name="regionSource" ref="regionSource"/>
     <property name="securitySource" ref="securitySource" />
+    <property name="holidaySource" ref="sharedHolidaySource" />
+    <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
   <bean id="functionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="configSource" ref="configSource" />

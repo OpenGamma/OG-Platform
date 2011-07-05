@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
@@ -28,7 +27,6 @@ public class TimeChangeTest {
   private static final double RH0 = -0.0; // correlation
   private static double ALPHA = -0.5;
   private static final double MAX_LOG_MONEYNESS = 0.1;
-  private static final BlackFunctionData DATA = new BlackFunctionData(FORWARD, DF, SIGMA);
   private static final double EPS = 1e-6;
   private static final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
   private static final CharacteristicExponent CIR = new IntegratedCIRTimeChangeCharacteristicExponent(KAPPA, THETA / VOL0, OMEGA / Math.sqrt(VOL0));
