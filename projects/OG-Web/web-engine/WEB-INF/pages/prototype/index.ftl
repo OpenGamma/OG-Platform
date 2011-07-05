@@ -15,7 +15,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
   <#include "modules/common/og.common.masthead.ftl">
   <section class="OG-main">
       <div class="OG-grid">
-      <div class="OG-c3 OG-js-search-panel">
+      <div class="OG-c3 OG-js-search-panel OG-search-panel">
         <#include "modules/common/og.common.search_results.ftl">
         <div class="OG-resizeBar"></div>
       </div>

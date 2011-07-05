@@ -5,6 +5,8 @@
   <bundle id="common.css">
     <fragment>/styles/common/og.common.reset.css</fragment>
     <fragment>/styles/common/og.common.core.css</fragment>
+    <fragment>/styles/common/og.common.OG-container.css</fragment>
+    <fragment>/styles/common/og.common.OG-grid.css</fragment>
     <fragment>/styles/common/og.common.form.css</fragment>
     <fragment>/styles/common/og.common.fonts.css</fragment>
     <fragment>/styles/common/og.common.links.css</fragment>
@@ -14,7 +16,16 @@
     <fragment>/styles/common/og.common.OG-tabs.css</fragment>
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
-    <fragment>/styles/common/og.common.OG-masthead.og-dd-menu.css</fragment>
+    <fragment>/styles/common/og.common.OG-main.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod.css</fragment>
+    <fragment>/styles/common/og.common.OG-filter.css</fragment>
+    <fragment>/styles/common/og.common.OG-header-generic.css</fragment>
+    <fragment>/styles/common/og.common.OG-footer.css</fragment>
+    <fragment>/styles/common/og.common.OG-logo-light.css</fragment>
+    <fragment>/styles/common/og.common.OG-box.css</fragment>
+    <fragment>/styles/common/og.common.OG-box-history.css</fragment>
+    <fragment>/styles/common/og.common.OG-details-content.css</fragment>
+    <fragment>/styles/common/og.common.data.editable.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -31,10 +42,14 @@
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-rounded.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-txt-shadow.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-box-shadow-bottom.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-max-width.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-disabled.css</fragment>
   </bundle>
   <bundle id="common.search.css">
-    <fragment>/styles/common/search/og.common.search.OG-sr.css</fragment>
-    <fragment>/styles/common/search/og.common.search.OG-sr.OG-searchMessage.css</fragment>
+    <fragment>/styles/common/search/og.common.search.OG-search-panel.css</fragment>
+    <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
   <bundle id="common.details.css">
     <fragment>/styles/common/details/og.common.OG-details.css</fragment>
@@ -149,12 +164,13 @@
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>
+    <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.portfolios.js</fragment>
+    <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
     <fragment>/scripts/og/common/og.common.layout.resize.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.timeseries_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
-    <fragment>/scripts/og/common/details/og.common.details.exchange_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>

@@ -14,11 +14,11 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
     obj: function () {
-
         var api = og.api,
             common = og.common,
             details = common.details,
@@ -31,15 +31,16 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             exchanges,
+            resize = common.layout.resize,
             options = {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'exchanges',
                     'columns': [
                         {
                             id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
-                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
@@ -64,29 +65,28 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Exchanges',
-                        favorites_list: history.get_html('history.exchanges.favorites') || 'no favorited exchanges',
                         recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function(args) {
                 api.rest.exchanges.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        var json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.exchanges.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                             ui.toolbar(options.toolbar.active);
-                            ui.expand_height_to_window_bottom({element: '.OG-details-container', offsetpx: -41});
-                            ui.expand_height_to_window_bottom({
-                                element: '.OG-details-container .og-details-content', offsetpx: -48
-                            });
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                         }});

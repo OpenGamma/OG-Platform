@@ -14,7 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.util.ui.expand_height_to_window_bottom',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -32,6 +32,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             securities,
+            resize = common.layout.resize,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -72,8 +73,8 @@ $.register_module({
                 })},
                 'delete': function () {ui.dialog({
                     type: 'confirm',
-                    title: 'Delete portfolio?',
-                    message: 'Are you sure you want to permanently delete this portfolio?',
+                    title: 'Delete Security?',
+                    message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
                             var obj = {
@@ -149,6 +150,7 @@ $.register_module({
                         recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -161,15 +163,19 @@ $.register_module({
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + json.template_data.securityType,
-                                handler: function (template) {
+                        api.text({
+                            module: module.name + '.' + json.template_data.securityType, handler: function (template) {
                             var $warning, warning_message = 'This security has been deleted',
                                 html = [], id, json_id = json.identifiers;
                             $.tmpl(template, json.template_data)
                                     .appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .OG-warning-message');
-                            if (json.template_data.deleted) $warning.html(warning_message).show();
-                                else $warning.empty().hide();
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
                             for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
                                     html.push('<tr><td><span>', json_id[id].split('-')[0],
@@ -177,11 +183,8 @@ $.register_module({
                                 }
                             }
                             $('.OG-security .og-js-identifiers').html(html.join(''));
-                            ui.toolbar(options.toolbar.active);
-                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
-                            og.common.layout.resize({
-                                element: '.OG-details-container .og-details-content', offsetpx: -48
-                            });
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                         }});

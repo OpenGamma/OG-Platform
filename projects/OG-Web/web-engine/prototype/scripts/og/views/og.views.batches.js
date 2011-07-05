@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -30,18 +31,25 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
             batches,
+            resize = common.layout.resize,
             options = {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'batches',
                     'columns': [
-                        {id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link', filter_type: 'input',
-                            name: '<input type="text" placeholder="observation date" class="og-js-ob_date-filter" style="width: 110px;">'},
-                        {id: 'ob_time', field: 'time', width: 130, filter_type: 'input',
-                            name: '<input type="text" placeholder="observation time" class="og-js-ob_time-filter" style="width: 110px;">'},
-                        {id: 'status', field: 'status', width: 130,
-                            name: 'Status'}
+                        {
+                            id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="observation date" '
+                                + 'class="og-js-ob_date-filter" style="width: 110px;">'
+                        },
+                        {
+                            id: 'ob_time', field: 'time', width: 130, filter_type: 'input',
+                            name: '<input type="text" placeholder="observation time" '
+                                + 'class="og-js-ob_time-filter" style="width: 110px;">'
+                        },
+                        {
+                            id: 'status', field: 'status', width: 130, name: 'Status'
+                        }
                     ]
                 },
                 toolbar: {
@@ -65,31 +73,32 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Batches',
-                        favorites_list: history.get_html('history.batches.favorites') || 'no favorited batches',
-                        recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches',
-                        new_list: history.get_html('history.batches.new') || 'no new batches'
+                        recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args){
                 api.rest.batches.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var f = details.batch_functions;
-                        details_json = result.data;
+                        var f = details.batch_functions, json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.batches.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            f.results('.OG-batch .og-js-results', details_json.data.batch_results);
-                            f.errors('.OG-batch .og-js-errors', details_json.data.batch_errors);
+                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            $.tmpl(template, json.template_data)
+                                .appendTo($('.OG-js-details-panel .OG-details').empty());
+                            f.results('.OG-batch .og-js-results', json.data.batch_results);
+                            f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },

@@ -14,7 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.util.ui.expand_height_to_window_bottom',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -31,7 +31,7 @@ $.register_module({
             module = this, positions,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
+            resize = common.layout.resize,
             get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -143,25 +143,26 @@ $.register_module({
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.positions.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
                             var $warning, warning_message = 'This position has been deleted';
-                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .OG-warning-message');
-                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
-                                else $warning.empty().hide();
-                            render_identifiers(details_json.securities);
-                            render_trades(details_json.trades);
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
                             ui.toolbar(options.toolbar.active);
-                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
-                            og.common.layout.resize({
-                                element: '.OG-details-container .og-details-content', offsetpx: -48
-                            });
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
+                            render_identifiers(json.securities);
+                            render_trades(json.trades);
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -187,11 +188,10 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Positions',
-                        favorites_list: history.get_html('history.positions.favorites') || 'no favorited positions',
-                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions',
-                        new_list: history.get_html('history.positions.new') || 'no new positions'
+                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             };
         module.rules = {

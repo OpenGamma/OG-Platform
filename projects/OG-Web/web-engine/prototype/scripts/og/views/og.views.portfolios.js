@@ -14,7 +14,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.util.ui.expand_height_to_window_bottom',
         'og.views.common.layout',
         'og.views.common.state',
         'og.common.layout.resize'
@@ -32,8 +31,9 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
+            json = {},
             portfolios,
+            resize = common.layout.resize,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -68,9 +68,9 @@ $.register_module({
                                     handler: function (r) {
                                         var last = routes.last(), args_obj = {};
                                         if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                        if (details_json.template_data.parent_node_id) {
-                                            args_obj.node = details_json.template_data.parent_node_id;
-                                            args_obj.id = details_json.template_data.object_id;
+                                        if (json.template_data.parent_node_id) {
+                                            args_obj.node = json.template_data.parent_node_id;
+                                            args_obj.id = json.template_data.object_id;
                                         }
                                         routes.go(routes.hash(module.rules.load_delete,
                                                 $.extend(true, {}, last.args, {deleted: true}, args_obj)
@@ -117,12 +117,10 @@ $.register_module({
                 og.api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Portfolios',
-                        favorites_list: history.get_html('history.portfolios.favorites') || 'no favorited portfolios',
-                        recent_list: history.get_html('history.portfolios.recent') || 'no recently viewed portfolios',
-                        new_list: history.get_html('history.portfolios.new') || 'no new portfolios'
+                        recent_list: history.get_html('history.portfolios.recent') || 'no recently viewed portfolios'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), common.layout.resize();
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -136,8 +134,8 @@ $.register_module({
                                     ));
                                 },
                                 name: ui.dialog({return_field_value: 'name'}),
-                                id: details_json.template_data.object_id,
-                                node: details_json.template_data.node,
+                                id: json.template_data.object_id,
+                                node: json.template_data.node,
                                 'new': true
                             });
                         };
@@ -165,12 +163,12 @@ $.register_module({
                                     // TODO: prevent search from reloading
                                     routes.go(routes.hash(module.rules.load_new_portfolios,
                                          $.extend({}, routes.last().args,
-                                             {id: details_json.template_data.object_id, 'new': true})
+                                             {id: json.template_data.object_id, 'new': true})
                                     ));
                                 },
                                 position: id ? id.item.value : $input.val(),
-                                id: details_json.template_data.object_id,
-                                node: details_json.template_data.node
+                                id: json.template_data.object_id,
+                                node: json.template_data.node
                            });
                            ui.dialog({type: 'input', action: 'close'});
                         };
@@ -209,12 +207,10 @@ $.register_module({
                         });
                     },
                     render_portfolio_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [];
+                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios;
                         if (!!json.portfolios[0]) {
-                            display_columns = [{id:"name", name:"Name", field:"name", width: 300,
-                                formatter: og.common.slickgrid.formatters.portfolios}],
-                            data_columns = [{id:"id", name:"Id", field:"id", width: 100,
-                                formatter: og.common.slickgrid.formatters.portfolios}];
+                            display_columns = [{id:"name", name:"Name", field:"name", width: 300, formatter: format}],
+                            data_columns = [{id:"id", name:"Id", field:"id", width: 100, formatter: format}];
                         }
                         if (!json.portfolios[0]) {
                             display_columns = [{id:"name", name:"Name", field:"name", width: 300}],
@@ -222,19 +218,17 @@ $.register_module({
                         }
                         slick = new Slick.Grid(selector, json.portfolios, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
-                        og.common.layout.resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
+                        resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     },
                     render_position_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [];
+                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
                         if (!!json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300,
-                                    formatter: og.common.slickgrid.formatters.positions},
+                                {id:"name", name:"Name", field:"name", width: 300, formatter: format},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80}
                             ],
                             data_columns = [
-                                {id:"id", name:"Id", field:"id", width: 100,
-                                    formatter: og.common.slickgrid.formatters.positions}
+                                {id:"id", name:"Id", field:"id", width: 100, formatter: format}
                             ];
                         }
                         if (!json.positions[0]) {
@@ -246,32 +240,32 @@ $.register_module({
                         }
                         slick = new Slick.Grid(selector, json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
-                        og.common.layout.resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
+                        resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     };
                 api.rest.portfolios.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
-                        details_json = result.data;
+                        json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.portfolios.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
                             var $warning, warning_message = 'This portfolio has been deleted';
-                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
                             $warning = $('.OG-js-details-panel .og-box-error');
                             ui.toolbar(options.toolbar.active);
-                            if (details_json.template_data && details_json.template_data.deleted) {
+                            if (json.template_data && json.template_data.deleted) {
                                 $warning.html(warning_message).show();
-                                common.layout.resize();
+                                resize();
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
                             } else {$warning.empty().hide(), common.layout.resize();}
                             hook_up_add_portfolio_form(), hook_up_add_position_form();
-                            render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', details_json);
-                            render_position_rows('.OG-js-details-panel .og-js-positions', details_json);
-                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
-                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
+                            render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {

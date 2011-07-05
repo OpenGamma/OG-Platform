@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -31,6 +32,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             configs,
+            resize = og.common.layout.resize,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -105,7 +107,8 @@ $.register_module({
                             ]
                         },
                         {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
-                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
@@ -136,11 +139,10 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Configs',
-                        favorites_list: history.get_html('history.configs.favorites') || 'no favorited configs',
-                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs',
-                        new_list: history.get_html('history.configs.new') || 'no new configs'
+                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -154,16 +156,23 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name + '.' + template, handler: function (template) {
-                            var json = details_json.template_data, $warning,
-                                warning_message = 'This configuration has been deleted';
+                            var json = details_json.template_data,
+                                $warning, warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';
                             $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .OG-warning-message');
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
                             if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
-                            ui.toolbar(options.toolbar.active);
-                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.content_editable({
                                 attribute: 'data-og-editable',

@@ -13,9 +13,25 @@
   height: 3em;
 }
 
+.OG-masthead::before {
+  background: -moz-linear-gradient(top, rgba(222,222,222,0) 0%, rgba(222,222,222,1) 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(222,222,222,0)),
+              color-stop(100%,rgba(222,222,222,1)));
+  background: -webkit-linear-gradient(top, rgba(222,222,222,0) 0%,rgba(222,222,222,1) 100%);
+  background: linear-gradient(top, rgba(222,222,222,0) 0%,rgba(222,222,222,1) 100%);
+  width: 20px;
+  content: '';
+  height: 4px;
+  position: absolute;
+  right: 5px;
+  bottom: -4px;
+  left: 5px;
+  width: auto;
+  z-index: 1;
+}
+
 .OG-masthead li {
   display: inline-block;
-  font-family: 'Microsoft New Tai Lue';
   margin: 0 5px 0 0;
 }
 

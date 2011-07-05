@@ -13,7 +13,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.util.ui.expand_height_to_window_bottom',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -29,6 +29,7 @@ $.register_module({
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
+            resize = common.layout.resize,
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             timeseries,
@@ -163,6 +164,7 @@ $.register_module({
                         recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -177,22 +179,26 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var stop_loading = ui.message.partial({location: '.OG-js-details-panel', destroy: true});
+                            var stop_loading = ui.message.partial({location: '.OG-js-details-panel', destroy: true}),
+                                $warning, warning_message = 'This timeseries has been deleted';
                             $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
                             f.render_identifiers('.OG-timeseries .og-js-identifiers', json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {
-                                'fieldLabels': json.timeseries.fieldLabels,
-                                'data': json.timeseries.data
+                                'fieldLabels': json.timeseries.fieldLabels, 'data': json.timeseries.data
                             }, stop_loading);
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
-                            ui.toolbar(options.toolbar.active);
-                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
-                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-
-//                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },

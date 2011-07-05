@@ -11,12 +11,22 @@ $.register_module({
         'og.common.layout.resize'
     ],
     obj: function () {
+        var t;
         return {
             init: function () {
                 $('.OG-container').show();
+                /**
+                 * Sets up the vertical resize bar in the middle of the application
+                 */
                 og.common.util.ui.resize_panes('.OG-js-search-panel', '.OG-js-details-panel', '.OG-resizeBar');
+                /**
+                 * First call to extend elements to the bottom of the screen
+                 */
                 og.common.layout.resize('defaults');
-                $(window).resize(function () {setTimeout(og.common.layout.resize, 150)});
+                /**
+                 * Reset the height of all default elements and others being watched on browser resize
+                 */
+                $(window).resize(function () {clearTimeout(t), t = setTimeout(og.common.layout.resize, 150);});
             }
         };
     }

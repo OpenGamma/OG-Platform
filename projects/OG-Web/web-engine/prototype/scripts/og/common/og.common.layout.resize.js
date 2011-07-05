@@ -14,10 +14,10 @@ $.register_module({
             defaults = [
                 {element: '.OG-js-details-panel .OG-details', offsetpx: -48},
                 {element: '.OG-resizeBar', offsetpx: -40},
-                {element: '.OG-details', offsetpx: -59},
-                {element: '.og-details-content', offsetpx: -48}
+                {element: '.OG-details', offsetpx: -59}
             ],
             all = [];
+
         return function (obj) {
             // Just load the defaults
             if (obj === 'defaults') {
@@ -34,7 +34,7 @@ $.register_module({
                 return;
             }
             // Load all
-            if (typeof obj === 'undefined') {
+            if (typeof obj === 'undefined' || 'number' /* Mozilla */) {
                 all.forEach(function (e, i) {
                     if ($(e.element).length !== 0) {
                         expand(e);
@@ -45,7 +45,7 @@ $.register_module({
                 });
                 return;
             }
-            throw new TypeError('og.common.layout.resize: invalid argument type');
+            throw new TypeError('og.common.layout.resize: invalid argument type', obj);
         };
     }
 });

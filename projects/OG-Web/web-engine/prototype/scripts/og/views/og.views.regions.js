@@ -10,6 +10,7 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
+        'og.common.layout.resize',
         'og.common.util.ui.toolbar',
         'og.common.util.history'
     ],
@@ -18,8 +19,8 @@ $.register_module({
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
             ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
+            resize = og.common.layout.resize,
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {}, // The returned json for the details area
             search_options = {
                 'selector': '.OG-js-search', 'page_type': 'regions',
                 'columns': [
@@ -45,12 +46,11 @@ $.register_module({
                 og.api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Regions',
-                        favorites_list: history.get_html('history.regions.favorites') || 'no favorited regions',
-                        recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions',
-                        new_list: history.get_html('history.regions.new') || 'no new regions'
+                        recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
                     ui.toolbar(default_toolbar_options);
-                }});
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+               }});
             },
             new_page = function (args) {
                 masthead.menu.set_tab(page_name);
@@ -68,20 +68,22 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.region_functions;
-                        details_json = result.data;
+                        var json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.regions.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            f.render_keys('.OG-region .og-js-keys', details_json.keys);
-                            f.render_regions('.OG-region .og-js-parent_regions', details_json.parent);
-                            f.render_regions('.OG-region .og-js-child_regions', details_json.child);
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            f.render_keys('.OG-region .og-js-keys', json.keys);
+                            f.render_regions('.OG-region .og-js-parent_regions', json.parent);
+                            f.render_regions('.OG-region .og-js-child_regions', json.child);
                             ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.toolbar(active_toolbar_options);
-                            ui.expand_height_to_window_bottom({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },
