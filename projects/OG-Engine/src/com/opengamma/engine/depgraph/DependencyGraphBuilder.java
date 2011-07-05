@@ -49,7 +49,7 @@ public class DependencyGraphBuilder {
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
   // DON'T CHECK IN WITH =true
-  private static final boolean NO_BACKGROUND_THREADS = true;
+  private static final boolean NO_BACKGROUND_THREADS = false;
 
   private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : Runtime.getRuntime().availableProcessors();
 
@@ -199,6 +199,12 @@ public class DependencyGraphBuilder {
       getOrCreateNode(valueRequirement, resolvedValue);
       _terminalOutputs.put(valueRequirement, resolvedValue.getValueSpecification());
     }
+
+    @Override
+    public String toString() {
+      return "TerminalValueCallback";
+    }
+
   };
 
   /**
@@ -369,6 +375,11 @@ public class DependencyGraphBuilder {
       }
     }
 
+    @Override
+    public String toString() {
+      return "Resolve[" + getValueRequirement() + ", " + _parentTask + "]";
+    }
+
   }
 
   protected ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
@@ -384,7 +395,7 @@ public class DependencyGraphBuilder {
     }
     RequirementResolver resolver = null;
     for (ResolveTask task : getTasksResolving(requirement)) {
-      if (dependent.hasParent(task)) {
+      if ((dependent != null) && dependent.hasParent(task)) {
         // Can't use this task; a loop would be introduced
         continue;
       }
@@ -403,7 +414,7 @@ public class DependencyGraphBuilder {
   }
 
   protected void addToRunQueue(final ResolveTask runnable) {
-    s_logger.debug("addToRunQueue {}", runnable);
+    s_logger.debug("Queuing ({})", runnable);
     final boolean dontSpawn = _runQueue.isEmpty();
     _runQueue.add(runnable);
     if (!dontSpawn) {
@@ -411,7 +422,7 @@ public class DependencyGraphBuilder {
     }
   }
 
-  private boolean startBackgroundConstructionJob() {
+  protected boolean startBackgroundConstructionJob() {
     int activeJobs = _activeJobCount.get();
     while (activeJobs < getMaxAdditionalThreads()) {
       if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {

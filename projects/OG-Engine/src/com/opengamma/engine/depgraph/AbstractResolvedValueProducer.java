@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
     @Override
     public void pump() {
+      s_logger.debug("Pump called on {}", this);
       ResolvedValue nextValue = null;
       boolean finished = false;
       boolean needsOuterPump = false;
@@ -50,7 +51,6 @@ import com.opengamma.engine.value.ValueRequirement;
               if (_finished) {
                 finished = true;
               } else {
-                s_logger.debug("Callback {} pumped", this);
                 needsOuterPump = _pumped.isEmpty();
                 _pumped.add(this);
               }
@@ -59,18 +59,23 @@ import com.opengamma.engine.value.ValueRequirement;
         }
       }
       if (nextValue != null) {
-        s_logger.debug("Callback {} pumping value {}", this, nextValue);
+        s_logger.debug("Publishing value {}", nextValue);
         _callback.resolved(getValueRequirement(), nextValue, this);
       } else {
         if (needsOuterPump) {
           pumpImpl();
         } else {
           if (finished) {
-            s_logger.debug("Callback {} failed", this);
+            s_logger.debug("Finished {}", getValueRequirement());
             _callback.failed(getValueRequirement());
           }
         }
       }
+    }
+
+    @Override
+    public String toString() {
+      return "Callback[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
     }
 
   }
@@ -90,19 +95,27 @@ import com.opengamma.engine.value.ValueRequirement;
   public void addCallback(final ResolvedValueCallback valueCallback) {
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
+    boolean finished = false;
     synchronized (this) {
-      s_logger.debug("Added callback {}", valueCallback);
+      s_logger.debug("Added callback {} to {}", valueCallback, this);
       callback._results = _results;
       if (_results.length > 0) {
         callback._resultsPushed = 1;
         firstResult = _results[0];
       } else {
-        _pumped.add(callback);
+        if (_finished) {
+          finished = true;
+        } else {
+          _pumped.add(callback);
+        }
       }
     }
     if (firstResult != null) {
       s_logger.debug("Pushing first callback result {}", firstResult);
       valueCallback.resolved(getValueRequirement(), firstResult, callback);
+    } else if (finished) {
+      s_logger.debug("Pushing failure");
+      valueCallback.failed(getValueRequirement());
     }
   }
 
@@ -113,7 +126,7 @@ import com.opengamma.engine.value.ValueRequirement;
     Collection<Callback> pumped = null;
     synchronized (this) {
       final int l = _results.length;
-      s_logger.debug("Adding result {} to {} previous values", value, l);
+      s_logger.debug("Result {} available from {}", value, this);
       ResolvedValue[] newResults = new ResolvedValue[l + 1];
       System.arraycopy(_results, 0, newResults, 0, l);
       newResults[l] = value;
@@ -124,11 +137,11 @@ import com.opengamma.engine.value.ValueRequirement;
       }
     }
     if (pumped != null) {
-      s_logger.debug("Pushing result to pumped callbacks");
       for (Callback callback : pumped) {
         synchronized (callback) {
           callback._resultsPushed++;
         }
+        s_logger.debug("Pushing result to {}", callback._callback);
         callback._callback.resolved(getValueRequirement(), value, callback);
       }
     }
@@ -138,6 +151,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   protected void finished() {
     assert !_finished;
+    s_logger.debug("Finished producing results at {}", this);
     final Collection<Callback> pumped;
     synchronized (this) {
       _finished = true;
@@ -149,12 +163,12 @@ import com.opengamma.engine.value.ValueRequirement;
       }
     }
     if (pumped != null) {
-      s_logger.debug("Pushing failure to pumped callbacks");
       for (Callback callback : pumped) {
+        s_logger.debug("Pushing failure to {}", callback._callback);
         callback._callback.failed(getValueRequirement());
       }
     } else {
-      s_logger.debug("No pumped callbacks to propogate failure to");
+      s_logger.debug("No pumped callbacks to propogate failure to", this);
       // Should this ever happen? At least one must be pumped if we are in a receive state?
     }
   }

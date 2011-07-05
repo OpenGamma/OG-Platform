@@ -201,12 +201,13 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   protected void pumpImpl() {
+    s_logger.debug("Pump called on {}", this);
     getState().pump();
   }
 
   @Override
   public String toString() {
-    return "Resolve " + getValueRequirement() + " " + getState();
+    return "ResolveTask[" + getValueRequirement() + ", " + getState() + "]";
   }
 
   // TODO: update javadoc on CompiledFunctionDefinition about nulls; nothing should return null, but doing so is better than an exception for halting graph construction in a controlled manner

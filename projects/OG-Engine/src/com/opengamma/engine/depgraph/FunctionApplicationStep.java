@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +66,7 @@ import com.opengamma.util.tuple.Pair;
     @Override
     public void failed(final ValueRequirement value) {
       _pump = null;
-      setRunnableTaskState(this, _builder);
+      _builder.addToRunQueue(getTask());
     }
 
     @Override
@@ -80,7 +81,7 @@ import com.opengamma.util.tuple.Pair;
         // Either pump called twice for a resolve, called before the first resolve, or after failed
         throw new IllegalStateException();
       } else {
-        s_logger.debug("Pumping underlying delegate");
+        s_logger.debug("Pumping {} from {}", _pump, this);
         _pump.pump();
         _pump = null;
       }
@@ -88,7 +89,7 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public String toString() {
-      return "APPLY_FUNCTION_DELEGATE";
+      return "DELEGATE";
     }
 
   }
@@ -132,7 +133,7 @@ import com.opengamma.util.tuple.Pair;
     }
 
     public void inputsAvailable(final Map<ValueSpecification, ValueRequirement> inputs) {
-      s_logger.debug("Function inputs available {} for {}", inputs, getValueSpecification());
+      s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
       ValueSpecification resolvedOutput = getValueSpecification();
       boolean strictConstraints = resolvedOutput.getProperties().isStrict();
@@ -153,7 +154,7 @@ import com.opengamma.util.tuple.Pair;
           getBuilder().postException(t);
         }
         if (newOutputValues == null) {
-          s_logger.debug("Function {} returned NULL for getResults on {}", getFunction(), inputs);
+          s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
           pump();
           return;
         }
@@ -173,7 +174,7 @@ import com.opengamma.util.tuple.Pair;
             // TODO: has the resolved output now reduced this to something already produced in the graph?
             s_logger.error("Don't know how to check whether a node reduction has taken place");
           } else {
-            s_logger.debug("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
+            s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
             pump();
             return;
           }
@@ -187,7 +188,7 @@ import com.opengamma.util.tuple.Pair;
           getBuilder().postException(t);
         }
         if (additionalRequirements == null) {
-          s_logger.debug("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
+          s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
           pump();
           return;
         }
@@ -198,7 +199,7 @@ import com.opengamma.util.tuple.Pair;
 
             @Override
             public void failed(final ValueRequirement value) {
-              s_logger.debug("Couldn't resolve additional requirement {} for {}", value, getFunction());
+              s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
               pump();
             }
 
@@ -209,6 +210,11 @@ import com.opengamma.util.tuple.Pair;
                 s_logger.debug("Additional requirements complete");
                 pushResult(inputs);
               }
+            }
+
+            @Override
+            public String toString() {
+              return "AdditionalRequirements[" + getFunction() + ", " + inputs + "]";
             }
 
           };
@@ -230,22 +236,26 @@ import com.opengamma.util.tuple.Pair;
     private void pushResult(final Map<ValueSpecification, ValueRequirement> inputs) {
       // TODO: we could be pushing a DependencyNode object to the builder that has all the second stage results values
       final ResolvedValue result = createResult(getValueSpecification(), getFunction(), inputs.keySet());
+      s_logger.info("Result {} for {}", result, getValueRequirement());
       getWorker().pushResult(result);
       pushResult(result);
     }
 
     public void finished() {
-      setRunnableTaskState(this, getBuilder());
+      s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      // Become runnable again; the next function will then be considered
+      getBuilder().addToRunQueue(getTask());
     }
 
     @Override
     protected void pump() {
+      s_logger.debug("Pumping worker {} from {}", getWorker(), this);
       getWorker().pumpImpl();
     }
 
     @Override
     public String toString() {
-      return "APPLY_FUNCTION_ENUMERATE";
+      return "WaitForInputs[" + getFunction() + ", " + getValueSpecification() + "]";
     }
 
   }
@@ -266,13 +276,13 @@ import com.opengamma.util.tuple.Pair;
         builder.postException(t);
       }
       if (originalOutputValues == null) {
-        s_logger.debug("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
+        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), builder);
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
       if (getOriginalOutput().equals(getResolvedOutput())) {
-        resolvedOutputValues = originalOutputValues;
+        resolvedOutputValues = new HashSet<ValueSpecification>(originalOutputValues);
       } else {
         resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
         for (ValueSpecification outputValue : originalOutputValues) {
@@ -292,16 +302,18 @@ import com.opengamma.util.tuple.Pair;
         builder.postException(t);
       }
       if (inputRequirements == null) {
-        s_logger.debug("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement());
+        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), builder);
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), builder, worker);
       setTaskState(state);
       if (inputRequirements.isEmpty()) {
+        s_logger.debug("Function {} required no inputs", functionDefinition);
+        worker.setPumpingState(state, 0);
         state.inputsAvailable(Collections.<ValueSpecification, ValueRequirement>emptyMap());
-        state.finished();
       } else {
+        s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
         worker.setPumpingState(state, inputRequirements.size());
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = builder.resolveRequirement(inputRequirement, getTask());
@@ -324,7 +336,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public String toString() {
-    return "Apply function " + getFunction() + " to produce " + getResolvedOutput();
+    return "ApplyFunction[" + getFunction() + ", " + getResolvedOutput() + "]";
   }
 
 }

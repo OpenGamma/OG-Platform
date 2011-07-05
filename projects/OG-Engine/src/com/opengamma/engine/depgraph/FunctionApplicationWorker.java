@@ -34,9 +34,14 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   protected void pumpImpl() {
     final Collection<ResolutionPump> pumps;
+    FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
       if (_pumps.isEmpty()) {
         pumps = null;
+        if (_validInputs == 0) {
+          finished = _taskState;
+          _taskState = null;
+        }
       } else {
         pumps = new ArrayList<ResolutionPump>(_pumps);
         _pumps.clear();
@@ -45,8 +50,12 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     if (pumps != null) {
       for (ResolutionPump pump : pumps) {
+        s_logger.debug("Pumping {} from {}", pump, this);
         pump.pump();
       }
+    } else if (finished != null) {
+      s_logger.debug("Calling finished on {} from {}", finished, this);
+      finished.finished();
     }
   }
 
@@ -68,6 +77,7 @@ import com.opengamma.engine.value.ValueSpecification;
     // Not ok; we either couldn't satisfy anything or the pumped enumeration is complete
     s_logger.info("Worker complete");
     finished();
+    s_logger.debug("Calling finished on {} from {}", state, this);
     state.finished();
   }
 
@@ -106,6 +116,11 @@ import com.opengamma.engine.value.ValueSpecification;
       _taskState = state;
       _validInputs = validInputs;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Worker[" + getValueRequirement() + "]";
   }
 
 }
