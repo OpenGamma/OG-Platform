@@ -5,29 +5,23 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Arrays;
-
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
-import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotLiveDataProvider;
+import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolverWithOverride;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,9 +30,6 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewProcessContext {
 
   private final ViewPermissionProvider _viewPermissionProvider;
-  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private final LiveDataInjector _liveDataOverrideInjector;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
@@ -49,21 +40,24 @@ public class ViewProcessContext {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
-  private final MarketDataSnapshotSource _marketDataSnapshotSource;
+  private final MarketDataInjector _liveDataOverrideInjector;
+  private final MarketDataProviderResolver _marketDataProviderResolver;
 
-  public ViewProcessContext(ViewPermissionProvider viewPermissionProvider,
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
-      CompiledFunctionService functionCompilationService, FunctionResolver functionResolver,
-      PositionSource positionSource, SecuritySource securitySource,
-      CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource,
-      JobDispatcher computationJobDispatcher, ViewProcessorQueryReceiver viewProcessorQueryReceiver,
+  public ViewProcessContext(
+      ViewPermissionProvider viewPermissionProvider,
+      MarketDataProviderResolver marketDataProviderResolver,
+      CompiledFunctionService functionCompilationService,
+      FunctionResolver functionResolver,
+      PositionSource positionSource,
+      SecuritySource securitySource,
+      CachingComputationTargetResolver computationTargetResolver,
+      ViewComputationCacheSource computationCacheSource,
+      JobDispatcher computationJobDispatcher,
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
-      MarketDataSnapshotSource marketDataSnapshotSource) {
-    _marketDataSnapshotSource = marketDataSnapshotSource;
+      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
-    ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
-    ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
+    ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(positionSource, "positionSource");
@@ -73,13 +67,13 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
-    ArgumentChecker.notNull(marketDataSnapshotSource, "marketDataSnapshotSource");
 
     _viewPermissionProvider = viewPermissionProvider;
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-    InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider(securitySource);
-    _liveDataOverrideInjector = liveDataOverrideSnapshotProvider;
-    _liveDataSnapshotProvider = new CombiningLiveDataSnapshotProvider(Arrays.asList(liveDataOverrideSnapshotProvider, liveDataSnapshotProvider));
+    
+    InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(securitySource);
+    _liveDataOverrideInjector = liveDataOverrideInjector;
+    _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
+    
     _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
     _positionSource = positionSource;
@@ -101,41 +95,22 @@ public class ViewProcessContext {
   public ViewPermissionProvider getViewPermissionProvider() {
     return _viewPermissionProvider;
   }
-
+  
   /**
-   * Gets the live data.
+   * Gets the market data provider resolver.
    * 
-   * @return the live data availability provider, not null
+   * @return the market data provider resolver, not {@code null}
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
-  }
-
-  /**
-   * Gets the live data snapshot provider.
-   * 
-   * @return the live data snapshot provider, not null
-   * @param executionOptions 
-   */
-  public LiveDataSnapshotProvider getLiveDataSnapshotProvider(ViewExecutionOptions executionOptions) {
-    //TODO should we change the data availability as well?
-    //TODO configure merging of live and snapshot data
-    UniqueIdentifier snapshotId = executionOptions.getMarketDataSnapshotIdentifier();
-    if (snapshotId == null) {
-      //TODO configure merging of live and snapshot data
-      return _liveDataSnapshotProvider;
-    } else {
-      return new MarketDataSnapshotLiveDataProvider(getMarketDataSnapshotSource(),
-          executionOptions.getMarketDataSnapshotIdentifier());
-    }
+  public MarketDataProviderResolver getMarketDataProviderResolver() {
+    return _marketDataProviderResolver;
   }
 
   /**
    * Gets the live data override injector.
    * 
-   * @return the live data override injector, not null
+   * @return the live data override injector, not {@code null}
    */
-  public LiveDataInjector getLiveDataOverrideInjector() {
+  public MarketDataInjector getLiveDataOverrideInjector() {
     return _liveDataOverrideInjector;
   }
 
@@ -220,18 +195,15 @@ public class ViewProcessContext {
     return _graphExecutorStatisticsGathererProvider;
   }
 
-  private MarketDataSnapshotSource getMarketDataSnapshotSource() {
-    return _marketDataSnapshotSource;
-  }
-
   // -------------------------------------------------------------------------
   /**
-   * Converts this context to a {@code ViewCompliationServices}.
+   * Uses this context to form a {@code ViewCompliationServices} instance.
    * 
-   * @return the services, not null
+   * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not {@code null}
+   * @return the services, not {@code null}
    */
-  public ViewCompilationServices asCompilationServices() {
-    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
+  public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
+    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
         getFunctionCompilationService().getExecutorService(), getSecuritySource(), getPositionSource());
   }
 

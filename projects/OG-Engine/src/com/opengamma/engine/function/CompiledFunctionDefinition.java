@@ -78,15 +78,6 @@ public interface CompiledFunctionDefinition {
    * @return Any additional input requirements to satisfy execution on the given inputs to deliver the given outputs.
    */
   Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
-  
-  // See ENG-216
-  /**
-   * Determine the known-to-be live data inputs to this function.
-   * In general, implementations <b>should not</b> override the implementation
-   * in {@link AbstractFunction}. This method is deprecated and will be removed.
-   * @return Required live data for this function.
-   */
-  Set<ValueSpecification> getRequiredLiveData();
 
   /**
    * Determine which result values can be produced by this function when applied to the

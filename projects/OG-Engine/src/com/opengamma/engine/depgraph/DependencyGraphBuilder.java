@@ -39,7 +39,6 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -61,7 +60,7 @@ public class DependencyGraphBuilder {
 
   // Injected Inputs:
   private String _calculationConfigurationName;
-  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private ComputationTargetResolver _targetResolver;
   private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
@@ -269,17 +268,17 @@ public class DependencyGraphBuilder {
   }
 
   /**
-   * @return the liveDataAvailabilityProvider
+   * @return the market data availability provider
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
+  public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
+    return _marketDataAvailabilityProvider;
   }
 
   /**
-   * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
+   * @param marketDataAvailabilityProvider the market data availability provider to set
    */
-  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
+  public void setMarketDataAvailabilityProvider(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
+    _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
   }
 
   /**
@@ -342,7 +341,7 @@ public class DependencyGraphBuilder {
   }
 
   protected void checkInjectedInputs() {
-    ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
+    ArgumentChecker.notNullInjected(getMarketDataAvailabilityProvider(), "marketDataAvailabilityProvider");
     ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
     ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");

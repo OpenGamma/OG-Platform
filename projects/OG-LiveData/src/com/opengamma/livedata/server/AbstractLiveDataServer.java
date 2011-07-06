@@ -593,7 +593,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
   }
   
-  public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(
+  protected LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(
       LiveDataSubscriptionRequest subscriptionRequest) {
     
     boolean persistent = subscriptionRequest.getType().equals(SubscriptionType.PERSISTENT);

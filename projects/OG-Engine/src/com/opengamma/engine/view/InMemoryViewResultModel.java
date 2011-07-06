@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import com.opengamma.core.position.Portfolio;
@@ -28,10 +29,14 @@ import com.opengamma.id.UniqueIdentifier;
  * A simple in-memory implementation of {@link ViewResultModel}.
  */
 public abstract class InMemoryViewResultModel implements ViewResultModel, Serializable {
+
+  private static final long serialVersionUID = 1L;
+  
   private UniqueIdentifier _viewProcessId;
   private UniqueIdentifier _viewCycleId;
   private Instant _valuationTime;
-  private Instant _resultTimestamp;
+  private Instant _calculationTime;
+  private Duration _calculationDuration;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
   private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
@@ -64,12 +69,21 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   }
 
   @Override
-  public synchronized Instant getResultTimestamp() {
-    return _resultTimestamp;
+  public Instant getCalculationTime() {
+    return _calculationTime;
   }
 
-  public synchronized void setResultTimestamp(Instant resultTimestamp) {
-    _resultTimestamp = resultTimestamp;
+  public void setCalculationTime(Instant calculationTime) {
+    _calculationTime = calculationTime;
+  }
+  
+  @Override
+  public Duration getCalculationDuration() {
+    return _calculationDuration;
+  }
+  
+  public void setCalculationDuration(Duration calculationDuration) {
+    _calculationDuration = calculationDuration;
   }
 
   @Override

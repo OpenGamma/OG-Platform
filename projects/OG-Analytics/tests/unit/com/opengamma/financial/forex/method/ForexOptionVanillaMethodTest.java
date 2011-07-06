@@ -19,9 +19,10 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -85,10 +86,11 @@ public class ForexOptionVanillaMethodTest {
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(SMILE_TERM, SPOT, CURVES);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  private static final ForexOptionVanillaMethod METHOD_OPTION = new ForexOptionVanillaMethod();
+  private static final ForexOptionVanillaBlackMethod METHOD_OPTION = new ForexOptionVanillaBlackMethod();
   private static final ForexDiscountingMethod METHOD_DISC = new ForexDiscountingMethod();
-  private static final PresentValueForexCalculator PVC = PresentValueForexCalculator.getInstance();
-  private static final CurrencyExposureForexCalculator CEC = CurrencyExposureForexCalculator.getInstance();
+  private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
   private static final boolean IS_CALL = true;
@@ -163,7 +165,7 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvMethod = METHOD_OPTION.presentValue(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount pvCalculator = PVC.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvCalculator = PVC_BLACK.visit(forexOption, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: present value Method vs Calculator", pvMethod.getAmount(CUR_2), pvCalculator.getAmount(CUR_2), 1E-2);
   }
 
@@ -262,7 +264,7 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount ceMethod = METHOD_OPTION.currencyExposure(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount ceCalculator = CEC.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceCalculator = CEC_BLACK.visit(forexOption, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: currency exposure Method vs Calculator", ceMethod.getAmount(CUR_1), ceCalculator.getAmount(CUR_1), 1E-2);
     assertEquals("Forex vanilla option: currency exposure Method vs Calculator", ceMethod.getAmount(CUR_2), ceCalculator.getAmount(CUR_2), 1E-2);
   }
@@ -346,6 +348,16 @@ public class ForexOptionVanillaMethodTest {
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
     assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
     assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
+  }
+
+  @Test
+  /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    final PresentValueSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
   @Test

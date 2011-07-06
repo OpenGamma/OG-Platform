@@ -15,7 +15,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -23,7 +22,6 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
-
 
 /**
  * 
@@ -56,17 +54,19 @@ public class VolatilityCubeFunctionHelper {
     return _definition;
   }
   
-
-
-  public VolatilityCubeKey getKey() {
-    return new VolatilityCubeKey(_currency, _definitionName);
-  }
-  
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
     return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
+  }
+  
+  public Currency getCurrency() {
+    return _currency;
+  }
+  
+  public String getDefinitionName() {
+    return _definitionName;
   }
   
   public Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile(

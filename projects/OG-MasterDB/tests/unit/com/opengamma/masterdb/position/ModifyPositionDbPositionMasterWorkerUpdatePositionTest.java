@@ -180,16 +180,72 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     tradeC.addAttribute("E", "F");
     pos2.addTrade(tradeC);
     
-    PositionDocument version2 = _posMaster.update(new PositionDocument(pos2));
+    PositionDocument version2 = _posMaster.update(new PositionDocument(pos2));    
     assertNotNull(version2);
-    assertEquals(false, version1.getUniqueId().equals(version2.getUniqueId()));
+    assertFalse(version1.getUniqueId().equals(version2.getUniqueId()));
     assertNotNull(tradeC.getUniqueId());
     assertEquals(version2.getPosition(), _posMaster.get(version2.getUniqueId()).getPosition());
     
-    PositionHistoryRequest search = new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getTimeSource()));
-    PositionHistoryResult searchResult = _posMaster.history(search);
-    assertEquals(2, searchResult.getDocuments().size());
+    //reload version1
+    version1 = _posMaster.get(version1.getUniqueId());
     
+    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getTimeSource())));
+    assertEquals(2, historyResult.getDocuments().size());
+    assertTrue(historyResult.getDocuments().contains(version1));
+    assertTrue(historyResult.getDocuments().contains(version2));
+    
+  }
+  
+  @Test
+  public void test_updatePositionAttributes() {
+    ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos1.addAttribute("A11", "V11");
+    pos1.addAttribute("A12", "V12");
+
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+
+    ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    tradeA.addAttribute("key11", "Value11");
+    tradeA.addAttribute("key12", "Value12");
+    pos1.addTrade(tradeA);
+
+    ManageableTrade tradeB = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    tradeB.addAttribute("key21", "Value21");
+    tradeB.addAttribute("key22", "Value22");
+    pos1.addTrade(tradeB);
+
+    PositionDocument doc = new PositionDocument(pos1);
+    PositionDocument version1 = _posMaster.add(doc);
+    assertNotNull(version1.getUniqueId());
+    assertNotNull(tradeA.getUniqueId());
+    assertNotNull(tradeB.getUniqueId());
+    assertEquals(version1.getPosition(), _posMaster.get(pos1.getUniqueId()).getPosition());
+
+    ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    pos2.setUniqueId(version1.getUniqueId());
+    pos1.addAttribute("A11", "V21");
+    pos1.addAttribute("A12", "V22");
+    ManageableTrade tradeC = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    tradeC.addAttribute("A", "B");
+    tradeC.addAttribute("C", "D");
+    tradeC.addAttribute("E", "F");
+    pos2.addTrade(tradeC);
+
+    PositionDocument version2 = _posMaster.update(new PositionDocument(pos2));
+    assertNotNull(version2);
+    assertFalse(version1.getUniqueId().equals(version2.getUniqueId()));
+    assertNotNull(tradeC.getUniqueId());
+    assertEquals(version2.getPosition(), _posMaster.get(version2.getUniqueId()).getPosition());
+
+    //reload version1
+    version1 = _posMaster.get(version1.getUniqueId());
+
+    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getTimeSource())));
+    assertEquals(2, historyResult.getDocuments().size());
+    assertTrue(historyResult.getDocuments().contains(version1));
+    assertTrue(historyResult.getDocuments().contains(version2));
+
   }
 
   @Test

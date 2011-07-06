@@ -18,7 +18,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -38,7 +37,6 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   private final Set<ValueRequirement> _requirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _resultSpecs = new HashSet<ValueSpecification>();
   private final Set<ComputedValue> _results = new HashSet<ComputedValue>();
-  private final Set<ValueSpecification> _requiredLiveData = new HashSet<ValueSpecification>();
 
   /**
    * @param uniqueId identifier of the function
@@ -135,16 +133,6 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     }
   }
 
-  public void addRequiredLiveData(ValueRequirement requiredLiveData) {
-    addRequiredLiveData(Collections.singleton(requiredLiveData));
-  }
-
-  public void addRequiredLiveData(Collection<ValueRequirement> requiredLiveData) {
-    for (ValueRequirement requirement : requiredLiveData) {
-      _requiredLiveData.add(new ValueSpecification(requirement, LiveDataSourcingFunction.UNIQUE_ID));
-    }
-  }
-
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     return ObjectUtils.equals(target.toSpecification(), _target.toSpecification());
@@ -215,11 +203,6 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
       }
     }
     return results;
-  }
-
-  @Override
-  public Set<ValueSpecification> getRequiredLiveData() {
-    return _requiredLiveData;
   }
 
   @Override

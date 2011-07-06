@@ -31,10 +31,13 @@ import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
- * Example code to load a simple bond portfolio.
+ * Example code to load and aggregate a bond portfolio.
  * <p>
- * This loads all equity securities previously stored in the master and
- * categorizes them by GICS code.
+ * This loads all bond securities previously stored in the master and
+ * categorizes them in a heirarchy by domicile, then issuer type, then issuer name.
+ * Note this requires that you've already populated your security master with 
+ * some bond securities, so you typically need some static market data lookup 
+ * service.
  */
 public class DemoBondPortfolioLoader {
 

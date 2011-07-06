@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -212,7 +212,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
               pass = 0;
               break;
             case SECURITY:
-              if (input.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
+              if (input.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
                 // already evaluated
                 pass = 0;
               } else if (input.getComputationTarget().toSpecification().equals(node.getComputationTarget().toSpecification())) {
