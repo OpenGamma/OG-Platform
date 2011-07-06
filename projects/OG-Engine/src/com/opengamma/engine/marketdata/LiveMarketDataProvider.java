@@ -209,7 +209,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       getUnderlyingProvider().addValue(valueRequirement, value);
     }
     
-    super.valueChanged(valueRequirements);
+    super.valuesChanged(valueRequirements);
   }
 
 }

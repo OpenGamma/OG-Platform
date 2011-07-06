@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.payment.CapFloor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
 
@@ -160,6 +161,16 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   public double payOff(double fixing) {
     double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCapFloorCMSSpread(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCapFloorCMSSpread(this);
   }
 
   @Override

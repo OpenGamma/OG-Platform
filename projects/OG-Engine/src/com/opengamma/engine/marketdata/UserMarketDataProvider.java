@@ -45,7 +45,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
       public void snapshotChanged(UniqueIdentifier uid) {
-        valueChanged(_listeningValueRequirements);
+        valuesChanged(_listeningValueRequirements);
       }
     };
   }

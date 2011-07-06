@@ -2,6 +2,9 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
+
 /**
  * 
  */
@@ -17,4 +20,8 @@ public interface VolatilityCubeSnapshot {
    * @return the values which should be applied when building this curve
    */
   UnstructuredMarketDataSnapshot getOtherValues();
+  
+  Map<Pair<Tenor, Tenor>, ValueSnapshot> getStrikes();
+  
+  
 }
