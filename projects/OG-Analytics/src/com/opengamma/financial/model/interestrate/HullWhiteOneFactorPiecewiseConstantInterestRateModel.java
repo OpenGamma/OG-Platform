@@ -7,9 +7,6 @@ package com.opengamma.financial.model.interestrate;
 
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -75,23 +72,6 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
           * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
     }
     return factor1 * Math.sqrt(factor2 / numerator);
-  }
-
-  public double kappa(final double[] discountedCashFlow, final double[] alpha) {
-    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double x) {
-        double error = 0.0;
-        for (int loopcf = 0; loopcf < alpha.length; loopcf++) {
-          error += discountedCashFlow[loopcf] * Math.exp(-0.5 * alpha[loopcf] * alpha[loopcf] - alpha[loopcf] * x);
-        }
-        return error;
-      }
-    };
-    final BracketRoot bracketer = new BracketRoot();
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1.0E-5);
-    final double[] range = bracketer.getBracketedPoints(swapValue, -50.0, 50.0);
-    return rootFinder.getRoot(swapValue, range[0], range[1]);
   }
 
 }
