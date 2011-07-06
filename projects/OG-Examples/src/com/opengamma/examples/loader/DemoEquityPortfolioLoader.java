@@ -40,6 +40,9 @@ import com.opengamma.util.PlatformConfigUtils.RunMode;
  * <p>
  * This loads all equity securities previously stored in the master and
  * categorizes them by GICS code.
+ * Note that to work correclty, you need to have already loaded your security master 
+ * with a set of equity definitions, which would typically require some kind of static
+ * data source.
  */
 public class DemoEquityPortfolioLoader {
 

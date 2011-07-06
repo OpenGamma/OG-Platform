@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Property file configuration -->
+  <bean id="demoPortfolioLoaderProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <!-- Need this to ignore anything it can't resolve in demoViewProcessor.xml which we're about to import -->
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:demoPortfolioLoader.properties</value>
+    </property>
+  </bean>
+
+  <!-- Exports: dbPositionMaster, sharedSecuritySource -->
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
+
+
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean id="loaderContext" class="com.opengamma.examples.loader.LoaderContext">
+    <property name="portfolioMaster" ref="dbPortfolioMaster" />
+    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="securityMaster" ref="dbSecurityMaster" />
+  </bean>
+  <!--
+  <bean id="demoEquityOptionPortfolioLoader" class="com.opengamma.integration.server.DemoEquityOptionPortfolioLoader">
+    <property name="referenceDataProvider" ref="sharedReferenceDataProvider" />
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="demoEquityPortfolioLoader" class="com.opengamma.integration.server.DemoEquityPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean-->
+  <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="demoBondPortfolioLoader" class="com.opengamma.examples.loader.DemoBondPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+    <!--
+  <bean id="demoSingleBondPortfolioLoader" class="com.opengamma.integration.server.DemoSingleBondPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="demoTwoBondPortfolioLoader" class="com.opengamma.integration.server.DemoTwoBondPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="demoBondFuturePortfolioLoader" class="com.opengamma.integration.server.DemoBondFuturePortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  -->
+</beans>
