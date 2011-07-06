@@ -56,6 +56,20 @@ public class YieldCurveConfigPopulator {
         dumpDefinition(definition);
       }
     }
+    Map<String, Map<Currency, YieldCurveDefinition>> secondaryCurveDefinitions = SecondaryCurveDefinitionAndSpecifications.buildSecondaryCurveDefintions();
+    for (Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : secondaryCurveDefinitions.entrySet()) {
+      String curveName = entry.getKey();
+      Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
+      for (Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
+        Currency ccy = currencyEntry.getKey();
+        YieldCurveDefinition definition = currencyEntry.getValue();
+        ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+        document.setName(curveName + "_" + ccy.getCode());
+        document.setValue(definition);
+        ConfigMasterUtils.storeByName(configMaster, document);
+        dumpDefinition(definition);
+      }
+    }
 //    ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
 //    forwardUSD.setName("FORWARD_USD");
 //    forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
@@ -90,13 +104,13 @@ public class YieldCurveConfigPopulator {
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
-//    Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = CurveDefinitionAndSpecifications.buildSyntheticCurveSpecificationBuilderConfigurations();
-//    for (Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : syntheticConfigurations.entrySet()) {
-//      ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
-//      doc.setName("SYNTHETIC_" + entry.getKey().getCode());
-//      doc.setValue(entry.getValue());
-//      ConfigMasterUtils.storeByName(configMaster, doc);
-//    }
+    Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = SecondaryCurveDefinitionAndSpecifications.buildSyntheticCurveSpecificationBuilderConfigurations();
+    for (Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : syntheticConfigurations.entrySet()) {
+      ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
+      doc.setName("SECONDARY_" + entry.getKey().getCode());
+      doc.setValue(entry.getValue());
+      ConfigMasterUtils.storeByName(configMaster, doc);
+    }
 
 //    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
 //    doc.setName("DEFAULT_USD");
