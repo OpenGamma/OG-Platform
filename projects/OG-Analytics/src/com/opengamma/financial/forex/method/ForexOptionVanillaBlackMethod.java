@@ -140,6 +140,12 @@ public class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     return result;
   }
 
+  /**
+   * Present value curve sensitivity with a generic instrument as argument.
+   * @param instrument A vanilla Forex option.
+   * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
+   * @return The curve sensitivity.
+   */
   public PresentValueSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
@@ -168,6 +174,18 @@ public class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
         .getCurrency2());
     sensi.add(point, volatilitySensitivityValue);
     return sensi;
+  }
+
+  /**
+   * Computes the present value volatility sensitivity with a generic instrument as argument.
+   * @param instrument A vanilla Forex option.
+   * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
+   * @return The volatility sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    return presentValueVolatilitySensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
   /**

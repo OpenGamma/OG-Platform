@@ -23,6 +23,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -91,6 +92,7 @@ public class ForexOptionVanillaMethodTest {
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueVolatilitySensitivityBlackCalculator PVVSC_BLACK = PresentValueVolatilitySensitivityBlackCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
   private static final boolean IS_CALL = true;
@@ -382,6 +384,16 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanilla optionShort = optionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     PresentValueVolatilitySensitivityDataBundle sensiShort = METHOD_OPTION.presentValueVolatilitySensitivity(optionShort, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega short", -sensi.getVega().get(point), sensiShort.getVega().get(point));
+  }
+
+  @Test
+  /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void volatilitySensitivityMethodVsCalculator() {
+    final PresentValueVolatilitySensitivityDataBundle pvvsMethod = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    final PresentValueVolatilitySensitivityDataBundle pvvsCalculator = PVVSC_BLACK.visit(FOREX_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
   }
 
   @Test
