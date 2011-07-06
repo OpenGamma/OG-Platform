@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  */
-public class ForexOptionVanillaMethod implements ForexPricingMethod {
+public class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
 
   /**
    * The Black function used in the pricing.

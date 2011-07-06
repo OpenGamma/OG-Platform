@@ -6,10 +6,8 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -47,12 +45,6 @@ public class CurrencyExposureForexCalculator extends AbstractForexDerivativeVisi
   @Override
   public MultipleCurrencyAmount visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
     ForexSwapDiscountingMethod method = new ForexSwapDiscountingMethod();
-    return method.currencyExposure(derivative, data);
-  }
-
-  @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaMethod method = new ForexOptionVanillaMethod();
     return method.currencyExposure(derivative, data);
   }
 
