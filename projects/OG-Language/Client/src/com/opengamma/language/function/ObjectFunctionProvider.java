@@ -244,7 +244,12 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
 
     @Override
     public String toString() {
-      return "ObjectInfo[" + getObjectClass() + "]";
+      final String str = "ObjectInfo[" + getObjectClass().getName() + "]";
+      if (getSuperclass() != null) {
+        return str + "<-" + getSuperclass().toString();
+      } else {
+        return str;
+      }
     }
 
   }
@@ -271,7 +276,12 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     final String[] parameterNames = object.getConstructorParameters();
     final String[] parameterDescriptions = new String[parameterNames.length];
     for (int i = 0; i < parameterNames.length; i++) {
-      parameterDescriptions[i] = object.getParameterDescription(parameterNames[i]);
+      try {
+        parameterDescriptions[i] = object.getParameterDescription(parameterNames[i]);
+      } catch (NullPointerException npe) {
+        s_logger.warn("Error processing parameter {} of {}", parameterNames[i], object);
+        throw npe;
+      }
     }
     return new CreateSecurityFunction(object.getObjectClass(), object.getConstructorDescription(), parameterNames, parameterDescriptions).getMetaFunction();
   }
