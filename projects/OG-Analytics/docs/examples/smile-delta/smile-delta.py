@@ -34,7 +34,7 @@ for loopdelta in range(0, NB_DELTA):
     f.write("Put %f\t" % DELTA[loopdelta])
 f.write("ATM\t")
 for loopdelta in range(0, NB_DELTA):
-    f.write("Call %f\t" % DELTA[-loopdelta])
+    f.write("Call %f\t" % DELTA[-(loopdelta+1)])
 f.write("\n")
 
 for loopexp in range(0, nbExp):

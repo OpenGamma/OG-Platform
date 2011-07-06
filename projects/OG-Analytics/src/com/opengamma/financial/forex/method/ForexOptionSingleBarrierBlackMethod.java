@@ -157,4 +157,47 @@ public class ForexOptionSingleBarrierBlackMethod implements ForexPricingMethod {
     return presentValueCurveSensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
+  /**
+   * Computes the volatility sensitivity of the option present value. 
+   * @param optionForex A single barrier Forex option.
+   * @param smile The volatility and curves description.
+   * @return The curve sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+    String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+    double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
+    double rateDomestic = smile.getCurve(domesticCurveName).getInterestRate(payTime);
+    double rateForeign = smile.getCurve(foreignCurveName).getInterestRate(payTime);
+    double spot = smile.getSpot();
+    double forward = spot * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
+    double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
+    double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
+    double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
+    double volatility = smile.getSmile().getVolatility(new Triple<Double, Double, Double>(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward));
+    double[] priceDerivatives = new double[5];
+    BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
+
+    double volatilitySensitivityValue = priceDerivatives[4] * Math.abs(foreignAmount) * sign;
+    DoublesPair point = DoublesPair.of(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike());
+    PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), optionForex
+        .getUnderlyingOption().getUnderlyingForex().getCurrency2());
+    sensi.add(point, volatilitySensitivityValue);
+    return sensi;
+  }
+
+  /**
+   * Computes the present value volatility sensitivity with a generic instrument as argument.
+   * @param instrument A single barrier Forex option.
+   * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
+   * @return The volatility sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    return presentValueVolatilitySensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
+  }
+
 }
