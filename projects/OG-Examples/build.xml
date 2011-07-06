@@ -151,8 +151,6 @@
 		</copy>
 	</target>
 
-        <target name="compile" depends="new-user-financial-db, common.compile"/>
-
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
