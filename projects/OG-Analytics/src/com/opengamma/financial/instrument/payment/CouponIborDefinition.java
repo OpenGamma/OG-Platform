@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -267,7 +266,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
       if (fixedRate == null) {
-        ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
         fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
@@ -276,11 +275,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
-          ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
           fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
-        }        
-        if (fixedRate == null) {          
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+        if (fixedRate == null) {
+          fixedRate = indexFixingTimeSeries.getLatestValue(); //TODO remove me as soon as possible
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),

@@ -56,14 +56,14 @@ public class YieldCurveConfigPopulator {
         dumpDefinition(definition);
       }
     }
-//    ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-//    forwardUSD.setName("FORWARD_USD");
-//    forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
-//    ConfigMasterUtils.storeByName(configRepo, forwardUSD);
-//    ConfigDocument<YieldCurveDefinition> fundingUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
-//    fundingUSD.setName("FUNDING_USD");
-//    fundingUSD.setValue(CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition());
-//    ConfigMasterUtils.storeByName(configRepo, fundingUSD);
+    ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    forwardUSD.setName("FORWARD_USD");
+    forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
+    ConfigMasterUtils.storeByName(configMaster, forwardUSD);
+    ConfigDocument<YieldCurveDefinition> fundingUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    fundingUSD.setName("FUNDING_USD");
+    fundingUSD.setValue(CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition());
+    ConfigMasterUtils.storeByName(configMaster, fundingUSD);
     ConfigDocument<YieldCurveDefinition> swapOnlyUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     swapOnlyUSD.setName("SWAP_ONLY_USD");
     swapOnlyUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyCurveDefinition());

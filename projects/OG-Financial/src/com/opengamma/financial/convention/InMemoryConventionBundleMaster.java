@@ -240,6 +240,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //    final Frequency freq = null;
+    final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     addConventionBundle(
@@ -450,6 +451,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360,
         modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
+
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360,
+        modified, annual, 2, usgb, thirty360, modified, annual, 2,
+        Identifier.of(SIMPLE_NAME_SCHEME, "USD FF 3m"), usgb);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP",
         act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD FF 3m"),
