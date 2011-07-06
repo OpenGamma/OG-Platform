@@ -303,7 +303,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("Number of alpha sensitivity", pvsCapLong.getAlpha().keySet().size(), 2);
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().keySet().contains(expectedExpiryTenor1), true);
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().keySet().contains(expectedExpiryTenor2), true);
-    assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().get(expectedExpiryTenor2), 3.0E+3);
+    assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().get(expectedExpiryTenor2), 5.0E+3);
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES);
@@ -335,6 +335,38 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD.presentValueSABRSensitivity(CMS_SPREAD, sabrBundleCor);
     PresentValueSABRSensitivityDataBundle pvcsCalculator = calculator.visit(CMS_SPREAD, sabrBundleCor);
     assertEquals("CMS spread: SABR sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 100;
+    double[] pv = new double[nbTest];
+    PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
+    PresentValueSensitivity[] pvcs = new PresentValueSensitivity[nbTest];
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = METHOD.presentValue(CMS_SPREAD, SABR_BUNDLE).getAmount();
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by replication (price): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvcs[looptest] = METHOD.presentValueSensitivity(CMS_SPREAD, SABR_BUNDLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by replication (curve risk): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvss[looptest] = METHOD.presentValueSABRSensitivity(CMS_SPREAD, SABR_BUNDLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by replication (sabr risk): " + (endTime - startTime) + " ms");
   }
 
 }

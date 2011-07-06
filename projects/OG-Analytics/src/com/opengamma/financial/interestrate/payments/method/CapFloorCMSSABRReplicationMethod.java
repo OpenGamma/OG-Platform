@@ -108,7 +108,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     @SuppressWarnings("synthetic-access")
     final double strikePart = discountFactor * integrant.k(strike) * integrant.g(forward) / integrant.h(forward) * integrant.bs(strike);
     final double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    final double relativeTolerance = 1E-10;
+    final double relativeTolerance = 1E-2;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     double integralPart;
     try {
@@ -149,7 +149,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward);
     final double factor = discountFactor / integrantDelta.h(forward) * integrantDelta.g(forward);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    final double relativeTolerance = 1E-10;
+    final double relativeTolerance = 1E-2;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     // Price
     final double[] bs = integrantDelta.bsbsp(strike);
@@ -180,7 +180,6 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     }
     final double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     final double deltaPD = price / discountFactor;
-
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
@@ -211,7 +210,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final CMSVegaIntegrant integrantVega = new CMSVegaIntegrant(cmsCapFloor, sabrParameter, forward);
     final double factor = discountFactor / integrantVega.h(forward) * integrantVega.g(forward);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    final double relativeTolerance = 1E-10;
+    final double relativeTolerance = 1E-3;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     final double factor2 = factor * integrantVega.k(strike) * integrantVega.bs(strike);
     final double[] strikePartPrice = new double[3];
@@ -409,6 +408,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
     private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
     private final boolean _isCall;
+    private final double[] _nnp;
 
     /**
      * 
@@ -432,6 +432,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       _strike = cmsCap.getStrike();
+      _nnp = nnp(_forward);
     }
 
     @Override
@@ -439,9 +440,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final double[] kD = kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       final double[] bs = bsbsp(x);
-      final double[] n = nnp(_forward);
-      // TODO: Store the value of n?
-      return (kD[1] * (x - _strike) + 2.0 * kD[0]) * (n[1] * bs[0] + n[0] * bs[1]);
+      return (kD[1] * (x - _strike) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
     }
 
     /**
