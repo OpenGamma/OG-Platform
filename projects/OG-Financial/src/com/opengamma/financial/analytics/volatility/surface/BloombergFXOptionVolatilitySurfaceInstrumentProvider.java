@@ -20,10 +20,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
+//TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
   private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER;
 
-  enum FXVolQuoteType {
+  public enum FXVolQuoteType {
     ATM,
     RISK_REVERSAL,
     BUTTERFLY;
