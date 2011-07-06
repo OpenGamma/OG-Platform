@@ -34,7 +34,8 @@ public class SimulatedMarketDataGenerator implements Runnable {
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
-  private static final int MAX_MILLIS_BETWEEN_TICKS = 500;
+  private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
+  private Thread _backgroundUpdateThread;
   
   public SimulatedMarketDataGenerator(MarketDataInjector marketDataInjector, Resource initialValuesFile) {
     _marketDataInjector = marketDataInjector;
@@ -59,8 +60,9 @@ public class SimulatedMarketDataGenerator implements Runnable {
           String fieldName = line[2];
           String valueStr = line[3];
           Double value = Double.parseDouble(valueStr);
-          
-          _initialValues.put(Pair.of(Identifier.of(scheme, identifier), fieldName), value);
+          Identifier id = Identifier.of(scheme, identifier);
+          _initialValues.put(Pair.of(id, fieldName), value);
+          _marketDataInjector.addValue(id, fieldName, value);
         }
       }
       // make an array of the keys so we can randomly choose ones to update.
@@ -73,8 +75,8 @@ public class SimulatedMarketDataGenerator implements Runnable {
   }
   
   public void start() {
-    Thread t = new Thread(this);
-    t.start();
+    _backgroundUpdateThread = new Thread(this);
+    _backgroundUpdateThread.start();
   }
   
   public void run() {
@@ -84,8 +86,8 @@ public class SimulatedMarketDataGenerator implements Runnable {
       Pair<Identifier, String> idFieldPair = _identifiers[random.nextInt(_identifiers.length)];
       Object initialValue = _initialValues.get(idFieldPair);
       if (initialValue instanceof Double) {
-        wiggleValue(random, (Double) initialValue);
-        _marketDataInjector.addValue(idFieldPair.getFirst(), idFieldPair.getSecond(), initialValue);  
+        double value = wiggleValue(random, (Double) initialValue);
+        _marketDataInjector.addValue(idFieldPair.getFirst(), idFieldPair.getSecond(), value);  
       } else {
         // in case we support non-scalars at some point.
         _marketDataInjector.addValue(idFieldPair.getFirst(), idFieldPair.getSecond(), initialValue);
@@ -100,6 +102,8 @@ public class SimulatedMarketDataGenerator implements Runnable {
   }
   
   private double wiggleValue(Random random, double value) {
-    return value + (random.nextGaussian() * (value * SCALING_FACTOR));
+    double result = value + (random.nextGaussian() * (value * SCALING_FACTOR));
+    //s_logger.warn("wiggleValue = {}", result);
+    return result;
   }
 }
