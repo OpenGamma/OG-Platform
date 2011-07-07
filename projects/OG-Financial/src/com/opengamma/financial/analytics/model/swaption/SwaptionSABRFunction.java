@@ -37,9 +37,11 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -81,8 +83,9 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
-    final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
+    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(context, desiredValue);
+    final String forwardCurveName = curveNames.getFirst();
+    final String fundingCurveName = curveNames.getSecond();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getCubeRequirement(target));
     if (forwardCurveName.equals(fundingCurveName)) {
@@ -161,4 +164,21 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     return _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
         new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
+  
+  protected ValueProperties getResultProperties(FinancialSecurity security) {
+    return createValueProperties()
+      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
+      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+      .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+  }
+  
+  protected ValueProperties getResultProperties(FinancialSecurity security, String fundingCurveName, String forwardCurveName) {
+    return createValueProperties()
+      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
+      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+      .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+  }
+  
 }

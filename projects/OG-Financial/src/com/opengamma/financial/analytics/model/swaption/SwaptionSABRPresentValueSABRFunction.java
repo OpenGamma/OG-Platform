@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -29,7 +30,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -85,14 +86,21 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties valueProperties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
-    final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), valueProperties);
-    final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), valueProperties);
-    final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), valueProperties);
+    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
+    return getResults(target.toSpecification(), resultProperties);
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
+    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
+    return getResults(target.toSpecification(), resultProperties);
+  }
+  
+  private Set<ValueSpecification> getResults(final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, resultProperties);
+    final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, resultProperties);
+    final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, targetSpec, resultProperties);
     return Sets.newHashSet(alphaSpec, nuSpec, rhoSpec);
   }
 
@@ -100,4 +108,5 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
     return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
   }
+  
 }
