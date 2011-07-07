@@ -79,7 +79,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * SQL from.
    */
   protected static final String FROM =
-      "FROM sec_security main LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
+      "FROM sec_security main " +
+        "LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) " +
+        "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
   /**
    * SQL select types.
    */
@@ -152,7 +154,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("sec_type", request.getSecurityType());
+      .addValueNullIgnored("sec_type", request.getSecurityType())
+      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
     if (request.getSecurityKeys() != null) {
       int i = 0;
       for (Identifier id : request.getSecurityKeys()) {
@@ -161,8 +164,6 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         i++;
       }
     }
-    
-    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
     
     searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request, args), args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
