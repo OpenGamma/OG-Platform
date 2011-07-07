@@ -98,6 +98,20 @@
 			<arg value="path=${toString:jetty.run.path}" />
 		</java>
 	</target>
+	
+  <target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
+    <java jar="${jetty.start}" fork="true" spawn="false">
+	    <jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+	    <jvmarg value="-Dopengamma.platform.runmode=example" />
+	    <jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+	    <jvmarg value="-Dopengamma.platform.os=posix" />
+	    <jvmarg value="-Xms${jvm.xms}" />
+	    <jvmarg value="-Xmx${jvm.xmx}" />
+	    <arg value="start.class=com.opengamma.examples.loader.DemoDatabasePopulater" />
+	    <arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
+	    <arg value="path=${toString:jetty.run.path}" />
+	  </java>
+	</target>
 
 	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
 		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
