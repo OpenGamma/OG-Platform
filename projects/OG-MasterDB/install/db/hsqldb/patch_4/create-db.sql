@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start with 1 increment by 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -43,7 +41,6 @@ CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 -- CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
-
 
 -- create-db-refdata.sql
 
@@ -151,7 +148,6 @@ CREATE TABLE exg_exchange2idkey (
     constraint exg_fk_exgidkey2idkey foreign key (idkey_id) references exg_idkey (id)
 );
 -- exg_exchange2idkey is fully dependent of exg_exchange
-
 
 -- create-db-security.sql: Security Master
 
@@ -533,7 +529,6 @@ CREATE TABLE sec_swap (
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
-
 -- create-db-portfolio.sql: Portfolio Master
 
 -- design has one document
@@ -602,7 +597,6 @@ CREATE TABLE prt_position (
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
-
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -684,7 +678,6 @@ CREATE TABLE pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -1229,5 +1222,3 @@ CREATE TABLE tss_identifier (
 );
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
-
-

@@ -103,6 +103,7 @@ import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
@@ -381,6 +382,19 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
     });
+    s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
+      @Override
+      public void getValues(Collection<byte[]> values) {
+        
+        values.add(getRandomBytes());
+      }
+
+      private byte[] getRandomBytes() {
+        byte[] randomBytes = new byte[s_random.nextInt(100) + 10];
+        s_random.nextBytes(randomBytes);
+        return randomBytes;
+      }
+    });
   }
 
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
@@ -476,10 +490,14 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       }
       c = c.getSuperclass();
     }
-    assertNotNull(securityType);
+    if (securityClass != RawSecurity.class) {
+      assertNotNull(securityType);
+    }
     for (final T security : securities) {
       // Force the security type to be a valid string; they're random nonsense otherwise
-      security.setSecurityType(securityType);
+      if (securityClass != RawSecurity.class) {
+        security.setSecurityType(securityType);
+      }
       assertSecurity(securityClass, security);
     }
   }
@@ -633,6 +651,10 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
   
-  
-
+  @Override
+  @Test
+  public void testRawSecurity() {
+    assertSecurities(RawSecurity.class);
+  }
+ 
 }
