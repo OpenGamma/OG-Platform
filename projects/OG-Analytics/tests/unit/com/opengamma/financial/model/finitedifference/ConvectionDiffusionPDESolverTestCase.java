@@ -100,11 +100,11 @@ public class ConvectionDiffusionPDESolverTestCase {
     final Function1D<Double, Double> spotZeroPrice = new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final Double t) {
+      public Double evaluate(final Double tau) {
         if (ISCALL) {
           return 0.0;
         }
-        return STRIKE * Math.exp(-RATE * t);
+        return STRIKE * Math.exp(-RATE * tau);
       }
     };
 
@@ -375,11 +375,11 @@ public class ConvectionDiffusionPDESolverTestCase {
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res.getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
-      final double spot = res.getSpaceValue(i);
-      final double price = res.getFunctionValue(i);// * df;
-      final double moneyness = spot / OPTION.getStrike();
+      final double fwd = res.getSpaceValue(i);
+      final double price = res.getFunctionValue(i);
+      final double moneyness = fwd / OPTION.getStrike();
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
-        final BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+        final BlackFunctionData data = new BlackFunctionData(fwd, df, 0.0);
         double impVol;
         try {
           impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
@@ -387,12 +387,12 @@ public class ConvectionDiffusionPDESolverTestCase {
           impVol = 0.0;
         }
 
-        final CEVFunctionData cevData = new CEVFunctionData(spot / df, df, VOL_BETA, BETA);
+        final CEVFunctionData cevData = new CEVFunctionData(fwd, df, VOL_BETA, BETA);
         final double cevPrice = CEV.getPriceFunction(OPTION).evaluate(cevData);
         final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, cevPrice);
 
         if (print) {
-          System.out.println(spot + "\t" + cevPrice + "\t" + price + "\t" + cevVol + "\t" + impVol);
+          System.out.println(fwd + "\t" + cevPrice + "\t" + price + "\t" + cevVol + "\t" + impVol);
         } else {
           assertEquals(cevVol, impVol, volTol * cevVol);
         }

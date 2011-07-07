@@ -13,7 +13,6 @@ import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusio
 import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -90,14 +89,11 @@ public class PDEDataBundleProvider {
   }
 
   /**
-   * When the rate is zero this models the process  {@latex.inline $df = \\sigma f^\\beta dW$} (i.e. f is the forward value and a Martingale) so the call price will need to be
-   * multiplied by a suitable numeraire (e.g. the price of a zero coupon bond).  When rates are non zero the process is for the spot {@latex.inline $ds = rsdt +  \\sigma^* s^\\beta dW$} 
-   * where {@latex.inline $\\sigma^* = \\sigma \\exp(r\\tau(\\beta-1))$} is the modified volatility and no correction is made to the price. <p>
-   * The corresponding PDE is  {@latex.inline $\\frac{\\partial V}{\\partial \\tau} - \\frac{(\\sigma^*)^2 x^{2\\beta}}{2} \\frac{\\partial^2 V}{\\partial x^2} -
-   * rx \\frac{\\partial V}{\\partial x} + rV = 0$} where x is f (forward) or s (spot)
-   * TODO Review this - maybe some of the form  {@latex.inline $df = rfdt + \\sigma f^\\beta dW$} is better 
+   * This models the forward process  {@latex.inline $df = \\sigma f^\\beta dW$}  where f(t,T) =  {@latex.inline $\mathbb{E^T}[s_T|\mathcal{F}_t]$} and is a Martingale. 
+   * The corresponding PDE for the option price is  {@latex.inline $\\frac{\\partial V}{\\partial \\tau} - \\frac{(\\sigma^*)^2 f^{2\\beta}}{2} \\frac{\\partial^2 V}{\\partial f^2}
+   *  + rV = 0$}. The term r is yield to maturity - it can be set to zero and a discount factor applied to the option price instead. 
    * @param vol The volatility
-   * @param rate The rate
+   * @param rate The yield to maturity 
    * @param strike The strike
    * @param beta The beta
    * @param isCall Is a call
@@ -110,26 +106,13 @@ public class PDEDataBundleProvider {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        final double t = ts[0];
         final double s = ts[1];
         double temp = vol * Math.pow(s, beta);
-        if (rate != 0.0) {
-          temp *= Math.exp(rate * (beta - 1) * t);
-        }
         return -0.5 * temp * temp;
       }
     };
 
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        final double s = ts[1];
-        return -s * rate;
-      }
-    };
-
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a),  ConstantDoublesSurface.from(0.0), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
   }
 
   /**
