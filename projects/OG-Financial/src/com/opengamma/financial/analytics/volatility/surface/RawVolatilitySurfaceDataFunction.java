@@ -97,8 +97,9 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
     _definition = volSurfaceDefinitionSource.getDefinition(_currencyLabel, _definitionName, _instrumentType);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _specification = volatilitySurfaceSpecificationSource.getSpecification(_currencyLabel, _specificationName, _instrumentType);
+    //ValueReq[VolatilitySurfaceData, CTSpec[PRIMITIVE, CurrencyISO~USD], {Surface=[DEFAULT_EURUSD],InstrumentType=[FX_VANILLA_OPTION]}]
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
-        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
+        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName+"_"+_currencyLabel).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
   }
 

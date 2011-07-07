@@ -27,6 +27,7 @@ public class CurveSpecificationBuilderConfiguration {
   private Map<Tenor, CurveInstrumentProvider> _swapInstrumentProviders;
   private Map<Tenor, CurveInstrumentProvider> _basisSwapInstrumentProviders;
   private Map<Tenor, CurveInstrumentProvider> _tenorSwapInstrumentProviders;
+  private Map<Tenor, CurveInstrumentProvider> _oisSwapInstrumentProviders;
 
   /**
    * A curve specification builder configuration for a particular currency
@@ -37,14 +38,16 @@ public class CurveSpecificationBuilderConfiguration {
    * @param swapInstrumentProviders a map of tenor to instrument providers for swap curve instruments
    * @param basisSwapInstrumentProviders a map of tenor to instrument providers for basis swap instruments
    * @param tenorSwapInstrumentProviders a map of tenor swap to instrument providers for tenor swap curve 
+   * @param oisSwapInstrumentProviders a map of OIS swap to instrument providers for OIS swap curve instruments
    */
-  public CurveSpecificationBuilderConfiguration(Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders) {
+  public CurveSpecificationBuilderConfiguration(final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders,
+                                                final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders) {
     _cashInstrumentProviders = cashInstrumentProviders;
     _fraInstrumentProviders = fraInstrumentProviders;
     _rateInstrumentProviders = rateInstrumentProviders;
@@ -52,10 +55,11 @@ public class CurveSpecificationBuilderConfiguration {
     _swapInstrumentProviders = swapInstrumentProviders;
     _basisSwapInstrumentProviders = basisSwapInstrumentProviders;
     _tenorSwapInstrumentProviders = tenorSwapInstrumentProviders;
+    _oisSwapInstrumentProviders = oisSwapInstrumentProviders;
   }
-  
-  private Identifier getStaticSecurity(Map<Tenor, CurveInstrumentProvider> instrumentMappers, LocalDate curveDate, Tenor tenor) {
-    CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
+
+  private Identifier getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {
+    final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
     } else {
@@ -69,17 +73,17 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getCashSecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getCashSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_cashInstrumentProviders, curveDate, tenor);
   }
-  
+
   /**
    * Build a FRA security identifier for a curve node point 
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getFRASecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getFRASecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_fraInstrumentProviders, curveDate, tenor);
   }
 
@@ -89,17 +93,17 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getSwapSecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_swapInstrumentProviders, curveDate, tenor);
   }
-  
+
   /**
    * Build a Basis Swap security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return identifier of the security to use
    */
-  public Identifier getBasisSwapSecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getBasisSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_basisSwapInstrumentProviders, curveDate, tenor);
   }
 
@@ -109,17 +113,27 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return identifier of the security to use
    */
-  public Identifier getTenorSwapSecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getTenorSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_tenorSwapInstrumentProviders, curveDate, tenor);
   }
-  
+
+  /**
+   * Build a OIS swap security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return identifier of the security to use
+   */
+  public Identifier getOISSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+    return getStaticSecurity(_oisSwapInstrumentProviders, curveDate, tenor);
+  }
+
   /**
    * Build a rate security identifier for a curve node point 
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getRateSecurity(LocalDate curveDate, Tenor tenor) {
+  public Identifier getRateSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_rateInstrumentProviders, curveDate, tenor);
   }
 
@@ -130,8 +144,8 @@ public class CurveSpecificationBuilderConfiguration {
    * @param numberQuarterlyFuturesFromTenor the number of quarterly IR futures to traverse from (curveDate + tenor) 
    * @return the identifier of the security to use
    */
-  public Identifier getFutureSecurity(LocalDate curveDate, Tenor tenor, int numberQuarterlyFuturesFromTenor) {
-    CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
+  public Identifier getFutureSecurity(final LocalDate curveDate, final Tenor tenor, final int numberQuarterlyFuturesFromTenor) {
+    final CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);
     } else {
@@ -178,7 +192,7 @@ public class CurveSpecificationBuilderConfiguration {
   public Map<Tenor, CurveInstrumentProvider> getSwapInstrumentProviders() {
     return _swapInstrumentProviders;
   }
-  
+
   /**
    * Gets the basisSwapInstrumentProviders field for serialisation
    * @return the basisSwapInstrumentProviders
@@ -186,7 +200,7 @@ public class CurveSpecificationBuilderConfiguration {
   public Map<Tenor, CurveInstrumentProvider> getBasisSwapInstrumentProviders() {
     return _basisSwapInstrumentProviders;
   }
-  
+
   /**
    * Gets the tenorSwapInstrumentProviders field for serialisation
    * @return the swapInstrumentProviders
@@ -194,28 +208,40 @@ public class CurveSpecificationBuilderConfiguration {
   public Map<Tenor, CurveInstrumentProvider> getTenorSwapInstrumentProviders() {
     return _tenorSwapInstrumentProviders;
   }
-  
-  public boolean equals(Object o) {
+
+  /**
+   * Gets the oisSwapInstrumentProviders field for serialisation
+   * @return the oisSwapInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getOISSwapInstrumentProviders() {
+    return _oisSwapInstrumentProviders;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof CurveSpecificationBuilderConfiguration)) {
       return false;
     }
-    CurveSpecificationBuilderConfiguration other = (CurveSpecificationBuilderConfiguration) o;
+    final CurveSpecificationBuilderConfiguration other = (CurveSpecificationBuilderConfiguration) o;
     return (ObjectUtils.equals(getCashInstrumentProviders(), other.getCashInstrumentProviders()) &&
             ObjectUtils.equals(getFraInstrumentProviders(), other.getFraInstrumentProviders()) &&
             ObjectUtils.equals(getFutureInstrumentProviders(), other.getFutureInstrumentProviders()) &&
             ObjectUtils.equals(getRateInstrumentProviders(), other.getRateInstrumentProviders()) &&
             ObjectUtils.equals(getSwapInstrumentProviders(), other.getSwapInstrumentProviders()) &&
             ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders()) &&
-            ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders()));
+            ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders())) &&
+            ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders());
   }
-  
+
+  @Override
   public int hashCode() {
     return getCashInstrumentProviders().hashCode(); // bit dodgy really, but should only be used for testing.
   }
-  
+
+  @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }

@@ -17,7 +17,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value for Forex derivatives.
  */
-public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
+public final class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -35,7 +35,7 @@ public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<
   /**
    * Constructor.
    */
-  public PresentValueForexCalculator() {
+  private PresentValueForexCalculator() {
   }
 
   @Override

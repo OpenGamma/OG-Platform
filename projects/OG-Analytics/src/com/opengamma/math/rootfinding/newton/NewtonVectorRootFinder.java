@@ -98,7 +98,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
-          s_logger.info("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: " + data.getX() + ", function value: " + data.getY());
+          s_logger.info("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: \n" + data.getX() + "\n function value: \n" + data.getY() + "\n Jacobian: \n"
+              + jacobianFunction.evaluate(data.getX()));
           throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation.");
         }
       }

@@ -8,8 +8,8 @@ package com.opengamma.engine.marketdata;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
@@ -26,6 +26,8 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.engine.ComputationTargetType;
@@ -108,6 +110,27 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           throw new IllegalArgumentException("Must specify a cube name");
         }
         return new VolatilityCubeKey(currency, cubeName);
+      }
+      
+    });
+    
+    registerStructuredKeyFactory(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new StructuredMarketDataKeyFactory() {
+
+      @Override
+      public StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement) {
+        Currency currency = getCurrency(valueRequirement);
+        if (currency == null) {
+          return null;
+        }
+        String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
+        if (name == null) {
+          throw new IllegalArgumentException("Must specify a surface name");
+        }
+        String instrumentType = valueRequirement.getConstraint("InstrumentType");
+        if (instrumentType == null) {
+          throw new IllegalArgumentException("Must specify an instrument name");
+        }
+        return new VolatilitySurfaceKey(currency, name, instrumentType);
       }
       
     });
@@ -203,6 +226,12 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         return new VolatilityCubeData(); //NOTE: this is not the same as return null;
       }
       return buildVolatilityCubeData(volCubeSnapshot);
+    } else if (marketDataKey instanceof VolatilitySurfaceKey) {
+      VolatilitySurfaceSnapshot snapshot = getSnapshot().getVolatilitySurfaces().get(marketDataKey);
+      if (snapshot == null) {
+        return new Object(); //NOTE: this is not the same as return null;
+      }
+      return buildVolatilitySurfaceData(snapshot);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
@@ -250,6 +279,10 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return ret;
   }
   
+  private Object buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot) {
+    //TODO: need to move VolatilitySurfaceData to core
+    return "TODO";
+  }
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
     HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
