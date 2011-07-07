@@ -35,7 +35,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionH
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
@@ -62,7 +61,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
   private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 0.5, 0.2, 0.0};
   private static final BitSet FIXED = new BitSet();
-  private static final boolean RECOVER_ATM_VOL = true;
+  private static final boolean RECOVER_ATM_VOL = false;
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D<Interpolator1DDataBundle> FLAT = new FlatExtrapolator1D<Interpolator1DDataBundle>();
   private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR,
@@ -157,16 +156,10 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
     final double[] beta = betaList.toDoubleArray();
     final double[] nu = nuList.toDoubleArray();
     final double[] rho = rhoList.toDoubleArray();
-    final double[] chiSq = chiSqList.toDoubleArray();
     final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, alpha, INTERPOLATOR, "SABR alpha surface"));
     final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, beta, INTERPOLATOR, "SABR beta surface"));
     final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, nu, INTERPOLATOR, "SABR nu surface"));
     final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, rho, INTERPOLATOR, "SABR rho surface"));
-    PDEUtilityTools.printSurface("Alpha", alphaSurface.getSurface(), 2, 30, 0.25, 20);
-    PDEUtilityTools.printSurface("Beta", betaSurface.getSurface(), 2, 30, 0.25, 20);
-    PDEUtilityTools.printSurface("Nu", nuSurface.getSurface(), 2, 30, 0.25, 20);
-    PDEUtilityTools.printSurface("Rho", rhoSurface.getSurface(), 2, 30, 0.25, 20);
-    PDEUtilityTools.printSurface("Chi Sq", InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, chiSq, INTERPOLATOR, "SABR chi sq surface"), 2, 30, 0.25, 20);
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, _volCubeHelper.getCurrency(), DAY_COUNT);
     return Sets.newHashSet(new ComputedValue(_resultSpecification, fittedSurfaces));
   }

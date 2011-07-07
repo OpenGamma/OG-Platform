@@ -54,6 +54,7 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   private static final double MU = 5;
 
   private final boolean _useSABRExtrapolation;
+  private SecuritySource _securitySource;
   private SwaptionSecurityConverter _swaptionVisitor;
   private final VolatilityCubeFunctionHelper _helper;
 
@@ -71,9 +72,9 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
-    _swaptionVisitor = new SwaptionSecurityConverter(securitySource, conventionSource, swapConverter);
+    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    _swaptionVisitor = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
   }
 
   @Override
@@ -122,6 +123,10 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
 
   protected VolatilityCubeFunctionHelper getHelper() {
     return _helper;
+  }
+  
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
   }
 
   protected YieldCurveBundle getYieldCurves(final String forwardCurveName, final String fundingCurveName, final ComputationTarget target, final FunctionInputs inputs) {

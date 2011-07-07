@@ -9,18 +9,17 @@ import java.util.Collections;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 
 /**
- * Summing function for {@link ValueRequirementNames#PRESENT_VALUE_SABR_ALPHA_SENSITIVITY}
+ * Summing function for swaptions SABR model parameter sensitivities
  */
-public class SwaptionSABRPresentValueSABRSummingFunction extends FilteringSummingFunction {
+public class SwaptionSABRSummingFunction extends FilteringSummingFunction {
 
-  public SwaptionSABRPresentValueSABRSummingFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, Collections.singleton(ValuePropertyNames.CUBE));
+  public SwaptionSABRSummingFunction(String valueName) {
+    super(valueName, Collections.singleton(ValuePropertyNames.CUBE));
   }
 
   @Override
