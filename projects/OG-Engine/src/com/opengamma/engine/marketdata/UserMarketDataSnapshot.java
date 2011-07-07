@@ -299,41 +299,31 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(), xs.toArray(), ys.toArray(), values);
   }
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
-    Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();
-    HashMap<VolatilityPoint, Double> dataPoints = buildVolValues(values);
-    HashMap<Pair<Tenor, Tenor>, Double> strikes = buildVolStrikes(volCubeSnapshot.getStrikes());
+    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
     SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
     
+    HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+
+    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : volCubeSnapshot.getStrikes().entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        strikes.put(entry.getKey(), query);
+      }
+    }
+
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
     ret.setOtherData(otherData);
     ret.setStrikes(strikes);
-    
     return ret;
-  }
-
-  private HashMap<Pair<Tenor, Tenor>, Double> buildVolStrikes(Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
-    HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
-    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
-      ValueSnapshot value = entry.getValue();
-      Double query = query(value);
-      if (query != null) {
-        dataPoints.put(entry.getKey(), query);
-      }
-    }
-    return dataPoints;
-  }
-
-  private HashMap<VolatilityPoint, Double> buildVolValues(Map<VolatilityPoint, ValueSnapshot> values) {
-    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-    for (Entry<VolatilityPoint, ValueSnapshot> entry : values.entrySet()) {
-      ValueSnapshot value = entry.getValue();
-      Double query = query(value);
-      if (query != null) {
-        dataPoints.put(entry.getKey(), query);
-      }
-    }
-    return dataPoints;
   }
 
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {
