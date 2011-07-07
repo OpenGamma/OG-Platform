@@ -110,6 +110,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
     EquitySecurity equitySecurity = new EquitySecurity(exchange, exchangeCode, companyName, currency);
     equitySecurity.setGicsCode(GICSCode.getInstance(gicsCode));
     equitySecurity.setIdentifiers(IdentifierBundle.of(identifiers));
+    equitySecurity.setName(companyName);
     return equitySecurity;
   }
   /**

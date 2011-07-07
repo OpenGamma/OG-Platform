@@ -179,8 +179,11 @@
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
   <bundle id="views.js">
+    <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
+    <fragment>/scripts/og/views/forms/og.views.forms.dropdown.js</fragment>
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
+    <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>
@@ -191,7 +194,6 @@
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
     <fragment>/scripts/og/views/og.views.batches.js</fragment>
     <fragment>/scripts/og/views/og.views.analytics.js</fragment>
-    <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.min.js</fragment>

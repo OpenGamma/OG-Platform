@@ -8,8 +8,13 @@ $.register_module({
     obj: function () {
         var module = this, id_count = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var data = config.data, data_index = config.index, render,
-                ids = {widget: prefix + id_count++, row_with: prefix + id_count++, row_without: prefix + id_count++},
+            var data = config.data, data_index = config.index, render, row_add = null,
+                ids = {
+                    widget: prefix + id_count++,
+                    row_with: prefix + id_count++,
+                    row_without: prefix + id_count++,
+                    row_add: prefix + id_count++
+                },
                 convert = function (datum) {
                     var length = 0, item;
                     if (!datum || typeof datum === 'string') return datum || '';
@@ -45,10 +50,15 @@ $.register_module({
                 handlers: [
                     {type: 'form:load', handler: function () {
                         var item, $widget = $('#' + ids.widget), rows = {
+                            add: $('#' + ids.row_add).remove(),
                             'with': $('#' + ids.row_with).remove().removeAttr('id'),
                             without: $('#' + ids.row_without).remove().removeAttr('id')
                         };
                         render = {
+                            add: function () {
+                                $('#' + ids.widget + ' tr').hide();
+                                $widget.append(rows.add);
+                            },
                             'with': function (datum, $replace, $after) {
                                 var item, add = function (item) {
                                     var $row = rows['with'].clone(), $inputs = $row.find('input'),
@@ -70,6 +80,7 @@ $.register_module({
                             }
                         };
                         for (item in data) render[item](data[item]);
+                        if (!(data['with'] || data['without'])) render['add']();
                     }},
                     {type: 'change', selector: '#' + ids.widget + ' input.og-js-radio', handler: function (e) {
                         var target = e.target, value = target.value;
@@ -79,9 +90,12 @@ $.register_module({
                     }},
                     {type: 'click', selector: '#' + ids.widget + ' .og-icon-remove', handler: function (e) {
                         $(e.target).closest('tr').remove();
+                        if ($('#' + ids.widget + ' tr').length === 1) render['add']();
                     }},
                     {type: 'click', selector: '#' + ids.widget + ' .og-icon-add', handler: function (e) {
+                        $('#' + ids.widget + ' tr').show();
                         render['with']({'': null}, null, $(e.target).closest('tr'));
+                        $('#' + ids.row_add).remove();
                     }}
                 ]
             });
