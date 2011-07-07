@@ -94,7 +94,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
         if (curveName == null) {
-          throw new IllegalArgumentException("Must specify a curve name");
+          return new YieldCurveKey(currency, null);
         }
         return new YieldCurveKey(currency, curveName);
       }
@@ -111,7 +111,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
         if (cubeName == null) {
-          throw new IllegalArgumentException("Must specify a cube name");
+          return new VolatilityCubeKey(currency, null);
         }
         return new VolatilityCubeKey(currency, cubeName);
       }
@@ -235,9 +235,40 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       if (snapshot == null) {
         return new Object(); //NOTE: this is not the same as return null;
       }
-      return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
+    }
+  }
+
+  private YieldCurveSnapshot getYieldCurveSnapshot(YieldCurveKey yieldcurveKey) {
+    if (yieldcurveKey.getName() == null) {
+      //Any curve will do
+      for (Entry<YieldCurveKey, YieldCurveSnapshot> entry : getSnapshot().getYieldCurves().entrySet()) {
+        //This could return any old value, but hey, that's what they asked for right?
+        if (entry.getKey().getCurrency().equals(yieldcurveKey.getCurrency())) {
+          return entry.getValue();
+        }
+      }
+      return null;
+    } else {
+      YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(yieldcurveKey);
+      return yieldCurveSnapshot;
+    }
+  }
+
+  private VolatilityCubeSnapshot getVolCubeSnapshot(VolatilityCubeKey volCubeKey) {
+    if (volCubeKey.getName() == null) {
+      //Any cube will do
+      for (Entry<VolatilityCubeKey, VolatilityCubeSnapshot> entry : getSnapshot().getVolatilityCubes().entrySet()) {
+        //This could return any old cube, but hey, that's what they asked for right?
+        if (entry.getKey().getCurrency().equals(volCubeKey.getCurrency())) {
+          return entry.getValue();
+        }
+      }
+      return buildVolatilityCubeData(snapshot, (VolatilitySurfaceKey) volCubeKey);
+    } else {
+      VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(volCubeKey);
+      return volCubeSnapshot;
     }
   }
   
@@ -283,7 +314,45 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return ret;
   }
   
-  private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot,
+  private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
+    Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();
+    HashMap<VolatilityPoint, Double> dataPoints = buildVolValues(values);
+    HashMap<Pair<Tenor, Tenor>, Double> strikes = buildVolStrikes(volCubeSnapshot.getStrikes());
+    SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
+    
+    VolatilityCubeData ret = new VolatilityCubeData();
+    ret.setDataPoints(dataPoints);
+    ret.setOtherData(otherData);
+    ret.setStrikes(strikes);
+    
+    return ret;
+  }
+
+  private HashMap<Pair<Tenor, Tenor>, Double> buildVolStrikes(Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
+    HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
+    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
+    return dataPoints;
+  }
+
+  private HashMap<VolatilityPoint, Double> buildVolValues(Map<VolatilityPoint, ValueSnapshot> values) {
+    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    for (Entry<VolatilityPoint, ValueSnapshot> entry : values.entrySet()) {
+      ValueSnapshot value = entry.getValue();
+      Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
+    return dataPoints;
+  }
+
+private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot,
       VolatilitySurfaceKey marketDataKey) {
 
     Set<Object> xs = new HashSet<Object>();
@@ -297,35 +366,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     }
 
     return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(), xs.toArray(), ys.toArray(), values);
-  }
-  private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
-    HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-    for (Entry<VolatilityPoint, ValueSnapshot> entry : volCubeSnapshot.getValues().entrySet()) {
-      ValueSnapshot value = entry.getValue();
-      Double query = query(value);
-      if (query != null) {
-        dataPoints.put(entry.getKey(), query);
-      }
-    }
-    SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
-    
-    HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
-
-    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : volCubeSnapshot.getStrikes().entrySet()) {
-      ValueSnapshot value = entry.getValue();
-      Double query = query(value);
-      if (query != null) {
-        strikes.put(entry.getKey(), query);
-      }
-    }
-
-    VolatilityCubeData ret = new VolatilityCubeData();
-    ret.setDataPoints(dataPoints);
-    ret.setOtherData(otherData);
-    ret.setStrikes(strikes);
-    return ret;
-  }
-
+  }  
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {
     ComputationTargetType type = liveDataRequirement.getTargetSpecification().getType();
     switch (type) {
