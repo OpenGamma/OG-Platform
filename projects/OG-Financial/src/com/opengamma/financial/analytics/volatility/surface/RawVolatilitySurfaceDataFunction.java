@@ -113,10 +113,10 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
                                                         final FunctionCompilationContext context,
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       // don't care what these are
       for (final Y y : definition.getYs()) {
-        final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
         final Identifier identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }

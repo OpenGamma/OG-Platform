@@ -54,6 +54,7 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   private final boolean _useSABRExtrapolation;
   private SwaptionSecurityConverter _swaptionVisitor;
   private final VolatilityCubeFunctionHelper _helper;
+  private SecuritySource _securitySource;
 
   public SwaptionSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation));
@@ -64,14 +65,18 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     _useSABRExtrapolation = useSABRExtrapolation;
   }
 
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+  
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
-    _swaptionVisitor = new SwaptionSecurityConverter(securitySource, conventionSource, swapConverter);
+    _swaptionVisitor = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
   }
 
   @Override

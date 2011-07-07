@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swaption;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +32,10 @@ import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalcu
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -40,7 +44,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-
+  private static final DecimalFormat FORMATTER = new DecimalFormat("#.#");
+  
   public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
@@ -77,9 +82,9 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     final Map<DoublesPair, Double> alpha = presentValue.getAlpha();
     final Map<DoublesPair, Double> nu = presentValue.getNu();
     final Map<DoublesPair, Double> rho = presentValue.getRho();
-    final DoubleLabelledMatrix2D alphaValue = getMatrix(alpha);
-    final DoubleLabelledMatrix2D nuValue = getMatrix(nu);
-    final DoubleLabelledMatrix2D rhoValue = getMatrix(rho);
+    final DoubleLabelledMatrix2D alphaValue = getMatrix(alpha, swaptionSecurity, now);
+    final DoubleLabelledMatrix2D nuValue = getMatrix(nu, swaptionSecurity, now);
+    final DoubleLabelledMatrix2D rhoValue = getMatrix(rho, swaptionSecurity, now);
     return Sets.newHashSet(new ComputedValue(alphaSpec, alphaValue), new ComputedValue(nuSpec, nuValue), new ComputedValue(rhoSpec, rhoValue));
   }
 
@@ -96,8 +101,15 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     return Sets.newHashSet(alphaSpec, nuSpec, rhoSpec);
   }
 
-  private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map) {
+  private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, SwaptionSecurity security, ZonedDateTime now) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
+    ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
+    SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+    ZonedDateTime swapMaturity = underlying.getMaturityDate();
+    double swaptionExpiryYears = DateUtil.getDifferenceInYears(now, swaptionExpiry);
+    double swapMaturityYears = DateUtil.getDifferenceInYears(now, swapMaturity);    
+    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[]{FORMATTER.format(swaptionExpiryYears)}, 
+                                      new Double[] {entry.getKey().second}, new Object[]{FORMATTER.format(swapMaturityYears)}, 
+                                      new double[][] {new double[] {entry.getValue()}});
   }
 }
