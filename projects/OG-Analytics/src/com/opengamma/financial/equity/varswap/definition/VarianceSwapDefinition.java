@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.equity.varswap.definition;
 
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.util.money.Currency;
@@ -32,10 +33,9 @@ public class VarianceSwapDefinition {
   private final ZonedDateTime _obsEndDate;
   private final ZonedDateTime _settlementDate;
   private final PeriodFrequency _obsFreq;
-  private final int _nObsExpected;
+  private final int _nObsExpected; // TODO Case 2011-07-01 : Who will count nObsExpected? 
   private final double _annualizationFactor;
-
-  // TODO Case 2011.06.07 -   private final HolidaySource _holidaySource; ?!?
+  private final Calendar _calendar; // TODO Case 2011-07-01 : What do I do with the calendar??
 
   /**
    * Constructor based upon Vega (Volatility) parameterisation - strike and notional.
@@ -48,18 +48,20 @@ public class VarianceSwapDefinition {
    * @param obsFreq The frequency of observations, typically DAILY
    * @param nObsExpected Number of observations expected as of trade inception
    * @param currency Currency of cash settlement
+   * @param calendar Specification of good business days (and holidays)
    * @param volStrike Fair value of Volatility, the square root of Variance, struck at trade date
    * @param volNotional Trade pays the difference between realized and strike variance multiplied by 0.5 * volNotional / volStrike
    * @param annualizationFactor Number of business days per year
    */
   public VarianceSwapDefinition(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, int nObsExpected, Currency currency,
-      double annualizationFactor, double volStrike, double volNotional) {
+      Calendar calendar, double annualizationFactor, double volStrike, double volNotional) {
 
     Validate.notNull(obsStartDate, "obsStartDate");
     Validate.notNull(obsEndDate, "obsEndDate");
     Validate.notNull(settlementDate, "settlementDate");
     Validate.notNull(obsFreq, "obsFreq");
     Validate.notNull(currency, "currency");
+    Validate.notNull(calendar, "calendar");
 
     _obsStartDate = obsStartDate;
     _obsEndDate = obsEndDate;
@@ -68,7 +70,7 @@ public class VarianceSwapDefinition {
     _nObsExpected = nObsExpected;
     _annualizationFactor = annualizationFactor;
     _currency = currency;
-
+    _calendar = calendar;
     _volStrike = volStrike;
     _volNotional = volNotional;
     _varStrike = volStrike * volStrike;
@@ -76,38 +78,47 @@ public class VarianceSwapDefinition {
   }
 
   public VarianceSwapDefinition fromVegaParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, int nObsExpected, Currency currency,
-      double annualizationFactor, double volStrike, double volNotional) {
-    return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, nObsExpected, currency, annualizationFactor, volStrike, volNotional);
+      Calendar calendar, double annualizationFactor, double volStrike, double volNotional) {
+    return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, nObsExpected, currency, calendar, annualizationFactor, volStrike, volNotional);
   }
 
   public VarianceSwapDefinition fromVarianceParams(ZonedDateTime obsStartDate, ZonedDateTime obsEndDate, ZonedDateTime settlementDate, PeriodFrequency obsFreq, int nObsExpected, Currency currency,
-      double annualizationFactor, double varStrike, double varNotional) {
+      Calendar calendar, double annualizationFactor, double varStrike, double varNotional) {
 
     double volStrike = Math.sqrt(varStrike);
     double volNotional = 2 * varNotional * volStrike;
 
-    return fromVegaParams(obsStartDate, obsEndDate, settlementDate, obsFreq, nObsExpected, currency, annualizationFactor, volStrike, volNotional);
+    return fromVegaParams(obsStartDate, obsEndDate, settlementDate, obsFreq, nObsExpected, currency, calendar, annualizationFactor, volStrike, volNotional);
 
   }
 
+  /**
+   * The definition is responsible for constructing the derivative for pricing visitors.
+   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length. 
+   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
+   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
+   * @param date The current date
+   * @param underlyingTimeSeries Time series of underlying observations
+   * @return VarianceSwap derivative as of date
+   */
   public VarianceSwap toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> underlyingTimeSeries) {
     Validate.notNull(date, "date");
     double timeToObsStart = TimeCalculator.getTimeBetween(date, _obsEndDate);
     double timeToObsEnd = TimeCalculator.getTimeBetween(date, _obsStartDate);
     double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
+    Validate.isTrue(timeToObsStart < 0.08, "VarianceSwap needs update to properly handle forward starting variance swaps."
+        + "Contact quant@opengamma.com. In the meantime, book as difference of two spot starting VarianceSwaps.");
+    // FIXME CASE 2011-07-04 !!! Calendar. I need to know, from the _calendar, what number of observations to expect, both from [t,T] and [t,0], the latter to compute the number of market disruption events
+    // FIXME CASE 2011-07-01 !!! Calendar. Treatment of nObsExpected. What I need is the number expected as of trade inception between _obsStartDate and date
 
-    Double[] observations;
+    Validate.notNull(underlyingTimeSeries, "VarianceSwapDefinition has begun observations. A TimeSeries of observations must be provided.");
+    DoubleTimeSeries<ZonedDateTime> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate, true, date, true);
+    double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
+    double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar functionality for non-trivial weighting of observations
+    final int nObsDisrupted = 0;
 
-    if (timeToObsStart < 0) { // Observations have begun
-      Validate.notNull(underlyingTimeSeries, "VarianceSwapDefinition has begun observations. A TimeSeries of observations must be provided.");
-      DoubleTimeSeries<ZonedDateTime> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate, true, date, true);
-      observations = realizedTS.valuesArray();
-    } else { // Observations haven't begun
-      observations = null;
-    }
-    Double[] observationWeights = null; // TODO Case 2011-06-29 Add functionality for non-trivial weighting of observations
     VarianceSwap newDeriv = new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement,
-        _varNotional, _annualizationFactor, _currency, _varStrike, _nObsExpected, observations, observationWeights);
+        _varNotional, _annualizationFactor, _currency, _varStrike, _nObsExpected, nObsDisrupted, observations, observationWeights);
     return newDeriv;
   }
 
@@ -135,10 +146,6 @@ public class VarianceSwapDefinition {
     return _settlementDate;
   }
 
-  /**
-   * Gets the obsFreq.
-   * @return the obsFreq
-   */
   public PeriodFrequency getObsFreq() {
     return _obsFreq;
   }
@@ -152,44 +159,28 @@ public class VarianceSwapDefinition {
     return _nObsExpected;
   }
 
-  /**
-   * Gets the currency.
-   * @return the currency
-   */
   public Currency getCurrency() {
     return _currency;
   }
 
-  /**
-   * Gets the volStrike.
-   * @return the volStrike
-   */
   public double getVolStrike() {
     return _volStrike;
   }
 
-  /**
-   * Gets the volNotional.
-   * @return the volNotional
-   */
   public double getVolNotional() {
     return _volNotional;
   }
 
-  /**
-   * Gets the varStrike.
-   * @return the varStrike
-   */
   public double getVarStrike() {
     return _varStrike;
   }
 
-  /**
-   * Gets the varNotional.
-   * @return the varNotional
-   */
   public double getVarNotional() {
     return _varNotional;
+  }
+
+  public Calendar getCalendar() {
+    return _calendar;
   }
 
   @Override

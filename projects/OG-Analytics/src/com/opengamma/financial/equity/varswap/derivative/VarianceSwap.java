@@ -30,8 +30,9 @@ public class VarianceSwap implements EquityDerivative {
   private final double _annualizationFactor; // typically 252 with daily observations
 
   private final int _nObsExpected;
-  private final Double[] _observations;
-  private final Double[] _observationWeights;
+  private final int _nObsDisrupted;
+  private final double[] _observations;
+  private final double[] _observationWeights;
 
   /**
    * @param timeToObsStart Time of first observation. Negative if observations have begun.
@@ -42,12 +43,13 @@ public class VarianceSwap implements EquityDerivative {
    * @param currency Currency of cash settlement
    * @param annualizationFactor Number of business days per year
    * @param nObsExpected Number of observations expected as of trade inception
+   * @param nObsDisrupted Number of expected observations that did not occur because of a market disruption
    * @param observations Array of observations of the underlying spot
    * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
   public VarianceSwap(double timeToObsStart, double timeToObsEnd, double timeToSettlement,
       double varStrike, double varNotional, Currency currency, double annualizationFactor,
-      int nObsExpected, Double[] observations, Double[] observationWeights) {
+      int nObsExpected, int nObsDisrupted, double[] observations, double[] observationWeights) {
 
     _timeToObsStart = timeToObsStart;
     _timeToObsEnd = timeToObsEnd;
@@ -57,21 +59,19 @@ public class VarianceSwap implements EquityDerivative {
     _currency = currency;
     _annualizationFactor = annualizationFactor;
     _nObsExpected = nObsExpected;
+    _nObsDisrupted = nObsDisrupted;
     _observations = observations;
-    if (_observations == null) {
-      _observationWeights = null;
-    } else {
-      _observationWeights = observationWeights;
-      if (_observationWeights != null) {
-        int nWeights = _observationWeights.length;
-        int nObs = _observations.length;
-        Validate.isTrue(nWeights + 1 == nObs,
+    _observationWeights = observationWeights;
+    if (_observationWeights.length > 1) {
+      int nWeights = _observationWeights.length;
+      int nObs = _observations.length;
+      Validate.isTrue(nWeights + 1 == nObs,
             "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
                 + " Found " + nWeights + " weights and " + nObs + " observations.");
-      }
-
     }
 
+    Validate.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 nObsExpected! "
+        + "If it is impractical to count, contact Quant to default this value in VarianceSwap constructor.");
   }
 
   @Override
@@ -117,6 +117,14 @@ public class VarianceSwap implements EquityDerivative {
   }
 
   /**
+   * Gets the nObsDisrupted.
+   * @return the nObsDisrupted
+   */
+  public int getObsDisrupted() {
+    return _nObsDisrupted;
+  }
+
+  /**
    * Gets the currency.
    * @return the currency
    */
@@ -140,6 +148,14 @@ public class VarianceSwap implements EquityDerivative {
     return _varNotional;
   }
 
+  public double getVolStrike() {
+    return Math.sqrt(_varStrike);
+  }
+
+  public double getVolNotional() {
+    return _varNotional * 2 * Math.sqrt(_varStrike);
+  }
+
   /**
    * Gets the annualizationFactor.
    * @return the annualizationFactor
@@ -152,7 +168,7 @@ public class VarianceSwap implements EquityDerivative {
    * Gets the observations.
    * @return the observations
    */
-  public Double[] getObservations() {
+  public double[] getObservations() {
     return _observations;
   }
 
@@ -160,7 +176,7 @@ public class VarianceSwap implements EquityDerivative {
    * Gets the observationWeights.
    * @return the observationWeights
    */
-  public final Double[] getObservationWeights() {
+  public final double[] getObservationWeights() {
     return _observationWeights;
   }
 

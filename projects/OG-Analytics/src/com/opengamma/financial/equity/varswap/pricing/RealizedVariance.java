@@ -17,30 +17,27 @@ import org.apache.commons.lang.Validate;
  *  Model-independent Realized Variance result of the swap based upon observations already made.<p>
  *  Notes on market-standard form :<p>
  *  Computed as the average daily variance of log returns,then scaled by an annualizationFactor, an estimate of the number of business days per year<p>
- *  Number of actual observations may be less than number expected, due to unforeseen market disruptions, but sum is still normalized by nObsExpected
- *   
+ *  In this calculation, the average is taken over the actual number of observations provided. 
+ *  In Variance instruments, the number of actual observations may be less than number expected,
+ *  due to unforeseen market disruptions. To account for this, the sum is normalized by nObsExpected (>= nObsActual) 
+ *  This is adjusted for in the model's presentValue method , not here. See VarSwapStaticReplication.presentValue
  */
 public class RealizedVariance extends Function1D<VarianceSwap, Double> {
   @Override
   public Double evaluate(final VarianceSwap swap) {
 
-    Validate.isTrue(swap.getObsExpected() > 0, "Encountered a VarianceSwap with 0 _nObsExpected! "
-        + "If it is impractical to count, contact Quant to default this value in VarianceSwap constructor.");
-
-    Double[] obs = swap.getObservations();
-
-    if (obs == null) {
-      return 0.0;
-    }
-
+    double[] obs = swap.getObservations();
     int nObs = obs.length;
+
     if (nObs < 2) {
       return 0.0;
     }
 
     Double[] weights = new Double[obs.length - 1];
-    if (swap.getObservationWeights() == null) {
+    if (swap.getObservationWeights().length == 0) {
       Arrays.fill(weights, 1.0);
+    } else if (swap.getObservationWeights().length == 1) {
+      Arrays.fill(weights, swap.getObservationWeights()[0]);
     } else {
       int nWeights = swap.getObservationWeights().length;
       Validate.isTrue(nWeights == nObs - 1,
@@ -56,7 +53,7 @@ public class RealizedVariance extends Function1D<VarianceSwap, Double> {
       logReturns += weights[i - 1] * FunctionUtils.square(Math.log(obs[i] / obs[i - 1]));
     }
 
-    return logReturns / swap.getObsExpected() * swap.getAnnualizationFactor();
+    return logReturns / nObs * swap.getAnnualizationFactor();
   }
 
 }

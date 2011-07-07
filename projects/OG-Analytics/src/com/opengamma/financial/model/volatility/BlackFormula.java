@@ -73,7 +73,6 @@ public class BlackFormula {
 
     final double d1 = Math.log(_forward / _strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
-
     return sign * (_forward * NORMAL.getCDF(sign * d1) - _strike * NORMAL.getCDF(sign * d2));
   }
 

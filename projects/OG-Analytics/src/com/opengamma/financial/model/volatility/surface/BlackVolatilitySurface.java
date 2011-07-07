@@ -9,7 +9,8 @@ import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * A surface with gives the Black (implied) volatility  as a function of time to maturity and strike
+ * A surface that contains the Black (implied) volatility  as a function of time to maturity and strike.
+ * Also known as Lognormal Vol.
  */
 public class BlackVolatilitySurface extends VolatilitySurface {
 
