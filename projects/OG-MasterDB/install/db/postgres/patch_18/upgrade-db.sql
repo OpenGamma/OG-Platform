@@ -12,3 +12,17 @@ CREATE TABLE pos_attribute (
 -- pos_attribute is fully dependent of pos_position
 CREATE INDEX ix_pos_attr_position_oid ON pos_attribute(position_oid);
 CREATE INDEX ix_pos_attr_key ON pos_attribute(key);
+
+ALTER TABLE sec_security ADD COLUMN detail_type char;
+BEGIN;
+UPDATE sec_security SET detail_type = 'D';
+ALTER TABLE sec_security ALTER COLUMN detail_type SET NOT NULL;
+COMMIT;
+ALTER TABLE sec_security ADD constraint sec_chk_detail_type check (detail_type in ('D', 'M', 'R'));
+
+CREATE TABLE sec_raw (
+    security_id bigint not null,
+    raw_data bytea not null,
+    constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
+);
+
