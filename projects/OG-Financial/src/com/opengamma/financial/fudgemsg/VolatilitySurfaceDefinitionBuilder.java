@@ -15,6 +15,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.util.money.Currency;
@@ -24,7 +26,8 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(VolatilitySurfaceDefinition.class)
 public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceDefinitionBuilder.class);
+  
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceDefinition<?, ?> object) {
     MutableFudgeMsg message = context.newMessage();
@@ -44,7 +47,13 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
   public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     String name = message.getString("name");
-    String interpolatorName = message.getString("interpolatorName");
+    String interpolatorName;
+    if (!message.hasField("interpolatorName")) {
+      interpolatorName = "Linear"; 
+      s_logger.warn("Inserting Linear interpolation as future version doesn't require an interpolator");
+    } else {
+      interpolatorName = message.getString("interpolatorName");
+    }
     List<FudgeField> xsFields = message.getAllByName("xs");
     List<Object> xs = new ArrayList<Object>();
     for (FudgeField xField : xsFields) {
