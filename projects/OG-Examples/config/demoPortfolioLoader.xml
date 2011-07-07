@@ -22,6 +22,7 @@
     <property name="portfolioMaster" ref="dbPortfolioMaster" />
     <property name="positionMaster" ref="dbPositionMaster" />
     <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="configMaster" ref="sharedConfigMaster" />
   </bean>
   <!--
   <bean id="demoEquityOptionPortfolioLoader" class="com.opengamma.integration.server.DemoEquityOptionPortfolioLoader">
@@ -32,6 +33,9 @@
     <property name="loaderContext" ref="loaderContext" />
   </bean-->
   <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="demoViewsPopulater" class="com.opengamma.examples.loader.DemoViewsPopulater">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   <bean id="demoBondPortfolioLoader" class="com.opengamma.examples.loader.DemoBondPortfolioLoader">
