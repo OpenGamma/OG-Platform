@@ -38,6 +38,10 @@ public class CouponIbor extends CouponFloating {
    */
   private final double _spread;
   /**
+   * The fixed amount related to the spread.
+   */
+  private final double _spreadAmount;
+  /**
    * The forward curve name used in to estimate the fixing index..
    */
   private final String _forwardCurveName;
@@ -70,6 +74,7 @@ public class CouponIbor extends CouponFloating {
     Validate.notNull(forwardCurveName);
     _forwardCurveName = forwardCurveName;
     _spread = spread;
+    _spreadAmount = _spread * getPaymentYearFraction() * getNotional();
   }
 
   /**
@@ -86,8 +91,7 @@ public class CouponIbor extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIbor(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      final double fixingPeriodStartTime,
-      final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
   }
 
@@ -121,6 +125,14 @@ public class CouponIbor extends CouponFloating {
    */
   public double getSpread() {
     return _spread;
+  }
+
+  /**
+   * Gets the spread amount.
+   * @return The spread amount.
+   */
+  public double getSpreadAmount() {
+    return _spreadAmount;
   }
 
   /**

@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -38,7 +38,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   @Test
@@ -59,10 +59,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    HullWhiteOneFactorPiecewiseConstantDataBundle newParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters newParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     assertTrue("Hull-White model equals", MODEL_PARAMETERS.equals(newParameter));
     assertTrue("Hull-White model hash code", MODEL_PARAMETERS.hashCode() == newParameter.hashCode());
-    HullWhiteOneFactorPiecewiseConstantDataBundle modifiedParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters modifiedParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
     assertFalse("Hull-White model equals", MODEL_PARAMETERS.equals(modifiedParameter));
   }
 
@@ -122,4 +122,30 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     alpha = MODEL.alpha(0.0, expiry2, expiry2, maturity, MODEL_PARAMETERS);// From today with expiry numeraire
     assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", alphaExpected, alpha, 1E-8);
   }
+
+  @Test
+  /**
+   * Test the swaption exercise boundary.
+   */
+  public void kappa() {
+    double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
+    double notional = 100000000; // 100m
+    double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
+    double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
+    int nbCF = cashFlowAmount.length;
+    double[] discountedCashFlow = new double[nbCF];
+    double[] alpha = new double[nbCF];
+    double rate = 0.04;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      discountedCashFlow[loopcf] = cashFlowAmount[loopcf] * Math.exp(-rate * cashFlowTime[loopcf]) * notional;
+      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cashFlowTime[loopcf], MODEL_PARAMETERS);
+    }
+    double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    double swapValue = 0.0;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      swapValue += discountedCashFlow[loopcf] * Math.exp(-Math.pow(alpha[loopcf], 2.0) / 2.0 - alpha[loopcf] * kappa);
+    }
+    assertEquals("Exercise boundary", 0.0, swapValue, 1.0E-1);
+  }
+
 }
