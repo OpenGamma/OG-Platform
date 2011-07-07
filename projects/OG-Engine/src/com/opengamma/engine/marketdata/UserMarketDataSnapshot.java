@@ -219,13 +219,13 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
   private Object queryStructured(StructuredMarketDataKey marketDataKey) {
     if (marketDataKey instanceof YieldCurveKey) {
-      YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(marketDataKey);
+      YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot((YieldCurveKey) marketDataKey);
       if (yieldCurveSnapshot == null) {
         return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
       }
       return buildSnapshot(yieldCurveSnapshot);
     } else if (marketDataKey instanceof VolatilityCubeKey) {
-      VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(marketDataKey);
+      VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot((VolatilityCubeKey) marketDataKey);
       if (volCubeSnapshot == null) {
         return new VolatilityCubeData(); //NOTE: this is not the same as return null;
       }
@@ -233,8 +233,10 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     } else if (marketDataKey instanceof VolatilitySurfaceKey) {
       VolatilitySurfaceSnapshot snapshot = getSnapshot().getVolatilitySurfaces().get(marketDataKey);
       if (snapshot == null) {
-        return new Object(); //NOTE: this is not the same as return null;
+        return new VolatilitySurfaceData<Object, Object>("", "", Currency.AUD, new Object[] {}, new Object[] {},
+            new HashMap<Pair<Object, Object>, Double>()); //NOTE: this is not the same as return null;
       }
+      return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
@@ -265,7 +267,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return entry.getValue();
         }
       }
-      return buildVolatilityCubeData(snapshot, (VolatilitySurfaceKey) volCubeKey);
+      return null;
     } else {
       VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(volCubeKey);
       return volCubeSnapshot;
@@ -352,7 +354,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return dataPoints;
   }
 
-private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot,
+  private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot,
       VolatilitySurfaceKey marketDataKey) {
 
     Set<Object> xs = new HashSet<Object>();
@@ -365,8 +367,10 @@ private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(Volatil
       ys.add(entry.getKey().getSecond());
     }
 
-    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(), xs.toArray(), ys.toArray(), values);
-  }  
+    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(),
+        xs.toArray(), ys.toArray(), values);
+  }
+
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {
     ComputationTargetType type = liveDataRequirement.getTargetSpecification().getType();
     switch (type) {
