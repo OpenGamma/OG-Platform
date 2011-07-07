@@ -5,6 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
@@ -34,8 +35,29 @@ public class LoaderContext {
    * The security loader.
    */
   private SecurityLoader _securityLoader;
+  
+ /**
+  * The configuration master.
+  */
+  private ConfigMaster _configMaster;
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the config master
+   * @return the master, not null
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+  
+  /**
+   * Sets the config master
+   * @param configMaster the config master
+   */
+  public void setConfigMaster(ConfigMaster configMaster) {
+    _configMaster = configMaster;
+  }
+  
   /**
    * Gets the portfolio master.
    * @return the master, not null

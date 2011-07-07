@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  */
-public class ForexOptionVanillaMethod implements ForexPricingMethod {
+public class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
 
   /**
    * The Black function used in the pricing.
@@ -140,6 +140,12 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
     return result;
   }
 
+  /**
+   * Present value curve sensitivity with a generic instrument as argument.
+   * @param instrument A vanilla Forex option.
+   * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
+   * @return The curve sensitivity.
+   */
   public PresentValueSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
@@ -168,6 +174,18 @@ public class ForexOptionVanillaMethod implements ForexPricingMethod {
         .getCurrency2());
     sensi.add(point, volatilitySensitivityValue);
     return sensi;
+  }
+
+  /**
+   * Computes the present value volatility sensitivity with a generic instrument as argument.
+   * @param instrument A vanilla Forex option.
+   * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
+   * @return The volatility sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
+    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    return presentValueVolatilitySensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
   /**

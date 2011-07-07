@@ -262,11 +262,14 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
                         required: [{condition: version_search, one_of: ['id', 'node']}],
-                        empties: [{
-                            condition: name_search || id_search || node_search,
-                            label: 'search request cannot have id, node, or version',
-                            fields: ['id', 'node', 'version']
-                        }]
+                        empties: [
+                            {
+                                condition: name_search || id_search || node_search,
+                                label: 'search request cannot have id, node, or version',
+                                fields: ['id', 'node', 'version']
+                            },
+                            {condition: true, label: 'meta data unavailable for /' + root, fields: ['meta']}
+                        ]
                     });
                     if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;

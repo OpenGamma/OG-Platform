@@ -56,6 +56,19 @@ public class PresentValueVolatilitySensitivityDataBundle {
   }
 
   /**
+   * Return a new volatility sensitivity with all the exposures multiplied by a common factor.
+   * @param factor The multiplicative factor.
+   * @return The new sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle multiply(final double factor) {
+    PresentValueVolatilitySensitivityDataBundle result = new PresentValueVolatilitySensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond());
+    for (DoublesPair point : _vega.keySet()) {
+      result.add(point, _vega.get(point) * factor);
+    }
+    return result;
+  }
+
+  /**
    * Add the sensitivity at a given (expiry/strike) point. If the point is already present, the sensitivity is added.
    * @param point The expiry/strike point.
    * @param value The sensitivity value (in second/domestic currency).

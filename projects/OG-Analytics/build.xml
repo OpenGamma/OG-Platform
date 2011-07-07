@@ -1,5 +1,7 @@
 <project name="og-analytics" default="compile">
     <property file="build.properties"/>
+	<property name="build.dir" value="build" />
+    <property name="docs.dir" value="${build.dir}/docs" />
 
     <import file="${common.dir}/common.xml"/>
 
@@ -29,7 +31,18 @@
             destdir="docs"
             classpathref="lib.path.id"
             doclet="it.dexy.jsondoclet.Doclet"
-            docletpath="lib/classpath.jar"
+            docletpath="json-doclet-0.3.jar:lib/classpath.jar"
+            >
+        </javadoc>
+    </target>
+    <target name="jsondoc-test" depends="load-ivy"
+        description="--> exports Javadoc info to JSON">
+        <javadoc
+            sourcepath="tests"
+            destdir="docs"
+            classpathref="lib.path.id"
+            doclet="it.dexy.jsondoclet.Doclet"
+            docletpath="json-doclet-0.3.jar:lib/classpath.jar"
             >
         </javadoc>
     </target>

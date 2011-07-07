@@ -110,7 +110,9 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   public Set<Subscription> getSubscriptions() {
     Set<Subscription> ret = new HashSet<Subscription>();
     for (AbstractLiveDataServer server : _underlyings) {
-      ret.addAll(server.getSubscriptions());
+      Set<Subscription> serversSubscriptions = server.getSubscriptions();
+      s_logger.debug("Server {} has {} subscriptions", server, serversSubscriptions.size());
+      ret.addAll(serversSubscriptions);
     }
     return ret;
   }

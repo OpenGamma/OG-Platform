@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -65,8 +66,8 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
         }
 
         @Override
-        public void valueChanged(ValueRequirement requirement) {
-          unavailableRequirements.remove(requirement);
+        public void valuesChanged(Collection<ValueRequirement> requirements) {
+          unavailableRequirements.removeAll(requirements);
           if (unavailableRequirements.isEmpty()) {
             awaitingValuesLatch.countDown();
           }

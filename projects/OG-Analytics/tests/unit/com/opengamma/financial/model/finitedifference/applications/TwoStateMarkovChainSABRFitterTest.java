@@ -182,7 +182,7 @@ public class TwoStateMarkovChainSABRFitterTest {
     final ExtendedThetaMethodFiniteDifference eThetaMethod = new ExtendedThetaMethodFiniteDifference(0.55, true);
 
     final PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1, grid, lower, upper);
-    final PDEFullResults1D res2 = eThetaMethod.solve(db2, grid, lower, upper);
+    final PDEFullResults1D res2 = (PDEFullResults1D) eThetaMethod.solve(db2, grid, lower, upper);
 
     PDEUtilityTools.printSurface("State 1 density", res1);
     PDEUtilityTools.printSurface("State 2 density", res2);
