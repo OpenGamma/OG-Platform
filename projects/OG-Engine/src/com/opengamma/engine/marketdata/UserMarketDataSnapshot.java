@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,6 +27,7 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
@@ -233,7 +235,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       if (snapshot == null) {
         return new Object(); //NOTE: this is not the same as return null;
       }
-      return buildVolatilitySurfaceData(snapshot);
+      return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
@@ -281,9 +283,20 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return ret;
   }
   
-  private Object buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot) {
-    //TODO: need to move VolatilitySurfaceData to core
-    return "TODO";
+  private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(VolatilitySurfaceSnapshot volCubeSnapshot,
+      VolatilitySurfaceKey marketDataKey) {
+
+    Set<Object> xs = new HashSet<Object>();
+    Set<Object> ys = new HashSet<Object>();
+    Map<Pair<Object, Object>, Double> values = new HashMap<Pair<Object, Object>, Double>();
+    Map<Pair<Object, Object>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
+    for (Entry<Pair<Object, Object>, ValueSnapshot> entry : snapValues.entrySet()) {
+      values.put(entry.getKey(), query(entry.getValue()));
+      xs.add(entry.getKey().getFirst());
+      ys.add(entry.getKey().getSecond());
+    }
+
+    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(), xs.toArray(), ys.toArray(), values);
   }
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
     Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();

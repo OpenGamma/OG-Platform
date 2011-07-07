@@ -18,6 +18,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,7 +36,6 @@ import com.opengamma.financial.analytics.forex.ForexVanillaOptionSecurityConvert
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
