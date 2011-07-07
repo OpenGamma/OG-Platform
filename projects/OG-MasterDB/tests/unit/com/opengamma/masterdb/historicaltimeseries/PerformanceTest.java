@@ -3,28 +3,27 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.historicaldata;
-
-import java.util.Map;
+package com.opengamma.masterdb.historicaltimeseries;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.master.historicaldata.DataPointDocument;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
-import com.opengamma.masterdb.historicaldata.LocalDateDbHistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesUpdateRequest;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -33,33 +32,27 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test
 public class PerformanceTest extends DBTest {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
 
-  /**
-   * The master.
-   */
-  private HistoricalTimeSeriesMaster _tsMaster;
+  private DbHistoricalTimeSeriesMaster _htsMaster;
 
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
+    s_logger.info("running testcases for {}", databaseType);
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/masterdb/historicaldata/tssQueries.xml");
-    
-    @SuppressWarnings("unchecked")
-    Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
-    
-    HistoricalTimeSeriesMaster ts = new LocalDateDbHistoricalTimeSeriesMaster(
-        getDbSource(), 
-        namedSQLMap,
-        false);
-    _tsMaster = ts;
+    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
+    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+  }
+
+  @AfterMethod
+  public void tearDown() throws Exception {
+    super.tearDown();
+    _htsMaster = null;
   }
 
   //-------------------------------------------------------------------------
@@ -72,7 +65,7 @@ public class PerformanceTest extends DBTest {
     for (int i = 0; i < NUM_SERIES; i++) {
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
-      LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
+      LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
       
       ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
       series.setDataField("CLOSE");
@@ -80,20 +73,20 @@ public class PerformanceTest extends DBTest {
       series.setDataSource("BLOOMBERG");
       series.setObservationTime("LDN_CLOSE");
       series.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
-      series.setTimeSeries(timeSeries);
+      series.setTimeSeries(randomPoints);
       HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(series);
       s_logger.debug("adding timeseries {}", doc);
-      _tsMaster.add(doc);
+      _htsMaster.add(doc);
       
-      timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
+      randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
-        DataPointDocument dataPointDocument = new DataPointDocument();
-        dataPointDocument.setHistoricalTimeSeriesId(doc.getUniqueId());
-        dataPointDocument.setDate(timeSeries.getTime(j));
-        dataPointDocument.setValue(timeSeries.getValueAt(j));
-        s_logger.debug("adding data points {}", dataPointDocument);
-        _tsMaster.addDataPoint(dataPointDocument);
+        HistoricalTimeSeriesUpdateRequest seriesRequest = new HistoricalTimeSeriesUpdateRequest(doc.getUniqueId());
+        ArrayLocalDateDoubleTimeSeries points = new ArrayLocalDateDoubleTimeSeries(
+            Lists.newArrayList(randomPoints.getTime(j)),
+            Lists.newArrayList(randomPoints.getValueAt(j)));
+        s_logger.debug("adding data points {}", seriesRequest);
+//        _htsMaster.update(seriesRequest);
       }
     }
     
