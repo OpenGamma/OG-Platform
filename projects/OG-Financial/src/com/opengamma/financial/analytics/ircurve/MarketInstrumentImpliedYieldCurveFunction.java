@@ -55,8 +55,6 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -85,8 +83,7 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
-  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
-      "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
+  private FixedIncomeConverterDataProvider _definitionConverter;
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
@@ -183,6 +180,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           .getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(),
               Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     }
+    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
   }
 
   //TODO this normalization should not be happening here
@@ -263,7 +261,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
         final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
@@ -287,7 +285,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
         final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
@@ -409,7 +407,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
         //} else {
         final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
-        derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
+        derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);

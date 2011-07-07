@@ -50,8 +50,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
-      "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
+  private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 
@@ -74,6 +73,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .futureSecurityVisitor(irFutureConverter).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
   }
 
   @Override
@@ -108,7 +108,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
+    final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         fundingCurveName, forwardCurveName), dataSource);
     return getComputedValues(derivative, bundle, security, forwardCurveName, fundingCurveName);
   }

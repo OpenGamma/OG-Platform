@@ -63,13 +63,12 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
-      "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   // TODO: This will be hit for a curve definition on each calculation cycle, so it really needs to cache stuff rather than do any I/O
   private InterpolatedYieldCurveDefinitionSource _definitionSource;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
+  private FixedIncomeConverterDataProvider _definitionConverter;
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -87,6 +86,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .futureSecurityVisitor(irFutureConverter).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
   }
 
   @Override
@@ -123,7 +123,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now,
+    final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
             fundingCurveName, forwardCurveName), dataSource);
     final double[][] array = decodeJacobian(jacobianObject);

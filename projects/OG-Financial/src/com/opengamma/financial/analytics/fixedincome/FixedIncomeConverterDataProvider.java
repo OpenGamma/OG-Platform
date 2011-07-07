@@ -15,6 +15,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalTimeSeries;
 import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
@@ -41,10 +44,12 @@ public class FixedIncomeConverterDataProvider {
   private final String _dataSourceName;
   private final String _fieldName;
   private final String _dataProvider = "CMPL"; // TODO: totally fix this.
+  private final ConventionBundleSource _conventionSource;
 
-  public FixedIncomeConverterDataProvider(final String dataSourceName, final String fieldName) {
+  public FixedIncomeConverterDataProvider(final String dataSourceName, final String fieldName, final ConventionBundleSource conventionSource) {
     _dataSourceName = dataSourceName;
     _fieldName = fieldName;
+    _conventionSource = conventionSource;
   }
 
   public InterestRateDerivative convert(final Security security, final FixedIncomeInstrumentConverter<?> definition,
@@ -105,7 +110,13 @@ public class FixedIncomeConverterDataProvider {
       final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-      final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+
+      Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+      if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
+        final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
+        indexID = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+      }
+
       final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7); 
