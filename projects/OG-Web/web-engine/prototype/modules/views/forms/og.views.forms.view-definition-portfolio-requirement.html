@@ -1,0 +1,115 @@
+<li>
+  <div>- ${title}</div>
+  <span class="OG-icon og-icon-remove">delete</span>
+  <div class="og-portfolio-requirement">
+    <div class="og-required-output">
+      <label for="">Required Output</label>
+      <select name="${name}">
+        <optgroup label="Market Data">					
+        	<option value="DiscountCurve">DiscountCurve</option>
+        	<option value="YieldCurve">YieldCurve</option>
+        	<option value="YieldCurveSpec">YieldCurveSpec</option>
+        	<option value="VolatilitySurface">VolatilitySurface</option>
+        	<option value="VolatilitySurfaceData">VolatilitySurfaceData</option>
+        	<option value="Cost Of Carry">Cost Of Carry</option>
+        </optgroup>
+        <optgroup label="Pricing">
+        	<option value="Present Value">Present Value</option>
+        	<option value="PV01">PV01</option>
+        	<option value="Par Rate">Par Rate</option>
+        	<option value="Par Rate Parallel Shift Sensitivity">Par Rate Parallel Shift Sensitivity</option>
+        	<option value="FairValue">FairValue</option>
+        	<option value="PositionFairValue">PositionFairValue</option>
+        	<option value="ValueFairValue">ValueFairValue</option>
+        </optgroup>
+        <optgroup label="Greeks">
+        	<option value="Delta">Delta</option>
+        	<option value="DeltaBleed">DeltaBleed</option>
+        	<option value="StrikeDelta">StrikeDelta</option>
+        	<option value="Gamma">Gamma</option>
+        	<option value="GammaP">GammaP</option>
+        	<option value="StrikeGamma">StrikeGamma</option>
+        	<option value="GammaBleed">GammaBleed</option>
+        	<option value="GammaPBleed">GammaPBleed</option>
+        	<option value="Vega">Vega</option>
+        	<option value="VegaP">VegaP</option>
+        	<option value="VarianceVega">VarianceVega</option>
+        	<option value="VegaBleed">VegaBleed</option>
+        	<option value="Theta">Theta</option>
+        	<option value="Rho">Rho</option>
+        	<option value="CarryRho">CarryRho</option>
+        	<option value="Yield Curve Node Sensitivities">Yield Curve Node Sensitivities</option>
+        	<option value="YieldCurveJacobian">YieldCurveJacobian</option>
+        	<option value="Ultima">Ultima</option>
+        	<option value="VarianceUltima">VarianceUltima</option>
+        	<option value="Speed">Speed</option>
+        	<option value="SpeedP">SpeedP</option>
+        	<option value="Vanna">Vanna</option>
+        	<option value="VarianceVanna">VarianceVanna</option>
+        	<option value="dVanna_dVol">dVanna_dVol</option>
+        	<option value="Vomma">Vomma</option>
+        	<option value="VommaP">VommaP</option>
+        	<option value="VarianceVomma">VarianceVomma</option>
+        </optgroup>
+        <optgroup label="Series Analysis">
+        	<option value="Price Series">Price Series</option>
+        	<option value="Return Series">Return Series</option>
+        	<option value="P&amp;L Series">P&amp;L Series</option>
+        	<option value="PnL">PnL</option>
+        	<option value="Underlying Return Series">Underlying Return Series</option>
+        	<option value="Skew">Skew</option>
+        	<option value="Fisher Kurtosis">Fisher Kurtosis</option>
+        	<option value="Pearson Kurtosis">Pearson Kurtosis</option>
+        	<option value="Sum">Sum</option>
+        	<option value="Median">Median</option>
+        </optgroup>
+        <optgroup label="Value At Risk">
+        	<option value="HistoricalVaR">HistoricalVaR</option>
+        	<option value="ParametricVaR">ParametricVaR</option>
+        </optgroup>
+        <optgroup label="Capital Asset Pricing Model">
+        	<option value="CAPM Beta">CAPM Beta</option>
+        	<option value="CAPM Regression Alpha">CAPM Regression Alpha</option>
+        	<option value="CAPM Regression Beta">CAPM Regression Beta</option>
+        	<option value="CAPM Regression Alpha Residual">CAPM Regression Alpha Residual</option>
+        	<option value="CAPM Regression Beta Residual">CAPM Regression Beta Residual</option>
+        	<option value="CAPM Regression Adjusted R-Squared">CAPM Regression Adjusted R-Squared</option>
+        	<option value="CAPM Regression Alpha t-Stats">CAPM Regression Alpha t-Stats</option>
+        	<option value="CAPM Regression Beta t-Stats">CAPM Regression Beta t-Stats</option>
+        	<option value="CAPM Regression Alpha p-Values">CAPM Regression Alpha p-Values</option>
+        	<option value="CAPM Regression Beta p-Values">CAPM Regression Beta p-Values</option>
+        	<option value="CAPM Regression Mean Square Error">CAPM Regression Mean Square Error</option>
+        	<option value="CAPM Regression R-Squared">CAPM Regression R-Squared</option>
+        	<option value="CAPM Regression Alpha Standard Error">CAPM Regression Alpha Standard Error</option>
+        	<option value="CAPM Regression Beta Standard Error">CAPM Regression Beta Standard Error</option>
+        </optgroup>
+        <optgroup label="Traditional Risk-Reward">
+        	<option value="Sharpe Ratio">Sharpe Ratio</option>
+        	<option value="Treynor Ratio">Treynor Ratio</option>
+        	<option value="Jensen's Alpha">Jensen's Alpha</option>
+        	<option value="Total Risk Alpha">Total Risk Alpha</option>
+        	<option value="Weight">Weight</option>
+        </optgroup>
+        <optgroup label="Bonds">
+          <option value="Clean Price">Clean Price</option>
+        	<option value="Dirty Price">Dirty Price</option>
+        	<option value="Yield To Maturity">Yield To Maturity</option>
+        	<option value="Market Yield To Maturity">Market Yield To Maturity</option>
+        	<option value="Market Dirty Price">Market Dirty Price</option>
+        	<option value="Macaulay Duration">Macaulay Duration</option>
+        	<option value="Convexity">Convexity</option>
+        	<option value="Z Spread">Z Spread</option>
+        	<option value="Convertion Factor">Convertion Factor</option>
+        	<option value="Implied Repo">Implied Repo</option>
+        	<option value="Gross Basis">Gross Basis</option>
+        	<option value="Net Basis">Net Basis</option>
+        	<option value="Bond Tenor">Bond Tenor</option>
+        	<option value="Nelson-Siegel Bond Curve">Nelson-Siegel Bond Curve</option>
+        	<option value="Nelson-Siegel-Svennson Bond Curve">Nelson-Siegel-Svennson Bond Curve</option>
+        	<option value="Bond Coupon Payment Times">Bond Coupon Payment Times</option>
+        </optgroup>
+      </select>
+    </div>
+    {{html item_0}} <!-- constraints -->
+  </div>
+</li>
