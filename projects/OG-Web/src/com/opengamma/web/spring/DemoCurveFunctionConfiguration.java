@@ -87,6 +87,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY");
+          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE");
           }
