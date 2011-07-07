@@ -245,6 +245,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
       }
 
       factory.setHibernateProperties(props);
+      factory.setLobHandler(dialect.getLobHandler());
     }
     try {
       factory.afterPropertiesSet();

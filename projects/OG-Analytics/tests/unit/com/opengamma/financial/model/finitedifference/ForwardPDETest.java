@@ -7,18 +7,19 @@ package com.opengamma.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.Surface;
 
 /**
@@ -30,6 +31,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class ForwardPDETest {
 
+  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   //private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
 
@@ -39,14 +41,12 @@ public class ForwardPDETest {
   private static final double SPOT = 100;
   private static final double T = 5.0;
   private static final double RATE = 0.05;// TODO change back to 5%
+  private static final ForwardCurve FORWARD = new ForwardCurve(SPOT,RATE);
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final ConvectionDiffusionPDEDataBundle DATA;
 
-  private static Surface<Double, Double, Double> A;
-  private static Surface<Double, Double, Double> B;
-  private static Surface<Double, Double, Double> C;
   @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
 
@@ -73,50 +73,7 @@ public class ForwardPDETest {
     } else {
       UPPER = new NeumannBoundaryCondition(1.0, 10.0 * SPOT * Math.exp(T * RATE), false);
     }
-
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        final double k = tk[1];
-        return -k * k * ATM_VOL * ATM_VOL / 2;
-      }
-    };
-
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tk) {
-        Validate.isTrue(tk.length == 2);
-        final double k = tk[1];
-        return k * RATE;
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return 0.0;
-      }
-    };
-
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double k) {
-        if (ISCALL) {
-          return Math.max(0, SPOT - k);
-        }
-        return Math.max(0, k - SPOT);
-      }
-    };
-
-    A = FunctionalDoublesSurface.from(a);
-    B = FunctionalDoublesSurface.from(b);
-    C = FunctionalDoublesSurface.from(c);
-
-    DATA = new ConvectionDiffusionPDEDataBundle(A, B, C, initialCondition);
+    DATA = PDE_DATA_PROVIDER.getForwardLocalVol(FORWARD, 1.0, ISCALL, new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(ATM_VOL)));
 
   }
 
