@@ -30,10 +30,10 @@ public class BlackImpliedStrikeFromDeltaFunction {
    * @return The strike.
    */
   public static double impliedStrike(final double delta, final boolean isCall, final double forward, final double time, final double volatility) {
-    Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put");
+    Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put: " + isCall + ", " + delta);
     Validate.isTrue(forward > 0, "Forward negative");
-    double omega = (isCall ? 1.0 : -1.0);
-    double strike = forward * Math.exp(-volatility * Math.sqrt(time) * omega * NORMAL.getInverseCDF(omega * delta) + volatility * volatility * time / 2);
+    final double omega = (isCall ? 1.0 : -1.0);
+    final double strike = forward * Math.exp(-volatility * Math.sqrt(time) * omega * NORMAL.getInverseCDF(omega * delta) + volatility * volatility * time / 2);
     return strike;
   }
 

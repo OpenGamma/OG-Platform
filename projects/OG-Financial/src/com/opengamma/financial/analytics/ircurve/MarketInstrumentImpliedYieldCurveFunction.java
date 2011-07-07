@@ -163,7 +163,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)
@@ -262,12 +262,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        //if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
-        //} else {
         final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
         derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
-        //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
@@ -290,12 +286,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
             .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
-        //if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        //  derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
-        //} else {
         final FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
         derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
-        //}
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
@@ -327,14 +319,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           null, curveNodes, interpolators, sensitivityCalculators);
       // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data,
-          PresentValueCalculator.getInstance());
+          ParRateCalculator.getInstance());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data,
-          PresentValueSensitivityCalculator.getInstance());
+          ParRateCurveSensitivityCalculator.getInstance());
       NewtonVectorRootFinder rootFinder;
       double[] yields = null;
       try {
         // TODO have the decomposition as an optional input [FIN-146]
-        rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
+        rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 1000,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
             .getData();
@@ -342,14 +334,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         try {
           s_logger.warn("Could not find root using LU decomposition and present value method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
-          rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
+          rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 1000,
               DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-              .getData();          
-        } catch (Exception eSV) {
+              .getData();
+        } catch (final Exception eSV) {
           s_logger.warn("Could not find root using SV decomposition and present value method for curves " +
-              _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + ". Error was: " + eLU.getMessage());
-          throw new OpenGammaRuntimeException(eSV.getMessage());
+              _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + ". Error was: " + eSV.getMessage());
+          throw new RuntimeException(eSV);
         }
       }
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
@@ -459,18 +451,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();        
+            .getData();
       } catch (final Exception eLU) {
         try {
           s_logger.warn("Could not find root using LU decomposition and present value method for curve " +
-            _fundingCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
+              _fundingCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
           rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
               DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
               .getData();
-        } catch (Exception eSV) {
+        } catch (final Exception eSV) {
           s_logger.warn("Could not find root using SV decomposition and present value method for curve " +
-            _fundingCurveDefinitionName + ". Error was: " + eLU.getMessage());
+              _fundingCurveDefinitionName + ". Error was: " + eLU.getMessage());
           throw new OpenGammaRuntimeException(eSV.getMessage());
         }
       }

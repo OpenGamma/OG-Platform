@@ -78,6 +78,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case TENOR_SWAP:
           identifier = builderConfig.getTenorSwapSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case OIS_SWAP:
+          identifier = builderConfig.getOISSwapSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }

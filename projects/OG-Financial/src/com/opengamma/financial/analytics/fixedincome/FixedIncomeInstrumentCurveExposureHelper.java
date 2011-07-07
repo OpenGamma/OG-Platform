@@ -38,6 +38,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, forwardCurveName, fundingCurveName};
+      case OIS_SWAP:
+        return new String[] {fundingCurveName, fundingCurveName};
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in funding curve instrument list");
     }
@@ -58,6 +60,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {forwardCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, fundingCurveName, forwardCurveName};
+      case OIS_SWAP:
+        return new String[] {fundingCurveName, fundingCurveName};
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in forward curve instrument list");
     }
