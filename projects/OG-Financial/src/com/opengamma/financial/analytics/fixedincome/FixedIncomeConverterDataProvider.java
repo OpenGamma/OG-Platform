@@ -113,16 +113,20 @@ public class FixedIncomeConverterDataProvider {
 
       Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
-        final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
+        ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
+        if (indexConvention == null) {
+          //TODO remove this immediately
+          indexConvention = _conventionSource.getConventionBundle(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
+        }
         indexID = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
-      }
+      } 
 
       final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7); 
       final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
-      if (ts == null) {
+      if (ts == null) {        
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
       FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
