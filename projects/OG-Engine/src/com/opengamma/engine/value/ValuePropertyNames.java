@@ -53,7 +53,8 @@ public final class ValuePropertyNames {
   public static final String SURFACE = "Surface";
   
   /**
-   * 
+   * The currency of the curve used to produce a value. This does not necessarily imply anything about the currency
+   * of the output value.
    */
   public static final String CURVE_CURRENCY = "CurveCurrency";
 

@@ -8,8 +8,8 @@ package com.opengamma.web.server.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.util.time.Tenor;
 
 /**

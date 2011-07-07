@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -64,8 +65,8 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
     }
 
     @Override
-    public void valueChanged(ValueRequirement requirement) {
-      MarketDataProviderWithOverride.this.valueChanged(requirement);
+    public void valuesChanged(Collection<ValueRequirement> requirements) {
+      MarketDataProviderWithOverride.this.valuesChanged(requirements);
     }
     
     private void processState(PendingCombinedSubscriptionState state, PendingCombinedMarketDataSubscription pendingSubscription, ValueRequirement requirement) {
@@ -179,9 +180,9 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
     }
   }
   
-  private void valueChanged(ValueRequirement requirement) {
+  private void valuesChanged(Collection<ValueRequirement> requirements) {
     for (MarketDataListener listener : _listeners) {
-      listener.valueChanged(requirement);
+      listener.valuesChanged(requirements);
     }
   }
 
