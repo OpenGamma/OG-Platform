@@ -324,7 +324,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       double[] yields = null;
       try {
         // TODO have the decomposition as an optional input [FIN-146]
-        rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 1000,
+        rootFinder = new BroydenVectorRootFinder(5e-4, 5e-4, 1000,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
             .getData();
@@ -332,14 +332,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         try {
           s_logger.warn("Could not find root using LU decomposition and present value method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
-          rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 1000,
+          rootFinder = new BroydenVectorRootFinder(5e-4, 5e-4, 1000,
               DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
               .getData();
         } catch (final Exception eSV) {
           s_logger.warn("Could not find root using SV decomposition and present value method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + ". Error was: " + eSV.getMessage());
-          throw new RuntimeException(eSV);
+          throw new OpenGammaRuntimeException(eSV.getMessage());
         }
       }
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);

@@ -106,6 +106,10 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
             s_logger.debug("Compiling {}", function);
             return function.compile(context, atInstant);
           } catch (Exception e) {
+            System.out.println(e.getMessage());
+            for (StackTraceElement el : e.getStackTrace()) {
+              System.err.println(el);
+            }
             s_logger.error("Compiling {} threw {}", function.getShortName(), e);
             throw e;
           }

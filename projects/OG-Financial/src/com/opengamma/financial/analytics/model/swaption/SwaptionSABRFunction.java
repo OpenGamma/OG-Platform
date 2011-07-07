@@ -54,9 +54,9 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   private static final double MU = 5;
 
   private final boolean _useSABRExtrapolation;
-  private SecuritySource _securitySource;
   private SwaptionSecurityConverter _swaptionVisitor;
   private final VolatilityCubeFunctionHelper _helper;
+  private SecuritySource _securitySource;
 
   public SwaptionSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation));

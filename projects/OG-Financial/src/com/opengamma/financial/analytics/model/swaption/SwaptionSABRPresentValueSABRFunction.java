@@ -45,7 +45,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.#"); 
 
   public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName) {

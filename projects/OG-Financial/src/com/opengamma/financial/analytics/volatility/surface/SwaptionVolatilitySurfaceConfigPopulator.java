@@ -38,28 +38,28 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     final Tenor[] swapLength = new Tenor[] {Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(3), Tenor.ofYears(4), Tenor.ofYears(5),
                                        Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10),
                                        Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30)};
-    final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT_SWAPTION", Currency.USD,
+    final VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT_USD_SWAPTION", Currency.USD,
                                                                                                  timeToExpiry, swapLength);
 
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
 
     final Tenor[] timeToExpiryTest = new Tenor[] {Tenor.ofMonths(1), Tenor.ofMonths(3)};
     final Tenor[] swapLengthTest = new Tenor[] {Tenor.ofYears(1), Tenor.ofYears(2)};
-    final VolatilitySurfaceDefinition<Tenor, Tenor> test = new VolatilitySurfaceDefinition<Tenor, Tenor>("TEST", Currency.USD,
+    final VolatilitySurfaceDefinition<Tenor, Tenor> test = new VolatilitySurfaceDefinition<Tenor, Tenor>("TEST_USD", Currency.USD,
         timeToExpiryTest, swapLengthTest);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(test));
   }
 
   private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> makeConfigDocument(final VolatilitySurfaceDefinition<Tenor, Tenor> definition) {
     final ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName() + "_" + definition.getCurrency().getCode());
+    configDocument.setName(definition.getName());
     configDocument.setValue(definition);
     return configDocument;
   }
 
   private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
     final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName() + "_" + specification.getCurrency().getCode());
+    configDocument.setName(specification.getName());
     configDocument.setValue(specification);
     return configDocument;
   }
@@ -70,7 +70,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
-    final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT_SWAPTION", Currency.USD, surfaceInstrumentProvider);
+    final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT_USD_SWAPTION", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
   }
 }
