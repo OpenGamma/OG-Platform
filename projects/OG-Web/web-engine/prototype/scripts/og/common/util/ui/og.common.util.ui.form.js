@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text', 'og.api.rest'],
     obj: function () {
-        var stall = 500, item_prefix = 'item_', id_count = 1,
+        var stall = 500, item_prefix = 'item_', id_count = 0, dummy = '<p></p>',
             form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
             api_text = og.api.text, api_rest = og.api.rest,
@@ -16,17 +16,21 @@ $.register_module({
          * @class Block
          */
         Block = function (form, config) {
-            var block = this, klass = 'Block', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], extras = config.extras, processor = config.processor;
-            block.children = [];
+            var block = this, klass = 'Block', config = config || {}, template = null, url = config.url,
+                module = config.module, handlers = config.handlers || [], extras = config.extras,
+                processor = config.processor,
+                wrap = function (html) {
+                    return config.wrap ? $(dummy).append($.tmpl(config.wrap, {html: html})).html() : html;
+                };
+            block.children = config.children || [];
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
-                        var html = template ? $('<p></p>').append($.tmpl(template, $.extend(
+                        var html = template ? $(dummy).append($.tmpl(template, $.extend(
                             result.reduce(function (acc, val, idx) {return acc[item_prefix + idx] = val, acc;}, {}),
                             extras
-                        ))).html() : result.join('');
+                        ))).html() : wrap(result.join(''));
                         return handler(html);
                     };
                 if (!block.children.length) return internal_handler();
@@ -38,11 +42,7 @@ $.register_module({
                 });
             };
             block.process = function (data, errors) {
-                try {
-                    if (processor) processor(data);
-                } catch (error) {
-                    errors.push(error);
-                }
+                try {if (processor) processor(data);} catch (error) {errors.push(error);}
                 block.children.forEach(function (child) {child.process(data, errors);});
             };
             // initialize Block
@@ -59,22 +59,20 @@ $.register_module({
          */
         Field = function (form, config) {
             var field = this, klass = 'Field', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], generator = config.generator, processor = config.processor;
+                extras = config.extras, handlers = config.handlers || [], generator = config.generator,
+                processor = config.processor;
             field.html = function (handler) {
                 if (template === null) return setTimeout(field.html.partial(handler), stall);
+                if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
                 generator(handler, template);
             };
             field.process = function (data, errors) {
-                try {
-                    if (processor) processor(data);
-                } catch (error) {
-                    errors.push(error);
-                }
+                try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
             // initialize Field
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module)  api_text({handler: function (result) {template = result;}, module: module});
+                else if (module) api_text({handler: function (result) {template = result;}, module: module});
             } else {
                 template = '';
             }
@@ -84,13 +82,12 @@ $.register_module({
          * @class Form
          */
         return Form = function (config) {
-            var form = new Block(null, config), selector = config.selector, $root = $(selector), $form,
+            var form = new Block(null, config), selector = config.selector, $root = $(selector), $form, dom_events = {},
                 klass = 'Form', form_events = {'form:load': [], 'form:unload': [], 'form:submit': [], 'form:error': []},
-                dom_events = {},
                 delegator = function (e) {
                     var $target = $(e.target), results = [];
                     dom_events[e.type].forEach(function (val) {
-                        if (!$target.is(val.selector)) return;
+                        if (!$target.is(val.selector) && !$target.parent(val.selector).length) return;
                         var result = val.handler(e);
                         results.push(typeof result === 'undefined' ? true : !!result);
                     });

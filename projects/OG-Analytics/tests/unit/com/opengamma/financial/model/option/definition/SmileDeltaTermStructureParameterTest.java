@@ -134,7 +134,7 @@ public class SmileDeltaTermStructureParameterTest {
     }
   }
 
-  //  @Test
+  //  @Test(enabled = true)
   //  public void deltaSmile() {
   //    double forward = 1.40;
   //    double expiryMax = 2.0;

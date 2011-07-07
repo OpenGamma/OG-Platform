@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.concurrent.ExecutorService;
+import java.util.Collection;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.PublicSPI;
@@ -39,17 +39,12 @@ public interface MarketDataListener {
   void subscriptionStopped(ValueRequirement requirement);
   
   /**
-   * Notifies of a live data value that has changed.
+   * Notifies the listener that one or more market data values have changed.
    * <p>
-   * This method must execute quickly and not block. It will be called from within the live data client thread. If the
-   * execution of this method is slow, for example because it uses external resources such as files or the network in
-   * some way, or executes a complicated algorithm, then market data updates for other market data lines will not be
-   * received until this method returns. Thus, if you need to execute a non-trivial operation when you receive new 
-   * market data, offload this operation to a different thread (e.g. using an {@link ExecutorService}) to avoid
-   * blocking the live data client.
-   *  
-   * @param requirement  the requirement whose value has changed, not {@code null}
+   * This method must execute quickly and not block; it may be called from within a market data receiver thread.
+   * 
+   * @param requirements  the requirements whose values have changed, not {@code null}
    */
-  void valueChanged(ValueRequirement requirement);
+  void valuesChanged(Collection<ValueRequirement> requirements);
 
 }
