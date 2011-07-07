@@ -11,8 +11,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -82,7 +84,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
     ValueProperties.Builder filterBuilder = ValueProperties.builder();
     for (String propertyName : getAggregationPropertyNames()) {
       Set<String> propertyValues = desiredValue.getConstraints().getValues(propertyName);
-      if (propertyValues == null) {
+      if (propertyValues == null || propertyValues.isEmpty()) {
         // All children must match on this property
         unspecifiedPropertyValues.add(propertyName);
       } else {
@@ -94,7 +96,12 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
     PortfolioNode portfolioNode = target.getPortfolioNode();
     ValueProperties constraints = getInputConstraint(desiredValue);    
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (Position position : portfolioNode.getPositions()) {
+    
+    // Have to deal with all deep child positions rather than just direct child nodes since function does not work when
+    // there are 0 inputs, and this occurring on a child would propagate to all parents. Need optional inputs.
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(portfolioNode);
+    
+    for (Position position : allPositions) {
       FinancialSecurity security = (FinancialSecurity) position.getSecurity();
       if (!isIncluded(security, filterConstraints)) {
         continue;
@@ -103,12 +110,19 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
       ValueRequirement positionRequirement = new ValueRequirement(getValueName(), targetSpec, constraints);
       requirements.add(positionRequirement);
     }
+    /*
     for (PortfolioNode childNode : portfolioNode.getChildNodes()) {
       // Require value on child node, constrained to match this node
       ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, childNode.getUniqueId());
       ValueRequirement childNodeRequirement = new ValueRequirement(getValueName(), targetSpec, constraints);
       requirements.add(childNodeRequirement);
     }
+    */
+    
+    if (requirements.size() == 0) {
+      throw new OpenGammaRuntimeException("Nothing to aggregate");
+    }
+    
     return requirements;
   }
 
@@ -124,7 +138,8 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     // Just ensure mutual compatibility across aggregation properties
-    ValueSpecification resultSpec = new ValueSpecification(getValueName(), target.toSpecification(), getCompositeSpecificationProperties(inputs.keySet()));
+    ValueProperties resultProperties = inputs.isEmpty() ? getResultProperties() : getCompositeSpecificationProperties(inputs.keySet());
+    ValueSpecification resultSpec = getResultSpec(target, resultProperties);
     return Collections.singleton(resultSpec);
   }
   
