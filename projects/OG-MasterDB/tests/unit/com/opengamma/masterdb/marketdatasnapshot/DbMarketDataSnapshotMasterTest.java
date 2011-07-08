@@ -35,6 +35,7 @@ import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 public class DbMarketDataSnapshotMasterTest extends DBTest {
 
@@ -125,11 +126,16 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     globalValues.setValues(values);
     marketDataSnapshot.setYieldCurves(yieldCurves);
     
+    HashMap<Pair<Tenor,Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor,Tenor>, ValueSnapshot>();
+    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), new ValueSnapshot(12.0, 12.0));
+    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), null);
+    
     HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
     ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
     
     volCube.setOtherValues(globalValues);
     volCube.setValues(new HashMap<VolatilityPoint, ValueSnapshot>());
+    volCube.setStrikes(strikes);
     volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.MONTH, -1), new ValueSnapshot(null,null));
     
     volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);

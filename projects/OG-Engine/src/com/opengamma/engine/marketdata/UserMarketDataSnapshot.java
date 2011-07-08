@@ -93,6 +93,12 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return null;
         }
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
+<<<<<<< HEAD
+=======
+        if (curveName == null) {
+          return new YieldCurveKey(currency, null);
+        }
+>>>>>>> dacabcd50615b7ece970fe959c1a28a975772a8c
         return new YieldCurveKey(currency, curveName);
       }
       
@@ -107,6 +113,12 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return null;
         }
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
+<<<<<<< HEAD
+=======
+        if (cubeName == null) {
+          return new VolatilityCubeKey(currency, null);
+        }
+>>>>>>> dacabcd50615b7ece970fe959c1a28a975772a8c
         return new VolatilityCubeKey(currency, cubeName);
       }
       
@@ -207,13 +219,23 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
   private Object queryStructured(StructuredMarketDataKey marketDataKey) {
     if (marketDataKey instanceof YieldCurveKey) {
+<<<<<<< HEAD
       YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot((YieldCurveKey) marketDataKey);
+=======
+      YieldCurveKey yieldcurveKey = (YieldCurveKey) marketDataKey;
+      YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot(yieldcurveKey);
+>>>>>>> dacabcd50615b7ece970fe959c1a28a975772a8c
       if (yieldCurveSnapshot == null) {
         return null;
       }
       return buildSnapshot(yieldCurveSnapshot);
     } else if (marketDataKey instanceof VolatilityCubeKey) {
+<<<<<<< HEAD
       VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot((VolatilityCubeKey) marketDataKey);
+=======
+      VolatilityCubeKey volCubeKey = (VolatilityCubeKey) marketDataKey;
+      VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot(volCubeKey);
+>>>>>>> dacabcd50615b7ece970fe959c1a28a975772a8c
       if (volCubeSnapshot == null) {
         return null;
       }
@@ -260,6 +282,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       return volCubeSnapshot;
     }
   }
+<<<<<<< HEAD
   
   private VolatilitySurfaceSnapshot getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
     if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null)
@@ -280,6 +303,8 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return null;
 
   }
+=======
+>>>>>>> dacabcd50615b7ece970fe959c1a28a975772a8c
   
   private StructuredMarketDataSnapshot getSnapshot() {
     if (_snapshot == null) {

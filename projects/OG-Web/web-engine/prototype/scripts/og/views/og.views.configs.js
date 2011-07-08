@@ -15,7 +15,8 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.views.configs.viewdefinition'
     ],
     obj: function () {
         var api = og.api,
@@ -121,6 +122,9 @@ $.register_module({
                     }
                 }
             },
+            form_generators = {
+                viewdefinition: og.views.configs.viewdefinition
+            },
             load_configs_without = function (field, args) {
                 check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
                 delete args[field];
@@ -148,6 +152,7 @@ $.register_module({
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
+                        if (template in form_generators) return form_generators[template](details_json);
                         api.text({module: module.name + '.' + template, handler: function (template) {
                             var json = details_json.template_data, $warning,
                                 warning_message = 'This configuration has been deleted';
@@ -191,28 +196,6 @@ $.register_module({
                                 data_obj = data.charAt(0) === '<' ? {xml: data} : {json: data};
                                 api.rest.configs.put($.extend(rest_obj, data_obj));
                             });
-                            /* TMP work on configs form */
-                            /*
-                            var form = new ui.Form({
-                                module: 'og.views.forms.view-definition',
-                                selector: '#OG-details .og-form-container'
-                            });
-                            form.children = [
-                                new form.Block({module: 'og.views.forms.view-definition-main'}),
-                                new form.Block({module: 'og.views.forms.view-definition-result-model-definition'}),
-                                new form.Block({module: 'og.views.forms.view-definition-execution-parameters'}),
-                                new form.Block({module: 'og.views.forms.tabs'}),
-                                new form.Block({module: 'og.views.forms.view-definition-column-set-name'}),
-                                new form.Block({module: 'og.views.forms.view-definition-column-values'}),
-                                new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
-                                new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({
-                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
-                                })
-                            ];
-                            form.dom();
-                            */
                         }});
                     },
                     id: args.id,

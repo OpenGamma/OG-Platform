@@ -98,7 +98,7 @@ public class ThetaMethodFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerMoneyness = 0.3;
     double upperMoneyness = 3.0;
-    double volTol = 5e-3;
+    double volTol = 1e-2;
     boolean print = false; // set to false before pushing
 
     TESTER.testCEV(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, print);

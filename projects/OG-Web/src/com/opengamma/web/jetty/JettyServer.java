@@ -19,7 +19,7 @@ import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
- * Abstract base class for running a Jetty server
+ * Starts a jetty server configured from spring
  */
 public class JettyServer {
   
@@ -42,7 +42,6 @@ public class JettyServer {
       System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
-//    PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV, PlatformConfigUtils.MarketDataSource.DIRECT);
     PlatformConfigUtils.configureSystemProperties(_runMode, _marketDataSource);
     
     // server

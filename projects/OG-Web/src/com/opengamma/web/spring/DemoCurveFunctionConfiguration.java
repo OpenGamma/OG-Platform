@@ -66,39 +66,39 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       // tightly coupled to the ConfigDbInterpolatedYieldCurveSource and MarketInstrumentImpliedYieldCurveFunction classes
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<YieldCurveDefinition>();
       searchRequest.setType(YieldCurveDefinition.class);
-      try {
-        final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-        final Map<String, Set<String>> currencyToCurves = new HashMap<String, Set<String>>();
-        for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
-          final String documentName = configDocument.getName();
-          final int underscore = documentName.lastIndexOf('_');
-          if (underscore <= 0) {
-            continue;
-          }
-          final String curveName = documentName.substring(0, underscore);
-          final String currencyISO = documentName.substring(underscore + 1);
-          s_logger.debug("Found {} curve for {}", curveName, currencyISO);
-          if (!currencyToCurves.containsKey(currencyISO)) {
-            currencyToCurves.put(currencyISO, new HashSet<String>());
-          }
-          currencyToCurves.get(currencyISO).add(curveName);
+      
+      final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
+      final Map<String, Set<String>> currencyToCurves = new HashMap<String, Set<String>>();
+      for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
+        final String documentName = configDocument.getName();
+        final int underscore = documentName.lastIndexOf('_');
+        if (underscore <= 0) {
+          continue;
         }
-        for (Map.Entry<String, Set<String>> currencyCurves : currencyToCurves.entrySet()) {
-          final String currencyISO = currencyCurves.getKey();
-          final Set<String> curveNames = currencyCurves.getValue();
-          if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
-            if (curveNames.contains("SINGLE")) {
-              addYieldCurveFunction(configs, currencyISO, "SINGLE");
-            }
-            if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
-              addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD");
-            }
+        final String curveName = documentName.substring(0, underscore);
+        final String currencyISO = documentName.substring(underscore + 1);
+        s_logger.debug("Found {} curve for {}", curveName, currencyISO);
+        if (!currencyToCurves.containsKey(currencyISO)) {
+          currencyToCurves.put(currencyISO, new HashSet<String>());
+        }
+        currencyToCurves.get(currencyISO).add(curveName);
+      }
+      for (Map.Entry<String, Set<String>> currencyCurves : currencyToCurves.entrySet()) {
+        final String currencyISO = currencyCurves.getKey();
+        final Set<String> curveNames = currencyCurves.getValue();
+        if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY");
+          }
+          if (curveNames.contains("SINGLE")) {
+            addYieldCurveFunction(configs, currencyISO, "SINGLE");
+          }
+          if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
+            addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD");
           } else {
             s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
           }
         }
-      } catch (RuntimeException e) {
-        s_logger.error("Couldn't load curve definitions from Config Master", e);
       }
     } else {
       // [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity

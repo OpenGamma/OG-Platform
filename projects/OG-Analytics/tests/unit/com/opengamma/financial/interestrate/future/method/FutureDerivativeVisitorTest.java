@@ -33,6 +33,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -450,6 +451,16 @@ public class FutureDerivativeVisitorTest {
 
     @Override
     public String visitCouponFloating(final CouponFloating payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
       return null;
     }
 

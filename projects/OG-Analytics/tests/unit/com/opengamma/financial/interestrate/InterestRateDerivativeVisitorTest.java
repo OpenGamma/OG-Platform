@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -37,6 +38,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -90,6 +92,10 @@ public class InterestRateDerivativeVisitorTest {
   private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA_2);
   private static final SwaptionCashFixedIbor SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIbor();
   private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIbor();
+  private static final InterestRateFutureSecurity IR_FUT_SECURITY = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurity();
+  private static final InterestRateFutureTransaction IR_FUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransaction();
+  private static final BondFutureSecurity BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
+  private static final BondFutureTransaction BNDFUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createBondFutureTransaction();
 
   private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
 
@@ -467,6 +473,16 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitBondFutureTransaction(final BondFutureTransaction bondFuture) {
       return visit(bondFuture);
     }
+
+    @Override
+    public Class<?> visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
+      return visit(payment);
+    }
   };
 
   @Test
@@ -507,6 +523,10 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
     assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
+    assertEquals(IR_FUT_SECURITY.accept(VISITOR), InterestRateFutureSecurity.class);
+    assertEquals(IR_FUT_TRANSACTION.accept(VISITOR), InterestRateFutureTransaction.class);
+    assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFutureSecurity.class);
+    assertEquals(BNDFUT_TRANSACTION.accept(VISITOR), BondFutureTransaction.class);
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
@@ -712,15 +732,34 @@ public class InterestRateDerivativeVisitorTest {
   public void testSwaptionCash2() {
     ABSTRACT_VISITOR.visit(SWAPTION_CASH, CURVE_NAME);
   }
-  
+
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwaptionPhysical1() {
     ABSTRACT_VISITOR.visit(SWAPTION_PHYS);
   }
-  
+
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwaptionPhysical2() {
     ABSTRACT_VISITOR.visit(SWAPTION_PHYS, CURVE_NAME);
   }
-  
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testIRFutSec() {
+    ABSTRACT_VISITOR.visit(IR_FUT_SECURITY);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testIRFutTran() {
+    ABSTRACT_VISITOR.visit(IR_FUT_TRANSACTION);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testBondFutSec() {
+    ABSTRACT_VISITOR.visit(BNDFUT_SECURITY);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testBondFutTran() {
+    ABSTRACT_VISITOR.visit(BNDFUT_TRANSACTION);
+  }
 }
