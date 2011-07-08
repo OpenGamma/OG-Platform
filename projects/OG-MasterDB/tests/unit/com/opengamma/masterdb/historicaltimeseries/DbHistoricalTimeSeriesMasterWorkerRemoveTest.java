@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -55,14 +55,14 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTest extends AbstractDbHist
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0");
     _htsMaster.remove(uid);
-    HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.get(uid);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(uid, test.getSeries().getUniqueId());
+    assertEquals(uid, test.getInfo().getUniqueId());
   }
 
   //-------------------------------------------------------------------------

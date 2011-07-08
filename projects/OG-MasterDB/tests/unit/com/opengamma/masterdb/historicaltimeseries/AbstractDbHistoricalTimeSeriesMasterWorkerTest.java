@@ -26,8 +26,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DBTest;
@@ -124,12 +124,16 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant.plusSeconds(1)), 3.2d);
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version1Instant.plusSeconds(1)), 3.3d);
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
         102, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 2.1d);
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
         201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 4.1d);
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
         201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant), 4.2d);
     
+    template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version3Instant), 3.0d);
     template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
         201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version3Instant), 4.0d);
   }
@@ -141,157 +145,129 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
   }
 
   //-------------------------------------------------------------------------
-  protected void assert101(final HistoricalTimeSeriesDocument test, final boolean laterDate) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-02");
-    if (laterDate == false) {
-      uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-01");
-    }
+  protected void assert101(final HistoricalTimeSeriesInfoDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries series = test.getSeries();
-    assertNotNull(series);
-    assertEquals(uid, series.getUniqueId());
-    assertEquals("N101", series.getName());
-    assertEquals("DF11", series.getDataField());
-    assertEquals("DS21", series.getDataSource());
-    assertEquals("DP31", series.getDataProvider());
-    assertEquals("OT41", series.getObservationTime());
-    IdentifierBundleWithDates key = series.getIdentifiers();
+    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    assertNotNull(info);
+    assertEquals(uid, info.getUniqueId());
+    assertEquals("N101", info.getName());
+    assertEquals("DF11", info.getDataField());
+    assertEquals("DS21", info.getDataSource());
+    assertEquals("DP31", info.getDataProvider());
+    assertEquals("OT41", info.getObservationTime());
+    IdentifierBundleWithDates key = info.getIdentifiers();
     assertNotNull(key);
     assertEquals(2, key.size());
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("TICKER", "V501"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V502"), null, null)));
-    assertEquals(laterDate ? 2 : 1, series.getTimeSeries().size());
-    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
-    assertEquals(3.1d, series.getTimeSeries().getValueAt(0));
-    if (laterDate) {
-      assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
-      assertEquals(3.2d, series.getTimeSeries().getValueAt(1));
-    }
   }
 
-  protected void assert102(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0D2011-01-01");
+  protected void assert102(final HistoricalTimeSeriesInfoDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries series = test.getSeries();
-    assertNotNull(series);
-    assertEquals(uid, series.getUniqueId());
-    assertEquals("N102", series.getName());
-    assertEquals("DF12", series.getDataField());
-    assertEquals("DS22", series.getDataSource());
-    assertEquals("DP32", series.getDataProvider());
-    assertEquals("OT42", series.getObservationTime());
-    IdentifierBundleWithDates key = series.getIdentifiers();
+    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    assertNotNull(info);
+    assertEquals(uid, info.getUniqueId());
+    assertEquals("N102", info.getName());
+    assertEquals("DF12", info.getDataField());
+    assertEquals("DS22", info.getDataSource());
+    assertEquals("DP32", info.getDataProvider());
+    assertEquals("OT42", info.getObservationTime());
+    IdentifierBundleWithDates key = info.getIdentifiers();
     assertNotNull(key);
     assertEquals(2, key.size());
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("TICKER", "V503"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V504"), LocalDate.of(2011, 6, 30), null)));
-    assertEquals(1, series.getTimeSeries().size());
-    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
-    assertEquals(2.1d, series.getTimeSeries().getValueAt(0));
   }
 
-  protected void assert201(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0D2011-01-02");
+  protected void assert201(final HistoricalTimeSeriesInfoDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries series = test.getSeries();
-    assertNotNull(series);
-    assertEquals(uid, series.getUniqueId());
-    assertEquals("N201", series.getName());
-    assertEquals("DF11", series.getDataField());
-    assertEquals("DS21", series.getDataSource());
-    assertEquals("DP31", series.getDataProvider());
-    assertEquals("OT41", series.getObservationTime());
-    IdentifierBundleWithDates key = series.getIdentifiers();
+    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    assertNotNull(info);
+    assertEquals(uid, info.getUniqueId());
+    assertEquals("N201", info.getName());
+    assertEquals("DF11", info.getDataField());
+    assertEquals("DS21", info.getDataSource());
+    assertEquals("DP31", info.getDataProvider());
+    assertEquals("OT41", info.getObservationTime());
+    IdentifierBundleWithDates key = info.getIdentifiers();
     assertNotNull(key);
     assertEquals(2, key.size());
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
-    assertEquals(2, series.getTimeSeries().size());
-    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
-    assertEquals(4.1d, series.getTimeSeries().getValueAt(0));
-    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
-    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
   }
 
-  protected void assert202(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1D2011-01-02");
+  protected void assert202(final HistoricalTimeSeriesInfoDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(_version3Instant, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries series = test.getSeries();
-    assertNotNull(series);
-    assertEquals(uid, series.getUniqueId());
-    assertEquals("N202", series.getName());
-    assertEquals("DF11", series.getDataField());
-    assertEquals("DS21", series.getDataSource());
-    assertEquals("DP31", series.getDataProvider());
-    assertEquals("OT42", series.getObservationTime());
-    IdentifierBundleWithDates key = series.getIdentifiers();
+    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    assertNotNull(info);
+    assertEquals(uid, info.getUniqueId());
+    assertEquals("N202", info.getName());
+    assertEquals("DF11", info.getDataField());
+    assertEquals("DS21", info.getDataSource());
+    assertEquals("DP31", info.getDataProvider());
+    assertEquals("OT42", info.getObservationTime());
+    IdentifierBundleWithDates key = info.getIdentifiers();
     assertNotNull(key);
     assertEquals(2, key.size());
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
-    assertEquals(2, series.getTimeSeries().size());
-    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
-    assertEquals(4.1d, series.getTimeSeries().getValueAt(0));
-    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
-    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
   }
 
-  protected void assert203(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "2D2011-01-02");
+  protected void assert203(final HistoricalTimeSeriesInfoDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "2");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version3Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries series = test.getSeries();
-    assertNotNull(series);
-    assertEquals(uid, series.getUniqueId());
-    assertEquals("N203", series.getName());
-    assertEquals("DF11", series.getDataField());
-    assertEquals("DS21", series.getDataSource());
-    assertEquals("DP31", series.getDataProvider());
-    assertEquals("OT42", series.getObservationTime());
-    IdentifierBundleWithDates key = series.getIdentifiers();
+    ManageableHistoricalTimeSeriesInfo info = test.getInfo();
+    assertNotNull(info);
+    assertEquals(uid, info.getUniqueId());
+    assertEquals("N203", info.getName());
+    assertEquals("DF11", info.getDataField());
+    assertEquals("DS21", info.getDataSource());
+    assertEquals("DP31", info.getDataProvider());
+    assertEquals("OT42", info.getObservationTime());
+    IdentifierBundleWithDates key = info.getIdentifiers();
     assertNotNull(key);
     assertEquals(2, key.size());
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
-    assertEquals(2, series.getTimeSeries().size());
-    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
-    assertEquals(4.0d, series.getTimeSeries().getValueAt(0));
-    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
-    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
   }
 
 }

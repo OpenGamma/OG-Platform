@@ -36,7 +36,7 @@ import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
 
 /**
- * Request for searching for historical time-series.
+ * Request for searching for historical time-series information.
  * <p>
  * Documents will be returned that match the search criteria.
  * This class provides the ability to page the results.
@@ -45,19 +45,19 @@ import com.opengamma.util.RegexUtils;
  */
 @PublicSPI
 @BeanDefinition
-public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
+public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest {
 
   /**
    * The set of time-series object identifiers, null to not limit by exchange object identifiers.
    * Note that an empty set will return no time-series.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _historicalTimeSeriesIds;
+  private List<ObjectIdentifier> _infoIds;
   /**
    * The time-series keys to match, null to not match on time-series keys.
    */
   @PropertyDefinition
-  private IdentifierSearch _historicalTimeSeriesKeys;
+  private IdentifierSearch _identifierKeys;
   /**
    * The identifier value, matching against the <i>value</i> of the identifiers,
    * null to not match by identifier value.
@@ -122,7 +122,7 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance.
    */
-  public HistoricalTimeSeriesSearchRequest() {
+  public HistoricalTimeSeriesInfoSearchRequest() {
   }
 
   /**
@@ -130,8 +130,8 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * 
    * @param historicalTimeSeriesKey  the historical time-series key identifier to search for, not null
    */
-  public HistoricalTimeSeriesSearchRequest(Identifier historicalTimeSeriesKey) {
-    addHistoricalTimeSeriesKey(historicalTimeSeriesKey);
+  public HistoricalTimeSeriesInfoSearchRequest(Identifier historicalTimeSeriesKey) {
+    addIdentifierKey(historicalTimeSeriesKey);
   }
 
   /**
@@ -139,37 +139,37 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * 
    * @param historicalTimeSeriesKeys  the historical time-series key identifiers to search for, not null
    */
-  public HistoricalTimeSeriesSearchRequest(IdentifierBundle historicalTimeSeriesKeys) {
-    addHistoricalTimeSeriesKeys(historicalTimeSeriesKeys);
+  public HistoricalTimeSeriesInfoSearchRequest(IdentifierBundle historicalTimeSeriesKeys) {
+    addIdentifierKeys(historicalTimeSeriesKeys);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Adds a single historical time-series object identifier to the set.
    * 
-   * @param historicalTimeSeriesId  the historical time-series object identifier to add, not null
+   * @param infoId  the historical time-series object identifier to add, not null
    */
-  public void addHistoricalTimeSeriesId(ObjectIdentifiable historicalTimeSeriesId) {
-    ArgumentChecker.notNull(historicalTimeSeriesId, "historicalTimeSeriesId");
-    if (_historicalTimeSeriesIds == null) {
-      _historicalTimeSeriesIds = new ArrayList<ObjectIdentifier>();
+  public void addInfoId(ObjectIdentifiable infoId) {
+    ArgumentChecker.notNull(infoId, "infoId");
+    if (_infoIds == null) {
+      _infoIds = new ArrayList<ObjectIdentifier>();
     }
-    _historicalTimeSeriesIds.add(historicalTimeSeriesId.getObjectId());
+    _infoIds.add(infoId.getObjectId());
   }
 
   /**
    * Sets the set of historical time-series object identifiers, null to not limit by historical time-series object identifiers.
    * Note that an empty set will return no historical time-series.
    * 
-   * @param historicalTimeSeriesIds  the new historical time-series identifiers, null clears the historical time-series id search
+   * @param infoIds  the new historical time-series identifiers, null clears the historical time-series id search
    */
-  public void setHistoricalTimeSeriesIds(Iterable<? extends ObjectIdentifiable> historicalTimeSeriesIds) {
-    if (historicalTimeSeriesIds == null) {
-      _historicalTimeSeriesIds = null;
+  public void setInfoIds(Iterable<? extends ObjectIdentifiable> infoIds) {
+    if (infoIds == null) {
+      _infoIds = null;
     } else {
-      _historicalTimeSeriesIds = new ArrayList<ObjectIdentifier>();
-      for (ObjectIdentifiable exchangeId : historicalTimeSeriesIds) {
-        _historicalTimeSeriesIds.add(exchangeId.getObjectId());
+      _infoIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable exchangeId : infoIds) {
+        _infoIds.add(exchangeId.getObjectId());
       }
     }
   }
@@ -180,11 +180,11 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param historicalTimeSeriesKey  the historical time-series key identifier to add, not null
+   * @param identifierKey  the historical time-series key identifier to add, not null
    */
-  public void addHistoricalTimeSeriesKey(Identifier historicalTimeSeriesKey) {
-    ArgumentChecker.notNull(historicalTimeSeriesKey, "historicalTimeSeriesKey");
-    addHistoricalTimeSeriesKeys(Arrays.asList(historicalTimeSeriesKey));
+  public void addIdentifierKey(Identifier identifierKey) {
+    ArgumentChecker.notNull(identifierKey, "identifierKey");
+    addIdentifierKeys(Arrays.asList(identifierKey));
   }
 
   /**
@@ -192,14 +192,14 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param historicalTimeSeriesKeys  the historical time-series key identifiers to add, not null
+   * @param identifierKeys  the historical time-series key identifiers to add, not null
    */
-  public void addHistoricalTimeSeriesKeys(Identifier... historicalTimeSeriesKeys) {
-    ArgumentChecker.notNull(historicalTimeSeriesKeys, "historicalTimeSeriesKeys");
-    if (getHistoricalTimeSeriesKeys() == null) {
-      setHistoricalTimeSeriesKeys(new IdentifierSearch(historicalTimeSeriesKeys));
+  public void addIdentifierKeys(Identifier... identifierKeys) {
+    ArgumentChecker.notNull(identifierKeys, "identifierKeys");
+    if (getIdentifierKeys() == null) {
+      setIdentifierKeys(new IdentifierSearch(identifierKeys));
     } else {
-      getHistoricalTimeSeriesKeys().addIdentifiers(historicalTimeSeriesKeys);
+      getIdentifierKeys().addIdentifiers(identifierKeys);
     }
   }
 
@@ -208,50 +208,50 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param historicalTimeSeriesKeys  the historical time-series key identifiers to add, not null
+   * @param identifierKeys  the historical time-series key identifiers to add, not null
    */
-  public void addHistoricalTimeSeriesKeys(Iterable<Identifier> historicalTimeSeriesKeys) {
-    ArgumentChecker.notNull(historicalTimeSeriesKeys, "historicalTimeSeriesKeys");
-    if (getHistoricalTimeSeriesKeys() == null) {
-      setHistoricalTimeSeriesKeys(new IdentifierSearch(historicalTimeSeriesKeys));
+  public void addIdentifierKeys(Iterable<Identifier> identifierKeys) {
+    ArgumentChecker.notNull(identifierKeys, "identifierKeys");
+    if (getIdentifierKeys() == null) {
+      setIdentifierKeys(new IdentifierSearch(identifierKeys));
     } else {
-      getHistoricalTimeSeriesKeys().addIdentifiers(historicalTimeSeriesKeys);
+      getIdentifierKeys().addIdentifiers(identifierKeys);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean matches(AbstractDocument obj) {
-    if (obj instanceof HistoricalTimeSeriesDocument == false) {
+    if (obj instanceof HistoricalTimeSeriesInfoDocument == false) {
       return false;
     }
-    final HistoricalTimeSeriesDocument document = (HistoricalTimeSeriesDocument) obj;
-    ManageableHistoricalTimeSeries series = document.getSeries();
-    if (getHistoricalTimeSeriesIds() != null && getHistoricalTimeSeriesIds().contains(document.getObjectId()) == false) {
+    final HistoricalTimeSeriesInfoDocument document = (HistoricalTimeSeriesInfoDocument) obj;
+    ManageableHistoricalTimeSeriesInfo info = document.getInfo();
+    if (getInfoIds() != null && getInfoIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getHistoricalTimeSeriesKeys() != null && getHistoricalTimeSeriesKeys().matches(
-        series.getIdentifiers().asIdentifierBundle(getIdentifierValidityDate())) == false) {
+    if (getIdentifierKeys() != null && getIdentifierKeys().matches(
+        info.getIdentifiers().asIdentifierBundle(getIdentifierValidityDate())) == false) {
       return false;
     }
-    if (getName() != null && RegexUtils.wildcardMatch(getName(), series.getName()) == false) {
+    if (getName() != null && RegexUtils.wildcardMatch(getName(), info.getName()) == false) {
       return false;
     }
-    if (getDataSource() != null && getDataSource().equals(series.getDataSource()) == false) {
+    if (getDataSource() != null && getDataSource().equals(info.getDataSource()) == false) {
       return false;
     }    
-    if (getDataProvider() != null && getDataProvider().equals(series.getDataProvider()) == false) {
+    if (getDataProvider() != null && getDataProvider().equals(info.getDataProvider()) == false) {
       return false;
     }    
-    if (getDataField() != null && getDataField().equals(series.getDataField()) == false) {
+    if (getDataField() != null && getDataField().equals(info.getDataField()) == false) {
       return false;
     }    
-    if (getObservationTime() != null && getObservationTime().equals(series.getObservationTime()) == false) {
+    if (getObservationTime() != null && getObservationTime().equals(info.getObservationTime()) == false) {
       return false;
     }    
     if (getIdentifierValue() != null) {
       success: {  // label used with break statement, CSIGNORE
-        IdentifierBundle docBundle = series.getIdentifiers().asIdentifierBundle();
+        IdentifierBundle docBundle = info.getIdentifiers().asIdentifierBundle();
         for (Identifier identifier : docBundle.getIdentifiers()) {
           if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue())) {
             break success;
@@ -266,25 +266,25 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code HistoricalTimeSeriesSearchRequest}.
+   * The meta-bean for {@code HistoricalTimeSeriesInfoSearchRequest}.
    * @return the meta-bean, not null
    */
-  public static HistoricalTimeSeriesSearchRequest.Meta meta() {
-    return HistoricalTimeSeriesSearchRequest.Meta.INSTANCE;
+  public static HistoricalTimeSeriesInfoSearchRequest.Meta meta() {
+    return HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE;
   }
 
   @Override
-  public HistoricalTimeSeriesSearchRequest.Meta metaBean() {
-    return HistoricalTimeSeriesSearchRequest.Meta.INSTANCE;
+  public HistoricalTimeSeriesInfoSearchRequest.Meta metaBean() {
+    return HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE;
   }
 
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -765540406:  // historicalTimeSeriesIds
-        return getHistoricalTimeSeriesIds();
-      case 2038112034:  // historicalTimeSeriesKeys
-        return getHistoricalTimeSeriesKeys();
+      case 1945391914:  // infoIds
+        return getInfoIds();
+      case 482595389:  // identifierKeys
+        return getIdentifierKeys();
       case 2085582408:  // identifierValue
         return getIdentifierValue();
       case 48758089:  // identifierValidityDate
@@ -315,11 +315,11 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -765540406:  // historicalTimeSeriesIds
-        setHistoricalTimeSeriesIds((List<ObjectIdentifier>) newValue);
+      case 1945391914:  // infoIds
+        setInfoIds((List<ObjectIdentifier>) newValue);
         return;
-      case 2038112034:  // historicalTimeSeriesKeys
-        setHistoricalTimeSeriesKeys((IdentifierSearch) newValue);
+      case 482595389:  // identifierKeys
+        setIdentifierKeys((IdentifierSearch) newValue);
         return;
       case 2085582408:  // identifierValue
         setIdentifierValue((String) newValue);
@@ -364,9 +364,9 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesSearchRequest other = (HistoricalTimeSeriesSearchRequest) obj;
-      return JodaBeanUtils.equal(getHistoricalTimeSeriesIds(), other.getHistoricalTimeSeriesIds()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesKeys(), other.getHistoricalTimeSeriesKeys()) &&
+      HistoricalTimeSeriesInfoSearchRequest other = (HistoricalTimeSeriesInfoSearchRequest) obj;
+      return JodaBeanUtils.equal(getInfoIds(), other.getInfoIds()) &&
+          JodaBeanUtils.equal(getIdentifierKeys(), other.getIdentifierKeys()) &&
           JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
           JodaBeanUtils.equal(getIdentifierValidityDate(), other.getIdentifierValidityDate()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
@@ -386,8 +386,8 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInfoIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierKeys());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValidityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
@@ -408,17 +408,17 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no time-series.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getHistoricalTimeSeriesIds() {
-    return _historicalTimeSeriesIds;
+  public List<ObjectIdentifier> getInfoIds() {
+    return _infoIds;
   }
 
   /**
-   * Gets the the {@code historicalTimeSeriesIds} property.
+   * Gets the the {@code infoIds} property.
    * Note that an empty set will return no time-series.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> historicalTimeSeriesIds() {
-    return metaBean().historicalTimeSeriesIds().createProperty(this);
+  public final Property<List<ObjectIdentifier>> infoIds() {
+    return metaBean().infoIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -426,24 +426,24 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
    * Gets the time-series keys to match, null to not match on time-series keys.
    * @return the value of the property
    */
-  public IdentifierSearch getHistoricalTimeSeriesKeys() {
-    return _historicalTimeSeriesKeys;
+  public IdentifierSearch getIdentifierKeys() {
+    return _identifierKeys;
   }
 
   /**
    * Sets the time-series keys to match, null to not match on time-series keys.
-   * @param historicalTimeSeriesKeys  the new value of the property
+   * @param identifierKeys  the new value of the property
    */
-  public void setHistoricalTimeSeriesKeys(IdentifierSearch historicalTimeSeriesKeys) {
-    this._historicalTimeSeriesKeys = historicalTimeSeriesKeys;
+  public void setIdentifierKeys(IdentifierSearch identifierKeys) {
+    this._identifierKeys = identifierKeys;
   }
 
   /**
-   * Gets the the {@code historicalTimeSeriesKeys} property.
+   * Gets the the {@code identifierKeys} property.
    * @return the property, not null
    */
-  public final Property<IdentifierSearch> historicalTimeSeriesKeys() {
-    return metaBean().historicalTimeSeriesKeys().createProperty(this);
+  public final Property<IdentifierSearch> identifierKeys() {
+    return metaBean().identifierKeys().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -738,7 +738,7 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code HistoricalTimeSeriesSearchRequest}.
+   * The meta-bean for {@code HistoricalTimeSeriesInfoSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
     /**
@@ -747,78 +747,78 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code historicalTimeSeriesIds} property.
+     * The meta-property for the {@code infoIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _historicalTimeSeriesIds = DirectMetaProperty.ofReadWrite(
-        this, "historicalTimeSeriesIds", HistoricalTimeSeriesSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _infoIds = DirectMetaProperty.ofReadWrite(
+        this, "infoIds", HistoricalTimeSeriesInfoSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code historicalTimeSeriesKeys} property.
+     * The meta-property for the {@code identifierKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _historicalTimeSeriesKeys = DirectMetaProperty.ofReadWrite(
-        this, "historicalTimeSeriesKeys", HistoricalTimeSeriesSearchRequest.class, IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _identifierKeys = DirectMetaProperty.ofReadWrite(
+        this, "identifierKeys", HistoricalTimeSeriesInfoSearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code identifierValue} property.
      */
     private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
-        this, "identifierValue", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "identifierValue", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code identifierValidityDate} property.
      */
     private final MetaProperty<LocalDate> _identifierValidityDate = DirectMetaProperty.ofReadWrite(
-        this, "identifierValidityDate", HistoricalTimeSeriesSearchRequest.class, LocalDate.class);
+        this, "identifierValidityDate", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
-        this, "name", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "name", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
     private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
-        this, "dataSource", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "dataSource", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code dataProvider} property.
      */
     private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
-        this, "dataProvider", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "dataProvider", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code dataField} property.
      */
     private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
-        this, "dataField", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "dataField", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
-        this, "observationTime", HistoricalTimeSeriesSearchRequest.class, String.class);
+        this, "observationTime", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code loadEarliestLatest} property.
      */
     private final MetaProperty<Boolean> _loadEarliestLatest = DirectMetaProperty.ofReadWrite(
-        this, "loadEarliestLatest", HistoricalTimeSeriesSearchRequest.class, Boolean.TYPE);
+        this, "loadEarliestLatest", HistoricalTimeSeriesInfoSearchRequest.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code loadTimeSeries} property.
      */
     private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
-        this, "loadTimeSeries", HistoricalTimeSeriesSearchRequest.class, Boolean.TYPE);
+        this, "loadTimeSeries", HistoricalTimeSeriesInfoSearchRequest.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code start} property.
      */
     private final MetaProperty<LocalDate> _start = DirectMetaProperty.ofReadWrite(
-        this, "start", HistoricalTimeSeriesSearchRequest.class, LocalDate.class);
+        this, "start", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code end} property.
      */
     private final MetaProperty<LocalDate> _end = DirectMetaProperty.ofReadWrite(
-        this, "end", HistoricalTimeSeriesSearchRequest.class, LocalDate.class);
+        this, "end", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "historicalTimeSeriesIds",
-        "historicalTimeSeriesKeys",
+        "infoIds",
+        "identifierKeys",
         "identifierValue",
         "identifierValidityDate",
         "name",
@@ -840,10 +840,10 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -765540406:  // historicalTimeSeriesIds
-          return _historicalTimeSeriesIds;
-        case 2038112034:  // historicalTimeSeriesKeys
-          return _historicalTimeSeriesKeys;
+        case 1945391914:  // infoIds
+          return _infoIds;
+        case 482595389:  // identifierKeys
+          return _identifierKeys;
         case 2085582408:  // identifierValue
           return _identifierValue;
         case 48758089:  // identifierValidityDate
@@ -871,13 +871,13 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
     }
 
     @Override
-    public BeanBuilder<? extends HistoricalTimeSeriesSearchRequest> builder() {
-      return new DirectBeanBuilder<HistoricalTimeSeriesSearchRequest>(new HistoricalTimeSeriesSearchRequest());
+    public BeanBuilder<? extends HistoricalTimeSeriesInfoSearchRequest> builder() {
+      return new DirectBeanBuilder<HistoricalTimeSeriesInfoSearchRequest>(new HistoricalTimeSeriesInfoSearchRequest());
     }
 
     @Override
-    public Class<? extends HistoricalTimeSeriesSearchRequest> beanType() {
-      return HistoricalTimeSeriesSearchRequest.class;
+    public Class<? extends HistoricalTimeSeriesInfoSearchRequest> beanType() {
+      return HistoricalTimeSeriesInfoSearchRequest.class;
     }
 
     @Override
@@ -887,19 +887,19 @@ public class HistoricalTimeSeriesSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code historicalTimeSeriesIds} property.
+     * The meta-property for the {@code infoIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> historicalTimeSeriesIds() {
-      return _historicalTimeSeriesIds;
+    public final MetaProperty<List<ObjectIdentifier>> infoIds() {
+      return _infoIds;
     }
 
     /**
-     * The meta-property for the {@code historicalTimeSeriesKeys} property.
+     * The meta-property for the {@code identifierKeys} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierSearch> historicalTimeSeriesKeys() {
-      return _historicalTimeSeriesKeys;
+    public final MetaProperty<IdentifierSearch> identifierKeys() {
+      return _identifierKeys;
     }
 
     /**

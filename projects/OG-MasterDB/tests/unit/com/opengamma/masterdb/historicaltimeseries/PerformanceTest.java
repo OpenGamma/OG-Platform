@@ -18,8 +18,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -64,20 +64,20 @@ public class PerformanceTest extends DBTest {
     for (int i = 0; i < NUM_SERIES; i++) {
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
-      LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
       
-      ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
-      series.setName("BLOOMBERG CMPL");
-      series.setDataField("CLOSE");
-      series.setDataProvider("CMPL");
-      series.setDataSource("BLOOMBERG");
-      series.setObservationTime("LDN_CLOSE");
-      series.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
-      series.setTimeSeries(randomPoints);
-      HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(series);
+      ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+      info.setName("BLOOMBERG CMPL");
+      info.setDataField("CLOSE");
+      info.setDataProvider("CMPL");
+      info.setDataSource("BLOOMBERG");
+      info.setObservationTime("LDN_CLOSE");
+      info.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+      HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
       s_logger.debug("adding timeseries {}", doc);
       _htsMaster.add(doc);
       
+      LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
+      _htsMaster.addTimeSeriesDataPoints(doc.getObjectId(), randomPoints);
       randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
@@ -85,7 +85,7 @@ public class PerformanceTest extends DBTest {
             Lists.newArrayList(randomPoints.getTime(j)),
             Lists.newArrayList(randomPoints.getValueAt(j)));
         s_logger.debug("adding data points {}", points);
-        _htsMaster.updateDataPoints(doc.getUniqueId(), points);
+        _htsMaster.addTimeSeriesDataPoints(doc.getUniqueId(), points);
       }
     }
     

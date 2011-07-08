@@ -23,10 +23,9 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.test.DBTest;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
@@ -51,7 +50,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noHistoricalTimeSeries() {
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument();
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     _htsMaster.add(doc);
   }
 
@@ -59,17 +58,17 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
   public void test_add_add() {
     Instant now = Instant.now(_htsMaster.getTimeSource());
     
-    ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-    hts.setName("Added");
-    hts.setDataField("DF");
-    hts.setDataSource("DS");
-    hts.setDataProvider("DP");
-    hts.setObservationTime("OT");
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Added");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    hts.setIdentifiers(bundle);
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(hts);
-    HistoricalTimeSeriesDocument test = _htsMaster.add(doc);
+    info.setIdentifiers(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -81,34 +80,33 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeries testHistoricalTimeSeries = test.getSeries();
-    assertNotNull(testHistoricalTimeSeries);
-    assertEquals(uid, testHistoricalTimeSeries.getUniqueId());
-    assertEquals("Added", testHistoricalTimeSeries.getName());
-    assertEquals("DF", testHistoricalTimeSeries.getDataField());
-    assertEquals("DS", testHistoricalTimeSeries.getDataSource());
-    assertEquals("DP", testHistoricalTimeSeries.getDataProvider());
-    assertEquals("OT", testHistoricalTimeSeries.getObservationTime());
-    assertEquals(1, testHistoricalTimeSeries.getIdentifiers().size());
-    assertTrue(testHistoricalTimeSeries.getIdentifiers().getIdentifiers().contains(id));
+    ManageableHistoricalTimeSeriesInfo testInfo = test.getInfo();
+    assertNotNull(testInfo);
+    assertEquals(uid, testInfo.getUniqueId());
+    assertEquals("Added", testInfo.getName());
+    assertEquals("DF", testInfo.getDataField());
+    assertEquals("DS", testInfo.getDataSource());
+    assertEquals("DP", testInfo.getDataProvider());
+    assertEquals("OT", testInfo.getObservationTime());
+    assertEquals(1, testInfo.getIdentifiers().size());
+    assertTrue(testInfo.getIdentifiers().getIdentifiers().contains(id));
   }
 
   @Test
   public void test_add_addThenGet() {
-    ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-    hts.setName("Added");
-    hts.setDataField("DF");
-    hts.setDataSource("DS");
-    hts.setDataProvider("DP");
-    hts.setObservationTime("OT");
-    hts.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Added");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    hts.setIdentifiers(bundle);
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(hts);
-    HistoricalTimeSeriesDocument added = _htsMaster.add(doc);
+    info.setIdentifiers(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
     
-    HistoricalTimeSeriesDocument test = _htsMaster.get(added.getUniqueId());
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

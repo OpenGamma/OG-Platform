@@ -22,10 +22,10 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesHistoryRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesHistoryResult;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -51,39 +51,39 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noHistoricalTimeSeriesId() {
-    ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-    hts.setName("Corrected");
-    hts.setDataField("DF");
-    hts.setDataSource("DS");
-    hts.setDataProvider("DP");
-    hts.setObservationTime("OT");
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Corrected");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    hts.setIdentifiers(bundle);
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(hts);
+    info.setIdentifiers(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     _htsMaster.correct(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noHistoricalTimeSeries() {
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument();
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
     _htsMaster.correct(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
-    ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-    hts.setUniqueId(UniqueIdentifier.of("DbHts", "0", "0"));
-    hts.setName("Corrected");
-    hts.setDataField("DF");
-    hts.setDataSource("DS");
-    hts.setDataProvider("DP");
-    hts.setObservationTime("OT");
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setUniqueId(UniqueIdentifier.of("DbHts", "0", "0"));
+    info.setName("Corrected");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    hts.setIdentifiers(bundle);
-    HistoricalTimeSeriesDocument doc = new HistoricalTimeSeriesDocument(hts);
+    info.setIdentifiers(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     _htsMaster.correct(doc);
   }
 
@@ -91,37 +91,37 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
   public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_htsMaster.getTimeSource());
     
-    HistoricalTimeSeriesDocument base = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
-    ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
-    hts.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
-    hts.setName("Corrected");
-    hts.setDataField("DF");
-    hts.setDataSource("DS");
-    hts.setDataProvider("DP");
-    hts.setObservationTime("OT");
+    HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    info.setName("Corrected");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    hts.setIdentifiers(bundle);
-    HistoricalTimeSeriesDocument input = new HistoricalTimeSeriesDocument(hts);
+    info.setIdentifiers(bundle);
+    HistoricalTimeSeriesInfoDocument input = new HistoricalTimeSeriesInfoDocument(info);
     
-    HistoricalTimeSeriesDocument corrected = _htsMaster.correct(input);
+    HistoricalTimeSeriesInfoDocument corrected = _htsMaster.correct(input);
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getSeries(), corrected.getSeries());
+    assertEquals(input.getInfo(), corrected.getInfo());
     
-    HistoricalTimeSeriesDocument old = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getSeries(), old.getSeries());
+    assertEquals(base.getInfo(), old.getInfo());
     
-    HistoricalTimeSeriesHistoryRequest search = new HistoricalTimeSeriesHistoryRequest(base.getUniqueId(), now, null);
-    HistoricalTimeSeriesHistoryResult searchResult = _htsMaster.history(search);
+    HistoricalTimeSeriesInfoHistoryRequest search = new HistoricalTimeSeriesInfoHistoryRequest(base.getUniqueId(), now, null);
+    HistoricalTimeSeriesInfoHistoryResult searchResult = _htsMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

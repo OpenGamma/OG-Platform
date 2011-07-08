@@ -8,7 +8,9 @@ package com.opengamma.master.historicaltimeseries;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -16,11 +18,14 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * A general-purpose daily historical time-series master.
  * <p>
- * The time-series master provides a uniform view over the database.
- * This interface provides methods that allow the master to be searched and updated.
+ * The time-series master consists of two parts - the information about the series
+ * and the series data points themselves.
+ * This separation provides the optimal storage scheme for the data.
+ * It is necessary, as the versioning of the time-series data points is distinct
+ * from the versioning of the information.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesDocument> {
+public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument> {
   // TODO: metadata
 
   /**
@@ -30,21 +35,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  HistoricalTimeSeriesSearchResult search(HistoricalTimeSeriesSearchRequest request);
-
-  /**
-   * Gets a time-series document controlling the amount of data returned.
-   * <p>
-   * This returns a single time-series document by unique identifier.
-   * As the time-series is potentially large, the request allows the returned
-   * data points to be filtered.
-   * 
-   * @param request  the batch data request, not null
-   * @return the document, not null
-   * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if there is no document with that unique identifier
-   */
-  HistoricalTimeSeriesDocument get(HistoricalTimeSeriesGetRequest request);
+  HistoricalTimeSeriesInfoSearchResult search(HistoricalTimeSeriesInfoSearchRequest request);
 
   /**
    * Queries the history of a single time-series.
@@ -55,27 +46,42 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @return the time-series history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  HistoricalTimeSeriesHistoryResult history(HistoricalTimeSeriesHistoryRequest request);
+  HistoricalTimeSeriesInfoHistoryResult history(HistoricalTimeSeriesInfoHistoryRequest request);
 
   //-------------------------------------------------------------------------
-//  /**
-//  * Gets the time-series data points without the document.
-//  * <p>
-//  * The main get request returns the document describing the time-series.
-//  * This request gets the series itself.
-//  * 
-//  * @param objectId  the time-series object identifier, not null
-//  * @param fromDateInclusive  the inclusive start date of the points to remove, not null
-//  * @param toDateInclusive  the inclusive end date of the points to remove, not null
-//  * @param versionCorrection  the version-correction locator to search at, not null
-//  * @return the current state of the document, may be an update of the input document, not null
-//  * @throws IllegalArgumentException if the identifier is invalid
-//  * @throws DataNotFoundException if there is no document with that unique identifier
-//  */
-//  HistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+  /**
+   * Gets the time-series data points.
+   * <p>
+   * The main get request returns the document describing the time-series.
+   * This method gets the series itself.
+   * 
+   * @param uniqueId  the time-series unique identifier, not null
+   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
+   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @return the current state of the document, may be an update of the input document, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  ManageableHistoricalTimeSeries getTimeSeries(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
-   * Updates the time-series by appending new data points.
+   * Gets the time-series data points.
+   * <p>
+   * The main get request returns the document describing the time-series.
+   * This method gets the series itself.
+   * 
+   * @param objectId  the time-series object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
+   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @return the current state of the document, may be an update of the input document, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+
+  /**
+   * Adds to the time-series by appending new data points.
    * <p>
    * This is used to append new time-series data points.
    * The specified request must contain the unique identifier.
@@ -85,13 +91,13 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * A full master will store detailed historic information on documents.
    * Thus, an update does not prevent retrieval or correction of an earlier version.
    * 
-   * @param uniqueId  the update request, not null
-   * @param series  the series to append, not null
-   * @return the current state of the document, may be an update of the input document, not null
+   * @param objectId  the time-series object identifier, not null
+   * @param series  the series to add, not null
+   * @return the new time-series unique identifier, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier updateDataPoints(UniqueIdentifier uniqueId, LocalDateDoubleTimeSeries series);
+  UniqueIdentifier addTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
 
   /**
    * Corrects the time-series by removing data points.
@@ -106,13 +112,13 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * A full master will store detailed historic information on documents.
    * Thus, a correction does not prevent retrieval or correction of an earlier version.
    * 
-   * @param uniqueId  the unique identifier of the time-series, not null
+   * @param objectId  the time-series object identifier, not null
    * @param series  the series to correct to, no null values, not null
    * @return the unique identifier of the updated document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier correctDataPoints(UniqueIdentifier uniqueId, LocalDateDoubleTimeSeries series);
+  UniqueIdentifier correctTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
 
   /**
    * Corrects the time-series by removing data points.
@@ -122,13 +128,13 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * A full master will store detailed historic information on documents.
    * Thus, a correction does not prevent retrieval or correction of an earlier version.
    * 
-   * @param uniqueId  the unique identifier of the time-series, not null
+   * @param objectId  the time-series object identifier, not null
    * @param fromDateInclusive  the inclusive start date of the points to remove, not null
    * @param toDateInclusive  the inclusive end date of the points to remove, not null
    * @return the unique identifier of the updated document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier correctRemoveDataPoints(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+  UniqueIdentifier removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
 }
