@@ -93,9 +93,6 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return null;
         }
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
-        if (curveName == null) {
-          return new YieldCurveKey(currency, null);
-        }
         return new YieldCurveKey(currency, curveName);
       }
       
@@ -110,9 +107,6 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return null;
         }
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
-        if (cubeName == null) {
-          return new VolatilityCubeKey(currency, null);
-        }
         return new VolatilityCubeKey(currency, cubeName);
       }
       
@@ -127,13 +121,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
           return null;
         }
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
-        if (name == null) {
-          throw new IllegalArgumentException("Must specify a surface name");
-        }
         String instrumentType = valueRequirement.getConstraint("InstrumentType");
-        if (instrumentType == null) {
-          throw new IllegalArgumentException("Must specify an instrument name");
-        }
         return new VolatilitySurfaceKey(currency, name, instrumentType);
       }
       
@@ -231,7 +219,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       }
       return buildVolatilityCubeData(volCubeSnapshot);
     } else if (marketDataKey instanceof VolatilitySurfaceKey) {
-      VolatilitySurfaceSnapshot snapshot = getSnapshot().getVolatilitySurfaces().get(marketDataKey);
+      VolatilitySurfaceSnapshot snapshot = getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
       if (snapshot == null) {
         return new VolatilitySurfaceData<Object, Object>("", "", Currency.AUD, new Object[] {}, new Object[] {},
             new HashMap<Pair<Object, Object>, Double>()); //NOTE: this is not the same as return null;
@@ -272,6 +260,26 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       VolatilityCubeSnapshot volCubeSnapshot = getSnapshot().getVolatilityCubes().get(volCubeKey);
       return volCubeSnapshot;
     }
+  }
+  
+  private VolatilitySurfaceSnapshot getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
+    if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null)
+    {
+      return getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
+    }
+    
+    //Match with wildcards
+    for (Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : getSnapshot().getVolatilitySurfaces().entrySet()) {
+      //This could return any old surface, but hey, that's what they asked for right?
+      VolatilitySurfaceKey key = entry.getKey();
+      if (key.getCurrency().equals(volSurfaceKey.getCurrency())
+          && (key.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
+          && (key.getName() == null || key.getName() == volSurfaceKey.getName())) {
+        return entry.getValue();
+      }
+    }
+    return null;
+
   }
   
   private StructuredMarketDataSnapshot getSnapshot() {
