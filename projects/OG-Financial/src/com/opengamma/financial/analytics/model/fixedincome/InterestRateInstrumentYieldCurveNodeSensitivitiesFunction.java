@@ -29,6 +29,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -153,8 +155,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurve.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(currency, labelledMatrix, curveName);
-    final ValueSpecification specification = new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-          FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security, curveName, curveName, createValueProperties()));
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), curveName, curveName, createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    final ValueSpecification specification = new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties);
     return Collections.singleton(new ComputedValue(specification, data.getLabelledMatrix()));
   }
 
@@ -226,21 +231,23 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(
-        new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-                (FinancialSecurity) target.getSecurity(), createValueProperties())));
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    return Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
       final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst(), createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
     return Collections
-        .singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-                (FinancialSecurity) target.getSecurity(),
-                curveNames.getSecond(), curveNames.getFirst(), createValueProperties())));
+        .singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
   }
 
   @Override
