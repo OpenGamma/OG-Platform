@@ -30,7 +30,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * A performance test of time-series.
  */
-@Test
+@Test(enabled = false)
 public class PerformanceTest extends DBTest {
 
   /** Logger. */
