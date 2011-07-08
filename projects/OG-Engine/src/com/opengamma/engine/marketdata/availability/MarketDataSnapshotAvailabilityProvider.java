@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.UserMarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,7 +36,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
         requirement.getTargetSpecification().getType() == ComputationTargetType.TRADE) {
       return false;
     }
-    return getSnapshot().query(requirement) != null;
+    return UserMarketDataSnapshot.getStructuredKey(requirement) != null || getSnapshot().query(requirement) != null;
   }
   
   //-------------------------------------------------------------------------

@@ -184,7 +184,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     s_structuredKeyFactories.put(valueRequirementName, factory);
   }
   
-  private static StructuredMarketDataKey getStructuredKey(ValueRequirement valueRequirement) {
+  public static StructuredMarketDataKey getStructuredKey(ValueRequirement valueRequirement) {
     StructuredMarketDataKeyFactory factory = s_structuredKeyFactories.get(valueRequirement.getValueName());
     if (factory == null) {
       return null;
@@ -209,20 +209,19 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     if (marketDataKey instanceof YieldCurveKey) {
       YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot((YieldCurveKey) marketDataKey);
       if (yieldCurveSnapshot == null) {
-        return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
+        return null;
       }
       return buildSnapshot(yieldCurveSnapshot);
     } else if (marketDataKey instanceof VolatilityCubeKey) {
       VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot((VolatilityCubeKey) marketDataKey);
       if (volCubeSnapshot == null) {
-        return new VolatilityCubeData(); //NOTE: this is not the same as return null;
+        return null;
       }
       return buildVolatilityCubeData(volCubeSnapshot);
     } else if (marketDataKey instanceof VolatilitySurfaceKey) {
       VolatilitySurfaceSnapshot snapshot = getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
       if (snapshot == null) {
-        return new VolatilitySurfaceData<Object, Object>("", "", Currency.AUD, new Object[] {}, new Object[] {},
-            new HashMap<Pair<Object, Object>, Double>()); //NOTE: this is not the same as return null;
+        return null;
       }
       return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
     } else {
