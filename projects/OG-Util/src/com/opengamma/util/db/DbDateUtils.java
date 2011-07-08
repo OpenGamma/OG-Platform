@@ -8,6 +8,7 @@ package com.opengamma.util.db;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -29,17 +30,17 @@ public class DbDateUtils {
    * The maximum SQL date, used as far-future in the database.
    */
   @SuppressWarnings("deprecation")
-  public static final Date MAX_SQL_DATE = new Date(9999 - 1900, 11, 31);
+  public static final Date MAX_SQL_DATE = new Date(9999 - 1900, Calendar.DECEMBER, 31);
   /**
    * The minimum SQL date, used as far-past in the database.
    */
   @SuppressWarnings("deprecation")
-  public static final Date MIN_SQL_DATE = new Date(1800 - 1900, 1, 1);
+  public static final Date MIN_SQL_DATE = new Date(1800 - 1900, Calendar.JANUARY, 1);
   /**
    * The maximum SQL time-stamp, used as far-future in the database.
    */
   @SuppressWarnings("deprecation")
-  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 0);
+  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, Calendar.DECEMBER, 31, 23, 59, 59, 0);
   /**
    * The maximum instant, used as far-future in the database.
    */
