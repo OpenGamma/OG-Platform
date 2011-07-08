@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Converter for {@link VolatilitySurfaceData} objects.
@@ -20,7 +19,8 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
 
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, VolatilitySurfaceData rawValue, ConversionMode mode) {
-    VolatilitySurfaceData<Object, Object> value = (VolatilitySurfaceData<Object, Object>)rawValue;
+    @SuppressWarnings("unchecked")
+    VolatilitySurfaceData<Object, Object> value = (VolatilitySurfaceData<Object, Object>) rawValue;
     Map<String, Object> result = new HashMap<String, Object>();
     
     result.put("xCount", value.getXs().length);
