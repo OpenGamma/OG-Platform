@@ -26,6 +26,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DBTest;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
@@ -100,6 +101,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     hts.setDataSource("DS");
     hts.setDataProvider("DP");
     hts.setObservationTime("OT");
+    hts.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
     IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
     IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
     hts.setIdentifiers(bundle);

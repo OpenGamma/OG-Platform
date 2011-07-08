@@ -15,7 +15,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -42,42 +44,57 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTest extends AbstractDbHistori
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_versioned_notFoundId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "0", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "0", "0D2011-01-01");
     _htsMaster.get(uid);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_versioned_notFoundVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "1");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "1D2011-01-01");
     _htsMaster.get(uid);
   }
 
   @Test
   public void test_get_versioned101() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-02");
     HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
-    assert101(test);
+    assert101(test, true);
+  }
+
+  @Test
+  public void test_get_versioned101_olderDate() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-01");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
+    assert101(test, false);
   }
 
   @Test
   public void test_get_versioned102() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0D2011-01-01");
     HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
     assert102(test);
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_get_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0D2011-01-02");
     HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
     assert201(test);
   }
 
   @Test
-  public void test_get_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1");
+  public void test_get_versioned_latestVersionNotLatestCorrection() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1D2011-01-02");
     HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
     assert202(test);
+  }
+
+  @Test
+  public void test_get_versioned_latest() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "2D2011-01-02");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
+    assert203(test);
   }
 
   //-------------------------------------------------------------------------
@@ -89,9 +106,31 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTest extends AbstractDbHistori
 
   @Test
   public void test_get_unversioned() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbHts", "201");
-    HistoricalTimeSeriesDocument test = _htsMaster.get(oid);
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(uid);
+    assert203(test);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getObjectIdentifier() {
+    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "201");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(oid, VersionCorrection.LATEST);
+    assert203(test);
+  }
+
+  @Test
+  public void test_getObjectIdentifier_earlierCorrection() {
+    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "201");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(oid, VersionCorrection.ofCorrectedTo(_version2Instant));
     assert202(test);
+  }
+
+  @Test
+  public void test_getObjectIdentifier_earlierVersion() {
+    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "201");
+    HistoricalTimeSeriesDocument test = _htsMaster.get(oid, VersionCorrection.ofVersionAsOf(_version1Instant));
+    assert201(test);
   }
 
   //-------------------------------------------------------------------------

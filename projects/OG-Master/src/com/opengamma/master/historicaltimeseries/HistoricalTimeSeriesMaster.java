@@ -5,9 +5,13 @@
  */
 package com.opengamma.master.historicaltimeseries;
 
+import javax.time.calendar.LocalDate;
+
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * A general-purpose daily historical time-series master.
@@ -17,22 +21,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesDocument> {
-
-  /**
-   * Value for unknown data provider in the database.
-   */
-  String UNKNOWN_PROVIDER = "UNKNOWN";
-  /**
-   * Value for Unknown observation time in the database.
-   */
-  String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
-
-//  /**
-//   * Gets all the identifiers.
-//   * 
-//   * @return the list of identifiers, not null
-//   */
-//  List<IdentifierBundleWithDates> getAllIdentifiers();
+  // TODO: metadata
 
   /**
    * Searches for time-series matching the specified search criteria.
@@ -68,115 +57,78 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    */
   HistoricalTimeSeriesHistoryResult history(HistoricalTimeSeriesHistoryRequest request);
 
+  //-------------------------------------------------------------------------
 //  /**
-//   * Updates part of a time-series document.
-//   * <p>
-//   * The request contains details of how to update part of the document.
-//   * This is primarily used to append new time-series data points.
-//   * The specified request must contain the unique identifier.
-//   * If the identifier has a version it must be the latest version.
-//   * Only the unique identifier is returned.
-//   * <p>
-//   * A full master will store detailed historic information on documents.
-//   * Thus, an update does not prevent retrieval or correction of an earlier version.
-//   * 
-//   * @param request  the update request, not null
-//   * @return the current state of the document, may be an update of the input document, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   * @throws DataNotFoundException if there is no document with that unique identifier
-//   */
-//  UniqueIdentifier update(HistoricalTimeSeriesUpdateRequest request);
+//  * Gets the time-series data points without the document.
+//  * <p>
+//  * The main get request returns the document describing the time-series.
+//  * This request gets the series itself.
+//  * 
+//  * @param objectId  the time-series object identifier, not null
+//  * @param fromDateInclusive  the inclusive start date of the points to remove, not null
+//  * @param toDateInclusive  the inclusive end date of the points to remove, not null
+//  * @param versionCorrection  the version-correction locator to search at, not null
+//  * @return the current state of the document, may be an update of the input document, not null
+//  * @throws IllegalArgumentException if the identifier is invalid
+//  * @throws DataNotFoundException if there is no document with that unique identifier
+//  */
+//  HistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Gets a data point by unique identifier.
-//   * <p> 
-//   * The dataPoint UID is of the format {@code HistoricalTimeSeriesUID-YYYYMMDD}.
-//   * 
-//   * @param dataPointId  the data point unique identifier, not null
-//   * @return the data point document, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   * @throws DataNotFoundException if there is no document with that unique identifier
-//   */
-//  DataPointDocument getDataPoint(UniqueIdentifier dataPointId);
-//
-//  /**
-//   * Adds a data point to an existing time-series in the data store.
-//   * 
-//   * @param document  the data point document, not null
-//   * @return the added document, may be an update of the input document, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   */
-//  DataPointDocument addDataPoint(DataPointDocument document);
-//
-//  /**
-//   * Updates a data point in the data store.
-//   * <p>
-//   * The specified document must contain the value and the unique identifier.
-//   * 
-//   * @param document  the data point document, not null
-//   * @return the updated data point document, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   * @throws DataNotFoundException if there is no document with that unique identifier
-//   */
-//  DataPointDocument updateDataPoint(DataPointDocument document);
-//
-//  /**
-//   * Removes a data point from a time-series in the data store.
-//   * <p> 
-//   * The dataPoint UID is of the format {@code HistoricalTimeSeriesUID-YYYYMMDD}.
-//   * 
-//   * @param dataPointId  the unique identifier to remove, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   * @throws DataNotFoundException if there is no document with that unique identifier
-//   */
-//  void removeDataPoint(final UniqueIdentifier dataPointId);
-//
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Append data points to an existing time-series.
-//   * <p>
-//   * This is a bulk update method to add multiple data points to an existing time-series.
-//   * The document must contain the unique identifier for the time-series to append to.
-//   * 
-//   * @param document  the time series document, not null
-//   * @throws IllegalArgumentException if the request is invalid
-//   * @throws DataNotFoundException if there is no document with that unique identifier
-//   */
-//  void appendTimeSeries(HistoricalTimeSeriesDocument document);
-//
-//  /**
-//   * Removes all data points before the given date.
-//   * <p>
-//   * This is a bulk update method to remove multiple data points from an existing time-series.
-//   * 
-//   * @param historicalTimeSeriesId  the historical time-series to operate on, not null
-//   * @param firstDateToRetain  remove all data points before this date, not null
-//   */
-//  void removeDataPoints(UniqueIdentifier historicalTimeSeriesId, LocalDate firstDateToRetain);
-//
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Searches for a time-series unique identifier matching specific criteria.
-//   * 
-//   * @param securityBundle  the security identifier bundle, not null
-//   * @param dataSource  the data source, not null
-//   * @param dataProvider  the data provider, not null
-//   * @param dataField  the data field, not null
-//   * @return the unique identifier, null if not found
-//   */
-//  UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField);
-//
-//  /**
-//   * Searches for a time-series unique identifier matching specific criteria.
-//   * 
-//   * @param securityBundle  the security identifier bundle, not null
-//   * @param identifierValidityDate  the date on which identifiers must be valid, null for no restriction
-//   * @param dataSource  the data source, not null
-//   * @param dataProvider  the data provider, not null
-//   * @param dataField  the data field, not null
-//   * @return the unique identifier, null if not found
-//   */
-//  UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
+  /**
+   * Updates the time-series by appending new data points.
+   * <p>
+   * This is used to append new time-series data points.
+   * The specified request must contain the unique identifier.
+   * If the identifier has a version it must be the latest version.
+   * Only the unique identifier is returned.
+   * <p>
+   * A full master will store detailed historic information on documents.
+   * Thus, an update does not prevent retrieval or correction of an earlier version.
+   * 
+   * @param uniqueId  the update request, not null
+   * @param series  the series to append, not null
+   * @return the current state of the document, may be an update of the input document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  UniqueIdentifier updateDataPoints(UniqueIdentifier uniqueId, LocalDateDoubleTimeSeries series);
+
+  /**
+   * Corrects the time-series by removing data points.
+   * <p>
+   * This takes each point in the specified series and applies it on top of the existing data.
+   * If the date already has a value, the value is corrected if different.
+   * If the date is not currently present, it is added.
+   * The addition occurs as though the original was added at the base version instant,
+   * which is different to just adding a point using {@link #updateDataPoints}.
+   * The correction applies as of the current instant.
+   * <p>
+   * A full master will store detailed historic information on documents.
+   * Thus, a correction does not prevent retrieval or correction of an earlier version.
+   * 
+   * @param uniqueId  the unique identifier of the time-series, not null
+   * @param series  the series to correct to, no null values, not null
+   * @return the unique identifier of the updated document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  UniqueIdentifier correctDataPoints(UniqueIdentifier uniqueId, LocalDateDoubleTimeSeries series);
+
+  /**
+   * Corrects the time-series by removing data points.
+   * <p>
+   * The correction applies as of the current instant.
+   * <p>
+   * A full master will store detailed historic information on documents.
+   * Thus, a correction does not prevent retrieval or correction of an earlier version.
+   * 
+   * @param uniqueId  the unique identifier of the time-series, not null
+   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
+   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @return the unique identifier of the updated document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  UniqueIdentifier correctRemoveDataPoints(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
 }

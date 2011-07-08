@@ -42,6 +42,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
   protected DbHistoricalTimeSeriesMaster _htsMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
+  protected Instant _version3Instant;
   protected int _totalPortfolios;
   protected int _totalHistoricalTimeSeries;
   protected OffsetDateTime _now;
@@ -61,6 +62,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     _htsMaster.setTimeSource(TimeSource.fixed(_now.toInstant()));
     _version1Instant = _now.toInstant().minusSeconds(100);
     _version2Instant = _now.toInstant().minusSeconds(50);
+    _version3Instant = _now.toInstant().minusSeconds(20);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _htsMaster.getDbSource().getJdbcTemplate();
@@ -88,7 +90,9 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "N201", 11, 21, 31, 41);
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "N202", 11, 21, 31, 42);
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), toSqlTimestamp(_version3Instant), "N202", 11, 21, 31, 42);
+    template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
+        203, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version3Instant), MAX_SQL_TIMESTAMP, "N203", 11, 21, 31, 42);
     _totalHistoricalTimeSeries = 3;
     
     template.update("INSERT INTO hts_idkey VALUES (?,?,?)",
@@ -112,6 +116,22 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 201, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
     template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 202, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
     template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 202, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 203, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 203, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 3.1d);
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant.plusSeconds(1)), 3.2d);
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        102, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 2.1d);
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 4.1d);
+    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
+        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant), 4.2d);
+    
+    template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
+        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version3Instant), 4.0d);
   }
 
   @AfterMethod
@@ -121,8 +141,11 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
   }
 
   //-------------------------------------------------------------------------
-  protected void assert101(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0");
+  protected void assert101(final HistoricalTimeSeriesDocument test, final boolean laterDate) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-02");
+    if (laterDate == false) {
+      uid = UniqueIdentifier.of("DbHts", "101", "0D2011-01-01");
+    }
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -144,10 +167,17 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
         IdentifierWithDates.of(Identifier.of("TICKER", "V501"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V502"), null, null)));
+    assertEquals(laterDate ? 2 : 1, series.getTimeSeries().size());
+    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
+    assertEquals(3.1d, series.getTimeSeries().getValueAt(0));
+    if (laterDate) {
+      assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
+      assertEquals(3.2d, series.getTimeSeries().getValueAt(1));
+    }
   }
 
   protected void assert102(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0D2011-01-01");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -169,10 +199,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
         IdentifierWithDates.of(Identifier.of("TICKER", "V503"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V504"), LocalDate.of(2011, 6, 30), null)));
+    assertEquals(1, series.getTimeSeries().size());
+    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
+    assertEquals(2.1d, series.getTimeSeries().getValueAt(0));
   }
 
   protected void assert201(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "0D2011-01-02");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -194,16 +227,21 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
         IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(2, series.getTimeSeries().size());
+    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
+    assertEquals(4.1d, series.getTimeSeries().getValueAt(0));
+    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
+    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
   }
 
   protected void assert202(final HistoricalTimeSeriesDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1");
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "1D2011-01-02");
     assertNotNull(test);
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(_version3Instant, test.getCorrectionToInstant());
     ManageableHistoricalTimeSeries series = test.getSeries();
     assertNotNull(series);
     assertEquals(uid, series.getUniqueId());
@@ -219,6 +257,41 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
         IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
     assertEquals(true, key.getIdentifiers().contains(
         IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(2, series.getTimeSeries().size());
+    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
+    assertEquals(4.1d, series.getTimeSeries().getValueAt(0));
+    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
+    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
+  }
+
+  protected void assert203(final HistoricalTimeSeriesDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "201", "2D2011-01-02");
+    assertNotNull(test);
+    assertEquals(uid, test.getUniqueId());
+    assertEquals(_version2Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version3Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageableHistoricalTimeSeries series = test.getSeries();
+    assertNotNull(series);
+    assertEquals(uid, series.getUniqueId());
+    assertEquals("N203", series.getName());
+    assertEquals("DF11", series.getDataField());
+    assertEquals("DS21", series.getDataSource());
+    assertEquals("DP31", series.getDataProvider());
+    assertEquals("OT42", series.getObservationTime());
+    IdentifierBundleWithDates key = series.getIdentifiers();
+    assertNotNull(key);
+    assertEquals(2, key.size());
+    assertEquals(true, key.getIdentifiers().contains(
+        IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
+    assertEquals(true, key.getIdentifiers().contains(
+        IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(2, series.getTimeSeries().size());
+    assertEquals(LocalDate.of(2011, 1, 1), series.getTimeSeries().getTime(0));
+    assertEquals(4.0d, series.getTimeSeries().getValueAt(0));
+    assertEquals(LocalDate.of(2011, 1, 2), series.getTimeSeries().getTime(1));
+    assertEquals(4.2d, series.getTimeSeries().getValueAt(1));
   }
 
 }

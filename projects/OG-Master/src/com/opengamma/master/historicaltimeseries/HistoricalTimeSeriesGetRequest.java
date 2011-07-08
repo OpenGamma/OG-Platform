@@ -66,13 +66,13 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
    * This is null by default.
    */
   @PropertyDefinition
-  private LocalDate _start; 
+  private LocalDate _startDate; 
   /**
    * The end date, inclusive, null returns data up to the latest valid date.
    * This is null by default.
    */
   @PropertyDefinition
-  private LocalDate _end;
+  private LocalDate _endDate;
 
   /**
    * Creates an instance.
@@ -125,10 +125,10 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
         return isLoadEarliestLatest();
       case 1833789738:  // loadTimeSeries
         return isLoadTimeSeries();
-      case 109757538:  // start
-        return getStart();
-      case 100571:  // end
-        return getEnd();
+      case -2129778896:  // startDate
+        return getStartDate();
+      case -1607727319:  // endDate
+        return getEndDate();
     }
     return super.propertyGet(propertyName);
   }
@@ -148,11 +148,11 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
       case 1833789738:  // loadTimeSeries
         setLoadTimeSeries((Boolean) newValue);
         return;
-      case 109757538:  // start
-        setStart((LocalDate) newValue);
+      case -2129778896:  // startDate
+        setStartDate((LocalDate) newValue);
         return;
-      case 100571:  // end
-        setEnd((LocalDate) newValue);
+      case -1607727319:  // endDate
+        setEndDate((LocalDate) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -169,8 +169,8 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
           JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
           JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest()) &&
           JodaBeanUtils.equal(isLoadTimeSeries(), other.isLoadTimeSeries()) &&
-          JodaBeanUtils.equal(getStart(), other.getStart()) &&
-          JodaBeanUtils.equal(getEnd(), other.getEnd());
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEndDate(), other.getEndDate());
     }
     return false;
   }
@@ -182,8 +182,8 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     hash += hash * 31 + JodaBeanUtils.hashCode(isLoadEarliestLatest());
     hash += hash * 31 + JodaBeanUtils.hashCode(isLoadTimeSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     return hash;
   }
 
@@ -294,26 +294,26 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
    * This is null by default.
    * @return the value of the property
    */
-  public LocalDate getStart() {
-    return _start;
+  public LocalDate getStartDate() {
+    return _startDate;
   }
 
   /**
    * Sets the start date, inclusive, null returns data from the earliest valid date.
    * This is null by default.
-   * @param start  the new value of the property
+   * @param startDate  the new value of the property
    */
-  public void setStart(LocalDate start) {
-    this._start = start;
+  public void setStartDate(LocalDate startDate) {
+    this._startDate = startDate;
   }
 
   /**
-   * Gets the the {@code start} property.
+   * Gets the the {@code startDate} property.
    * This is null by default.
    * @return the property, not null
    */
-  public final Property<LocalDate> start() {
-    return metaBean().start().createProperty(this);
+  public final Property<LocalDate> startDate() {
+    return metaBean().startDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -322,26 +322,26 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
    * This is null by default.
    * @return the value of the property
    */
-  public LocalDate getEnd() {
-    return _end;
+  public LocalDate getEndDate() {
+    return _endDate;
   }
 
   /**
    * Sets the end date, inclusive, null returns data up to the latest valid date.
    * This is null by default.
-   * @param end  the new value of the property
+   * @param endDate  the new value of the property
    */
-  public void setEnd(LocalDate end) {
-    this._end = end;
+  public void setEndDate(LocalDate endDate) {
+    this._endDate = endDate;
   }
 
   /**
-   * Gets the the {@code end} property.
+   * Gets the the {@code endDate} property.
    * This is null by default.
    * @return the property, not null
    */
-  public final Property<LocalDate> end() {
-    return metaBean().end().createProperty(this);
+  public final Property<LocalDate> endDate() {
+    return metaBean().endDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -375,15 +375,15 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
     private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
         this, "loadTimeSeries", HistoricalTimeSeriesGetRequest.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code start} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> _start = DirectMetaProperty.ofReadWrite(
-        this, "start", HistoricalTimeSeriesGetRequest.class, LocalDate.class);
+    private final MetaProperty<LocalDate> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", HistoricalTimeSeriesGetRequest.class, LocalDate.class);
     /**
-     * The meta-property for the {@code end} property.
+     * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> _end = DirectMetaProperty.ofReadWrite(
-        this, "end", HistoricalTimeSeriesGetRequest.class, LocalDate.class);
+    private final MetaProperty<LocalDate> _endDate = DirectMetaProperty.ofReadWrite(
+        this, "endDate", HistoricalTimeSeriesGetRequest.class, LocalDate.class);
     /**
      * The meta-properties.
      */
@@ -393,8 +393,8 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
         "versionCorrection",
         "loadEarliestLatest",
         "loadTimeSeries",
-        "start",
-        "end");
+        "startDate",
+        "endDate");
 
     /**
      * Restricted constructor.
@@ -413,10 +413,10 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
           return _loadEarliestLatest;
         case 1833789738:  // loadTimeSeries
           return _loadTimeSeries;
-        case 109757538:  // start
-          return _start;
-        case 100571:  // end
-          return _end;
+        case -2129778896:  // startDate
+          return _startDate;
+        case -1607727319:  // endDate
+          return _endDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -470,19 +470,19 @@ public class HistoricalTimeSeriesGetRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code start} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> start() {
-      return _start;
+    public final MetaProperty<LocalDate> startDate() {
+      return _startDate;
     }
 
     /**
-     * The meta-property for the {@code end} property.
+     * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> end() {
-      return _end;
+    public final MetaProperty<LocalDate> endDate() {
+      return _endDate;
     }
 
   }

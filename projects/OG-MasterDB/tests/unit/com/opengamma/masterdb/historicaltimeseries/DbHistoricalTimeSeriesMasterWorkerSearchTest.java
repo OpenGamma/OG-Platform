@@ -51,7 +51,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     assertEquals(_totalHistoricalTimeSeries, test.getPaging().getTotalItems());
     
     assertEquals(_totalHistoricalTimeSeries, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   //-------------------------------------------------------------------------
@@ -66,7 +66,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     assertEquals(_totalHistoricalTimeSeries, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
   }
 
@@ -103,7 +103,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert202(test.getDocuments().get(1));
   }
 
@@ -163,7 +163,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -183,7 +183,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
   }
 
@@ -203,7 +203,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -213,7 +213,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -254,7 +254,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -276,7 +276,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -324,7 +324,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     
     System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
   }
 
   @Test
@@ -374,7 +374,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
   }
 
@@ -385,7 +385,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
   }
 
@@ -406,7 +406,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(_totalHistoricalTimeSeries, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
     assert201(test.getDocuments().get(2));  // old version
   }
@@ -418,7 +418,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesSearchResult test = _htsMaster.search(request);
     
     assertEquals(_totalHistoricalTimeSeries, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(0), true);
     assert102(test.getDocuments().get(1));
     assert202(test.getDocuments().get(2));  // new version
   }

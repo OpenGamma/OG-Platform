@@ -19,7 +19,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesUpdateRequest;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
@@ -32,7 +31,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test
 public class PerformanceTest extends DBTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
 
   private DbHistoricalTimeSeriesMaster _htsMaster;
 
@@ -68,6 +67,7 @@ public class PerformanceTest extends DBTest {
       LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
       
       ManageableHistoricalTimeSeries series = new ManageableHistoricalTimeSeries();
+      series.setName("BLOOMBERG CMPL");
       series.setDataField("CLOSE");
       series.setDataProvider("CMPL");
       series.setDataSource("BLOOMBERG");
@@ -81,12 +81,11 @@ public class PerformanceTest extends DBTest {
       randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
-        HistoricalTimeSeriesUpdateRequest seriesRequest = new HistoricalTimeSeriesUpdateRequest(doc.getUniqueId());
         ArrayLocalDateDoubleTimeSeries points = new ArrayLocalDateDoubleTimeSeries(
             Lists.newArrayList(randomPoints.getTime(j)),
             Lists.newArrayList(randomPoints.getValueAt(j)));
-        s_logger.debug("adding data points {}", seriesRequest);
-//        _htsMaster.update(seriesRequest);
+        s_logger.debug("adding data points {}", points);
+        _htsMaster.updateDataPoints(doc.getUniqueId(), points);
       }
     }
     
