@@ -202,11 +202,14 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     // FIXME: convert frequency to period in a better way
     final Frequency freq = floatLeg.getFrequency();
     final Period tenor = getTenor(freq);
-    Identifier bbgIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatLeg.getFloatingReferenceRateIdentifier().getValue());
-//    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateIdentifier());
-    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(bbgIdentifier);
+
+    ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateIdentifier());
     if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
+      Identifier bbgIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatLeg.getFloatingReferenceRateIdentifier().getValue());
+      indexConvention = _conventionSource.getConventionBundle(bbgIdentifier);
+      if (indexConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
+      }
     }
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
         indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
