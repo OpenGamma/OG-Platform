@@ -9,7 +9,7 @@ import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaMethod;
+import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -39,20 +39,20 @@ public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDe
   }
 
   @Override
-  public PresentValueSensitivity visitForex(Forex derivative, YieldCurveBundle data) {
-    ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
+  public PresentValueSensitivity visitForex(final Forex derivative, final YieldCurveBundle data) {
+    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public PresentValueSensitivity visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
-    ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
+  public PresentValueSensitivity visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
+    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public PresentValueSensitivity visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaMethod method = ForexOptionVanillaMethod.getInstance();
+  public PresentValueSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 

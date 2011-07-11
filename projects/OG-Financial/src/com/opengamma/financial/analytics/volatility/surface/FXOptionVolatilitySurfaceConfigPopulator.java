@@ -39,7 +39,7 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
                                                                      Pair.of(0, FXVolQuoteType.ATM)};
     //TODO currency here is nonsense. We really shouldn't be labelling surfaces with currencies at all.
     final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> volSurfaceDefinition =
-        new VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>("DEFAULT_FX_VANILLA_OPTION_" + currencyCrossString, currency, expiryTenors, deltaAndTypes);
+        new VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>("DEFAULT_" + currencyCrossString + "_FX_VANILLA_OPTION", currency, expiryTenors, deltaAndTypes);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(volSurfaceDefinition));
   }
 
@@ -62,7 +62,7 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster, final String currencyCrossString, final Currency currency) {
     final SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> surfaceInstrumentProvider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(currencyCrossString, "Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
-    final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_FX_VANILLA_OPTION_" + currencyCrossString, currency, surfaceInstrumentProvider);
+    final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_" + currencyCrossString + "_FX_VANILLA_OPTION", currency, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));
   }
 }

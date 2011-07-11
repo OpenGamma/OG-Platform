@@ -9,7 +9,7 @@ import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaMethod;
+import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -17,7 +17,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value for Forex derivatives.
  */
-public final class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
+public class PresentValueForexCalculator extends AbstractForexDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -35,7 +35,7 @@ public final class PresentValueForexCalculator extends AbstractForexDerivativeVi
   /**
    * Constructor.
    */
-  private PresentValueForexCalculator() {
+  /* package */PresentValueForexCalculator() {
   }
 
   @Override
@@ -52,7 +52,7 @@ public final class PresentValueForexCalculator extends AbstractForexDerivativeVi
 
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaMethod method = ForexOptionVanillaMethod.getInstance();
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.presentValue(derivative, data);
   }
 

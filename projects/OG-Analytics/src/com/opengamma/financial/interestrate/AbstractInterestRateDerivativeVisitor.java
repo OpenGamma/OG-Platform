@@ -28,6 +28,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponOIS;
@@ -208,7 +209,12 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitCapFloorCMS(final CapFloorCMS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMS()");
+  }
+
+  @Override
+  public T visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpread()");
   }
 
   @Override
@@ -383,7 +389,12 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitCapFloorCMS(final CapFloorCMS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMS()");
+  }
+
+  @Override
+  public T visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpread()");
   }
 
   @Override

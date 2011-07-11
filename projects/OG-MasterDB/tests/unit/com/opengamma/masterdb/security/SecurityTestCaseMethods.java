@@ -62,4 +62,6 @@ public interface SecurityTestCaseMethods {
   
   void testCapFloorCMSSpreadSecurity();
 
+  void testRawSecurity();
+
 }

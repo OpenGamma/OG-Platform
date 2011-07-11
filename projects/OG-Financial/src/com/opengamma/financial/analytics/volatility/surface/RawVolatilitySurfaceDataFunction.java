@@ -20,6 +20,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -113,10 +114,10 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
                                                         final FunctionCompilationContext context,
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       // don't care what these are
       for (final Y y : definition.getYs()) {
-        final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
         final Identifier identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }

@@ -22,10 +22,12 @@ CREATE TABLE sec_security (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     sec_type varchar(255) not null,
+    detail_type char not null,
     primary key (id),
     constraint sec_fk_sec2sec foreign key (oid) references sec_security (id),
     constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant),
+    constraint sec_chk_detail_type check (detail_type in ('D', 'M', 'R'))
 );
 CREATE INDEX ix_sec_security_oid ON sec_security(oid);
 CREATE INDEX ix_sec_security_ver_from_instant ON sec_security(ver_from_instant);
@@ -462,4 +464,10 @@ CREATE TABLE sec_swap (
     receive_rateidentifierid varchar(255),
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
+);
+
+CREATE TABLE sec_raw (
+    security_id bigint not null,
+    raw_data blob not null,
+    constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
 );

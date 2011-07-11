@@ -29,6 +29,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,13 +65,12 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FixedIncomeConverterDataProvider DEFINITION_CONVERTER = new FixedIncomeConverterDataProvider(
-      "BLOOMBERG", "PX_LAST"); //TODO this should not be hard-coded
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   // TODO: This will be hit for a curve definition on each calculation cycle, so it really needs to cache stuff rather than do any I/O
   private InterpolatedYieldCurveDefinitionSource _definitionSource;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
+  private FixedIncomeConverterDataProvider _definitionConverter;
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -87,6 +88,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .futureSecurityVisitor(irFutureConverter).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
   }
 
   @Override
@@ -123,7 +125,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InterestRateDerivative derivative = DEFINITION_CONVERTER.convert(security, definition, now,
+    final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
             fundingCurveName, forwardCurveName), dataSource);
     final double[][] array = decodeJacobian(jacobianObject);
@@ -153,8 +155,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurve.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(currency, labelledMatrix, curveName);
-    final ValueSpecification specification = new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-          FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security, curveName, curveName, createValueProperties()));
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), curveName, curveName, createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    final ValueSpecification specification = new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties);
     return Collections.singleton(new ComputedValue(specification, data.getLabelledMatrix()));
   }
 
@@ -226,21 +231,23 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(
-        new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-                (FinancialSecurity) target.getSecurity(), createValueProperties())));
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
+    return Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
       final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
+    ValueProperties resultProperties = FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+        (FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst(), createValueProperties());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    resultProperties = resultProperties.copy().with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get();
     return Collections
-        .singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-                (FinancialSecurity) target.getSecurity(),
-                curveNames.getSecond(), curveNames.getFirst(), createValueProperties())));
+        .singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
   }
 
   @Override

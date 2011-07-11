@@ -44,147 +44,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
-    Validate.notNull(pdeData, "pde data");
-    Validate.notNull(grid, "need a grid");
-    validateSetup(grid, lowerBoundary, upperBoundary);
-
-    final int tNodes = grid.getNumTimeNodes();
-    final int xNodes = grid.getNumSpaceNodes();
-
-    final double[] f = new double[xNodes];
-    double[][] full = null;
-    if (_showFullResults) {
-      full = new double[tNodes][xNodes];
-    }
-    final double[] q = new double[xNodes];
-    final double[][] m = new double[xNodes][xNodes];
-
-    double[] rho1 = new double[xNodes - 2];
-    final double[] rho2 = new double[xNodes - 2];
-    double[] a1 = new double[xNodes - 2];
-    final double[] a2 = new double[xNodes - 2];
-    double[] b1 = new double[xNodes - 2];
-    final double[] b2 = new double[xNodes - 2];
-    double[] c1 = new double[xNodes - 2];
-    final double[] c2 = new double[xNodes - 2];
-
-    double dt, t1, t2, x;
-    double[] x1st, x2nd;
-
-    double omega = 1.5;
-    boolean omegaIncrease = false;
-    int oldCount = 0;
-
-    for (int i = 0; i < xNodes; i++) {
-      f[i] = pdeData.getInitialValue(grid.getSpaceNode(i));
-    }
-    if (_showFullResults) {
-      full[0] = Arrays.copyOf(f, f.length);
-    }
-
-    for (int i = 0; i < xNodes - 2; i++) {
-      x = grid.getSpaceNode(i + 1);
-      a1[i] = pdeData.getA(0, x);
-      b1[i] = pdeData.getB(0, x);
-      c1[i] = pdeData.getC(0, x);
-      rho1[i] = getFittingParameter(grid, a1[i], b1[i], i + 1);
-    }
-
-    //    final DecompositionResult decompRes = null;
-    //    final boolean first = true;
-
-    for (int n = 1; n < tNodes; n++) {
-      t1 = grid.getTimeNode(n - 1);
-      t2 = grid.getTimeNode(n);
-      dt = grid.getTimeStep(n - 1);
-
-      for (int i = 1; i < xNodes - 1; i++) {
-        x = grid.getSpaceNode(i);
-        x1st = grid.getFirstDerivativeCoefficients(i);
-        x2nd = grid.getSecondDerivativeCoefficients(i);
-
-        q[i] = f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[0] * rho1[i - 1] + x1st[0] * b1[i - 1]) * f[i - 1];
-        q[i] -= (1 - _theta) * dt * (x2nd[1] * rho1[i - 1] + x1st[1] * b1[i - 1] + c1[i - 1]) * f[i];
-        q[i] -= (1 - _theta) * dt * (x2nd[2] * rho1[i - 1] + x1st[2] * b1[i - 1]) * f[i + 1];
-
-        a2[i - 1] = pdeData.getA(t2, x);
-        b2[i - 1] = pdeData.getB(t2, x);
-        c2[i - 1] = pdeData.getC(t2, x);
-        rho2[i - 1] = getFittingParameter(grid, a2[i - 1], b2[i - 1], i);
-
-        m[i][i - 1] = _theta * dt * (x2nd[0] * rho2[i - 1] + x1st[0] * b2[i - 1]);
-        m[i][i] = 1 + _theta * dt * (x2nd[1] * rho2[i - 1] + x1st[1] * b2[i - 1] + c2[i - 1]);
-        m[i][i + 1] = _theta * dt * (x2nd[2] * rho2[i - 1] + x1st[2] * b2[i - 1]);
-      }
-
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, grid, t2);
-      for (int k = 0; k < temp.length; k++) {
-        m[0][k] = temp[k];
-      }
-
-      temp = upperBoundary.getLeftMatrixCondition(pdeData, grid, t2);
-      for (int k = 0; k < temp.length; k++) {
-        m[xNodes - 1][xNodes - temp.length + k] = temp[k];
-      }
-
-      temp = lowerBoundary.getRightMatrixCondition(pdeData, grid, t1);
-      double sum = 0;
-      for (int k = 0; k < temp.length; k++) {
-        sum += temp[k] * f[k];
-      }
-      q[0] = sum + lowerBoundary.getConstant(pdeData, t2);
-
-      temp = upperBoundary.getRightMatrixCondition(pdeData, grid, t1);
-      sum = 0;
-      for (int k = 0; k < temp.length; k++) {
-        sum += temp[k] * f[xNodes - 1 - k];
-      }
-
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, t2);
-
-      final int count = sor(omega, grid, freeBoundary, xNodes, f, q, m, t2);
-      if (oldCount > 0) {
-        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
-          omega = Math.max(1.0, omega * 0.9);
-          omegaIncrease = false;
-        } else {
-          omega = 1.1 * omega;
-          omegaIncrease = true;
-        }
-      }
-      oldCount = count;
-
-      //      if (first) {
-      //        final DoubleMatrix2D mM = new DoubleMatrix2D(m);
-      //        decompRes = DCOMP.evaluate(mM);
-      //        first = false;
-      //      }
-      //      f = decompRes.solve(q);
-
-      if (_showFullResults) {
-        full[n] = Arrays.copyOf(f, f.length);
-      }
-
-      a1 = a2;
-      b1 = b2;
-      c1 = c2;
-      rho1 = rho2;
-    }
-
-    PDEResults1D res;
-    if (_showFullResults) {
-      res = new PDEFullResults1D(grid, full);
-    } else {
-      res = new PDETerminalResults1D(grid, f);
-    }
-    return res;
-
-  }
-
-  @Override
   public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary) {
     return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
@@ -200,6 +59,344 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   @Override
   public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     return solve(pdeData, grid, lowerBoundary, upperBoundary, null);
+  }
+
+  @Override
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
+    Validate.notNull(pdeData, "pde data");
+    Validate.notNull(grid, "need a grid");
+    validateSetup(grid, lowerBoundary, upperBoundary);
+
+    final SolverImpl solver = new SolverImpl(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
+    return solver.solve();
+  }
+
+  class SolverImpl {
+    private final ConvectionDiffusionPDEDataBundle _pdeData;
+    private final PDEGrid1D _grid;
+    private final BoundaryCondition _lowerBoundary;
+    private final BoundaryCondition _upperBoundary;
+    private final Surface<Double, Double, Double> _freeBoundary;
+    private final double[] _f;
+    private double[][] _full;
+
+    private final double[] _q;
+    private final double[][] _m;
+
+    private final double[] _rho;
+    private final double[] _a;
+    private final double[] _b;
+    private final double[] _c;
+
+    private double _t1;
+    private double _t2;
+
+    @SuppressWarnings("synthetic-access")
+    public SolverImpl(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+        final Surface<Double, Double, Double> freeBoundary) {
+
+      _pdeData = pdeData;
+      _grid = grid;
+      _lowerBoundary = lowerBoundary;
+      _upperBoundary = upperBoundary;
+      _freeBoundary = freeBoundary;
+
+      final int tNodes = grid.getNumTimeNodes();
+      final int xNodes = grid.getNumSpaceNodes();
+
+      _f = new double[xNodes];
+      if (_showFullResults) {
+        _full = new double[tNodes][xNodes];
+      }
+
+      _q = new double[xNodes];
+      _m = new double[xNodes][xNodes];
+      _rho = new double[xNodes - 2];
+      _a = new double[xNodes - 2];
+      _b = new double[xNodes - 2];
+      _c = new double[xNodes - 2];
+
+    }
+
+    @SuppressWarnings("synthetic-access")
+    public PDEResults1D solve() {
+
+      initialise();
+
+      for (int n = 1; n < getGrid().getNumTimeNodes(); n++) {
+        setT2(getGrid().getTimeNode(n));
+        updateRHSVector();
+        updateRHSBoundary();
+        updateCoefficents(n);
+        updateLHSMatrix();
+        updateLHSBoundary();
+        solveMatrixSystem();
+        if (_showFullResults) {
+          _full[n] = Arrays.copyOf(_f, _f.length);
+        }
+        setT1(getT2());
+      }
+
+      PDEResults1D res;
+      if (_showFullResults) {
+        res = new PDEFullResults1D(getGrid(), _full);
+      } else {
+        res = new PDETerminalResults1D(getGrid(), _f);
+      }
+      return res;
+
+    }
+
+    @SuppressWarnings("synthetic-access")
+    void initialise() {
+      for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
+        _f[i] = _pdeData.getInitialValue(getGrid().getSpaceNode(i));
+      }
+      if (_showFullResults) {
+        _full[0] = Arrays.copyOf(_f, _f.length);
+      }
+
+      double x;
+      for (int i = 0; i < getGrid().getNumSpaceNodes() - 2; i++) {
+        x = getGrid().getSpaceNode(i + 1);
+        setA(i, _pdeData.getA(0, x));
+        setB(i, _pdeData.getB(0, x));
+        setC(i, _pdeData.getC(0, x));
+        setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
+      }
+      setT1(0.0);
+    }
+
+    @SuppressWarnings("synthetic-access")
+    void updateRHSVector() {
+      final double dt = getT2() - getT1();
+      double[] x1st, x2nd;
+      double temp;
+      for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
+        x1st = getGrid().getFirstDerivativeCoefficients(i);
+        x2nd = getGrid().getSecondDerivativeCoefficients(i);
+
+        temp = getF(i);
+        temp -= (1 - _theta) * dt * (x2nd[0] * getRho(i - 1) + x1st[0] * getB(i - 1)) * _f[i - 1];
+        temp -= (1 - _theta) * dt * (x2nd[1] * getRho(i - 1) + x1st[1] * getB(i - 1) + getC(i - 1)) * _f[i];
+        temp -= (1 - _theta) * dt * (x2nd[2] * getRho(i - 1) + x1st[2] * getB(i - 1)) * _f[i + 1];
+        setQ(i, temp);
+      }
+    }
+
+    /**
+     * 
+     */
+    void updateRHSBoundary() {
+      double[] temp = _lowerBoundary.getRightMatrixCondition(_pdeData, getGrid(), getT1());
+      double sum = 0;
+      for (int k = 0; k < temp.length; k++) {
+        sum += temp[k] * getF(k);
+      }
+      setQ(0, sum + _lowerBoundary.getConstant(_pdeData, getT2()));
+
+      temp = _upperBoundary.getRightMatrixCondition(_pdeData, getGrid(), getT1());
+      sum = 0;
+      for (int k = 0; k < temp.length; k++) {
+        sum += temp[k] * getF(getGrid().getNumSpaceNodes() - 1 - k);
+      }
+
+      setQ(getGrid().getNumSpaceNodes() - 1, sum + _upperBoundary.getConstant(_pdeData, getT2()));
+    }
+
+    @SuppressWarnings("synthetic-access")
+    void updateLHSMatrix() {
+      final double dt = getT2() - getT1();
+      double[] x1st, x2nd;
+      for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
+        x1st = getGrid().getFirstDerivativeCoefficients(i);
+        x2nd = getGrid().getSecondDerivativeCoefficients(i);
+
+        setM(i, i - 1, _theta * dt * (x2nd[0] * getRho(i - 1) + x1st[0] * getB(i - 1)));
+        setM(i, i, 1 + _theta * dt * (x2nd[1] * getRho(i - 1) + x1st[1] * getB(i - 1) + getC(i - 1)));
+        setM(i, i + 1, _theta * dt * (x2nd[2] * getRho(i - 1) + x1st[2] * getB(i - 1)));
+      }
+    }
+
+    void updateLHSBoundary() {
+      double[] temp = _lowerBoundary.getLeftMatrixCondition(_pdeData, getGrid(), getT2());
+      for (int k = 0; k < temp.length; k++) {
+        setM(0, k, temp[k]);
+      }
+
+      temp = _upperBoundary.getLeftMatrixCondition(_pdeData, getGrid(), getT2());
+      for (int k = 0; k < temp.length; k++) {
+        setM(getGrid().getNumSpaceNodes() - 1, getGrid().getNumSpaceNodes() - temp.length + k, temp[k]);
+      }
+    }
+
+    void updateCoefficents(final int n) {
+      double x;
+      for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
+        x = getGrid().getSpaceNode(i);
+        setA(i - 1, _pdeData.getA(getT2(), x));
+        setB(i - 1, _pdeData.getB(getT2(), x));
+        setC(i - 1, _pdeData.getC(getT2(), x));
+        setRho(i - 1, getFittingParameter(getGrid(), getA(i - 1), getB(i - 1), i));
+      }
+    }
+
+    private void solveMatrixSystem() {
+      ///final double omega = 1.0;
+      //final int count = solveBySOR(omega);
+      //      if (oldCount > 0) {
+      //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
+      //          omega = Math.max(1.0, omega * 0.9);
+      //          omegaIncrease = false;
+      //        } else {
+      //          omega = 1.1 * omega;
+      //          omegaIncrease = true;
+      //        }
+      //      }
+      //      oldCount = count;
+
+    }
+
+    @SuppressWarnings("unused")
+    private int solveBySOR(final double omega) {
+
+      double sum;
+      int count = 0;
+      double scale = 1.0;
+      double errorSqr = Double.POSITIVE_INFINITY;
+      while (errorSqr / (scale + 1e-10) > 1e-18) {
+        errorSqr = 0.0;
+        scale = 0.0;
+        for (int j = 0; j < getGrid().getNumSpaceNodes(); j++) {
+          sum = 0;
+          for (int k = 0; k < getGrid().getNumSpaceNodes(); k++) {
+            sum += getM(j, k) * getF(k);
+          }
+          double correction = omega / getM(j, j) * (getQ(j) - sum);
+          if (_freeBoundary != null) {
+            correction = Math.max(correction, _freeBoundary.getZValue(getT2(), getGrid().getSpaceNode(j)) - getF(j));
+          }
+          errorSqr += correction * correction;
+          setF(j, getF(j) + correction); //TODO don't like this 
+          scale += getF(j) * getF(j);
+        }
+        count++;
+      }
+      return count;
+    }
+
+    /**
+     * @param grid
+     * @param a
+     * @param b
+     * @param i
+     * @return
+     */
+    private double getFittingParameter(final PDEGrid1D grid, final double a, final double b, final int i) {
+      double rho;
+      final double[] x1st = grid.getFirstDerivativeCoefficients(i);
+      final double[] x2nd = grid.getSecondDerivativeCoefficients(i);
+      final double bdx1 = (b * grid.getSpaceStep(i - 1));
+      final double bdx2 = (b * grid.getSpaceStep(i));
+
+      // convection dominated
+      if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
+        if (b > 0) {
+          rho = -b * x1st[0] / x2nd[0];
+        } else {
+          rho = -b * x1st[2] / x2nd[2];
+        }
+      } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
+        rho = a; // diffusion dominated
+      } else {
+        final double expo1 = Math.exp(bdx1 / a);
+        final double expo2 = Math.exp(-bdx2 / a);
+        rho = -b * (x1st[0] * expo1 + x1st[1] + x1st[2] * expo2) / (x2nd[0] * expo1 + x2nd[1] + x2nd[2] * expo2);
+      }
+      return rho;
+    }
+
+    /**
+     * Gets the grid.
+     * @return the grid
+     */
+    public PDEGrid1D getGrid() {
+      return _grid;
+    }
+
+    public void setT1(final double t1) {
+      _t1 = t1;
+    }
+
+    public double getT1() {
+      return _t1;
+    }
+
+    public void setT2(final double t2) {
+      _t2 = t2;
+    }
+
+    public double getT2() {
+      return _t2;
+    }
+
+    public double getQ(final int i) {
+      return _q[i];
+    }
+
+    public void setQ(final int i, final double value) {
+      _q[i] = value;
+    }
+
+    public double getM(final int i, final int j) {
+      return _m[i][j];
+    }
+
+    public void setM(final int i, final int j, final double value) {
+      _m[i][j] = value;
+    }
+
+    public double getF(final int i) {
+      return _f[i];
+    }
+
+    public void setF(final int i, final double value) {
+      _f[i] = value;
+    }
+
+    public double getRho(final int i) {
+      return _rho[i];
+    }
+
+    public void setRho(final int i, final double value) {
+      _rho[i] = value;
+    }
+
+    public double getA(final int i) {
+      return _a[i];
+    }
+
+    public void setA(final int i, final double value) {
+      _a[i] = value;
+    }
+
+    public double getB(final int i) {
+      return _b[i];
+    }
+
+    public void setB(final int i, final double value) {
+      _b[i] = value;
+    }
+
+    public double getC(final int i) {
+      return _c[i];
+    }
+
+    public void setC(final int i, final double value) {
+      _c[i] = value;
+    }
+
   }
 
   /**
@@ -252,37 +449,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     //debug
     //  System.out.println(count + " " + omega);
     return count;
-  }
-
-  /**
-   * @param grid
-   * @param a
-   * @param b
-   * @param i
-   * @return
-   */
-  private double getFittingParameter(final PDEGrid1D grid, final double a, final double b, final int i) {
-    double rho;
-    final double[] x1st = grid.getFirstDerivativeCoefficients(i);
-    final double[] x2nd = grid.getSecondDerivativeCoefficients(i);
-    final double bdx1 = (b * grid.getSpaceStep(i - 1));
-    final double bdx2 = (b * grid.getSpaceStep(i));
-
-    // convection dominated
-    if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
-      if (b > 0) {
-        rho = -b * x1st[0] / x2nd[0];
-      } else {
-        rho = -b * x1st[2] / x2nd[2];
-      }
-    } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
-      rho = a; // diffusion dominated
-    } else {
-      final double expo1 = Math.exp(bdx1 / a);
-      final double expo2 = Math.exp(-bdx2 / a);
-      rho = -b * (x1st[0] * expo1 + x1st[1] + x1st[2] * expo2) / (x2nd[0] * expo1 + x2nd[1] + x2nd[2] * expo2);
-    }
-    return rho;
   }
 
 }

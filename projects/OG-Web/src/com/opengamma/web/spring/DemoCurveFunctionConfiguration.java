@@ -87,14 +87,17 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY");
+          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE");
           }
           if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
             addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD");
+          } else {
+            s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
           }
-        } else {
-          s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
         }
       }
     } else {

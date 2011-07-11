@@ -21,7 +21,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
