@@ -32,7 +32,7 @@ import com.opengamma.web.AbstractWebResource;
  * The configuration documents resource represents all the data for one element type in the config master.
  * 
  */
-@Path("/valueRequirementNames/metaData")
+@Path("/valuerequirementnames/metaData")
 public class WebValueRequirementNamesResource extends AbstractWebResource {
  
   private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
