@@ -319,6 +319,11 @@ public class ViewClientImpl implements ViewClient {
   }
 
   @Override
+  public void triggerCycle() {
+    getViewProcessor().triggerCycle(getUniqueId());
+  }
+  
+  @Override
   public boolean isCompleted() {
     // Race condition between checking attachment and operating on the latch is fine; if the client is being attached
     // concurrently then there's no guarantee which process this method refers to.
