@@ -56,7 +56,10 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
     final double discountFactorSettlement = discountingCurve.getDiscountFactor(fra.getPaymentTime());
     final double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
+
     final double presentValue = discountFactorSettlement * fra.getFixingYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward);
+    //    final double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward);
+
     return CurrencyAmount.of(fra.getCurrency(), presentValue);
   }
 
@@ -83,8 +86,12 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final double forward = (dfForwardStart / dfForwardEnd - 1.0) / fra.getFixingYearFraction();
     // Backward sweep
     final double pvBar = 1.0;
+
     final double forwardBar = df * fra.getFixingYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * fra.getFixingYearFraction())
         / (1 + fra.getFixingYearFraction() * forward);
+    //final double forwardBar = df * fra.getPaymentYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * fra.getFixingYearFraction())
+    //  / (1 + fra.getFixingYearFraction() * forward);
+
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / fra.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (fra.getFixingYearFraction() * dfForwardEnd) * forwardBar;
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
