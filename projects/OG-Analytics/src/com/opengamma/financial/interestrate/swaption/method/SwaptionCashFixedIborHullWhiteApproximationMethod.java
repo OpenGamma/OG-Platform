@@ -21,6 +21,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value of cash-settled European swaptions with the Hull-White one factor model by a third order approximation.
+ * Reference: Henrard, M., Cash-Settled Swaptions: How Wrong are We? (November 2010). Available at SSRN: http://ssrn.com/abstract=1703846
  */
 public class SwaptionCashFixedIborHullWhiteApproximationMethod implements PricingMethod {
 
@@ -37,6 +38,12 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Present value calculator using a third order approximation.
+   * @param swaption The swaption.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value.
+   */
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     double expiryTime = swaption.getTimeToExpiry();
     int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
@@ -113,6 +120,17 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     return presentValue(instrument, curves);
   }
 
+  /**
+   * Computation of the swap rate for a given random variable.
+   * @param x The random variabale.
+   * @param discountedCashFlowFixed The discounted cash flows.
+   * @param alphaFixed The bond volatilities.
+   * @param discountedCashFlowIbor The discounted cash flows.
+   * @param alphaIbor The bond volatilities.
+   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method. 
+   * The values are [0] the first order derivative and [1] the second order derivative.
+   * @return The swap rate.
+   */
   private double swapRate(double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, double[] derivatives) {
     double[] f = new double[3];
     double y;
@@ -135,6 +153,15 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     return swapRate;
   }
 
+  /**
+   * Computes the cash annuity from the swap rate.
+   * @param swapRate The swap rate.
+   * @param nbFixedPaymentYear The number of fixed payment per year.
+   * @param nbFixedPeriod The total number of payments.
+   * @param derivatives Array used to return the derivatives of the annuity with respect to the swap rate. The array is changed by the method. 
+   * The values are [0] the first order derivative, [1] the second order derivative and [2] the third order derivative.
+   * @return
+   */
   private double annuityCash(double swapRate, int nbFixedPaymentYear, int nbFixedPeriod, double[] derivatives) {
     double invfact = 1 + swapRate / nbFixedPaymentYear;
     double annuity = 1.0 / swapRate * (1.0 - 1.0 / Math.pow(invfact, nbFixedPeriod));
