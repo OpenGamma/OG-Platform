@@ -74,7 +74,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "main.ver_to_instant AS ver_to_instant, " +
         "main.corr_from_instant AS corr_from_instant, " +
         "main.corr_to_instant AS corr_to_instant, " +
-        "main.name AS name, " +
+        "nm.name AS name, " +
         "df.name AS data_field, " +
         "ds.name AS data_source, " +
         "dp.name AS data_provider, " +
@@ -88,6 +88,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   protected static final String FROM =
       "FROM hts_document main " +
+        "INNER JOIN hts_name nm ON main.name_id = nm.id  " +
         "INNER JOIN hts_data_field df ON main.data_field_id = df.id  " +
         "INNER JOIN hts_data_source ds ON main.data_source_id = ds.id  " +
         "INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id  " +
@@ -95,6 +96,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " +
         "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
 
+  /**
+   * Dimension table.
+   */
+  private final NamedDimensionDbTable _nameTable;
   /**
    * Dimension table.
    */
@@ -119,6 +124,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   public DbHistoricalTimeSeriesMaster(final DbSource dbSource) {
     super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+    _nameTable = new NamedDimensionDbTable(dbSource, "name", "hts_name", "hts_dimension_seq");
     _dataFieldTable = new NamedDimensionDbTable(dbSource, "data_field", "hts_data_field", "hts_dimension_seq");
     _dataSourceTable = new NamedDimensionDbTable(dbSource, "data_source", "hts_data_source", "hts_dimension_seq");
     _dataProviderTable = new NamedDimensionDbTable(dbSource, "data_provider", "hts_data_provider", "hts_dimension_seq");
@@ -126,6 +132,15 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the dimension table helper.
+   * 
+   * @return the table, not null
+   */
+  protected NamedDimensionDbTable getNameTable() {
+    return _nameTable;
+  }
+
   /**
    * Gets the dimension table helper.
    * 
@@ -209,19 +224,19 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
-      where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
+      where += "AND name_id IN (" + getNameTable().sqlSelectSearch(request.getName()) + ") ";
     }
     if (request.getDataField() != null) {
-      where += "AND data_field_id = " + getDataFieldTable().sqlSelectSearch(request.getDataField()) + ") ";
+      where += "AND data_field_id IN (" + getDataFieldTable().sqlSelectSearch(request.getDataField()) + ") ";
     }
-    if (request.getDataField() != null) {
-      where += "AND data_source_id = " + getDataSourceTable().sqlSelectSearch(request.getDataSource()) + ") ";
+    if (request.getDataSource() != null) {
+      where += "AND data_source_id IN (" + getDataSourceTable().sqlSelectSearch(request.getDataSource()) + ") ";
     }
-    if (request.getDataField() != null) {
-      where += "AND data_provider_id = " + getDataProviderTable().sqlSelectSearch(request.getDataProvider()) + ") ";
+    if (request.getDataProvider() != null) {
+      where += "AND data_provider_id IN (" + getDataProviderTable().sqlSelectSearch(request.getDataProvider()) + ") ";
     }
-    if (request.getDataField() != null) {
-      where += "AND observation_time_id = " + getObservationTimeTable().sqlSelectSearch(request.getObservationTime()) + ") ";
+    if (request.getObservationTime() != null) {
+      where += "AND observation_time_id IN (" + getObservationTimeTable().sqlSelectSearch(request.getObservationTime()) + ") ";
     }
     if (request.getInfoIds() != null) {
       StringBuilder buf = new StringBuilder(request.getInfoIds().size() * 10);
@@ -411,7 +426,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", info.getName())
+      .addValue("name_id", getNameTable().ensure(info.getName()))
       .addValue("data_field_id", getDataFieldTable().ensure(info.getDataField()))
       .addValue("data_source_id", getDataSourceTable().ensure(info.getDataSource()))
       .addValue("data_provider_id", getDataProviderTable().ensure(info.getDataProvider()))
@@ -454,10 +469,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   protected String sqlInsertHistoricalTimeSeries() {
     return "INSERT INTO hts_document " +
-              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, " +
+              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name_id, " +
               "data_field_id, data_source_id, data_provider_id, observation_time_id) " +
             "VALUES " +
-              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, " +
+              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name_id, " +
               ":data_field_id, :data_source_id, :data_provider_id, :observation_time_id)";
   }
 

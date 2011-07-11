@@ -66,6 +66,16 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _htsMaster.getDbSource().getJdbcTemplate();
+    template.update("INSERT INTO hts_name VALUES (?,?)",
+        1, "N101");
+    template.update("INSERT INTO hts_name VALUES (?,?)",
+        2, "N102");
+    template.update("INSERT INTO hts_name VALUES (?,?)",
+        3, "N201");
+    template.update("INSERT INTO hts_name VALUES (?,?)",
+        4, "N202");
+    template.update("INSERT INTO hts_name VALUES (?,?)",
+        5, "N203");
     template.update("INSERT INTO hts_data_field VALUES (?,?)",
         11, "DF11");
     template.update("INSERT INTO hts_data_field VALUES (?,?)",
@@ -84,15 +94,15 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
         42, "OT42");
     
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "N101", 11, 21, 31, 41);
+        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, 1, 11, 21, 31, 41);
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "N102", 12, 22, 32, 42);
+        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, 2, 12, 22, 32, 42);
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "N201", 11, 21, 31, 41);
+        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, 3, 11, 21, 31, 41);
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), toSqlTimestamp(_version3Instant), "N202", 11, 21, 31, 42);
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), toSqlTimestamp(_version3Instant), 4, 11, 21, 31, 42);
     template.update("INSERT INTO hts_document VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
-        203, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version3Instant), MAX_SQL_TIMESTAMP, "N203", 11, 21, 31, 42);
+        203, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version3Instant), MAX_SQL_TIMESTAMP, 5, 11, 21, 31, 42);
     _totalHistoricalTimeSeries = 3;
     
     template.update("INSERT INTO hts_idkey VALUES (?,?,?)",

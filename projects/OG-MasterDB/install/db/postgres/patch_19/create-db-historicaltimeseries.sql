@@ -21,8 +21,15 @@ CREATE SEQUENCE hts_master_seq
 CREATE SEQUENCE hts_idkey_seq
     start with 1000 increment by 1 no cycle;
 CREATE SEQUENCE hts_dimension_seq
-    START WITH 1 INCREMENT BY 1 NO CYCLE;
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby, not accepted by Postgresql
+
+CREATE TABLE hts_name (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE UNIQUE INDEX ix_hts_name_name ON hts_name(name);
 
 CREATE TABLE hts_data_field (
     id bigint NOT NULL,
@@ -59,27 +66,27 @@ CREATE TABLE hts_document (
     ver_to_instant timestamp NOT NULL,
     corr_from_instant timestamp NOT NULL,
     corr_to_instant timestamp NOT NULL,
-    name varchar(255) NOT NULL,
+    name_id bigint NOT NULL,
     data_field_id bigint NOT NULL,
     data_source_id bigint NOT NULL,
     data_provider_id bigint NOT NULL,
     observation_time_id bigint NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT hts_fk_hts2hts FOREIGN KEY (oid) REFERENCES hts_document (id),
-    CONSTRAINT hts_chk_hts_ver_order CHECK (ver_from_instant <= ver_to_instant),
-    CONSTRAINT hts_chk_hts_corr_order CHECK (corr_from_instant <= corr_to_instant),
-    CONSTRAINT hts_fk_ts2data_field FOREIGN KEY (data_field_id) REFERENCES hts_data_field (id),
-    CONSTRAINT hts_fk_ts2data_source FOREIGN KEY (data_source_id) REFERENCES hts_data_source (id),
-    CONSTRAINT hts_fk_ts2data_provider FOREIGN KEY (data_provider_id) REFERENCES hts_data_provider (id),
-    CONSTRAINT hts_fk_ts2observation_time FOREIGN KEY (observation_time_id) REFERENCES hts_observation_time (id)
+    CONSTRAINT hts_fk_doc2doc FOREIGN KEY (oid) REFERENCES hts_document (id),
+    CONSTRAINT hts_chk_doc_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT hts_chk_doc_corr_order CHECK (corr_from_instant <= corr_to_instant),
+    CONSTRAINT hts_fk_doc2name FOREIGN KEY (name_id) REFERENCES hts_name (id),
+    CONSTRAINT hts_fk_doc2data_field FOREIGN KEY (data_field_id) REFERENCES hts_data_field (id),
+    CONSTRAINT hts_fk_doc2data_source FOREIGN KEY (data_source_id) REFERENCES hts_data_source (id),
+    CONSTRAINT hts_fk_doc2data_provider FOREIGN KEY (data_provider_id) REFERENCES hts_data_provider (id),
+    CONSTRAINT hts_fk_doc2observation_time FOREIGN KEY (observation_time_id) REFERENCES hts_observation_time (id)
 );
 CREATE INDEX ix_hts_hts_oid ON hts_document(oid);
 CREATE INDEX ix_hts_hts_ver_from_instant ON hts_document(ver_from_instant);
 CREATE INDEX ix_hts_hts_ver_to_instant ON hts_document(ver_to_instant);
 CREATE INDEX ix_hts_hts_corr_from_instant ON hts_document(corr_from_instant);
 CREATE INDEX ix_hts_hts_corr_to_instant ON hts_document(corr_to_instant);
-CREATE INDEX ix_hts_hts_name ON hts_document(name);
-CREATE INDEX ix_hts_hts_nameu ON hts_document(UPPER(name));
+CREATE INDEX ix_hts_hts_name_id ON hts_document(name_id);
 CREATE INDEX ix_hts_hts_data_field ON hts_document(data_field_id);
 CREATE INDEX ix_hts_hts_data_source ON hts_document(data_source_id);
 CREATE INDEX ix_hts_hts_data_provider ON hts_document(data_provider_id);
