@@ -7,6 +7,7 @@ package com.opengamma.financial.convention.daycount;
 
 import java.io.Serializable;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -29,7 +30,9 @@ import com.opengamma.OpenGammaRuntimeException;
   protected void testDates(final ZonedDateTime d1, final ZonedDateTime d2) {
     Validate.notNull(d1);
     Validate.notNull(d2);
-    if (!(d2.isAfter(d1) || d2.equalInstant(d1))) {
+    final LocalDate l1 = d1.toLocalDate();
+    final LocalDate l2 = d2.toLocalDate();
+    if (!(l2.isAfter(l1) || l2.equals(l1))) {
       throw new OpenGammaRuntimeException("d2 must be on or after d1: have d1 = " + d1 + " and d2 = " + d2);
     }
   }
@@ -44,7 +47,8 @@ import com.opengamma.OpenGammaRuntimeException;
     Validate.notNull(d1);
     Validate.notNull(d2);
     Validate.notNull(d3);
-    Validate.isTrue((d2.isAfter(d1) || d2.equalInstant(d1)) && (d2.isBefore(d3) || d2.equalInstant(d3)), "must have d1 <= d2 <= d3, have d1 = " + d1 + ", d2 = " + d2 + ", d3 = " + d3);
+    Validate.isTrue((d2.isAfter(d1) || d2.equalInstant(d1)) && (d2.isBefore(d3) || d2.equalInstant(d3)),
+        "must have d1 <= d2 <= d3, have d1 = " + d1 + ", d2 = " + d2 + ", d3 = " + d3);
   }
 
   // -------------------------------------------------------------------------

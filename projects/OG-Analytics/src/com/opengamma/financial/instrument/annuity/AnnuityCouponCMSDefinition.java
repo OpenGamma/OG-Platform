@@ -37,7 +37,7 @@ public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefin
    * @param index The CMS index.
    * @param paymentPeriod The payment period of the coupons.
    * @param dayCount The day count of the coupons.
-   * @param isPayer Payer (true) / receiver (false) fleg.
+   * @param isPayer Payer (true) / receiver (false) flag.
    * @return The CMS coupon leg.
    */
   public static AnnuityCouponCMSDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final CMSIndex index, final Period paymentPeriod,

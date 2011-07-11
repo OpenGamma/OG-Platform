@@ -68,7 +68,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     Validate.notNull(grid, "need a grid");
     validateSetup(grid, lowerBoundary, upperBoundary);
 
-    SolverImpl solver = new SolverImpl(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
+    final SolverImpl solver = new SolverImpl(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
     return solver.solve();
   }
 
@@ -92,6 +92,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     private double _t1;
     private double _t2;
 
+    @SuppressWarnings("synthetic-access")
     public SolverImpl(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
         final Surface<Double, Double, Double> freeBoundary) {
 
@@ -118,6 +119,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
+    @SuppressWarnings("synthetic-access")
     public PDEResults1D solve() {
 
       initialise();
@@ -146,6 +148,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
+    @SuppressWarnings("synthetic-access")
     void initialise() {
       for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
         _f[i] = _pdeData.getInitialValue(getGrid().getSpaceNode(i));
@@ -165,8 +168,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       setT1(0.0);
     }
 
+    @SuppressWarnings("synthetic-access")
     void updateRHSVector() {
-      double dt = getT2() - getT1();
+      final double dt = getT2() - getT1();
       double[] x1st, x2nd;
       double temp;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
@@ -201,8 +205,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       setQ(getGrid().getNumSpaceNodes() - 1, sum + _upperBoundary.getConstant(_pdeData, getT2()));
     }
 
+    @SuppressWarnings("synthetic-access")
     void updateLHSMatrix() {
-      double dt = getT2() - getT1();
+      final double dt = getT2() - getT1();
       double[] x1st, x2nd;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
         x1st = getGrid().getFirstDerivativeCoefficients(i);
@@ -226,7 +231,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       }
     }
 
-    void updateCoefficents(int n) {
+    void updateCoefficents(final int n) {
       double x;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
         x = getGrid().getSpaceNode(i);
@@ -238,7 +243,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     private void solveMatrixSystem() {
-      double omega = 1.0;
+      final double omega = 1.0;
+      @SuppressWarnings("unused") //NOTE get this working again with dynamic omega
       final int count = solveBySOR(omega);
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
@@ -252,6 +258,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       //      oldCount = count;
 
     }
+
 
     private int solveBySOR(final double omega) {
 
@@ -319,7 +326,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       return _grid;
     }
 
-    public void setT1(double t1) {
+    public void setT1(final double t1) {
       _t1 = t1;
     }
 
@@ -327,7 +334,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       return _t1;
     }
 
-    public void setT2(double t2) {
+    public void setT2(final double t2) {
       _t2 = t2;
     }
 
@@ -335,59 +342,59 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       return _t2;
     }
 
-    public double getQ(int i) {
+    public double getQ(final int i) {
       return _q[i];
     }
 
-    public void setQ(int i, double value) {
+    public void setQ(final int i, final double value) {
       _q[i] = value;
     }
 
-    public double getM(int i, int j) {
+    public double getM(final int i, final int j) {
       return _m[i][j];
     }
 
-    public void setM(int i, int j, double value) {
+    public void setM(final int i, final int j, final double value) {
       _m[i][j] = value;
     }
 
-    public double getF(int i) {
+    public double getF(final int i) {
       return _f[i];
     }
 
-    public void setF(int i, double value) {
+    public void setF(final int i, final double value) {
       _f[i] = value;
     }
 
-    public double getRho(int i) {
+    public double getRho(final int i) {
       return _rho[i];
     }
 
-    public void setRho(int i, double value) {
+    public void setRho(final int i, final double value) {
       _rho[i] = value;
     }
 
-    public double getA(int i) {
+    public double getA(final int i) {
       return _a[i];
     }
 
-    public void setA(int i, double value) {
+    public void setA(final int i, final double value) {
       _a[i] = value;
     }
 
-    public double getB(int i) {
+    public double getB(final int i) {
       return _b[i];
     }
 
-    public void setB(int i, double value) {
+    public void setB(final int i, final double value) {
       _b[i] = value;
     }
 
-    public double getC(int i) {
+    public double getC(final int i) {
       return _c[i];
     }
 
-    public void setC(int i, double value) {
+    public void setC(final int i, final double value) {
       _c[i] = value;
     }
 

@@ -36,7 +36,6 @@ public final class PV01Calculator extends AbstractInterestRateDerivativeVisitor<
    */
   @Override
   public Map<String, Double> visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-
     final Map<String, List<DoublesPair>> sense = _pvsc.visit(ird, curves);
     final Map<String, Double> res = new HashMap<String, Double>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();

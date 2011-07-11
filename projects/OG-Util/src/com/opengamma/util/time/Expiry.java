@@ -113,9 +113,8 @@ public class Expiry implements InstantProvider, Serializable {
     if (getAccuracy() == null) {
       return ObjectUtils.equals(getExpiry(), other.getExpiry());
     }
-    // convert both to UTC to compare with accuracy
-    ZonedDateTime utc = ZonedDateTime.ofInstant(toInstant(), TimeZone.UTC);
-    ZonedDateTime otherUtc = ZonedDateTime.ofInstant(other.toInstant(), TimeZone.UTC);
+    ZonedDateTime utc = getExpiry();
+    ZonedDateTime otherUtc = other.getExpiry();
     switch (getAccuracy()) {
       case MIN_HOUR_DAY_MONTH_YEAR:
         return (utc.getMinuteOfHour() == otherUtc.getMinuteOfHour()) && (utc.getHourOfDay() == otherUtc.getHourOfDay()) && (utc.getDayOfMonth() == otherUtc.getDayOfMonth())

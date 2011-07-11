@@ -8,8 +8,9 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -31,10 +32,10 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   private final Currency _currency;
   private final String _name;
   private final Interpolator1D<?> _interpolator;
-  private final Set<FixedIncomeStripWithSecurity> _strips = new HashSet<FixedIncomeStripWithSecurity>();
-  
-  public InterpolatedYieldCurveSpecificationWithSecurities(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, 
-      Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
+  private final SortedSet<FixedIncomeStripWithSecurity> _strips = new TreeSet<FixedIncomeStripWithSecurity>();
+
+  public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D<?> interpolator,
+      final Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");
@@ -44,16 +45,16 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
     _currency = currency;
     _name = name;
     _interpolator = interpolator;
-    for (FixedIncomeStripWithSecurity strip : resolvedStrips) {
+    for (final FixedIncomeStripWithSecurity strip : resolvedStrips) {
       addStrip(strip);
     }
   }
-  
-  public void addStrip(FixedIncomeStripWithSecurity strip) {
+
+  public void addStrip(final FixedIncomeStripWithSecurity strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
   }
-  
+
   /**
    * @return the curve date
    */
@@ -86,11 +87,11 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
    * @return the strips
    */
   public Set<FixedIncomeStripWithSecurity> getStrips() {
-    return Collections.unmodifiableSet(_strips);
+    return Collections.unmodifiableSortedSet(_strips);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -100,7 +101,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
     if (!(obj instanceof InterpolatedYieldCurveSpecificationWithSecurities)) {
       return false;
     }
-    InterpolatedYieldCurveSpecificationWithSecurities other = (InterpolatedYieldCurveSpecificationWithSecurities) obj;
+    final InterpolatedYieldCurveSpecificationWithSecurities other = (InterpolatedYieldCurveSpecificationWithSecurities) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
@@ -118,11 +119,11 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
 
   @Override
   public int hashCode() {
-    int prime = 37;
+    final int prime = 37;
     int result = 1;
     result = (result * prime) + _currency.hashCode();
     if (_name != null) {
-      result = (result * prime) + _name.hashCode(); 
+      result = (result * prime) + _name.hashCode();
     }
     // since currency/name/date are a candidate key we leave it at that.
     return result;

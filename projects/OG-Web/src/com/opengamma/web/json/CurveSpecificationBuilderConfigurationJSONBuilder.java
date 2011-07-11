@@ -57,9 +57,17 @@ public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJ
       Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       processCurveInstrumentProvider(configJSON.getJSONArray("tenorSwapInstrumentProviders"), tenorSwapInstrumentProviders);
       
-      result = new CurveSpecificationBuilderConfiguration(
-          cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders,
-          swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders);
+      Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      processCurveInstrumentProvider(configJSON.getJSONArray("oisSwapInstrumentProviders"), oisSwapInstrumentProviders);
+
+      result = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, 
+                                                          fraInstrumentProviders, 
+                                                          rateInstrumentProviders, 
+                                                          futureInstrumentProviders, 
+                                                          swapInstrumentProviders, 
+                                                          basisSwapInstrumentProviders, 
+                                                          tenorSwapInstrumentProviders,
+                                                          oisSwapInstrumentProviders);
       
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create CurveSpecificationBuilderConfiguration", ex);
@@ -159,7 +167,16 @@ public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJ
       }
       message.put("tenorSwapInstrumentProviders", tenorSwapInstrumentProviders);
       
-            
+      List<JSONObject> oisSwapInstrumentProviders = Lists.newArrayList();
+      for (Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
+        if (entry.getKey().getPeriod().toString() == null) {
+          throw new OpenGammaRuntimeException(" tenor is null");
+        }
+        JSONObject oisSwapInstrumentProvidersMessage = new JSONObject();
+        oisSwapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+        oisSwapInstrumentProviders.add(oisSwapInstrumentProvidersMessage);
+      }
+      message.put("oisSwapInstrumentProviders", oisSwapInstrumentProviders);            
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert CurveSpecificationBuilderConfiguration to JSON", ex);
     }

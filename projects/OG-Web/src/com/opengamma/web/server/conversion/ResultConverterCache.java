@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.Tenor;

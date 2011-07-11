@@ -5,7 +5,10 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,10 +24,12 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
@@ -34,12 +39,12 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
   @Override
   protected String[] getPreservedProperties() {
     // TODO [PLAT-1356] PositionScalingFunction should propagate everything
-    return new String[] {
-      ValuePropertyNames.CURRENCY,
-      ValuePropertyNames.CURVE,
-      ValuePropertyNames.CURVE_CURRENCY,
-      YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-      YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+    return new String[] {ValuePropertyNames.CUBE,
+                         ValuePropertyNames.CURRENCY,
+                         ValuePropertyNames.CURVE,
+                         ValuePropertyNames.CURVE_CURRENCY,
+                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
   }
 
   private final String _requirementName;
@@ -118,6 +123,35 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
       final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new ZonedDateTimeLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
+    } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
+      @SuppressWarnings("unchecked")
+      final Map<String, List<DoublesPair>> map = (Map<String, List<DoublesPair>>) value;
+      final Map<String, List<DoublesPair>> scaled = new HashMap<String, List<DoublesPair>>();
+      for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
+        final List<DoublesPair> scaledList = new ArrayList<DoublesPair>();
+        for (final DoublesPair pair : entry.getValue()) {
+          scaledList.add(DoublesPair.of(pair.first, pair.second * target.getPosition().getQuantity().doubleValue()));
+        }
+        scaled.put(entry.getKey(), scaledList);
+      }
+      scaledValue = new ComputedValue(specification, scaled);
+    } else if (value instanceof DoubleLabelledMatrix2D) {
+      final DoubleLabelledMatrix2D matrix = (DoubleLabelledMatrix2D) value;
+      final Double[] xKeys = matrix.getXKeys();
+      final Object[] xLabels = matrix.getXLabels();
+      final Double[] yKeys = matrix.getYKeys();
+      final Object[] yLabels = matrix.getYLabels();
+      final double[][] values = matrix.getValues();
+      final int n = values.length;
+      final int m = values[0].length;
+      final double[][] scaledValues = new double[n][m];
+      final double scale = target.getPosition().getQuantity().doubleValue();
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+          scaledValues[i][j] = values[i][j] * scale;
+        }
+      }
+      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix2D(xKeys, xLabels, yKeys, yLabels, scaledValues));
     } else {
       //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);

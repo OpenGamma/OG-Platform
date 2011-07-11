@@ -38,14 +38,14 @@ public class PresentValueCurveSensitivityBlackForexCalculator extends PresentVal
   }
 
   @Override
-  public PresentValueSensitivity visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaBlackMethod method = new ForexOptionVanillaBlackMethod();
+  public PresentValueSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public PresentValueSensitivity visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative, YieldCurveBundle data) {
-    ForexOptionSingleBarrierBlackMethod method = new ForexOptionSingleBarrierBlackMethod();
+  public PresentValueSensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
+    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 

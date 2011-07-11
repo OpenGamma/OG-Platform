@@ -108,8 +108,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final CapFloorCMS CMS_CAP_SHORT = (CapFloorCMS) CMS_CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators & methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = new CapFloorCMSSABRReplicationMethod();
-  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = new CouponCMSSABRReplicationMethod();
+  private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getDefaultInstance();
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CAP = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
@@ -144,8 +144,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the method against the present value calculator.
    */
   public void presentValueCouponMethodSpecificVsGeneric() {
-    double pvSpecific = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, SABR_BUNDLE);
-    CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON, SABR_BUNDLE);
+    final double pvSpecific = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, SABR_BUNDLE);
+    final CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR extrapolation: method : Specific vs Generic", pvSpecific, pvGeneric.getAmount());
   }
 

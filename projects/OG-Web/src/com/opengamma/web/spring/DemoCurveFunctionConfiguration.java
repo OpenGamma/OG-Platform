@@ -95,9 +95,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
           }
           if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
             addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD");
+          } else {
+            s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
           }
-        } else {
-          s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
         }
       }
     } else {
@@ -114,7 +114,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY");
     
     //These need to be replaced with meaningful cube defns
-    addVolatilityCubeFunction(configs, "USD", "DEFAULT");
+    addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
     
     Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {

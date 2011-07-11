@@ -21,62 +21,57 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceDefinition<X, Y> {
   private String _name;
   private Currency _currency;
-  private String _interpolatorName;
   private X[] _xs;
   private Y[] _ys;
-    
-  public VolatilitySurfaceDefinition(String name, Currency currency, String interpolatorName, X[] xs, Y[] ys) {
+
+  public VolatilitySurfaceDefinition(final String name, final Currency currency, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolatorName, "Interpolator Name");
     Validate.notNull(xs, "xs");
     Validate.notNull(ys, "ys");
     _name = name;
     _currency = currency;
-    _interpolatorName = interpolatorName;
     _xs = xs;
     _ys = ys;
   }
-  
+
   public X[] getXs() {
     return _xs;
   }
-  
+
   public Y[] getYs() {
     return _ys;
   }
-  
+
   public String getName() {
     return _name;
   }
-  
+
   public Currency getCurrency() {
     return _currency;
   }
-  
-  public String getInterpolatorName() {
-    return _interpolatorName;
-  }
-  
-  public boolean equals(Object o) {
+
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof VolatilitySurfaceDefinition)) {
       return false;
     }
-    VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
+    final VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
     return other.getCurrency().equals(getCurrency()) &&
            other.getName().equals(getName()) &&
-           other.getInterpolatorName().equals(getInterpolatorName()) &&
            Arrays.equals(other.getXs(), getXs()) &&
            Arrays.equals(other.getYs(), getYs());
   }
-  
+
+  @Override
   public int hashCode() {
     return getCurrency().hashCode() * getName().hashCode();
   }
-  
+
+  @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }

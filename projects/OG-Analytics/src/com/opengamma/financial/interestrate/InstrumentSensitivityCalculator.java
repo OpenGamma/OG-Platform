@@ -41,7 +41,7 @@ public final class InstrumentSensitivityCalculator {
    */
   public DoubleMatrix1D calculateFromPresentValue(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
       final DoubleMatrix1D couponSensitivity, final DoubleMatrix2D pvJacobian) {
-    final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
+    final NodeSensitivityCalculator nsc = NodeSensitivityCalculator.getInstance();
     final DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
     final int n = nodeSense.getNumberOfElements();
     Validate.isTrue(n == couponSensitivity.getNumberOfElements());
@@ -72,7 +72,7 @@ public final class InstrumentSensitivityCalculator {
    */
   public DoubleMatrix1D calculateFromParRate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
       final DoubleMatrix2D parRateJacobian) {
-    final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
+    final NodeSensitivityCalculator nsc = NodeSensitivityCalculator.getInstance();
     final DoubleMatrix1D nodeSensitivities = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
     final int n = nodeSensitivities.getNumberOfElements();
 

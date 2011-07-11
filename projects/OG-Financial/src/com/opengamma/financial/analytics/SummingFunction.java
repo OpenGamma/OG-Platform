@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +24,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
 // For non-linear aggregates and large portfolios, you'll want to use a more refined
@@ -44,12 +42,12 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected String[] getPreservedProperties() {
-    return new String[] {
-      ValuePropertyNames.CURRENCY,
-      ValuePropertyNames.CURVE,
-      ValuePropertyNames.CURVE_CURRENCY,
-      YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-      YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+    return new String[] {ValuePropertyNames.CUBE,
+                         ValuePropertyNames.CURRENCY,
+                         ValuePropertyNames.CURVE,
+                         ValuePropertyNames.CURVE_CURRENCY,
+                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
   }
 
   private final String _requirementName;
@@ -81,35 +79,7 @@ public class SummingFunction extends PropertyPreservingFunction {
   }
 
   protected Object addValue(final Object previousSum, final Object currentValue) {
-    if (previousSum == null) {
-      return currentValue;
-    }
-    if (previousSum.getClass() != currentValue.getClass()) {
-      throw new IllegalArgumentException("Inputs have different value types for requirement " + _requirementName);
-    }
-    if (currentValue instanceof Double) {
-      final Double previousDouble = (Double) previousSum;
-      return previousDouble + (Double) currentValue;
-    } else if (currentValue instanceof BigDecimal) {
-      final BigDecimal previousDecimal = (BigDecimal) previousSum;
-      return previousDecimal.add((BigDecimal) currentValue);
-    } else if (currentValue instanceof DoubleTimeSeries<?>) {
-      final DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
-      return previousTS.add((DoubleTimeSeries<?>) currentValue);
-    } else if (currentValue instanceof DoubleLabelledMatrix1D) {
-      final DoubleLabelledMatrix1D previousMatrix = (DoubleLabelledMatrix1D) previousSum;
-      final DoubleLabelledMatrix1D currentMatrix = (DoubleLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    } else if (currentValue instanceof LocalDateLabelledMatrix1D) {
-      final LocalDateLabelledMatrix1D previousMatrix = (LocalDateLabelledMatrix1D) previousSum;
-      final LocalDateLabelledMatrix1D currentMatrix = (LocalDateLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    } else if (currentValue instanceof ZonedDateTimeLabelledMatrix1D) {
-      final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) previousSum;
-      final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    }
-    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime) right now.");
+    return SumUtils.addValue(previousSum, currentValue, getRequirementName());
   }
 
   @Override

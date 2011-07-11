@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -69,7 +69,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
@@ -78,7 +78,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    * Test the constructors.
    */
   public void constructor() {
-    InterestRateFutureSecurityHullWhiteMethod methodParameters = new InterestRateFutureSecurityHullWhiteMethod(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    final InterestRateFutureSecurityHullWhiteMethod methodParameters = new InterestRateFutureSecurityHullWhiteMethod(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     assertTrue(METHOD.equals(methodParameters));
   }
 
@@ -87,12 +87,12 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    * Test the price computed from the curves
    */
   public void price() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    double price = METHOD.price(ERU2, curves);
-    YieldAndDiscountCurve forwardCurve = curves.getCurve(FORWARD_CURVE_NAME);
-    double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
-    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
-    double expectedPrice = 1.0 - factor * forward + (1 - factor) / FIXING_ACCRUAL;
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final double price = METHOD.price(ERU2, curves);
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(FORWARD_CURVE_NAME);
+    final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
+    final double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
+    final double expectedPrice = 1.0 - factor * forward + (1 - factor) / FIXING_ACCRUAL;
     assertEquals("Future price from curves in Hull-White one factor model", expectedPrice, price);
   }
 
@@ -101,10 +101,10 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
    * Compare the price with a price without convexity adjustment.
    */
   public void comparisonDiscounting() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    InterestRateFutureSecurityDiscountingMethod methodDiscounting = new InterestRateFutureSecurityDiscountingMethod();
-    double priceDiscounting = methodDiscounting.priceFromCurves(ERU2, curves);
-    double priceHullWhite = METHOD.price(ERU2, curves);
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final InterestRateFutureSecurityDiscountingMethod methodDiscounting = InterestRateFutureSecurityDiscountingMethod.getInstance();
+    final double priceDiscounting = methodDiscounting.priceFromCurves(ERU2, curves);
+    final double priceHullWhite = METHOD.price(ERU2, curves);
     assertTrue("Future price comparison with no convexity adjustment", priceDiscounting > priceHullWhite);
   }
 
@@ -115,7 +115,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     assertTrue(METHOD.equals(other));
     assertTrue(METHOD.hashCode() == other.hashCode());
     InterestRateFutureSecurityHullWhiteMethod modifiedMethod;
-    HullWhiteOneFactorPiecewiseConstantDataBundle modifiedParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION * 2, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters modifiedParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION * 2, VOLATILITY, VOLATILITY_TIME);
     modifiedMethod = new InterestRateFutureSecurityHullWhiteMethod(modifiedParameter);
     assertFalse(METHOD.equals(modifiedMethod));
     assertFalse(METHOD.equals(CUR));

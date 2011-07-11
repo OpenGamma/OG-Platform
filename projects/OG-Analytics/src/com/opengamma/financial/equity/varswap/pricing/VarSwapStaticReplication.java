@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.equity.varswap.pricing;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -12,8 +14,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.tuple.DoublesPair;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -50,7 +50,7 @@ public class VarSwapStaticReplication {
     _cutoffProvided = true;
   }
 
-  public VarSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator, Double strikeCutoff, Double strikeSpread) {
+  public VarSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator, final Double strikeCutoff, final Double strikeSpread) {
     _lowerBound = lowerBound;
     _upperBound = upperBound;
     _integrator = integrator;
@@ -71,12 +71,12 @@ public class VarSwapStaticReplication {
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
     // TODO Can we assert that we are double counting days?
-    double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
-    double remainingVar = impliedVariance(deriv, market); // Remaining variance implied by option prices
-    double finalPayment = deriv.getVarNotional() * (realizedVar + remainingVar - deriv.getVarStrike());
+    final double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
+    final double remainingVar = impliedVariance(deriv, market); // Remaining variance implied by option prices
+    final double finalPayment = deriv.getVarNotional() * (realizedVar + remainingVar - deriv.getVarStrike());
     // FIXME Case !!! Confirm relative scaling of past vs future var, and annualization
 
-    double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
+    final double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
     return df * finalPayment;
 
   }
@@ -113,6 +113,7 @@ public class VarSwapStaticReplication {
     // The position to hold in each otmOption(k) = 2 / strike^2, 
     // where otmOption is a call if k > fwd and a put otherwise
     final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double moneyness) {
 
@@ -125,8 +126,8 @@ public class VarSwapStaticReplication {
         if (_cutoffProvided && moneyness < _strikeCutoff) { // Extrapolate with ShiftedLognormal
           otmPrice = leftExtrapolator.priceFromRelativeStrike(moneyness);
         } else {
-          DoublesPair coord = DoublesPair.of(expiry, strike);
-          double vol = vsurf.getVolatility(coord);
+          final DoublesPair coord = DoublesPair.of(expiry, strike);
+          final double vol = vsurf.getVolatility(coord);
           otmPrice = new BlackFormula(fwd, moneyness * fwd, expiry, vol, null, isCall).computePrice();
         }
 
@@ -135,7 +136,7 @@ public class VarSwapStaticReplication {
     };
 
     // 4. Compute variance hedge by integrating positions over all strikes
-    double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
+    final double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
     return variance;
   }
 }

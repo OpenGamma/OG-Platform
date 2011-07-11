@@ -74,6 +74,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   private volatile boolean _wakeOnMarketDataChanged;
   private volatile boolean _marketDataChanged;
+  private volatile boolean _cycleTriggered;
   
   private enum ViewCycleType { FULL, DELTA, NONE }
   
@@ -352,6 +353,20 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         _marketDataChanged = false;
       }
     }
+    if (_cycleTriggered) {
+      s_logger.debug("Cycle was manually triggered");
+      if (currentTimeNanos >= _eligibleForFullComputationFromNanos) {
+        // Do (or upgrade to) a full computation because we're eligible for one
+        s_logger.debug("Performing a full computation for the manual request");
+        doFullRecalc = true;
+        _cycleTriggered = false;
+      } else if (currentTimeNanos >= _eligibleForDeltaComputationFromNanos) {
+        // Do a delta computation
+        s_logger.debug("Performing a delta computation for the manual request");
+        doDeltaRecalc = true;
+        _cycleTriggered = false;
+      }
+    }
     
     if (doFullRecalc || doDeltaRecalc) {
       // Set the times for the next computation cycle. These might have passed by the time this cycle completes, in
@@ -453,6 +468,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       s_logger.error("Error notifying view process " + getViewProcess() + " of computation job completion", e);
     }
     terminate();
+  }
+  
+  public synchronized void triggerCycle() {
+    s_logger.debug("Cycle triggered manually");
+    _cycleTriggered = true;
+    notifyAll();
   }
   
   public synchronized void marketDataChanged() {

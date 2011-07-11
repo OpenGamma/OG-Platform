@@ -5,9 +5,13 @@
  */
 package com.opengamma.financial.analytics;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.ParallelArrayBinarySort;
 
 /**
  * @param <S>
@@ -20,11 +24,11 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   private final Object[] _yLabels;
   private final double[][] _values;
 
-  public LabelledMatrix2D(S[] xKeys, T[] yKeys, double[][] values) {
+  public LabelledMatrix2D(final S[] xKeys, final T[] yKeys, final double[][] values) {
     Validate.notNull(xKeys, "x keys");
-    int m = xKeys.length;
+    final int m = xKeys.length;
     Validate.notNull(yKeys, "y keys");
-    int n = yKeys.length;
+    final int n = yKeys.length;
     Validate.notNull(values, "values");
     Validate.isTrue(values.length == n, "number of rows of data and y keys must be the same length");
     _xKeys = Arrays.copyOf(xKeys, m);
@@ -45,13 +49,13 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     sort(_xKeys, _xLabels, _yKeys, _yLabels, _values);
   }
 
-  public LabelledMatrix2D(S[] xKeys, Object[] xLabels, T[] yKeys, Object[] yLabels, double[][] values) {
+  public LabelledMatrix2D(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {
     Validate.notNull(xKeys, "x keys");
-    int m = xKeys.length;
+    final int m = xKeys.length;
     Validate.notNull(xLabels, "x labels");
     Validate.isTrue(xLabels.length == m);
     Validate.notNull(yKeys, "y keys");
-    int n = yKeys.length;
+    final int n = yKeys.length;
     Validate.notNull(yLabels, "y labels");
     Validate.notNull(yLabels.length == n);
     Validate.notNull(values, "values");
@@ -94,14 +98,116 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return _values;
   }
 
-  protected void sort(final S[] xKeys, final Object[] xLabels, T[] yKeys, Object[] yLabels, final double[][] values) {
-    int n = yKeys.length;
+  public abstract <X> int compareX(S key1, S key2, X tolerance);
+
+  public abstract <Y> int compareY(T key1, T key2, Y tolerance);
+
+  public abstract LabelledMatrix2D<S, T> getMatrix(S[] xKeys, Object[] xLabels, T[] yKeys, Object[] yLabels, double[][] values);
+
+  //TODO this needs rewriting
+  //TODO this ignores labels - using the original labels first and only using the labels from other when a new row / column is added
+  public <X, Y> LabelledMatrix2D<S, T> add(final LabelledMatrix2D<S, T> other, final X xTolerance, final Y yTolerance) {
+    Validate.notNull(other, "labelled matrix");
+    final S[] otherXKeys = other.getXKeys();
+    final Object[] otherXLabels = other.getXLabels();
+    final T[] otherYKeys = other.getYKeys();
+    final Object[] otherYLabels = other.getYLabels();
+    final S[] originalXKeys = getXKeys();
+    final Object[] originalXLabels = getXLabels();
+    final T[] originalYKeys = getYKeys();
+    final Object[] originalYLabels = getYLabels();
+    final int m1 = originalXKeys.length;
+    final int m2 = otherXKeys.length;
+    final int n1 = originalYKeys.length;
+    final int n2 = otherYKeys.length;
+    final ObjectArrayList<S> newXKeysList = new ObjectArrayList<S>(originalXKeys);
+    final ObjectArrayList<Object> newXLabelsList = new ObjectArrayList<Object>(originalXLabels);
+    final ObjectArrayList<T> newYKeysList = new ObjectArrayList<T>(originalYKeys);
+    final ObjectArrayList<Object> newYLabelsList = new ObjectArrayList<Object>(originalYLabels);
+    for (int i = 0; i < m2; i++) {
+      final int index = binarySearchInXWithTolerance(originalXKeys, otherXKeys[i], xTolerance);
+      if (index < 0) {
+        newXKeysList.add(otherXKeys[i]);
+        newXLabelsList.add(otherXLabels[i]);
+      }
+    }
+    for (int i = 0; i < n2; i++) {
+      final int index = binarySearchInYWithTolerance(originalYKeys, otherYKeys[i], yTolerance);
+      if (index < 0) {
+        newYKeysList.add(otherYKeys[i]);
+        newYLabelsList.add(otherYLabels[i]);
+      }
+    }
+    final S[] newXKeys = newXKeysList.toArray(originalXKeys);
+    final Object[] newXLabels = newXLabelsList.toArray();
+    final T[] newYKeys = newYKeysList.toArray(originalYKeys);
+    final Object[] newYLabels = newYLabelsList.toArray();
+    ParallelArrayBinarySort.parallelBinarySort(newXKeys, newXLabels);
+    ParallelArrayBinarySort.parallelBinarySort(newYKeys, newYLabels);
+    final int totalX = newXKeys.length;
+    final int totalY = newYKeys.length;
+    final double[][] newValues = new double[totalY][totalX];
+    for (int i = 0; i < n1; i++) {
+      final int indexY = binarySearchInYWithTolerance(newYKeys, originalYKeys[i], yTolerance);
+      for (int j = 0; j < m1; j++) {
+        final int indexX = binarySearchInXWithTolerance(newXKeys, originalXKeys[j], xTolerance);
+        newValues[indexY][indexX] = _values[i][j];
+      }
+    }
+    for (int i = 0; i < n2; i++) {
+      final int indexY = binarySearchInYWithTolerance(newYKeys, otherYKeys[i], yTolerance);
+      for (int j = 0; j < m2; j++) {
+        final int indexX = binarySearchInXWithTolerance(newXKeys, otherXKeys[j], xTolerance);
+        newValues[indexY][indexX] += other._values[i][j];
+      }
+    }
+    return getMatrix(newXKeys, newXLabels, newYKeys, newYLabels, newValues);
+  }
+
+  protected <X> int binarySearchInXWithTolerance(final S[] keys, final S key, final X tolerance) {
+    int low = 0;
+    int high = keys.length - 1;
+    while (low <= high) {
+      final int mid = (low + high) >>> 1;
+      final S midVal = keys[mid];
+      final int comparison = compareX(key, midVal, tolerance);
+      if (comparison == 0) {
+        return mid;
+      } else if (comparison == 1) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return -(low + 1);
+  }
+
+  protected <Y> int binarySearchInYWithTolerance(final T[] keys, final T key, final Y tolerance) {
+    int low = 0;
+    int high = keys.length - 1;
+    while (low <= high) {
+      final int mid = (low + high) >>> 1;
+      final T midVal = keys[mid];
+      final int comparison = compareY(key, midVal, tolerance);
+      if (comparison == 0) {
+        return mid;
+      } else if (comparison == 1) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return -(low + 1);
+  }
+
+  protected void sort(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {
+    final int n = yKeys.length;
     final int m = xKeys.length;
     tripleArrayQuickSortInX(xKeys, xLabels, values, 0, m - 1, n);
     tripleArrayQuickSortInY(yKeys, yLabels, values, 0, n - 1, m);
   }
 
-  private void tripleArrayQuickSortInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, int n) {
+  private void tripleArrayQuickSortInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int n) {
     if (right > left) {
       final int pivot = (left + right) >> 1;
       final int pivotNewIndex = partitionInX(keys, labels, values, left, right, pivot, n);
@@ -110,7 +216,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     }
   }
 
-  private void tripleArrayQuickSortInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, int m) {
+  private void tripleArrayQuickSortInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int m) {
     if (right > left) {
       final int pivot = (left + right) >> 1;
       final int pivotNewIndex = partitionInY(keys, labels, values, left, right, pivot, m);
@@ -119,7 +225,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     }
   }
 
-  private int partitionInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, int n) {
+  private int partitionInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, final int n) {
     final S pivotValue = keys[pivot];
     swapInX(keys, labels, values, pivot, right, n);
     int storeIndex = left;
@@ -133,7 +239,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return storeIndex;
   }
 
-  private int partitionInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, int m) {
+  private int partitionInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, final int m) {
     final T pivotValue = keys[pivot];
     swapInY(keys, labels, values, pivot, right, m);
     int storeIndex = left;
@@ -147,7 +253,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return storeIndex;
   }
 
-  private void swapInX(final S[] keys, final Object[] labels, final double[][] values, final int first, final int second, int n) {
+  private void swapInX(final S[] keys, final Object[] labels, final double[][] values, final int first, final int second, final int n) {
     final S x = keys[first];
     keys[first] = keys[second];
     keys[second] = x;
@@ -161,7 +267,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     }
   }
 
-  private void swapInY(final T[] keys, final Object[] labels, final double[][] values, final int first, final int second, int m) {
+  private void swapInY(final T[] keys, final Object[] labels, final double[][] values, final int first, final int second, final int m) {
     final T x = keys[first];
     keys[first] = keys[second];
     keys[second] = x;
@@ -188,19 +294,16 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof LabelledMatrix2D)) {
       return false;
     }
     @SuppressWarnings("rawtypes")
-    LabelledMatrix2D other = (LabelledMatrix2D) obj;
-    double[][] otherValues = other._values;
+    final LabelledMatrix2D other = (LabelledMatrix2D) obj;
+    final double[][] otherValues = other._values;
     for (int i = 0; i < _values.length; i++) {
       if (!Arrays.equals(_values[i], otherValues[i])) {
         return false;

@@ -48,6 +48,11 @@ public class ForexDefinitionTest {
     new ForexDefinition(CUR_1, CUR_2, null, NOMINAL_1, FX_RATE);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNegativeFXRate() {
+    new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, -FX_RATE);
+  }
+
   @Test
   /**
    * Tests the class getters.
@@ -67,7 +72,7 @@ public class ForexDefinitionTest {
    * Tests the class equal and hashCode
    */
   public void equalHash() {
-    ForexDefinition newFx = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
+    final ForexDefinition newFx = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
     assertTrue(FX.equals(newFx));
     assertTrue(FX.hashCode() == newFx.hashCode());
     ForexDefinition modifiedFx;
@@ -88,7 +93,7 @@ public class ForexDefinitionTest {
    * Tests the constructor from payments.
    */
   public void constructorFromPayments() {
-    ForexDefinition fxPayment = new ForexDefinition(PAY_1, PAY_2);
+    final ForexDefinition fxPayment = new ForexDefinition(PAY_1, PAY_2);
     assertEquals(FX, fxPayment);
   }
 
@@ -97,14 +102,14 @@ public class ForexDefinitionTest {
    * Tests the conversion to derivative.
    */
   public void toDerivative() {
-    String discountingEUR = "Discounting EUR";
-    String discountingUSD = "Discounting USD";
-    String[] curves = new String[] {discountingEUR, discountingUSD};
-    ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 20);
-    Forex fxConverted = FX.toDerivative(referenceDate, curves);
-    PaymentFixed pay1 = PAY_1.toDerivative(referenceDate, discountingEUR);
-    PaymentFixed pay2 = PAY_2.toDerivative(referenceDate, discountingUSD);
-    Forex fxComparison = new Forex(pay1, pay2);
+    final String discountingEUR = "Discounting EUR";
+    final String discountingUSD = "Discounting USD";
+    final String[] curves = new String[] {discountingEUR, discountingUSD};
+    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 20);
+    final Forex fxConverted = FX.toDerivative(referenceDate, curves);
+    final PaymentFixed pay1 = PAY_1.toDerivative(referenceDate, discountingEUR);
+    final PaymentFixed pay2 = PAY_2.toDerivative(referenceDate, discountingUSD);
+    final Forex fxComparison = new Forex(pay1, pay2);
     assertEquals(fxComparison, fxConverted);
   }
 
@@ -113,8 +118,8 @@ public class ForexDefinitionTest {
    * Tests the to string method.
    */
   public void testToString() {
-    String fxToString = FX.toString();
-    String expected = "Forex transaction:\nCurrency 1 payment: \nPayment Currency = EUR, Date = 2011-05-24T00:00Z[UTC]Amount = 1.0E8"
+    final String fxToString = FX.toString();
+    final String expected = "Forex transaction:\nCurrency 1 payment: \nPayment Currency = EUR, Date = 2011-05-24T00:00Z[UTC]Amount = 1.0E8"
         + "\nCurrency 2 payment: \nPayment Currency = USD, Date = 2011-05-24T00:00Z[UTC]Amount = -1.4177E8";
     assertEquals(expected, fxToString);
   }

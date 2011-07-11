@@ -5,34 +5,9 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import static com.opengamma.util.time.Tenor.EIGHT_MONTHS;
-import static com.opengamma.util.time.Tenor.ELEVEN_MONTHS;
-import static com.opengamma.util.time.Tenor.FIVE_MONTHS;
-import static com.opengamma.util.time.Tenor.FIVE_YEARS;
-import static com.opengamma.util.time.Tenor.FOUR_MONTHS;
-import static com.opengamma.util.time.Tenor.FOUR_YEARS;
-import static com.opengamma.util.time.Tenor.NINE_MONTHS;
-import static com.opengamma.util.time.Tenor.ONE_DAY;
-import static com.opengamma.util.time.Tenor.ONE_MONTH;
-import static com.opengamma.util.time.Tenor.ONE_WEEK;
-import static com.opengamma.util.time.Tenor.ONE_YEAR;
-import static com.opengamma.util.time.Tenor.SEVEN_MONTHS;
-import static com.opengamma.util.time.Tenor.SIX_MONTHS;
-import static com.opengamma.util.time.Tenor.TEN_MONTHS;
-import static com.opengamma.util.time.Tenor.THREE_DAYS;
-import static com.opengamma.util.time.Tenor.THREE_MONTHS;
-import static com.opengamma.util.time.Tenor.THREE_WEEKS;
-import static com.opengamma.util.time.Tenor.THREE_YEARS;
-import static com.opengamma.util.time.Tenor.TWELVE_MONTHS;
-import static com.opengamma.util.time.Tenor.TWO_DAYS;
-import static com.opengamma.util.time.Tenor.TWO_MONTHS;
-import static com.opengamma.util.time.Tenor.TWO_WEEKS;
-import static com.opengamma.util.time.Tenor.TWO_YEARS;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -215,6 +190,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     
     Tenor[] tenors = new Tenor[] {Tenor.DAY, Tenor.MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, 
                                   Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS, Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS,
@@ -230,6 +206,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
       tenorSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.TENOR_SWAP, scheme));
       swapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.SWAP, scheme));
       basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.BASIS_SWAP, scheme));
+      oisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.OIS_SWAP, scheme));
     }
     CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, 
                                                                                                fraInstrumentProviders, 
@@ -237,7 +214,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
                                                                                                futureInstrumentProviders, 
                                                                                                swapInstrumentProviders, 
                                                                                                basisSwapInstrumentProviders, 
-                                                                                               tenorSwapInstrumentProviders);
+                                                                                               tenorSwapInstrumentProviders,
+                                                                                               oisSwapInstrumentProviders);
     return config;
   }
 

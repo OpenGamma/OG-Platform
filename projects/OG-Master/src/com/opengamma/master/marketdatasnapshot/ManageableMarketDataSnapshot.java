@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -23,6 +24,8 @@ import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.UniqueIdentifier;
@@ -69,6 +72,12 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    */
   @PropertyDefinition
   private Map<VolatilityCubeKey, VolatilityCubeSnapshot> _volatilityCubes;
+  
+  /**
+   * The vol surfaces in this snapshot
+   */
+  @PropertyDefinition
+  private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _volatilitySurfaces = new HashMap<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>(); //Initialize in order to handle old format
   
   /**
    * Creates a snapshot
@@ -127,6 +136,8 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         return getYieldCurves();
       case -2137883207:  // volatilityCubes
         return getVolatilityCubes();
+      case -1329840981:  // volatilitySurfaces
+        return getVolatilitySurfaces();
     }
     return super.propertyGet(propertyName);
   }
@@ -153,6 +164,9 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
       case -2137883207:  // volatilityCubes
         setVolatilityCubes((Map<VolatilityCubeKey, VolatilityCubeSnapshot>) newValue);
         return;
+      case -1329840981:  // volatilitySurfaces
+        setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -169,7 +183,8 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
           JodaBeanUtils.equal(getBasisViewName(), other.getBasisViewName()) &&
           JodaBeanUtils.equal(getGlobalValues(), other.getGlobalValues()) &&
           JodaBeanUtils.equal(getYieldCurves(), other.getYieldCurves()) &&
-          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes());
+          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes()) &&
+          JodaBeanUtils.equal(getVolatilitySurfaces(), other.getVolatilitySurfaces());
     }
     return false;
   }
@@ -183,6 +198,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
     hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
     return hash;
   }
 
@@ -344,6 +360,31 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the vol surfaces in this snapshot
+   * @return the value of the property
+   */
+  public Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> getVolatilitySurfaces() {
+    return _volatilitySurfaces;
+  }
+
+  /**
+   * Sets the vol surfaces in this snapshot
+   * @param volatilitySurfaces  the new value of the property
+   */
+  public void setVolatilitySurfaces(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurfaces) {
+    this._volatilitySurfaces = volatilitySurfaces;
+  }
+
+  /**
+   * Gets the the {@code volatilitySurfaces} property.
+   * @return the property, not null
+   */
+  public final Property<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> volatilitySurfaces() {
+    return metaBean().volatilitySurfaces().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageableMarketDataSnapshot}.
    */
   public static class Meta extends DirectMetaBean {
@@ -385,6 +426,12 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
     private final MetaProperty<Map<VolatilityCubeKey, VolatilityCubeSnapshot>> _volatilityCubes = DirectMetaProperty.ofReadWrite(
         this, "volatilityCubes", ManageableMarketDataSnapshot.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code volatilitySurfaces} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> _volatilitySurfaces = DirectMetaProperty.ofReadWrite(
+        this, "volatilitySurfaces", ManageableMarketDataSnapshot.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -394,7 +441,8 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         "basisViewName",
         "globalValues",
         "yieldCurves",
-        "volatilityCubes");
+        "volatilityCubes",
+        "volatilitySurfaces");
 
     /**
      * Restricted constructor.
@@ -417,6 +465,8 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
           return _yieldCurves;
         case -2137883207:  // volatilityCubes
           return _volatilityCubes;
+        case -1329840981:  // volatilitySurfaces
+          return _volatilitySurfaces;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -483,6 +533,14 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      */
     public final MetaProperty<Map<VolatilityCubeKey, VolatilityCubeSnapshot>> volatilityCubes() {
       return _volatilityCubes;
+    }
+
+    /**
+     * The meta-property for the {@code volatilitySurfaces} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> volatilitySurfaces() {
+      return _volatilitySurfaces;
     }
 
   }

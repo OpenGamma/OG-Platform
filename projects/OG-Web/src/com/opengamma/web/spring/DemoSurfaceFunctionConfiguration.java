@@ -13,7 +13,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.volatility.surface.SimpleInterpolatedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -26,7 +26,10 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
 
-    configs.add(new ParameterizedFunctionConfiguration(SimpleInterpolatedVolatilitySurfaceFunction.class.getName(), Arrays.asList("USD", "DEFAULT", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("USD", "DEFAULT_USD", "SWAPTION", "DEFAULT_USD")));
+    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("USD", "DEFAULT_USD", "IR_FUTURE", "DEFAULT_USD")));
+    //configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("EURUSD", "DEFAULT", "FX_VANILLA_OPTION", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("EURUSD", "DEFAULT_EURUSD", "FX_VANILLA_OPTION", "DEFAULT_EURUSD")));
 
     return new RepositoryConfiguration(configs);
   }
