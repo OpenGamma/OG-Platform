@@ -12,16 +12,16 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * Continuously monitored 
+ * The OIS rate the the continuously compounded overnight rate (e.g. Feb Funds for USD) from the start time (T) to the end time (S) 
  */
-public class ContinuouslyMonitoredAverageRatePayment extends Coupon {
+public class CouponOIS extends Coupon {
   private final double _rateYearFraction;
   private final double _startTime;
   private final double _endTime;
   private final double _spread;
   private final String _indexCurveName;
 
-  public ContinuouslyMonitoredAverageRatePayment(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
+  public CouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
       double startTime, double endTime, double spread, String indexCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(startTime >= 0, "startTime < 0");
@@ -102,7 +102,7 @@ public class ContinuouslyMonitoredAverageRatePayment extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ContinuouslyMonitoredAverageRatePayment other = (ContinuouslyMonitoredAverageRatePayment) obj;
+    CouponOIS other = (CouponOIS) obj;
     if (Double.doubleToLongBits(_endTime) != Double.doubleToLongBits(other._endTime)) {
       return false;
     }
@@ -123,11 +123,11 @@ public class ContinuouslyMonitoredAverageRatePayment extends Coupon {
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitContinuouslyMonitoredAverageRatePayment(this, data);
+    return visitor.visitCouponOIS(this, data);
   }
 
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitContinuouslyMonitoredAverageRatePayment(this);
+    return visitor.visitCouponOIS(this);
   }
 }

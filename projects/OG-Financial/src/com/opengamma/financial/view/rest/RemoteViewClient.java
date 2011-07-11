@@ -386,6 +386,12 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
+  public void triggerCycle() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_TRIGGER_CYCLE);
+    _client.access(uri).post();
+  }
+
+  @Override
   public void waitForCompletion() throws InterruptedException {
     _listenerLock.lock();
     try {
@@ -499,5 +505,4 @@ public class RemoteViewClient implements ViewClient {
   public void stopHeartbeating() {
     _scheduledHeartbeat.cancel(true);
   }
-
 }

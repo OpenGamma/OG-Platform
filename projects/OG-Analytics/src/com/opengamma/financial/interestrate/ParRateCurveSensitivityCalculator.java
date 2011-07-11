@@ -21,7 +21,8 @@ import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -270,7 +271,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();
 
@@ -280,7 +281,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     temp.add(s1);
     temp.add(s2);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(payment.getIndexCurveName(), temp);
+    result.put(payment.getFundingCurveName(), temp);
     return result;
   }
 
@@ -288,4 +289,10 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
   }
+  
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+    return visitCouponIbor(payment.toCouponIbor(), data);
+  }
+
 }

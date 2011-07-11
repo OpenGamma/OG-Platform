@@ -74,7 +74,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     data.setG0(_algebra.getInnerProduct(y, y));
     DoubleMatrix2D estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, startPosition);
 
-    if (!getNextPosition(function, estimate, data)) {
+    if (!getNextPosition(function, estimate, data)) {;
       if (isConverged(data)) {
         return data.getX(); // this can happen if the starting position is the root
       }

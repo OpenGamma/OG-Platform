@@ -27,7 +27,8 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -251,13 +252,13 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
-    final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
+  //  final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();
     final double tPay = payment.getPaymentTime();
-    final double avRate = (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+    final double avRate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
     final double dfPay = fundingCurve.getDiscountFactor(tPay);
     final double notional = payment.getNotional();
 
@@ -267,10 +268,10 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     s = new DoublesPair(tPay, -tPay * dfPay * notional * (avRate + payment.getSpread()) * payment.getPaymentYearFraction());
     temp.add(s);
 
-    if (!payment.getIndexCurveName().equals(payment.getFundingCurveName())) {
-      result.put(payment.getFundingCurveName(), temp);
-      temp = new ArrayList<DoublesPair>();
-    }
+//    if (!payment.getIndexCurveName().equals(payment.getFundingCurveName())) {
+//      result.put(payment.getFundingCurveName(), temp);
+//      temp = new ArrayList<DoublesPair>();
+//    }
 
     final double ratio = notional * dfPay * payment.getPaymentYearFraction() / payment.getRateYearFraction();
     s = new DoublesPair(ta, -ta * ratio);
@@ -278,7 +279,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     s = new DoublesPair(tb, tb * ratio);
     temp.add(s);
 
-    result.put(payment.getIndexCurveName(), temp);
+    result.put(payment.getFundingCurveName(), temp);
 
     return result;
   }
@@ -314,6 +315,12 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(coupon, curves).getSensitivity();
   }
+  
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+    return visitCouponIbor(payment.toCouponIbor(), data);
+  }
+
 
   /**
    * Compute the sensitivity of the discount factor at a given time.

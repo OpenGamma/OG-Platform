@@ -375,6 +375,16 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     return getClientViewProcess(clientId).getDefinition();
   }
   
+  /**
+   * Requests that a computation cycle be run, even if none of the other triggers have fired since the last cycle.
+   * 
+   * @param clientId  the unique identifier of the client, not null
+   * @throws IllegalStateException if the client is not associated with a view process
+   */
+  public void triggerCycle(UniqueIdentifier clientId) {
+    getClientViewProcess(clientId).triggerCycle();
+  }
+  
   private ViewProcessImpl getClientViewProcess(UniqueIdentifier clientId) {
     checkIdScheme(clientId, CLIENT_SCHEME);
     _processLock.lock();

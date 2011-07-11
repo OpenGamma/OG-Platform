@@ -197,6 +197,11 @@ public interface ViewClient extends UniqueIdentifiable {
   void resume();
   
   /**
+   * Requests that a computation cycle be run, even if none of the other triggers have fired since the last cycle.
+   */
+  void triggerCycle();
+  
+  /**
    * Gets whether the attached view process has completed from the perspective of the client. This is consistent with
    * any data flow restrictions being applied through this view client, so may occur after the process actually
    * completes. This is intended for batch processing; if the view process is running with an infinite number of

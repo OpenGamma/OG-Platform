@@ -35,7 +35,8 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
@@ -215,7 +216,7 @@ public class FutureDerivativeVisitorTest {
     }
 
     @Override
-    public String visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final T data) {
+    public String visitCouponOIS(final CouponOIS payment, final T data) {
       return null;
     }
 
@@ -400,7 +401,7 @@ public class FutureDerivativeVisitorTest {
     }
 
     @Override
-    public String visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
+    public String visitCouponOIS(final CouponOIS payment) {
       return null;
     }
 
@@ -461,6 +462,16 @@ public class FutureDerivativeVisitorTest {
 
     @Override
     public String visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborFixed(CouponIborFixed payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborFixed(CouponIborFixed payment) {
       return null;
     }
 
