@@ -8,8 +8,8 @@ package com.opengamma.financial.model.interestrate;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
+import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -78,6 +78,55 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   }
 
   /**
+   * The adjoint version of the method. Computes the (zero-coupon) bond volatility divided by a bond numeraire for a given period. 
+   * @param startExpiry Start time of the expiry period.
+   * @param endExpiry End time of the expiry period.
+   * @param numeraireTime Time to maturity for the bond numeraire.
+   * @param bondMaturity Time to maturity for the bond.
+   * @param data Hull-White model data.
+   * @param derivatives Array used for return the derivatives with respect to the input. The array is changed by the method. The derivatives of the function alpha
+   * with respect to the piecewise constant volatilities.
+   * @return The re-based bond volatility.
+   */
+  public double alpha(final double startExpiry, final double endExpiry, final double numeraireTime, final double bondMaturity, final HullWhiteOneFactorPiecewiseConstantParameters data,
+      double[] derivatives) {
+    // Forward sweep
+    double factor1 = Math.exp(-data.getMeanReversion() * numeraireTime) - Math.exp(-data.getMeanReversion() * bondMaturity);
+    double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
+    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    while (startExpiry > data.getVolatilityTime()[indexStart]) {
+      indexStart++;
+    }
+    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
+    while (endExpiry > data.getVolatilityTime()[indexEnd]) {
+      indexEnd++;
+    }
+    int sLen = indexEnd - indexStart + 1;
+    double[] s = new double[sLen + 1];
+    s[0] = startExpiry;
+    System.arraycopy(data.getVolatilityTime(), indexStart, s, 1, sLen - 1);
+    s[sLen] = endExpiry;
+    double factor2 = 0.0;
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1]
+          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
+    }
+    double alpha = factor1 * Math.sqrt(factor2 / numerator);
+    // Backward sweep 
+    double alphaBar = 1.0;
+    double factor2Bar = factor1 / Math.sqrt(factor2 / numerator) / 2.0 / numerator * alphaBar;
+    int nbSigma = data.getVolatility().length;
+    for (int loopperiod = 0; loopperiod < nbSigma; loopperiod++) { // To clean derivatives
+      derivatives[loopperiod] = 0.0;
+    }
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      derivatives[loopperiod + indexStart - 1] = 2 * data.getVolatility()[loopperiod + indexStart - 1]
+          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod])) * factor2Bar;
+    }
+    return alpha;
+  }
+
+  /**
    * Computes the exercise boundary for swaptions.
    * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model. International Journal of Theoretical and Applied Finance, 6(1):57--72.
    * @param discountedCashFlow The cash flow equivalent discounted to today.
@@ -96,9 +145,9 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
       }
     };
     final BracketRoot bracketer = new BracketRoot();
-    // TODO: Is this the most efficient rootFinder?
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1.0E-8);
-    final double[] range = bracketer.getBracketedPoints(swapValue, -50.0, 50.0);
+    double accuracy = 1.0E-8;
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
+    final double[] range = bracketer.getBracketedPoints(swapValue, -2.0, 2.0);
     return rootFinder.getRoot(swapValue, range[0], range[1]);
   }
 

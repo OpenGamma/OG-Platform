@@ -148,4 +148,66 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertEquals("Exercise boundary", 0.0, swapValue, 1.0E-1);
   }
 
+  @Test
+  /**
+   * Test the adjoint version of alpha.
+   */
+  public void alphaAdjoint() {
+    double expiry1 = 0.25;
+    double expiry2 = 2.25;
+    double numeraire = 10.0;
+    double maturity = 9.0;
+    int nbVolatility = VOLATILITY.length;
+    double[] alphaDerivatives = new double[nbVolatility];
+    double alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS, alphaDerivatives);
+    double alpha2 = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS);
+    assertEquals("Alpha adjoint: value", alpha2, alpha, 1.0E-10);
+    double shiftVol = 1.0E-6;
+    double[] volatilityBumped = new double[nbVolatility];
+    System.arraycopy(VOLATILITY, 0, volatilityBumped, 0, nbVolatility);
+    double[] alphaBumpedPlus = new double[nbVolatility];
+    double[] alphaBumpedMinus = new double[nbVolatility];
+    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volatilityBumped, VOLATILITY_TIME);
+    for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
+      volatilityBumped[loopvol] += shiftVol;
+      alphaBumpedPlus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
+      volatilityBumped[loopvol] -= 2 * shiftVol;
+      alphaBumpedMinus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
+      assertEquals("Alpha adjoint: derivative " + loopvol + " - Difference: " + ((alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol) - alphaDerivatives[loopvol]),
+          (alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol), alphaDerivatives[loopvol], 1.0E-9);
+      volatilityBumped[loopvol] = VOLATILITY[loopvol];
+    }
+  }
+
+  @Test(enabled = true)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performanceAlphaAdjoint() {
+    double expiry1 = 0.25;
+    double expiry2 = 2.25;
+    double numeraire = 10.0;
+    double maturity = 9.0;
+    int nbVolatility = VOLATILITY.length;
+    double[] alphaDerivatives = new double[nbVolatility];
+    long startTime, endTime;
+    final int nbTest = 1000000;
+    double alpha = 0.0;
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " alpha Hull-White: " + (endTime - startTime) + " ms");
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS, alphaDerivatives);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " alpha Hull-White adjoint (value+" + nbVolatility + " derivatives): " + (endTime - startTime) + " ms");
+    // Performance note: value: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000000 swaptions.
+    // Performance note: value+derivatives: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000000 swaptions.
+    System.out.println("Alpha: " + alpha);
+  }
+
 }

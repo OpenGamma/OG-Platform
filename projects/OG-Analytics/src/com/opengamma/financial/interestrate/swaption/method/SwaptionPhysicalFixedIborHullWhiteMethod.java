@@ -46,9 +46,21 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
+    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
+    return presentValue(swaption, cfe, hwData);
+  }
+
+  /**
+   * Computes the present value of the Physical delivery swaption.
+   * @param swaption The swaption.
+   * @param cfe The swaption cash flow equivalent.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    Validate.notNull(swaption);
     Validate.notNull(hwData);
     double expiryTime = swaption.getTimeToExpiry();
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
     double[] alpha = new double[cfe.getNumberOfPayments()];
     double[] df = new double[cfe.getNumberOfPayments()];
     double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
@@ -64,6 +76,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
       pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
     }
     return CurrencyAmount.of(swaption.getUnderlyingSwap().getFirstLeg().getCurrency(), pv * (swaption.isLong() ? 1.0 : -1.0));
+
   }
 
   @Override
@@ -71,6 +84,44 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
+  }
+
+  public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    Validate.notNull(swaption);
+    Validate.notNull(hwData);
+    int nbSigma = hwData.getHullWhiteParameter().getVolatility().length;
+    double[] sigmaBar = new double[nbSigma];
+    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
+    //Forward sweep
+    double expiryTime = swaption.getTimeToExpiry();
+    double[] alpha = new double[cfe.getNumberOfPayments()];
+    double[][] alphaDerivatives = new double[cfe.getNumberOfPayments()][nbSigma];
+    double[] df = new double[cfe.getNumberOfPayments()];
+    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter(), alphaDerivatives[loopcf]);
+      df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
+      discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
+    }
+    double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    double omega = (swaption.getUnderlyingSwap().getFixedLeg().isPayer() ? -1.0 : 1.0);
+    double pv = 0.0;
+    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+      pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
+    }
+    //Backward sweep
+    double pvBar = 1.0;
+    //    double kappaBar = 0.0;
+    double[] alphaBar = new double[cfe.getNumberOfPayments()];
+    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+      alphaBar[loopcf] = discountedCashFlow[loopcf] * NORMAL.getPDF(omega * (kappa + alpha[loopcf])) * omega * pvBar;
+    }
+    for (int loopsigma = 0; loopsigma < nbSigma; loopsigma++) {
+      for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+        sigmaBar[loopsigma] += alphaDerivatives[loopcf][loopsigma] * alphaBar[loopcf];
+      }
+    }
+    return sigmaBar;
   }
 
 }
