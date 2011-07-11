@@ -62,13 +62,12 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
-    JSONArray valueRequirementNames = new JSONArray(s_valueRequirementNames);
     String result = null;
     try {
       result = new JSONStringer()
           .object()
           .key("types")
-          .value(valueRequirementNames)
+          .value(new JSONArray(s_valueRequirementNames))
           .endObject()
           .toString();
     } catch (JSONException ex) {
