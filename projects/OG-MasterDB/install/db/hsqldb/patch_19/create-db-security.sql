@@ -550,3 +550,4 @@ CREATE TABLE  sec_capfloorcmsspread (
   constraint sec_fk_capfloorcmsspread2daycount foreign key (daycountconvention_id) references sec_daycount (id),
   constraint sec_fk_capfloorcmsspread2frequency foreign key (frequency_id) references sec_frequency (id)
 );
+
