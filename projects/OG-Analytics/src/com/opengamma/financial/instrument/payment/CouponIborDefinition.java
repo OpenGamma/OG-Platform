@@ -285,17 +285,17 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
           //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
-            return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
-                fixedRate);
+//            return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
+//                fixedRate);
 //      //TODO this is a fix so that a single payment swap is still sensitive to the forward curve even though the payment is fixed (i.e. the reset date has passed)
-//      final double fixingTime = 0.0;
-//      double fixingPeriodStartTime = 0.0; //TODO How should this be handled?
-//      if (date.isBefore(getFixingPeriodStartDate())) {
-//        fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
-//      }
-//      final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-//      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), fixedRate, getNotional(), fixingTime, fixingPeriodStartTime,
-//          fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0.0, forwardCurveName);
+      final double fixingTime = 0.0;
+      double fixingPeriodStartTime = 0.0; //TODO How should this be handled?
+      if (date.isBefore(getFixingPeriodStartDate())) {
+        fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
+      }
+      final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
+      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, fixingPeriodStartTime,
+          fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0.0, forwardCurveName);
     }
 
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());

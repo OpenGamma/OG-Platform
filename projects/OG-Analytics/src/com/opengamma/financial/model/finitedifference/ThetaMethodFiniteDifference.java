@@ -243,8 +243,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     private void solveMatrixSystem() {
-      ///final double omega = 1.0;
-      //final int count = solveBySOR(omega);
+      final double omega = 1.0;
+      @SuppressWarnings("unused") //NOTE get this working again with dynamic omega
+      final int count = solveBySOR(omega);
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
       //          omega = Math.max(1.0, omega * 0.9);
@@ -258,7 +259,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
-    @SuppressWarnings("unused")
+
     private int solveBySOR(final double omega) {
 
       double sum;

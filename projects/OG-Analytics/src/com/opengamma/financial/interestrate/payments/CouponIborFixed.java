@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import sun.tools.tree.SuperExpression;
+
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
@@ -18,9 +20,9 @@ public class CouponIborFixed extends CouponFixed {
   private CouponIbor _couponIbor;
 
 
-  public CouponIborFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double rate, final double notional, final double fixingTime,
+  public CouponIborFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, final double notional, double rate,  final double fixingTime,
       final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate);
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction,notional, rate);
     _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
   }
 
@@ -56,6 +58,12 @@ public class CouponIborFixed extends CouponFixed {
       return false;
     }
     return true;
+  }
+  
+  @Override
+  public String toString() {
+    return super.toString() + _couponIbor.toString();
+    
   }
   
   @Override
