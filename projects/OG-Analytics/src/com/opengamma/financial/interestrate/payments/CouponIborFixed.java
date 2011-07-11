@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import sun.tools.tree.SuperExpression;
-
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
@@ -17,12 +15,11 @@ import com.opengamma.util.money.Currency;
  * curve construction.
  */
 public class CouponIborFixed extends CouponFixed {
-  private CouponIbor _couponIbor;
+  private final CouponIbor _couponIbor;
 
-
-  public CouponIborFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, final double notional, double rate,  final double fixingTime,
-      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction,notional, rate);
+  public CouponIborFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
+      final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate);
     _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
   }
 
@@ -39,7 +36,7 @@ public class CouponIborFixed extends CouponFixed {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -49,7 +46,7 @@ public class CouponIborFixed extends CouponFixed {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborFixed other = (CouponIborFixed) obj;
+    final CouponIborFixed other = (CouponIborFixed) obj;
     if (_couponIbor == null) {
       if (other._couponIbor != null) {
         return false;
@@ -59,13 +56,13 @@ public class CouponIborFixed extends CouponFixed {
     }
     return true;
   }
-  
+
   @Override
   public String toString() {
     return super.toString() + _couponIbor.toString();
-    
+
   }
-  
+
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborFixed(this, data);
