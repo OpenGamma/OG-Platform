@@ -146,7 +146,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivity() {
     PresentValueSensitivity pvcsCap = METHOD.presentValueSensitivity(CMS_CAP, SABR_BUNDLE);
     pvcsCap = pvcsCap.clean();
-    final double deltaTolerancePrice = 1.0E+1;
+    final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-6;
     String bumpedCurveName = "Bumped Curve";
@@ -239,7 +239,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
-  public void testPerformance() {
+  public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;
     startTime = System.currentTimeMillis();
@@ -250,8 +250,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 345 ms for 1000 cap 5Y.
-    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 615 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 245 ms for 1000 cap 5Y.
+    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 620 ms for 1000 cap 5Y.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       PVC_SABR.visit(CMS_FLOOR, SABR_BUNDLE);
@@ -260,8 +260,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 1000 floor 5Y.
-    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 490 ms for 1000 cap 5Y.
+    // Performance note: price+delta: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 1000 floor 5Y.
+    // Performance note: price+delta+vega: 6-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000 cap 5Y.
   }
-
 }
