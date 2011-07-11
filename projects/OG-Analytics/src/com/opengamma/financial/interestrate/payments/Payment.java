@@ -76,7 +76,7 @@ public abstract class Payment implements InterestRateDerivative {
 
   /**
    * Check if the payment is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
-   * @return The check.
+   * @return  True if IborCoupon or FixedCoupon 
    */
   public boolean isIborOrFixed() {
     return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
