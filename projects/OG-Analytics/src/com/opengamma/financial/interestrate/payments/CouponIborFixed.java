@@ -9,7 +9,10 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ //TODO Review this
+ * This exists so that yield curves construction (particularly with OIS) works correctly. It acts like a CouponFixed except for yield Curve sensitivities (PV and par rate) where it acts
+ * like a CouponIbor, since even though the rate, and thus the payment, is fixed (in the case or Ibor, but not OIS), the payment is still sensitive to the curve from the point of view of yield
+ * curve construction.
  */
 public class CouponIborFixed extends CouponFixed {
   private CouponIbor _couponIbor;
