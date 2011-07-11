@@ -142,8 +142,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> sensiForwardForward = prsFra.getSensitivity().get(FORWARD_CURVE_NAME);
-    final List<DoublesPair> sensiPvForward = pvsFra.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensitivityForwardForward = prsFra.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensitivityPvForward = pvsFra.getSensitivity().get(FORWARD_CURVE_NAME);
     final double[] sensiForwardForwardFD = new double[nbForwardDate];
     final double[] sensiPvForwardFD = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
@@ -155,8 +155,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
       final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward).getAmount();
       sensiForwardForwardFD[i] = (bumpedForward - forward) / deltaShift;
       sensiPvForwardFD[i] = (bumpedPv - pv) / deltaShift;
-      final DoublesPair pairForward = sensiForwardForward.get(i);
-      final DoublesPair pairPv = sensiPvForward.get(i);
+      final DoublesPair pairForward = sensitivityForwardForward.get(i);
+      final DoublesPair pairPv = sensitivityPvForward.get(i);
       assertEquals("Sensitivity forward to forward curve: Node " + i, nodeTimesForward[i + 1], pairForward.getFirst(), 1E-8);
       assertEquals("Sensitivity forward to forward curve: Node " + i, sensiForwardForwardFD[i], pairForward.getSecond(), deltaToleranceRate);
       assertEquals("Sensitivity pv to forward curve: Node " + i, nodeTimesForward[i + 1], pairPv.getFirst(), 1E-8);
