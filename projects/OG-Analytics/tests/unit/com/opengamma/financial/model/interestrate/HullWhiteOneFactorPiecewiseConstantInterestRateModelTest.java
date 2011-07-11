@@ -179,7 +179,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
@@ -191,7 +191,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     int nbVolatility = VOLATILITY.length;
     double[] alphaDerivatives = new double[nbVolatility];
     long startTime, endTime;
-    final int nbTest = 1000000;
+    final int nbTest = 100000;
     double alpha = 0.0;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

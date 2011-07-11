@@ -20,7 +20,7 @@ import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Method to computes the present value of physical delivery European swaptions with the Hull-White one factor model by numerical integration.
+ * Method to compute the present value of physical delivery European swaptions with the Hull-White one factor model by numerical integration.
  */
 public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implements PricingMethod {
 
