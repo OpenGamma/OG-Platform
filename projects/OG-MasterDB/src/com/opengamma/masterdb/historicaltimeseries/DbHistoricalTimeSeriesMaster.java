@@ -11,13 +11,18 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.Duration;
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierSearch;
@@ -62,6 +67,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbHts";
+  /**
+   * The prefix used for data point unique identifiers.
+   */
+  protected static final String DATA_POINT_PREFIX = "DP";
 
   /**
    * SQL select.
@@ -507,131 +516,71 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
             "VALUES (:idkey_id, :key_scheme, :key_value)";
   }
 
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Gets the data points.
-//   * 
-//   * @param uniqueId  the data points unique identifier, not null
-//   * @param fromDateInclusive  the inclusive start date of the points to remove, null for far past
-//   * @param toDateInclusive  the inclusive end date of the points to remove, null for far future
-//   * @return the time-series, not null
-//   */
-//  protected HistoricalTimeSeries getDataPoints(
-//      UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    ArgumentChecker.notNull(uniqueId, "uniqueId");
-//    uniqueId = resolveUniqueId(uniqueId);
-//    final long oid = extractOid(uniqueId);
-//    final long rowId = extractRowId(uniqueId);
-//    final LocalDate pointDate = extractPointDate(uniqueId);
-//    if (pointDate == null) {
-//      return new HistoricalTimeSeriesImpl(uniqueId, new ArrayLocalDateDoubleTimeSeries());
-//    }
-//    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-//      .addValue("doc_oid", oid)
-//      .addValue("doc_id", rowId)
-//      .addDate("point_date", pointDate)
-//      .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
-//      .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
-//    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
-//    LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPointsByUniqueId(), args, new DataPointsExtractor());
-//    return new HistoricalTimeSeriesImpl(uniqueId, series);
-//  }
-//
-//  /**
-//   * Gets the SQL to load the data points.
-//   * 
-//   * @return the SQL, not null
-//   */
-//  protected String sqlSelectDataPointsByUniqueId() {
-//    // select the original data points up to the specified date
-//    // filtered by the start/end date required
-//    String selectPoint = "SELECT point_date, instant, point_value " +
-//        "FROM hts_point " +
-//        "WHERE doc_oid = :doc_oid " +
-//        "AND point_date <= :point_date " +
-//        "AND point_date >= :start_date " +
-//        "AND point_date <= :end_date ";
-//    // select the corrections up to the specified date and before the correction instant
-//    // filtered by the start/end date required
-//    String selectCorrect = "SELECT point_date, instant, point_value " +
-//        "FROM hts_correct " +
-//        "WHERE doc_oid = :doc_oid " +
-//        "AND point_date <= :point_date " +
-//        "AND instant <= (SELECT corr_from_instant FROM hts_document WHERE id = :doc_id) " +
-//        "AND point_date >= :start_date " +
-//        "AND point_date <= :end_date ";
-//    // result is the union, sorted to ensure the latest correction for each point comes first
-//    return selectPoint + "UNION ALL " + selectCorrect + "ORDER BY point_date, instant DESC ";
-//  }
-//
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Resolves an object identifier to a unique identifier.
-//   * 
-//   * @param uniqueId  the time-series unique identifier, not null
-//   * @return the time-series, not null
-//   */
-//  protected UniqueIdentifier resolveUniqueId(UniqueIdentifier uniqueId) {
-//    if (uniqueId.isVersioned() && uniqueId.getVersion().contains("D")) {
-//      return uniqueId;
-//    }
-//    return resolveObjectId(uniqueId, VersionCorrection.LATEST);
-//  }
-//
-//  /**
-//   * Resolves an object identifier to a unique identifier.
-//   * 
-//   * @param objectId  the time-series object identifier, not null
-//   * @param versionCorrection  the version-correction locator to search at, not null
-//   * @return the time-series, not null
-//   */
-//  protected UniqueIdentifier resolveObjectId(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-//    long oid = extractOid(objectId);
-//    versionCorrection = versionCorrection.withLatestFixed(now());
-//    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-//      .addValue("doc_oid", oid)
-//      .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
-//      .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
-//    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
-//    return namedJdbc.query(sqlSelectUniqueIdentifierByVersionCorrection(), args, new UniqueIdentifierExtractor());
-//  }
-//
-//  /**
-//   * Gets the SQL to load the data points.
-//   * 
-//   * @return the SQL, not null
-//   */
-//  protected String sqlSelectUniqueIdentifierByVersionCorrection() {
-//    // select the row id of the document
-//    String selectId =
-//      "SELECT oid, id " +
-//      "FROM hts_document " +
-//      "WHERE oid = :doc_oid " +
-//      "AND ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
-//      "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-//    // select the latest point date before the version instant
-//    String selectPoint =
-//      "SELECT MAX(point_date) AS max_date " +
-//      "FROM hts_point " +
-//      "WHERE doc_oid = :doc_oid " +
-//      "AND instant <= :version_as_of_instant ";
-//    // return a single row with both pieces of information
-//    return "SELECT main.oid AS doc_oid, main.id AS doc_id, point.max_date AS max_point_date " +
-//      "FROM (" + selectId + ") main, " +
-//      "(" + selectPoint + ") point ";
-//  }
-
   //-------------------------------------------------------------------------
   @Override
   public ManageableHistoricalTimeSeries getTimeSeries(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return null;
+    uniqueId = resolveUniqueId(uniqueId);
+    final long oid = extractTimeSeriesOid(uniqueId);
+    final Instant[] instants = extractTimeSeriesInstants(uniqueId);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("doc_oid", oid)
+      .addTimestamp("ver_instant", instants[0])
+      .addTimestamp("corr_instant", instants[1])
+      .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
+      .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
+    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPointsByUniqueId(), args, new DataPointsExtractor());
+    if (series == null) {
+      throw new DataNotFoundException("Unable to find time-series: " + uniqueId);
+    }
+    ManageableHistoricalTimeSeries result = new ManageableHistoricalTimeSeries();
+    result.setUniqueId(uniqueId);
+    result.setTimeSeries(series);
+    return result;
   }
 
+  /**
+   * Gets the SQL to load the data points.
+   * 
+   * @return the SQL, not null
+   */
+  protected String sqlSelectDataPointsByUniqueId() {
+    // select the original data points up to the specified date
+    // filtered by the start/end date required
+    String selectPoint = "SELECT doc_oid, point_date, instant, point_value " +
+        "FROM hts_point " +
+        "WHERE doc_oid = :doc_oid " +
+        "AND instant <= :ver_instant " +
+        "AND point_date >= :start_date " +
+        "AND point_date <= :end_date ";
+    // select the corrections up to the specified date and before the correction instant
+    // filtered by the start/end date required
+    String selectCorrect = "SELECT doc_oid, point_date, instant, point_value " +
+        "FROM hts_correct " +
+        "WHERE doc_oid = :doc_oid " +
+        "AND instant <= :corr_instant " +
+        "AND point_date >= :start_date " +
+        "AND point_date <= :end_date ";
+    // result is the union, sorted to ensure the latest correction for each point comes first
+    String selectPoints = selectPoint + "UNION ALL " + selectCorrect + "ORDER BY point_date, instant DESC ";
+    // select document table to handle empty set of points and to handle removal
+    String selectMain = "SELECT main.id, points.* " +
+        "FROM hts_document main " +
+        "LEFT JOIN (" + selectPoints + ") points ON main.id = points.doc_oid " +
+        "WHERE main.oid = :doc_oid " +
+        "AND main.ver_from_instant <= :ver_instant AND main.ver_to_instant > :ver_instant " +
+        "AND main.corr_from_instant <= :corr_instant AND main.corr_to_instant > :corr_instant ";
+    return selectMain;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    return null;
+    UniqueIdentifier uniqueId = resolveObjectId(objectId, versionCorrection);
+    return getTimeSeries(uniqueId, fromDateInclusive, toDateInclusive);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public UniqueIdentifier addTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series) {
     return null;
@@ -647,50 +596,6 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     return null;
   }
 
-//  /**
-//   * Gets the data points.
-//   * 
-//   * @param objectId  the time-series object identifier, not null
-//   * @param versionCorrection  the version-correction locator to search at, not null
-//   * @param fromDateInclusive  the inclusive start date of the points to remove, null for far past
-//   * @param toDateInclusive  the inclusive end date of the points to remove, null for far future
-//   * @return the time-series, not null
-//   */
-//  protected HistoricalTimeSeries getDataPoints(
-//      ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-//    ArgumentChecker.notNull(objectId, "objectId");
-//    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-//    long oid = extractOid(objectId);
-//    versionCorrection = versionCorrection.withLatestFixed(now());
-//    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-//      .addValue("doc_oid", oid)
-//      .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
-//      .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo())
-//      .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
-//      .addValue("end_date", DbDateUtils.toSqlDateNullFarPast(toDateInclusive));
-//    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
-//    LocalDateDoubleTimeSeries series = namedJdbc.query(sqlSelectDataPointsByVersionCorrection(), args, new DataPointsExtractor());
-//    UniqueIdentifier uid = namedJdbc.query(sqlSelectDataPointUniqueIdentifierByVersionCorrection(), args, new UniqueIdentifierExtractor());
-//    return new HistoricalTimeSeriesImpl(uid, series);
-//  }
-//
-//  /**
-//   * Gets the SQL to load the data points.
-//   * 
-//   * @return the SQL, not null
-//   */
-//  protected String sqlSelectDataPointsByVersionCorrection() {
-//    String select = "SELECT doc_oid, point_date, point_value " +
-//        "FROM hts_point " +
-//        "WHERE doc_oid = :doc_oid " +
-//        "AND ver_instant <= :version_as_of_instant " +
-//        "AND corr_instant <= :corrected_to_instant " +
-//        "AND point_date >= :start_date " +
-//        "AND point_date <= :end_date " +
-//        "ORDER BY point_date, corr_instant DESC ";
-//    return select;
-//  }
-//
 //  //-------------------------------------------------------------------------
 //  @Override
 //  public UniqueIdentifier updateDataPoints(final UniqueIdentifier uniqueId, final LocalDateDoubleTimeSeries series) {
@@ -844,60 +749,126 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
 //  public UniqueIdentifier correctRemoveDataPoints(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
 //    return null;
 //  }
-//
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Creates a unique identifier.
-//   * 
-//   * @param oid  the object identifier
-//   * @param rowId  the row id
-//   * @param latestPointDate  the latest date, may be null
-//   * @return the unique identifier
-//   */
-//  protected UniqueIdentifier createUniqueIdentifier(long oid, long rowId, LocalDate latestPointDate) {
-//    if (latestPointDate == null) {
-//      return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid) + "D");
-//    }
-//    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid) + "D" + latestPointDate.toString());
-//  }
-//
-//  @Override
-//  protected long extractRowId(UniqueIdentifier uniqueId) {
-//    String rowId = StringUtils.substringBefore(uniqueId.getVersion(), "D");
-//    try {
-//      return Long.parseLong(uniqueId.getValue()) + Long.parseLong(rowId);
-//    } catch (NumberFormatException ex) {
-//      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric row id): " + uniqueId, ex);
-//    }
-//  }
-//
-//  /**
-//   * Extracts the point date from the unique identifier.
-//   * 
-//   * @param uniqueId  the unique identifier, not null
-//   * @return the date, null if no point date
-//   */
-//  protected LocalDate extractPointDate(UniqueIdentifier uniqueId) {
-//    String pointDate = StringUtils.substringAfter(uniqueId.getVersion(), "D");
-//    if (pointDate.length() == 0) {
-//      return null;
-//    }
-//    try {
-//      return LocalDate.parse(pointDate);
-//    } catch (RuntimeException ex) {
-//      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric row id): " + uniqueId, ex);
-//    }
-//  }
-//
-//  protected HistoricalTimeSeriesInfoDocument getCheckLatestVersion(final UniqueIdentifier uniqueId) {
-//    HistoricalTimeSeriesGetRequest request = new HistoricalTimeSeriesGetRequest(uniqueId);
-//    request.setLoadTimeSeries(false);
-//    final HistoricalTimeSeriesInfoDocument oldDoc = get(request);  // checks uniqueId exists
-//    if (oldDoc.getVersionToInstant() != null) {
-//      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uniqueId);
-//    }
-//    return oldDoc;
-//  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a unique identifier.
+   * 
+   * @param oid  the object identifier
+   * @param verInstant  the version instant, not null
+   * @param corrInstant  the correction instant, not null
+   * @return the unique identifier
+   */
+  protected UniqueIdentifier createTimeSeriesUniqueIdentifier(long oid, Instant verInstant, Instant corrInstant) {
+    String oidStr = DATA_POINT_PREFIX + oid;
+    Duration dur = Duration.between(verInstant, corrInstant);
+    String verStr = verInstant.toString() + dur.toString();
+    return UniqueIdentifier.of(getIdentifierScheme(), oidStr, verStr);
+  }
+
+  /**
+   * Extracts the point date from the unique identifier.
+   * 
+   * @param objectId  the object identifier, not null
+   * @return the date, null if no point date
+   */
+  protected long extractTimeSeriesOid(ObjectIdentifiable objectId) {
+    String value = objectId.getObjectId().getValue();
+    if (value.startsWith(DATA_POINT_PREFIX) == false) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (missing object id prefix): " + objectId);
+    }
+    try {
+      return Long.parseLong(value.substring(2));
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric object id): " + objectId, ex);
+    }
+  }
+
+  /**
+   * Extracts the instants from the unique identifier.
+   * 
+   * @param uniqueId  the unique identifier, not null
+   * @return the instants, version, correction, not null
+   */
+  protected Instant[] extractTimeSeriesInstants(UniqueIdentifier uniqueId) {
+    try {
+      int pos = uniqueId.getVersion().indexOf('P');
+      String verStr = uniqueId.getVersion().substring(0, pos);
+      String corrStr = uniqueId.getVersion().substring(pos);
+      Instant ver = OffsetDateTime.parse(verStr).toInstant();
+      Instant corr = ver.plus(Duration.parse(corrStr));
+      return new Instant[] {ver, corr};
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (invalid version): " + uniqueId, ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves an object identifier to a unique identifier.
+   * 
+   * @param uniqueId  the time-series unique identifier, not null
+   * @return the time-series, not null
+   */
+  protected UniqueIdentifier resolveUniqueId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    if (uniqueId.isVersioned() && uniqueId.getValue().startsWith(DATA_POINT_PREFIX)) {
+      return uniqueId;
+    }
+    return resolveObjectId(uniqueId, VersionCorrection.LATEST);
+  }
+
+  /**
+   * Resolves an object identifier to a unique identifier.
+   * 
+   * @param objectId  the time-series object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @return the time-series, not null
+   */
+  protected UniqueIdentifier resolveObjectId(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final long oid = extractTimeSeriesOid(objectId);
+    versionCorrection = versionCorrection.withLatestFixed(now());
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("doc_oid", oid)
+      .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
+    final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final UniqueIdentifierExtractor extractor = new UniqueIdentifierExtractor(oid);
+    UniqueIdentifier uniqueId = namedJdbc.query(sqlSelectUniqueIdentifierByVersionCorrection(), args, extractor);
+    if (uniqueId == null) {
+      throw new DataNotFoundException("Unable to find time-series: " + objectId.getObjectId());
+    }
+    return uniqueId;
+  }
+
+  /**
+   * Gets the SQL to load the data points.
+   * 
+   * @return the SQL, not null
+   */
+  protected String sqlSelectUniqueIdentifierByVersionCorrection() {
+    // find latest version before query version instant
+    String selectVer =
+      "SELECT doc_oid, MAX(instant) as ver_instant FROM hts_point WHERE doc_oid = :doc_oid AND instant <= :version_as_of_instant GROUP BY doc_oid ";
+    // find latest correction before query correction instant
+    String selectCorr =
+      "SELECT MAX(instant) as corr_instant FROM hts_correct WHERE doc_oid = :doc_oid AND instant <= :corrected_to_instant ";
+    // merge the maximums
+    String selectInstants =
+      "SELECT v.doc_oid, v.ver_instant, c.corr_instant " +
+      "FROM (" + selectVer + ") v, (" + selectCorr + ") c ";
+    // select document to handle empty series and to check/use first doc instants
+    String select =
+      "SELECT main.ver_from_instant AS ver_from_instant, main.corr_from_instant AS corr_from_instant, instants.* " +
+      "FROM hts_document main " +
+      "LEFT JOIN (" + selectInstants + ") instants ON main.oid = instants.doc_oid " +
+      "WHERE main.oid = :doc_oid " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant ";
+    return select;
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -961,6 +932,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       _info.setDataProvider(dataProvider);
       _info.setObservationTime(observationTime);
       _info.setIdentifiers(IdentifierBundleWithDates.EMPTY);
+      _info.setTimeSeriesObjectId(uniqueId.withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
       
       HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(_info);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
@@ -982,7 +954,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final List<Double> values = new ArrayList<Double>(256);
       LocalDate last = null;
       while (rs.next()) {
-        LocalDate date = DbDateUtils.fromSqlDate(rs.getDate("POINT_DATE"));
+        LocalDate date = DbDateUtils.fromSqlDateAllowNull(rs.getDate("POINT_DATE"));
+        if (date == null) {
+          return new ArrayLocalDateDoubleTimeSeries();
+        }
         if (date.equals(last) == false) {
           last = date;
           Double value = (Double) rs.getObject("POINT_VALUE");
@@ -992,25 +967,37 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
           }
         }
       }
+      if (dates.isEmpty()) {
+        return null;
+      }
       return new ArrayLocalDateDoubleTimeSeries(dates, values);
     }
   }
 
-//  //-------------------------------------------------------------------------
-//  /**
-//   * Mapper from SQL rows to a UniqueIdentifier.
-//   */
-//  protected final class UniqueIdentifierExtractor implements ResultSetExtractor<UniqueIdentifier> {
-//    @Override
-//    public UniqueIdentifier extractData(final ResultSet rs) throws SQLException, DataAccessException {
-//      while (rs.next()) {
-//        long oid = rs.getLong("DOC_OID");
-//        long rowId = rs.getLong("DOC_ID");
-//        LocalDate date = DbDateUtils.fromSqlDateAllowNull(rs.getDate("MAX_POINT_DATE"));
-//        return createUniqueIdentifier(oid, rowId, date);
-//      }
-//      throw new DataNotFoundException("Unable to find time-series");
-//    }
-//  }
+  //-------------------------------------------------------------------------
+  /**
+   * Mapper from SQL rows to a UniqueIdentifier.
+   */
+  protected final class UniqueIdentifierExtractor implements ResultSetExtractor<UniqueIdentifier> {
+    private final long _objectId;
+    public UniqueIdentifierExtractor(final long objectId) {
+      _objectId = objectId;
+    }
+    @Override
+    public UniqueIdentifier extractData(final ResultSet rs) throws SQLException, DataAccessException {
+      while (rs.next()) {
+        Timestamp ver = rs.getTimestamp("ver_instant");
+        Timestamp corr = rs.getTimestamp("corr_instant");
+        if (ver == null) {
+          ver = rs.getTimestamp("ver_from_instant");
+          corr = rs.getTimestamp("corr_from_instant");
+        }
+        Instant verInstant = DbDateUtils.fromSqlTimestamp(ver);
+        Instant corrInstant = (corr != null ? DbDateUtils.fromSqlTimestamp(corr) : verInstant);
+        return createTimeSeriesUniqueIdentifier(_objectId, verInstant, corrInstant);
+      }
+      return null;
+    }
+  }
 
 }

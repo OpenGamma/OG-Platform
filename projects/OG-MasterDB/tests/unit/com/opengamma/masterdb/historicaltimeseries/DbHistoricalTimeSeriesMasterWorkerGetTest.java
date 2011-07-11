@@ -126,6 +126,12 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTest extends AbstractDbHistori
     assert201(test);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getObjectIdentifier_tooEarly() {
+    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "201");
+    _htsMaster.get(oid, VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(1)));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

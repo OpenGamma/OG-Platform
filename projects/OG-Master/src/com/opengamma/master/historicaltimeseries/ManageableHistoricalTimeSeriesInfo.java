@@ -84,6 +84,12 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    */
   @PropertyDefinition
   private String _observationTime;
+  /**
+   * The object identifier of the historical time-series data points.
+   * This must be separately looked up using the master.
+   */
+  @PropertyDefinition
+  private UniqueIdentifier _timeSeriesObjectId;
 
   /**
    * Creates an instance.
@@ -123,6 +129,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         return getDataProvider();
       case 951232793:  // observationTime
         return getObservationTime();
+      case 2129430654:  // timeSeriesObjectId
+        return getTimeSeriesObjectId();
     }
     return super.propertyGet(propertyName);
   }
@@ -151,6 +159,9 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
+      case 2129430654:  // timeSeriesObjectId
+        setTimeSeriesObjectId((UniqueIdentifier) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -168,7 +179,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime());
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getTimeSeriesObjectId(), other.getTimeSeriesObjectId());
     }
     return false;
   }
@@ -183,6 +195,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesObjectId());
     return hash;
   }
 
@@ -384,6 +397,34 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the object identifier of the historical time-series data points.
+   * This must be separately looked up using the master.
+   * @return the value of the property
+   */
+  public UniqueIdentifier getTimeSeriesObjectId() {
+    return _timeSeriesObjectId;
+  }
+
+  /**
+   * Sets the object identifier of the historical time-series data points.
+   * This must be separately looked up using the master.
+   * @param timeSeriesObjectId  the new value of the property
+   */
+  public void setTimeSeriesObjectId(UniqueIdentifier timeSeriesObjectId) {
+    this._timeSeriesObjectId = timeSeriesObjectId;
+  }
+
+  /**
+   * Gets the the {@code timeSeriesObjectId} property.
+   * This must be separately looked up using the master.
+   * @return the property, not null
+   */
+  public final Property<UniqueIdentifier> timeSeriesObjectId() {
+    return metaBean().timeSeriesObjectId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageableHistoricalTimeSeriesInfo}.
    */
   public static class Meta extends DirectMetaBean {
@@ -428,6 +469,11 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", ManageableHistoricalTimeSeriesInfo.class, String.class);
     /**
+     * The meta-property for the {@code timeSeriesObjectId} property.
+     */
+    private final MetaProperty<UniqueIdentifier> _timeSeriesObjectId = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesObjectId", ManageableHistoricalTimeSeriesInfo.class, UniqueIdentifier.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -438,7 +484,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         "dataField",
         "dataSource",
         "dataProvider",
-        "observationTime");
+        "observationTime",
+        "timeSeriesObjectId");
 
     /**
      * Restricted constructor.
@@ -463,6 +510,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
           return _dataProvider;
         case 951232793:  // observationTime
           return _observationTime;
+        case 2129430654:  // timeSeriesObjectId
+          return _timeSeriesObjectId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -537,6 +586,14 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
      */
     public final MetaProperty<String> observationTime() {
       return _observationTime;
+    }
+
+    /**
+     * The meta-property for the {@code timeSeriesObjectId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueIdentifier> timeSeriesObjectId() {
+      return _timeSeriesObjectId;
     }
 
   }

@@ -62,7 +62,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
    * Gets the historical time-series unique identifier.
    * This gets the unique identifier from the {@code ManageableHistoricalTimeSeries}.
    * 
-   * @return the value of the property
+   * @return the unique identifier
    */
   @DerivedProperty
   public UniqueIdentifier getUniqueId() {
@@ -73,7 +73,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
    * Sets the historical time-series unique identifier.
    * This sets the unique identifier in the {@code ManageableHistoricalTimeSeries}.
    * 
-   * @param uniqueId  the new value of the property
+   * @param uniqueId  the new unique identifier
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
     getInfo().setUniqueId(uniqueId);

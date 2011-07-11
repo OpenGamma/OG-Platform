@@ -43,6 +43,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected Instant _version3Instant;
+  protected Instant _version4Instant;
   protected int _totalPortfolios;
   protected int _totalHistoricalTimeSeries;
   protected OffsetDateTime _now;
@@ -62,9 +63,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     _htsMaster.setTimeSource(TimeSource.fixed(_now.toInstant()));
     _version1Instant = _now.toInstant().minusSeconds(100);
     _version2Instant = _now.toInstant().minusSeconds(50);
-    _version3Instant = _now.toInstant().minusSeconds(20);
-    s_logger.debug("test data now:   {}", _version1Instant);
-    s_logger.debug("test data later: {}", _version2Instant);
+    _version3Instant = _now.toInstant().minusSeconds(40);
+    _version4Instant = _now.toInstant().minusSeconds(30);
+    s_logger.debug("test data now:   {}", _now);
+    s_logger.debug("test data 1: {}", _version1Instant);
+    s_logger.debug("test data 2: {}", _version2Instant);
+    s_logger.debug("test data 3: {}", _version3Instant);
+    s_logger.debug("test data 4: {}", _version4Instant);
     final SimpleJdbcTemplate template = _htsMaster.getDbSource().getJdbcTemplate();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
@@ -132,20 +137,16 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 3.1d);
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
-        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant.plusSeconds(1)), 3.2d);
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version2Instant), 3.2d);
     template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
-        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version1Instant.plusSeconds(1)), 3.3d);
-    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
-        102, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 2.1d);
-    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
-        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), 4.1d);
-    template.update("INSERT INTO hts_point VALUES (?,?,?,?)",
-        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version1Instant), 4.2d);
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version2Instant), 3.3d);
     
     template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
-        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version3Instant), 3.0d);
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version3Instant), 3.21d);
     template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
-        201, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version3Instant), 4.0d);
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 2)), toSqlTimestamp(_version4Instant), 3.22d);
+    template.update("INSERT INTO hts_correct VALUES (?,?,?,?)",
+        101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version4Instant), 3.33d);
   }
 
   @AfterMethod

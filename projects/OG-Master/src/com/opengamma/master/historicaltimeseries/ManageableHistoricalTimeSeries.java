@@ -8,6 +8,7 @@ package com.opengamma.master.historicaltimeseries;
 import java.io.Serializable;
 import java.util.Map;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.joda.beans.BeanBuilder;
@@ -51,6 +52,16 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
+  /**
+   * The instant that this version was created.
+   */
+  @PropertyDefinition
+  private Instant _versionInstant;
+  /**
+   * The instant that this version was corrected at.
+   */
+  @PropertyDefinition
+  private Instant _correctionInstant;
   /**
    * The time-series.
    * This field is only returned if requested from the master, and not all
@@ -97,6 +108,10 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
+      case 2084044265:  // versionInstant
+        return getVersionInstant();
+      case 434256035:  // correctionInstant
+        return getCorrectionInstant();
       case 779431844:  // timeSeries
         return getTimeSeries();
       case -809579181:  // earliest
@@ -112,6 +127,12 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
+        return;
+      case 2084044265:  // versionInstant
+        setVersionInstant((Instant) newValue);
+        return;
+      case 434256035:  // correctionInstant
+        setCorrectionInstant((Instant) newValue);
         return;
       case 779431844:  // timeSeries
         setTimeSeries((LocalDateDoubleTimeSeries) newValue);
@@ -134,6 +155,8 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       ManageableHistoricalTimeSeries other = (ManageableHistoricalTimeSeries) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant()) &&
+          JodaBeanUtils.equal(getCorrectionInstant(), other.getCorrectionInstant()) &&
           JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
           JodaBeanUtils.equal(getEarliest(), other.getEarliest()) &&
           JodaBeanUtils.equal(getLatest(), other.getLatest());
@@ -145,6 +168,8 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEarliest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLatest());
@@ -177,6 +202,56 @@ public class ManageableHistoricalTimeSeries extends DirectBean
    */
   public final Property<UniqueIdentifier> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant that this version was created.
+   * @return the value of the property
+   */
+  public Instant getVersionInstant() {
+    return _versionInstant;
+  }
+
+  /**
+   * Sets the instant that this version was created.
+   * @param versionInstant  the new value of the property
+   */
+  public void setVersionInstant(Instant versionInstant) {
+    this._versionInstant = versionInstant;
+  }
+
+  /**
+   * Gets the the {@code versionInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> versionInstant() {
+    return metaBean().versionInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant that this version was corrected at.
+   * @return the value of the property
+   */
+  public Instant getCorrectionInstant() {
+    return _correctionInstant;
+  }
+
+  /**
+   * Sets the instant that this version was corrected at.
+   * @param correctionInstant  the new value of the property
+   */
+  public void setCorrectionInstant(Instant correctionInstant) {
+    this._correctionInstant = correctionInstant;
+  }
+
+  /**
+   * Gets the the {@code correctionInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> correctionInstant() {
+    return metaBean().correctionInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -282,6 +357,16 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", ManageableHistoricalTimeSeries.class, UniqueIdentifier.class);
     /**
+     * The meta-property for the {@code versionInstant} property.
+     */
+    private final MetaProperty<Instant> _versionInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionInstant", ManageableHistoricalTimeSeries.class, Instant.class);
+    /**
+     * The meta-property for the {@code correctionInstant} property.
+     */
+    private final MetaProperty<Instant> _correctionInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionInstant", ManageableHistoricalTimeSeries.class, Instant.class);
+    /**
      * The meta-property for the {@code timeSeries} property.
      */
     private final MetaProperty<LocalDateDoubleTimeSeries> _timeSeries = DirectMetaProperty.ofReadWrite(
@@ -302,6 +387,8 @@ public class ManageableHistoricalTimeSeries extends DirectBean
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
+        "versionInstant",
+        "correctionInstant",
         "timeSeries",
         "earliest",
         "latest");
@@ -317,6 +404,10 @@ public class ManageableHistoricalTimeSeries extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
+        case 2084044265:  // versionInstant
+          return _versionInstant;
+        case 434256035:  // correctionInstant
+          return _correctionInstant;
         case 779431844:  // timeSeries
           return _timeSeries;
         case -809579181:  // earliest
@@ -349,6 +440,22 @@ public class ManageableHistoricalTimeSeries extends DirectBean
      */
     public final MetaProperty<UniqueIdentifier> uniqueId() {
       return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code versionInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> versionInstant() {
+      return _versionInstant;
+    }
+
+    /**
+     * The meta-property for the {@code correctionInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> correctionInstant() {
+      return _correctionInstant;
     }
 
     /**
