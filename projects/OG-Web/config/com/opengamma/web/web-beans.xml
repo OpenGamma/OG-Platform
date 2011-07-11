@@ -321,6 +321,9 @@
     </constructor-arg>
   </bean>
   
+  <!-- ValueRequirementNames RESTful service -->
+  <bean id="webValueRequirementNamesRestBean" class="com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource" scope="request" />
+    
   <!-- Config RESTful service -->
   <bean id="webConfigsRestBean" class="com.opengamma.web.config.WebConfigsResource" scope="request">
     <constructor-arg ref="sharedConfigMaster" />
