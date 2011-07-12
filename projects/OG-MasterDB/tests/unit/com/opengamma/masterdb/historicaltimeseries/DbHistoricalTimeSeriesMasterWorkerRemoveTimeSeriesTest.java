@@ -45,16 +45,6 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_remove_nullDate1() {
-    _htsMaster.removeTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), null, LocalDate.of(2011, 7, 1));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_remove_nullDate2() {
-    _htsMaster.removeTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), LocalDate.of(2011, 7, 1), null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_remove_dateOrder() {
     _htsMaster.removeTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), LocalDate.of(2011, 7, 1), LocalDate.of(2011, 3, 1));
   }
@@ -92,6 +82,19 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
     assertEquals(1, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTime(0));
     assertEquals(3.33d, timeSeries.getValueAt(0), 0.001d);
+  }
+
+  @Test
+  public void test_remove_101_removeRangeWithNullEnd() {
+    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
+    UniqueIdentifier uid = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), null);
+    
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
+    assertEquals(uid, testCorrected.getUniqueId());
+    LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
+    assertEquals(1, timeSeries.size());
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));
+    assertEquals(3.1d, timeSeries.getValueAt(0), 0.001d);
   }
 
   //-------------------------------------------------------------------------

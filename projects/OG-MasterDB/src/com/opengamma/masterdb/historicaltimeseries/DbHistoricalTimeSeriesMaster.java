@@ -797,7 +797,9 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   @Override
   public UniqueIdentifier removeTimeSeriesDataPoints(final ObjectIdentifiable objectId, final LocalDate fromDateInclusive, final LocalDate toDateInclusive) {
     ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
+    if (fromDateInclusive != null && toDateInclusive != null) {
+      ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
+    }
     s_logger.debug("removing time-series data points from {}", objectId);
     
     // retry to handle concurrent conflicts
@@ -835,8 +837,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // query dates to remove
     final DbMapSqlParameterSource queryArgs = new DbMapSqlParameterSource()
       .addValue("doc_oid", docOid)
-      .addDate("start_date", fromDateInclusive)
-      .addDate("end_date", toDateInclusive);
+      .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
+      .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
     List<Map<String, Object>> dates = getJdbcTemplate().queryForList(sqlSelectRemoveDataPoints(), queryArgs);
     // insert new rows to remove them
     final Timestamp nowTS = DbDateUtils.toSqlTimestamp(now);
