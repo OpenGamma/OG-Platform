@@ -12,6 +12,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -25,7 +26,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * from the versioning of the information.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument> {
+public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument>, NotifyingMaster {
 
   /**
    * Queries the meta-data about the master.
@@ -65,8 +66,8 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * This method gets the series itself.
    * 
    * @param uniqueId  the time-series unique identifier, not null
-   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
-   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @param fromDateInclusive  the inclusive start date of the points to get, null for far past
+   * @param toDateInclusive  the inclusive end date of the points to get, null for far future
    * @return the current state of the document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
@@ -81,8 +82,8 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * 
    * @param objectId  the time-series object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
-   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
-   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @param fromDateInclusive  the inclusive start date of the points to get, null for far past
+   * @param toDateInclusive  the inclusive end date of the points to get, null for far future
    * @return the current state of the document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
@@ -90,7 +91,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
-   * Updates the time-series by adding new data points.
+   * Adds to the time-series by appending new data points.
    * <p>
    * This is used to append new time-series data points.
    * The points must be after the latest current data point.
@@ -136,8 +137,8 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * Thus, a correction does not prevent retrieval or correction of an earlier version.
    * 
    * @param objectId  the time-series object identifier, not null
-   * @param fromDateInclusive  the inclusive start date of the points to remove, not null
-   * @param toDateInclusive  the inclusive end date of the points to remove, not null
+   * @param fromDateInclusive  the inclusive start date of the points to remove, null for far past
+   * @param toDateInclusive  the inclusive end date of the points to remove, null for far future
    * @return the unique identifier of the updated document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
