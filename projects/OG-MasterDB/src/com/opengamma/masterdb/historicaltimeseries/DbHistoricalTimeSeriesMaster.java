@@ -498,7 +498,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
     info.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
-    document.getInfo().setTimeSeriesObjectId(uniqueId.withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
+    document.getInfo().setTimeSeriesObjectId(uniqueId.getObjectId().withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
     return document;
   }
 
@@ -1051,7 +1051,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       _info.setDataProvider(dataProvider);
       _info.setObservationTime(observationTime);
       _info.setIdentifiers(IdentifierBundleWithDates.EMPTY);
-      _info.setTimeSeriesObjectId(uniqueId.withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
+      _info.setTimeSeriesObjectId(uniqueId.getObjectId().withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
       
       HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(_info);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
