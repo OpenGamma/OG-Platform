@@ -797,8 +797,6 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   @Override
   public UniqueIdentifier removeTimeSeriesDataPoints(final ObjectIdentifiable objectId, final LocalDate fromDateInclusive, final LocalDate toDateInclusive) {
     ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(fromDateInclusive, "fromDateInclusive");
-    ArgumentChecker.notNull(toDateInclusive, "toDateInclusive");
     ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
     s_logger.debug("removing time-series data points from {}", objectId);
     
