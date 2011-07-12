@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -31,8 +33,16 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 public class UnitPositionScalingFunction extends PropertyPreservingFunction {
 
   @Override
-  protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+  protected Collection<String> getPreservedProperties() {
+    return Collections.singleton(ValuePropertyNames.CURRENCY);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Arrays.asList(
+        ValuePropertyNames.CURVE,
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
   }
 
   private final String _requirementName;

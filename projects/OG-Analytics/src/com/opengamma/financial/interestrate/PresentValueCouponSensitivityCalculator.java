@@ -12,6 +12,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -58,13 +59,8 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getForwardCurveName());
-    final double fwdAlpha = fra.getFixingYearFraction();
-    final double discountAlpha = fra.getPaymentYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fwdAlpha;
-    final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * fwdAlpha / (1 + forward * discountAlpha);
-    return res;
+    final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
+    return method.presentValueCouponSensitivity(fra, curves);
   }
 
   @Override

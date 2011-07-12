@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.fudgemsg;
 
+import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -15,8 +16,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.DateTimeAccuracy;
+import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.types.FudgeSecondaryType;
+import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
@@ -68,29 +71,29 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
       case HOUR_DAY_MONTH_YEAR:
         return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toOffsetDateTime());
       case DAY_MONTH_YEAR:
-        return new FudgeDateTime(DateTimeAccuracy.DAY, object.getExpiry().toOffsetDateTime());
+        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue(), object.getExpiry().getDayOfMonth()), new FudgeTime(DateTimeAccuracy.DAY,
+            0, 0, 0));
       case MONTH_YEAR:
-        return new FudgeDateTime(DateTimeAccuracy.MONTH, object.getExpiry().toOffsetDateTime());
+        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue()), new FudgeTime(DateTimeAccuracy.MONTH, 0, 0, 0));
       case YEAR:
-        return new FudgeDateTime(DateTimeAccuracy.YEAR, object.getExpiry().toOffsetDateTime());
+        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear()), new FudgeTime(DateTimeAccuracy.YEAR, 0, 0, 0));
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + object);
     }
   }
 
   protected static Expiry dateTimeToExpiry(final FudgeDateTime datetime, final String timezone) {
-    final ZonedDateTime zdt = ZonedDateTime.ofInstant(datetime.toOffsetDateTime(), TimeZone.of(timezone));
     switch (datetime.getAccuracy()) {
       case MINUTE:
-        return new Expiry(zdt, ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), TimeZone.of(timezone)), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
       case HOUR:
-        return new Expiry(zdt, ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
+        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), TimeZone.of(timezone)), ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
       case DAY:
-        return new Expiry(zdt, ExpiryAccuracy.DAY_MONTH_YEAR);
+        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.DAY_MONTH_YEAR);
       case MONTH:
-        return new Expiry(zdt, ExpiryAccuracy.MONTH_YEAR);
+        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.MONTH_YEAR);
       case YEAR:
-        return new Expiry(zdt, ExpiryAccuracy.YEAR);
+        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.YEAR);
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + datetime);
     }
