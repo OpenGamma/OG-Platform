@@ -192,6 +192,22 @@ public abstract class DbHelper {
 
   //-------------------------------------------------------------------------
   /**
+   * Builds the SQL of the coalesce function.
+   * This is typically 'COALESCE(a, b, c)' where a, b and c are the input arguments.
+   * The input is inserted directly into the function.
+   * 
+   * @param fragment1  the input SQL fragment, not null
+   * @param fragment2  the input SQL fragment, not null
+   * @return the SQL, not space terminated, not null
+   */
+  public String sqlNullDefault(String fragment1, String fragment2) {
+    // use SQL standard
+    // works on Postgres, Oracle, HSQL and MySQL
+    return "COALESCE(" + fragment1 + ", " + fragment2 + ")";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the LOB handler used for BLOBs and CLOBs.
    * Subclasses will return different handlers for different dialects.
    * @return the LOB handler, not null
