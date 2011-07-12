@@ -41,6 +41,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -192,6 +194,26 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   protected NamedDimensionDbTable getObservationTimeTable() {
     return _observationTimeTable;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoMetaDataResult metaData(HistoricalTimeSeriesInfoMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    HistoricalTimeSeriesInfoMetaDataResult result = new HistoricalTimeSeriesInfoMetaDataResult();
+    if (request.isDataFields()) {
+      result.setDataFields(getDataFieldTable().names());
+    }
+    if (request.isDataSources()) {
+      result.setDataSources(getDataSourceTable().names());
+    }
+    if (request.isDataProviders()) {
+      result.setDataProviders(getDataProviderTable().names());
+    }
+    if (request.isObservationTimes()) {
+      result.setObservationTimes(getObservationTimeTable().names());
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

@@ -26,7 +26,16 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  */
 @PublicSPI
 public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument> {
-  // TODO: metadata
+
+  /**
+   * Queries the meta-data about the master.
+   * <p>
+   * This can return information that is useful for drop-down lists.
+   * 
+   * @param request  the search request, not null
+   * @return the requested meta-data, not null
+   */
+  HistoricalTimeSeriesInfoMetaDataResult metaData(HistoricalTimeSeriesInfoMetaDataRequest request);
 
   /**
    * Searches for time-series matching the specified search criteria.

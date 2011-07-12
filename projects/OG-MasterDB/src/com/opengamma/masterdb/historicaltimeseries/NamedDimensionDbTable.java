@@ -109,7 +109,7 @@ public class NamedDimensionDbTable {
    * @return the dialect helper, not null
    */
   protected DbHelper getDbDialect() {
-    return _dbSource.getDialect();
+    return getDbSource().getDialect();
   }
 
   /**
@@ -118,7 +118,7 @@ public class NamedDimensionDbTable {
    * @return the next database id
    */
   protected long nextId() {
-    return _dbSource.getJdbcTemplate().queryForLong(getDbDialect().sqlNextSequenceValueSelect(_sequenceName));
+    return getDbSource().getJdbcTemplate().queryForLong(getDbDialect().sqlNextSequenceValueSelect(_sequenceName));
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +132,7 @@ public class NamedDimensionDbTable {
     String select = sqlSelectGet();
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), name);
-    List<Map<String, Object>> result = _dbSource.getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
       return (Long) result.get(0).get("dim_id");
     }
@@ -165,7 +165,7 @@ public class NamedDimensionDbTable {
     String select = sqlSelectSearch(name);
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), getDbDialect().sqlWildcardAdjustValue(name));
-    List<Map<String, Object>> result = _dbSource.getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
     if (result.isEmpty()) {
       return null;
     }
@@ -199,13 +199,13 @@ public class NamedDimensionDbTable {
     String select = sqlSelectGet();
     DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue(getVariableName(), name);
-    List<Map<String, Object>> result = _dbSource.getJdbcTemplate().queryForList(select, args);
+    List<Map<String, Object>> result = getDbSource().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
       return (Long) result.get(0).get("dim_id");
     }
     final long id = nextId();
     args.addValue("dim_id", id);
-    _dbSource.getJdbcTemplate().update(sqlInsert(), args);
+    getDbSource().getJdbcTemplate().update(sqlInsert(), args);
     s_logger.debug("Inserted new value into {} : {} = {}", new Object[] {getTableName(), id, name});
     return id;
   }
@@ -221,6 +221,26 @@ public class NamedDimensionDbTable {
     return
       "INSERT INTO " + getTableName() + " (id, name) " +
       "VALUES (:dim_id, :" + getVariableName() + ")";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Lists all the names in the table, sorted alphabetically.
+   * 
+   * @return the set of names, not null
+   */
+  public List<String> names() {
+    return getDbSource().getJdbcTemplate().getJdbcOperations().queryForList(sqlSelectNames(), String.class);
+  }
+
+  /**
+   * Gets an SQL list names.
+   * 
+   * @return the SQL, not null
+   */
+  public String sqlSelectNames() {
+    return
+      "SELECT name FROM " + getTableName() + " ORDER BY name";
   }
 
   //-------------------------------------------------------------------------

@@ -85,7 +85,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   /**
    * SQL select types.
    */
-  protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type ";
+  protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type FROM sec_security main";
 
   /**
    * The detail provider.
@@ -129,7 +129,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     ArgumentChecker.notNull(request, "request");
     SecurityMetaDataResult result = new SecurityMetaDataResult();
     if (request.isSecurityTypes()) {
-      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
+      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES, String.class);
       result.getSecurityTypes().addAll(securityTypes);
     }
     return result;
