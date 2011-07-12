@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -10,11 +10,12 @@ $.register_module({
         return function (config) {
             var name = config.index, resource = config.resource, form = config.form, placeholder = config.placeholder,
                 fields = config.fields || [0], values = fields[0], rest_options = config.rest_options || null,
-                texts = typeof fields[1] !== 'undefined' ? fields[1] : values,
-                value = config.value, id = prefix + id_count++, meta = rest_options && rest_options.meta,
+                texts = typeof fields[1] !== 'undefined' ? fields[1] : values, value = config.value,
+                id = prefix + id_count++, meta = rest_options && rest_options.meta, test,
                 field_options = {
                     generator: function (handler) {
                         var options = $.extend({}, rest_options, {
+                            cache_for: 30 * 1000,
                             handler: function (result) {
                                 if (result.error) return handler('an error occurred');
                                 var $html = $('<p><select/></p>'), $select = $html.find('select');
@@ -38,7 +39,7 @@ $.register_module({
                                 handler($html.html());
                             }
                         });
-                        og.api.rest[resource].get(options);
+                        test = og.api.rest[resource].get(options);
                     }
                 };
             if (config.processor) field_options.processor = config.processor.partial('select#' + id);
