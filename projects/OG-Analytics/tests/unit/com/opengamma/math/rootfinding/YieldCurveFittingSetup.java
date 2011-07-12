@@ -47,6 +47,7 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -106,8 +107,7 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -215,7 +215,7 @@ public abstract class YieldCurveFittingSetup {
   protected void assertJacobian(final YieldCurveFittingTestDataBundle data) {
     final MultipleYieldCurveFinderFunction func = new MultipleYieldCurveFinderFunction(data, data.getMarketValueCalculator());
     final MultipleYieldCurveFinderJacobian jac = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
-    final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
+    final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, 1.0E-6);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.differentiate(func);
     final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
@@ -354,7 +354,7 @@ public abstract class YieldCurveFittingSetup {
     assertEquals(m2.getNumberOfColumns(), n);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), eps);
+        assertEquals("Entry " + i + " - " + j, m1.getEntry(i, j), m2.getEntry(i, j), eps);
       }
     }
   }

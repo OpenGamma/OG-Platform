@@ -639,7 +639,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testSwapOptionSecurity() {
+  public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 

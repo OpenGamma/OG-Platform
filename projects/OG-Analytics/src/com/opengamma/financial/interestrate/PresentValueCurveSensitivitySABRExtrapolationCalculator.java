@@ -75,8 +75,8 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
         return method.presentValueSensitivity(swaption, sabr).getSensitivity();
       }
     }
-    throw new UnsupportedOperationException(
-        "The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new 
+    UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
   }
 
   @Override

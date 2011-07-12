@@ -183,6 +183,14 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     }
   }
 
+  @Test
+  /**
+   * Tests the Hull-White parameters sensitivity.
+   */
+  public void calibration() {
+
+  }
+
   @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.

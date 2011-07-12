@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,16 +50,18 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
 
   //-------------------------------------------------------------------------
   @Override
-  protected String[] getPreservedProperties() {
-    Set<String> preserved = new HashSet<String>(Arrays.asList(new String[] {
-      ValuePropertyNames.CUBE,
-      ValuePropertyNames.CURRENCY,
-      ValuePropertyNames.CURVE,
-      ValuePropertyNames.CURVE_CURRENCY,
-      YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-      YieldCurveFunction.PROPERTY_FUNDING_CURVE}));
-    preserved.addAll(getAggregationPropertyNames());
-    return preserved.toArray(new String[preserved.size()]);
+  protected Collection<String> getPreservedProperties() {
+    return Collections.singleton(ValuePropertyNames.CURRENCY);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Arrays.asList(
+        ValuePropertyNames.CUBE,
+        ValuePropertyNames.CURVE,
+        ValuePropertyNames.CURVE_CURRENCY,
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
   }
   
   //-------------------------------------------------------------------------
@@ -69,7 +72,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
       Object nextValue = input.getValue();
       currentSum = addValue(currentSum, nextValue);
     }
-    ComputedValue computedValue = new ComputedValue(new ValueSpecification(getValueName(), target.toSpecification(), getCompositeValueProperties(inputs.getAllValues())), currentSum);
+    ComputedValue computedValue = new ComputedValue(new ValueSpecification(getValueName(), target.toSpecification(), getResultPropertiesFromInputs(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);
   }
   
@@ -138,7 +141,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     // Just ensure mutual compatibility across aggregation properties
-    ValueProperties resultProperties = inputs.isEmpty() ? getResultProperties() : getCompositeSpecificationProperties(inputs.keySet());
+    ValueProperties resultProperties = inputs.isEmpty() ? getResultProperties() : getResultProperties(inputs.keySet());
     ValueSpecification resultSpec = getResultSpec(target, resultProperties);
     return Collections.singleton(resultSpec);
   }
