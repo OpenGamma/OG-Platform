@@ -28,7 +28,7 @@ import com.opengamma.id.Identifier;
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Integer, Double> {
   private static BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER;
+  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
   static {

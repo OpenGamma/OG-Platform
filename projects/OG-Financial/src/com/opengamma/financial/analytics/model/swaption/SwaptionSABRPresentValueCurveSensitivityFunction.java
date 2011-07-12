@@ -43,7 +43,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SwaptionSABRPresentValueCurveSensitivityFunction extends SwaptionSABRFunction {
-  private static final DecimalFormat FORMATTER = new DecimalFormat("##.");
+  private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
   private final PresentValueSensitivityCalculator _calculator;
 
   public SwaptionSABRPresentValueCurveSensitivityFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
