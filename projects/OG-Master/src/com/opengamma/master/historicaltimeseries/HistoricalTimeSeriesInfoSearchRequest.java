@@ -98,26 +98,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    */
   @PropertyDefinition
   private String _observationTime;
-  /**
-   * Set to true to load the earliest and latest date for time-series.
-   */
-  @PropertyDefinition
-  private boolean _loadEarliestLatest;
-  /**
-   * Set to true to load data points, otherwise return just info.
-   */
-  @PropertyDefinition
-  private boolean _loadTimeSeries;
-  /**
-   * The start date, inclusive, null returns data from the earliest valid date.
-   */
-  @PropertyDefinition
-  private LocalDate _start; 
-  /**
-   * The end date, inclusive, null returns data up to the latest valid date.
-   */
-  @PropertyDefinition
-  private LocalDate _end;
 
   /**
    * Creates an instance.
@@ -299,14 +279,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
         return getDataField();
       case 951232793:  // observationTime
         return getObservationTime();
-      case -771242688:  // loadEarliestLatest
-        return isLoadEarliestLatest();
-      case 1833789738:  // loadTimeSeries
-        return isLoadTimeSeries();
-      case 109757538:  // start
-        return getStart();
-      case 100571:  // end
-        return getEnd();
     }
     return super.propertyGet(propertyName);
   }
@@ -342,18 +314,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
       case 951232793:  // observationTime
         setObservationTime((String) newValue);
         return;
-      case -771242688:  // loadEarliestLatest
-        setLoadEarliestLatest((Boolean) newValue);
-        return;
-      case 1833789738:  // loadTimeSeries
-        setLoadTimeSeries((Boolean) newValue);
-        return;
-      case 109757538:  // start
-        setStart((LocalDate) newValue);
-        return;
-      case 100571:  // end
-        setEnd((LocalDate) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -374,10 +334,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
-          JodaBeanUtils.equal(isLoadEarliestLatest(), other.isLoadEarliestLatest()) &&
-          JodaBeanUtils.equal(isLoadTimeSeries(), other.isLoadTimeSeries()) &&
-          JodaBeanUtils.equal(getStart(), other.getStart()) &&
-          JodaBeanUtils.equal(getEnd(), other.getEnd()) &&
           super.equals(obj);
     }
     return false;
@@ -395,10 +351,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isLoadEarliestLatest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isLoadTimeSeries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEnd());
     return hash ^ super.hashCode();
   }
 
@@ -638,106 +590,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set to true to load the earliest and latest date for time-series.
-   * @return the value of the property
-   */
-  public boolean isLoadEarliestLatest() {
-    return _loadEarliestLatest;
-  }
-
-  /**
-   * Sets set to true to load the earliest and latest date for time-series.
-   * @param loadEarliestLatest  the new value of the property
-   */
-  public void setLoadEarliestLatest(boolean loadEarliestLatest) {
-    this._loadEarliestLatest = loadEarliestLatest;
-  }
-
-  /**
-   * Gets the the {@code loadEarliestLatest} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> loadEarliestLatest() {
-    return metaBean().loadEarliestLatest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets set to true to load data points, otherwise return just info.
-   * @return the value of the property
-   */
-  public boolean isLoadTimeSeries() {
-    return _loadTimeSeries;
-  }
-
-  /**
-   * Sets set to true to load data points, otherwise return just info.
-   * @param loadTimeSeries  the new value of the property
-   */
-  public void setLoadTimeSeries(boolean loadTimeSeries) {
-    this._loadTimeSeries = loadTimeSeries;
-  }
-
-  /**
-   * Gets the the {@code loadTimeSeries} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> loadTimeSeries() {
-    return metaBean().loadTimeSeries().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start date, inclusive, null returns data from the earliest valid date.
-   * @return the value of the property
-   */
-  public LocalDate getStart() {
-    return _start;
-  }
-
-  /**
-   * Sets the start date, inclusive, null returns data from the earliest valid date.
-   * @param start  the new value of the property
-   */
-  public void setStart(LocalDate start) {
-    this._start = start;
-  }
-
-  /**
-   * Gets the the {@code start} property.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> start() {
-    return metaBean().start().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end date, inclusive, null returns data up to the latest valid date.
-   * @return the value of the property
-   */
-  public LocalDate getEnd() {
-    return _end;
-  }
-
-  /**
-   * Sets the end date, inclusive, null returns data up to the latest valid date.
-   * @param end  the new value of the property
-   */
-  public void setEnd(LocalDate end) {
-    this._end = end;
-  }
-
-  /**
-   * Gets the the {@code end} property.
-   * @return the property, not null
-   */
-  public final Property<LocalDate> end() {
-    return metaBean().end().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code HistoricalTimeSeriesInfoSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -793,26 +645,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
         this, "observationTime", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code loadEarliestLatest} property.
-     */
-    private final MetaProperty<Boolean> _loadEarliestLatest = DirectMetaProperty.ofReadWrite(
-        this, "loadEarliestLatest", HistoricalTimeSeriesInfoSearchRequest.class, Boolean.TYPE);
-    /**
-     * The meta-property for the {@code loadTimeSeries} property.
-     */
-    private final MetaProperty<Boolean> _loadTimeSeries = DirectMetaProperty.ofReadWrite(
-        this, "loadTimeSeries", HistoricalTimeSeriesInfoSearchRequest.class, Boolean.TYPE);
-    /**
-     * The meta-property for the {@code start} property.
-     */
-    private final MetaProperty<LocalDate> _start = DirectMetaProperty.ofReadWrite(
-        this, "start", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code end} property.
-     */
-    private final MetaProperty<LocalDate> _end = DirectMetaProperty.ofReadWrite(
-        this, "end", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -825,11 +657,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
         "dataSource",
         "dataProvider",
         "dataField",
-        "observationTime",
-        "loadEarliestLatest",
-        "loadTimeSeries",
-        "start",
-        "end");
+        "observationTime");
 
     /**
      * Restricted constructor.
@@ -858,14 +686,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
           return _dataField;
         case 951232793:  // observationTime
           return _observationTime;
-        case -771242688:  // loadEarliestLatest
-          return _loadEarliestLatest;
-        case 1833789738:  // loadTimeSeries
-          return _loadTimeSeries;
-        case 109757538:  // start
-          return _start;
-        case 100571:  // end
-          return _end;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -956,38 +776,6 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
      */
     public final MetaProperty<String> observationTime() {
       return _observationTime;
-    }
-
-    /**
-     * The meta-property for the {@code loadEarliestLatest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> loadEarliestLatest() {
-      return _loadEarliestLatest;
-    }
-
-    /**
-     * The meta-property for the {@code loadTimeSeries} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> loadTimeSeries() {
-      return _loadTimeSeries;
-    }
-
-    /**
-     * The meta-property for the {@code start} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> start() {
-      return _start;
-    }
-
-    /**
-     * The meta-property for the {@code end} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> end() {
-      return _end;
     }
 
   }
