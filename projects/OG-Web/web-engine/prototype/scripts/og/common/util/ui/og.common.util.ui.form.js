@@ -41,9 +41,13 @@ $.register_module({
                     throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
                 });
             };
+            block.load = function () {
+                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
+                block.children.forEach(function (child) {child.load();});
+            };
             block.process = function (data, errors) {
-                try {if (processor) processor(data);} catch (error) {errors.push(error);}
                 block.children.forEach(function (child) {child.process(data, errors);});
+                try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
             // initialize Block
             if (url || module) {
@@ -65,6 +69,9 @@ $.register_module({
                 if (template === null) return setTimeout(field.html.partial(handler), stall);
                 if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
                 generator(handler, template);
+            };
+            field.load = function () {
+                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
             };
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
