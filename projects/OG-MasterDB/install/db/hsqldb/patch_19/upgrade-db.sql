@@ -98,16 +98,9 @@ CREATE TABLE hts_doc2idkey (
 CREATE TABLE hts_point (
     doc_oid bigint NOT NULL,
     point_date date NOT NULL,
-    instant timestamp NOT NULL,
-    point_value double precision NOT NULL,
-    PRIMARY KEY (doc_oid, point_date, instant)
-);
-
-CREATE TABLE hts_correct (
-    doc_oid bigint NOT NULL,
-    point_date date NOT NULL,
-    instant timestamp NOT NULL,
+    ver_instant timestamp NOT NULL,
+    corr_instant timestamp NOT NULL,
     point_value double precision,
-    PRIMARY KEY (doc_oid, point_date, instant)
+    PRIMARY KEY (doc_oid, point_date, ver_instant, corr_instant)
 );
 -- null value used to indicate point was deleted

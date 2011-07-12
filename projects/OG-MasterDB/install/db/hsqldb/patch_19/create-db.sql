@@ -489,8 +489,8 @@ CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 -- is the versioned item, and treated as being at the document level).
 -- A data point may however be corrected. A single instant recorded for this.
 -- The actual data point is the latest matching these criteria:
---  hts_point.ver_instant < search_version_instant &&
---  hts_point.corr_instant < search_correction_instant
+--  hts_point.ver_instant <= search_version_instant &&
+--  hts_point.corr_instant <= search_correction_instant
 
 CREATE SEQUENCE hts_master_seq as bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -592,17 +592,10 @@ CREATE TABLE hts_doc2idkey (
 CREATE TABLE hts_point (
     doc_oid bigint NOT NULL,
     point_date date NOT NULL,
-    instant timestamp NOT NULL,
-    point_value double precision NOT NULL,
-    PRIMARY KEY (doc_oid, point_date, instant)
-);
-
-CREATE TABLE hts_correct (
-    doc_oid bigint NOT NULL,
-    point_date date NOT NULL,
-    instant timestamp NOT NULL,
+    ver_instant timestamp NOT NULL,
+    corr_instant timestamp NOT NULL,
     point_value double precision,
-    PRIMARY KEY (doc_oid, point_date, instant)
+    PRIMARY KEY (doc_oid, point_date, ver_instant, corr_instant)
 );
 -- null value used to indicate point was deleted
 

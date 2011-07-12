@@ -81,12 +81,10 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
   ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
-   * Adds to the time-series by appending new data points.
+   * Updates the time-series by adding new data points.
    * <p>
    * This is used to append new time-series data points.
-   * The specified request must contain the unique identifier.
-   * If the identifier has a version it must be the latest version.
-   * Only the unique identifier is returned.
+   * The points must be after the latest current data point.
    * <p>
    * A full master will store detailed historic information on documents.
    * Thus, an update does not prevent retrieval or correction of an earlier version.
@@ -97,7 +95,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier addTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
+  UniqueIdentifier updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
 
   /**
    * Corrects the time-series by removing data points.

@@ -74,10 +74,10 @@ public class PerformanceTest extends DBTest {
       info.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
       HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
       s_logger.debug("adding timeseries {}", doc);
-      _htsMaster.add(doc);
+      doc = _htsMaster.add(doc);
       
       LocalDateDoubleTimeSeries randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
-      _htsMaster.addTimeSeriesDataPoints(doc.getObjectId(), randomPoints);
+      _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), randomPoints);
       randomPoints = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
@@ -85,7 +85,7 @@ public class PerformanceTest extends DBTest {
             Lists.newArrayList(randomPoints.getTime(j)),
             Lists.newArrayList(randomPoints.getValueAt(j)));
         s_logger.debug("adding data points {}", points);
-        _htsMaster.addTimeSeriesDataPoints(doc.getUniqueId(), points);
+        _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), points);
       }
     }
     
