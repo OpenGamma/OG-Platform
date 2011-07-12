@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,13 +43,18 @@ import com.opengamma.util.ArgumentChecker;
 public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
-  protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CUBE,
-                         ValuePropertyNames.CURRENCY,
-                         ValuePropertyNames.CURVE,
-                         ValuePropertyNames.CURVE_CURRENCY,
-                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
+  protected Collection<String> getPreservedProperties() {
+    return Collections.singleton(ValuePropertyNames.CURRENCY);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Arrays.asList(
+        ValuePropertyNames.CUBE,
+        ValuePropertyNames.CURVE,
+        ValuePropertyNames.CURVE_CURRENCY,
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
   }
 
   private final String _requirementName;
@@ -74,7 +81,7 @@ public class SummingFunction extends PropertyPreservingFunction {
       final Object positionValue = inputs.getValue(requirement);
       currentSum = addValue(currentSum, positionValue);
     }
-    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getCompositeValueProperties(inputs.getAllValues())), currentSum);
+    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultPropertiesFromInputs(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);
   }
 
@@ -106,7 +113,7 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getCompositeSpecificationProperties(inputs.keySet()));
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet()));
     return Collections.singleton(result);
   }
 
