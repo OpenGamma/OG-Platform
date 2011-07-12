@@ -395,4 +395,23 @@ public final class ArgumentChecker {
     return false;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the two values are in order or equal.
+   * 
+   * @param <T>  the type
+   * @param obj1  the first object, will be checked for not null
+   * @param obj2  the second object, will be checked for not null
+   * @param param1  the first parameter name, not null
+   * @param param2  the second parameter name, not null
+   * @throws IllegalArgumentException if either input is null or they are not in order
+   */
+  public static <T> void inOrderOrEqual(Comparable<? super T> obj1, T obj2, String param1, String param2) {
+    notNull(obj1, param1);
+    notNull(obj2, param2);
+    if (obj1.compareTo(obj2) > 0) {
+      throw new IllegalArgumentException("Input parameter '" + param1 + "' must be before '" + param2 + "'");
+    }
+  }
+
 }
