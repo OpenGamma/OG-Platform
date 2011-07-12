@@ -62,8 +62,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final double FRA_RATE = 0.05;
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
-  private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
-      NOTIONAL, FIXING_DATE, INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
+      FIXING_DATE, INDEX, FRA_RATE);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 10, 9);
   private static final String FUNDING_CURVE_NAME = "Funding";
@@ -87,7 +87,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
     final double dfSettle = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(FRA.getPaymentTime());
-    final double expectedPv = FRA.getNotional() * dfSettle * FRA.getFixingYearFraction() * (forward - FRA_RATE) / (1 + FRA.getFixingYearFraction() * forward);
+    final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
     final CurrencyAmount pv = FRA_METHOD.presentValue(FRA, curves);
     assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
   }
@@ -250,7 +250,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     }
   }
 
-  //@Test //FIXME 
+  @Test
   public void presentValueSensitivityMethodVsCalculator() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final PresentValueSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
