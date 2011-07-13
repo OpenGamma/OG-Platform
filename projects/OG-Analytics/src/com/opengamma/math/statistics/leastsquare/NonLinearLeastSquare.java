@@ -329,6 +329,24 @@ public class NonLinearLeastSquare {
   }
 
   /**
+   * TODO this information could be returned with LeastSquareResults since it involves calculating the covariance matrix which is already calculated there 
+   * the inverse-Jacobian where the i-j entry is the sensitivity of the ith (fitted) parameter (a_i) to the jth data point (y_j).
+   * @param sigma Set of measurement errors
+   * @param func The model as a function of its parameters only
+   * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
+   * @param originalSolution The value of the parameters at a converged solution 
+   * @return inverse-Jacobian
+   */
+  public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
+    DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
+    DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
+    DoubleMatrix2D bT = getBTanspose(jacobian, sigma);
+    DecompositionResult decRes = _decomposition.evaluate(a);
+    return decRes.solve(bT);
+  }
+
+  /**
    * @param newChiSqr
    * @param jacobian
    * @param newTheta
@@ -355,16 +373,30 @@ public class NonLinearLeastSquare {
     return new DoubleMatrix1D(res);
   }
 
+  private DoubleMatrix2D getBTanspose(DoubleMatrix2D jacobian, final DoubleMatrix1D sigma) {
+    final int n = jacobian.getNumberOfRows();
+    final int m = jacobian.getNumberOfColumns();
+
+    double[][] res = new double[m][n];
+
+    for (int k = 0; k < m; k++) {
+      for (int i = 0; i < n; i++) {
+        res[k][i] = jacobian.getEntry(i, k) / sigma.getEntry(i);
+      }
+    }
+    return new DoubleMatrix2D(res);
+  }
+
   private DoubleMatrix2D getJacobian(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
     final DoubleMatrix2D res = jac.evaluate(theta);
     final double[][] data = res.getData();
-    final int m = res.getNumberOfRows();
-    final int n = res.getNumberOfColumns();
-    Validate.isTrue(theta.getNumberOfElements() == n, "Jacobian is wrong size");
-    Validate.isTrue(sigma.getNumberOfElements() == m, "Jacobian is wrong size");
+    final int n = res.getNumberOfRows();
+    final int m = res.getNumberOfColumns();
+    Validate.isTrue(theta.getNumberOfElements() == m, "Jacobian is wrong size");
+    Validate.isTrue(sigma.getNumberOfElements() == n, "Jacobian is wrong size");
 
-    for (int i = 0; i < m; i++) {
-      for (int j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < m; j++) {
         data[i][j] /= sigma.getEntry(i);
       }
     }
