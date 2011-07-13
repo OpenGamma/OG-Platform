@@ -226,8 +226,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
     } catch (Exception e) {
-      s_logger.error("Error obtaining compiled view definition for time {}", compilationValuationTime);
-      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compiled view definition for time " + compilationValuationTime, e));
+      String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1}", getViewProcess().getDefinitionName(), compilationValuationTime);
+      s_logger.error(message);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
       return;
     }
     
