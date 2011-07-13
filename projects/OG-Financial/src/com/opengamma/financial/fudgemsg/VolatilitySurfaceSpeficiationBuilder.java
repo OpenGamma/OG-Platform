@@ -33,6 +33,9 @@ public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<Volati
     // for compatibility with old code, remove.
     if (object.getTarget() instanceof Currency) {
       message.add("currency", object.getCurrency());
+    } else {
+      // just for now...
+      message.add("currency", Currency.USD);
     }
     message.add("name", object.getName());
     context.addToMessage(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());

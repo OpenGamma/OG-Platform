@@ -38,6 +38,9 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     if (object.getTarget() instanceof Currency) {
       message.add("currency", object.getCurrency());
+    } else {
+      // just for now...
+      message.add("currency", Currency.USD);
     }
     message.add("name", object.getName());
     for (final Object x : object.getXs()) {
