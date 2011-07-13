@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
@@ -61,7 +60,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
       target = context.fieldValueToObject(Currency.class, message.getByName("currency")); 
     } else {
 //      try {
-        target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+      target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
 //      } catch (Exception fre) { // arghhhhhh
 //        target = Currency.of(message.getString("target"));
 //      }

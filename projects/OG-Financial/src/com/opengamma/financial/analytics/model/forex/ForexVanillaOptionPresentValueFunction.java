@@ -49,6 +49,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -60,13 +61,16 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
   private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
   private final String _putCurveName;
   private final String _callCurveName;
+  private final String _surfaceName;
   private final ForexVanillaOptionSecurityConverter _visitor;
 
-  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName) {
+  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName, String surfaceName) {
     Validate.notNull(putCurveName, "put curve name");
     Validate.notNull(callCurveName, "call curve name");
+    Validate.notNull(surfaceName, "surface name");
     _putCurveName = putCurveName;
     _callCurveName = callCurveName;
+    _surfaceName = surfaceName;
     _visitor = new ForexVanillaOptionSecurityConverter();
   }
 
@@ -75,11 +79,6 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXOptionSecurity security = (FXOptionSecurity) target.getSecurity();
-    String surfaceName = null;
-    for (final ValueRequirement desiredValue : desiredValues) {
-      surfaceName = getSurfaceName(desiredValue);
-      break;
-    }
     final ForexConverter<?> definition = _visitor.visitFXOptionSecurity(security);
 
     //TODO the marked off area should be done in init()
@@ -110,10 +109,10 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
       throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
     }
     final double spot = (Double) spotObject;
-    //TODO what we eventually need is the surface to be keyed from a UniqueIdentifier containing a pair of currencies (where the order does not matter) instead of a currency
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
                                                        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
-    final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, Currency.USD, surfaceProperties);
+    UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
@@ -145,9 +144,9 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
     final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(smiles, spot, yieldCurves);
     final MultipleCurrencyAmount presentValue = CALCULATOR.visit(fxOption, smileBundle);
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _putCurveName)
-                                                              .with(ValuePropertyNames.CURVE, _callCurveName)
-                                                              .with(ValuePropertyNames.SURFACE, surfaceName).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName)
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
+                                                              .with(ValuePropertyNames.SURFACE, _surfaceName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, presentValue));
   }
@@ -170,11 +169,10 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
     final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), _putCurveName, _putCurveName, _putCurveName);
     final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), _callCurveName, _callCurveName, _callCurveName);
-    final String surfaceName = getSurfaceName(context, desiredValue);
-    //TODO what we eventually need is the surface to be keyed from a UniqueIdentifier containing a pair of currencies (where the order does not matter) instead of a currency
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
                                                              .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
-    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, Currency.USD, surfaceProperties);
+    UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
+    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final String bbgCode = fxOption.getPutCurrency().getCode() + fxOption.getCallCurrency().getCode() + " Curncy"; //TODO urgently needs removing
     final Identifier spotIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, bbgCode);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
@@ -183,19 +181,11 @@ public class ForexVanillaOptionPresentValueFunction extends AbstractFunction.Non
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _putCurveName).with(ValuePropertyNames.CURVE, _callCurveName).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName)
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
+                                                              .with(ValuePropertyNames.SURFACE, _surfaceName).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(),
         properties));
-  }
-
-  //TODO move these two methods to a surface helper - they also exist in InterestRateFutureOptionPresentValueFunction
-  protected static String getSurfaceName(final ValueRequirement requirement) {
-    return "DEFAULT_EURUSD";
-  }
-
-  protected static String getSurfaceName(final FunctionCompilationContext context, final ValueRequirement requirement) {
-    //TODO hard-coding surface name is obviously stupid - this will only get the correct surface for USD/EUR options
-    return "DEFAULT_EURUSD";
   }
 
   private Tenor[] convertTenors(final Object[] objectTenors) {

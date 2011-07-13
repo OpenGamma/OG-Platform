@@ -86,4 +86,20 @@ public final class ValuePropertyNames {
    * instead of a currency (e.g. a bond issued by a euro-zone country).
    */
   public static final String COUNTRY = "Country";
+  
+  /**
+   * The symbolic name of a curve used to produce an analytic value from an instrument that requires 
+   * more than one curve (e.g. FX forwards, where the pay curve is the curve used to discount
+   * the pay amount, or FX options, where the pay curve is the curve used to discount the 
+   * put amount).
+   */
+  public static final String PAY_CURVE = "PayCurve";
+  
+  /**
+   * The symbolic name of a curve used to produce an analytic value from an instrument that requires 
+   * more than one curve (e.g. FX forwards, where the receive curve is the curve used to discount
+   * the receive amount, or FX options, where the receive curve is the curve used to discount the 
+   * call amount).
+   */
+  public static final String RECEIVE_CURVE = "ReceiveCurve";
 }

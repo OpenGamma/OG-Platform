@@ -59,28 +59,21 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private String _currencyLabel;
   private final String _definitionName;
   private final String _specificationName;
   private String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public RawVolatilitySurfaceDataFunction(final String currencyLabel, final String definitionName, final String instrumentType, final String specificationName) {
-    Validate.notNull(currencyLabel, "Currency label");
+  public RawVolatilitySurfaceDataFunction(final String definitionName, final String instrumentType, final String specificationName) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
     Validate.notNull(specificationName, "Specification Name");
     _definition = null;
-    _currencyLabel = currencyLabel;
     _definitionName = definitionName;
     _instrumentType = instrumentType;
     _specificationName = specificationName;
     _result = null;
     _results = null;
-  }
-
-  public String getCurrencyLabel() {
-    return _currencyLabel;
   }
 
   public String getDefinitionName() {
@@ -95,17 +88,17 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_currencyLabel, _definitionName, _instrumentType);
+    _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_currencyLabel, _specificationName, _instrumentType);
-    _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
+    _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
+    _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
   }
 
   @Override
   public String getShortName() {
-    return _currencyLabel + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
+    return _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
   }
 
   @SuppressWarnings("unchecked")
@@ -159,7 +152,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueId(), _definition.getCurrency().getUniqueId());
+        return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
       @SuppressWarnings("unchecked")
@@ -181,7 +174,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
-                                                                                                     _definition.getCurrency(),
+                                                                                                     _definition.getTarget(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);

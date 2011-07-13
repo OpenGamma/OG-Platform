@@ -22,6 +22,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -34,7 +35,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final VolatilitySurfaceData<?, ?> object) {
     final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "target", null, object.getTarget());
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
     for (final Object x : object.getXs()) {
@@ -57,7 +58,12 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
 
   @Override
   public VolatilitySurfaceData<?, ?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    UniqueIdentifiable target;
+    if (message.hasField("currency")) {
+      target =  context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    } else {
+      target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+    }
     final String definitionName = message.getString("definitionName");
     final String specificationName = message.getString("specificationName");
     final List<FudgeField> xsFields = message.getAllByName("xs");
@@ -92,9 +98,9 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
         final Double value = subMessage.getDouble("value");
         values.put(Pair.of(x, y), value);
       }
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, currency, xs.toArray(xsArray), ys.toArray(ysArray), values);
+      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(xsArray), ys.toArray(ysArray), values);
     } else {
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, currency, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double> emptyMap());
+      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double>emptyMap());
     }
   }
 
