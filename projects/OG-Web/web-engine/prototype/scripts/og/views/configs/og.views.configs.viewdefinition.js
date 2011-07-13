@@ -14,7 +14,9 @@ $.register_module({
         var ui = og.common.util.ui, forms = og.views.forms,
             sets = 'calculationConfiguration',
             cols = 'portfolioRequirementsBySecurityType',
-            reqs = 'portfolioRequirement';
+            reqs = 'portfolioRequirement',
+            reqo = 'requiredOutput',
+            cons = 'constraints';
         return function (data) {
             og.dev.log('data!', data.template_data.configJSON);
             var id_count = 0, prefix = 'view_def_', master = data.template_data.configJSON, column_set_tabs,
@@ -26,8 +28,11 @@ $.register_module({
                     processor: function (data) {
                         // remove undefineds that we added
                         if (data[sets]) data[sets].forEach(function (set, set_idx) {
-                            if (set[cols]) set[cols].forEach(function (col, col_idx) {
-                                if (col[reqs]) col[reqs] = col[reqs].filter(function (req) {return req !== undefined;});
+                            if (!set[cols]) return;
+                            set[cols] = set[cols].filter(function (col) {return col !== undefined;});
+                            set[cols].forEach(function (col, col_idx) {
+                                if (!col[reqs]) return;
+                                col[reqs] = col[reqs].filter(function (req) {return req !== undefined;});
                             });
                         });
                     },
@@ -127,17 +132,28 @@ $.register_module({
                         wrap: '<div id="' + id + '">{{html html}}</div>',
                         handlers: [
                             {
-                                type: 'click', selector: 'div#' + id + ' .og-js-add.og-js-port-req',
-                                handler: function (e) {
-                                    og.dev.log('add a portfolio requirement');
+                                type: 'click', selector: 'div#' + id + ' .og-js-add-col-val',
+                                handler: function (e) { // add a column value
+                                    og.dev.log('add a column value');
                                     return false;
                                 }
                             },
                             {
-                                type: 'click', selector: 'div#' + id + ' .og-js-remove.og-js-port-req',
-                                handler: function (e) {
-                                    var $li = $(e.target).parents('li'),
-                                        reqs = $li.find('select').attr('name').split('.').slice(0, -1),
+                                type: 'click', selector: 'div#' + id + ' .og-js-rem-col-val',
+                                handler: function (e) { // remove a column value
+                                    var $div = $(e.target).parent('div:first'),
+                                        cols = $div.find('select:first').attr('name').split('.').slice(0, -1),
+                                        index = cols.pop();
+                                    cols.reduce(function (a, v) {return a[v];}, master)[index] = undefined;
+                                    $div.remove();
+                                    return false;
+                                }
+                            },
+                            {
+                                type: 'click', selector: 'div#' + id + ' .og-js-rem-port-req',
+                                handler: function (e) { // remove a portfolio requirement
+                                    var $li = $(e.target).parents('li:first'),
+                                        reqs = $li.find('select:first').attr('name').split('.').slice(0, -1),
                                         index = reqs.pop();
                                     reqs.reduce(function (a, v) {return a[v];}, master)[index] = undefined;
                                     $li.remove();
@@ -145,8 +161,8 @@ $.register_module({
                                 }
                             },
                             {
-                                type: 'click', selector: 'div#' + id + ' .og-js-remove.og-js-column-set',
-                                handler: function (e) {
+                                type: 'click', selector: 'div#' + id + ' .og-js-rem-col-set',
+                                handler: function (e) { // remove a column set
                                     og.dev.log('remove a column set', id, set_idx);
                                     return false;
                                 }
@@ -166,9 +182,41 @@ $.register_module({
                         })
                     ];
                     if (set[cols]) set[cols].forEach(function (col, col_idx) {
-                        var reqs_block;
+                        var reqs_block, col_id = prefix + id_count++,
+                            new_port_req = function (req, req_idx) {
+                                var sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, reqo].join('.'),
+                                    cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, cons].join('.');
+                                return new form.Block({
+                                    module: 'og.views.forms.view-definition-portfolio-requirement',
+                                    extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
+                                    children: [
+                                        new forms.Dropdown({
+                                            form: form, resource: 'valuerequirementnames', index: sel_name,
+                                            value: req[reqo], rest_options: {meta: true},
+                                            placeholder: 'Please select...'
+                                        }),
+                                        new forms.Constraints({form: form, data: req[cons], index: cons_name})
+                                    ]
+                                });
+                            };
                         column_set.children.push(new form.Block({
                             module: 'og.views.forms.view-definition-column-values',
+                            extras: {id: col_id},
+                            handlers: [{
+                                type: 'click', selector: 'div#' + col_id + ' .og-js-add-port-req',
+                                handler: function (e) { // add a portfolio requirement
+                                    var $ul = $(e.target).parents('div:first').find('ul.og-js-port-req'),
+                                        block, req = {};
+                                    req[cons] = {}, req[reqo] = '';
+                                    if (!col[reqs]) col[reqs] = [req]; else col[reqs].push(req);
+                                    reqs_block.children.push(block = new_port_req(req, col[reqs].length - 1));
+                                    block.html(function (html) {
+                                        $ul.append($(html));
+                                        block.load();
+                                    });
+                                    return false;
+                                }
+                            }],
                             children: [
                                 new forms.Dropdown({
                                     form: form, resource: 'securities', rest_options: {meta: true},
@@ -177,31 +225,17 @@ $.register_module({
                                     placeholder: 'Please select...'
                                 }),
                                 (reqs_block = new form.Block({
-                                    wrap: '<ul class="og-portfolio-requirements">{{html html}}</ul>'
+                                    wrap: '<ul class="og-js-port-req og-portfolio-requirements">{{html html}}</ul>'
                                 }))
                             ]
                         }));
                         if (col[reqs]) col[reqs].forEach(function (req, req_idx) {
-                            var sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, 'requiredOutput'].join('.'),
-                                cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, 'constraints'].join('.');
-                            reqs_block.children.push(new form.Block({
-                                module: 'og.views.forms.view-definition-portfolio-requirement',
-                                extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
-                                children: [
-                                    new forms.Dropdown({
-                                        form: form, resource: 'valuerequirementnames', index: sel_name,
-                                        value: req.requiredOutput, rest_options: {meta: true},
-                                        placeholder: 'Please select...'
-                                    }),
-                                    new forms.Constraints({form: form, data: req.constraints, index: cons_name})
-                                ]
-                            }));
+                            reqs_block.children.push(new_port_req(req, req_idx));
                         });
                     });
                     column_set.children.push(new form.Field({
                         generator: function (handler) {
-                            handler('<span class="OG-icon og-icon-add og-js-add og-js-port-req">' +
-                                'Add portfolio requirement</span>');
+                            handler('<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>');
                         }
                     }));
                     column_sets.children.push(column_set);
