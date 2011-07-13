@@ -35,6 +35,16 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final VolatilitySurfaceData<?, ?> object) {
     final MutableFudgeMsg message = context.newMessage();
+    // the following forces it not to use a secondary type if one is available.
+    message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
+    // for compatibility with old code, remove.
+    if (object.getTarget() instanceof Currency) {
+      message.add("currency", object.getCurrency());
+    } else {
+      // just for now...
+      message.add("currency", Currency.USD);
+    }
+
     context.addToMessage(message, "target", null, object.getTarget());
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
@@ -59,8 +69,8 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
   @Override
   public VolatilitySurfaceData<?, ?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     UniqueIdentifiable target;
-    if (message.hasField("currency")) {
-      target =  context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    if (!message.hasField("target")) {
+      target = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     } else {
       target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     }

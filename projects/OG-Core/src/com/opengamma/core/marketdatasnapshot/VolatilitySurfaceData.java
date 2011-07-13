@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -70,6 +71,16 @@ public class VolatilitySurfaceData<X, Y> {
 
   public UniqueIdentifiable getTarget() {
     return _target;
+  }
+  
+  /**
+   * @deprecated use getTarget()
+   * @throws ClassCastException if target not a currency
+   * @return currency assuming that the target is a currency
+   */
+  @Deprecated
+  public Currency getCurrency() {
+    return (Currency) _target;
   }
 
   @Override
