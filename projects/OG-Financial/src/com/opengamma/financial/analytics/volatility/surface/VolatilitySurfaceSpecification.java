@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -13,11 +14,11 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceSpecification {
   private SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private String _name;
-  private Currency _currency;
+  private UniqueIdentifiable _target;
 
-  public VolatilitySurfaceSpecification(String name, Currency currency, SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
+  public VolatilitySurfaceSpecification(String name, UniqueIdentifiable target, SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     _name = name;
-    _currency = currency;
+    _target = target;
     _surfaceInstrumentProvider = surfaceInstrumentProvider;
   }
   
@@ -29,8 +30,18 @@ public class VolatilitySurfaceSpecification {
     return _name;
   }
   
+  /**
+   * @deprecated use getTarget()
+   * @throws ClassCastException if target not a currency
+   * @return currency assuming that the target is a currency
+   */
+  @Deprecated
   public Currency getCurrency() {
-    return _currency;
+    return (Currency) _target;
+  }
+  
+  public UniqueIdentifiable getTarget() {
+    return _target;
   }
   
   public boolean equals(Object o) {
@@ -42,11 +53,11 @@ public class VolatilitySurfaceSpecification {
     }
     VolatilitySurfaceSpecification other = (VolatilitySurfaceSpecification) o;
     return other.getName().equals(getName()) &&
-           other.getCurrency().equals(getCurrency()) &&
+           other.getTarget().equals(getTarget()) &&
            other.getSurfaceInstrumentProvider().equals(getSurfaceInstrumentProvider());
   }
   
   public int hashCode() {
-    return getName().hashCode() * getCurrency().hashCode();
+    return getName().hashCode() * getTarget().hashCode();
   }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -26,12 +28,14 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(VolatilitySurfaceDefinition.class)
 public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceDefinitionBuilder.class);
   
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final VolatilitySurfaceDefinition<?, ?> object) {
     final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, "currency", null, object.getCurrency());
+    // the following forces it not to use a secondary type if one is available.
+    message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
     for (final Object x : object.getXs()) {
       if (x instanceof Number) {
@@ -52,15 +56,17 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
 
   @Override
   public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
-    String name = message.getString("name");
-    String interpolatorName;
-    if (!message.hasField("interpolatorName")) {
-      interpolatorName = "Linear"; 
-      s_logger.warn("Inserting Linear interpolation as future version doesn't require an interpolator");
+    UniqueIdentifiable target;
+    if (message.hasField("currency")) {
+      target = context.fieldValueToObject(Currency.class, message.getByName("currency")); 
     } else {
-      interpolatorName = message.getString("interpolatorName");
+//      try {
+        target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+//      } catch (Exception fre) { // arghhhhhh
+//        target = Currency.of(message.getString("target"));
+//      }
     }
+    String name = message.getString("name");
     List<FudgeField> xsFields = message.getAllByName("xs");
     List<Object> xs = new ArrayList<Object>();
     for (FudgeField xField : xsFields) {
@@ -73,7 +79,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
       final Object y = context.fieldValueToObject(yField);
       ys.add(y);
     }
-    return new VolatilitySurfaceDefinition<Object, Object>(name, currency, xs.toArray(), ys.toArray());
+    return new VolatilitySurfaceDefinition<Object, Object>(name, target, xs.toArray(), ys.toArray());
   }
 
 }

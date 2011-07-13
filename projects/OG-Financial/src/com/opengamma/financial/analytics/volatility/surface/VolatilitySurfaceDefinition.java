@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,17 +21,17 @@ import com.opengamma.util.money.Currency;
  */
 public class VolatilitySurfaceDefinition<X, Y> {
   private String _name;
-  private Currency _currency;
+  private UniqueIdentifiable _target;
   private X[] _xs;
   private Y[] _ys;
-
-  public VolatilitySurfaceDefinition(final String name, final Currency currency, final X[] xs, final Y[] ys) {
+  
+  public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
-    Validate.notNull(currency, "Currency");
+    Validate.notNull(target, "Target");
     Validate.notNull(xs, "xs");
     Validate.notNull(ys, "ys");
     _name = name;
-    _currency = currency;
+    _target = target;
     _xs = xs;
     _ys = ys;
   }
@@ -47,8 +48,19 @@ public class VolatilitySurfaceDefinition<X, Y> {
     return _name;
   }
 
+  
+  /**
+   * @deprecated use getTarget()
+   * @throws ClassCastException if target not a currency
+   * @return currency assuming that the target is a currency
+   */
+  @Deprecated
   public Currency getCurrency() {
-    return _currency;
+    return (Currency) _target;
+  }
+  
+  public UniqueIdentifiable getTarget() {
+    return _target;
   }
 
   @Override
@@ -60,7 +72,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
       return false;
     }
     final VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
-    return other.getCurrency().equals(getCurrency()) &&
+    return other.getTarget().equals(getTarget()) &&
            other.getName().equals(getName()) &&
            Arrays.equals(other.getXs(), getXs()) &&
            Arrays.equals(other.getYs(), getYs());
@@ -68,7 +80,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
 
   @Override
   public int hashCode() {
-    return getCurrency().hashCode() * getName().hashCode();
+    return getTarget().hashCode() * getName().hashCode();
   }
 
   @Override
