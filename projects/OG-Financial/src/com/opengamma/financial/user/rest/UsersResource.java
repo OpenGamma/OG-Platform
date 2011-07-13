@@ -16,6 +16,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.financial.user.ClientTracker;
+import com.opengamma.financial.user.UserDataTracker;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
  * be created.
@@ -24,6 +28,8 @@ import javax.ws.rs.core.UriInfo;
 public class UsersResource {
   
   private final UsersResourceContext _context;
+  private final ClientTracker _clientTracker;
+  private final UserDataTracker _userDataTracker;
   private final ConcurrentHashMap<String, UserResource> _userMap = new ConcurrentHashMap<String, UserResource>();
 
   /**
@@ -32,8 +38,13 @@ public class UsersResource {
   @Context
   private UriInfo _uriInfo;
   
-  public UsersResource(UsersResourceContext context) {
+  public UsersResource(final ClientTracker clientTracker, final UserDataTracker userDataTracker, final UsersResourceContext context) {
+    ArgumentChecker.notNull(clientTracker, "clientTracker");
+    ArgumentChecker.notNull(userDataTracker, "userDataTracker");
+    ArgumentChecker.notNull(context, "context");
     _context = context;
+    _clientTracker = clientTracker;
+    _userDataTracker = userDataTracker;
   }
   
   /**
@@ -48,8 +59,8 @@ public class UsersResource {
   public UserResource getUser(@PathParam("username") String username) {
     UserResource user = _userMap.get(username);
     if (user == null) {
-      _context.getClientTracker().userCreated(username);
-      UserResource freshUser = new UserResource(this, username, _context);
+      _clientTracker.userCreated(username);
+      UserResource freshUser = new UserResource(username, _context, _clientTracker, _userDataTracker);
       user = _userMap.putIfAbsent(username, freshUser);
       if (user == null) {
         user = freshUser;
@@ -70,7 +81,7 @@ public class UsersResource {
       userEntry.getValue().deleteClients(timestamp);
       if (userEntry.getValue().getLastAccessed() == 0) {
         userIterator.remove();
-        _context.getClientTracker().userDiscarded(userEntry.getKey());
+        _clientTracker.userDiscarded(userEntry.getKey());
       }
     }
   }
