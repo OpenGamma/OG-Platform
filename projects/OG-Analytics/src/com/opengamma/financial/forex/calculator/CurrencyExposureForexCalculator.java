@@ -9,7 +9,7 @@ import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.financial.forex.method.ForexOptionVanillaMethod;
+import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -35,24 +35,24 @@ public class CurrencyExposureForexCalculator extends AbstractForexDerivativeVisi
   /**
    * Constructor.
    */
-  CurrencyExposureForexCalculator() {
+  public CurrencyExposureForexCalculator() {
   }
 
   @Override
-  public MultipleCurrencyAmount visitForex(Forex derivative, YieldCurveBundle data) {
-    ForexDiscountingMethod method = new ForexDiscountingMethod();
+  public MultipleCurrencyAmount visitForex(final Forex derivative, final YieldCurveBundle data) {
+    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
-    ForexSwapDiscountingMethod method = new ForexSwapDiscountingMethod();
+  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
+    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaMethod method = new ForexOptionVanillaMethod();
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 

@@ -23,7 +23,7 @@ public class MonitoringTypeUserType extends EnumUserType<MonitoringType> {
     switch (value) {
       case CONTINUOUS:
         return "continuous";
-      case DESCRETE:
+      case DISCRETE:
         return "descrete";
       default:
         throw new OpenGammaRuntimeException("unexpected value " + value);

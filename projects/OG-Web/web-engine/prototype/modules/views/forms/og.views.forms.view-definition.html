@@ -1,5 +1,9 @@
 <div class="OG-form">
-  {{html item_0}}<!-- view definition main fields -->
+  <br />
+  <div>
+    <label>Name <input name="name" value="${name}" type="text" class="og-c6" /></label>
+  </div>
+  {{html item_0}}<!-- view definition currency and identifier -->
   {{html item_1}}<!-- result model definition -->
   {{html item_2}}<!-- execution parameters -->
   <section>
@@ -9,30 +13,11 @@
         A list of named column sets. These allow the same analytics to be computed using different settings and
         viewed side by side at the same time
       </small>
-      {{html item_3}}<!-- tabs -->
+      {{html item_3}}<!-- column set names -->
     </div>
     <div class="OG-form-column-sets">
-      {{html item_4}}<!-- column set name -->
-      <ul>
-        <li>
-          <a>Column Values</a>
-          {{html item_5}}<!-- column values -->
-        </li>
-        <li>
-          <a>Additional Values</a>
-          {{html item_6}}<!-- spesific requirments fields -->
-          {{html item_7}}<!-- constraints -->
-        </li>
-        <li>
-          <a>Default Constraints</a>
-          <div>{{html item_8}}</div><!-- constraints -->
-        </li>
-        <li>
-          <a>Resolution Rule Transform</a>
-          {{html item_9}}<!-- resolution rule transform fields -->
-          {{html item_10}}<!-- constraints -->
-        </li>
-      </ul>
+      {{html item_4}}<!-- column sets -->
+      <br /><br />
     </div>
   </section>
   <div class="og-confirm">

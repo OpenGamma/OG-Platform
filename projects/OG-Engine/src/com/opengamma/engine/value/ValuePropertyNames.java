@@ -43,7 +43,18 @@ public final class ValuePropertyNames {
   public static final String CURVE = "Curve";
   
   /**
-   * 
+   * The symbolic name of a surface used to produce a value, valid within the naming context of
+   * the function repository containing the function definition used.
+   * <p>
+   * This should only be used where it is meaningful to describe a value based on a single
+   * surface. If produced by functions requiring multiple surface inputs, a suitable prefix should
+   * be used to differentiate the input surfaces.
+   */
+  public static final String SURFACE = "Surface";
+  
+  /**
+   * The currency of the curve used to produce a value. This does not necessarily imply anything about the currency
+   * of the output value.
    */
   public static final String CURVE_CURRENCY = "CurveCurrency";
 

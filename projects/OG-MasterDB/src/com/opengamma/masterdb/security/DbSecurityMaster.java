@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.hsqldb.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.support.SqlLobValue;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -25,6 +28,7 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -73,6 +77,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "main.corr_to_instant AS corr_to_instant, " +
         "main.name AS name, " +
         "main.sec_type AS sec_type, " +
+        "main.detail_type AS detail_type, " +
+        "raw.raw_data AS raw_data, " +
         "i.key_scheme AS key_scheme, " +
         "i.key_value AS key_value ";
   /**
@@ -80,6 +86,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    */
   protected static final String FROM =
       "FROM sec_security main " +
+        "LEFT JOIN sec_raw raw ON (raw.security_id = main.id) " +
         "LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) " +
         "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
   /**
@@ -371,7 +378,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
     if (detailProvider != null) {
       for (SecurityDocument doc : docs) {
-        doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));
+        if (!(doc.getSecurity() instanceof RawSecurity)) {
+          doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));
+        }
       }
     }
   }
@@ -399,6 +408,13 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getSecurity().getName())
       .addValue("sec_type", document.getSecurity().getSecurityType());
+    if (document.getSecurity() instanceof RawSecurity) {
+      securityArgs.addValue("detail_type", "R");
+    } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
+      securityArgs.addValue("detail_type", "M");
+    } else {
+      securityArgs.addValue("detail_type", "D");
+    }
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
@@ -409,7 +425,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         .addValue("key_value", id.getValue());
       assocList.add(assocArgs);
       if (getJdbcTemplate().queryForList(sqlSelectIdKey(), assocArgs).isEmpty()) {
-        // select avoids creating unecessary id, but id may still not be used
+        // select avoids creating unnecessary id, but id may still not be used
         final long idKeyId = nextId("sec_idkey_seq");
         final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
           .addValue("idkey_id", idKeyId)
@@ -426,11 +442,31 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     document.getSecurity().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     // store the detail
-    final SecurityMasterDetailProvider detailProvider = getDetailProvider();
-    if (detailProvider != null) {
-      detailProvider.storeSecurityDetail(document.getSecurity());
+    if (document.getSecurity() instanceof RawSecurity) {
+      storeRawSecurityDetail((RawSecurity) document.getSecurity());
+    } else {
+      final SecurityMasterDetailProvider detailProvider = getDetailProvider();
+      if (detailProvider != null) {
+        detailProvider.storeSecurityDetail(document.getSecurity());
+      }
     }
     return document;
+  }
+
+  private void storeRawSecurityDetail(RawSecurity security) {
+    final DbMapSqlParameterSource rawSecurityArgs = new DbMapSqlParameterSource();
+    rawSecurityArgs.addValue("security_id", extractRowId(security.getUniqueId()));
+    rawSecurityArgs.addValue("raw_data", new SqlLobValue(security.getRawData(), getDbHelper().getLobHandler()), Types.BLOB);
+    getJdbcTemplate().update(sqlInsertRawSecurity(), rawSecurityArgs);
+  }
+
+  /**
+   * Gets the SQL for inserting a raw security.
+   * 
+   * @return the SQL, not null
+   */
+  protected String sqlInsertRawSecurity() {
+    return "INSERT INTO sec_raw (security_id, raw_data) VALUES (:security_id, :raw_data)";
   }
 
   /**
@@ -440,9 +476,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    */
   protected String sqlInsertSecurity() {
     return "INSERT INTO sec_security " +
-              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, sec_type) " +
+              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, sec_type, detail_type) " +
             "VALUES " +
-              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :sec_type)";
+              "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :sec_type, :detail_type)";
   }
 
   /**
@@ -523,7 +559,16 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       final String name = rs.getString("NAME");
       final String type = rs.getString("SEC_TYPE");
       UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
-      _security = new ManageableSecurity(uniqueId, name, type, IdentifierBundle.EMPTY);
+      String detailType = rs.getString("DETAIL_TYPE");
+      if (detailType.equalsIgnoreCase("R")) {
+        LobHandler lob = getDbHelper().getLobHandler();
+        byte[] rawData = lob.getBlobAsBytes(rs, "RAW_DATA");
+        _security = new RawSecurity(type, rawData);
+        _security.setUniqueId(uniqueId);
+        _security.setName(name);  
+      } else {
+        _security = new ManageableSecurity(uniqueId, name, type, IdentifierBundle.EMPTY);
+      }
       SecurityDocument doc = new SecurityDocument(_security);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));

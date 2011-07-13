@@ -30,14 +30,12 @@ public abstract class AbstractMarketDataProvider implements MarketDataProvider {
 
   //-------------------------------------------------------------------------
   protected void valueChanged(ValueRequirement requirement) {
-    for (MarketDataListener listener : getListeners()) {
-      listener.valueChanged(requirement);      
-    }
+    valuesChanged(Collections.singleton(requirement));
   }
   
-  protected void valueChanged(Collection<ValueRequirement> requirements) {
-    for (ValueRequirement requirement : requirements) {
-      valueChanged(requirement);      
+  protected void valuesChanged(Collection<ValueRequirement> requirements) {
+    for (MarketDataListener listener : getListeners()) {
+      listener.valuesChanged(requirements);      
     }
   }
   

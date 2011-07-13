@@ -52,11 +52,8 @@ public class HestonFFTPriceFitter extends HestonFFTSmileFitter {
     final double lowStrike = strikes[0];
     final double highStrike = strikes[n - 1];
     final double limitSigma = (data[0].getBlackVolatility() + data[n - 1].getBlackVolatility()) / 2.0;
-    //    final BlackFunctionData blackData = new BlackFunctionData(forward, 1.0, limitSigma);
-    //    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[0], maturity, true);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> hestonVols = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D fp) {
         final CharacteristicExponent ce = getCharacteristicExponent(transforms, fp);

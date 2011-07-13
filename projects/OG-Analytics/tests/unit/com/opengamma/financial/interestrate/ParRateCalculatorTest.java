@@ -7,14 +7,21 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -49,38 +56,48 @@ public class ParRateCalculatorTest {
     final double tradeTime = 2.0 / 365.0;
     final double yearFrac = 5.0 / 360.0;
 
-    Cash cash = new Cash(t, 0, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    Cash cash = new Cash(CUR, t, 1, 0, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
     final double rate = PRC.visit(cash, CURVES);
-    cash = new Cash(t, rate, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
+    cash = new Cash(CUR, t, 1, rate, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.visit(cash, CURVES), 1e-12);
   }
 
   @Test
   public void testFRA() {
-    final double settlement = 0.5;
-    final double maturity = 7.0 / 12.0;
-    final double fixingDate = settlement - 2.0 / 365.0;
-    final double forwardYearFrac = 31.0 / 365.0;
-    final double discountYearFrac = 30.0 / 360;
-
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final double paymentTime = 0.5;
+    final double paymentYearFraction = 30. / 360;
+    final double fixingTime = paymentTime - 2. / 365;
+    final double fixingPeriodStartTime = paymentTime;
+    final double fixingPeriodEndTime = 7. / 12;
+    final double fixingYearFraction = 31. / 365;
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, FIVE_PC_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingYearFraction, 0, FIVE_PC_CURVE_NAME);
     final double rate = PRC.visit(fra, CURVES);
-    fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    fra = new ForwardRateAgreement(CUR, paymentTime, FIVE_PC_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, rate,
+        FIVE_PC_CURVE_NAME);
     assertEquals(0.0, PVC.visit(fra, CURVES), 1e-12);
   }
 
   @Test
   public void testFutures() {
-    final double settlementDate = 1.453;
-    final double fixingDate = settlementDate;
-    final double maturity = 1.75;
-    final double indexYearFraction = 0.267;
-    final double valueYearFraction = 0.25;
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100.0, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.visit(edf, CURVES);
-    final double price = 100 * (1 - rate);
-    edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
-    assertEquals(0.0, PVC.visit(edf, CURVES), 1e-12);
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double lastTradingTime = 1.453;
+    final double fixingPeriodStartTime = lastTradingTime;
+    final double fixingPeriodEndTime = 1.75;
+    final double fixingPeriodAccrualFactor = 0.267;
+    final double notional = 1000000;
+    final double paymentAccrualFactor = 0.25;
+    final String name = "name";
+
+    final InterestRateFutureSecurity ir = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional,
+        paymentAccrualFactor, name, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final double rate = PRC.visit(ir, CURVES);
+    final double price = 1 - rate;
+    final InterestRateFutureTransaction traded = new InterestRateFutureTransaction(ir, 1, price);
+    assertEquals(0.0, PVC.visit(traded, CURVES), 1e-12);
   }
 
   @Test

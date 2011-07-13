@@ -14,11 +14,16 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class CurrencyAggregationFunction implements AggregationFunction<Currency> {
+
   private static final String NAME = "Currency";
   
   @Override
   public Currency classifyPosition(Position position) {
-    return FinancialSecurityUtils.getCurrencyUnit(position.getSecurity());
+    try {
+      return FinancialSecurityUtils.getCurrency(position.getSecurity());
+    } catch (UnsupportedOperationException ex) {
+      return null;
+    }
   }
 
   public String getName() {

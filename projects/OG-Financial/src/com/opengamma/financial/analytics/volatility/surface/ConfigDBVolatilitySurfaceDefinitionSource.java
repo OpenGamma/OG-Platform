@@ -9,7 +9,6 @@ import javax.time.Instant;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * A source of yield curve definitions based on configuration.
@@ -42,13 +41,13 @@ public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurf
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name) {
-    return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, name + "_" + ccy.getCode());
+  public VolatilitySurfaceDefinition<?, ?> getDefinition(final String ccyLabel, final String name, final String instrumentType) {
+    return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, name + "_" + instrumentType);
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> getDefinition(final Currency ccy, final String name, final Instant version) {
-    return _configSource.getByName(VolatilitySurfaceDefinition.class, name + "_" + ccy.getCode(), version);
+  public VolatilitySurfaceDefinition<?, ?> getDefinition(final String ccyLabel, final String name, final String instrumentType, final Instant version) {
+    return _configSource.getByName(VolatilitySurfaceDefinition.class, name + "_" + instrumentType, version);
   }
 
 }

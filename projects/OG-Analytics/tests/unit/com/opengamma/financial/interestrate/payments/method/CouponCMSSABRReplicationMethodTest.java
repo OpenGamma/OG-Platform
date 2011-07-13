@@ -105,8 +105,8 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final CouponCMSSABRReplicationMethod METHOD = new CouponCMSSABRReplicationMethod();
-  private static final CapFloorCMSSABRReplicationMethod METHOD_CAP = new CapFloorCMSSABRReplicationMethod();
+  private static final CouponCMSSABRReplicationMethod METHOD = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CapFloorCMSSABRReplicationMethod METHOD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
   private static final CouponCMSGenericMethod METHOD_GENERIC = new CouponCMSGenericMethod(METHOD_CAP);
 
   @Test
@@ -124,8 +124,8 @@ public class CouponCMSSABRReplicationMethodTest {
    * Tests the method against the present value calculator.
    */
   public void presentValueMethodVsCalculator() {
-    double pvMethod = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
-    double pvCalculator = PVC_SABR.visit(CMS_COUPON_PAYER, SABR_BUNDLE);
+    final double pvMethod = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
+    final double pvCalculator = PVC_SABR.visit(CMS_COUPON_PAYER, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR: method and calculator", pvMethod, pvCalculator);
   }
 
@@ -134,8 +134,8 @@ public class CouponCMSSABRReplicationMethodTest {
    * Tests the method against the present value calculator.
    */
   public void presentValueMethodSpecificVsGeneric() {
-    double pvSpecific = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
-    CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
+    final double pvSpecific = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
+    final CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR: method : Specific vs Generic", pvSpecific, pvGeneric.getAmount());
   }
 
@@ -144,11 +144,11 @@ public class CouponCMSSABRReplicationMethodTest {
    * Tests the method against the present value curve sensitivity calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
-    Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivity(), pvsCalculator);
   }
 

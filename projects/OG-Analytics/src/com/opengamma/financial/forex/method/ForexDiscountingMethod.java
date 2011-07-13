@@ -18,7 +18,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Pricing method for Forex transactions (spot or forward) by discounting each payment.
  */
-public class ForexDiscountingMethod implements ForexPricingMethod {
+public final class ForexDiscountingMethod implements ForexPricingMethod {
 
   /**
    * Interest rate present value calculator by discounting.
@@ -28,6 +28,17 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
    * Interest rate present value rate sensitivity by discounting.
    */
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final ForexDiscountingMethod INSTANCE = new ForexDiscountingMethod();
+
+  /**
+   * @return A static instance
+   */
+  public static ForexDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private ForexDiscountingMethod() {
+  }
 
   /**
    * Compute the present value by discounting in payment in its own currency.
@@ -36,9 +47,9 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
    * @return The multi-currency present value.
    */
   public MultipleCurrencyAmount presentValue(final Forex fx, final YieldCurveBundle curves) {
-    double pv1 = PVC.visit(fx.getPaymentCurrency1(), curves);
-    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(fx.getCurrency1(), pv1);
-    double pv2 = PVC.visit(fx.getPaymentCurrency2(), curves);
+    final double pv1 = PVC.visit(fx.getPaymentCurrency1(), curves);
+    final MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(fx.getCurrency1(), pv1);
+    final double pv2 = PVC.visit(fx.getPaymentCurrency2(), curves);
     return pv.plus(fx.getCurrency2(), pv2);
   }
 
@@ -49,7 +60,7 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexDerivative instrument, final YieldCurveBundle curves) {
     return presentValue(instrument, curves);
   }
 

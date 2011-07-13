@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.tuple;
 
+import java.io.Serializable;
+
 /**
  * An immutable pair consisting of two {@code Object} elements.
  * <p>
@@ -17,7 +19,7 @@ package com.opengamma.util.tuple;
  * @param <A> the type of the first side of the pair
  * @param <B> the type of the second side of the pair
  */
-public final class ObjectsPair<A, B> extends Pair<A, B> {
+public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable {
 
   /** Serialization. */
   private static final long serialVersionUID = 1L;

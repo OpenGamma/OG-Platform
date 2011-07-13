@@ -7,15 +7,22 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -32,33 +39,40 @@ public class LastDateCalculatorTest {
   @Test
   public void testCash() {
     final double t = 7 / 365.0;
-    final Cash cash = new Cash(t, 0.0445, 1 / 365.0, 5.0 / 365, "t");
+    final Cash cash = new Cash(CUR, t, 100, 0.0445, 1 / 365.0, 5.0 / 365, "t");
     assertEquals(t, LDC.visit(cash), 1e-12);
   }
 
   @Test
   public void testFRA() {
-    final double settlement = 0.5;
-    final double maturity = 7.0 / 12.0;
-    final double fixingDate = settlement - 2.0 / 365.0;
-    final double forwardYearFrac = 31.0 / 365.0;
-    final double discountYearFrac = 30.0 / 360;
+    final double paymentTime = 0.5;
+    final double paymentYearFraction = 30. / 360;
+    final double fixingTime = paymentTime - 2. / 365;
+    final double fixingPeriodStartTime = paymentTime;
+    final double fixingPeriodEndTime = 7. / 12;
+    final double fixingYearFraction = 31. / 365;
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, "Funding", paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingYearFraction, 0.05, "Forward");
 
-    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.05, "", "");
-
-    assertEquals(maturity, LDC.visit(fra), 1e-12);
+    assertEquals(fixingPeriodEndTime, LDC.visit(fra), 1e-12);
   }
 
   @Test
   public void testFutures() {
-    final double settlementDate = 1.473;
-    final double fixingDate = 1.467;
-    final double maturity = 1.75;
-    final double indexYearFraction = 0.267;
-    final double valueYearFraction = 0.25;
-
-    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 98.4, "");
-    assertEquals(maturity, LDC.visit(edf, fixingDate), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final double lastTradingTime = 1.473;
+    final double fixingPeriodStartTime = 1.467;
+    final double fixingPeriodEndTime = 1.75;
+    final double fixingPeriodAccrualFactor = 0.267;
+    final double paymentAccrualFactor = 0.25;
+    final InterestRateFutureSecurity ir = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1,
+        paymentAccrualFactor, "S", "Funding", "Forward");
+    assertEquals(fixingPeriodEndTime, LDC.visit(ir, fixingPeriodStartTime), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
+    final InterestRateFutureTransaction trade = new InterestRateFutureTransaction(ir, 1, 0.99);
+    assertEquals(fixingPeriodEndTime, LDC.visit(trade, fixingPeriodStartTime), 1e-12);
   }
 
   @Test

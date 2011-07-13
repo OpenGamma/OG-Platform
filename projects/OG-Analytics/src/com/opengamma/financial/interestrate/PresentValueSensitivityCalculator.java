@@ -20,19 +20,20 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -51,6 +52,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
+  //TODO Rename me to be consistent with descendants and the par rate calculators
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
 
@@ -72,8 +74,8 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = cash.getTradeTime();
     final double tb = cash.getMaturity();
-    final DoublesPair s1 = new DoublesPair(ta, ta * curve.getDiscountFactor(ta));
-    final DoublesPair s2 = new DoublesPair(tb, -tb * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()));
+    final DoublesPair s1 = new DoublesPair(ta, cash.getNotional() * ta * curve.getDiscountFactor(ta));
+    final DoublesPair s2 = new DoublesPair(tb, -cash.getNotional() * tb * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()));
     final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     temp.add(s1);
     temp.add(s2);
@@ -84,74 +86,27 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final String fundingCurveName = fra.getFundingCurveName();
-    final String liborCurveName = fra.getIndexCurveName();
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fundingCurveName);
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double fixingDate = fra.getFixingDate();
-    final double settlementDate = fra.getSettlementDate();
-    final double maturity = fra.getMaturity();
-
-    final double fwd = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double onePlusAlphaF = 1 + discountAlpha * fwd;
-
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    if (settlementDate > 0) {
-      final DoublesPair s = new DoublesPair(settlementDate, -settlementDate * fundingCurve.getDiscountFactor(settlementDate) * (fwd - fra.getStrike()) * fwdAlpha / onePlusAlphaF);
-      temp.add(s);
-      if (!fundingCurveName.equals(liborCurveName)) {
-        result.put(fundingCurveName, temp);
-        temp = new ArrayList<DoublesPair>();
-      }
-    }
-
-    double factor = fundingCurve.getDiscountFactor(settlementDate) * liborCurve.getDiscountFactor(fixingDate) / liborCurve.getDiscountFactor(maturity) / onePlusAlphaF;
-    factor *= 1 - (fwd - fra.getStrike()) * discountAlpha / onePlusAlphaF;
-    final DoublesPair s1 = new DoublesPair(fixingDate, -fixingDate * factor);
-    final DoublesPair s2 = new DoublesPair(maturity, maturity * factor);
-    temp.add(s1);
-    temp.add(s2);
-    result.put(liborCurveName, temp);
-    return result;
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(fra);
-    final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
+    final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(fra, curves).getSensitivity();
   }
 
-  @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-
-    final String curveName = future.getCurveName();
-    final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-
-    final double ratio = future.getValueYearFraction() / future.getIndexYearFraction() * curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb);
-    final DoublesPair s1 = new DoublesPair(ta, ta * ratio);
-    final DoublesPair s2 = new DoublesPair(tb, -tb * ratio);
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    temp.add(s1);
-    temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    result.put(curveName, temp);
-    return result;
-  }
-
-  @Override
   /**
+   * {@inheritDoc}
    * Future transaction pricing without convexity adjustment.
    */
+  @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
+    return method.presentValueCurveSensitivity(future, curves).getSensitivity();
+  }
+
+  /**
+   * {@inheritDoc}
+   * Future transaction pricing without convexity adjustment.
+   */
+  @Override
+  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(future, curves).getSensitivity();
   }
 
@@ -162,13 +117,13 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValueSensitivity(bond, curves).getSensitivity();
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValueSensitivity(bond, curves).getSensitivity();
   }
 
@@ -196,11 +151,6 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
-
-  //  @Override
-  //  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    return visitSwap(frn, curves);
-  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
@@ -242,7 +192,6 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
 
     final double tPay = payment.getPaymentTime();
-    //    final double tStart = payment.getFixingTime();
     final double tStart = payment.getFixingPeriodStartTime();
     final double tEnd = payment.getFixingPeriodEndTime();
     final double dfPay = fundCurve.getDiscountFactor(tPay);
@@ -275,26 +224,26 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
-    final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
+    //  final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();
     final double tPay = payment.getPaymentTime();
-    final double avRate = (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+    final double avRate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
     final double dfPay = fundingCurve.getDiscountFactor(tPay);
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     DoublesPair s;
     s = new DoublesPair(tPay, -tPay * dfPay * notional * (avRate + payment.getSpread()) * payment.getPaymentYearFraction());
     temp.add(s);
 
-    if (!payment.getIndexCurveName().equals(payment.getFundingCurveName())) {
-      result.put(payment.getFundingCurveName(), temp);
-      temp = new ArrayList<DoublesPair>();
-    }
+    //    if (!payment.getIndexCurveName().equals(payment.getFundingCurveName())) {
+    //      result.put(payment.getFundingCurveName(), temp);
+    //      temp = new ArrayList<DoublesPair>();
+    //    }
 
     final double ratio = notional * dfPay * payment.getPaymentYearFraction() / payment.getRateYearFraction();
     s = new DoublesPair(ta, -ta * ratio);
@@ -302,7 +251,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     s = new DoublesPair(tb, tb * ratio);
     temp.add(s);
 
-    result.put(payment.getIndexCurveName(), temp);
+    result.put(payment.getFundingCurveName(), temp);
 
     return result;
   }
@@ -328,15 +277,20 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponCMS(CouponCMS payment, YieldCurveBundle data) {
-    CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+  public Map<String, List<DoublesPair>> visitCouponCMS(final CouponCMS payment, final YieldCurveBundle data) {
+    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
     return method.presentValueSensitivity(payment, data).getSensitivity();
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
-    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(coupon, curves).getSensitivity();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
+    return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
   /**
@@ -346,7 +300,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    * @param time The time
    * @return The sensitivity.
    */
-  public static Map<String, List<DoublesPair>> discountFactorSensitivity(String curveName, YieldAndDiscountCurve curve, double time) {
+  public static Map<String, List<DoublesPair>> discountFactorSensitivity(final String curveName, final YieldAndDiscountCurve curve, final double time) {
     final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(s);

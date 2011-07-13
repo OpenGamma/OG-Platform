@@ -78,6 +78,13 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
       context.addToMessage(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("tenorSwapInstrumentProviders", tenorSwapInstrumentProvidersMessage);
+
+    MutableFudgeMsg oisSwapInstrumentProvidersMessage = context.newMessage();
+    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
+      context.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    }
+    message.add("oisSwapInstrumentProviders", oisSwapInstrumentProvidersMessage);
+   
     return message; 
   }
 
@@ -124,9 +131,23 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
     for (FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
       tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
-    return new CurveSpecificationBuilderConfiguration(
-      cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders,
-      swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders);
+
+    FudgeMsg oisSwapInstrumentProvidersMessage = message.getMessage("oisSwapInstrumentProviders");
+    Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = null;
+    if (oisSwapInstrumentProvidersMessage != null) {
+      oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      for (FudgeField field : oisSwapInstrumentProvidersMessage.getAllFields()) {
+        oisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, 
+                                                      fraInstrumentProviders, 
+                                                      rateInstrumentProviders, 
+                                                      futureInstrumentProviders,
+                                                      swapInstrumentProviders, 
+                                                      basisSwapInstrumentProviders, 
+                                                      tenorSwapInstrumentProviders,
+                                                      oisSwapInstrumentProviders);
   }
 
 }

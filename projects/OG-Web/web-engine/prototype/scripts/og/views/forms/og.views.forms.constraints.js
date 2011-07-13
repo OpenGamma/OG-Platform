@@ -8,8 +8,13 @@ $.register_module({
     obj: function () {
         var module = this, id_count = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var data = config.data, data_index = config.index, render,
-                ids = {widget: prefix + id_count++, row_with: prefix + id_count++, row_without: prefix + id_count++},
+            var data = config.data, data_index = config.index, render, row_add = null,
+                ids = {
+                    widget: prefix + id_count++,
+                    row_with: prefix + id_count++,
+                    row_without: prefix + id_count++,
+                    row_add: prefix + id_count++
+                },
                 convert = function (datum) {
                     var length = 0, item;
                     if (!datum || typeof datum === 'string') return datum || '';
@@ -27,15 +32,18 @@ $.register_module({
                 module: 'og.views.forms.constraints',
                 extras: ids,
                 processor: function (data) {
-                    var indices = data_index.split('.'), last = indices.pop(), result = {};
-                    $('#' + ids.widget + ' tr.og-js-with').each(function (idx, el) {
+                    var indices = data_index.split('.'), last = indices.pop(), result = {},
+                        $withs = $('#' + ids.widget + ' tr.og-js-with'),
+                        $withouts = $('#' + ids.widget + ' tr.og-js-without');
+                    if (!$('#' + ids.widget).length) return;
+                    $withs.each(function (idx, el) {
                         var $el = $(el), optional = $el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val();
                         if (!key) throw Error('Type in a with constraint must be defined.');
                         if (!result['with']) result['with'] = {};
                         result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });
-                    $('#' + ids.widget + ' tr.og-js-without').each(function (idx, el) {
+                    $withouts.each(function (idx, el) {
                         result.without = $(el).find('input.og-js-key').val() || {};
                     });
                     indices.reduce(function (acc, level) {
@@ -45,10 +53,15 @@ $.register_module({
                 handlers: [
                     {type: 'form:load', handler: function () {
                         var item, $widget = $('#' + ids.widget), rows = {
+                            add: $('#' + ids.row_add).remove(),
                             'with': $('#' + ids.row_with).remove().removeAttr('id'),
                             without: $('#' + ids.row_without).remove().removeAttr('id')
                         };
                         render = {
+                            add: function () {
+                                $('#' + ids.widget + ' tr').hide();
+                                $widget.append(rows.add);
+                            },
                             'with': function (datum, $replace, $after) {
                                 var item, add = function (item) {
                                     var $row = rows['with'].clone(), $inputs = $row.find('input'),
@@ -70,18 +83,22 @@ $.register_module({
                             }
                         };
                         for (item in data) render[item](data[item]);
+                        if (!(data['with'] || data['without'])) render['add']();
                     }},
                     {type: 'change', selector: '#' + ids.widget + ' input.og-js-radio', handler: function (e) {
                         var target = e.target, value = target.value;
-                        if (value === 'without' && $('#' + ids.widget + ' td.og-without').length)
+                        if (value === 'without' && $('#' + ids.widget + ' td.og-js-without-field').length)
                             return alert('Sorry, but only one without at a time.'), e.target.checked = '';
                         render[value]({'with': {'': null}, without: ''}[value], $(target).closest('tr'));
                     }},
                     {type: 'click', selector: '#' + ids.widget + ' .og-icon-remove', handler: function (e) {
                         $(e.target).closest('tr').remove();
+                        if ($('#' + ids.widget + ' tr').length === 1) render['add']();
                     }},
-                    {type: 'click', selector: '#' + ids.widget + ' .og-icon-add', handler: function (e) {
+                    {type: 'click', selector: '#' + ids.widget + ' .og-js-add', handler: function (e) {
+                        $('#' + ids.widget + ' tr').show();
                         render['with']({'': null}, null, $(e.target).closest('tr'));
+                        $('#' + ids.row_add).remove();
                     }}
                 ]
             });

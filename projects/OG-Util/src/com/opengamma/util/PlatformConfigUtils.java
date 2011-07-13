@@ -70,7 +70,11 @@ public final class PlatformConfigUtils {
     /**
      * Example mode.
      */
-    EXAMPLE;
+    EXAMPLE,
+    /**
+     * Test mode.
+     */
+    TEST;
   }
 
   //-------------------------------------------------------------------------

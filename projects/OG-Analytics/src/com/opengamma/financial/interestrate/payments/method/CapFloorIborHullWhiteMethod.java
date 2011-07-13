@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.CurrencyAmount;
@@ -39,7 +39,7 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
   /**
    * The model used for the convexity adjustment computation.
    */
-  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
+  private final HullWhiteOneFactorPiecewiseConstantParameters _data;
   /**
    * The Hull-White model.
    */
@@ -54,14 +54,14 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
   public CapFloorIborHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    _data = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility, volatilityTime);
   }
 
   /**
    * Constructor from the model.
    * @param data The Hull-White one factor model parameters.
    */
-  public CapFloorIborHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+  public CapFloorIborHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantParameters data) {
     Validate.notNull(data, "data");
     _data = data;
   }

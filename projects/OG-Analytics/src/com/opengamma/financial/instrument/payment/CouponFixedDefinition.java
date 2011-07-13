@@ -58,6 +58,32 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   /**
+   * Static constructor for a fixed coupon definition.
+   * @param currency The payment currency.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param paymentYearFraction Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param rate Fixed rate.
+   * @return The fixed coupon definition
+   */
+  public static CouponFixedDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentYearFraction, final double notional, final double rate) {
+    return new CouponFixedDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, rate);
+  }
+
+  public static CouponFixedDefinition from(final CouponFloatingDefinition floatingCoupon, final double fixedRate) {
+    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(), floatingCoupon.getAccrualEndDate(),
+        floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate);
+  }
+
+  public static CouponFixedDefinition from(final CouponIborSpreadDefinition floatingCoupon, final double fixedRate) {
+    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(), floatingCoupon.getAccrualEndDate(),
+        floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate + floatingCoupon.getSpread());
+  }
+
+  /**
    * Gets the fixed rate.
    * @return The rate.
    */
@@ -119,7 +145,6 @@ public class CouponFixedDefinition extends CouponDefinition {
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date"); // Required: reference date <= payment date
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
     return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }

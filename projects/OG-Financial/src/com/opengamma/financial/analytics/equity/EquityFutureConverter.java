@@ -8,9 +8,10 @@ package com.opengamma.financial.analytics.equity;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.financial.analytics.fixedincome.FutureSecurityConverter;
+import com.opengamma.financial.analytics.interestratefuture.AbstractFutureSecurityVisitor;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 
 /**
@@ -18,15 +19,10 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
  * Converts it to a EquityFutureDefinition (OG-Analytics)  
  * TODO - Not sure this should extend from what looks to be an InterestRateFutureConverter
  */
-public class EquityFutureConverter extends FutureSecurityConverter {
+//TODO this is extending the wrong thing
+public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIncomeFutureInstrumentDefinition<?>> {
 
-  /**
-   * @param holidaySource The holiday data source
-   * @param conventionSource The convention bundle source
-   * @param exchangeSource The exchange data source
-   */
   public EquityFutureConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final ExchangeSource exchangeSource) {
-    super(holidaySource, conventionSource, exchangeSource);
   }
 
   /**

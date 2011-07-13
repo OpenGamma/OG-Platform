@@ -19,14 +19,14 @@ import com.opengamma.util.time.Tenor;
 /**
  *  
  */
-public class FixedIncomeStripWithSecurity {
-  private StripInstrumentType _instrumentType;
-  private Tenor _tenor;
-  private Tenor _resolvedTenor;
+public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStripWithSecurity> {
+  private final StripInstrumentType _instrumentType;
+  private final Tenor _tenor;
+  private final Tenor _resolvedTenor;
   private int _nthFutureFromTenor;
-  private ZonedDateTime _maturity;
-  private Identifier _securityIdentifier;
-  private Security _security;
+  private final ZonedDateTime _maturity;
+  private final Identifier _securityIdentifier;
+  private final Security _security;
 
   /**
    * Gets the instrumentType field.
@@ -35,7 +35,7 @@ public class FixedIncomeStripWithSecurity {
   public StripInstrumentType getInstrumentType() {
     return _instrumentType;
   }
-  
+
   /**
    * Gets the tenor field
    * @return the tenor
@@ -43,7 +43,7 @@ public class FixedIncomeStripWithSecurity {
   public Tenor getTenor() {
     return _tenor;
   }
-  
+
   /**
    * Gets the resolved tenor field
    * @return the tenor
@@ -51,7 +51,7 @@ public class FixedIncomeStripWithSecurity {
   public Tenor getResolvedTenor() {
     return _resolvedTenor;
   }
-  
+
   /**
    * Get the number of the quarterly IR futures after the tenor to choose.  
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
@@ -64,7 +64,7 @@ public class FixedIncomeStripWithSecurity {
     }
     return _nthFutureFromTenor;
   }
-  
+
   /**
    * Gets the years field.
    * @return the years
@@ -72,7 +72,7 @@ public class FixedIncomeStripWithSecurity {
   public ZonedDateTime getMaturity() {
     return _maturity;
   }
-  
+
   /**
    * Gets the identifier that was used to resolve the security
    * This is available, just so the same identifier can be conveniently used to retrieve requested market data.
@@ -90,10 +90,10 @@ public class FixedIncomeStripWithSecurity {
     return _security;
   }
 
-  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, Tenor originalTenor, 
-                                      Tenor resolvedTenor, int nthFutureFromOriginalTenor, 
-                                      ZonedDateTime maturity, Identifier securityIdentifier, 
-                                      Security security) {
+  public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
+                                      final Tenor resolvedTenor, final int nthFutureFromOriginalTenor,
+                                      final ZonedDateTime maturity, final Identifier securityIdentifier,
+                                      final Security security) {
     Validate.isTrue(instrumentType == StripInstrumentType.FUTURE, "Trying to create a node with a nthFutureFromOriginalTenor param when not a future node");
     _instrumentType = instrumentType;
     _tenor = originalTenor;
@@ -103,10 +103,10 @@ public class FixedIncomeStripWithSecurity {
     _securityIdentifier = securityIdentifier;
     _security = security;
   }
-  
-  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, Tenor originalTenor, 
-      Tenor resolvedTenor, ZonedDateTime maturity, Identifier securityIdentifier, 
-      Security security) {
+
+  public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
+      final Tenor resolvedTenor, final ZonedDateTime maturity, final Identifier securityIdentifier,
+      final Security security) {
     Validate.isTrue(instrumentType != StripInstrumentType.FUTURE, "Trying to create a node without a nthFutureFromOriginalTenor param when a future node");
     _instrumentType = instrumentType;
     _tenor = originalTenor;
@@ -115,14 +115,14 @@ public class FixedIncomeStripWithSecurity {
     _securityIdentifier = securityIdentifier;
     _security = security;
   }
-  
+
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof FixedIncomeStripWithSecurity) {
-      FixedIncomeStripWithSecurity other = (FixedIncomeStripWithSecurity) obj;
+      final FixedIncomeStripWithSecurity other = (FixedIncomeStripWithSecurity) obj;
       return ObjectUtils.equals(_tenor, other._tenor) &&
              ObjectUtils.equals(_nthFutureFromTenor, other._nthFutureFromTenor) &&
              ObjectUtils.equals(_maturity, other._maturity) &&
@@ -142,14 +142,23 @@ public class FixedIncomeStripWithSecurity {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public int compareTo(FixedIncomeStripWithSecurity o) {
-    int result = (int) getMaturity().compareTo(o.getMaturity());
+  @Override
+  public int compareTo(final FixedIncomeStripWithSecurity o) {
+    int result = getMaturity().compareTo(o.getMaturity());
     if (result != 0) {
       return result;
     }
-    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal(); 
+    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal();
     if (result != 0) {
       return result;
+    }
+    if (getSecurity().getUniqueId() == null) {
+      if (o.getSecurity().getUniqueId() == null) {
+        return 0;
+      } else {
+        //TODO check this
+        return -1;
+      }
     }
     result = getSecurity().getUniqueId().getValue().compareTo(o.getSecurity().getUniqueId().getValue());
     return result;

@@ -134,6 +134,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     shutdownCore();
   }
 
+  public void triggerCycle() {
+    getComputationJob().triggerCycle();
+  }
+  
   //-------------------------------------------------------------------------
   // Lifecycle
   //-------------------------------------------------------------------------
@@ -527,6 +531,5 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // thread. There is no need to slow things down by waiting for the thread to die.
     setComputationJob(null);
     setComputationThread(null);
-  }
-  
+  }  
 }

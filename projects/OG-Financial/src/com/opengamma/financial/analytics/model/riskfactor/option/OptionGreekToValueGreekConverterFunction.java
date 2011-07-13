@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.riskfactor.option;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,8 +46,13 @@ import com.opengamma.util.ArgumentChecker;
 public class OptionGreekToValueGreekConverterFunction extends PropertyPreservingFunction {
 
   @Override
-  protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY};
+  protected Collection<String> getPreservedProperties() {
+    return Collections.singleton(ValuePropertyNames.CURRENCY);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Collections.emptySet();
   }
 
   private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();

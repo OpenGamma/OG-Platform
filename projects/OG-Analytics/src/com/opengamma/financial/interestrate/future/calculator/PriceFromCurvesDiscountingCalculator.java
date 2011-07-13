@@ -30,7 +30,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInterest
   /**
    * The method to compute interest rate future prices.
    */
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_RATE_FUTURE = new InterestRateFutureSecurityDiscountingMethod();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
