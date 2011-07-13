@@ -12,11 +12,14 @@ $.register_module({
     ],
     obj: function () {
         var ui = og.common.util.ui, forms = og.views.forms,
-            sets = 'calculationConfiguration',
-            cols = 'portfolioRequirementsBySecurityType',
-            reqs = 'portfolioRequirement',
-            reqo = 'requiredOutput',
-            cons = 'constraints';
+            RMDF = 'resultModelDefinition',
+            SETS = 'calculationConfiguration',
+            DEFP = 'defaultProperties',
+            COLS = 'portfolioRequirementsBySecurityType',
+            REQS = 'portfolioRequirement',
+            SECU = 'securityType'
+            REQO = 'requiredOutput',
+            CONS = 'constraints';
         return function (data) {
             og.dev.log('data!', data.template_data.configJSON);
             var id_count = 0, prefix = 'view_def_', master = data.template_data.configJSON, column_set_tabs,
@@ -26,13 +29,12 @@ $.register_module({
                     selector: '#OG-details .og-main',
                     extras: {name: master.name},
                     processor: function (data) {
-                        // remove undefineds that we added
-                        if (data[sets]) data[sets].forEach(function (set, set_idx) {
-                            if (!set[cols]) return;
-                            set[cols] = set[cols].filter(function (col) {return col !== undefined;});
-                            set[cols].forEach(function (col, col_idx) {
-                                if (!col[reqs]) return;
-                                col[reqs] = col[reqs].filter(function (req) {return req !== undefined;});
+                        if (data[SETS]) data[SETS].forEach(function (set, set_idx) { // remove undefineds that we added
+                            if (!set[COLS]) return;
+                            set[COLS] = set[COLS].filter(function (col) {return col !== undefined;});
+                            set[COLS].forEach(function (col, col_idx) {
+                                if (!col[REQS]) return;
+                                col[REQS] = col[REQS].filter(function (req) {return req !== undefined;});
                             });
                         });
                     },
@@ -59,21 +61,16 @@ $.register_module({
                     }}]
                 }),
                 (function () { // form item_1
-                    var level = 'resultModelDefinition', result_def = master[level],
-                        fields = [
-                            'primitiveOutputMode', 'securityOutputMode', 'positionOutputMode',
-                            'aggregatePositionOutputMode', 'tradeOutputMode'
-                        ],
-                        ids = [
-                            prefix + id_count++, prefix + id_count++, prefix + id_count++,
-                            prefix + id_count++, prefix + id_count++
-                        ];
+                    var result_def = master[RMDF], ids = [], fields;
+                    fields = ['primitive', 'security', 'position', 'aggregatePosition', 'trade'].map(function (val) {
+                        return ids.push(prefix + id_count++), val + 'OutputMode';
+                    });
                     return new form.Block({
                         module: 'og.views.forms.view-definition-result-model-definition',
                         extras: fields.reduce(function (acc, val, idx) {return acc[val] = ids[idx], acc;}, {}),
                         handlers: [{type: 'form:load', handler: function () {
                             fields.forEach(function (field, idx) {
-                                $('#' + ids[idx]).attr('name', level + '.' + field).val(result_def[field]);
+                                $('#' + ids[idx]).attr('name', RMDF + '.' + field).val(result_def[field]);
                             });
                         }}]
                     })
@@ -98,7 +95,7 @@ $.register_module({
                     new form.Block({ // form item_3
                         module: 'og.views.forms.tabs',
                         extras: {
-                            tabs: master[sets].reduce(function (acc, set, idx) {
+                            tabs: master[SETS].reduce(function (acc, set, idx) {
                                 return acc + '<a class="og-tab og-js-tab' + (idx ? '' : ' og-active') +
                                     '" href="#"><span>' + set.name + '</span></a>';
                             }, '')
@@ -127,14 +124,21 @@ $.register_module({
                     }),
                     column_sets // form item_4
                 );
-                set_ids = master[sets].map(function (set, set_idx) {
+                set_ids = master[SETS].map(function (set, set_idx) {
                     var id = prefix + id_count++, column_set = new form.Block({
-                        wrap: '<div id="' + id + '">{{html html}}</div>',
+                        wrap: '<div id="' + id + '">' +
+                                '<div class="og-js-col-set">{{html html}}</div>' +
+                                '<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>' +
+                            '</div>',
                         handlers: [
                             {
                                 type: 'click', selector: 'div#' + id + ' .og-js-add-col-val',
                                 handler: function (e) { // add a column value
-                                    og.dev.log('add a column value');
+                                    var $div = $('#' + id + ' div.og-js-col-set'), block, col = {};
+                                    col[SECU] = '';
+                                    if (!set[COLS]) set[COLS] = [col]; else set[COLS].push(col);
+                                    column_set.children.push(block = new_col_val(col, set[COLS].length - 1));
+                                    block.html(function (html) {$div.append($(html)), block.load();});
                                     return false;
                                 }
                             },
@@ -168,38 +172,30 @@ $.register_module({
                                 }
                             }
                         ]
-                    });
-                    column_set.children = [
-                        new form.Field({ // column set name
-                            module: 'og.views.forms.view-definition-column-set-name',
-                            extras: {name: sets + '.' + set_idx + '.name', value: set.name},
-                            handlers: [{
-                                selector: 'input[name=' + sets + '.' + set_idx + '.name]', type: 'keyup',
-                                handler: function (e) {
-                                    $('#' + form.id + ' a.og-js-tab.og-active span').text($(e.target).val());
-                                }
-                            }]
-                        })
-                    ];
-                    if (set[cols]) set[cols].forEach(function (col, col_idx) {
-                        var reqs_block, col_id = prefix + id_count++,
+                    }),
+                    new_col_val = function (col, col_idx) {
+                        var col_id = prefix + id_count++,
                             new_port_req = function (req, req_idx) {
-                                var sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, reqo].join('.'),
-                                    cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, cons].join('.');
+                                var sel_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, REQO].join('.'),
+                                    cons_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, CONS].join('.');
                                 return new form.Block({
                                     module: 'og.views.forms.view-definition-portfolio-requirement',
                                     extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
                                     children: [
                                         new forms.Dropdown({
                                             form: form, resource: 'valuerequirementnames', index: sel_name,
-                                            value: req[reqo], rest_options: {meta: true},
+                                            value: req[REQO], rest_options: {meta: true},
                                             placeholder: 'Please select...'
                                         }),
-                                        new forms.Constraints({form: form, data: req[cons], index: cons_name})
+                                        new forms.Constraints({form: form, data: req[CONS], index: cons_name})
                                     ]
                                 });
-                            };
-                        column_set.children.push(new form.Block({
+                            },
+                            reqs_block = reqs_block = new form.Block({
+                                wrap: '<ul class="og-js-port-req og-portfolio-requirements">{{html html}}</ul>'
+                            });
+                        if (col[REQS]) Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
+                        return new form.Block({
                             module: 'og.views.forms.view-definition-column-values',
                             extras: {id: col_id},
                             handlers: [{
@@ -207,37 +203,40 @@ $.register_module({
                                 handler: function (e) { // add a portfolio requirement
                                     var $ul = $(e.target).parents('div:first').find('ul.og-js-port-req'),
                                         block, req = {};
-                                    req[cons] = {}, req[reqo] = '';
-                                    if (!col[reqs]) col[reqs] = [req]; else col[reqs].push(req);
-                                    reqs_block.children.push(block = new_port_req(req, col[reqs].length - 1));
-                                    block.html(function (html) {
-                                        $ul.append($(html));
-                                        block.load();
-                                    });
+                                    req[CONS] = {}, req[REQO] = '';
+                                    if (!col[REQS]) col[REQS] = [req]; else col[REQS].push(req);
+                                    reqs_block.children.push(block = new_port_req(req, col[REQS].length - 1));
+                                    block.html(function (html) {$ul.append($(html)), block.load();});
                                     return false;
                                 }
                             }],
                             children: [
                                 new forms.Dropdown({
                                     form: form, resource: 'securities', rest_options: {meta: true},
-                                    index: [sets, set_idx, cols, col_idx, 'securityType'].join('.'),
-                                    value: col.securityType,
+                                    index: [SETS, set_idx, COLS, col_idx, SECU].join('.'),
+                                    value: col[SECU],
                                     placeholder: 'Please select...'
                                 }),
-                                (reqs_block = new form.Block({
-                                    wrap: '<ul class="og-js-port-req og-portfolio-requirements">{{html html}}</ul>'
-                                }))
+                                reqs_block
                             ]
-                        }));
-                        if (col[reqs]) col[reqs].forEach(function (req, req_idx) {
-                            reqs_block.children.push(new_port_req(req, req_idx));
                         });
-                    });
-                    column_set.children.push(new form.Field({
-                        generator: function (handler) {
-                            handler('<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>');
-                        }
-                    }));
+                    };
+                    column_set.children = [
+                        new form.Block({ // column set top (name, default properties, etc)
+                            module: 'og.views.forms.view-definition-column-set-top',
+                            extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
+                            children: [new forms.Constraints({
+                                form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
+                            })],
+                            handlers: [{
+                                selector: 'input[name=' + [SETS, set_idx, 'name'].join('.') + ']', type: 'keyup',
+                                handler: function (e) {
+                                    $('#' + form.id + ' a.og-js-tab.og-active span').text($(e.target).val());
+                                }
+                            }]
+                        })
+                    ];
+                    if (set[COLS]) Array.prototype.push.apply(column_set.children, set[COLS].map(new_col_val));
                     column_sets.children.push(column_set);
                     return id;
                 });
