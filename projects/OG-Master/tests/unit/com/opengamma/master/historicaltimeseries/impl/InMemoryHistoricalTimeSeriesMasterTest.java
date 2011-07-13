@@ -231,6 +231,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
     assertEquals("Test", added.getUniqueId().getScheme());
     added.setUniqueId(null);
+    added.getInfo().setTimeSeriesObjectId(null);
     assertEquals(info1, added.getInfo());
   }
 

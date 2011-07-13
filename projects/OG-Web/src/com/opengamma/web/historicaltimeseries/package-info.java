@@ -7,4 +7,4 @@
 /**
  * Web resources for historical time-series.
  */
-package com.opengamma.web.historicaldata;
+package com.opengamma.web.historicaltimeseries;

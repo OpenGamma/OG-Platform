@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.historicaldata;
+package com.opengamma.web.historicaltimeseries;
 
 import java.net.URI;
 import java.util.Collection;
@@ -39,11 +39,13 @@ import com.google.common.collect.Maps;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesLoader;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -102,7 +104,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
-    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest();
+    HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
@@ -112,12 +114,12 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addIdentifier(id);
+      searchRequest.addIdentifierKey(id);
     }
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      HistoricalTimeSeriesSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
+      HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
@@ -280,8 +282,11 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   @Path("{timeseriesId}")
   public WebHistoricalTimeSeriesResource findSeries(@PathParam("timeseriesId") String idStr) {
     data().setUriHistoricalTimeSeriesId(idStr);
-    HistoricalTimeSeriesDocument series = data().getHistoricalTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
-    data().setHistoricalTimeSeries(series);
+    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
+    data().setInfo(info);
+    ManageableHistoricalTimeSeries series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
+        info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, null, null);
+    data().setTimeSeries(series);
     return new WebHistoricalTimeSeriesResource(this);
   }
 
@@ -292,7 +297,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest();
+    HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
     out.put("searchRequest", searchRequest);
     return out;
   }

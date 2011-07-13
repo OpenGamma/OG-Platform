@@ -9,4 +9,4 @@
  * <p>
  * This includes the master-backed source which relies on the time-series resolver.
  */
-package com.opengamma.master.historicaldata.impl;
+package com.opengamma.master.historicaltimeseries.impl;

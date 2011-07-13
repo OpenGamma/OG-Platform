@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.historicaldata;
+package com.opengamma.web.historicaltimeseries;
 
 import java.io.StringWriter;
 import java.net.URI;
@@ -22,8 +22,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
 /**
  * RESTful resource for a historical time-series.
@@ -60,16 +60,16 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     StringWriter stringWriter  = new StringWriter();
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
-    for (Map.Entry<?, Double> entry : data().getHistoricalTimeSeries().getSeries().getTimeSeries()) {
+    for (Map.Entry<?, Double> entry : data().getTimeSeries().getTimeSeries()) {
       csvWriter.writeNext(new String[] {entry.getKey().toString(), entry.getValue().toString()});
     }
     return stringWriter.toString();
   }
-  
+
   @PUT
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON() {
-    HistoricalTimeSeriesDocument tsDoc = data().getHistoricalTimeSeries();
+    HistoricalTimeSeriesInfoDocument tsDoc = data().getInfo();
     Response result = null;
     if (updateTimeseries(tsDoc.getUniqueId())) {
       result =  Response.ok().build();
@@ -100,7 +100,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
   }
 
   private URI deleteTimeSeries() {
-    HistoricalTimeSeriesDocument doc = data().getHistoricalTimeSeries();
+    HistoricalTimeSeriesInfoDocument doc = data().getInfo();
     data().getHistoricalTimeSeriesMaster().remove(doc.getUniqueId());
     URI uri = WebAllHistoricalTimeSeriesResource.uri(data());
     return uri;
@@ -113,9 +113,10 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    HistoricalTimeSeriesDocument doc = data().getHistoricalTimeSeries();
-    out.put("timeseriesDoc", doc);
-    out.put("timeseries", doc.getSeries());
+    HistoricalTimeSeriesInfoDocument doc = data().getInfo();
+    out.put("infoDoc", doc);
+    out.put("info", doc.getInfo());
+    out.put("timeseries", data().getTimeSeries());
     return out;
   }
 

@@ -17,9 +17,9 @@ import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.master.historicaldata.impl.RandomTimeSeriesGenerator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -28,7 +28,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * A performance test of time-series.
  */
-@Test
+@Test(enabled = false)
 public class PerformanceTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);

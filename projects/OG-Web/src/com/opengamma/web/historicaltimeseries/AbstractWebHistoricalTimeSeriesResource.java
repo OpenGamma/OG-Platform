@@ -3,15 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.historicaldata;
+package com.opengamma.web.historicaltimeseries;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesLoader;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaldata.impl;
+package com.opengamma.master.historicaltimeseries.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -82,7 +82,7 @@ public class HistoricalTimeSeriesRating {
    * @param series  the series to rate, not null
    * @return the rating
    */
-  public int rate(ManageableHistoricalTimeSeries series) {
+  public int rate(ManageableHistoricalTimeSeriesInfo series) {
     String dataSource = series.getDataSource();
     Map<String, Integer> dataSourceMap = _rulesByFieldType.get(HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME);
     Integer dsRating = dataSourceMap.get(dataSource);

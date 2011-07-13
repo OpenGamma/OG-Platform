@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaldata.impl;
+package com.opengamma.master.historicaltimeseries.impl;
 
-import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -20,8 +20,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.testng.annotations.Test;
 
-import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRating;
-import com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRatingRule;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**

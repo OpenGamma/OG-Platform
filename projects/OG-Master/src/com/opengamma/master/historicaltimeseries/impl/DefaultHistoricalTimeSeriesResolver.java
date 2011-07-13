@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.historicaldata.impl;
+package com.opengamma.master.historicaltimeseries.impl;
 
 import java.util.List;
 
@@ -14,11 +14,11 @@ import com.google.common.base.Objects;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchRequest;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesSearchResult;
-import com.opengamma.master.historicaldata.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -61,11 +61,9 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
     resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
     // find all matching time-series
-    HistoricalTimeSeriesSearchRequest searchRequest = new HistoricalTimeSeriesSearchRequest(identifiers);
+    HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest(identifiers);
     searchRequest.setDataField(dataField);
-    searchRequest.setLoadEarliestLatest(false);
-    searchRequest.setLoadTimeSeries(false);
-    HistoricalTimeSeriesSearchResult searchResult = _master.search(searchRequest);
+    HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {
       s_logger.warn("Resolver failed to find any time-series: {} {}", dataField, identifiers);
       return null;
@@ -77,28 +75,28 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
       s_logger.warn("Resolver failed to find configuration: {}", resolutionKey);
       return null;
     }
-    return bestMatch(searchResult.getSeriesList(), ruleSet);
+    return bestMatch(searchResult.getInfoList(), ruleSet);
   }
 
   /**
    * Choose the best match using the configured rules.
    * 
-   * @param seriesList  the list of series objects, not null
+   * @param infoList  the list of series objects, not null
    * @param rating  the configured rules, not null
    * @return the best match, null if no match
    */
-  private UniqueIdentifier bestMatch(List<ManageableHistoricalTimeSeries> seriesList, HistoricalTimeSeriesRating rating) {
+  private UniqueIdentifier bestMatch(List<ManageableHistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesRating rating) {
     s_logger.debug("Find best match using rules: {}", rating);
     
     // pick the highest score
     int currentScore = Integer.MIN_VALUE;
     UniqueIdentifier result = null;
-    for (ManageableHistoricalTimeSeries series : seriesList) {
-      int score = rating.rate(series);
-      s_logger.debug("Score: {} for info: {}", score, series);
+    for (ManageableHistoricalTimeSeriesInfo info : infoList) {
+      int score = rating.rate(info);
+      s_logger.debug("Score: {} for info: {}", score, info);
       if (score > currentScore) {
         currentScore = score;
-        result = series.getUniqueId();
+        result = info.getUniqueId();
       }
     }
     return result;

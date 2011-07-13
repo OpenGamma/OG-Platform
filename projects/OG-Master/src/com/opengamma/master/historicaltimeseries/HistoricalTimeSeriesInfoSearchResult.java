@@ -43,7 +43,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
    * 
    * @return the series, not null
    */
-  public List<ManageableHistoricalTimeSeriesInfo> getSeriesList() {
+  public List<ManageableHistoricalTimeSeriesInfo> getInfoList() {
     List<ManageableHistoricalTimeSeriesInfo> result = new ArrayList<ManageableHistoricalTimeSeriesInfo>();
     if (getDocuments() != null) {
       for (HistoricalTimeSeriesInfoDocument doc : getDocuments()) {

@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -399,6 +400,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
   }
@@ -446,6 +449,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
   }
@@ -496,6 +501,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
   }
@@ -540,6 +547,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
   }

@@ -3,11 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.historicaldata;
+package com.opengamma.web.historicaltimeseries;
 
 import java.net.URI;
 
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 
 /**
  * URIs for web-based historical time-series.
@@ -46,11 +46,11 @@ public class WebHistoricalTimeSeriesUris {
 
   /**
    * Gets the URI.
-   * @param timeSeries  the historical data, not null
+   * @param info  the historical data, not null
    * @return the URI
    */
-  public URI oneTimeSeries(final HistoricalTimeSeriesDocument timeSeries) {
-    return WebHistoricalTimeSeriesResource.uri(_data, timeSeries.getUniqueId());
+  public URI oneTimeSeries(final HistoricalTimeSeriesInfoDocument info) {
+    return WebHistoricalTimeSeriesResource.uri(_data, info.getUniqueId());
   }
 
 }

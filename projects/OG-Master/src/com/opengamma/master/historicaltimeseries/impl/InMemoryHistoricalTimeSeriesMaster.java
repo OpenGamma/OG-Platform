@@ -199,6 +199,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     final Instant now = Instant.now();
     cloned.setVersionFromInstant(now);
     cloned.setCorrectionFromInstant(now);
+    cloned.getInfo().setTimeSeriesObjectId(objectId);
     _storeInfo.put(objectId, cloned);
     _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
     return cloned;

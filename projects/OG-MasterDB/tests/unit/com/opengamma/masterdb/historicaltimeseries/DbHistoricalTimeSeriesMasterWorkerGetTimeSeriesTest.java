@@ -63,6 +63,10 @@ public class DbHistoricalTimeSeriesMasterWorkerGetTimeSeriesTest extends Abstrac
     UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "DP101");
     ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uid, null, null);
     assertEquals(uid.getObjectId(), test.getUniqueId().getObjectId());
+    assertEquals(LocalDate.of(2011, 1, 1), test.getEarliest());
+    assertEquals(LocalDate.of(2011, 1, 3), test.getLatest());
+    assertEquals(_version2Instant, test.getVersionInstant());
+    assertEquals(_version4Instant, test.getCorrectionInstant());
     LocalDateDoubleTimeSeries timeSeries = test.getTimeSeries();
     assertEquals(3, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));
