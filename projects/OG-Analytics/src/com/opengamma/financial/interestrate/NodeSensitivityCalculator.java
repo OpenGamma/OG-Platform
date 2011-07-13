@@ -30,25 +30,14 @@ import com.opengamma.util.tuple.DoublesPair;
  * The change of a curve due to the movement of a single knot is interpolator-dependent, and can affect the entire curve, so an instrument can have sensitivity to knots at times (way)
  * beyond its maturity 
  */
-public final class NodeSensitivityCalculator {
-  private static final NodeSensitivityCalculator INSTANCE = new NodeSensitivityCalculator();
-  
-  public static NodeSensitivityCalculator getInstance() {
-    return INSTANCE;
-  }
-  
-  private NodeSensitivityCalculator() {
+public abstract class NodeSensitivityCalculator {
+
+  /* package */NodeSensitivityCalculator() {
   }
 
-  public DoubleMatrix1D presentValueCalculate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
-    return calculate(ird, PresentValueSensitivityCalculator.getInstance(), fixedCurves, interpolatedCurves);
-  }
+  public abstract DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves);
 
-  public DoubleMatrix1D parRateCalculate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
-    return calculate(ird, ParRateCurveSensitivityCalculator.getInstance(), fixedCurves, interpolatedCurves);
-  }
-
-  public DoubleMatrix1D calculate(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
+  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
       final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");
@@ -65,6 +54,7 @@ public final class NodeSensitivityCalculator {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
+  //REVIEW emcleod 13-7-2011 this duplicates a lot of the code in the next method
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.keySet()) { // loop over all curves (by name)

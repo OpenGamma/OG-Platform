@@ -52,6 +52,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
+  //TODO Rename me to be consistent with descendants and the par rate calculators
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
 
@@ -234,7 +235,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     DoublesPair s;
     s = new DoublesPair(tPay, -tPay * dfPay * notional * (avRate + payment.getSpread()) * payment.getPaymentYearFraction());
     temp.add(s);
@@ -288,7 +289,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
