@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -515,8 +516,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       compiledViewDefinition = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), compilationServices, valuationTime);
     } catch (Exception e) {
-      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException("Error compiling view definition for time " + valuationTime, e));
-      throw new OpenGammaRuntimeException("Error compiling view definition", e);
+      String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionName(), valuationTime);
+      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
+      throw new OpenGammaRuntimeException(message, e);
     }
     setCachedCompiledViewDefinition(compiledViewDefinition);
     

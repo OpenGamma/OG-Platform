@@ -375,14 +375,14 @@
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="currencyMatrixSource" ref="currencyMatrixSource" />
+    <property name="exchangeSource" ref="exchangeSource" />
+    <property name="holidaySource" ref="holidaySource" />
     <property name="interpolatedYieldCurveDefinitionSource" ref="interpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="interpolatedYieldCurveSpecificationBuilder" />
     <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
     <property name="positionSource" ref="positionSource" />
     <property name="regionSource" ref="regionSource"/>
     <property name="securitySource" ref="securitySource" />
-    <property name="holidaySource" ref="sharedHolidaySource" />
-    <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
   <bean id="functionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="configSource" ref="configSource" />
