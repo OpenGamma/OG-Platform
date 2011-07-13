@@ -182,7 +182,23 @@ $.register_module({
                         })
                     ];
                     if (set[cols]) set[cols].forEach(function (col, col_idx) {
-                        var reqs_block, col_id = prefix + id_count++;
+                        var reqs_block, col_id = prefix + id_count++,
+                            new_port_req = function (req, req_idx) {
+                                var sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, reqo].join('.'),
+                                    cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, cons].join('.');
+                                return new form.Block({
+                                    module: 'og.views.forms.view-definition-portfolio-requirement',
+                                    extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
+                                    children: [
+                                        new forms.Dropdown({
+                                            form: form, resource: 'valuerequirementnames', index: sel_name,
+                                            value: req[reqo], rest_options: {meta: true},
+                                            placeholder: 'Please select...'
+                                        }),
+                                        new forms.Constraints({form: form, data: req[cons], index: cons_name})
+                                    ]
+                                });
+                            };
                         column_set.children.push(new form.Block({
                             module: 'og.views.forms.view-definition-column-values',
                             extras: {id: col_id},
@@ -190,25 +206,10 @@ $.register_module({
                                 type: 'click', selector: 'div#' + col_id + ' .og-js-add-port-req',
                                 handler: function (e) { // add a portfolio requirement
                                     var $ul = $(e.target).parents('div:first').find('ul.og-js-port-req'),
-                                        req_idx, sel_name, cons_name, block,
-                                        req = {};
-                                    req[reqo] = '';
+                                        block, req = {};
+                                    req[cons] = {}, req[reqo] = '';
                                     if (!col[reqs]) col[reqs] = [req]; else col[reqs].push(req);
-                                    req_idx = col[reqs].length - 1;
-                                    sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, reqo].join('.'),
-                                    cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, cons].join('.');
-                                    reqs_block.children.push(block = new form.Block({
-                                        module: 'og.views.forms.view-definition-portfolio-requirement',
-                                        extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
-                                        children: [
-                                            new forms.Dropdown({
-                                                form: form, resource: 'valuerequirementnames', index: sel_name,
-                                                value: req[reqo], rest_options: {meta: true},
-                                                placeholder: 'Please select...'
-                                            }),
-                                            new forms.Constraints({form: form, data: {}, index: cons_name})
-                                        ]
-                                    }));
+                                    reqs_block.children.push(block = new_port_req(req, col[reqs].length - 1));
                                     block.html(function (html) {
                                         $ul.append($(html));
                                         block.load();
@@ -229,20 +230,7 @@ $.register_module({
                             ]
                         }));
                         if (col[reqs]) col[reqs].forEach(function (req, req_idx) {
-                            var sel_name = [sets, set_idx, cols, col_idx, reqs, req_idx, reqo].join('.'),
-                                cons_name = [sets, set_idx, cols, col_idx, reqs, req_idx, cons].join('.');
-                            reqs_block.children.push(new form.Block({
-                                module: 'og.views.forms.view-definition-portfolio-requirement',
-                                extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
-                                children: [
-                                    new forms.Dropdown({
-                                        form: form, resource: 'valuerequirementnames', index: sel_name,
-                                        value: req[reqo], rest_options: {meta: true},
-                                        placeholder: 'Please select...'
-                                    }),
-                                    new forms.Constraints({form: form, data: req.constraints, index: cons_name})
-                                ]
-                            }));
+                            reqs_block.children.push(new_port_req(req, req_idx));
                         });
                     });
                     column_set.children.push(new form.Field({
