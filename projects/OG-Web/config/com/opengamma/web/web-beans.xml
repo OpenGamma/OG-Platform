@@ -331,8 +331,8 @@
   
   <!-- Time series RESTful service -->
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
-    <constructor-arg ref="timeseriesMaster" />
-    <constructor-arg ref="timeseriesLoader"/>
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg ref="htsLoader"/>
   </bean>
   
   <!-- Batch RESTful service -->
