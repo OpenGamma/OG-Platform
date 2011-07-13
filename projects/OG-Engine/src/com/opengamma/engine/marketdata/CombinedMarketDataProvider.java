@@ -29,14 +29,52 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   private final MarketDataProvider _preffered;
   private final MarketDataProvider _fallBack;
   
+  private final CombinedMarketDataListener _prefferedListener;
+  private final CombinedMarketDataListener _fallBackListener;
+  
   private final Map<ValueRequirement, MarketDataProvider> _providerByRequirement = new HashMap<ValueRequirement, MarketDataProvider>();
 
+  private final Object _listenerLock = new Object();
+  private boolean _listenerAttached;
+  
   public CombinedMarketDataProvider(MarketDataProvider preffered, MarketDataProvider fallBack) {
     _preffered = preffered;
     _fallBack = fallBack;
     
-    _preffered.addListener(new CombinedMarketDataListener(this, _preffered));
-    _fallBack.addListener(new CombinedMarketDataListener(this, _fallBack));
+    _prefferedListener = new CombinedMarketDataListener(this, _preffered);
+    _fallBackListener = new CombinedMarketDataListener(this, _fallBack);
+  }
+
+  
+  
+  @Override
+  public void addListener(MarketDataListener listener) {
+    super.addListener(listener);
+    checkListenerAttach();
+  }
+
+  @Override
+  public void removeListener(MarketDataListener listener) {
+    super.removeListener(listener);
+    checkListenerAttach();
+  }
+
+
+
+  private void checkListenerAttach() {
+    synchronized (_listenerLock) {
+      boolean anyListeners = getListeners().size() > 0;
+
+      if (anyListeners && !_listenerAttached) {
+        _preffered.addListener(_prefferedListener);
+        _fallBack.addListener(_fallBackListener);
+        _listenerAttached = true;
+      } else if (!anyListeners && _listenerAttached) {
+        _preffered.removeListener(_prefferedListener);
+        _fallBack.removeListener(_fallBackListener);
+        _listenerAttached = false;
+      }
+    }
   }
 
   private class CombinedMarketDataListener implements MarketDataListener {
