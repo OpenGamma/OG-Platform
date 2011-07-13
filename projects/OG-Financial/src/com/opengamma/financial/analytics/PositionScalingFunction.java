@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,14 +39,20 @@ import com.opengamma.util.tuple.DoublesPair;
 public class PositionScalingFunction extends PropertyPreservingFunction {
 
   @Override
-  protected String[] getPreservedProperties() {
+  protected Collection<String> getPreservedProperties() {
     // TODO [PLAT-1356] PositionScalingFunction should propagate everything
-    return new String[] {ValuePropertyNames.CUBE,
-                         ValuePropertyNames.CURRENCY,
-                         ValuePropertyNames.CURVE,
-                         ValuePropertyNames.CURVE_CURRENCY,
-                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
+    return Arrays.asList(
+        ValuePropertyNames.CUBE,
+        ValuePropertyNames.CURRENCY,
+        ValuePropertyNames.CURVE,
+        ValuePropertyNames.CURVE_CURRENCY,
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Collections.emptySet();
   }
 
   private final String _requirementName;

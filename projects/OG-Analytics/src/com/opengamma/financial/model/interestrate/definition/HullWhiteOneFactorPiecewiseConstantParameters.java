@@ -37,9 +37,9 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
   public HullWhiteOneFactorPiecewiseConstantParameters(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    this._meanReversion = meanReversion;
-    this._volatility = volatility;
-    this._volatilityTime = new double[volatilityTime.length + 2];
+    _meanReversion = meanReversion;
+    _volatility = volatility;
+    _volatilityTime = new double[volatilityTime.length + 2];
     _volatilityTime[0] = 0.0;
     System.arraycopy(volatilityTime, 0, _volatilityTime, 1, volatilityTime.length);
     _volatilityTime[volatilityTime.length + 1] = 1000.0;

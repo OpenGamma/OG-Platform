@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.time;
 
+
 /**
  * The accuracy of an {@code Expiry}.
  */
@@ -29,6 +30,6 @@ public enum ExpiryAccuracy {
   /**
    * Accurate to a year.
    */
-  YEAR,
+  YEAR;
 
 }
