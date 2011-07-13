@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -37,7 +37,7 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
   public InterestRateFutureTransactionHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    HullWhiteOneFactorPiecewiseConstantDataBundle data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    HullWhiteOneFactorPiecewiseConstantParameters data = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility, volatilityTime);
     _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(data);
   }
 
@@ -45,7 +45,7 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
    * Constructor from the model.
    * @param data The Hull-White one factor model parameters.
    */
-  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantParameters data) {
     Validate.notNull(data, "Data");
     _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(data);
   }

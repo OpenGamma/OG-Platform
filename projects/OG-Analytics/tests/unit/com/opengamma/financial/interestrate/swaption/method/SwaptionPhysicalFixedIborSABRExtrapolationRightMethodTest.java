@@ -342,7 +342,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIbor swaptionLongReceiverHighStrike = swaptionDefinitionLongReceiverHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod methodExtrapolation = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(cutOffStrike, mu);
-    final SwaptionPhysicalFixedIborSABRMethod methodNoExtrapolation = new SwaptionPhysicalFixedIborSABRMethod();
+    final SwaptionPhysicalFixedIborSABRMethod methodNoExtrapolation = SwaptionPhysicalFixedIborSABRMethod.getInstance();
 
     long startTime, endTime;
     final int nbTest = 1000;

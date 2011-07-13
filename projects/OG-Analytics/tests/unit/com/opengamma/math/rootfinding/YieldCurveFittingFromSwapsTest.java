@@ -345,11 +345,11 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       marketValues[i] = marketValueCalculator.visit(instrument, curveBundle);
     }
 
-    YieldCurveBundle knowCurves = null;
+    YieldCurveBundle knownCurves = null;
     if (fixedCurveNames != null && fixedCurveNames.size() > 0) {
-      knowCurves = new YieldCurveBundle();
+      knownCurves = new YieldCurveBundle();
       for (final String name : fixedCurveNames) {
-        knowCurves.setCurve(name, curveBundle.getCurve(name));
+        knownCurves.setCurve(name, curveBundle.getCurve(name));
         // remove the know curves from the list to be fitted
         final int index = curveNames.indexOf(name);
         curveNames.remove(index);
@@ -358,7 +358,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       }
     }
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knowCurves, curveNames, curveKnots, extrapolator, extrapolatorWithSense, marketValueCalculator,
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator, extrapolatorWithSense, marketValueCalculator,
         marketValueSensitivityCalculator, marketValues, startPosition, yields);
 
     return data;

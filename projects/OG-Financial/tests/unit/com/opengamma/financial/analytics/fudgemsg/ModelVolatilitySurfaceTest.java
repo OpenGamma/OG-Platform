@@ -6,9 +6,11 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -37,7 +39,7 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
   public void testInterpolatedVolatilitySurface() {
     final double sigma = 0.4;
     final Interpolator1D<Interpolator1DDataBundle> linear = new LinearInterpolator1D();
-    final Interpolator2D interpolator = new GridInterpolator2D(linear, linear);
+    final Interpolator2D<Interpolator1DDataBundle> interpolator = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(linear, linear);
     final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
     data.put(Pair.of(0., 1.), sigma);
     data.put(Pair.of(1., 0.), sigma);

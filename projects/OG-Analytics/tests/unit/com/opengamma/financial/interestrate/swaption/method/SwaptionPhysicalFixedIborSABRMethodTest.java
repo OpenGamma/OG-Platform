@@ -116,7 +116,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = new SwaptionPhysicalFixedIborSABRMethod();
+  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   // Pricing functions
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 

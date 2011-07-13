@@ -10,10 +10,15 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -29,130 +34,151 @@ import com.opengamma.util.money.Currency;
  * General utility method applying to Financial Securities
  */
 public class FinancialSecurityUtils {
-  
+
   /**
    * 
    * @param target the computation target being examined.
    * @return ValueProperties containing a constraint of the CurrencyUnit or empty if not possible
    */
-  public static ValueProperties getCurrencyUnitConstraint(ComputationTarget target) {
+  public static ValueProperties getCurrencyConstraint(final ComputationTarget target) {
     switch (target.getType()) {
       case PORTFOLIO_NODE:
         break;
-      case POSITION: 
-      {
-        Security security = target.getPosition().getSecurity();
-        Currency ccy = getCurrencyUnit(security);
+      case POSITION: {
+        final Security security = target.getPosition().getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
         break;
-      case PRIMITIVE:
-      {
-        UniqueIdentifier uid = target.getUniqueId();
+      case PRIMITIVE: {
+        final UniqueIdentifier uid = target.getUniqueId();
         if (uid.getScheme().equals(Currency.OBJECT_IDENTIFIER_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
         break;
-      case SECURITY: 
-      {
-        Security security = target.getSecurity();
-        Currency ccy = getCurrencyUnit(security);
+      case SECURITY: {
+        final Security security = target.getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
-      } 
+      }
         break;
-      case TRADE:
-      {
-        Security security = target.getTrade().getSecurity();
-        Currency ccy = getCurrencyUnit(security);
+      case TRADE: {
+        final Security security = target.getTrade().getSecurity();
+        final Currency ccy = getCurrency(security);
         if (ccy != null) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
-      } 
+      }
         break;
     }
     return ValueProperties.none();
   }
-  
+
   /**
    * @param security the security to be examined.
-   * @return a CurrencyUnit, where it is possible to determine a single CurrencyUnit association, null otherwise.
+   * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
-  public static Currency getCurrencyUnit(Security security) {
+  public static Currency getCurrency(final Security security) {
     if (security instanceof FinancialSecurity) {
-      FinancialSecurity finSec = (FinancialSecurity) security;
-      Currency ccy = finSec.accept(new FinancialSecurityVisitor<Currency>() {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final Currency ccy = finSec.accept(new FinancialSecurityVisitor<Currency>() {
         @Override
-        public Currency visitBondSecurity(BondSecurity security) {
+        public Currency visitBondSecurity(final BondSecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitCashSecurity(CashSecurity security) {
+        public Currency visitCashSecurity(final CashSecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitEquitySecurity(EquitySecurity security) {
+        public Currency visitEquitySecurity(final EquitySecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitFRASecurity(FRASecurity security) {
+        public Currency visitFRASecurity(final FRASecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitFutureSecurity(FutureSecurity security) {
+        public Currency visitFutureSecurity(final FutureSecurity security) {
           return security.getCurrency();
         }
-  
+
         @Override
-        public Currency visitSwapSecurity(SwapSecurity security) {
-          if (!(security.getPayLeg().getNotional() instanceof InterestRateNotional) || !(security.getReceiveLeg().getNotional() instanceof InterestRateNotional)) {
-            return null;
-          }
-          InterestRateNotional payNotional = (InterestRateNotional) security.getPayLeg().getNotional();
-          InterestRateNotional receiveNotional = (InterestRateNotional) security.getReceiveLeg().getNotional();
-          if (payNotional.getCurrency() != null && payNotional.getCurrency().equals(receiveNotional.getCurrency())) {
-            return payNotional.getCurrency();
+        public Currency visitSwapSecurity(final SwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return payLeg.getCurrency();
+            }
           }
           return null;
         }
 
         @Override
-        public Currency visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+        public Currency visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitEquityOptionSecurity(EquityOptionSecurity security) {
+        public Currency visitEquityOptionSecurity(final EquityOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFXOptionSecurity(FXOptionSecurity security) {
+        public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
+          throw new UnsupportedOperationException("FX securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitSwaptionSecurity(final SwaptionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return security.getCallCurrency();
         }
 
         @Override
-        public Currency visitSwaptionSecurity(SwaptionSecurity security) {
+        public Currency visitFXSecurity(final FXSecurity security) {
+          throw new UnsupportedOperationException("FX securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
+          throw new UnsupportedOperationException("FX forward securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitCapFloorSecurity(final CapFloorSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+        public Currency visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-          return security.getCallCurrency();
+        public Currency visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return security.getCurrency();
         }
+
       });
       return ccy;
     }

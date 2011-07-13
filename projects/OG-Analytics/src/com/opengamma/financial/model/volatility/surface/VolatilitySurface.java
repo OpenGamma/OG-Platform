@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.Axis;
@@ -16,15 +19,14 @@ import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.math.surface.SurfaceSliceFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 /**
  * 
  */
 public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   private final Surface<Double, Double, Double> _surface;
+  /** x-axis */
   public static final Axis EXPIRY_AXIS = Axis.X; // TODO Review
+  /** y-axis */
   public static final Axis STRIKE_AXIS = Axis.Y;
 
   public VolatilitySurface(final Surface<Double, Double, Double> surface) {
@@ -38,8 +40,8 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return _surface.getZValue(xy);
   }
 
-  public VolatilityCurve getSlice(Axis axis, double here, Interpolator1D<Interpolator1DDataBundle> interpolator) {
-    Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
+  public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D<Interpolator1DDataBundle> interpolator) {
+    final Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
     return new VolatilityCurve(curve);
   }
 

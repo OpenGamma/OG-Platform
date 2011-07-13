@@ -44,6 +44,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
     Validate.notNull(exchangeDate, "Exchange date");
+    Validate.isTrue(fxRate > 0, "FX rate must be positive");
     _paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
     _paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, -amountCurrency1 * fxRate);
   }
@@ -53,7 +54,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
    * @param paymentCurrency1 The first currency payment.
    * @param paymentCurrency2 The second currency payment.
    */
-  public ForexDefinition(PaymentFixedDefinition paymentCurrency1, PaymentFixedDefinition paymentCurrency2) {
+  public ForexDefinition(final PaymentFixedDefinition paymentCurrency1, final PaymentFixedDefinition paymentCurrency2) {
     Validate.notNull(paymentCurrency1, "Payment 1");
     Validate.notNull(paymentCurrency2, "Payment 2");
     Validate.isTrue(paymentCurrency1.getPaymentDate().equals(paymentCurrency2.getPaymentDate()), "Payments on different date");
@@ -106,21 +107,21 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
   /**
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
    */
-  public Forex toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public Forex toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "Curves");
-    PaymentFixed payment1 = _paymentCurrency1.toDerivative(date, yieldCurveNames[0]);
-    PaymentFixed payment2 = _paymentCurrency2.toDerivative(date, yieldCurveNames[1]);
+    final PaymentFixed payment1 = _paymentCurrency1.toDerivative(date, yieldCurveNames[0]);
+    final PaymentFixed payment2 = _paymentCurrency2.toDerivative(date, yieldCurveNames[1]);
     return new Forex(payment1, payment2);
   }
 
   @Override
-  public <U, V> V accept(ForexDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final ForexDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(ForexDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final ForexDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexDefinition(this);
   }
 
@@ -142,7 +143,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -152,7 +153,7 @@ public class ForexDefinition implements ForexConverter<ForexDerivative> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexDefinition other = (ForexDefinition) obj;
+    final ForexDefinition other = (ForexDefinition) obj;
     if (!ObjectUtils.equals(_paymentCurrency1, other._paymentCurrency1)) {
       return false;
     }

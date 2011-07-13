@@ -30,7 +30,7 @@ public class MathInterpolationTest extends AnalyticsTestBase {
   private static final LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle> LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DCubicSplineDataBundle>(CUBIC_SPLINE);
   private static final CombinedInterpolatorExtrapolator<Interpolator1DCubicSplineDataBundle> COMBINED = new CombinedInterpolatorExtrapolator<Interpolator1DCubicSplineDataBundle>(CUBIC_SPLINE,
       FLAT_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR);
-  private static final GridInterpolator2D GRID_2D = new GridInterpolator2D(LINEAR, STEP);
+  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> GRID_2D = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, STEP);
 
   @SuppressWarnings("unchecked")
   @Test
@@ -48,9 +48,10 @@ public class MathInterpolationTest extends AnalyticsTestBase {
     assertEquals(cycled, COMBINED);
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testGridInterpolator2D() {
-    final Interpolator2D cycled = cycleObject(Interpolator2D.class, GRID_2D);
+    final Interpolator2D<? extends Interpolator1DDataBundle> cycled = cycleObject(Interpolator2D.class, GRID_2D);
     assertEquals(cycled, GRID_2D);
   }
 }

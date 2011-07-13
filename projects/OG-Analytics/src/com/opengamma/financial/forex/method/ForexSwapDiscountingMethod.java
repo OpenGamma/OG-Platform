@@ -16,12 +16,23 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Pricing method for Forex swap transactions by discounting each payment.
  */
-public class ForexSwapDiscountingMethod implements ForexPricingMethod {
+public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
 
   /**
    * Forex method by discounting.
    */
-  private static final ForexDiscountingMethod FX_METHOD = new ForexDiscountingMethod();
+  private static final ForexDiscountingMethod FX_METHOD = ForexDiscountingMethod.getInstance();
+  private static final ForexSwapDiscountingMethod INSTANCE = new ForexSwapDiscountingMethod();
+
+  /**
+   * @return A static instance
+   */
+  public static ForexSwapDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private ForexSwapDiscountingMethod() {
+  }
 
   /**
    * Compute the present value by discounting the payments in their own currency.
@@ -30,18 +41,18 @@ public class ForexSwapDiscountingMethod implements ForexPricingMethod {
    * @return The multi-currency present value.
    */
   public MultipleCurrencyAmount presentValue(final ForexSwap fx, final YieldCurveBundle curves) {
-    MultipleCurrencyAmount pv = FX_METHOD.presentValue(fx.getNearLeg(), curves);
+    final MultipleCurrencyAmount pv = FX_METHOD.presentValue(fx.getNearLeg(), curves);
     return pv.plus(FX_METHOD.presentValue(fx.getFarLeg(), curves));
   }
 
   @Override
-  public MultipleCurrencyAmount presentValue(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount presentValue(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexSwap, "Instrument should be ForexSwap");
     return presentValue((ForexSwap) instrument, curves);
   }
 
   @Override
-  public MultipleCurrencyAmount currencyExposure(ForexDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexDerivative instrument, final YieldCurveBundle curves) {
     return presentValue(instrument, curves);
   }
 

@@ -47,6 +47,8 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -60,6 +62,8 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -635,7 +639,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testSwapOptionSecurity() {
+  public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 
@@ -649,6 +653,29 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
+  }
+  @Override
+  @Test
+  public void testFXSecurity() {
+    assertSecurities(FXSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testFXForwardSecurity() {
+    assertSecurities(FXForwardSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testCapFloorSecurity() {
+    assertSecurities(CapFloorSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    assertSecurities(CapFloorCMSSpreadSecurity.class);
   }
   
   @Override

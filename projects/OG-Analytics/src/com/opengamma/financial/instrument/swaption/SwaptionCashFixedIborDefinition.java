@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.instrument.swaption;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -42,7 +40,7 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
   private final Expiry _expiry;
 
   /**
-   * Constructor from the expiry date, the underlying swap and the long/short flqg.
+   * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryDate The expiry date.
    * @param strike The strike
    * @param underlyingSwap The underlying swap.
@@ -53,6 +51,7 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    //TODO do we need to check that the swaption expiry is consistent with the underlying swap?
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
     _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
@@ -79,9 +78,8 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double expiryTime = actAct.getDayCountFraction(zonedDate, _expiry.getExpiry());
-    final double settlementTime = actAct.getDayCountFraction(zonedDate, _settlementDate);
+    final double expiryTime = actAct.getDayCountFraction(date, _expiry.getExpiry());
+    final double settlementTime = actAct.getDayCountFraction(date, _settlementDate);
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
@@ -147,7 +145,7 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -157,7 +155,7 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
+    final SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }

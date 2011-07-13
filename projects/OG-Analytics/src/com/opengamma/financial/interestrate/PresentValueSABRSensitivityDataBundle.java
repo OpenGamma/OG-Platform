@@ -100,14 +100,14 @@ public class PresentValueSABRSensitivityDataBundle {
   }
 
   /**
-   * Return the sum of to sensitivities in a ne one. The original sensitivities are unchanged.
+   * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged.
    * @param other Another SABR sensitivity.
    * @return The sum sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle other) {
-    Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>(_alpha);
-    Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>(_rho);
-    Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>(_nu);
+    final Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>(_alpha);
+    final Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>(_rho);
+    final Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>(_nu);
     for (final DoublesPair p : other.getAlpha().keySet()) {
       if (_alpha.containsKey(p)) {
         alpha.put(p, other.getAlpha().get(p) + _alpha.get(p));

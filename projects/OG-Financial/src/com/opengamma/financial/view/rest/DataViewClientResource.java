@@ -62,6 +62,7 @@ public class DataViewClientResource {
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_SHUTDOWN = "shutdown";
   public static final String PATH_HEARTBEAT = "heartbeat";
+  public static final String PATH_TRIGGER_CYCLE = "triggerCycle";
   
   public static final String PATH_START_JMS_COMPILATION_STREAM = "startJmsCompilationStream";
   public static final String PATH_STOP_JMS_COMPILATION_STREAM = "stopJmsCompilationStream";
@@ -245,6 +246,14 @@ public class DataViewClientResource {
   public Response resume() {
     updateLastAccessed();
     getViewClient().resume();
+    return Response.ok().build();
+  }
+  
+  @POST
+  @Path(PATH_TRIGGER_CYCLE)
+  public Response triggerCycle() {
+    updateLastAccessed();
+    getViewClient().triggerCycle();
     return Response.ok().build();
   }
   

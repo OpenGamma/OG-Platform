@@ -375,6 +375,8 @@
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="currencyMatrixSource" ref="currencyMatrixSource" />
+    <property name="exchangeSource" ref="exchangeSource" />
+    <property name="holidaySource" ref="holidaySource" />
     <property name="interpolatedYieldCurveDefinitionSource" ref="interpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="interpolatedYieldCurveSpecificationBuilder" />
     <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />

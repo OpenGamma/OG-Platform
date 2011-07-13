@@ -66,8 +66,10 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @param fundingCurveName The discounting curve name. Should be compatible with the swaps dicsounting curve.
    */
-  public CapFloorCMSSpread(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap1,
-      CMSIndex cmsIndex1, FixedCouponSwap<? extends Payment> underlyingSwap2, CMSIndex cmsIndex2, double settlementTime, double strike, boolean isCap, String fundingCurveName) {
+  public CapFloorCMSSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
+      final FixedCouponSwap<? extends Payment> underlyingSwap1,
+      final CMSIndex cmsIndex1, final FixedCouponSwap<? extends Payment> underlyingSwap2, final CMSIndex cmsIndex2, final double settlementTime, final double strike, final boolean isCap,
+      final String fundingCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap1, "underlying swap");
     Validate.isTrue(underlyingSwap1.isIborOrFixed(), "underlying swap not of vanilla type");
@@ -96,8 +98,9 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS spread cap/floor.
    */
-  public static CapFloorCMSSpread from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap1, CMSIndex cmsIndex1, FixedCouponSwap<Payment> underlyingSwap2, CMSIndex cmsIndex2,
-      double settlementTime, double strike, boolean isCap) {
+  public static CapFloorCMSSpread from(final CouponFloating coupon, final FixedCouponSwap<Payment> underlyingSwap1, final CMSIndex cmsIndex1, final FixedCouponSwap<Payment> underlyingSwap2,
+      final CMSIndex cmsIndex2,
+      final double settlementTime, final double strike, final boolean isCap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.isTrue(coupon.getFundingCurveName() == underlyingSwap2.getFixedLeg().getDiscountCurve(), "coherence in pricing");
     return new CapFloorCMSSpread(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap1, cmsIndex1,
@@ -158,19 +161,9 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   /**
    * The "fixing" is the difference between the first and the second CMS rates.
    */
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
+  public double payOff(final double fixing) {
+    final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
-  }
-
-  @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitCapFloorCMSSpread(this, data);
-  }
-
-  @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCapFloorCMSSpread(this);
   }
 
   @Override
@@ -191,7 +184,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -201,7 +194,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorCMSSpread other = (CapFloorCMSSpread) obj;
+    final CapFloorCMSSpread other = (CapFloorCMSSpread) obj;
     if (!ObjectUtils.equals(_cmsIndex1, other._cmsIndex1)) {
       return false;
     }
@@ -224,6 +217,16 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCapFloorCMSSpread(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCapFloorCMSSpread(this);
   }
 
 }

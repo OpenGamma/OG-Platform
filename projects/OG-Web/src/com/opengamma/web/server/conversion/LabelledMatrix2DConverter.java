@@ -26,7 +26,7 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
     summary.put("rowCount", rowCount);
     summary.put("colCount", columnCount);
     result.put("summary", summary);
-    
+
     if (mode == ConversionMode.FULL) {
       String[] xLabels = new String[columnCount];
       String[] yLabels = new String[rowCount];

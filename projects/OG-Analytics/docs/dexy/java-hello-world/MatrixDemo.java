@@ -1,3 +1,4 @@
+//CSOFF
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 public class MatrixDemo {

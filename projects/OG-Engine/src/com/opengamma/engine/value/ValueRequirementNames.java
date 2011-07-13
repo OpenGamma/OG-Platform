@@ -46,6 +46,7 @@ public final class ValueRequirementNames {
   public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
   public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
   
+  public static final String STANDARD_VOLATILITY_CUBE_DATA = "StandardVolatilityCubeData";
   //
   public static final String FAIR_VALUE = "FairValue";
   public static final String POSITION_FAIR_VALUE = "PositionFairValue";
@@ -215,6 +216,12 @@ public final class ValueRequirementNames {
   public static final String PV01 = "PV01";
   public static final String PAR_RATE = "Par Rate";
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
+  public static final String PAR_RATE_CURVE_SENSITIVITY = "Par Rate Curve Sensitivity";
+  public static final String PRESENT_VALUE_COUPON_SENSITIVITY = "Present Value Coupon Sensitivity";
+  public static final String PRESENT_VALUE_CURVE_SENSITIVITY = "Present Value Curve Sensitivity"; 
+  public static final String PRESENT_VALUE_SABR_ALPHA_SENSITIVITY = "Present Value SABR Alpha Sensitivity";
+  public static final String PRESENT_VALUE_SABR_RHO_SENSITIVITY = "Present Value SABR Rho Sensitivity";
+  public static final String PRESENT_VALUE_SABR_NU_SENSITIVITY = "Present Value SABR Nu Sensitivity";
   
   //Bond analytics
   public static final String CLEAN_PRICE = "Clean Price";
@@ -266,6 +273,29 @@ public final class ValueRequirementNames {
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
 
-  //CSON
+  //SABR fitted surface parameters
+  public static final String SABR_SURFACES = "SABR Surfaces";
+  public static final String SABR_ALPHA_SURFACE = "SABR Alpha Surface";
+  public static final String SABR_BETA_SURFACE = "SABR Beta Surface";
+  public static final String SABR_NU_SURFACE = "SABR Nu Surface";
+  public static final String SABR_RHO_SURFACE = "SABR Rho Surface";
+  
+  //SABR fitted surface parameters
+  public static final String SABR_FITS = "SABR Fits";
+  public static final String SABR_ALPHA_FITS= "SABR Alpha Fits";
+  public static final String SABR_BETA_FITS = "SABR Beta Fits";
+  public static final String SABR_NU_FITS = "SABR Nu Fits";
+  public static final String SABR_RHO_FITS = "SABR Rho Fits";
 
+  //Heston fitted parameters
+  public static final String HESTON_FITS = "Heston Fits";
+  public static final String HESTON_KAPPA_FITS = "Heston Kappa Fits";
+  public static final String HESTON_THETA_FITS = "Heston Theta Fits";
+  public static final String HESTON_VOL0_FITS = "Heston Vol0 Fits";
+  public static final String HESTON_OMEGA_FITS = "Heston Omega Fits";
+  public static final String HESTON_RHO_FITS = "Heston Rho Fits";
+
+  //FX analytics (temporary)
+  public static final String FX_PRESENT_VALUE = "FX Present Value";
+  //CSON
 }

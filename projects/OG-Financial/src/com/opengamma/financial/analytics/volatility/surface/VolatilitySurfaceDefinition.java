@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,63 +21,69 @@ import com.opengamma.util.money.Currency;
  */
 public class VolatilitySurfaceDefinition<X, Y> {
   private String _name;
-  private Currency _currency;
-  private String _interpolatorName;
+  private UniqueIdentifiable _target;
   private X[] _xs;
   private Y[] _ys;
-    
-  public VolatilitySurfaceDefinition(String name, Currency currency, String interpolatorName, X[] xs, Y[] ys) {
+  
+  public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolatorName, "Interpolator Name");
+    Validate.notNull(target, "Target");
     Validate.notNull(xs, "xs");
     Validate.notNull(ys, "ys");
     _name = name;
-    _currency = currency;
-    _interpolatorName = interpolatorName;
+    _target = target;
     _xs = xs;
     _ys = ys;
   }
-  
+
   public X[] getXs() {
     return _xs;
   }
-  
+
   public Y[] getYs() {
     return _ys;
   }
-  
+
   public String getName() {
     return _name;
   }
+
   
+  /**
+   * @deprecated use getTarget()
+   * @throws ClassCastException if target not a currency
+   * @return currency assuming that the target is a currency
+   */
+  @Deprecated
   public Currency getCurrency() {
-    return _currency;
+    return (Currency) _target;
   }
   
-  public String getInterpolatorName() {
-    return _interpolatorName;
+  public UniqueIdentifiable getTarget() {
+    return _target;
   }
-  
-  public boolean equals(Object o) {
+
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof VolatilitySurfaceDefinition)) {
       return false;
     }
-    VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
-    return other.getCurrency().equals(getCurrency()) &&
+    final VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
+    return other.getTarget().equals(getTarget()) &&
            other.getName().equals(getName()) &&
-           other.getInterpolatorName().equals(getInterpolatorName()) &&
            Arrays.equals(other.getXs(), getXs()) &&
            Arrays.equals(other.getYs(), getYs());
   }
-  
+
+  @Override
   public int hashCode() {
-    return getCurrency().hashCode() * getName().hashCode();
+    return getTarget().hashCode() * getName().hashCode();
   }
-  
+
+  @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }

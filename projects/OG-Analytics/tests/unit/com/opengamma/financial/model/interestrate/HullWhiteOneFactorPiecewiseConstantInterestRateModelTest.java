@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -38,7 +38,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   @Test
@@ -59,10 +59,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    HullWhiteOneFactorPiecewiseConstantDataBundle newParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters newParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     assertTrue("Hull-White model equals", MODEL_PARAMETERS.equals(newParameter));
     assertTrue("Hull-White model hash code", MODEL_PARAMETERS.hashCode() == newParameter.hashCode());
-    HullWhiteOneFactorPiecewiseConstantDataBundle modifiedParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters modifiedParameter = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
     assertFalse("Hull-White model equals", MODEL_PARAMETERS.equals(modifiedParameter));
   }
 
@@ -122,4 +122,92 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     alpha = MODEL.alpha(0.0, expiry2, expiry2, maturity, MODEL_PARAMETERS);// From today with expiry numeraire
     assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", alphaExpected, alpha, 1E-8);
   }
+
+  @Test
+  /**
+   * Test the swaption exercise boundary.
+   */
+  public void kappa() {
+    double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
+    double notional = 100000000; // 100m
+    double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
+    double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
+    int nbCF = cashFlowAmount.length;
+    double[] discountedCashFlow = new double[nbCF];
+    double[] alpha = new double[nbCF];
+    double rate = 0.04;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      discountedCashFlow[loopcf] = cashFlowAmount[loopcf] * Math.exp(-rate * cashFlowTime[loopcf]) * notional;
+      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cashFlowTime[loopcf], MODEL_PARAMETERS);
+    }
+    double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    double swapValue = 0.0;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      swapValue += discountedCashFlow[loopcf] * Math.exp(-Math.pow(alpha[loopcf], 2.0) / 2.0 - alpha[loopcf] * kappa);
+    }
+    assertEquals("Exercise boundary", 0.0, swapValue, 1.0E-1);
+  }
+
+  @Test
+  /**
+   * Test the adjoint version of alpha.
+   */
+  public void alphaAdjoint() {
+    double expiry1 = 0.25;
+    double expiry2 = 2.25;
+    double numeraire = 10.0;
+    double maturity = 9.0;
+    int nbVolatility = VOLATILITY.length;
+    double[] alphaDerivatives = new double[nbVolatility];
+    double alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS, alphaDerivatives);
+    double alpha2 = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS);
+    assertEquals("Alpha adjoint: value", alpha2, alpha, 1.0E-10);
+    double shiftVol = 1.0E-6;
+    double[] volatilityBumped = new double[nbVolatility];
+    System.arraycopy(VOLATILITY, 0, volatilityBumped, 0, nbVolatility);
+    double[] alphaBumpedPlus = new double[nbVolatility];
+    double[] alphaBumpedMinus = new double[nbVolatility];
+    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volatilityBumped, VOLATILITY_TIME);
+    for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
+      volatilityBumped[loopvol] += shiftVol;
+      alphaBumpedPlus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
+      volatilityBumped[loopvol] -= 2 * shiftVol;
+      alphaBumpedMinus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
+      assertEquals("Alpha adjoint: derivative " + loopvol + " - Difference: " + ((alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol) - alphaDerivatives[loopvol]),
+          (alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol), alphaDerivatives[loopvol], 1.0E-9);
+      volatilityBumped[loopvol] = VOLATILITY[loopvol];
+    }
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performanceAlphaAdjoint() {
+    double expiry1 = 0.25;
+    double expiry2 = 2.25;
+    double numeraire = 10.0;
+    double maturity = 9.0;
+    int nbVolatility = VOLATILITY.length;
+    double[] alphaDerivatives = new double[nbVolatility];
+    long startTime, endTime;
+    final int nbTest = 100000;
+    double alpha = 0.0;
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " alpha Hull-White: " + (endTime - startTime) + " ms");
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS, alphaDerivatives);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " alpha Hull-White adjoint (value+" + nbVolatility + " derivatives): " + (endTime - startTime) + " ms");
+    // Performance note: value: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000000 swaptions.
+    // Performance note: value+derivatives: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000000 swaptions.
+    System.out.println("Alpha: " + alpha);
+  }
+
 }
