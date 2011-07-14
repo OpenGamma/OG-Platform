@@ -8,13 +8,11 @@ package com.opengamma.financial.analytics.volatility.surface;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -62,7 +60,7 @@ public class EquityOptionSurfaceConfigPopulator {
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<LocalDate, Double> surfaceInstrumentProvider = 
-      new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY);
+      new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_EQUITY_OPTION", 
                                 UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));

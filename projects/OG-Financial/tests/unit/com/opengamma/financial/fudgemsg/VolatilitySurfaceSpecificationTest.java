@@ -41,7 +41,7 @@ public class VolatilitySurfaceSpecificationTest extends FinancialTestBase {
   
   @Test
   public void testEOCycle() {
-    BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY);
+    BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
