@@ -16,21 +16,22 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.user.rest.UsersResourceContext;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Tracks userData and clients
  */
-public class UsersTracker implements UserDataTracker, ClientTracker {
+public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(UsersTracker.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultUsersTracker.class);
 
-  private final ConcurrentMap<String, Set<String>> _valid = new ConcurrentHashMap<String, Set<String>>();
-  private final ConcurrentMap<String, Set<String>> _userName2viewDefinitionNames = new ConcurrentHashMap<String, Set<String>>();
+  private final ConcurrentMap<String, Set<String>> _username2clients = new ConcurrentHashMap<String, Set<String>>();
+  private final ConcurrentMap<Identifier, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<Identifier, Set<String>>();
   private final UsersResourceContext _context;
  
-  public UsersTracker(UsersResourceContext context) {
+  public DefaultUsersTracker(UsersResourceContext context) {
     ArgumentChecker.notNull(context, "context");
     _context = context;
   }
@@ -45,26 +46,32 @@ public class UsersTracker implements UserDataTracker, ClientTracker {
 
   @Override
   public void created(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
-    s_logger.debug("{} created by {} with id {}", new Object[] {type, userName, identifier});
-    Set<String> clients = _valid.get(userName);
+    Set<String> clients = _username2clients.get(userName);
     if (clients != null) {
       if (clients.contains(clientName)) {
         s_logger.debug("{} created by {}", identifier, userName);
+        if (type == UserDataType.VIEW_DEFINITION) {
+          trackCreatedViewDefinition(userName, clientName, identifier);
+        }
+        return;
       }
-    } else {
-      s_logger.debug("Late creation of {} by {}", identifier, userName);
+    } 
+    s_logger.debug("Late creation of {} by {}", identifier, userName);
+  }
+
+  private void trackCreatedViewDefinition(String userName, String clientName, UniqueIdentifier identifier) {
+    ConcurrentSkipListSet<String> freshDefinitions = new ConcurrentSkipListSet<String>();
+    Set<String> viewDefinitions = _viewDefinitionNames.putIfAbsent(Identifier.of(userName, clientName), freshDefinitions);
+    if (viewDefinitions == null) {
+      viewDefinitions = freshDefinitions;
     }
-    if (type == UserDataType.VIEW_DEFINITION) {
-      Set<String> viewDefinitions = new ConcurrentSkipListSet<String>();
-      _userName2viewDefinitionNames.putIfAbsent(userName, viewDefinitions);
-      viewDefinitions.add(identifier.getValue());
-      s_logger.debug("User {} created {} view definition", userName, identifier.getValue());
-    }
+    viewDefinitions.add(identifier.getValue());
+    s_logger.debug("{} created by {}", identifier, userName);
   }
 
   @Override
   public void deleted(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
-    Set<String> clients = _valid.get(userName);
+    Set<String> clients = _username2clients.get(userName);
     if (clients != null) {
       if (clients.contains(clientName)) {
         s_logger.debug("{} deleted by {}", identifier, userName);
@@ -76,7 +83,7 @@ public class UsersTracker implements UserDataTracker, ClientTracker {
 
   @Override
   public void clientCreated(String userName, String clientName) {
-    Set<String> clients = _valid.get(userName);
+    Set<String> clients = _username2clients.get(userName);
     if (clients == null) {
       s_logger.debug("Late client construction for discarded user {}", userName);
       return;
@@ -87,37 +94,42 @@ public class UsersTracker implements UserDataTracker, ClientTracker {
 
   @Override
   public void clientDiscarded(String userName, String clientName) {
-    Set<String> clients = _valid.get(userName);
+    Set<String> clients = _username2clients.get(userName);
     if (clients == null) {
       s_logger.debug("Late client discard for discarded user {}", userName);
       return;
     }
     clients.remove(clientName);
     s_logger.debug("Client {} discarded for user {}", clientName, userName);
+    removeUserViewDefinitions(userName, clientName);
   }
 
   @Override
   public void userCreated(String userName) {
     Set<String> clients = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-    _valid.putIfAbsent(userName, clients);
+    _username2clients.putIfAbsent(userName, clients);
     s_logger.debug("User {} created", userName);
   }
 
   @Override
   public void userDiscarded(String userName) {
-    _valid.remove(userName);
+    Set<String> removedClients = _username2clients.remove(userName);
     s_logger.debug("User {} discarded", userName);
-    removeUserViewDefinitions(userName);
+    if (removedClients != null) {
+      for (String clientName : removedClients) {
+        removeUserViewDefinitions(userName, clientName);
+      }
+    }
   }
 
-  private void removeUserViewDefinitions(String userName) {
-    Set<String> viewDefinitions = _userName2viewDefinitionNames.get(userName);
+  private void removeUserViewDefinitions(final String userName, final String clientName) {
+    Set<String> viewDefinitions = _viewDefinitionNames.get(Identifier.of(userName, clientName));
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
         for (String viewDefinitionName : viewDefinitions) {
           viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
-          s_logger.debug("View definition {} removed", viewDefinitionName);
+          s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, clientName});
         }
       }
     }

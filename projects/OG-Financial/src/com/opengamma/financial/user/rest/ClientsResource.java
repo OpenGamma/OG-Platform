@@ -11,10 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
-import com.opengamma.financial.user.ClientTracker;
-import com.opengamma.financial.user.UserDataTracker;
-import com.opengamma.util.ArgumentChecker;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * RESTful resource representing a collection of a user's clients. If any client is requested then it will
@@ -23,39 +20,30 @@ import com.opengamma.util.ArgumentChecker;
 public class ClientsResource {
 
   private final String _userName;
-  private final ClientTracker _clientTracker;
-  private final UserDataTracker _userDataTracker;
+  private final UserResourceData _data;
   private final ConcurrentHashMap<String, ClientResource> _clientMap = new ConcurrentHashMap<String, ClientResource>();
-  private final UsersResourceContext _context;
   
   private long _lastAccessed;
 
-  public ClientsResource(final String userName, final ClientTracker clientTracker, final UserDataTracker userDataTracker, final UsersResourceContext context) {
-    ArgumentChecker.notNull(clientTracker, "clientTracker");
+  public ClientsResource(String userName, UserResourceData data) {
     _userName = userName;
-    _clientTracker = clientTracker;
-    _userDataTracker = userDataTracker;
-    _context = context;
+    _data = data;
   }
   
-//  public UserResource getUserResource() {
-//    return _userResource;
-//  }
-//  
-//  /**
-//   * Gets the URI info.
-//   * @return the uri info, not null
-//   */
-//  public UriInfo getUriInfo() {
-//    return getUserResource().getUriInfo();
-//  }
+  /**
+   * Gets the URI info.
+   * @return the uri info, not null
+   */
+  public UriInfo getUriInfo() {
+    return _data.getUriInfo();
+  }
   
   @Path("{clientUid}")
   public ClientResource getClient(@PathParam("clientUid") String clientName) {
     ClientResource client = _clientMap.get(clientName);
     if (client == null) {
-      _clientTracker.clientCreated(_userName, clientName);
-      ClientResource freshClient = new ClientResource(_userName, clientName, _userDataTracker, _context);
+      _data.getClientTracker().clientCreated(_userName, clientName);
+      ClientResource freshClient = new ClientResource(_userName, clientName, _data);
       client = _clientMap.putIfAbsent(clientName, freshClient);
       if (client == null) {
         client = freshClient;
@@ -78,7 +66,7 @@ public class ClientsResource {
       final long clientTime = clientEntry.getValue().getLastAccessed();
       if (clientTime < timestamp) {
         clientIterator.remove();
-        _clientTracker.clientDiscarded(_userName, clientEntry.getKey());
+        _data.getClientTracker().clientDiscarded(_userName, clientEntry.getKey());
       } else if (clientTime > lastAccessed) {
         lastAccessed = clientTime;
       }

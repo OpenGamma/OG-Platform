@@ -149,7 +149,7 @@
   </bean>
   
   <!-- Users Tracker -->
-  <bean id="usersTracker" class="com.opengamma.financial.user.UsersTracker">
+  <bean id="usersTracker" class="com.opengamma.financial.user.DefaultUsersTracker">
     <constructor-arg ref="usersResourceContext"/>
   </bean>
 

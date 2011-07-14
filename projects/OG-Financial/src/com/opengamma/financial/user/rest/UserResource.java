@@ -6,9 +6,7 @@
 package com.opengamma.financial.user.rest;
 
 import javax.ws.rs.Path;
-
-import com.opengamma.financial.user.ClientTracker;
-import com.opengamma.financial.user.UserDataTracker;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * RESTful resource representing a user, at the moment purely to provide access to the resource representing
@@ -16,21 +14,23 @@ import com.opengamma.financial.user.UserDataTracker;
  */
 public class UserResource {
 
-  private final String _userName;
   private final ClientsResource _clients;
+  private final String _userName;
+  private final UserResourceData _data;
   
-  public UserResource(final String userName, final UsersResourceContext context, final ClientTracker clientTracker, final UserDataTracker userDataTracker) {
-    _clients = new ClientsResource(userName, clientTracker, userDataTracker, context);
+  public UserResource(final String userName, final UserResourceData data) {
+    _clients = new ClientsResource(userName, data);
     _userName = userName;
+    _data = data;
   }
   
-//  /**
-//   * Gets the URI info.
-//   * @return the uri info, not null
-//   */
-//  public UriInfo getUriInfo() {
-//    return getUsersResource().getUriInfo();
-//  }
+  /**
+   * Gets the URI info.
+   * @return the uri info, not null
+   */
+  public UriInfo getUriInfo() {
+    return _data.getUriInfo();
+  }
   
   public String getUserName() {
     return _userName;
