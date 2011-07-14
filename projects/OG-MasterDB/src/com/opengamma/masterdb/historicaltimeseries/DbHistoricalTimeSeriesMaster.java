@@ -245,7 +245,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValueNullIgnored("data_source", getDbHelper().sqlWildcardAdjustValue(request.getDataSource()))
       .addValueNullIgnored("data_provider", getDbHelper().sqlWildcardAdjustValue(request.getDataProvider()))
       .addValueNullIgnored("observation_time", getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()))
-      .addDateNullIgnored("id_validity_date", request.getIdentifierValidityDate())  // TODO
+      .addDateNullIgnored("id_validity_date", request.getIdentifierValidityDate())
       .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
     if (request.getIdentifierKeys() != null) {
       int i = 0;
@@ -293,10 +293,10 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       where += "AND oid IN (" + buf + ") ";
     }
     if (request.getIdentifierKeys() != null && request.getIdentifierKeys().size() > 0) {
-      where += sqlSelectMatchingHistoricalTimeSeriesKeys(request.getIdentifierKeys());
+      where += sqlSelectMatchingHistoricalTimeSeriesKeys(request.getIdentifierKeys(), request.getIdentifierValidityDate());
     }
     if (request.getIdentifierValue() != null) {
-      where += sqlSelectIdentifierValue(request.getIdentifierValue());
+      where += sqlSelectIdentifierValue(request.getIdentifierValue(), request.getIdentifierValidityDate());
     }
     where += sqlAdditionalWhere();
     
@@ -311,14 +311,16 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * Gets the SQL to match identifier value.
    * 
    * @param identifierValue the identifier value, not null
+   * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectIdentifierValue(String identifierValue) {
+  protected String sqlSelectIdentifierValue(final String identifierValue, final LocalDate validityDate) {
     String select = "SELECT DISTINCT doc_id " +
-        "FROM hts_doc2idkey, hts_document main " +
+        "FROM hts_doc2idkey di, hts_document main " +
         "WHERE doc_id = main.id " +
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+        (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
         "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
@@ -327,18 +329,19 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * Gets the SQL to match the {@code IdentifierSearch}.
    * 
    * @param idSearch  the identifier search, not null
+   * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeys(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeys(final IdentifierSearch idSearch, final LocalDate validityDate) {
     switch (idSearch.getSearchType()) {
       case EXACT:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysExact(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysExact(idSearch, validityDate) + ") ";
       case ALL:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAll(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAll(idSearch, validityDate) + ") ";
       case ANY:
-        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch, validityDate) + ") ";
       case NONE:
-        return "AND id NOT IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch) + ") ";
+        return "AND id NOT IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysAny(idSearch, validityDate) + ") ";
     }
     throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
   }
@@ -347,24 +350,27 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * Gets the SQL to find all the series matching.
    * 
    * @param idSearch  the identifier search, not null
+   * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysExact(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysExact(final IdentifierSearch idSearch, final LocalDate validityDate) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT doc_id AS matched_doc_id, COUNT(doc_id) AS matched_count " +
-      "FROM hts_doc2idkey, hts_document main " +
-      "WHERE doc_id = main.id " +
+      "FROM hts_doc2idkey di, hts_document main " +
+      "WHERE di.doc_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
     String b = "SELECT doc_id AS total_doc_id, COUNT(doc_id) AS total_count " +
-      "FROM hts_doc2idkey, hts_document main " +
-      "WHERE doc_id = main.id " +
+      "FROM hts_doc2idkey di, hts_document main " +
+      "WHERE di.doc_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
       "GROUP BY doc_id ";
     String select = "SELECT matched_doc_id AS doc_id " +
       "FROM (" + a + ") AS a, (" + b + ") AS b " +
@@ -377,16 +383,18 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * Gets the SQL to find all the series matching.
    * 
    * @param idSearch  the identifier search, not null
+   * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAll(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAll(final IdentifierSearch idSearch, final LocalDate validityDate) {
     // only return doc_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT doc_id " +
-      "FROM hts_doc2idkey, hts_document main " +
-      "WHERE doc_id = main.id " +
+      "FROM hts_doc2idkey di, hts_document main " +
+      "WHERE di.doc_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
@@ -397,16 +405,18 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * Gets the SQL to find all the series matching any identifier.
    * 
    * @param idSearch  the identifier search, not null
+   * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAny(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAny(final IdentifierSearch idSearch, final LocalDate validityDate) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT doc_id " +
-      "FROM hts_doc2idkey, hts_document main " +
-      "WHERE doc_id = main.id " +
+      "FROM hts_doc2idkey di, hts_document main " +
+      "WHERE di.doc_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") ";
     return select;
   }
