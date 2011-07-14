@@ -36,6 +36,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class FilteringSummingFunction extends PropertyPreservingFunction {
 
+  /**
+   * Value of the {@link ValuePropertyNames#AGGREGATION} property set on the output produced. This
+   * allows the result to be distinguished from a related summing function that converts its
+   * inputs somehow.
+   */
+  public static final String AGGREGATION_STYLE = "Filtered";
+
   private final String _valueName;
   private final Set<String> _aggregationPropertyNames;
   
@@ -64,6 +71,12 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
         YieldCurveFunction.PROPERTY_FUNDING_CURVE);
   }
   
+  @Override
+  protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
+    super.applyAdditionalResultProperties(builder);
+    builder.with(ValuePropertyNames.AGGREGATION, AGGREGATION_STYLE);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {

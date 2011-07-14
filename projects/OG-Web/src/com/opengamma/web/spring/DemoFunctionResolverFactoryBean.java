@@ -8,8 +8,10 @@ package com.opengamma.web.spring;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
@@ -43,7 +45,14 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultCurrencyFunction) {
-          return Integer.MAX_VALUE;
+          if (((DefaultCurrencyFunction) function).hasValueName(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
+            // YCNS currency injection must be below the filtering summing function priority, or the filter may never
+            // be applied.
+            return -2;
+          } else {
+            // All other currency injections are important; i.e. the currency constraint can't be omitted.
+            return Integer.MAX_VALUE;
+          }
         }
         if (function instanceof BondZSpreadCountryCurveFunction) {
           return 2;
@@ -62,6 +71,11 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         }
         if (function instanceof BondPV01CurrencyCurveFunction) {
           return 5;
+        }
+        if (function instanceof FilteringSummingFunction) {
+          // Anything that filters should be lower priority than a conventional summing operation that can apply
+          // to all of its inputs
+          return -1;
         }
         return 0;
       }
