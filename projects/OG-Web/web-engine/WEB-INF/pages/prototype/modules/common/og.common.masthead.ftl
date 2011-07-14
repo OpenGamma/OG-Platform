@@ -1,4 +1,4 @@
-<section class="OG-masthead">
+<section class="OG-tabs OG-masthead">
   <ul>
     <li><a href="#/" class="og-home">&nbsp;</a></li>
     <li><a href="#/analytics/" class="og-analytics">analytics</a></li>
@@ -11,5 +11,5 @@
     <li><a href="#/regions/" class="og-regions">regions</a></li>
     <li><a href="#/configs/" class="og-configs">configurations</a></li>
     <li><a href="#/batches/" class="og-batches">batches</a></li>
-  </ui>
+  </ul>
 </section>

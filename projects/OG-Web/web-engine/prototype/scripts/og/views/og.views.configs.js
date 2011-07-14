@@ -193,9 +193,9 @@ $.register_module({
                                     handler: function (e) {
                                         if (e.error) return alert(e.message);
                                         $('.og-js-msg').html('saved');
-                                        ui.message({location: '#OG-details', message: 'saved'});
+                                        ui.message({location: '.OG-details', message: 'saved'});
                                         setTimeout(function () {
-                                            ui.message({location: '#OG-details', destroy: true});
+                                            ui.message({location: '.OG-details', destroy: true});
                                             editing = false;
                                         }, 250);
                                         routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {

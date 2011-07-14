@@ -65,10 +65,18 @@
     <fragment>/styles/common/details/og.common.OG-details.OG-default.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
+    <fragment>/styles/common/forms/og.common.forms.OG-constraints.css</fragment><!-- LEGACY -->
     <fragment>/styles/common/forms/og.common.forms.OG-form.css</fragment>
-    <fragment>/styles/common/forms/og.common.forms.OG-constraints.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-id-cur.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-results-model-def.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-ex-params.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-column-sets.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-content-items.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-constraints.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>

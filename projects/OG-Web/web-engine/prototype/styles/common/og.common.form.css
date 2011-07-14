@@ -2,6 +2,7 @@
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
+
 input[type="text"] {
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -12,7 +13,13 @@ input[type="text"] {
   border-top: 1px solid #abadb3;
 }
 
-input, select {
+input, select, textarea {
   outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border: 1px solid #c4dced;
   position: relative;
 }

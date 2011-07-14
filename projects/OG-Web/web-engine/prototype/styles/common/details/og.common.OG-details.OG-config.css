@@ -6,3 +6,36 @@
 .OG-config .og-form-container {
   margin-bottom: 50px;
 }
+
+.OG-config .og-config-form-footer {
+  background: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 1px;
+  right: 19px;
+  padding: 5px 10px;
+  height: 30px;
+}
+
+.OG-config .og-config-form-footer:before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 5px;
+  right: 5px;
+  height: 3px;
+  background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.1)));
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.1) 100%);
+  background: linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.1) 100%);
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.OG-config .OG-form section:last-child {
+  margin-bottom: 50px;
+}

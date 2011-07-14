@@ -8,7 +8,7 @@
 .OG-masthead {
   top: 5px;
   left: 8px;
-  position: absolute;
+  position: absolute!important;
   right: 5px;
   height: 3em;
 }
@@ -30,71 +30,6 @@
   z-index: 1;
 }
 
-.OG-masthead li {
-  display: inline-block;
-  margin: 0 5px 0 0;
-}
-
-.OG-masthead a {
-  color: #555;
-  display: inline-block;
-  padding: 7px 5px 14px 5px;
-  text-decoration: none;
-}
-
 .OG-masthead a:hover {
   color: #fff;
-}
-
-.OG-masthead .og-active {
-  -webkit-border-top-left-radius: 2px;
-  -webkit-border-top-right-radius: 2px;
-  -moz-border-radius-topleft: 2px;
-  -moz-border-radius-topright: 2px;
-  background: #363f47;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  color: #fff;
-  position: relative;
-}
-
-.OG-masthead .og-active:before {
-  -moz-box-shadow: 0 100px 1.5em #fff;
-  -webkit-box-shadow: 0 100px 1.5em #fff;
-  background-color: transparent;
-  content: "";
-  display: inline-block;
-  height: 80%;
-  opacity: 0.2;
-  position: absolute;
-  top: -96px;
-  left: 10%;
-  width: 80%;
-}
-
-.OG-masthead a:hover.og-home:after {
-  background-position: -20px -75px;
-}
-
-.OG-masthead .og-home.og-active:before {
-  background-position: -20px -75px;
-}
-
-.OG-masthead .og-home {
-  width: 18px;
-}
-
-.OG-masthead a {
-  border-bottom: none;
-}
-
-.OG-masthead .og-home:after {
-  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
-  content: "";
-  cursor: pointer;
-  background-position: 0 -75px;
-  height: 16px;
-  width: 16px;
-  position: absolute;
-  top: 8px; left: 6px;
 }
