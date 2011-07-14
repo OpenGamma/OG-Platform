@@ -129,11 +129,12 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
    */
   protected Object convertValue(final ComputedValue inputValue, final ValueRequirement desiredValue, final double conversionRate) {
     final Object value = inputValue.getValue();
-    if (!(value instanceof Double)) {
+    if (value instanceof Double) {
+      return (Double) value / conversionRate;
+    } else {
       s_logger.warn("Can't convert {} to {}", inputValue, desiredValue);
       return null;
     }
-    return (Double) value / conversionRate;
   }
 
   @Override
