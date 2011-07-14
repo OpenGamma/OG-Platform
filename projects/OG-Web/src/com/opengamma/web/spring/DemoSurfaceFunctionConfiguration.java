@@ -13,6 +13,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -29,7 +30,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "SWAPTION", "DEFAULT")));
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "IR_FUTURE", "DEFAULT")));
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "FX_VANILLA_OPTION", "DEFAULT")));
-
+    configs.add(new ParameterizedFunctionConfiguration(EquityOptionVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "EQUITY_OPTION", "DEFAULT")));
     return new RepositoryConfiguration(configs);
   }
 

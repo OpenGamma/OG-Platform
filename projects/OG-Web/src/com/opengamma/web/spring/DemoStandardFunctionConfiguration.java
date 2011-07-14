@@ -355,6 +355,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.PV01);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
+    addSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
 
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
@@ -387,6 +388,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityCurrencyConversionFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PortfolioNodeDefaultCurrencyFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyMatrixSourcingFunction.class.getName(), Collections.singleton("BloombergLiveData")));
     functionConfigs.add(new StaticFunctionConfiguration(DefaultCurrencyInjectionFunction.class.getName()));

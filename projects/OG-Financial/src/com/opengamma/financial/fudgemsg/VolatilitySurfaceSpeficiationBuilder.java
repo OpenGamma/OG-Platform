@@ -37,7 +37,7 @@ public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<Volati
       message.add("currency", Currency.USD);
     }
     message.add("name", object.getName());
-    context.addToMessage(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
+    context.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message; 
   }
 
@@ -55,7 +55,7 @@ public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<Volati
     }
     String name = message.getString("name");
     FudgeField field = message.getByName("surfaceInstrumentProvider");
-    SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = context.fieldValueToObject(SurfaceInstrumentProvider.class, field);
+    SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) context.fieldValueToObject(field);
     return new VolatilitySurfaceSpecification(name, target, surfaceInstrumentProvider);
   }
 
