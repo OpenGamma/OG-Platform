@@ -21,6 +21,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -34,13 +35,22 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Able to sum a particular requirement name from a set of underlying
  * positions.
+ * <p>
  * While in general we assume that basic linear aggregates will be performed in the
  * presentation layer on demand, this Function can be used to perform aggregate
  * in the engine.
+ * <p>
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
  */
 public class SummingFunction extends PropertyPreservingFunction {
+
+  /**
+   * Value of the {@link ValuePropertyNames#AGGREGATION} property set on the output produced. This
+   * allows the result to be distinguished from a related summing function that doesn't apply
+   * uniformly to all inputs (e.g. it might filter or weight them). 
+   */
+  public static final String AGGREGATION_STYLE = "Full";
 
   @Override
   protected Collection<String> getPreservedProperties() {
@@ -55,6 +65,12 @@ public class SummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CURVE_CURRENCY,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+  }
+
+  @Override
+  protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
+    super.applyAdditionalResultProperties(builder);
+    builder.with(ValuePropertyNames.AGGREGATION, AGGREGATION_STYLE);
   }
 
   private final String _requirementName;

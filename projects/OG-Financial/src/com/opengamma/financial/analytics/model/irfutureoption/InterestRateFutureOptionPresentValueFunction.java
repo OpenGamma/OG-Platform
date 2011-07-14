@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -30,28 +32,20 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
  * 
  */
 public class InterestRateFutureOptionPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
-
-  protected static String getSurfaceName(final ValueRequirement requirement) {
-    return YieldCurveFunction.getPropertyValue(ValuePropertyNames.SURFACE, requirement);
+  private final String _surfaceName;
+  
+  public InterestRateFutureOptionPresentValueFunction(String surfaceName) { //TODO add the curve names 
+    Validate.notNull(surfaceName, "surface name");
+    _surfaceName = surfaceName;
   }
-
-  protected static String getSurfaceName(final FunctionCompilationContext context, final ValueRequirement requirement) {
-    return YieldCurveFunction.getPropertyValue(ValuePropertyNames.SURFACE, context, requirement);
-  }
-
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    String surfaceName = null;
-    for (final ValueRequirement desiredValue : desiredValues) {
-      surfaceName = getSurfaceName(desiredValue);
-      break;
-    }
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
             .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .with(ValuePropertyNames.SURFACE, surfaceName).get());
+            .with(ValuePropertyNames.SURFACE, _surfaceName).get());
     final double presentValue = 0.009;
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
@@ -91,7 +85,7 @@ public class InterestRateFutureOptionPresentValueFunction extends AbstractFuncti
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
             .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .withAny(ValuePropertyNames.SURFACE).get()));
+            .with(ValuePropertyNames.SURFACE, _surfaceName).get()));
   }
 
   private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
@@ -101,8 +95,7 @@ public class InterestRateFutureOptionPresentValueFunction extends AbstractFuncti
   }
 
   private ValueRequirement getSurfaceRequirement(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String surfaceName = getSurfaceName(context, desiredValue);
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
                                                 .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE").get(); //TODO shouldn't hard-code the string in here
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }

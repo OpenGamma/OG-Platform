@@ -185,6 +185,9 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.BOND_TENOR, DoubleValueConversionSettings.NON_CCY_2DP);
     addConversion(ValueRequirementNames.NS_BOND_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
     addConversion(ValueRequirementNames.NSS_BOND_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
+    
+    // FX
+    addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueConversionSettings.CCY_2DP);
   }
 
   private static void addBulkConversion(String valueRequirementFieldNamePattern,

@@ -69,6 +69,7 @@ public class NonLinearLeastSquaresSurfaceFittingFunction extends AbstractFunctio
     _resultSpecification = new ValueSpecification(_resultName, currencyTargetSpec, resultProperties);
   }
 
+  @SuppressWarnings("unused")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Object objectSurfaceData = inputs.getValue(_surfaceRequirement);

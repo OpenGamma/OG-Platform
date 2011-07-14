@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -23,22 +24,22 @@ public class VolatilitySurfaceData<X, Y> {
 
   private String _definitionName;
   private String _specificationName;
-  private Currency _currency;
+  private UniqueIdentifiable _target;
   private Map<Pair<X, Y>, Double> _values;
   private X[] _xs;
   private Y[] _ys;;
 
-  public VolatilitySurfaceData(final String definitionName, final String specificationName, final Currency currency,
+  public VolatilitySurfaceData(final String definitionName, final String specificationName, final UniqueIdentifiable target,
                                final X[] xs, final Y[] ys, final Map<Pair<X, Y>, Double> values) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(specificationName, "Specification Name");
-    Validate.notNull(currency, "Currency");
+    Validate.notNull(target, "Target");
     Validate.notNull(ys, "Y axis values");
     Validate.notNull(xs, "X axis values");
     Validate.notNull(values, "Volatility Values Map");
     _definitionName = definitionName;
     _specificationName = specificationName;
-    _currency = currency;
+    _target = target;
     _values = new HashMap<Pair<X, Y>, Double>(values);
     _xs = xs;
     _ys = ys;
@@ -68,8 +69,18 @@ public class VolatilitySurfaceData<X, Y> {
     return _specificationName;
   }
 
+  public UniqueIdentifiable getTarget() {
+    return _target;
+  }
+  
+  /**
+   * @deprecated use getTarget()
+   * @throws ClassCastException if target not a currency
+   * @return currency assuming that the target is a currency
+   */
+  @Deprecated
   public Currency getCurrency() {
-    return _currency;
+    return (Currency) _target;
   }
 
   @Override
@@ -83,7 +94,7 @@ public class VolatilitySurfaceData<X, Y> {
     final VolatilitySurfaceData<?, ?> other = (VolatilitySurfaceData<?, ?>) o;
     return getDefinitionName().equals(other.getDefinitionName()) &&
            getSpecificationName().equals(other.getSpecificationName()) &&
-           getCurrency().equals(other.getCurrency()) &&
+           getTarget().equals(other.getTarget()) &&
            Arrays.equals(getXs(), other.getXs()) &&
            Arrays.equals(getYs(), other.getYs()) &&
            _values.equals(other._values);
@@ -91,6 +102,6 @@ public class VolatilitySurfaceData<X, Y> {
 
   @Override
   public int hashCode() {
-    return getDefinitionName().hashCode() * getSpecificationName().hashCode() * getCurrency().hashCode();
+    return getDefinitionName().hashCode() * getSpecificationName().hashCode() * getTarget().hashCode();
   }
 }

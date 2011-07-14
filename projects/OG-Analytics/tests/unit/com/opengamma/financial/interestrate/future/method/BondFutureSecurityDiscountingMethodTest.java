@@ -130,10 +130,10 @@ public class BondFutureSecurityDiscountingMethodTest {
     sensiBond = sensiBond.multiply(1.0 / CONVERSION_FACTOR[minIndex]);
     sensiFuture = sensiFuture.clean();
     sensiBond = sensiBond.clean();
-    for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivity().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
-      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).first,
-          sensiFuture.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
-      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivity().get(CREDIT_CURVE_NAME).get(loopsensi).second, sensiFuture.getSensitivity()
+    for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first,
+          sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).second, sensiFuture.getSensitivities()
           .get(CREDIT_CURVE_NAME).get(loopsensi).second, 1.0E-10);
     }
   }

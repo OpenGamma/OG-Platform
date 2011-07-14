@@ -11,6 +11,6 @@
     <appender-ref ref="STDOUT" />
   </root>
   
-  <!-- logger name="com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder" level="INFO" / -->
+  <!-- <logger name="com.opengamma.engine.depgraph" level="DEBUG" /> -->
   
 </configuration>
