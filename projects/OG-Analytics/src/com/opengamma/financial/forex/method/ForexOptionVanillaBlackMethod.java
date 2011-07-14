@@ -180,9 +180,10 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), optionForex.getStrike());
+    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
+    result.put(point, volatilitySensitivityValue);
     final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
-        .getCurrency2());
-    sensi.add(point, volatilitySensitivityValue);
+        .getCurrency2(), result);
     return sensi;
   }
 

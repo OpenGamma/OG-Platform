@@ -13,6 +13,8 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -24,9 +26,9 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   private static final long serialVersionUID = 1L;
 
   /**
-   * The currency.
+   * The target.
    */
-  private final Currency _currency;
+  private final UniqueIdentifier _target;
   /**
    * The curve name.
    */
@@ -35,23 +37,24 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * The instrument type.
    */
   private final String _instrumentType;
+  
   /**
-   * @param currency the currency
+   * @param target the target
    * @param name the name
    * @param instrumentType the instrument type
    */
-  public VolatilitySurfaceKey(Currency currency, String name, String instrumentType) {
+  public VolatilitySurfaceKey(UniqueIdentifiable target, String name, String instrumentType) {
     super();
-    _currency = currency;
+    _target = target.getUniqueId();
     _name = name;
     _instrumentType = instrumentType;
   }
   /**
-   * Gets the currency field.
-   * @return the currency
+   * Gets the target field.
+   * @return the target
    */
-  public Currency getCurrency() {
-    return _currency;
+  public UniqueIdentifier getTarget() {
+    return _target;
   }
   /**
    * Gets the name field.
@@ -77,9 +80,9 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   @Override
   public int compareTo(VolatilitySurfaceKey other) {
-    int currCompare = _currency.compareTo(other.getCurrency());
-    if (currCompare != 0) {
-      return currCompare;
+    int targCompare = _target.compareTo(other.getTarget());
+    if (targCompare != 0) {
+      return targCompare;
     }
     int nameCompare = _name.compareTo(other.getName());
     if (nameCompare != 0) {
@@ -104,7 +107,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     }
     if (object instanceof VolatilitySurfaceKey) {
       VolatilitySurfaceKey other = (VolatilitySurfaceKey) object;
-      return ObjectUtils.equals(getCurrency(), other.getCurrency()) &&
+      return ObjectUtils.equals(getTarget(), other.getTarget()) &&
               ObjectUtils.equals(getName(), other.getName())
               && ObjectUtils.equals(getInstrumentType(), other.getInstrumentType());
     }
@@ -118,20 +121,29 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(getCurrency()) ^ ObjectUtils.hashCode(getName()) ^ ObjectUtils.hashCode(getInstrumentType());
+    return ObjectUtils.hashCode(getTarget()) ^ ObjectUtils.hashCode(getName()) ^ ObjectUtils.hashCode(getInstrumentType());
   }
 
   //-------------------------------------------------------------------------
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     final MutableFudgeMsg msg = context.newMessage();
-    msg.add("currency", _currency.getCode());
+    msg.add("target", _target.toString());
     msg.add("name", _name);
     msg.add("instrumentType", _instrumentType);
     return msg;
   }
 
   public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    return new VolatilitySurfaceKey(Currency.of(msg.getString("currency")), msg.getString("name"), msg.getString("instrumentType"));
+    UniqueIdentifier targetUid;
+    String target = msg.getString("target");
+    if (target == null) {
+      //Handle old form of snapshot
+      Currency curr = Currency.of(msg.getString("currency"));
+      targetUid = curr.getUniqueId();
+    } else {
+      targetUid = UniqueIdentifier.parse(target);
+    }
+    return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"));
   }
 
 }

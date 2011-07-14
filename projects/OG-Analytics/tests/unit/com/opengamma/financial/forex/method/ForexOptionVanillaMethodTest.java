@@ -327,8 +327,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomestic, volatility);
     final double bumpedPvForeignMinus = func.evaluate(dataBlack) * notional;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[0]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity().get(CURVES_NAME[0]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
     //Domestic
     yields[0] = curveDomestic.getInterestRate(nodeTimes[0]);
     yields[1] = curveDomestic.getInterestRate(nodeTimes[1]);
@@ -348,8 +348,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomesticBumped, volatility);
     final double bumpedPvDomesticMinus = func.evaluate(dataBlack) * notional;
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
 
   @Test

@@ -161,7 +161,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final double[] nodeTimesForward = new double[] {EDU2.getFixingPeriodStartTime(), EDU2.getFixingPeriodEndTime()};
     final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(transactionBumped, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity future pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -177,15 +177,15 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
     final Map<String, List<DoublesPair>> sensiCalculator = calculator.visit(TRANSACTION, SABR_BUNDLE);
     final PresentValueSensitivity sensiMethod = METHOD.presentValueCurveSensitivity(TRANSACTION, SABR_BUNDLE);
-    assertEquals("Future option curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
+    assertEquals("Future option curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivities());
     InterestRateFutureOptionMarginSecuritySABRMethod methodSecurity = new InterestRateFutureOptionMarginSecuritySABRMethod();
     PresentValueSensitivity sensiSecurity = methodSecurity.priceCurveSensitivity(OPTION_EDU2, SABR_BUNDLE);
     PresentValueSensitivity sensiFromSecurity = sensiSecurity.multiply(QUANTITY * NOTIONAL * FUTURE_FACTOR);
-    for (int looppt = 0; looppt < sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).size(); looppt++) {
-      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
-          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
-      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
-          .getSensitivity().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
+    for (int looppt = 0; looppt < sensiMethod.getSensitivities().get(FORWARD_CURVE_NAME).size(); looppt++) {
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivities().get(FORWARD_CURVE_NAME).get(looppt).first, sensiFromSecurity
+          .getSensitivities().get(FORWARD_CURVE_NAME).get(looppt).first, 1.0E-10);
+      assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getSensitivities().get(FORWARD_CURVE_NAME).get(looppt).second, sensiFromSecurity
+          .getSensitivities().get(FORWARD_CURVE_NAME).get(looppt).second, 1.0E-2);
     }
   }
 

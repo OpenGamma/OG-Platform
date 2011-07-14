@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.Pair;
 public final class ViewDefinitionCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionCompiler.class);
-  private static final boolean OUTPUT_DEPENDENCY_GRAPHS = true;
+  private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
 
   private ViewDefinitionCompiler() {
