@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.forex;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -17,16 +17,16 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFunction {
-  private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
+public class ForexForwardPresentValueFunction extends ForexForwardFunction {
+  private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_PRESENT_VALUE);
+  public ForexForwardPresentValueFunction(final String payCurveName, final String receiveCurveName, final String valueRequirementName) {
+    super(payCurveName, receiveCurveName, ValueRequirementNames.FX_PRESENT_VALUE);
   }
 
   @Override
-  protected Object getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
+  protected Object getResult(final ForexDerivative fxForward, final YieldCurveBundle data) {
+    final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward);
     final int n = result.size();
     final Currency[] keys = new Currency[n];
     final double[] values = new double[n];
