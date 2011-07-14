@@ -27,6 +27,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
+import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -124,6 +125,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   protected static void addDummyFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(DummyPortfolioNodeFunction.class.getName(), Arrays.asList(requirementName, "0"));
+    functionConfigs.add(functionConfig);
+  }
+  
+  protected static void addDummyMultipleCurrencyAmountFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+    ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(DummyPortfolioNodeMultipleCurrencyAmountFunction.class.getName(), Arrays.asList(requirementName));
     functionConfigs.add(functionConfig);
   }
 
@@ -245,8 +251,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
-    functionConfigs.add(new StaticFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("DEFAULT")));
     //functionConfigs.add(new StaticFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName())); // TODO: haven't been brave enough for this one yet
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
@@ -367,7 +373,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
     addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
 
-    addDummyFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
+    addDummyMultipleCurrencyAmountFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);

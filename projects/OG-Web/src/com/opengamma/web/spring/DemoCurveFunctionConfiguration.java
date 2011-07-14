@@ -149,7 +149,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     }
     
     configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
-    for (int i = 1; i < parameters.size(); i++) {
+    for (int i = 1; i < parameters.size() - 1; i++) {
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
     }

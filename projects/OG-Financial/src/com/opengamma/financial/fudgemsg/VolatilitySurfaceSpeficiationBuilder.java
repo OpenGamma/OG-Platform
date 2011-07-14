@@ -7,7 +7,6 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeRuntimeException;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
@@ -48,7 +47,11 @@ public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<Volati
     if (!message.hasField("target")) {
       target = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     } else {
+//      try {
       target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+//      } catch (Exception fre) { // arghhhhhh
+//        target = Currency.of(message.getString("target"));
+//      }
     }
     String name = message.getString("name");
     FudgeField field = message.getByName("surfaceInstrumentProvider");

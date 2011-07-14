@@ -15,24 +15,21 @@ import javax.time.Instant;
  */
 public interface VolatilitySurfaceDefinitionSource {
 
-  //TODO currencyLabel in here is unsatisfactory - it's fine as part of the label for something like swaptions, but not for an FX vol surface
   /**
    * Gets a volatility surface definition for a currency and name.
-   * @param currencyLabel  the currency label, not null
    * @param name  the name, not null
    * @param instrumentType the name of the type of the instrument, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceDefinition<?, ?> getDefinition(String currencyLabel, String name, String instrumentType);
+  VolatilitySurfaceDefinition<?, ?> getDefinition(String name, String instrumentType);
 
   /**
    * Gets a volatility surface definition for a currency, name and version.
-   * @param currencyLabel  the currency label, not null
    * @param name  the name, not null
    * @param instrumentType the name of the type of the instrument, not null
    * @param version  the version instant, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceDefinition<?, ?> getDefinition(String currencyLabel, String name, String instrumentType, Instant version);
+  VolatilitySurfaceDefinition<?, ?> getDefinition(String name, String instrumentType, Instant version);
 
 }
