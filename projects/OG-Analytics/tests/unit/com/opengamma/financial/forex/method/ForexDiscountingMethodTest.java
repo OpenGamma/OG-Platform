@@ -86,8 +86,8 @@ public class ForexDiscountingMethodTest {
     final PresentValueSensitivity pvs = METHOD.presentValueCurveSensitivity(FX, CURVES);
     final Map<String, List<DoublesPair>> pvs1 = PVSC.visit(PAY_1, CURVES);
     final Map<String, List<DoublesPair>> pvs2 = PVSC.visit(PAY_2, CURVES);
-    assertEquals(pvs1.get(CURVES_NAME[0]), pvs.getSensitivity().get(CURVES_NAME[0]));
-    assertEquals(pvs2.get(CURVES_NAME[1]), pvs.getSensitivity().get(CURVES_NAME[1]));
+    assertEquals(pvs1.get(CURVES_NAME[0]), pvs.getSensitivities().get(CURVES_NAME[0]));
+    assertEquals(pvs2.get(CURVES_NAME[1]), pvs.getSensitivities().get(CURVES_NAME[1]));
   }
 
   @Test

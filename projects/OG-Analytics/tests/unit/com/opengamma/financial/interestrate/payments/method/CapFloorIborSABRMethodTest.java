@@ -159,7 +159,7 @@ public class CapFloorIborSABRMethodTest {
     final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
-    assertEquals(pvsCapLong.getSensitivity(), pvsCapShort_1.getSensitivity());
+    assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -185,7 +185,7 @@ public class CapFloorIborSABRMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> tempForward = pvsCapLong.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> tempForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     final double[] resFwd = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
@@ -210,7 +210,7 @@ public class CapFloorIborSABRMethodTest {
     nodeTimesFunding[1] = CAP_LONG.getPaymentTime();
     yieldsFunding[1] = curveFunding.getInterestRate(nodeTimesFunding[1]);
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = pvsCapLong.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     final double[] resDsc = new double[nbPayDate];
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);

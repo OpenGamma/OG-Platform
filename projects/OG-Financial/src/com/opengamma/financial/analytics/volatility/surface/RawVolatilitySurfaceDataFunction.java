@@ -165,7 +165,6 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
-        int validValues = 0;
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
             final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
@@ -173,19 +172,17 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              validValues++;
-              volatilityValues.put(Pair.of(x, y), volatility / 100);            
+              volatilityValues.put(Pair.of(x, y), volatility / 100);
             }
           }
         }
-        s_logger.warn("Number valid values " + validValues);
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
                                                                                                      _definition.getTarget(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
       }
-      
+
       @Override
       public boolean canHandleMissingInputs() {
         return true;

@@ -236,7 +236,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     }
     double[] nodeTimesForward = forwardTime.toDoubleArray();
     double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
-    List<DoublesPair> sensiPvForward = pvcsCap.getSensitivity().get(FORWARD_CURVE_NAME);
+    List<DoublesPair> sensiPvForward = pvcsCap.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity CMS cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -258,7 +258,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
     double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
-    List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivity().get(FUNDING_CURVE_NAME);
+    List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity CMS cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
