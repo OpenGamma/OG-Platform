@@ -44,7 +44,6 @@ public class OperationTimer {
    * @return the reporter, not null
    */
   public static OperationTimeReporter getReporter() {
-    // TODO kirk 2010-04-13 -- Make a proper factory pattern.
     return REPORTER;
   }
 

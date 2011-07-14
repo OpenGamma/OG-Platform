@@ -14,7 +14,6 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 
@@ -59,7 +58,7 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity;
+    return target.getSecurity() instanceof FXBarrierOptionSecurity;
   }
 
 }
