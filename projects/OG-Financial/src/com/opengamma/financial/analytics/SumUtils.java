@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class SumUtils {
 
-  public static Object addValue(Object currentTotal, Object value, String valueName) {
+  public static Object addValue(final Object currentTotal, final Object value, final String valueName) {
     if (currentTotal == null) {
       return value;
     }
@@ -47,6 +47,10 @@ public class SumUtils {
     } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
       final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) currentTotal;
       final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) value;
+      return previousMatrix.add(currentMatrix);
+    } else if (value instanceof CurrencyLabelledMatrix1D) {
+      final CurrencyLabelledMatrix1D previousMatrix = (CurrencyLabelledMatrix1D) currentTotal;
+      final CurrencyLabelledMatrix1D currentMatrix = (CurrencyLabelledMatrix1D) value;
       return previousMatrix.add(currentMatrix);
     } else if (valueName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
       @SuppressWarnings("unchecked")
@@ -83,5 +87,5 @@ public class SumUtils {
     throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
         "or present value curve sensitivities right now.");
   }
-  
+
 }

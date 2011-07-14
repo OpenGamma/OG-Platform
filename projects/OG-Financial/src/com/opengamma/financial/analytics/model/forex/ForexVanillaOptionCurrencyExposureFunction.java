@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.model.forex;
 
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
+import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -17,11 +17,11 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueFunction extends ForexVanillaOptionFunction {
-  private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
+public class ForexVanillaOptionCurrencyExposureFunction extends ForexVanillaOptionFunction {
+  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_PRESENT_VALUE);
+  public ForexVanillaOptionCurrencyExposureFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
+    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
 
   @Override

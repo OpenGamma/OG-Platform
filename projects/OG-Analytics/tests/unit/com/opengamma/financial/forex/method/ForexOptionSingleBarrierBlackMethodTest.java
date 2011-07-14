@@ -248,14 +248,14 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double bumpedPvForeignPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign + deltaShift, rateDomestic, volatility) * NOTIONAL;
     final double bumpedPvForeignMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign - deltaShift, rateDomestic, volatility) * NOTIONAL;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivity().get(CURVES_NAME[0]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity().get(CURVES_NAME[0]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
     //Domestic
     final double bumpedPvDomesticPlus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign, rateDomestic + deltaShift, volatility) * NOTIONAL;
     final double bumpedPvDomesticMinus = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER, rebateByForeignUnit, SPOT, rateForeign, rateDomestic - deltaShift, volatility) * NOTIONAL;
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", payTime, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
 
   @Test

@@ -263,14 +263,14 @@ public class BondSecurityDiscountingMethodTest {
     sensi = sensi.clean();
     double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     double dfSettle = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(BOND_FIXED_SECURITY_1.getSettlementTime());
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getSettlementTime(), sensi.getSensitivity().get(REPO_CURVE_NAME).get(0).first, 1E-8);
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getSettlementTime(), sensi.getSensitivities().get(REPO_CURVE_NAME).get(0).first, 1E-8);
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getSettlementTime() / dfSettle * pv / NOTIONAL,
-        sensi.getSensitivity().get(REPO_CURVE_NAME).get(0).second, 1E-8);
+        sensi.getSensitivities().get(REPO_CURVE_NAME).get(0).second, 1E-8);
     double dfCpn0 = CURVES.getCurve(CREDIT_CURVE_NAME).getDiscountFactor(BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime());
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime(),
-        sensi.getSensitivity().get(CREDIT_CURVE_NAME).get(0).first, 1E-8);
+        sensi.getSensitivities().get(CREDIT_CURVE_NAME).get(0).first, 1E-8);
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", -BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getPaymentTime()
-        * BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getSensitivity().get(CREDIT_CURVE_NAME).get(0).second, 1E-8);
+        * BOND_FIXED_SECURITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getSensitivities().get(CREDIT_CURVE_NAME).get(0).second, 1E-8);
   }
 
   @Test
