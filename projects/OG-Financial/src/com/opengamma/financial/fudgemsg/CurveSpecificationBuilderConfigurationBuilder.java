@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfig
 import com.opengamma.util.time.Tenor;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting CurveSpecificationBuilderConfiguration instances to/from Fudge messages.
  */
 @FudgeBuilderFor(CurveSpecificationBuilderConfiguration.class)
 public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
@@ -79,11 +79,13 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
     }
     message.add("tenorSwapInstrumentProviders", tenorSwapInstrumentProvidersMessage);
 
-    MutableFudgeMsg oisSwapInstrumentProvidersMessage = context.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
-      context.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    if (object.getOISSwapInstrumentProviders() != null) {
+      MutableFudgeMsg oisSwapInstrumentProvidersMessage = context.newMessage();
+      for (Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
+        context.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add("oisSwapInstrumentProviders", oisSwapInstrumentProvidersMessage);
     }
-    message.add("oisSwapInstrumentProviders", oisSwapInstrumentProvidersMessage);
    
     return message; 
   }

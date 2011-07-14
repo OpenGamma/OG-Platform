@@ -194,9 +194,10 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
 
     final double volatilitySensitivityValue = priceDerivatives[4] * Math.abs(foreignAmount) * sign;
     final DoublesPair point = DoublesPair.of(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike());
+    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
+    result.put(point, volatilitySensitivityValue);
     final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), optionForex
-        .getUnderlyingOption().getUnderlyingForex().getCurrency2());
-    sensi.add(point, volatilitySensitivityValue);
+        .getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
     return sensi;
   }
 

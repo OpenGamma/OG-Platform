@@ -248,7 +248,7 @@ public class PresentValueSensitivityCalculatorTest {
         ((CouponIbor) iborAnnuity.getNthPayment(0)).getFixingPeriodEndTime()});
     final PresentValueSensitivity sensi1 = new PresentValueSensitivity(PVSC.visit(iborAnnuity.getNthPayment(0), curves));
     for (int loopdsc = 0; loopdsc < expectedListForward1.size(); loopdsc++) {
-      assertEquals(expectedListForward1.get(loopdsc), sensi1.getSensitivity().get(FORWARD_CURVE_NAME).get(loopdsc).first);
+      assertEquals(expectedListForward1.get(loopdsc), sensi1.getSensitivities().get(FORWARD_CURVE_NAME).get(loopdsc).first);
     }
     // All coupons
     PresentValueSensitivity sensi = new PresentValueSensitivity(PVSC.visit(iborAnnuity, curves));
@@ -260,7 +260,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
     final List<Double> expectedListDiscounting = new ArrayList<Double>(expectedSetDiscounting);
     for (int loopdsc = 0; loopdsc < expectedListDiscounting.size(); loopdsc++) {
-      assertEquals(expectedListDiscounting.get(loopdsc), sensi.getSensitivity().get(FUNDING_CURVE_NAME).get(loopdsc).first);
+      assertEquals(expectedListDiscounting.get(loopdsc), sensi.getSensitivities().get(FUNDING_CURVE_NAME).get(loopdsc).first);
     }
     // Time for forward curve   
     final Set<Double> expectedSetForward = new TreeSet<Double>();
@@ -271,7 +271,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
     final List<Double> expectedListForward = new ArrayList<Double>(expectedSetForward);
     for (int loopdsc = 0; loopdsc < expectedListForward.size(); loopdsc++) {
-      assertEquals(expectedListForward.get(loopdsc), sensi.getSensitivity().get(FORWARD_CURVE_NAME).get(loopdsc).first);
+      assertEquals(expectedListForward.get(loopdsc), sensi.getSensitivities().get(FORWARD_CURVE_NAME).get(loopdsc).first);
     }
 
   }
@@ -655,7 +655,7 @@ public class PresentValueSensitivityCalculatorTest {
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimes[i + 1]);
     }
     final YieldAndDiscountCurve tempCurve_funding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> temp_funding = pvsSwapPayer.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> temp_funding = pvsSwapPayer.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurve_funding.withSingleShift(nodeTimes[i + 1], eps);
       final YieldCurveBundle curvesFunding = new YieldCurveBundle();
