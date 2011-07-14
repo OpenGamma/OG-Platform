@@ -17,10 +17,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueFunction extends ForexSingleBarrierOptionFunction {
+public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBarrierOptionFunction {
   private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionPresentValueFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
     super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_PRESENT_VALUE);
   }
 

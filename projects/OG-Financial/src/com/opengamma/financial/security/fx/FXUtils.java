@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.fx;
 
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -53,6 +54,24 @@ public class FXUtils {
   }
 
   //TODO remove this
+  /**
+   * Returns an IdentifierBundle containing all known identifiers for the spot rate of this FXOptionSecurity
+   * @param fxOptionSecurity the fx option security
+   * @param convertToPutCurrency whether to get the code that will convert a value to the put currency
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  public static final Identifier getSpotIdentifier(final FXBarrierOptionSecurity fxOptionSecurity, final boolean convertToPutCurrency) {
+    final Currency putCurrency = fxOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxOptionSecurity.getCallCurrency();
+    Identifier bloomberg;
+    if (convertToPutCurrency) {
+      bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+
   /**
    * Returns an IdentifierBundle containing all known identifiers for the spot rate of this FXOptionSecurity
    * @param fxOptionSecurity the fx option security
