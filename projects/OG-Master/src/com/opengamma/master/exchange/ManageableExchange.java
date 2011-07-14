@@ -129,7 +129,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * @return the value of the property
    */
   public String getISOMic() {
-    return _identifiers.getIdentifier(ExchangeUtils.ISO_MIC);
+    return _identifiers.getIdentifierValue(ExchangeUtils.ISO_MIC);
   }
 
   /**
