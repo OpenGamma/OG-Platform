@@ -44,6 +44,7 @@ public:
 		m_bRunningLeft = false;
 		m_bStoppedEntered = false;
 	}
+	bool RunningLeft () { return m_bRunningLeft; }
 	bool Running () { return m_bRunningEntered && !m_bRunningLeft && !m_bStoppedEntered; }
 	bool Stopped () { return m_bRunningEntered && m_bRunningLeft && m_bStoppedEntered; }
 };
@@ -158,7 +159,11 @@ static void Stash () {
 	LOGDEBUG (TEXT ("Sending CRASH_REQUEST message"));
 	ASSERT (g_poService->Send (msgUser));
 	FudgeMsg_release (msgUser);
-	CThread::Sleep (TIMEOUT_CALLBACK);
+	LOGDEBUG (TEXT ("Waiting for callback to arrive"));
+	int n;
+	for (n = 0; !g_poCallback->RunningLeft () && (n < TIMEOUT_MESSAGE / 100); n++) {
+		CThread::Sleep (100);
+	}
 	LOGDEBUG (TEXT ("Sending STASH_REQUEST message"));
 	ASSERT (FudgeMsg_create (&msgTest) == FUDGE_OK);
 	ASSERT (Test_addClass (msgTest) == FUDGE_OK);
@@ -168,7 +173,6 @@ static void Stash () {
 	ASSERT (UserMessage_setHandle (msgUser, i + 2) == FUDGE_OK);
 	ASSERT (UserMessage_setFudgeMsgPayload (msgUser, msgTest) == FUDGE_OK);
 	FudgeMsg_release (msgTest);
-	int n;
 	for (n = 0; !g_poService->Send (msgUser) && (n < TIMEOUT_START / 100); n++) {
 		CThread::Sleep (100);
 	}
