@@ -11,6 +11,7 @@
     <@rowin label="Data provider"><input type="text" size="30" maxlength="80" name="dataProvider" value="${searchRequest.dataProvider}" /></@rowin>
     <@rowin label="Data field"><input type="text" size="30" maxlength="80" name="dataField" value="${searchRequest.dataField}" /></@rowin>
     <@rowin label="Observation time"><input type="text" size="30" maxlength="80" name="observationTime" value="${searchRequest.observationTime}" /></@rowin>
+    <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${searchRequest.name}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>

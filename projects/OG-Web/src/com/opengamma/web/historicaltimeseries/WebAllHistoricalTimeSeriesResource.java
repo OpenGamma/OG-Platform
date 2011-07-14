@@ -81,8 +81,9 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @QueryParam("dataProvider") String dataProvider,
       @QueryParam("dataField") String dataField,
       @QueryParam("observationTime") String observationTime,
+      @QueryParam("name") String name,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
     return getFreemarker().build("timeseries/alltimeseries.ftl", out);
   }
 
@@ -96,12 +97,13 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @QueryParam("dataProvider") String dataProvider,
       @QueryParam("dataField") String dataField,
       @QueryParam("observationTime") String observationTime,
+      @QueryParam("name") String name,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
     return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, String name, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
@@ -111,6 +113,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));
     searchRequest.setDataField(StringUtils.trimToNull(dataField));
     searchRequest.setObservationTime(StringUtils.trimToNull(observationTime));
+    searchRequest.setName(StringUtils.trimToNull(name));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
