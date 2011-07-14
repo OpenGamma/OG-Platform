@@ -1,3 +1,39 @@
+DROP TABLE IF EXISTS tss_data_point;
+DROP TABLE IF EXISTS tss_data_point_delta;
+DROP TABLE IF EXISTS tss_intraday_data_point;
+DROP TABLE IF EXISTS tss_intraday_data_point_delta;
+DROP TABLE IF EXISTS tss_meta_data;
+DROP TABLE IF EXISTS tss_identifier;
+DROP TABLE IF EXISTS tss_identification_scheme;
+DROP TABLE IF EXISTS tss_identifier_bundle;
+DROP TABLE IF EXISTS tss_data_source;
+DROP TABLE IF EXISTS tss_data_provider;
+DROP TABLE IF EXISTS tss_data_field;
+DROP TABLE IF EXISTS tss_observation_time;
+
+DROP SEQUENCE IF EXISTS tss_data_field_id_seq;
+DROP SEQUENCE IF EXISTS tss_data_provider_id_seq;
+DROP SEQUENCE IF EXISTS tss_data_source_id_seq;
+DROP SEQUENCE IF EXISTS tss_identification_scheme_id_seq;
+DROP SEQUENCE IF EXISTS tss_identifier_id_seq;
+DROP SEQUENCE IF EXISTS tss_observation_time_id_seq;
+DROP SEQUENCE IF EXISTS tss_identifier_bundle_id_seq;
+DROP SEQUENCE IF EXISTS tss_meta_data_id_seq;
+
+DROP TABLE IF EXISTS hts_doc2idkey;
+DROP TABLE IF EXISTS hts_idkey;
+DROP TABLE IF EXISTS hts_point;
+DROP TABLE IF EXISTS hts_document;
+DROP TABLE IF EXISTS hts_name;
+DROP TABLE IF EXISTS hts_data_field;
+DROP TABLE IF EXISTS hts_data_source;
+DROP TABLE IF EXISTS hts_data_provider;
+DROP TABLE IF EXISTS hts_observation_time;
+
+DROP SEQUENCE IF EXISTS hts_master_seq;
+DROP SEQUENCE IF EXISTS hts_idkey_seq;
+DROP SEQUENCE IF EXISTS hts_dimension_seq;
+
 CREATE SEQUENCE hts_master_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 CREATE SEQUENCE hts_idkey_seq
