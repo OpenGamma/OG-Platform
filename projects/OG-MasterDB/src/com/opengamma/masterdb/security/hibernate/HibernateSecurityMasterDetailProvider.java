@@ -27,10 +27,14 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.bond.BondSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
@@ -134,6 +138,10 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(SwaptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FXSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FXForwardSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CapFloorSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CapFloorCMSSpreadSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------

@@ -107,12 +107,12 @@ public class PDEDataBundleProvider {
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         final double s = ts[1];
-        double temp = vol * Math.pow(s, beta);
+        final double temp = vol * Math.pow(s, beta);
         return -0.5 * temp * temp;
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a),  ConstantDoublesSurface.from(0.0), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0.0), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
   }
 
   /**
@@ -131,7 +131,7 @@ public class PDEDataBundleProvider {
    * @param localVol Local Volatility 
    * @return A convection diffusion data bundle
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final ForwardCurve forward, final double strike, final double maturity,  final double beta, final boolean isCall,
+  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final ForwardCurve forward, final double strike, final double maturity, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -169,22 +169,19 @@ public class PDEDataBundleProvider {
 
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         if (isCall) {
           return Math.max(0, x - strike);
-        } else {
-          return Math.max(0, strike - x);
         }
+        return Math.max(0, strike - x);
       }
     };
 
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
-  
-  
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward,  final double beta, final boolean isCall,
+
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -193,7 +190,7 @@ public class PDEDataBundleProvider {
         Validate.isTrue(tk.length == 2);
         final double t = tk[0];
         final double k = tk[1];
-       
+
         final double temp = Math.pow(k, beta) * localVol.getVolatility(t, k);
         return -0.5 * temp * temp;
       }
@@ -209,24 +206,20 @@ public class PDEDataBundleProvider {
       }
     };
 
-  
-
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double k) {
         if (isCall) {
           return Math.max(0, forward.getSpot() - k);
-        } else {
-          return Math.max(0, k - forward.getSpot());
         }
+        return Math.max(0, k - forward.getSpot());
       }
     };
 
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
   }
-  
+
   public ExtendedConvectionDiffusionPDEDataBundle getFokkerPlank(final ForwardCurve forward, final double beta, final AbsoluteLocalVolatilitySurface localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -296,7 +289,6 @@ public class PDEDataBundleProvider {
         FunctionalDoublesSurface.from(bStar), initialCondition);
 
   }
-  
 
   /**
    * Set up a backwards coupled PDE for a model where the underlying follows the SDE {@latex.inline $ ds = \\mu(t)sdt + \\sigma_i s^{\\beta} dW$}, with local volatility overlay
@@ -482,7 +474,6 @@ public class PDEDataBundleProvider {
 
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         return Math.max(0, x - strike);

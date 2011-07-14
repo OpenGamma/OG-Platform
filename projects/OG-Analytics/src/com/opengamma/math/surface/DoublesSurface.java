@@ -61,9 +61,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _yData = new double[_n];
     _zData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData[i], "element " + i + " of x data");
-      Validate.notNull(yData[i], "element " + i + " of y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(xData[i]);
+      Validate.notNull(yData[i]);
+      Validate.notNull(zData[i]);
       _xData[i] = xData[i];
       _yData[i] = yData[i];
       _zData[i] = zData[i];
@@ -90,9 +90,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
       final Double x = xData.get(i);
       final Double y = yData.get(i);
       final Double z = zData.get(i);
-      Validate.notNull(x, "element " + i + " of x data");
-      Validate.notNull(y, "element " + i + " of y data");
-      Validate.notNull(z, "element " + i + " of z data");
+      Validate.notNull(x);
+      Validate.notNull(y);
+      Validate.notNull(z);
       _xData[i] = x;
       _yData[i] = y;
       _zData[i] = z;
@@ -114,8 +114,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = Arrays.copyOf(zData, _n);
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData[i];
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(zData[i]);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
     }
@@ -136,8 +136,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData[i];
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(zData[i]);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
       _zData[i] = zData[i];
@@ -160,8 +160,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData.get(i);
       final Double z = zData.get(i);
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(z, "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(z);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
       _zData[i] = z;
@@ -180,8 +180,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     int i = 0;
     for (final Map.Entry<DoublesPair, Double> entry : xyzData.entrySet()) {
-      Validate.notNull(entry.getKey(), "element " + i + " of x-y data");
-      Validate.notNull(entry.getValue(), "element " + i + " of z data");
+      Validate.notNull(entry.getKey());
+      Validate.notNull(entry.getValue());
       _xData[i] = entry.getKey().first;
       _yData[i] = entry.getKey().second;
       _zData[i++] = entry.getValue();
@@ -200,7 +200,7 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     int i = 0;
     for (final Triple<Double, Double, Double> entry : xyzData) {
-      Validate.notNull(entry, "element " + i + " of x-y-z data");
+      Validate.notNull(entry);
       final double x = entry.getFirst();
       final double y = entry.getSecond();
       final double z = entry.getThird();
@@ -248,9 +248,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _yData = new double[_n];
     _zData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData[i], "element " + i + " of x data");
-      Validate.notNull(yData[i], "element " + i + " of y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(xData[i]);
+      Validate.notNull(yData[i]);
+      Validate.notNull(zData[i]);
       _xData[i] = xData[i];
       _yData[i] = yData[i];
       _zData[i] = zData[i];
@@ -278,9 +278,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
       final Double x = xData.get(i);
       final Double y = yData.get(i);
       final Double z = zData.get(i);
-      Validate.notNull(x, "element " + i + " of x data");
-      Validate.notNull(y, "element " + i + " of y data");
-      Validate.notNull(z, "element " + i + " of z data");
+      Validate.notNull(x);
+      Validate.notNull(y);
+      Validate.notNull(z);
       _xData[i] = x;
       _yData[i] = y;
       _zData[i] = z;
@@ -303,8 +303,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = Arrays.copyOf(zData, _n);
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData[i];
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(zData[i]);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
     }
@@ -326,8 +326,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData[i];
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(zData[i], "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(zData[i]);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
       _zData[i] = zData[i];
@@ -351,8 +351,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     for (int i = 0; i < _n; i++) {
       final DoublesPair pair = xyData.get(i);
       final Double z = zData.get(i);
-      Validate.notNull(pair, "element " + i + " of x-y data");
-      Validate.notNull(z, "element " + i + " of z data");
+      Validate.notNull(pair);
+      Validate.notNull(z);
       _xData[i] = pair.first;
       _yData[i] = pair.second;
       _zData[i] = z;
@@ -372,8 +372,8 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     int i = 0;
     for (final Map.Entry<DoublesPair, Double> entry : xyzData.entrySet()) {
-      Validate.notNull(entry.getKey(), "element " + i + " of x-y data");
-      Validate.notNull(entry.getValue(), "element " + i + " of z data");
+      Validate.notNull(entry.getKey());
+      Validate.notNull(entry.getValue());
       _xData[i] = entry.getKey().first;
       _yData[i] = entry.getKey().second;
       _zData[i++] = entry.getValue();
@@ -393,7 +393,7 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = new double[_n];
     int i = 0;
     for (final Triple<Double, Double, Double> entry : xyzData) {
-      Validate.notNull(entry, "element " + i + " of x-y-z data");
+      Validate.notNull(entry);
       final double x = entry.getFirst();
       final double y = entry.getSecond();
       final double z = entry.getThird();

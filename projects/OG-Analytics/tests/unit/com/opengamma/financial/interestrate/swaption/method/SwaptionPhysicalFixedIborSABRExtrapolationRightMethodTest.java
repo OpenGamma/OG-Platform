@@ -200,7 +200,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final PresentValueSensitivity pvsShortPayerExtra = METHOD_EXTRAPOLATION.presentValueSensitivity(swaptionShortPayerHighStrike, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsShortPayer_1 = pvsShortPayerExtra.multiply(-1);
-    assertEquals(pvsLongPayerExtra.getSensitivity(), pvsShortPayer_1.getSensitivity());
+    assertEquals(pvsLongPayerExtra.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 5.0E+4;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -230,7 +230,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> tempForward = pvsLongPayerExtra.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> tempForward = pvsLongPayerExtra.getSensitivities().get(FORWARD_CURVE_NAME);
     final double[] resFwd = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
@@ -257,7 +257,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimesFunding[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = pvsLongPayerExtra.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvsLongPayerExtra.getSensitivities().get(FUNDING_CURVE_NAME);
     final double[] resDsc = new double[nbPayDate];
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);
@@ -342,7 +342,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIbor swaptionLongReceiverHighStrike = swaptionDefinitionLongReceiverHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod methodExtrapolation = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(cutOffStrike, mu);
-    final SwaptionPhysicalFixedIborSABRMethod methodNoExtrapolation = new SwaptionPhysicalFixedIborSABRMethod();
+    final SwaptionPhysicalFixedIborSABRMethod methodNoExtrapolation = SwaptionPhysicalFixedIborSABRMethod.getInstance();
 
     long startTime, endTime;
     final int nbTest = 1000;

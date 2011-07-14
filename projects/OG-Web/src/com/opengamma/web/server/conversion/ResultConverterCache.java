@@ -11,11 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -47,6 +48,7 @@ public class ResultConverterCache {
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
     registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
     registerConverter(Tenor.class, new TenorConverter());
+    registerConverter(MultipleCurrencyAmount.class, new MultipleCurrencyAmountConverter(_doubleConverter));
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {

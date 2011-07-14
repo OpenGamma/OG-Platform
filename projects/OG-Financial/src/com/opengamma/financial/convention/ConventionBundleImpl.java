@@ -71,6 +71,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   private YieldConvention _yieldConvention;
   private boolean _rollToSettlement;
 
+  //swaptions
+  private boolean _isCashSettled;
+
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
       final int settlementDays) {
@@ -79,6 +82,16 @@ public class ConventionBundleImpl implements ConventionBundle {
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _frequency = frequency;
+    _settlementDays = settlementDays;
+  }
+
+  // generic cash
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
     _settlementDays = settlementDays;
   }
 
@@ -92,6 +105,30 @@ public class ConventionBundleImpl implements ConventionBundle {
     _period = period;
     _settlementDays = settlementDays;
     _region = region;
+  }
+
+  // cash/general - with EOM indicated
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM, final Identifier region) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _period = period;
+    _settlementDays = settlementDays;
+    _isEOMConvention = isEOM;
+    _region = region;
+  }
+
+  // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays, final boolean isEOMConvention) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _settlementDays = settlementDays;
+    _isEOMConvention = isEOMConvention;
   }
 
   // futures
@@ -197,6 +234,13 @@ public class ConventionBundleImpl implements ConventionBundle {
     _businessDayConvention = businessDayConvention;
     _yieldConvention = yieldConvention;
     _rollToSettlement = false;
+  }
+
+  //swaptions
+  public ConventionBundleImpl(final String name, final boolean isCashSettled) {
+    Validate.notNull(name, "name");
+    _name = name;
+    _isCashSettled = isCashSettled;
   }
 
   @Override
@@ -459,8 +503,12 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
+  public boolean isCashSettled() {
+    return _isCashSettled;
+  }
+
+  @Override
   public Identifier getRegion() {
     return _region;
   }
-
 }

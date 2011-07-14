@@ -20,7 +20,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   private final Object[] _labels;
   private final double[] _values;
   private final T _defaultTolerance;
-  
+
   public LabelledMatrix1D(final S[] keys, final double[] values, final T defaultTolerance) {
     Validate.notNull(keys, "labels");
     Validate.notNull(values, "values");
@@ -31,7 +31,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     _labels = new Object[n];
     int i = 0;
     for (final S s : keys) {
-      _labels[i++] = s;
+      _labels[i++] = s.toString();
     }
     sort(_keys, _labels, _values);
     _defaultTolerance = defaultTolerance;
@@ -62,7 +62,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public double[] getValues() {
     return _values;
   }
-  
+
   public int size() {
     return _keys.length;
   }
@@ -186,7 +186,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public LabelledMatrix1D<S, T> add(final S key, final Object label, final double value, final T tolerance) {
     return add(key, label, value, tolerance, false);
   }
-  
+
   protected LabelledMatrix1D<S, T> add(final LabelledMatrix1D<S, T> other, final T tolerance, final boolean ignoreLabel) {
     Validate.notNull(other, "labelled matrix");
     final S[] otherKeys = other.getKeys();
@@ -250,7 +250,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   protected T getDefaultTolerance() {
     return _defaultTolerance;
   }
-  
+
   /**
    * Compares two keys and indicates whether the first would be considered less than, equal to or greater than the
    * second.
@@ -262,7 +262,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
    *         {@code key2}; and a value greater than 0 if {@code key1} is greater than {@code key2}.
    */
   public abstract int compare(S key1, S key2, T tolerance);
-  
+
   /**
    * Compares two keys using the default equality tolerance, and indicates whether the first would be considered less
    * than, equal to or greater than the second.
@@ -272,14 +272,14 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
    * @return the value 0 if {@code key1} is equal to {@code key2}; a value less than 0 if {@code key1} is less than
    *         {@code key2}; and a value greater than 0 if {@code key1} is greater than {@code key2}.
    */
-  public int compare(S key1, S key2) {
+  public int compare(final S key1, final S key2) {
     return compare(key1, key2, getDefaultTolerance());
   }
 
   protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, double[] values);
 
-  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values); 
-  
+  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values);
+
   protected void sort(final S[] keys, final Object[] labels, final double[] values) {
     final int n = keys.length;
     tripleArrayQuickSort(keys, labels, values, 0, n - 1);
@@ -294,7 +294,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
       final int comparison = compare(key, midVal, tolerance);
       if (comparison == 0) {
         return mid;
-      } else if (comparison == 1) {
+      } else if (comparison > 0) {
         low = mid + 1;
       } else {
         high = mid - 1;

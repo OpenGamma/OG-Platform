@@ -32,8 +32,8 @@ public class CalendarUtil {
       }
       return new HolidaySourceCalendarAdapter(holidaySource, resultRegions);
     } else {
-      final Region payRegion = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
-      return new HolidaySourceCalendarAdapter(holidaySource, payRegion);
+      final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
+      return new HolidaySourceCalendarAdapter(holidaySource, region);
     }
   }
 

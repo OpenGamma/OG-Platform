@@ -116,7 +116,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = new SwaptionPhysicalFixedIborSABRMethod();
+  private static final SwaptionPhysicalFixedIborSABRMethod METHOD = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   // Pricing functions
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -209,7 +209,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivity(), pvsCalculator);
+    assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
 
   @Test
@@ -222,10 +222,10 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final PresentValueSensitivity pvsShortPayer = METHOD.presentValueSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
-    assertEquals(pvsLongPayer.getSensitivity(), pvsShortPayer_1.getSensitivity());
+    assertEquals(pvsLongPayer.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // PresentValueCalculator
     final Map<String, List<DoublesPair>> pvscLongPayer = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    assertEquals(pvsLongPayer.getSensitivity(), pvscLongPayer);
+    assertEquals(pvsLongPayer.getSensitivities(), pvscLongPayer);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
@@ -257,7 +257,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> tempForward = sensi.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> tempForward = sensi.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
       final YieldCurveBundle curvesBumpedForward = new YieldCurveBundle();
@@ -283,7 +283,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimesFunding[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = sensi.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = sensi.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);
       final YieldCurveBundle curvesBumped = new YieldCurveBundle();

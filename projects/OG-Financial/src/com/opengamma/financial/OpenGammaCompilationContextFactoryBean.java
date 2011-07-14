@@ -6,6 +6,8 @@
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -32,7 +34,8 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   private CurrencyMatrixSource _currencyMatrixSource;
-  
+  private HolidaySource _holidaySource;
+  private ExchangeSource _exchangeSource;
 
   public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
@@ -58,7 +61,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _regionSource;
   }
 
-  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
     _conventionBundleSource = conventionBundleSource;
   }
 
@@ -66,7 +69,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _conventionBundleSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -78,7 +81,8 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _interpolatedYieldCurveDefinitionSource;
   }
 
-  public void setInterpolatedYieldCurveDefinitionSource(final InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
+  public void setInterpolatedYieldCurveDefinitionSource(
+      final InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
     _interpolatedYieldCurveDefinitionSource = interpolatedYieldCurveDefinitionSource;
   }
 
@@ -86,10 +90,11 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _interpolatedYieldCurveSpecificationBuilder;
   }
 
-  public void setInterpolatedYieldCurveSpecificationBuilder(final InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
+  public void setInterpolatedYieldCurveSpecificationBuilder(
+      final InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
     _interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
-  
+
   public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
     return _volatilityCubeDefinitionSource;
   }
@@ -106,6 +111,22 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     _currencyMatrixSource = currencyMatrixSource;
   }
 
+  public HolidaySource getHolidaySource() {
+    return _holidaySource;
+  }
+
+  public void setHolidaySource(final HolidaySource holidaySource) {
+    _holidaySource = holidaySource;
+  }
+
+  public ExchangeSource getExchangeSource() {
+    return _exchangeSource;
+  }
+
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
+    _exchangeSource = exchangeSource;
+  }
+
   private void configureCompilationContext(final FunctionCompilationContext context) {
     OpenGammaCompilationContext.setConfigSource(context, _configSource);
     OpenGammaCompilationContext.setRegionSource(context, _regionSource);
@@ -114,6 +135,8 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, _interpolatedYieldCurveSpecificationBuilder);
     OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, _volatilityCubeDefinitionSource);
     OpenGammaCompilationContext.setCurrencyMatrixSource(context, _currencyMatrixSource);
+    OpenGammaCompilationContext.setHolidaySource(context, _holidaySource);
+    OpenGammaCompilationContext.setExchangeSource(context, _exchangeSource);
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
   }

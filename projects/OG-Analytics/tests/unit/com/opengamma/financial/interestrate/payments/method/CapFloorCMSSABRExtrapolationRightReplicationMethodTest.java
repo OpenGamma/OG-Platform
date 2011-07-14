@@ -108,8 +108,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final CapFloorCMS CMS_CAP_SHORT = (CapFloorCMS) CMS_CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators & methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = new CapFloorCMSSABRReplicationMethod();
-  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = new CouponCMSSABRReplicationMethod();
+  private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getDefaultInstance();
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CAP = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
@@ -144,8 +144,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the method against the present value calculator.
    */
   public void presentValueCouponMethodSpecificVsGeneric() {
-    double pvSpecific = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, SABR_BUNDLE);
-    CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON, SABR_BUNDLE);
+    final double pvSpecific = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, SABR_BUNDLE);
+    final CurrencyAmount pvGeneric = METHOD_GENERIC.presentValue(CMS_COUPON, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR extrapolation: method : Specific vs Generic", pvSpecific, pvGeneric.getAmount());
   }
 
@@ -182,7 +182,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final PresentValueSensitivity pvsCapShort = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_SHORT, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
-    assertEquals(pvsCapLong.getSensitivity(), pvsCapShort_1.getSensitivity());
+    assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     pvsCapLong = pvsCapLong.clean();
     pvsCapLongStd = pvsCapLongStd.clean();
@@ -214,7 +214,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> tempForward = pvsCapLong.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> tempForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     final double[] resFwd = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
@@ -241,7 +241,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimesFunding[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = pvsCapLong.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     final double[] resDsc = new double[nbPayDate];
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);

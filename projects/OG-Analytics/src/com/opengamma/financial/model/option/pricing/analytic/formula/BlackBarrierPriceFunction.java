@@ -18,12 +18,20 @@ import com.opengamma.util.CompareUtils;
  * The price function to compute the price of barrier option in the Black world.
  * Reference: E. G. Haug (2007) The complete guide to Option Pricing Formulas. Mc Graw Hill. Section 4.17.1.
  */
-public class BlackBarrierPriceFunction {
+public final class BlackBarrierPriceFunction {
 
   /**
    * The normal distribution implementation used in the pricing.
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final BlackBarrierPriceFunction INSTANCE = new BlackBarrierPriceFunction();
+
+  public static BlackBarrierPriceFunction getInstance() {
+    return INSTANCE;
+  }
+
+  private BlackBarrierPriceFunction() {
+  }
 
   /**
    * Computes the price of a barrier option in the Black world.
@@ -106,7 +114,7 @@ public class BlackBarrierPriceFunction {
    * @return The price.
    */
   public double getPriceAdjoint(final EuropeanVanillaOption option, final Barrier barrier, final double rebate, final double spot, final double costOfCarry, final double rate, final double sigma,
-      double[] derivatives) {
+      final double[] derivatives) {
     Validate.notNull(option, "option");
     Validate.notNull(barrier, "barrier");
     for (int loopder = 0; loopder < 5; loopder++) { // To clean the array.
@@ -125,8 +133,8 @@ public class BlackBarrierPriceFunction {
     final double df1 = Math.exp(t * (costOfCarry - rate));
     final double df2 = Math.exp(-rate * t);
     if (CompareUtils.closeEquals(sigma, 0, 1e-16)) {
-      double priceBar = 1.0;
-      double df1Bar = rebate * priceBar;
+      final double priceBar = 1.0;
+      final double df1Bar = rebate * priceBar;
       derivatives[2] = -t * df1 * df1Bar;
       derivatives[3] = t * df1 * df1Bar;
       return df1 * rebate;
@@ -141,16 +149,16 @@ public class BlackBarrierPriceFunction {
     final double y1 = Math.log(h * h / spot / strike) / sigmaT + m1;
     final double y2 = Math.log(h / spot) / sigmaT + m1;
     final double z = Math.log(h / spot) / sigmaT + lambda * sigmaT;
-    double[] aDerivatives = new double[6];
+    final double[] aDerivatives = new double[6];
     final double xA = getAAdjoint(spot, strike, df1, df2, x1, sigmaT, phi, aDerivatives);
-    double[] bDerivatives = new double[6];
+    final double[] bDerivatives = new double[6];
     final double xB = getAAdjoint(spot, strike, df1, df2, x2, sigmaT, phi, bDerivatives);
-    double[] cDerivatives = new double[7];
+    final double[] cDerivatives = new double[7];
     final double xC = getCAdjoint(spot, strike, df1, df2, y1, sigmaT, h, mu, phi, eta, cDerivatives);
-    double[] dDerivatives = new double[7];
+    final double[] dDerivatives = new double[7];
     final double xD = getCAdjoint(spot, strike, df1, df2, y2, sigmaT, h, mu, phi, eta, dDerivatives);
-    double[] fDerivatives = new double[5];
-    double[] eDerivatives = new double[6];
+    final double[] fDerivatives = new double[5];
+    final double[] eDerivatives = new double[6];
     final double xE = isKnockIn ? getEAdjoint(spot, rebate, df2, x2, y2, sigmaT, h, mu, eta, eDerivatives) : getFAdjoint(spot, rebate, z, sigmaT, h, mu, lambda, eta, fDerivatives);
     double xEBar = 0.0;
     double xDBar = 0.0;
@@ -290,17 +298,17 @@ public class BlackBarrierPriceFunction {
       derivatives[0] = fDerivatives[0] * xEBar;
     }
     y2Bar += dDerivatives[4] * xDBar;
-    double y1Bar = cDerivatives[4] * xCBar;
+    final double y1Bar = cDerivatives[4] * xCBar;
     x2Bar += bDerivatives[4] * xBBar;
-    double x1Bar = aDerivatives[4] * xABar;
-    double m1Bar = x1Bar + x2Bar + y1Bar + y2Bar;
+    final double x1Bar = aDerivatives[4] * xABar;
+    final double m1Bar = x1Bar + x2Bar + y1Bar + y2Bar;
     muBar += cDerivatives[6] * xCBar + dDerivatives[6] * xDBar + sigmaT * m1Bar + mu / lambda * lambdaBar;
     sigmaTBar += aDerivatives[5] * xABar + bDerivatives[5] * xBBar + cDerivatives[5] * xCBar + dDerivatives[5] * xDBar + (lambda - Math.log(h / spot) / (sigmaT * sigmaT)) * zBar - Math.log(h / spot)
         / (sigmaT * sigmaT) * y2Bar - Math.log(h * h / spot / strike) / (sigmaT * sigmaT) * y1Bar - Math.log(spot / h) / (sigmaT * sigmaT) * x2Bar - Math.log(spot / strike) / (sigmaT * sigmaT)
         * x1Bar + (1 + mu) * m1Bar;
-    double sigmaSqBar = -costOfCarry / (sigmaSq * sigmaSq) * muBar - rate / (sigmaSq * sigmaSq) / lambda * lambdaBar;
+    final double sigmaSqBar = -costOfCarry / (sigmaSq * sigmaSq) * muBar - rate / (sigmaSq * sigmaSq) / lambda * lambdaBar;
     df2Bar += aDerivatives[3] * xABar + bDerivatives[3] * xBBar + cDerivatives[3] * xCBar + dDerivatives[3] * xDBar;
-    double df1Bar = aDerivatives[2] * xABar + bDerivatives[2] * xBBar + cDerivatives[2] * xCBar + dDerivatives[2] * xDBar;
+    final double df1Bar = aDerivatives[2] * xABar + bDerivatives[2] * xBBar + cDerivatives[2] * xCBar + dDerivatives[2] * xDBar;
     derivatives[0] += aDerivatives[0] * xABar + bDerivatives[0] * xBBar + cDerivatives[0] * xCBar + dDerivatives[0] * xDBar + 1.0 / spot / sigmaT * x1Bar + 1.0 / spot / sigmaT * x2Bar + -1.0 / spot
         / sigmaT * y1Bar + -1.0 / spot / sigmaT * y2Bar - 1.0 / spot / sigmaT * zBar;
     derivatives[1] = aDerivatives[1] * xABar + bDerivatives[1] * xBBar + cDerivatives[1] * xCBar + dDerivatives[1] * xDBar + -1.0 / strike / sigmaT * x1Bar - 1 / strike / sigmaT * y1Bar;
@@ -326,21 +334,21 @@ public class BlackBarrierPriceFunction {
    * @param derivatives Array used to return the derivatives. Will be changed during the call. The derivatives are [0] s, [1] k, [2] df1, [3] df2, [4] x, [5] sigmaT.
    * @return The quantity A.
    */
-  private double getAAdjoint(final double s, final double k, final double df1, final double df2, final double x, final double sigmaT, final double phi, double[] derivatives) {
+  private double getAAdjoint(final double s, final double k, final double df1, final double df2, final double x, final double sigmaT, final double phi, final double[] derivatives) {
     //  Forward sweep
-    double n1 = NORMAL.getCDF(phi * x);
-    double n2 = NORMAL.getCDF(phi * (x - sigmaT));
-    double a = phi * (s * df1 * n1 - k * df2 * n2);
+    final double n1 = NORMAL.getCDF(phi * x);
+    final double n2 = NORMAL.getCDF(phi * (x - sigmaT));
+    final double a = phi * (s * df1 * n1 - k * df2 * n2);
     // Backward sweep
-    double aBar = 1.0;
-    double n2Bar = phi * -k * df2 * aBar;
-    double n1Bar = phi * s * df1 * aBar;
+    final double aBar = 1.0;
+    final double n2Bar = phi * -k * df2 * aBar;
+    final double n1Bar = phi * s * df1 * aBar;
     derivatives[0] = phi * df1 * n1 * aBar;
     derivatives[1] = phi * -df2 * n2 * aBar;
     derivatives[2] = phi * s * n1 * aBar;
     derivatives[3] = phi * -k * n2 * aBar;
-    double n1df = NORMAL.getPDF(phi * x);
-    double n2df = NORMAL.getPDF(phi * (x - sigmaT));
+    final double n1df = NORMAL.getPDF(phi * x);
+    final double n2df = NORMAL.getPDF(phi * (x - sigmaT));
     derivatives[4] = n1df * phi * n1Bar + n2df * phi * n2Bar;
     derivatives[5] = n2df * -phi * n2Bar;
     return a;
@@ -380,21 +388,21 @@ public class BlackBarrierPriceFunction {
    * @return
    */
   private double getCAdjoint(final double s, final double k, final double df1, final double df2, final double y, final double sigmaT, final double h, final double mu, final double phi,
-      final double eta, double[] derivatives) {
+      final double eta, final double[] derivatives) {
     //  Forward sweep
-    double n1 = NORMAL.getCDF(eta * y);
-    double n2 = NORMAL.getCDF(eta * (y - sigmaT));
-    double hsMu1 = Math.pow(h / s, 2 * (mu + 1));
-    double hsMu = Math.pow(h / s, 2 * mu);
-    double c = phi * (s * df1 * hsMu1 * n1 - k * df2 * hsMu * n2);
+    final double n1 = NORMAL.getCDF(eta * y);
+    final double n2 = NORMAL.getCDF(eta * (y - sigmaT));
+    final double hsMu1 = Math.pow(h / s, 2 * (mu + 1));
+    final double hsMu = Math.pow(h / s, 2 * mu);
+    final double c = phi * (s * df1 * hsMu1 * n1 - k * df2 * hsMu * n2);
     // Backward sweep
-    double n1df = NORMAL.getPDF(eta * y);
-    double n2df = NORMAL.getPDF(eta * (y - sigmaT));
-    double cBar = 1.0;
-    double hsMuBar = phi * -k * df2 * n2 * cBar;
-    double hsMu1Bar = phi * s * df1 * n1 * cBar;
-    double n2Bar = phi * -k * df2 * hsMu * cBar;
-    double n1Bar = phi * s * df1 * hsMu1 * cBar;
+    final double n1df = NORMAL.getPDF(eta * y);
+    final double n2df = NORMAL.getPDF(eta * (y - sigmaT));
+    final double cBar = 1.0;
+    final double hsMuBar = phi * -k * df2 * n2 * cBar;
+    final double hsMu1Bar = phi * s * df1 * n1 * cBar;
+    final double n2Bar = phi * -k * df2 * hsMu * cBar;
+    final double n1Bar = phi * s * df1 * hsMu1 * cBar;
     derivatives[0] = phi * df1 * hsMu1 * n1 * cBar - 2 * mu * hsMu / s * hsMuBar - 2 * (mu + 1) * hsMu1 / s * hsMu1Bar; // s
     derivatives[1] = phi * -df2 * hsMu * n2 * cBar; // k
     derivatives[2] = phi * s * hsMu1 * n1 * cBar; // df1
@@ -437,19 +445,19 @@ public class BlackBarrierPriceFunction {
    * @return
    */
   private double getEAdjoint(final double s, final double rebate, final double df2, final double x, final double y, final double sigmaT, final double h, final double mu, final double eta,
-      double[] derivatives) {
+      final double[] derivatives) {
     //  Forward sweep
-    double n1 = NORMAL.getCDF(eta * (x - sigmaT));
-    double n2 = NORMAL.getCDF(eta * (y - sigmaT));
-    double hsMu = Math.pow(h / s, 2 * mu);
-    double e = rebate * df2 * (n1 - hsMu * n2);
+    final double n1 = NORMAL.getCDF(eta * (x - sigmaT));
+    final double n2 = NORMAL.getCDF(eta * (y - sigmaT));
+    final double hsMu = Math.pow(h / s, 2 * mu);
+    final double e = rebate * df2 * (n1 - hsMu * n2);
     // Backward sweep
-    double eBar = 1.0;
-    double n1df = NORMAL.getPDF(eta * (x - sigmaT));
-    double n2df = NORMAL.getPDF(eta * (y - sigmaT));
-    double hsMuBar = rebate * df2 * -n2 * eBar;
-    double n2Bar = rebate * df2 * -hsMu * eBar;
-    double n1Bar = rebate * df2 * eBar;
+    final double eBar = 1.0;
+    final double n1df = NORMAL.getPDF(eta * (x - sigmaT));
+    final double n2df = NORMAL.getPDF(eta * (y - sigmaT));
+    final double hsMuBar = rebate * df2 * -n2 * eBar;
+    final double n2Bar = rebate * df2 * -hsMu * eBar;
+    final double n1Bar = rebate * df2 * eBar;
     derivatives[0] = -2 * mu * hsMu / s * hsMuBar; // s
     derivatives[1] = rebate * (n1 - hsMu * n2) * eBar; // df2;
     derivatives[2] = n1df * eta * n1Bar; // x
@@ -476,21 +484,22 @@ public class BlackBarrierPriceFunction {
    * @param derivatives Array used to return the derivatives. Will be changed during the call. The derivatives are [0] s, [1] z, [2] sigmaT, [3] mu, [4] lambda.
    * @return
    */
-  private double getFAdjoint(final double s, final double rebate, final double z, final double sigmaT, final double h, final double mu, final double lambda, final double eta, double[] derivatives) {
+  private double getFAdjoint(final double s, final double rebate, final double z, final double sigmaT, final double h, final double mu, final double lambda, final double eta,
+      final double[] derivatives) {
     //  Forward sweep
-    double n1 = NORMAL.getCDF(eta * z);
-    double n2 = NORMAL.getCDF(eta * (z - 2 * lambda * sigmaT));
-    double hsMuPLa = Math.pow(h / s, mu + lambda);
-    double hsMuMLa = Math.pow(h / s, mu - lambda);
-    double f = rebate * (hsMuPLa * n1 + hsMuMLa * n2);
+    final double n1 = NORMAL.getCDF(eta * z);
+    final double n2 = NORMAL.getCDF(eta * (z - 2 * lambda * sigmaT));
+    final double hsMuPLa = Math.pow(h / s, mu + lambda);
+    final double hsMuMLa = Math.pow(h / s, mu - lambda);
+    final double f = rebate * (hsMuPLa * n1 + hsMuMLa * n2);
     // Backward sweep
-    double fBar = 1.0;
-    double n1df = NORMAL.getPDF(eta * z);
-    double n2df = NORMAL.getPDF(eta * (z - 2 * lambda * sigmaT));
-    double hsMuPLaBar = rebate * n1 * fBar;
-    double hsMuMLaBar = rebate * n2 * fBar;
-    double n2Bar = rebate * hsMuMLa * fBar;
-    double n1Bar = rebate * hsMuPLa * fBar;
+    final double fBar = 1.0;
+    final double n1df = NORMAL.getPDF(eta * z);
+    final double n2df = NORMAL.getPDF(eta * (z - 2 * lambda * sigmaT));
+    final double hsMuPLaBar = rebate * n1 * fBar;
+    final double hsMuMLaBar = rebate * n2 * fBar;
+    final double n2Bar = rebate * hsMuMLa * fBar;
+    final double n1Bar = rebate * hsMuPLa * fBar;
     derivatives[0] = -(mu + lambda) * hsMuPLa / s * hsMuPLaBar - (mu - lambda) * hsMuMLa / s * hsMuMLaBar; //s
     derivatives[1] = n1df * eta * n1Bar + n2df * eta * n2Bar; // z
     derivatives[2] = -n2df * eta * 2 * lambda * n2Bar; //sigmaT

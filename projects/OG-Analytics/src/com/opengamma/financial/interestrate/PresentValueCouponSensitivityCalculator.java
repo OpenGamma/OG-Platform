@@ -11,8 +11,10 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -57,29 +59,24 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double res = -fundingCurve.getDiscountFactor(fra.getSettlementDate()) * fwdAlpha / (1 + forward * discountAlpha);
-    return res;
+    final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
+    return method.presentValueCouponSensitivity(fra, curves);
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return future.getValueYearFraction();
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return future.getPaymentAccrualFactor();
+  }
+
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return future.getUnderlyingFuture().getPaymentAccrualFactor();
   }
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
-
-  //  @Override
-  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    return visitSwap(frn, curves);
-  //  }
 
   /**
    * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)

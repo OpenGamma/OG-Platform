@@ -6,7 +6,10 @@
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
@@ -26,6 +29,9 @@ public final class OpenGammaCompilationContext {
   private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
   private static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
   private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
+  private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+  private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
+  private static final String SECURITY_SOURCE_NAME = "securitySource";
 
   /**
    * Restricted constructor.
@@ -48,7 +54,7 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to examine, not null
    * @return the config source, null if not found
    */
-  public static ConfigSource getConfigSource(FunctionCompilationContext compilationContext) {
+  public static ConfigSource getConfigSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, CONFIG_SOURCE_NAME);
   }
 
@@ -57,7 +63,7 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to store in, not null
    * @param configSource  the config source to store, not null
    */
-  public static void setConfigSource(FunctionCompilationContext compilationContext, ConfigSource configSource) {
+  public static void setConfigSource(final FunctionCompilationContext compilationContext, final ConfigSource configSource) {
     set(compilationContext, CONFIG_SOURCE_NAME, configSource);
   }
 
@@ -67,7 +73,7 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to examine, not null
    * @return the region source, null if not found
    */
-  public static RegionSource getRegionSource(FunctionCompilationContext compilationContext) {
+  public static RegionSource getRegionSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, REGION_SOURCE_NAME);
   }
 
@@ -76,7 +82,7 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to store in, not null
    * @param regionSource  the region source to store, not null
    */
-  public static void setRegionSource(FunctionCompilationContext compilationContext, RegionSource regionSource) {
+  public static void setRegionSource(final FunctionCompilationContext compilationContext, final RegionSource regionSource) {
     set(compilationContext, REGION_SOURCE_NAME, regionSource);
   }
 
@@ -86,7 +92,7 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to examine, not null
    * @return the convention bundle source, null if not found
    */
-  public static ConventionBundleSource getConventionBundleSource(FunctionCompilationContext compilationContext) {
+  public static ConventionBundleSource getConventionBundleSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME);
   }
 
@@ -95,26 +101,31 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to store in, not null
    * @param conventionBundleSource  the convention bundle source to store, not null
    */
-  public static void setConventionBundleSource(FunctionCompilationContext compilationContext, ConventionBundleSource conventionBundleSource) {
+  public static void setConventionBundleSource(final FunctionCompilationContext compilationContext,
+      final ConventionBundleSource conventionBundleSource) {
     set(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
 
-  public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext) {
+  public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(
+      final FunctionCompilationContext compilationContext) {
     return get(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
   }
 
-  public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveDefinitionSource source) {
+  public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext,
+      final InterpolatedYieldCurveDefinitionSource source) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);
   }
 
-  public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext) {
+  public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(
+      final FunctionCompilationContext compilationContext) {
     return get(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME);
   }
 
-  public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
+  public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext,
+      final InterpolatedYieldCurveSpecificationBuilder builder) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
   }
-  
+
   public static VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, VOLATILITY_CUBE_DEFINITION_SOURCE_NAME);
   }
@@ -127,8 +138,32 @@ public final class OpenGammaCompilationContext {
     return get(compilationContext, CURRENCY_MATRIX_SOURCE_NAME);
   }
 
-  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext, final CurrencyMatrixSource currencyMatrixSource) {
+  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext,
+      final CurrencyMatrixSource currencyMatrixSource) {
     set(compilationContext, CURRENCY_MATRIX_SOURCE_NAME, currencyMatrixSource);
   }
 
+  public static HolidaySource getHolidaySource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, HOLIDAY_SOURCE_NAME);
+  }
+
+  public static void setHolidaySource(final FunctionCompilationContext compilationContext, final HolidaySource holidaySource) {
+    set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  public static ExchangeSource getExchangeSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, EXCHANGE_SOURCE_NAME);
+  }
+
+  public static void setExchangeSource(final FunctionCompilationContext compilationContext, final ExchangeSource exchangeSource) {
+    set(compilationContext, EXCHANGE_SOURCE_NAME, exchangeSource);
+  }
+
+  public static SecuritySource getSecuritySource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, SECURITY_SOURCE_NAME);
+  }
+
+  public static void setSecuritySource(final FunctionCompilationContext compilationContext, final SecuritySource securitySource) {
+    set(compilationContext, SECURITY_SOURCE_NAME, securitySource);
+  }
 }

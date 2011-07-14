@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -75,7 +75,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final InterestRateFutureTransactionHullWhiteMethod METHOD = new InterestRateFutureTransactionHullWhiteMethod(MODEL_PARAMETERS);
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_SECURITY = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
 
@@ -114,7 +114,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
     other = new InterestRateFutureTransactionHullWhiteMethod(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     assertTrue(METHOD.equals(other));
     InterestRateFutureTransactionHullWhiteMethod modifiedMethod;
-    HullWhiteOneFactorPiecewiseConstantDataBundle otherParameters = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters otherParameters = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
     modifiedMethod = new InterestRateFutureTransactionHullWhiteMethod(otherParameters);
     assertFalse(METHOD.equals(modifiedMethod));
     assertFalse(METHOD.equals(CUR));

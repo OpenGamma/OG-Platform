@@ -267,7 +267,7 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a yield curve bundle with tthree curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */

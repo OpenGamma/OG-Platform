@@ -47,7 +47,7 @@ public class PresentValueSensitivity {
    * Gets the sensitivity map.
    * @return The sensitivity map
    */
-  public Map<String, List<DoublesPair>> getSensitivity() {
+  public Map<String, List<DoublesPair>> getSensitivities() {
     return _sensitivity;
   }
 
@@ -64,14 +64,14 @@ public class PresentValueSensitivity {
       for (final DoublesPair pair : _sensitivity.get(name)) {
         temp.add(pair);
       }
-      if (other.getSensitivity().containsKey(name)) {
+      if (other.getSensitivities().containsKey(name)) {
         for (final DoublesPair pair : other._sensitivity.get(name)) {
           temp.add(pair);
         }
       }
       result.put(name, temp);
     }
-    for (final String name : other.getSensitivity().keySet()) {
+    for (final String name : other.getSensitivities().keySet()) {
       if (!result.containsKey(name)) {
         final List<DoublesPair> temp = new ArrayList<DoublesPair>();
         for (final DoublesPair pair : other._sensitivity.get(name)) {
