@@ -25,7 +25,7 @@ import com.opengamma.id.Identifier;
 /**
  * 
  */
-public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Integer, Double> {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Number, Double> {
   private static BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
   private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
@@ -65,20 +65,20 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   }
 
   @Override
-  public Identifier getInstrument(final Integer futureOptionNumber, final Double strike) {
+  public Identifier getInstrument(final Number futureOptionNumber, final Double strike) {
     throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
   }
 
   @Override
-  public Identifier getInstrument(final Integer futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
+  public Identifier getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futureOptionPrefix);
-    ticker.append(createQuarterlyFutureOptions(futureOptionNumber, strike, surfaceDate));
+    ticker.append(createQuarterlyFutureOptions(futureOptionNumber.intValue(), strike, surfaceDate));
     ticker.append(_postfix);
     return Identifier.of(SCHEME, ticker.toString());
   }
 
-  private String createQuarterlyFutureOptions(final Integer futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
+  private String createQuarterlyFutureOptions(final int futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     LocalDate futureOptionExpiry = surfaceDate.with(NEXT_EXPIRY_ADJUSTER);
     final StringBuilder futureOptionCode = new StringBuilder();
     for (int i = 1; i < futureOptionNumber; i++) {

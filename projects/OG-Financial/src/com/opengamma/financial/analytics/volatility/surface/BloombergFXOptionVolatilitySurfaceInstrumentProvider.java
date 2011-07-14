@@ -24,9 +24,13 @@ import com.opengamma.util.tuple.Pair;
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
   private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
 
+  /** Type of the volatility quote */
   public enum FXVolQuoteType {
+    /** ATM */
     ATM,
+    /** Risk-reversal */
     RISK_REVERSAL,
+    /** Butterfly */
     BUTTERFLY;
   }
 

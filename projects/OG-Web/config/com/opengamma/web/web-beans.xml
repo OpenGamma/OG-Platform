@@ -137,20 +137,29 @@
     </property>
   </bean>
   
-  <!--  User supplied data -->
-  <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
-    <constructor-arg>
-      <bean class="com.opengamma.financial.user.rest.UsersResourceContext">
-        <property name="fudgeContext" ref="fudgeContext" />
-        <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
-        <property name="userPositionMaster" ref="userFinancialPositionMaster" />
-        <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
-        <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-        <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
-        <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
-      </bean>
-    </constructor-arg>
+  <!-- Users resource context -->
+  <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
+    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
+    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
+    <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
+    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
+    <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
   </bean>
+  
+  <!-- Users Tracker -->
+  <bean id="usersTracker" class="com.opengamma.financial.user.DefaultUsersTracker">
+    <constructor-arg ref="usersResourceContext"/>
+  </bean>
+
+  <!-- User supplied data -->
+  <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
+    <constructor-arg ref="usersTracker" />
+    <constructor-arg ref="usersTracker" />
+    <constructor-arg ref="usersResourceContext"/>
+  </bean>
+  
   <bean id="usersRestBeanCleaner" factory-bean="usersRestBean" factory-method="createDeleteTask">
     <property name="timeout" value="${opengamma.financial-user.timeout}" />
     <property name="scheduler" ref="scheduler" />

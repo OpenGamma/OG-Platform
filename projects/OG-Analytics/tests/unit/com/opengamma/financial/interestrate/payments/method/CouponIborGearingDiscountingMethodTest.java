@@ -113,7 +113,7 @@ public class CouponIborGearingDiscountingMethodTest {
     final double[] nodeTimesForward = new double[] {COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime()};
     final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES_BUNDLE, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivity().get(CURVES_NAMES[1]);
+    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(CURVES_NAMES[1]);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -124,7 +124,7 @@ public class CouponIborGearingDiscountingMethodTest {
     final double[] nodeTimesDisc = new double[] {COUPON.getPaymentTime()};
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedDisc, CURVES_BUNDLE, CURVES_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    final List<DoublesPair> sensiPvDisc = pvsFuture.getSensitivity().get(CURVES_NAMES[0]);
+    final List<DoublesPair> sensiPvDisc = pvsFuture.getSensitivities().get(CURVES_NAMES[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -139,7 +139,7 @@ public class CouponIborGearingDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
     Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(COUPON, CURVES_BUNDLE);
-    assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivity(), pvcsCalculator);
+    assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivities(), pvcsCalculator);
   }
 
 }

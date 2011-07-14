@@ -297,5 +297,8 @@ public final class ValueRequirementNames {
 
   //FX analytics (temporary)
   public static final String FX_PRESENT_VALUE = "FX Present Value";
+  public static final String FX_CURRENCY_EXPOSURE = "FX Currency Exposure";
+  public static final String FX_CURVE_SENSITIVITIES = "FX Curve Sensitivities";
+  public static final String FX_VOLATILITY_SENSITIVITIES = "FX Volatility Sensitivities";
   //CSON
 }

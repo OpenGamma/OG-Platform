@@ -150,17 +150,22 @@ $.register_module({
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var details_json = result.data,
-                            template = details_json.template_data.securityType.toLowerCase();
+                        var details_json = result.data, text_handler,
+                            security_type = details_json.template_data.securityType.toLowerCase()
+                            template = module.name + '.' + security_type;
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + template, handler: function (template) {
+                        api.text({module: template, handler: text_handler = function (template, error) {
+                            if (error) {
+                                og.dev.warn('using default security template for security type: ' + security_type);
+                                return api.text({module: module.name + '.default', handler: text_handler});
+                            }
                             var $warning, warning_message = 'This security has been deleted',
-                                html = [], id, json = details_json.identifiers;
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                                html = [], id, json = details_json.identifiers, $main = $('#OG-details .og-main');
+                            $.tmpl(template, details_json.template_data).appendTo($main.empty());
                             $warning = $('#OG-details .OG-warning-message');
                             if (details_json.template_data.deleted) $warning.html(warning_message).show();
                                 else $warning.empty().hide();
