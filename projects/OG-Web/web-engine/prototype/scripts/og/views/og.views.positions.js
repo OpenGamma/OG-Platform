@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -30,7 +31,7 @@ $.register_module({
             module = this, positions,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            details_json = {},
+            resize = common.layout.resize,
             get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -88,33 +89,32 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'positions',
+                    'selector': '.OG-js-search', 'page_type': 'positions',
                     'columns': [
                         {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link'},
-                        {id: 'quantity', name: 'Quantity', field: 'quantity', width: 100, filter_type: 'input'},
-                        {id: 'trades', name: 'Trades', field: 'trades', width: 50}
+                        {id: 'quantity',
+                            name: '<input type="text" '
+                                + 'placeholder="Quantity" '
+                                + 'class="og-js-quantity-filter" '
+                                + 'style="width: 80px;">',
+                            field: 'quantity', width: 100, filter_type: 'input'},
+                        {id: 'trades', name: 'Trades', field: 'trades', width: 60}
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -125,51 +125,44 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_positions, args));
             },
             details_page = function (args) {
-                var render_securities = function (json) {
-                        $('.OG-position .og-js-main').html([
-                            '<td class="og-security"><a href=#/securities/', json.security.unique_id, '>',
-                                json.security.name,
-                            '</a></td>',
-                            '<td>', json.security.security_type, '</td>',
-                            '<td><strong class="og-quantity" data-og-editable="quantity">',
-                                json.template_data.quantity,
-                            '</strong></td>'
-                        ].join(''));
-                    },
-                    render_identifiers = function (json) {
-                        $('.OG-position .og-js-identifiers').html(json.reduce(function (acc, val) {
-                            acc.push(val.scheme, ': ', val.value, '<br />');
+                var render_identifiers = function (json) {
+                        $('.OG-js-details-panel .og-js-identifiers').html(json.reduce(function (acc, val) {
+                            acc.push('<tr><td><span>' + val.scheme + '</span></td><td>' + val.value + '</td></tr>');
                             return acc
                         }, []).join(''));
                     },
                     render_trades = function (json) {
                         var fields = ['id', 'quantity', 'counterParty', 'date'], start = '<tr><td>', end = '</td></tr>',
-                            selector = '.OG-position .og-js-trades';
+                            selector = '.OG-js-details-panel .og-js-trades';
                         if (!json[0]) return $(selector).html('<tr><td colspan="4">No Trades</td></tr>');
                         $(selector).html(json.reduce(function (acc, trade) {
                             acc.push(start, fields.map(function (field) {return trade[field];}).join('</td><td>'), end);
                             return acc;
                         }, []).join(''));
                     };
-                ui.toolbar(options.toolbar.active);
                 api.rest.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        details_json = result.data;
+                        json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.positions.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
                             var $warning, warning_message = 'This position has been deleted';
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
-                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
-                                else $warning.empty().hide();
-                            render_securities(details_json);
-                            render_identifiers(details_json.securities);
-                            render_trades(details_json.trades);
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
+                            render_identifiers(json.securities);
+                            render_trades(json.trades);
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -179,7 +172,7 @@ $.register_module({
                                 }
                             });
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                         }});
                     },
                     id: args.id,
@@ -195,10 +188,10 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Positions',
-                        favorites_list: history.get_html('history.positions.favorites') || 'no favorited positions',
-                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions',
-                        new_list: history.get_html('history.positions.new') || 'no new positions'
-                    }).appendTo($('#OG-details .og-main').empty());
+                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions'
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             };
         module.rules = {
@@ -250,7 +243,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

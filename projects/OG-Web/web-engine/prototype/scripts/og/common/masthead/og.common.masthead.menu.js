@@ -51,8 +51,8 @@ $.register_module({
                 */
             },
             set_tab: function (name) {
-                $('#OG-masthead li').removeClass('og-active');
-                $('#OG-masthead .og-' + name).addClass('og-active');
+                $('.OG-masthead a').removeClass('og-active');
+                $('.OG-masthead .og-' + name).addClass('og-active');
             }
         };
 

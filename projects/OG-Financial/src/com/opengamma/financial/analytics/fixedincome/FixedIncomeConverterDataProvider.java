@@ -118,7 +118,7 @@ public class FixedIncomeConverterDataProvider {
           //TODO remove this immediately
           indexConvention = _conventionSource.getConventionBundle(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
         }
-        indexID = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+        indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
       } 
 
       final IdentifierBundle id = indexID.toBundle();

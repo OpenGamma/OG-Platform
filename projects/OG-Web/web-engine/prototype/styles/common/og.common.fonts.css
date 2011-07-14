@@ -6,19 +6,41 @@
  *
  */
 
-body {
-  color: #475562;
-  font: normal 12px/150% arial, helvetica, sans-serif;
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url('/prototype/fonts/open-sans.woff') format('woff');
 }
 
-h1 {
-  font-size: 24px;
+body {
+  color: #475562;
+  font: normal 12px/160% arial, helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3 {
   font-weight: normal;
-  line-height: 24px;
   position: relative;
 }
 
+h1 {
+  display: inline-block;
+  font-family: 'Open Sans', arial, serif;
+  font-size: 30px;
+  line-height: 35px;
+  margin-bottom: 0;
+}
+
 h2 {
+  font-family: 'Open Sans', arial, serif;
+  font-size: 20px;
+  line-height: 20px;
+  margin-bottom: 0;
+}
+
+h3 {
   font-size: 16px;
-  font-weight: normal;
+  margin-bottom: 2px;
 }

@@ -16,10 +16,10 @@ $.register_module({
                 $('#OG-details .og-icon-minimize').hide();
             });
             $(max).mousedown(function () {
-                var details_width = localStorage['resize_panes_#OG-details'] || '60%',
-                    sr_width = localStorage['resize_panes_#OG-sr'] || '40%';
-                $('#OG-sr').show().width(sr_width);
-                $('#OG-details').width(details_width);
+                var details_width = localStorage['resize_panes_.OG-js-details-panel'] || '60%',
+                    sr_width = localStorage['resize_panes_.OG-js-search-panel'] || '40%';
+                $('.OG-js-search-panel').show().width(sr_width);
+                $('.OG-js-details-panel').width(details_width);
                 $('#OG-details .og-icon-maximize').hide();
                 $('#OG-details .og-icon-minimize').show();
             });

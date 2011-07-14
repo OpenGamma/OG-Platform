@@ -32,11 +32,11 @@ button {
 
 button:focus,
 button:hover {
-  outline: 1px solid #ff0;
+  outline: 1px solid #efefef;
 }
 
 button:active {
-  outline: 1px solid #ff0;
+  outline: 1px solid #efefef;
 }
 
 button.og-button-primary {

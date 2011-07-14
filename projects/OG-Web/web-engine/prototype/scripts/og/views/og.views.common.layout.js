@@ -8,12 +8,12 @@ $.register_module({
     obj: function () {
         return function (layout) {
             if (layout === 'analytics') {
-                $('#OG-details, #OG-sr').hide();
-                $('#OG-analytics').show();
+                $('.OG-js-search-panel, .OG-js-details-panel').hide();
+                $('.OG-js-analytics-panel').show();
             }
             if (layout === 'default') {
-                $('#OG-details, #OG-sr').show();
-                $('#OG-analytics').hide().find('.og-main').empty();
+                $('.OG-js-search-panel, .OG-js-details-panel').show();
+                $('.OG-js-analytics-panel').hide().find('.OG-analytics').empty();
             }
         }
     }
