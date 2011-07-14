@@ -57,7 +57,7 @@ public class IRFutureOptionSurfaceConfigPopulator {
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<Number, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
-        MarketDataRequirementNames.MID_IMPLIED_VOLATILITY, 97.775);
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }

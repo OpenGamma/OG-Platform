@@ -446,7 +446,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
           sb.append(",");
         }
         sb.append(escape(escapePattern, property.getKey())).append("=");
-        boolean grouped = strict || property.getValue().size() > 1;
+        boolean isOptional = optional.contains(property.getKey());
+        boolean grouped = strict || property.getValue().size() > 1 || isOptional;
         if (grouped) {
           sb.append("[");
         }
@@ -462,7 +463,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         if (grouped) {
           sb.append("]");
         }
-        if (optional.contains(property.getKey())) {
+        if (isOptional) {
           sb.append("?");
         }
       }
