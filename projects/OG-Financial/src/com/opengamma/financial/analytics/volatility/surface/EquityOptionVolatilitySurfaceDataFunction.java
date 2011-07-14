@@ -205,12 +205,12 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             if (inputs.getValue(requirement) != null) {
               numFound++;
               final Double volatility = (Double) inputs.getValue(requirement);
-              volatilityValues.put(Pair.of((Object) expiry, (Object) relativeStrikeBps), volatility / 100);
-              s_logger.warn("adding data for " + expiry + " relativeStrike=" + relativeStrikeBps + " absStrike = " + strike);
+              volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);
+              //s_logger.warn("adding data for " + expiry + " relativeStrike=" + relativeStrikeBps + " absStrike = " + strike);
             }
           }
         }
-        s_logger.warn("Number of Equity Option Vols found = " + numFound);
+        //s_logger.warn("Number of Equity Option Vols found = " + numFound);
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
                                                                                                      _definition.getTarget().getUniqueId(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
