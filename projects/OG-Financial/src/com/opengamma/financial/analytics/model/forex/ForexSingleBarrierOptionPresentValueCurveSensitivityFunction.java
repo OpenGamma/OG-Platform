@@ -14,16 +14,16 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends ForexVanillaOptionFunction {
+public class ForexSingleBarrierOptionPresentValueCurveSensitivityFunction extends ForexSingleBarrierOptionFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueCurveSensitivityFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionPresentValueCurveSensitivityFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
     super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 
   @Override
   protected Object getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data) {
     final PresentValueSensitivity result = CALCULATOR.visit(fxOption, data);
-    return 0.7;
+    return result;
   }
 }

@@ -13,6 +13,7 @@ import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
@@ -20,33 +21,33 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
+public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFunction {
 
-  public ForexVanillaOptionFunction(final String putCurveName, final String callCurveName, final String surfaceName, final String valueRequirementName) {
+  public ForexSingleBarrierOptionFunction(final String putCurveName, final String callCurveName, final String surfaceName, final String valueRequirementName) {
     super(putCurveName, callCurveName, surfaceName, valueRequirementName);
   }
 
   @Override
   protected ForexConverter<?> getDefinition(final FinancialSecurity target) {
-    final FXOptionSecurity security = (FXOptionSecurity) target;
-    return getVisitor().visitFXOptionSecurity(security);
+    final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
+    return getVisitor().visitFXBarrierOptionSecurity(security);
   }
 
   @Override
   protected Currency getPutCurrency(final FinancialSecurity target) {
-    final FXOptionSecurity security = (FXOptionSecurity) target;
+    final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return security.getPutCurrency();
   }
 
   @Override
   protected Currency getCallCurrency(final FinancialSecurity target) {
-    final FXOptionSecurity security = (FXOptionSecurity) target;
+    final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return security.getCallCurrency();
   }
 
   @Override
   protected Identifier getSpotIdentifier(final FinancialSecurity target) {
-    final FXOptionSecurity security = (FXOptionSecurity) target;
+    final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return FXUtils.getSpotIdentifier(security, true);
   }
 
