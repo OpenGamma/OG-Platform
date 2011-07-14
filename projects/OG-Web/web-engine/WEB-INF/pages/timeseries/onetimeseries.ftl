@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Time series - ${timeseriesDoc.uniqueId}">
+<@page title="Time series - ${infoDoc.uniqueId}">
 
 <!--[if IE]><script language="javascript" type="text/javascript" src="/js/excanvas/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
@@ -10,14 +10,14 @@
 <#-- SECTION Time series output -->
 <@section title="Time series">
   <p>
-    <@rowout label="Reference">${timeseries.uniqueId.value}</@rowout>
-   	<#list timeseries.identifiers.iterator() as item>
+    <@rowout label="Reference">${info.uniqueId.value}</@rowout>
+   	<#list info.identifiers.iterator() as item>
     <@rowout label="Identifier">${item}</@rowout>
    	</#list>
-    <@rowout label="Data source">${timeseries.dataSource}</@rowout>
-    <@rowout label="Data provider">${timeseries.dataProvider}</@rowout>
-    <@rowout label="Data field">${timeseries.dataField}</@rowout>
-    <@rowout label="Observation time">${timeseries.observationTime}</@rowout>
+    <@rowout label="Data source">${info.dataSource}</@rowout>
+    <@rowout label="Data provider">${info.dataProvider}</@rowout>
+    <@rowout label="Data field">${info.dataField}</@rowout>
+    <@rowout label="Observation time">${info.observationTime}</@rowout>
   </p>
   
 <#-- SUBSECTION Chart -->
