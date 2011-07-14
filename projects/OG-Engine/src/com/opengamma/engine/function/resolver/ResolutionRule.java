@@ -149,18 +149,26 @@ public class ResolutionRule {
     }
     // Has the function been used in the graph above the node - i.e. can we introduce it without
     // creating a cycle
-    DependencyNode parent = atNode.getDependentNode();
-    while (parent != null) {
-      if (parent.getFunction().equals(getFunction()) && parent.getComputationTarget().equals(target)) {
-        return null;
-      }
-      parent = parent.getDependentNode();
+    if (!checkDependentNodes(getFunction(), target, atNode.getDependentNodes())) {
+      return null;
     }
     // Apply the target filter for this rule (this is applied last because filters probably rarely exclude compared to the other tests)
     if (!_computationTargetFilter.accept(atNode)) {
       return null;
     }
     return validSpec;
+  }
+
+  private static boolean checkDependentNodes(final ParameterizedFunction function, final ComputationTarget target, final Set<DependencyNode> nodes) {
+    for (DependencyNode node : nodes) {
+      if (function.equals(node.getFunction()) && target.equals(node.getComputationTarget())) {
+        return false;
+      }
+      if (!checkDependentNodes(function, target, node.getDependentNodes())) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

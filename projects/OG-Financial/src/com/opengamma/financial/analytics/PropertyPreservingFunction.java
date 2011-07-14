@@ -52,7 +52,19 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
     for (String value : preserve) {
       builder.withAny(value);
     }
-    return builder.with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    applyAdditionalResultProperties(builder);
+    return builder.get();
+  }
+
+  /**
+   * Add additional properties to the results. The default here adds the function identifier; override
+   * this to add further information, but call the superclass method if the function identifier is not
+   * added.
+   * 
+   * @param builder to add properties to
+   */
+  protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
+    builder.with(ValuePropertyNames.FUNCTION, getUniqueId());
   }
 
   private ValueProperties _inputConstraints;
@@ -85,7 +97,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   }
 
   private ValueProperties getResultProperties(final ValueProperties properties) {
-    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    final ValueProperties.Builder builder = properties.copy().withoutAny(ValuePropertyNames.FUNCTION);
+    applyAdditionalResultProperties(builder);
+    return builder.get();
   }
 
   /**

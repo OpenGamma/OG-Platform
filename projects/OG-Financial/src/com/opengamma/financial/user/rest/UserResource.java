@@ -8,27 +8,20 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.util.ArgumentChecker;
-
 /**
  * RESTful resource representing a user, at the moment purely to provide access to the resource representing
  * a user's clients.
  */
 public class UserResource {
 
-  private final UsersResource _usersResource;
-  private final String _userName;
   private final ClientsResource _clients;
+  private final String _userName;
+  private final UserResourceData _data;
   
-  public UserResource(final UsersResource usersResource, final String userName, final UsersResourceContext context) {
-    ArgumentChecker.notNull(usersResource, "usersResource");
-    _clients = new ClientsResource(this, context);
-    _usersResource = usersResource;
+  public UserResource(final String userName, final UserResourceData data) {
+    _clients = new ClientsResource(userName, data);
     _userName = userName;
-  }
-  
-  public UsersResource getUsersResource() {
-    return _usersResource;
+    _data = data;
   }
   
   /**
@@ -36,7 +29,7 @@ public class UserResource {
    * @return the uri info, not null
    */
   public UriInfo getUriInfo() {
-    return getUsersResource().getUriInfo();
+    return _data.getUriInfo();
   }
   
   public String getUserName() {

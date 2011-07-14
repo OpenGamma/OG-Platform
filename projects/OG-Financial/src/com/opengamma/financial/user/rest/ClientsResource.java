@@ -19,19 +19,15 @@ import javax.ws.rs.core.UriInfo;
  */
 public class ClientsResource {
 
-  private final UserResource _userResource;
-  private final UsersResourceContext _context;
+  private final String _userName;
+  private final UserResourceData _data;
   private final ConcurrentHashMap<String, ClientResource> _clientMap = new ConcurrentHashMap<String, ClientResource>();
   
   private long _lastAccessed;
 
-  public ClientsResource(final UserResource userResource, final UsersResourceContext context) {
-    _userResource = userResource;
-    _context = context;
-  }
-  
-  public UserResource getUserResource() {
-    return _userResource;
+  public ClientsResource(String userName, UserResourceData data) {
+    _userName = userName;
+    _data = data;
   }
   
   /**
@@ -39,15 +35,15 @@ public class ClientsResource {
    * @return the uri info, not null
    */
   public UriInfo getUriInfo() {
-    return getUserResource().getUriInfo();
+    return _data.getUriInfo();
   }
   
   @Path("{clientUid}")
   public ClientResource getClient(@PathParam("clientUid") String clientName) {
     ClientResource client = _clientMap.get(clientName);
     if (client == null) {
-      _context.getClientTracker().clientCreated(getUserResource().getUserName(), clientName);
-      ClientResource freshClient = new ClientResource(this, clientName, _context);
+      _data.getClientTracker().clientCreated(_userName, clientName);
+      ClientResource freshClient = new ClientResource(_userName, clientName, _data);
       client = _clientMap.putIfAbsent(clientName, freshClient);
       if (client == null) {
         client = freshClient;
@@ -70,7 +66,7 @@ public class ClientsResource {
       final long clientTime = clientEntry.getValue().getLastAccessed();
       if (clientTime < timestamp) {
         clientIterator.remove();
-        _context.getClientTracker().clientDiscarded(getUserResource().getUserName(), clientEntry.getKey());
+        _data.getClientTracker().clientDiscarded(_userName, clientEntry.getKey());
       } else if (clientTime > lastAccessed) {
         lastAccessed = clientTime;
       }
