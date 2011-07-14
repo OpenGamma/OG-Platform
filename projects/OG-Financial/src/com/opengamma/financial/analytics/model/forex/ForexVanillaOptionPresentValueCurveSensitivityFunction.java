@@ -24,6 +24,6 @@ public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends Fore
   @Override
   protected Object getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data) {
     final PresentValueSensitivity result = CALCULATOR.visit(fxOption, data);
-    return result;
+    return 0.7;
   }
 }
