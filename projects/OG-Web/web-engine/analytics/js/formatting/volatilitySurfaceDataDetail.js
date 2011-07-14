@@ -42,11 +42,16 @@
       var xs = data.xs;
       var ys = data.ys;
       var values = data.surface;
+      var missingValues = data.missingValues;
       // work out min and max values
       var minVal = 10000;
       var maxVal = 0;
       for (var i = 0; i < values.length; i++) {
         for (var col=0; col < values[i].length; col++) {
+          if (missingValues[i][col])
+          {
+            continue;
+          }
           minVal = Math.min(minVal, values[i][col]);
           maxVal = Math.max(maxVal, values[i][col]);
         }
@@ -58,6 +63,11 @@
         row.id = i;
         row.x0 = ys[i];
         for (var col=0; col < values[i].length; col++) {
+          if (missingValues[i][col])
+          {
+            row['x' + (col + 1)] = '<div style="padding: 2px;"></div>';
+            continue;
+          }
           var value = values[i][col];
           var brightness = (value - minVal) / (maxVal - minVal); // decimal %
           var colorValue = Math.round((brightness * 64) + 127 + 64).toString(16);
