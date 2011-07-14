@@ -80,7 +80,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final double ta = cash.getTradeTime();
     final double tb = cash.getMaturity();
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return cash.getNotional() * curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta);
+    return cash.getNotional() * (curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta));
   }
 
   @Override

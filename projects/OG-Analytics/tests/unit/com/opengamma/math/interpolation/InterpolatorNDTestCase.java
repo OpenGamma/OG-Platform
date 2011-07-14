@@ -60,14 +60,17 @@ public abstract class InterpolatorNDTestCase {
   protected <T extends InterpolatorNDDataBundle> void assertFlat(final InterpolatorND<T> interpolator, final double tol) {
     double x1, x2, x3;
     double[] x;
+    T dataBundle = interpolator.getDataBundle(FLAT_DATA);
     for (int i = 0; i < 10; i++) {
       x1 = 10 * RANDOM.nextDouble();
       x2 = 10 * RANDOM.nextDouble();
       x3 = 10 * RANDOM.nextDouble();
       x = new double[] {x1, x2, x3};
-      final double fit = interpolator.interpolate(interpolator.getDataBundle(FLAT_DATA), x);
+      final double fit = interpolator.interpolate(dataBundle, x);
       assertEquals(VALUE, fit, tol);
     }
+    
+    
   }
 
   protected <T extends InterpolatorNDDataBundle> void assertCosExp(final InterpolatorND<T> interpolator, final double tol) {

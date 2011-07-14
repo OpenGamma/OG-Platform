@@ -18,6 +18,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class RadialBasisFunctionInterpolatorND extends InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> {
+ //TODO R White 14/07/2011 These are only used by getDataBundle, the actual interpolate method used the information in the RadialBasisFunctionInterpolatorDataBundle
+ // should remove them altogether and just pass in the information in the getDataBundle method
   private final Function1D<Double, Double> _basisFunction;
   private final boolean _useNormalized;
 
