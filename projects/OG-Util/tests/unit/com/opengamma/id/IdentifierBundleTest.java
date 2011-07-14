@@ -120,13 +120,22 @@ public class IdentifierBundleTest {
   }
 
   //-------------------------------------------------------------------------
-  public void mapForm() {
+  public void getIdentifier() {
     IdentifierBundle input = IdentifierBundle.of(_id11, _id22);
     
-    assertEquals("V1", input.getIdentifier(IdentificationScheme.of("D1")));
-    assertEquals("V2", input.getIdentifier(IdentificationScheme.of("D2")));
+    assertEquals(Identifier.of("D1", "V1"), input.getIdentifier(IdentificationScheme.of("D1")));
+    assertEquals(Identifier.of("D2", "V2"), input.getIdentifier(IdentificationScheme.of("D2")));
     assertNull(input.getIdentifier(IdentificationScheme.of("Kirk Wylie")));
     assertNull(input.getIdentifier(null));
+  }
+
+  public void getIdentifierValue() {
+    IdentifierBundle input = IdentifierBundle.of(_id11, _id22);
+    
+    assertEquals("V1", input.getIdentifierValue(IdentificationScheme.of("D1")));
+    assertEquals("V2", input.getIdentifierValue(IdentificationScheme.of("D2")));
+    assertNull(input.getIdentifierValue(IdentificationScheme.of("Kirk Wylie")));
+    assertNull(input.getIdentifierValue(null));
   }
 
   public void withIdentifier() {
