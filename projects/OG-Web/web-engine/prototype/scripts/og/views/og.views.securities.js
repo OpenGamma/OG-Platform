@@ -99,18 +99,8 @@ $.register_module({
                     'columns': [
                         {
                             id: 'type',
-                            name: '<select class="og-js-type-filter" style="width: 80px">'
-                                + '  <option value="">Type</option>'
-                                + '  <option>BOND</option>'
-                                + '  <option>CASH</option>'
-                                + '  <option>EQUITY_OPTION</option>'
-                                + '  <option>FRA</option>'
-                                + '  <option>FUTURE</option>'
-                                + '  <option>EQUITY</option>'
-                                + '  <option>SWAP</option>'
-                                + '</select>',
-                            field: 'type', width: 100, filter_type: 'select',
-                            filter_type_options: ['BOND', 'CASH', 'EQUITY_OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
+                            name: null,
+                            field: 'type', width: 100, filter_type: 'select'
                         },
                         {
                             id: 'name',
@@ -226,6 +216,12 @@ $.register_module({
                 default_details_page();
             },
             load_filter: function (args) {
+                var search_filter = function () {
+                        var filter_name = options.slickgrid.columns[0].name;
+                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                            return setTimeout(search_filter, 500);
+                        search.filter($.extend(args, {filter: true}));
+                };
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -236,7 +232,7 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search_filter();
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
@@ -244,7 +240,25 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (options.slickgrid.columns[0].name === 'loading')
+                    return setTimeout(securities.search.partial(args), 500);
+                if (options.slickgrid.columns[0].name === null) return api.rest.securities.get({
+                    meta: true,
+                    handler: function (result) {
+                        options.slickgrid.columns[0].name = [
+                            '<select class="og-js-type-filter" style="width: 80px">',
+                            result.data.types.reduce(function (acc, type) {
+                                return acc + '<option value="' + type + '">' + type + '</option>';
+                            }, '<option value="">Type</option>'),
+                            '</select>'
+                        ].join('');
+                        securities.search(args);
+                    },
+                    loading: function () {options.slickgrid.columns[0].name = 'loading';}
+                });
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

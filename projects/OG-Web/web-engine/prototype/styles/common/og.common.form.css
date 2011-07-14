@@ -17,9 +17,9 @@ input, select, textarea {
   outline: none;
 }
 
-input:focus,
+/*input:focus,
 select:focus,
 textarea:focus {
   border: 1px solid #c4dced;
   position: relative;
-}
+}*/

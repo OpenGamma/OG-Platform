@@ -77,7 +77,7 @@
   z-index: 1;
 }
 
-.slick-header:after {
+.slick-header:before {
   -webkit-border-bottom-right-radius: 2px;
   -webkit-border-bottom-left-radius: 2px;
   -moz-border-radius-bottomright: 2px;
