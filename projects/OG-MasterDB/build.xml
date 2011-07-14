@@ -6,8 +6,7 @@
 	<property file="${test.properties.dir}/db.properties"/>
 
 	<target name="create-postgres-fin" description="--> run scripts to create database/user/schema/tables for financial db">
-		<exec executable="${psql.path}"
-		        failonerror="true">
+		<exec executable="${psql.path}" failonerror="true">
 			<arg value="--username"/>
 			<arg value="${postgres.username}"/>
 			<arg value="--host"/>
@@ -17,8 +16,7 @@
 			<arg value="--dbname"/>
 			<arg value="postgres"/>
 		</exec>
-		<exec executable="${psql.path}"
-		        failonerror="true">
+		<exec executable="${psql.path}" failonerror="true">
 			<arg value="--username"/>
 			<arg value="${postgres.username}"/>
 			<arg value="--host"/>
