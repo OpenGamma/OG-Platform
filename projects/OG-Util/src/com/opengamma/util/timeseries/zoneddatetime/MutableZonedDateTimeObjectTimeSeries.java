@@ -11,7 +11,7 @@ import com.opengamma.util.timeseries.AbstractMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongObjectTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
@@ -26,7 +26,7 @@ public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeOb
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, T> newInstance(final ZonedDateTime[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<ZonedDateTime, T> newInstance(final ZonedDateTime[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 
@@ -39,7 +39,7 @@ public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeOb
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, T> newInstance(final ZonedDateTime[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<ZonedDateTime, T> newInstance(final ZonedDateTime[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 

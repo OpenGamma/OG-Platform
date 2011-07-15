@@ -14,7 +14,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.AbstractFastObjectTimeSeries;
@@ -138,7 +137,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
   }
 
   @Override
-  public TimeSeries<Integer, T> newInstance(final Integer[] times, final T[] values) {
+  public ObjectTimeSeries<Integer, T> newInstance(final Integer[] times, final T[] values) {
     return newInstanceFast(ArrayUtils.toPrimitive(times), values);
   }
   
