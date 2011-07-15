@@ -26,10 +26,10 @@ $.register_module({
                 throw new TypeError('static: either config.url or config.module must be a string');
             var url = config.url || module_path(config.module),
                 do_not_cache = config.do_not_cache, clear_cache = config.clear_cache,
-                handler = function (html) {
+                handler = function (html, error) {
                     if (!do_not_cache) html_cache[url] = html;
                     end_loading();
-                    config.handler(html);
+                    config.handler(html, error);
                 };
             start_loading(config.loading);
             if (clear_cache) delete html_cache[url];
@@ -38,10 +38,10 @@ $.register_module({
                 return setTimeout(api.partial(config), 500);
             if (!do_not_cache) // set it to null before making the request
                 html_cache[url] = null;
-            $.ajax({url: url, success: handler, error: function (response) {
+            $.ajax({url: url, success: handler.partial(undefined, false), error: function (response) {
                 do_not_cache = true;
                 delete html_cache[url];
-                handler('Error (HTTP ' + response.status + ') retrieving: ' + url);
+                handler('Error (HTTP ' + response.status + ') retrieving: ' + url, true);
             }});
         };
     }

@@ -66,8 +66,8 @@ public class LiveDataSpecification {
     return _domainSpecificIdentifiers;
   }
   
-  public String getIdentifier(IdentificationScheme domain) {
-    return _domainSpecificIdentifiers.getIdentifier(domain);
+  public String getIdentifier(IdentificationScheme scheme) {
+    return _domainSpecificIdentifiers.getIdentifierValue(scheme);
   }
   
   public static LiveDataSpecification fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg fudgeMsg) {

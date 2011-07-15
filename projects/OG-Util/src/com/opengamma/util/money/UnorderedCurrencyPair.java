@@ -5,60 +5,137 @@
  */
 package com.opengamma.util.money;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Stores a pair of currencies without any implied ordering
- * so, UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)
+ * Stores a pair of currencies without any implied ordering.
+ * <p>
+ * This acts like a two element {@code Set}, thus
+ * {@code UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)}.
  */
-public class UnorderedCurrencyPair implements UniqueIdentifiable {
+public final class UnorderedCurrencyPair implements UniqueIdentifiable {
 
+  /**
+   * The scheme for the unique identifier.
+   */
   private static final String OBJECT_IDENTIFIER_SCHEME = "UnorderedCurrencyPair";
+
+  /**
+   * One of the two currencies.
+   */
   private Currency _ccy1;
+  /**
+   * One of the two currencies.
+   */
   private Currency _ccy2;
+  /**
+   * The cached value of the identifier.
+   */
   private String _idValue;
-  
-  public UnorderedCurrencyPair(Currency ccy1, Currency ccy2) {
-    Validate.notNull(ccy1, "Currency 1");
-    Validate.notNull(ccy2, "Currency 2");
-    _ccy1 = ccy1;
-    _ccy2 = ccy2;
-    if (_ccy1.getCode().compareTo(_ccy2.getCode()) >= 0) {
-      _idValue = _ccy1.getCode() + ccy2.getCode(); 
+
+  /**
+   * Obtains an {@code UnorderedCurrencyPair} from two currencies.
+   * 
+   * @param ccy1  one of the currencies, not null
+   * @param ccy2  one of the currencies, not null
+   * @return the pair, not null
+   */
+  public static UnorderedCurrencyPair of(Currency ccy1, Currency ccy2) {
+    return new UnorderedCurrencyPair(ccy1, ccy2);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Constructs a new instance.
+   * 
+   * @param currency1  one of the currencies, not null
+   * @param currency2  one of the currencies, not null
+   */
+  private UnorderedCurrencyPair(Currency currency1, Currency currency2) {
+    ArgumentChecker.notNull(currency1, "currency1");
+    ArgumentChecker.notNull(currency2, "currency2");
+    if (currency1.getCode().compareTo(currency2.getCode()) <= 0) {
+      _ccy1 = currency1;
+      _ccy2 = currency2;
+      _idValue = currency1.getCode() + currency2.getCode();
     } else {
-      _idValue = _ccy2.getCode() + ccy1.getCode();
+      _ccy1 = currency2;
+      _ccy2 = currency1;
+      _idValue = currency2.getCode() + currency1.getCode();
     }
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets one of the two currencies.
+   * 
+   * @return one of the two currencies, not null
+   */
   public Currency getFirstCurrency() {
     return _ccy1;
   }
-  
+
+  /**
+   * Gets one of the two currencies.
+   * 
+   * @return one of the two currencies, not null
+   */
   public Currency getSecondCurrency() {
     return _ccy2;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Provides the pair as a unique identifier.
+   * 
+   * @return the unique identifier, not null
+   */
   @Override
   public UniqueIdentifier getUniqueId() {
     return UniqueIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _idValue);
   }
-  
-  public boolean equals(Object o) {
-    if (!(o instanceof UnorderedCurrencyPair)) {
-      return false;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this unordered pair equals another unordered pair.
+   * <p>
+   * The comparison checks both .
+   * 
+   * @param obj  the other currency, null returns false
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
     }
-    UnorderedCurrencyPair other = (UnorderedCurrencyPair) o;
-    return (_idValue.equals(other._idValue));
-  }
-  
-  public int hashCode() {
-    return getFirstCurrency().hashCode() * (getSecondCurrency().hashCode());
+    if (obj instanceof UnorderedCurrencyPair) {
+      return _idValue.equals(((UnorderedCurrencyPair) obj)._idValue);
+    }
+    return false;
   }
 
-  public static UnorderedCurrencyPair of(Currency ccy1, Currency ccy2) {
-    return new UnorderedCurrencyPair(ccy1, ccy2);
+  /**
+   * Returns a suitable hash code for the unordered pair.
+   * 
+   * @return the hash code
+   */
+  @Override
+  public int hashCode() {
+    return _idValue.hashCode();
   }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unordered pair as a string.
+   * 
+   * @return the unordered pair, not null
+   */
+  @Override
+  public String toString() {
+    return _idValue;
+  }
+
 }

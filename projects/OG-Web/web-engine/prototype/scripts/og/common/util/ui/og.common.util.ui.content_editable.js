@@ -23,7 +23,7 @@ $.register_module({
             var attr = config.attribute, handler = config.handler, $attr = $('[' + attr + ']');
             if (typeof attr !== 'string') throw new TypeError(': config.attribute must be a string');
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
-            $attr.css({position: 'relative'});
+            $attr.css({position: 'relative', 'z-index': '1'});
             $attr.hover(function () {if (!editing) $(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
             $attr.click(function (e) {
                 var $this = $(this), $editable_element = $(e.target), cur_content = $this.html(),
@@ -33,7 +33,7 @@ $.register_module({
                         $editable_element.html(cur_content);
                         editing = false;
                         if (message) ui.message({
-                            location: '#OG-details',
+                            location: '.OG-details',
                             message: message,
                             css: {'left': '7px'},
                             live_for: 5000
@@ -47,21 +47,21 @@ $.register_module({
                             handler: function (e) {
                                 if (e.error) return cancel_update('oops something bad happened!');
                                 $('.og-js-msg').html('saved');
-                                ui.message({location: '#OG-details', message: 'saved', css: {'left': '7px'}});
+                                ui.message({location: '.OG-details', message: 'saved', css: {'left': '7px'}});
                                 handler();
                                 setTimeout(function () {
                                     $editable_element.html(new_content);
-                                    ui.message({location: '#OG-details', destroy: true});
+                                    ui.message({location: '.OG-details', destroy: true});
                                     editing = false;
                                 }, 250)
                             },
                             id: current.args.id,
                             loading: function () {
                                 $('.og-js-msg').html('saving...');
-                                ui.message({location: '#OG-details', message: 'saving...', css: {'left': '7px'}});
+                                ui.message({location: '.OG-details', message: 'saving...', css: {'left': '7px'}});
                             }
                         };
-                        put_config[$('[' + attr + ']').attr(attr)] = new_content;
+                        put_config[$editable_element.attr(attr)] = new_content;
                         // portfolios also have a node attribute that is necessary, so add if available
                         if (current.args.node) put_config.node = current.args.node;
                         api[current.page.substring(1)].put(put_config);

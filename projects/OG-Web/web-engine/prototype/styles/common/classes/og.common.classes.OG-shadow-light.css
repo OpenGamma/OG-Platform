@@ -1,0 +1,9 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-shadow-light {
+  -moz-box-shadow: 0 0 2px #bbb;
+  -webkit-box-shadow: 0 0 2px #bbb;
+  box-shadow: 0 0 2px #bbb;
+}

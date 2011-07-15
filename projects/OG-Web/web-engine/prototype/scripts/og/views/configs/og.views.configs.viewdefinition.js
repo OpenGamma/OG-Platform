@@ -26,7 +26,7 @@ $.register_module({
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
-                    selector: '#OG-details .og-main',
+                    selector: '.OG-details',
                     extras: {name: master.name},
                     processor: function (data) { // remove undefineds that we added
                         if (!data[SETS]) return;
@@ -42,7 +42,10 @@ $.register_module({
                     },
                     handlers: [
                         {type: 'form:load', handler: function () {
-                            ui.message({location: '#OG-details', destroy: true});
+                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
+                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            og.common.layout.resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                         }},
                         {type: 'form:submit', handler: function (result) {
                             og.dev.log(result.data);
@@ -95,7 +98,7 @@ $.register_module({
                             wrap: '<div class="og-js-colset-holder" id="' + id + '">' +
                                     '<div class="og-js-colset">{{html html}}</div>' +
                                     '<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>' +
-                                '</div>', 
+                                '</div>',
                             handlers: [
                                 {
                                     type: 'click', selector: 'div#' + id + ' .og-js-add-col-val',

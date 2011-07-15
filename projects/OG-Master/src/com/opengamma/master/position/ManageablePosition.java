@@ -148,12 +148,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   public String getName() {
     if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
       final String amount = JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x ";
-      if (getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (getSecurityKey().getIdentifier(SecurityUtils.RIC) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.RIC);
-      } else if (getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER);
+      if (getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER);
+      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.RIC) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.RIC);
+      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER);
       } else {
         return amount + getSecurityKey().getIdentifiers().iterator().next().getValue();
       }
