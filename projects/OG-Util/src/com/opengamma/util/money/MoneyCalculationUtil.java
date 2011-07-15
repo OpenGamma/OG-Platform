@@ -6,35 +6,59 @@
 package com.opengamma.util.money;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
- * Utility class to do basic money calculation
+ * Utilities that handle basic money calculation.
  */
 public final class MoneyCalculationUtil {
-  
+
   /**
    * The number of decimals to retain.
    */
   public static final int DECIMALS = 2;
-  
   /**
    * The rounding mode.
    */
-  public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_EVEN;
+  public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_EVEN;
 
+  /**
+   * Restrictive constructor.
+   */
   private MoneyCalculationUtil() {
-    
   }
-  
-  public static BigDecimal add(final BigDecimal amountOne, final BigDecimal amountTwo) {
-    return rounded(amountOne).add(rounded(amountTwo));
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds two amounts rounding to two decimal places.
+   * 
+   * @param baseAmount  the base amount, not null
+   * @param amountToAdd  the amount to add, not null
+   * @return the total, not null
+   */
+  public static BigDecimal add(final BigDecimal baseAmount, final BigDecimal amountToAdd) {
+    return rounded(baseAmount).add(rounded(amountToAdd));
   }
-  
-  public static BigDecimal minus(final BigDecimal amountOne, final BigDecimal amountTwo) {
-    return rounded(amountOne).subtract(rounded(amountTwo));
+
+  /**
+   * Subtract one amount from another rounding to two decimal places.
+   * 
+   * @param baseAmount  the amount to subtract from, not null
+   * @param amountToSubtract  the amount to subtract, not null
+   * @return the subtraction result, not null
+   */
+  public static BigDecimal minus(final BigDecimal baseAmount, final BigDecimal amountToSubtract) {
+    return rounded(baseAmount).subtract(rounded(amountToSubtract));
   }
-  
-  public static  BigDecimal rounded(BigDecimal number) {
-    return number.setScale(DECIMALS, ROUNDING_MODE);
+
+  /**
+   * Rounds an amount to two decimal places.
+   * 
+   * @param amount  the amount to round, not null
+   * @return the rounded amount, not null
+   */
+  public static BigDecimal rounded(BigDecimal amount) {
+    return amount.setScale(DECIMALS, ROUNDING_MODE);
   }
+
 }
