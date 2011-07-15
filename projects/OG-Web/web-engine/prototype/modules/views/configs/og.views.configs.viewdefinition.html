@@ -1,33 +1,471 @@
-<div class="OG-config" style="display: none">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span data-og-editable="name">${name}</span>
-  </h1>
-  <div class="OG-field-box"></div>
-  <div class="og-form-container"><!-- form gets added in here --></div>
-</div>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1 data-og-editable="name">${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-config">
+  <div class="OG-c10 og-grid-last OG-max-width-l OG-form">
+    <!--
+      -- Main
+      -->
+    <section class="OG-mod-0 OG-c6 og-grid-last og-id-cur">
+      <h3>Identifier &amp; Currency</h3>
+      <div class="og-mod-content">
+        <label>
+          <span>Identifier</span>
+          <span class="og-error"><input type="text" /></span>
+        </label>
+        <label>
+          <span>Currency</span>
+          <span>
+            <select name="currency">
+              <option value="">Select</option>
+              <option value="AED">AED - United Arab Emirates, Dirhams</option>
+            </select>
+          </span>
+        </label>
+      </div>
+    </section>
+    <!--
+      -- Results model definition
+      -->
+    <section class="OG-mod-0 OG-c6 og-grid-last og-results-model-def">
+      <h3>Results Model Definition</h3>
+      <div class="og-mod-content">
+        <label class="OG-clearFix">
+          <span class="og-c1">Primitive</span>
+          <span class="og-c2 og-error">
+            <select>
+              <option>TERMINAL OUTPUTS</option>
+              <option>NONE</option>
+            </select>
+          </span>
+        </label>
+        <label class="OG-clearFix">
+          <span class="og-c1">Security</span>
+          <span class="og-c2">
+            <select>
+              <option>TERMINAL OUTPUTS</option>
+              <option>NONE</option>
+            </select>
+          </span>
+        </label>
+        <label class="OG-clearFix">
+          <span class="og-c1">Position</span>
+          <span class="og-c2">
+            <select>
+              <option>TERMINAL OUTPUTS</option>
+              <option>NONE</option>
+            </select>
+          </span>
+        </label>
+        <label class="OG-clearFix">
+          <span class="og-c1">Aggregate Position</span>
+          <span class="og-c2">
+            <select>
+              <option>TERMINAL OUTPUTS</option>
+              <option>NONE</option>
+            </select>
+          </span>
+        </label>
+        <label class="OG-clearFix">
+          <span class="og-c1">Trade</span>
+          <span class="og-c2">
+            <select>
+              <option>TERMINAL OUTPUTS</option>
+              <option>NONE</option>
+            </select>
+          </span>
+        </label>
+      </div>
+    </section>
+    <!--
+      -- Execution Parameters
+      -->
+    <section class="OG-mod-0 OG-c6 og-grid-last og-ex-params">
+      <h3>Execution Parameters</h3>
+      <div class="og-mod-content">
+        <table>
+          <tr>
+            <td class="og-c1">Minimum</td>
+            <td>
+              <label>
+                <span class="og-c2 og-error"><input type="text" value="500" /></span>
+              </label>
+            </td>
+            <td class="og-c1">Minimum full</td>
+            <td>
+              <label>
+                <span class="og-c2"><input type="text" value="500" /></span>
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td class="og-c1">Maximum</td>
+            <td>
+              <label>
+                <span class="og-c2 og-error"><input type="text" value="500" /></span>
+              </label>
+            </td>
+            <td class="og-c1">Maximum full</td>
+            <td>
+              <label>
+                <span class="og-c2"><input type="text" value="500" /></span>
+              </label>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </section>
+    <!--
+      -- Column Sets
+      -->
+    <section class="OG-mod-0 OG-c10 og-grid-last og-column-sets">
+      <h3>Column Sets</h3>
+      <p>
+        A list of named <em>column sets</em>. These allow the same analytics to be computed using different settings and
+        viewed side by side at the same time
+      </p>
+      <div class="OG-tabs og-tab-hat">
+        <ul>
+          <li><a href=""><div class="og-delete"></div>Default</a></li>
+          <li><a href="" class="og-active"><div class="og-delete"></div>Set 2</a></li>
+          <li><a href=""><div class="og-delete"></div>Set 3</a></li>
+          <li><a href="" class="og-new">new set</a></li>
+        </ul>
+      </div>
+      <div class="og-mod-content OG-clearFix">
+        <label class="og-name">
+          <span>Name</span>
+          <input type="text" value="Set 2" />
+        </label>
+        <div class="og-main-nav">
+          <ul>
+            <li class="og-active">Column Values</li>
+            <li>Additional Values</li>
+            <li>Default Constraints</li>
+            <li>Resolution Rule Transform</li>
+          </ul>
+        </div>
 
-<div class="OG-config">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span data-og-editable="name">${name}</span>
-  </h1>
-  <div class="OG-field-box"></div>
-  <div class="og-treeLines">
-    <table class="OG-table-style-01">
-    <thead>
-      <tr>
-        <td><strong>${type}</strong></td>
-      </tr>
-    </thead>
-    <tfoot>
-      <tr><td><button class="OG-small-button og-button-secondary og-js-save-config">save</button></td></tr>
-    </tfoot>
-    <tbody>
-      <tr>
-        <td><textarea data-og="config-data" style="width: 99%; min-height: 400px;">${configData}</textarea></td><!-- TEMP -->
-      </tr>
-    </tbody>
-  </table>
+        <!-- EMPTY -->
+        <div class="og-column og-column-empty" style="display: none">
+          <p>
+            <span>There are no columns set up at the moment</span>
+            <span class="og-new-link">add a column</span>
+          </p>
+        </div>
+
+        <!-- COLUMN VALUES -->
+        <div class="og-column" style="display: block">
+          <ul class="og-nav">
+            <li class="og-active"><div class="og-delete"></div><strong>Column 1</strong><br />(bond)</li>
+            <li class=""><div class="og-delete"></div><strong>Column 2</strong><br />(swap)</li>
+            <li><div class="og-delete"></div><strong>Column 3</strong><br />(cash)</li>
+            <li class="og-new">
+              <span class="og-new-link">add column<br /></span>
+            </li>
+          </ul>
+          <div class="og-col-content">
+            <label>
+              <span>Security Type</span>
+              <span>
+                <select>
+                  <option>Bond</option>
+                  <option>Equity Option</option>
+                </select>
+              </span>
+            </label>
+            <div class="og-content-items">
+              <ul>
+                <li class="og-open">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Required Output 1</span>
+                    <select><option>Bond Coupon Payment Times</option></select>
+                  </label>
+                  <div class="og-constraints OG-clearFix">
+                    Constraints
+                    <ul class="og-awesome-list">
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-with">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                    </ul>
+                    <div><span class="og-new-link">add constraint</span></div>
+                  </div>
+                </li>
+                <li class="og-open">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Required Output 2</span>
+                    <select><option>Actual Repo</option></select>
+                  </label>
+                  <div class="og-constraints OG-clearFix">
+                    <div><span class="og-new-link">add constraint</span></div>
+                  </div>
+                </li>
+                <li class="og-closed">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Required Output 3</span>
+                  </label>
+                </li>
+              </ul>
+              <span class="og-new-link">add output requirement</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADDITIONAL VALUES -->
+        <div class="og-column" style="display: none">
+          <div class="og-col-content">
+            <div class="og-content-items">
+              <ul>
+                <li class="og-open">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Additional Value 1</span>
+                  </label>
+                  <div class="og-add-value-fields">
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Value</span>
+                      <span class="og-c2">
+                        <select>
+                          <option>Yield Curve</option>
+                        </select>
+                      </span>
+                    </label>
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Computation Target Type</span>
+                      <span class="og-c2">
+                        <select>
+                          <option>Position</option>
+                        </select>
+                      </span>
+                    </label>
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Computation Target Identifier</span>
+                      <span class="og-c2">
+                        <input type="text" value="" />
+                      </span>
+                    </label>
+                  </div>
+                  <div class="og-constraints OG-clearFix">
+                    Constraints
+                    <ul class="og-awesome-list">
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-with">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                      <li>
+                        <div class="og-del"></div>
+                        <div class="og-without">
+                          <label><input type="radio" />with</label>
+                          <label><input type="radio" />without</label>
+                          <input type="text" value="" />
+                          <span>=</span>
+                          <input type="text" value="" />
+                          <label><input type="checkbox" />optional</label>
+                        </div>
+                      </li>
+                    </ul>
+                    <div><span class="og-new-link">add constraint</span></div>
+                  </div>
+                </li>
+                <li class="og-open">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Additional Value 2</span>
+                  </label>
+                  <div class="og-add-value-fields">
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Value</span>
+                      <span class="og-c2">
+                        <select>
+                          <option>Yield Curve</option>
+                        </select>
+                      </span>
+                    </label>
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Computation Target Type</span>
+                      <span class="og-c2">
+                        <select>
+                          <option>Position</option>
+                        </select>
+                      </span>
+                    </label>
+                    <label class="OG-clearFix">
+                      <span class="og-c1">Computation Target Identifier</span>
+                      <span class="og-c2">
+                        <input type="text" value="" />
+                      </span>
+                    </label>
+                  </div>
+                  <div class="og-constraints OG-clearFix">
+                    <div><span class="og-new-link">add constraint</span></div>
+                  </div>
+                </li>
+                <li class="og-closed">
+                  <div class="og-delete"></div>
+                  <label>
+                    <span>Additional Value 3</span>
+                  </label>
+                </li>
+              </ul>
+              <span class="og-new-link">add additional value</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEFAULT CONSTRAINTS -->
+        <div class="og-column" style="display: none">
+          <div class="og-col-content">
+            <div class="og-constraints OG-clearFix">
+              <ul class="og-awesome-list">
+                <li>
+                  <div class="og-del"></div>
+                  <div class="og-with">
+                    <label><input type="radio" />with</label>
+                    <label><input type="radio" />without</label>
+                    <input type="text" value="" />
+                    <label><input type="checkbox" />optional</label>
+                  </div>
+                </li>
+                <li>
+                  <div class="og-del"></div>
+                  <div class="og-without">
+                    <label><input type="radio" />with</label>
+                    <label><input type="radio" />without</label>
+                    <input type="text" value="" />
+                    <span>=</span>
+                    <input type="text" value="" />
+                    <label><input type="checkbox" />optional</label>
+                  </div>
+                </li>
+                <li>
+                  <div class="og-del"></div>
+                  <div class="og-without">
+                    <label><input type="radio" />with</label>
+                    <label><input type="radio" />without</label>
+                    <input type="text" value="" />
+                    <span>=</span>
+                    <input type="text" value="" />
+                    <label><input type="checkbox" />optional</label>
+                  </div>
+                </li>
+                <li>
+                  <div class="og-del"></div>
+                  <div class="og-without">
+                    <label><input type="radio" />with</label>
+                    <label><input type="radio" />without</label>
+                    <input type="text" value="" />
+                    <span>=</span>
+                    <input type="text" value="" />
+                    <label><input type="checkbox" />optional</label>
+                  </div>
+                </li>
+              </ul>
+              <div><span class="og-new-link">add constraint</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESOLUTION RULE TRANSFORMATION -->
+        <div class="og-column" style="display: none">
+          <div class="og-col-content">
+            <div class="og-resolution-rule OG-clearFix">
+              <ul class="og-awesome-list">
+                <li>
+                  <div class="og-del"></div>
+                  <select><option>DEM-GLOBOP Yield Curve</option></select>
+                  <label>Priority: <input type="text" /></label>
+                </li>
+                <li>
+                  <div class="og-del"></div>
+                  <select><option>DEM-GLOBOP Yield Curve</option></select>
+                  <label>Priority: <input type="text" /></label>
+                </li>
+                <li>
+                  <div class="og-del"></div>
+                  <select><option>DEM-GLOBOP Yield Curve</option></select>
+                  <label>Priority: <input type="text" /></label>
+                </li>
+              </ul>
+              <div><span class="og-new-link">add rule</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
+  <div class="og-config-form-footer">
+    <button type="submit">Save</button>
+  </div>
+</div>
 </div>

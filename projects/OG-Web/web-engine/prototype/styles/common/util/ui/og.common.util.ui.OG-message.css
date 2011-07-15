@@ -3,13 +3,20 @@
  * @license See distribution for license
  */
 .OG-message {
-    -moz-border-radius-topright: 2px;
-    -webkit-border-radius-top-right: 2px;
-    background-color: #313b44;
-    border-top-right-radius: 2px;
-    bottom: 0;
-    color: #fff;
-    padding: 2px 4px 0 2px;
-    position: absolute;
-    left: 0;
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  background-color: #313b44;
+  bottom: 7px;
+  color: #fff;
+  padding: 0 4px 0 4px;
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }

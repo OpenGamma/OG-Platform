@@ -33,16 +33,15 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class NodeSensitivityCalculatorTest {
+public abstract class NodeSensitivityCalculatorTest {
 
-  private static final String FUNDING_CURVE_NAME = "funding";
-  private static final String LIBOR_CURVE_NAME = "libor";
-  private static final NodeSensitivityCalculator NSC = NodeSensitivityCalculator.getInstance();
-  private static final InterestRateDerivative IRD;
-  private static final LinkedHashMap<String, YieldAndDiscountCurve> INTERPOLATED_CURVES;
-  private static final YieldAndDiscountCurve FUNDING_CURVE;
-  private static final YieldAndDiscountCurve LIBOR_CURVE;
-  private static final Currency CUR = Currency.USD;
+  protected static final String FUNDING_CURVE_NAME = "funding";
+  protected static final String LIBOR_CURVE_NAME = "libor";
+  protected static final InterestRateDerivative IRD;
+  protected static final LinkedHashMap<String, YieldAndDiscountCurve> INTERPOLATED_CURVES;
+  protected static final YieldAndDiscountCurve FUNDING_CURVE;
+  protected static final YieldAndDiscountCurve LIBOR_CURVE;
+  protected static final Currency CUR = Currency.USD;
 
   static {
     final double[] fixedPaymentTimes = new double[] {1, 2, 3, 4, 5};
@@ -69,44 +68,30 @@ public class NodeSensitivityCalculatorTest {
 
   }
 
+  protected abstract NodeSensitivityCalculator getCalculator();
+
+  protected abstract InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> getSensitivityCalculator();
+  
+  protected abstract InterestRateDerivativeVisitor<YieldCurveBundle, Double> getValueCalculator();
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInstrument() {
-    NSC.calculate(null, PresentValueSensitivityCalculator.getInstance(), null, INTERPOLATED_CURVES);
+    getCalculator().calculateSensitivities(null, getSensitivityCalculator(), null, INTERPOLATED_CURVES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
-    NSC.calculate(IRD, null, null, INTERPOLATED_CURVES);
+    getCalculator().calculateSensitivities(IRD, null, null, INTERPOLATED_CURVES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolatedCurves() {
-    NSC.calculate(IRD, PresentValueSensitivityCalculator.getInstance(), null, null);
+    getCalculator().calculateSensitivities(IRD, getSensitivityCalculator(), null, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNames() {
-    NSC.calculate(IRD, PresentValueSensitivityCalculator.getInstance(), new YieldCurveBundle(INTERPOLATED_CURVES), INTERPOLATED_CURVES);
-  }
-
-  @Test
-  public void testPresentValue() {
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = NSC.calculate(IRD, senseCalculator, null, INTERPOLATED_CURVES);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSense(IRD, valueCalculator, null, INTERPOLATED_CURVES);
-
-    assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
-  }
-
-  @Test
-  public void testParRateValue() {
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = ParRateCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = NSC.calculate(IRD, senseCalculator, null, INTERPOLATED_CURVES);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSense(IRD, valueCalculator, null, INTERPOLATED_CURVES);
-
-    assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
+    getCalculator().calculateSensitivities(IRD, getSensitivityCalculator(), new YieldCurveBundle(INTERPOLATED_CURVES), INTERPOLATED_CURVES);
   }
 
   @Test
@@ -116,16 +101,15 @@ public class NodeSensitivityCalculatorTest {
     final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurve = new LinkedHashMap<String, YieldAndDiscountCurve>();
     fittingCurve.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = NSC.calculate(IRD, senseCalculator, fixedCurve, fittingCurve);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSense(IRD, valueCalculator, fixedCurve, fittingCurve);
-
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
+    final DoubleMatrix1D result = getCalculator().calculateSensitivities(IRD, sensitivityCalculator, fixedCurve, fittingCurve);
+    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivities(IRD, valueCalculator, fixedCurve, fittingCurve);
     assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
   }
 
-  private DoubleMatrix1D finiteDiffNodeSense(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator, final YieldCurveBundle fixedCurves,
-      final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
+  protected DoubleMatrix1D finiteDiffNodeSensitivities(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
+      final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
 
     int nNodes = 0;
     for (final YieldAndDiscountCurve curve : interpolatedCurves.values()) {

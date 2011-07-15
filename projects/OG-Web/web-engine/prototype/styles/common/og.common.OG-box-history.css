@@ -1,0 +1,21 @@
+/*
+ * Page Masthead styles
+ *
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-box-history {
+  border: 2px solid #fd0;
+}
+
+.OG-box-history header {
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -moz-border-radius-topright: 10px;
+  background-color: #fffdf2;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  margin: -10px -10px 0 -10px;
+  padding: 10px;
+}

@@ -1,0 +1,16 @@
+.OG-form .og-results-model-def label > span {
+  display: inline-block;
+}
+
+.OG-form .og-results-model-def .og-c1 {
+  float: left;
+  width: 40%;
+}
+
+.OG-form .og-results-model-def .og-c2 {
+  width: 50%;
+}
+
+.OG-form .og-results-model-def select {
+  width: 100%;
+}

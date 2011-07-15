@@ -36,6 +36,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -61,6 +62,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
    */
   private abstract static class StructuredMarketDataKeyFactory {
 
+    
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
@@ -70,15 +72,22 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
     
     protected Currency getCurrency(ValueRequirement valueRequirement) {
-      if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
+      UniqueIdentifier targetId = getTarget(valueRequirement);
+      if (targetId == null) {
         return null;
       }
-      UniqueIdentifier targetId = valueRequirement.getTargetSpecification().getUniqueId();
       if (!Currency.OBJECT_IDENTIFIER_SCHEME.equals(targetId.getScheme())) {
         return null;
       }
       Currency currency = Currency.of(targetId.getValue());
       return currency;
+    }
+    
+    protected UniqueIdentifier getTarget(ValueRequirement valueRequirement) {
+      if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
+        return null;
+      }
+      return valueRequirement.getTargetSpecification().getUniqueId();
     }
     
   }
@@ -122,13 +131,13 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
       @Override
       public StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement) {
-        Currency currency = getCurrency(valueRequirement);
-        if (currency == null) {
+        UniqueIdentifiable target = getTarget(valueRequirement);
+        if (target == null) {
           return null;
         }
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
         String instrumentType = valueRequirement.getConstraint("InstrumentType");
-        return new VolatilitySurfaceKey(currency, name, instrumentType);
+        return new VolatilitySurfaceKey(target, name, instrumentType);
       }
       
     });
@@ -279,7 +288,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     for (Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : getSnapshot().getVolatilitySurfaces().entrySet()) {
       //This could return any old surface, but hey, that's what they asked for right?
       VolatilitySurfaceKey key = entry.getKey();
-      if (key.getCurrency().equals(volSurfaceKey.getCurrency())
+      if (key.getTarget().equals(volSurfaceKey.getTarget())
           && (key.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
           && (key.getName() == null || key.getName() == volSurfaceKey.getName())) {
         return entry.getValue();
@@ -382,7 +391,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       ys.add(entry.getKey().getSecond());
     }
 
-    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(),
+    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getTarget(),
         xs.toArray(), ys.toArray(), values);
   }
 

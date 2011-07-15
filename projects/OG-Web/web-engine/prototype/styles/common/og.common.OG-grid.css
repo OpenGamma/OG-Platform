@@ -1,0 +1,55 @@
+/*
+ * Common generic styles
+ *
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ */
+
+.OG-grid {}
+.OG-c1 {width: 10%;}
+.OG-c2 {width: 20%;}
+.OG-c3 {width: 30%;}
+.OG-c4 {width: 40%;}
+.OG-c5 {width: 50%;}
+.OG-c6 {width: 60%;}
+.OG-c7 {width: 70%;}
+.OG-c8 {width: 80%;}
+.OG-c9 {width: 90%;}
+.OG-c10 {width: 100%;}
+
+.OG-c1,
+.OG-c2,
+.OG-c3,
+.OG-c4,
+.OG-c5,
+.OG-c6,
+.OG-c7,
+.OG-c8,
+.OG-c9,
+.OG-c10 {
+  display: inline-block;
+  float: left;
+  position: relative;
+}
+
+/* If OG-box is a direct descendant of an OG-cx class then give it a right margin */
+.OG-c1 > .OG-box,
+.OG-c2 > .OG-box,
+.OG-c3 > .OG-box,
+.OG-c4 > .OG-box,
+.OG-c5 > .OG-box,
+.OG-c6 > .OG-box,
+.OG-c7 > .OG-box,
+.OG-c8 > .OG-box,
+.OG-c9 > .OG-box,
+.OG-c10 > .OG-box {
+  margin: 0 5px 5px 0;
+}
+
+/* Except for the last one */
+.OG-grid .og-grid-last > section,
+.OG-grid .og-grid-last > div,
+.OG-grid .og-grid-last > h3 {margin-right: 0;}
+.OG-grid .og-grid-last {float: none;}
+.OG-grid .og-grid-last .og-grid-last {margin-right: 10px;}

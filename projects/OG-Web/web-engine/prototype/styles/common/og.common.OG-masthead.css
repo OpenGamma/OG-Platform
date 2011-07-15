@@ -1,86 +1,35 @@
 /*
- * Page Masthead styles
- *
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
- */
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
 
-#OG-masthead {
-  border-bottom: 4px solid #4d7d94;
-  margin-top: -1px;
-  position: relative;
+.OG-masthead {
+  top: 5px;
+  left: 8px;
+  position: absolute!important;
+  right: 5px;
+  height: 3em;
 }
 
-#OG-masthead nav {
-  background-color: #fff;
-  border-bottom: 1px solid #487287;
-}
-
-#OG-masthead ul {
-  bottom: -1px;
-  display: inline-block;
-  position: relative;
-}
-
-#OG-masthead li {
-  display: inline-block;
-  position: relative;
-}
-
-#OG-masthead a {
-  display: inline-block;
-  height: 20px;
-  line-height: 20px;
-  padding: 3px 8px;
-  text-decoration: none;
-}
-
-#OG-masthead a:focus {
-  outline: none;
-}
-
-/**
- * Active Tab
- */
-#OG-masthead .og-active {
-  background-color: #4d7d94;
-  border: 1px solid #487287;
-  border-bottom: none;
-}
-
-#OG-masthead .og-active > a {
-  color: #fff;
-  position: relative;
-  text-shadow: 0 1px 0 #4a768c;
-  z-index: 2;
-}
-
-#OG-masthead .og-active:before {
-  -moz-box-shadow: 0 28px 0.7em #fff;
-  -webkit-box-shadow: 0 28px 0.7em #fff;
-  background-color: transparent;
-  content: "";
-  display: inline-block;
-  height: 100%;
-  opacity: 0.2;
+.OG-masthead::before {
+  background: -moz-linear-gradient(top, rgba(222,222,222,0) 0%, rgba(222,222,222,1) 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(222,222,222,0)),
+              color-stop(100%,rgba(222,222,222,1)));
+  background: -webkit-linear-gradient(top, rgba(222,222,222,0) 0%,rgba(222,222,222,1) 100%);
+  background: linear-gradient(top, rgba(222,222,222,0) 0%,rgba(222,222,222,1) 100%);
+  width: 20px;
+  content: '';
+  height: 4px;
   position: absolute;
-  top: -26px;
-  width: 100%;
+  right: 5px;
+  bottom: -4px;
+  left: 5px;
+  width: auto;
+  z-index: 1;
 }
 
-/**
- * Search
- */
-#OG-masthead .og-search {
-  float: right;
-}
-
-#OG-masthead .og-search input {
-  border-width: 1px;
-  border-left: 2px solid #cfcfcf;
-  color: #a0a0a0;
-  height: 23px;
-  line-height: 21px;
-  padding-left: 5px;
-  width: 200px;
+.OG-masthead a:hover {
+  color: #fff;
 }

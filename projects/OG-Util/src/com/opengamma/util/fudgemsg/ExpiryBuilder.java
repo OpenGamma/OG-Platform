@@ -67,9 +67,9 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
     }
     switch (accuracy) {
       case MIN_HOUR_DAY_MONTH_YEAR:
-        return new FudgeDateTime(DateTimeAccuracy.MINUTE, object.getExpiry().toInstant());
+        return new FudgeDateTime(DateTimeAccuracy.MINUTE, object.getExpiry().toOffsetDateTime());
       case HOUR_DAY_MONTH_YEAR:
-        return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toInstant());
+        return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toOffsetDateTime());
       case DAY_MONTH_YEAR:
         return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue(), object.getExpiry().getDayOfMonth()), new FudgeTime(DateTimeAccuracy.DAY,
             0, 0, 0));

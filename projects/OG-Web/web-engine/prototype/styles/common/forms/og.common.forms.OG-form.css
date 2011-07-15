@@ -35,3 +35,69 @@
   .OG-form .og-sub-form.og-ipt-lbl-inline label {display: block; padding-left: 5px;}
   .OG-form .og-sub-form.og-ipt-lbl-inline div {padding-bottom: 5px;}
 
+
+
+/**
+ *
+ *
+ * NEW STUFF BELOW - DELETE ALL ABOVE
+ *
+ *
+ *
+ */
+
+/**
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/* OG-form */
+.OG-form label span {
+  display: block;
+}
+
+.OG-form .og-error {
+  position: relative;
+}
+
+.OG-form p {
+  color: #999;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.OG-form p em {
+  font-weight: bold;
+}
+
+/* Input */
+.OG-form .og-error:before {
+  -webkit-border-top-right-radius: 2px;
+  -webkit-border-bottom-right-radius: 2px;
+  -moz-border-radius-topright: 2px;
+  -moz-border-radius-topright: 2px;
+  -moz-border-radius-bottomright: 2px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  background: #e15353;
+  content: '';
+  height: 85%;
+  position: absolute;
+  top: 2px;
+  width: 2px;
+  right: -3px;
+  z-index: 12;
+}
+
+.OG-form .og-error:after {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  background-position: 0 -35px;
+  content: '';
+  cursor: pointer;
+  height: 10px;
+  right: -30px;
+  position: absolute;
+  top: 7px;
+  width: 10px;
+  right: -16px;
+}

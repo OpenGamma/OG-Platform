@@ -43,16 +43,26 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
       }
       result.put("ys", ysStrings);
       
+      
       double[][] surface = new double[ys.length][xs.length];
+      boolean[][] missingValues = new boolean[ys.length][xs.length];
       // Summary view includes only the actual points of the curve
       for (int y = 0; y < ys.length; y++) {
         for (int x = 0; x < xs.length; x++) {
           Object xt = xs[x];
           Object yt = ys[y];
-          surface[y][x] = value.getVolatility(xt, yt);
+          Double volatility = value.getVolatility(xt, yt);
+          if (volatility == null) {
+            missingValues[y][x] = true;
+            //Some 'obviously wrong' value in case client displays it.  Can't use NaN
+            surface[y][x] = Double.MAX_VALUE;
+          } else {
+            surface[y][x] = volatility;
+          }
         }
       }
       result.put("surface", surface);
+      result.put("missingValues", missingValues);
     }
     return result;
   }
