@@ -31,7 +31,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     _labels = new Object[n];
     int i = 0;
     for (final S s : keys) {
-      _labels[i++] = s.toString();
+      _labels[i++] = s;
     }
     sort(_keys, _labels, _values);
     _defaultTolerance = defaultTolerance;

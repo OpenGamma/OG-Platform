@@ -25,14 +25,14 @@ import com.opengamma.util.time.Tenor;
 public class ResultConverterCache {
 
   private final DoubleConverter _doubleConverter;
-  private final ResultConverter<Object> _fudgeBasedConverter;
+  private final ResultConverter<Object> _genericConverter;
   private final Map<Class<?>, ResultConverter<?>> _converterMap;
 
   private final Map<String, ResultConverter<?>> _valueNameConverterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
   private final Map<Class<?>, ResultConverter<?>> _typedConverterCache = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
 
   public ResultConverterCache(FudgeContext fudgeContext) {
-    _fudgeBasedConverter = new FudgeBasedJsonGeneratorConverter(fudgeContext);
+    _genericConverter = new ToStringConverter();
     _doubleConverter = new DoubleConverter();
     ResultConverter<Object> primitiveConverter = new PrimitiveConverter();
 
@@ -75,7 +75,7 @@ public class ResultConverterCache {
         searchType = searchType.getSuperclass();
       }
       if (converter == null) {
-        converter = _fudgeBasedConverter;
+        converter = _genericConverter;
       }
       _typedConverterCache.put(type, converter);
     }
@@ -98,7 +98,7 @@ public class ResultConverterCache {
   }
 
   public ResultConverter<Object> getFudgeConverter() {
-    return _fudgeBasedConverter;
+    return _genericConverter;
   }
 
 }
