@@ -17,7 +17,7 @@ import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorP
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
- * 
+ * Specific objective function for Hull-White model calibration with swaptions.
  */
 public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
 

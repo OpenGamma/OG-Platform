@@ -8,13 +8,13 @@ package com.opengamma.financial.interestrate.swaption.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
+import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 
 /**
- * 
+ * Specific calibration engine for the Hull-White one factor model with swaption.
  */
 public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
 

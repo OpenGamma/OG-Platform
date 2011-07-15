@@ -35,7 +35,6 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 
 public class SwaptionHullWhiteCalibrationObjectiveTest {
-
   // Swaption description
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
