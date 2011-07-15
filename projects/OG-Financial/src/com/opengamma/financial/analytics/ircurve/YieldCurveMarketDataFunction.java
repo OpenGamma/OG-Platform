@@ -124,8 +124,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle
         .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final Identifier initialRefRateId = SecurityUtils.bloombergTickerSecurityId(referenceRateConvention
-        .getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier initialRefRateId = referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return Collections.unmodifiableSet(result);
   }

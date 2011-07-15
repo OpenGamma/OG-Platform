@@ -1,0 +1,68 @@
+/*
+ * @copyright 2011 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-form .og-content-items li {
+  position: relative;
+  padding: 5px 5px 5px 20px;
+}
+
+.OG-form .og-content-items li:hover {
+  background-color: #f5fafc;
+}
+
+.OG-form .og-content-items li .og-delete {
+  display: none;
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: '';
+  cursor: pointer;
+  background-position: -22px  -9px;
+  height: 6px;
+  width: 7px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 22;
+}
+
+.OG-form .og-content-items li:hover .og-delete {
+  display: block;
+}
+
+.OG-form .og-content-items .og-delete:hover {
+  background-position: -11px  -35px;
+  width: 11px;
+  height: 10px;
+  top: 8px;
+  right: 8px;
+}
+
+
+.OG-form .og-content-items .og-open:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: '';
+  cursor: pointer;
+  background-position: 0 -25px;
+  height: 9px;
+  width: 9px;
+  position: absolute;
+  top: 10px;
+  left: 7px;
+}
+
+.OG-form .og-content-items .og-closed:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: '';
+  cursor: pointer;
+  background-position: -30px -25px;
+  height: 9px;
+  width: 9px;
+  position: absolute;
+  top: 10px;
+  left: 7px;
+}
+
+.OG-form .og-content-items .og-closed label {
+  margin-bottom: 0;
+}

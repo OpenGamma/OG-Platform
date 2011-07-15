@@ -27,3 +27,11 @@
 .ui-state-hover a:hover {
     color: #f0f;
 }
+
+.ui-widget-overlay {
+  background: none;
+  background-image: -moz-radial-gradient(farthest-corner, rgba(255, 255, 255, 0), #000);
+  background-image: -webkit-radial-gradient(cover, rgba(255, 255, 255, 0), #000);
+  background-image: radial-gradient(cover, rgba(255, 255, 255, 0), #000);
+  opacity: 0.7;
+}

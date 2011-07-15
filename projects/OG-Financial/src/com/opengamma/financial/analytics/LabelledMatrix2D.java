@@ -191,7 +191,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
       final int comparison = compareY(key, midVal, tolerance);
       if (comparison == 0) {
         return mid;
-      } else if (comparison == 1) {
+      } else if (comparison > 0) {
         low = mid + 1;
       } else {
         high = mid - 1;
