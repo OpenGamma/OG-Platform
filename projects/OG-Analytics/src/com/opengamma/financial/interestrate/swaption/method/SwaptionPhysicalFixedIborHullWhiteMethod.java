@@ -76,7 +76,6 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
       pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
     }
     return CurrencyAmount.of(swaption.getUnderlyingSwap().getFirstLeg().getCurrency(), pv * (swaption.isLong() ? 1.0 : -1.0));
-
   }
 
   @Override

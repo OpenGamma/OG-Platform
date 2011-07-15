@@ -173,8 +173,10 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
       pvBumpedPlus[loopvol] = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
       volatilityBumped[loopvol] -= 2 * shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
       pvBumpedMinus[loopvol] = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
       assertEquals(
           "Swaption - Hull-White sensitivity adjoint: derivative " + loopvol + " - difference:" + ((pvBumpedPlus[loopvol] - pvBumpedMinus[loopvol]) / (2 * shiftVol) - hwSensitivity[loopvol]),

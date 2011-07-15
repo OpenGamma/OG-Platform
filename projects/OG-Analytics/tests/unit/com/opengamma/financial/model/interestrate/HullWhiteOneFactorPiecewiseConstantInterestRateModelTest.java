@@ -47,10 +47,26 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void getter() {
     assertEquals(MEAN_REVERSION, MODEL_PARAMETERS.getMeanReversion());
-    assertEquals(VOLATILITY, MODEL_PARAMETERS.getVolatility());
+    for (int loopperiod = 0; loopperiod < VOLATILITY.length; loopperiod++) {
+      assertEquals(VOLATILITY[loopperiod], MODEL_PARAMETERS.getVolatility()[loopperiod]);
+    }
     double[] volTime = MODEL_PARAMETERS.getVolatilityTime();
     for (int loopperiod = 0; loopperiod < VOLATILITY_TIME.length; loopperiod++) {
       assertEquals(VOLATILITY_TIME[loopperiod], volTime[loopperiod + 1]);
+    }
+  }
+
+  @Test
+  /**
+   * Tests the class setters.
+   */
+  public void setter() {
+    double volReplaced = 0.02;
+    MODEL_PARAMETERS.setLastVolatility(volReplaced);
+    assertEquals(volReplaced, MODEL_PARAMETERS.getVolatility()[MODEL_PARAMETERS.getVolatility().length - 1]);
+    MODEL_PARAMETERS.setLastVolatility(VOLATILITY[VOLATILITY.length - 1]);
+    for (int loopperiod = 0; loopperiod < VOLATILITY.length; loopperiod++) {
+      assertEquals(VOLATILITY[loopperiod], MODEL_PARAMETERS.getVolatility()[loopperiod]);
     }
   }
 
@@ -167,11 +183,13 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     System.arraycopy(VOLATILITY, 0, volatilityBumped, 0, nbVolatility);
     double[] alphaBumpedPlus = new double[nbVolatility];
     double[] alphaBumpedMinus = new double[nbVolatility];
-    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volatilityBumped, VOLATILITY_TIME);
+    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped;
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
+      parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volatilityBumped, VOLATILITY_TIME);
       alphaBumpedPlus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
       volatilityBumped[loopvol] -= 2 * shiftVol;
+      parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volatilityBumped, VOLATILITY_TIME);
       alphaBumpedMinus[loopvol] = MODEL.alpha(expiry1, expiry2, numeraire, maturity, parametersBumped);
       assertEquals("Alpha adjoint: derivative " + loopvol + " - Difference: " + ((alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol) - alphaDerivatives[loopvol]),
           (alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol), alphaDerivatives[loopvol], 1.0E-9);
