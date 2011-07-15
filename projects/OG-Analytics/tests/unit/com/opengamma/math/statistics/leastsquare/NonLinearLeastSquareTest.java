@@ -89,6 +89,25 @@ public class NonLinearLeastSquareTest {
       return new DoubleMatrix1D(res);
     }
   };
+  
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> GRAD = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+
+    @Override
+    public DoubleMatrix2D evaluate(DoubleMatrix1D a) {
+      final int n = X.getNumberOfElements();
+      final int m = a.getNumberOfElements();
+      double[][] res = new double [n][m];
+      for(int i = 0; i < n;i++) {
+        DoubleMatrix1D temp = PARAM_GRAD.evaluate(X.getEntry(i), a);
+        Validate.isTrue(m==temp.getNumberOfElements());
+        for(int j=0;j<m;j++) {
+          res[i][j] = temp.getEntry(j);
+        }
+      }
+      return new DoubleMatrix2D(res);
+    }
+  };
+  
 
   static {
     X = new DoubleMatrix1D(new double[20]);
@@ -192,10 +211,7 @@ public class NonLinearLeastSquareTest {
     assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
   }
 
-  /**
-   * This tests a fit to random data, so it could fail or rare occasions. Only consecutive fails indicate a bug. //REVIEW emcleod 4-1-11: no it doesn't - there's a seed given to the random number generator 
-   * so it will produce the same numbers each time 
-   */
+ 
   @Test
   public void solveRandomNoiseTest() {
     final MatrixAlgebra ma = new OGMatrixAlgebra();
@@ -221,13 +237,41 @@ public class NonLinearLeastSquareTest {
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));
     z = Math.sqrt(z);
 
-    assertTrue(chiSqDoF < 4.0);
+    assertTrue(z < 3.0);
 
-    // System.out.println("chiSqr: " + res.getChiSq());
-    // System.out.println("params: " + res.getParameters());
-    // System.out.println("covariance: " + res.getCovariance());
-    // System.out.println("z: " + z);
+//     System.out.println("chiSqr: " + res.getChiSq());
+//     System.out.println("params: " + res.getParameters());
+//     System.out.println("covariance: " + res.getCovariance());
+//     System.out.println("z: " + z);
   }
+  
+  @Test
+  public void smallPertubationTest() {
+    final MatrixAlgebra ma = new OGMatrixAlgebra();
+    final double[] dy = new double[20];
+    for (int i = 0; i < 20; i++) {
+      dy[i] = 0.1*SIGMA.getEntry(i) * NORMAL.nextRandom();
+    }
+    DoubleMatrix1D deltaY = new DoubleMatrix1D(dy);
+    final DoubleMatrix1D solution = new DoubleMatrix1D(new double[] {1.0, 1.0, 0.0, 0.0});
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final DoubleMatrix2D res = ls.calInverseJacobian(SIGMA,FUNCTION,GRAD,solution);
+    System.out.println("invese Jac: " + res);
+    
+    DoubleMatrix1D deltaParms = (DoubleMatrix1D) ma.multiply(res, deltaY);
+    System.out.println("delta parms: " + deltaParms);
+    
+    DoubleMatrix1D y = (DoubleMatrix1D) ma.add(Y, deltaY);
+    
+    final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
+    DoubleMatrix1D trueDeltaParms  = (DoubleMatrix1D) ma.subtract(lsRes.getParameters(), solution);
+    System.out.println("true delta parms: " + trueDeltaParms);
+ 
+    assertEquals(trueDeltaParms.getEntry(0),deltaParms.getEntry(0),5e-5);
+    assertEquals(trueDeltaParms.getEntry(1),deltaParms.getEntry(1),5e-5);
+    assertEquals(trueDeltaParms.getEntry(2),deltaParms.getEntry(2),5e-5);
+    assertEquals(trueDeltaParms.getEntry(3),deltaParms.getEntry(3),5e-5);
+   }
 
   private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma,
       final ParameterizedFunction<Double, DoubleMatrix1D, Double> paramFunc) {

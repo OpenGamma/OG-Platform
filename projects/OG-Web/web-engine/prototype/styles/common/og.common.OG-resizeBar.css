@@ -4,11 +4,17 @@
  *
  * Resize bar
  *
- * @colordef #487287; default OG turkwise blue
  */
 .OG-resizeBar {
-  background-color: #487287;
+  position: absolute;
+  top: 0;
+  right: 0;
   cursor: e-resize;
   float: left;
-  width: 2px;
+  width: 5px;
+}
+
+.OG-resizeBar:hover, .OG-resizeBar-active {
+  background: url('data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAACCAYAAACQahZdAAAAF0lEQVQI12PIzMxs/v//vy8yzYAuAKIBBMYZKSjBigwAAAAASUVORK5CYII=')
+  top left;
 }

@@ -1,0 +1,37 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+.OG-header-generic {
+  position: relative;
+  padding-bottom: 10px;
+  z-index: 1;
+}
+
+.OG-header-generic small {
+  color: #999;
+  display: block;
+  font-size: 10px;
+}
+
+/*.OG-header-generic:before {*/
+  /*content: '';*/
+  /*position: absolute;*/
+  /*bottom: -3px;*/
+  /*left: -2px;*/
+  /*right: 14px;*/
+  /*height: 3px;*/
+  /*background: -moz-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);*/
+  /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0.1)), color-stop(100%,rgba(0,0,0,0)));*/
+  /*background: -webkit-linear-gradient(top, rgba(0,0,0,0.1) 0%,rgba(0,0,0,0) 100%);*/
+  /*background: linear-gradient(top, rgba(0,0,0,0.1) 0%,rgba(0,0,0,0) 100%);*/
+  /*-webkit-border-bottom-left-radius: 3px;*/
+  /*-webkit-border-bottom-right-radius: 3px;*/
+  /*-moz-border-radius-bottomleft: 3px;*/
+  /*-moz-border-radius-bottomright: 3px;*/
+  /*border-bottom-left-radius: 3px;*/
+  /*border-bottom-right-radius: 3px;*/
+/*}*/

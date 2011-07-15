@@ -11,11 +11,11 @@ $.register_module({
             if (typeof item !== 'string') throw new TypeError(module.name + ': "item" should be a string');
             if (queues[item]) return queues[item];
             try {
-                queues[item] = new HashQueue(localStorage.getItem(item) || 5);
+                queues[item] = new HashQueue(localStorage.getItem(item) || 10);
             } catch (error) {
                 og.dev.warn('queues[' + item + '] failed to load ' + localStorage.getItem(item) + '\n' + error.message);
                 localStorage.removeItem(item);
-                queues[item] = new HashQueue(5);
+                queues[item] = new HashQueue(10);
             }
             return queues[item];
         };

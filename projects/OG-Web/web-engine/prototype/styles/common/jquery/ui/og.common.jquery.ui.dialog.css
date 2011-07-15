@@ -2,27 +2,77 @@
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
-.ui-dialog-titlebar {
-    background: -moz-linear-gradient(top,  #ccc,  #d7d7d7);
-    background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#d7d7d7));
-    color: #626262;
-    cursor: default;
-    text-shadow: 0 1px 0 #e4e4e4;
+.ui-dialog {
+  -webkit-box-shadow: 0 0 50px -10px #555;
+  -moz-box-shadow: 0 0 50px -10px #555;
+  box-shadow: 0 0 50px -10px #555;
+  padding: 0;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
-.ui-dialog-title-dialog {}
 
 .ui-dialog-titlebar-close {
-  border: none!important;
-  float: right;
-  width: 12px;
-  padding: 1px!important;
+  display: none;
 }
 
-.ui-dialog-content {}
+.ui-dialog-titlebar {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  background-color: #ccc;
+  color: #fff;
+  cursor: default;
+  font-family: 'Open Sans', arial, serif;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.ui-dialog-titlebar:before {
+  -webkit-border-radius: 5px;
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius: 5px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  background: #fff;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.3;
+  position: absolute;
+  top: 1px;
+  right: 1px;
+}
+
+.ui-dialog .ui-dialog-content {
+  color: #555;
+  margin: 20px 0 30px 0;
+  padding: 0 10px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+    padding: 8px 10px 8px 20px;
+}
+
+.ui-dialog .ui-dialog-content > div {
+  margin-bottom: 10px;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+ float: none;
+ margin: 0 0 0 6px;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+  padding: 3px 5px;
+}
 
 .ui-dialog-content label {
   display: block;
-  margin: 10px 0 3px 0;
 }
 
 .ui-dialog-content label,
@@ -32,5 +82,44 @@
   width: 90%;
 }
 
-.ui-dialog-buttonset button {}
+.ui-widget-content {
+  background: #fff;
+}
 
+.og-js-dialog-input-container .ui-dialog-titlebar {
+  background-color: #7be468;
+}
+
+.og-js-dialog-input-container .ui-dialog-title:after {
+  border-radius: 5px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  background-position: -10px -25px;
+  content: "";
+  height: 9px;
+  width: 9px;
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  margin-top: -5px;
+}
+
+.og-js-dialog-confirm-container .ui-dialog-titlebar {
+  background-color: #da5151;
+}
+
+.og-js-dialog-confirm-container .ui-dialog-title:after {
+  border-radius: 5px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  background-position: -20px -23px;
+  content: "";
+  height: 10px;
+  width: 9px;
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  margin-top: -5px;
+}

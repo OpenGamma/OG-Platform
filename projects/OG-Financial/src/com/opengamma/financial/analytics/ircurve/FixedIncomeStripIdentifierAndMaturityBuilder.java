@@ -174,7 +174,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
-    final Identifier floatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     Double initialRate = null;
     for (final Identifier identifier : floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {
@@ -230,8 +230,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final String counterparty = "";
     final ConventionBundle payLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     final ConventionBundle receiveLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapReceiveFloatingLegInitialRate());
-    final Identifier payLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
-    final Identifier receiveLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final Identifier receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }
@@ -290,7 +290,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
-    final Identifier floatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }

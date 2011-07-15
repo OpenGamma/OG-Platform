@@ -181,7 +181,7 @@ class UnLocodeRegionFileReader {
 
   private void coppClark(Set<ManageableRegion> regions) {
     for (ManageableRegion region : regions) {
-      String unLocode = region.getIdentifiers().getIdentifier(RegionUtils.UN_LOCODE_2010_2);
+      String unLocode = region.getIdentifiers().getIdentifierValue(RegionUtils.UN_LOCODE_2010_2);
       String coppClarkLocode = COPP_CLARK_ALTERATIONS.get(unLocode);
       if (coppClarkLocode != null) {
         region.addIdentifier(RegionUtils.coppClarkRegionId(coppClarkLocode));

@@ -11,11 +11,25 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div id="container" class="OG-clearFix">
+<div class="OG-container" style="display: none">
   <#include "modules/common/og.common.masthead.ftl">
-  <#include "modules/common/og.common.search_results.ftl">
-  <#include "modules/common/og.common.details.ftl">
-  <#include "modules/common/og.common.analytics.ftl">
+  <section class="OG-main">
+      <div class="OG-grid">
+      <div class="OG-c3 OG-js-search-panel OG-search-panel">
+        <#include "modules/common/og.common.search_results.ftl">
+        <div class="OG-resizeBar"></div>
+      </div>
+      <div class="OG-c7 og-grid-last OG-js-details-panel">
+        <#include "modules/common/og.common.details.ftl">
+      </div>
+      <div class="OG-c10 OG-js-analytics-panel">
+        <#include "modules/common/og.common.analytics.ftl">
+      </div>
+    </div>
+  </section>
+  <section class="OG-footer">
+    <div class="OG-logo-light"><small class="OG-txt-shadow">&copy; 2011 OpenGamma Limited</small></div>
+  </section>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_all.js',false)}
