@@ -55,7 +55,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.NonCompiledInvoker {
+public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double ERROR = 0.001;
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
@@ -77,11 +77,11 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
 
   //TODO forward data helper? or in the cube?
 
-  public SABRNonLinearLeastSquaresFittingFunction(final String currency, final String definitionName) {
+  public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
 
-  public SABRNonLinearLeastSquaresFittingFunction(final Currency currency, final String definitionName) {
+  public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final Currency currency, final String definitionName) {
     _volCubeHelper = new VolatilityCubeFunctionHelper(currency, definitionName);
   }
 

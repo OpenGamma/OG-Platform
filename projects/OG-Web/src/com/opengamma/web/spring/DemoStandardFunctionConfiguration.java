@@ -99,7 +99,7 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalcula
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresFittingFunction;
+import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
@@ -254,7 +254,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BondPV01CurrencyCurveFunction.class.getName()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
     functionConfigs.add(new StaticFunctionConfiguration(BondFutureImpliedRepoFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
