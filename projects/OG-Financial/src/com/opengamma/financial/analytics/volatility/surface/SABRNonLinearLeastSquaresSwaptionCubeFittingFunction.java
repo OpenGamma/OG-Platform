@@ -119,7 +119,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         final double[] blackVols = swaptionExpiryEntry.getValue().getSecond();
         final int n = strikes.length;
         if (n != blackVols.length) {
-          throw new OpenGammaRuntimeException("Strike and black volatility arrays were not the same length; should never happen");
+          throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
         }
         final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
         final BlackFunctionData[] data = new BlackFunctionData[n];

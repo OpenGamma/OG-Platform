@@ -44,12 +44,6 @@ import com.opengamma.util.tuple.Pair;
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   /**
-   * Resultant value specification property for the surface result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  //TODO replace with ValuePropertyNames.SURFACE?
-  //public static final String PROPERTY_SURFACE_DEFINITION_NAME = "NAME";
-  /**
    * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
    * surface, swaption ATM volatility surface). 
    */
