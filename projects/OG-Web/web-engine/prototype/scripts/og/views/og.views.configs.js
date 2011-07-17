@@ -159,7 +159,16 @@ $.register_module({
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        if (template in form_generators) return form_generators[template](details_json);
+                        if (template in form_generators) return form_generators[template]({
+                            data: details_json,
+                            handler: function () {
+                                resize({element: '.OG-details-container', offsetpx: -41});
+                                resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                                resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                            },
+                            selector: '.OG-details'
+                        });
                         api.text({module: module.name + '.' + template, handler: function (template) {
                             var json = details_json.template_data,
                                 $warning, warning_message = 'This configuration has been deleted';
