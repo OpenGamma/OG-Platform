@@ -18,8 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -45,7 +43,6 @@ import com.opengamma.util.tuple.Pair;
  */
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(RawVolatilitySurfaceDataFunction.class);
   /**
    * Resultant value specification property for the surface result. Note these should be moved into either the ValuePropertyNames class
    * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
@@ -96,7 +93,6 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
     _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
-    s_logger.warn(getShortName() + _result + " target=" + _definition.getTarget().getUniqueId());
   }
 
   @Override

@@ -39,6 +39,7 @@ public final class ValueRequirementNames {
   
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
+  public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   
   public static final String VOLATILITY_CUBE = "VolatilityCube";
