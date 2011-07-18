@@ -16,7 +16,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -44,8 +43,6 @@ import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -75,6 +72,18 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     _valueRequirementName = valueRequirementName;
   }
 
+  protected String getPutCurveName() {
+    return _putCurveName;
+  }
+  
+  protected String getCallCurveName() {
+    return _callCurveName;
+  }
+  
+  protected String getSurfaceName() {
+    return _surfaceName;
+  }
+  
   @Override
   public void init(final FunctionCompilationContext context) {
     _visitor = new ForexSecurityConverter(OpenGammaCompilationContext.getSecuritySource(context));
@@ -171,20 +180,6 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), _putCurveName, _putCurveName, _putCurveName);
-    final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), _callCurveName, _callCurveName, _callCurveName);
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
-                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
-    final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
-    final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement);
   }
 
   @Override
