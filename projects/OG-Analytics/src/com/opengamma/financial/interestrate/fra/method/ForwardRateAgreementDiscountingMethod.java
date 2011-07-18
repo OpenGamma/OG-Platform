@@ -56,7 +56,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
     final double discountFactorSettlement = discountingCurve.getDiscountFactor(fra.getPaymentTime());
     final double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
-    final double presentValue = discountFactorSettlement * fra.getFixingYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward);
+    final double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward);
     return CurrencyAmount.of(fra.getCurrency(), presentValue);
   }
 
@@ -83,21 +83,22 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final double forward = (dfForwardStart / dfForwardEnd - 1.0) / fra.getFixingYearFraction();
     // Backward sweep
     final double pvBar = 1.0;
-    final double forwardBar = df * fra.getFixingYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * fra.getFixingYearFraction())
-        / (1 + fra.getFixingYearFraction() * forward);
+    final double forwardBar = df * fra.getPaymentYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward) * fra.getPaymentYearFraction())
+        / (1 + fra.getPaymentYearFraction() * forward);
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / fra.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (fra.getFixingYearFraction() * dfForwardEnd) * forwardBar;
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMapDiscouting = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
-    resultMap.put(fra.getFundingCurveName(), listDiscounting);
+    resultMapDiscouting.put(fra.getFundingCurveName(), listDiscounting);
+    final PresentValueSensitivity result = new PresentValueSensitivity(resultMapDiscouting);
+    final Map<String, List<DoublesPair>> resultMapForward = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(fra.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
-    return result;
+    resultMapForward.put(fra.getForwardCurveName(), listForward);
+    return result.add(new PresentValueSensitivity(resultMapForward));
   }
 
   /**
@@ -137,6 +138,18 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     resultMap.put(fra.getForwardCurveName(), listForward);
     final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
     return result;
+  }
+
+  public double presentValueCouponSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    Validate.notNull(fra, "FRA");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
+    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getForwardCurveName());
+    final double fwdAlpha = fra.getFixingYearFraction();
+    final double discountAlpha = fra.getPaymentYearFraction();
+    final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fwdAlpha;
+    final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * discountAlpha / (1 + forward * discountAlpha);
+    return res;
   }
 
 }

@@ -175,8 +175,8 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
 
   @Override
   @Test
-  public void testSwapOptionSecurity() {
-    _testCase.testSwapOptionSecurity();
+  public void testSwaptionSecurity() {
+    _testCase.testSwaptionSecurity();
   }
 
   @Override
@@ -215,6 +215,8 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
     _testCase.testCapFloorCMSSpreadSecurity();
   }
   
-  
+  public void testRawSecurity() {
+    _testCase.testRawSecurity();
+  }
   
 }

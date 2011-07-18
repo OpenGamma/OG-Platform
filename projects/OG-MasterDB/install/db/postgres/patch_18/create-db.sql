@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start 1 increment 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -44,7 +42,6 @@ CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
-
 
 -- create-db-refdata.sql
 
@@ -153,7 +150,6 @@ CREATE TABLE exg_exchange2idkey (
 );
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
-
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -177,10 +173,12 @@ CREATE TABLE sec_security (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     sec_type varchar(255) not null,
+    detail_type char not null,
     primary key (id),
     constraint sec_fk_sec2sec foreign key (oid) references sec_security (id),
     constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant),
+    constraint sec_chk_detail_type check (detail_type in ('D', 'M', 'R'))
 );
 CREATE INDEX ix_sec_security_oid ON sec_security(oid);
 CREATE INDEX ix_sec_security_ver_from_instant ON sec_security(ver_from_instant);
@@ -328,6 +326,23 @@ CREATE TABLE sec_fxoption (
     constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
+CREATE TABLE sec_swaption (
+    id bigint not null,
+    security_id bigint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    cash_settled boolean not null,
+    is_long boolean not null,
+    is_payer boolean not null,
+    currency_id bigint not null,
+    primary key (id),
+    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
+    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
+);
+
 CREATE TABLE sec_irfutureoption (
     id bigint not null,
     security_id bigint not null,
@@ -371,23 +386,6 @@ CREATE TABLE sec_fxbarrieroption (
     constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
     constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
-);
-
-CREATE TABLE sec_swaption (
-    id bigint not null,
-    security_id bigint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    expiry_date timestamp not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    cash_settled boolean not null,
-    is_long boolean not null,
-    is_payer boolean not null,
-    currency_id bigint not null,
-    primary key (id),
-    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
-    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
 );
 
 CREATE TABLE sec_frequency (
@@ -571,85 +569,6 @@ CREATE TABLE sec_fra (
     constraint sec_fk_fra2currency foreign key (currency_id) references sec_currency (id)
 );
 
-CREATE TABLE sec_fx (
-    id bigint not null,
-    security_id bigint not null,
-    pay_currency_id bigint not null,
-    receive_currency_id bigint not null,
-    region_scheme varchar(255) not null,
-    region_identifier varchar(255) not null,
-    pay_amount double precision not null,
-    receive_amount double precision not null,
-    primary key (id),
-    constraint sec_fk_fx2sec foreign key (security_id) references sec_security (id),
-    constraint sec_fk_fxpay2currency foreign key (pay_currency_id) references sec_currency (id),
-    constraint sec_fk_fxreceive2currency foreign key (receive_currency_id) references sec_currency (id)
-);
-
-CREATE TABLE sec_fxforward (
-  id bigint not null,
-  security_id bigint not null,
-  region_scheme varchar(255) not null,
-  region_identifier varchar(255) not null,
-  underlying_scheme varchar(255) not null,
-  underlying_identifier varchar(255) not null,
-  forward_date timestamp not null,
-  forward_zone varchar(50) not null,
-  primary key (id),
-  constraint sec_fk_fxforward2sec foreign key (security_id) references sec_security (id)
-);
-
-CREATE TABLE sec_capfloor (
-  id bigint not null,
-  security_id bigint not null,
-  currency_id bigint not null,
-  daycountconvention_id bigint not null,
-  frequency_id bigint not null,
-  is_cap boolean not null,
-  is_ibor boolean not null,
-  is_payer boolean not null,
-  maturity_date timestamp not null,
-  maturity_zone varchar(50) not null,
-  notional double precision not null,
-  start_date timestamp not null,
-  start_zone varchar(50) not null,
-  strike double precision not null,
-  underlying_scheme varchar(255) not null,
-  underlying_identifier varchar(255) not null,
-  
-  primary key (id),
-  constraint sec_fk_capfloor2sec foreign key (security_id) references sec_security (id),
-  constraint sec_fk_capfloor2currency foreign key (currency_id) references sec_currency(id),
-  constraint sec_fk_capfloor2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-  constraint sec_fk_capfloor2frequency foreign key (frequency_id) references sec_frequency (id)
-);
-
-CREATE TABLE  sec_capfloorcmsspread (
-  id bigint not null,
-  security_id bigint not null,
-  currency_id bigint not null,
-  daycountconvention_id bigint not null,
-  frequency_id bigint not null,
-  is_cap boolean not null,
-  is_payer boolean not null,
-  long_scheme varchar(255) not null,
-  long_identifier varchar(255) not null,
-  maturity_date timestamp not null,
-  maturity_zone varchar(50) not null,
-  notional double precision not null,
-  short_scheme varchar(255) not null,
-  short_identifier varchar(255) not null,
-  start_date timestamp not null,
-  start_zone varchar(50) not null,
-  strike double precision not null,
-  
-  primary key (id),
-  constraint sec_fk_capfloorcmsspread2sec foreign key (security_id) references sec_security (id),
-  constraint sec_fk_capfloorcmsspread2currency foreign key (currency_id) references sec_currency(id),
-  constraint sec_fk_capfloorcmsspread2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-  constraint sec_fk_capfloorcmsspread2frequency foreign key (frequency_id) references sec_frequency (id)
-);
-
 CREATE TABLE sec_swap (
     id bigint not null,
     security_id bigint not null,
@@ -697,6 +616,12 @@ CREATE TABLE sec_swap (
     receive_rateidentifierid varchar(255),
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
+);
+
+CREATE TABLE sec_raw (
+    security_id bigint not null,
+    raw_data bytea not null,
+    constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
 );
 
 -- create-db-portfolio.sql: Portfolio Master
@@ -767,7 +692,6 @@ CREATE TABLE prt_position (
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
-
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -849,6 +773,21 @@ CREATE TABLE pos_trade_attribute (
 CREATE INDEX ix_pos_trade_attr_trade_oid ON pos_trade_attribute(trade_oid);
 CREATE INDEX ix_pos_trade_attr_key ON pos_trade_attribute(key);
 
+CREATE TABLE pos_attribute (
+    id bigint not null,
+    position_id bigint not null,
+    position_oid bigint not null,
+    key varchar(255) not null,
+    value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_posattr2pos foreign key (position_id) references pos_position (id),
+    constraint pos_chk_uq_pos_attribute unique (position_id, key, value)
+);
+-- position_oid is an optimization
+-- pos_attribute is fully dependent of pos_position
+CREATE INDEX ix_pos_attr_position_oid ON pos_attribute(position_oid);
+CREATE INDEX ix_pos_attr_key ON pos_attribute(key);
+
 CREATE TABLE pos_idkey (
     id bigint not null,
     key_scheme varchar(255) not null,
@@ -872,7 +811,6 @@ CREATE TABLE pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -1499,4 +1437,3 @@ CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant
 CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
 CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
 CREATE INDEX ix_snp_snapshot_nameu ON snp_snapshot(upper(name));
-

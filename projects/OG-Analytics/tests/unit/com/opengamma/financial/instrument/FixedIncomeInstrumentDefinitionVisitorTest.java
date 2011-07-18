@@ -43,6 +43,8 @@ import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
@@ -468,6 +470,26 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitSwaptionPhysicalFixedIborDefinition(final SwaptionPhysicalFixedIborDefinition swaption) {
       return "SwaptionPhysicalFixedIbor1";
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
+      return null;
     }
   }
 }

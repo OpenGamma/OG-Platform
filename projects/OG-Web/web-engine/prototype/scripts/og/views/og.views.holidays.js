@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -31,20 +32,30 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             holidays,
+            resize = common.layout.resize,
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'holidays',
+                    'selector': '.OG-js-search', 'page_type': 'holidays',
                     'columns': [
                         {
                             id: 'name',
-                            name: 'Name',
+                            name: '<input type="text" placeholder="name" '
+                                + 'class="og-js-name-filter" style="width: 80px;">',
                             field: 'name',
                             width: 100,
                             cssClass: 'og-link',
                             filter_type: 'input'
                         },
                         {
-                            id: 'type', name: 'Type', field: 'type', width: 200,
+                            id: 'type',
+                            name: '<select class="og-js-type-filter" style="width: 180px">'
+                                + '  <option value="">Type</option>'
+                                + '  <option>CURRENCY</option>'
+                                + '  <option>BANK</option>'
+                                + '  <option>SETTLEMENT</option>'
+                                + '  <option>TRADING</option>'
+                                + '</select>',
+                            field: 'type', width: 200,
                             filter_type: 'select',
                             filter_type_options: ['CURRENCY', 'BANK', 'SETTLEMENT', 'TRADING']
                         }
@@ -53,23 +64,17 @@ $.register_module({
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', enabled: 'OG-disabled'},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', enabled: 'OG-disabled'}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -79,22 +84,24 @@ $.register_module({
                         name: 'Holidays',
                         favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
                         recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
-                    }).appendTo($('#OG-details .og-main').empty());
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.holidays.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var details_json = result.data;
+                        var json = result.data;
                         history.put({
-                            name: details_json.template_data.name,
+                            name: json.template_data.name,
                             item: 'history.holidays.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration
                                 showCurrentAtPos: new Date().getMonth(),    // Makes the first month January
@@ -102,11 +109,14 @@ $.register_module({
                                 stepMonths: 12,                             // Pagination moves 1 year at a time
                                 firstDay: 1,                                // Start the week on Monday
                                 displayOnly: true,                          // This is an OG custom configuration
-                                specialDates: details_json.dates            // This is an OG custom configuration
+                                specialDates: json.dates                    // This is an OG custom configuration
                             });
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
-                            details.calendar_ui_changes(details_json.dates);
+                            ui.toolbar(options.toolbar.active);
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            details.calendar_ui_changes(json.dates);
                         }});
                     },
                     id: args.id,
@@ -132,7 +142,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

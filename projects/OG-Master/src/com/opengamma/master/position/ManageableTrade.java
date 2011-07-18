@@ -8,6 +8,7 @@ package com.opengamma.master.position;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -130,6 +131,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
    */
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
     setPositionId(trade.getParentPositionId());
     setQuantity(trade.getQuantity());
     setSecurityKey(trade.getSecurityKey());
@@ -140,7 +142,9 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     setPremiumCurrency(trade.getPremiumCurrency());
     setPremiumDate(trade.getPremiumDate());
     setPremiumTime(trade.getPremiumTime());
-    setAttributes(trade.getAttributes());
+    for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+      addAttribute(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -197,7 +201,8 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
   
   //-------------------------------------------------------------------------
   /**
-   * Adds a key value pair to the attributes map
+   * Adds a key value pair to attributes
+   * 
    * @param key  the key to add, not null
    * @param value  the value to add, not null
    */

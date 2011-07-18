@@ -285,6 +285,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       convertTrade(nodeId, posUid, manTrade, sourceTrade);
       sourcePosition.addTrade(sourceTrade);
     }
+    sourcePosition.setAttributes(manPos.getAttributes());
   }
 
   /**

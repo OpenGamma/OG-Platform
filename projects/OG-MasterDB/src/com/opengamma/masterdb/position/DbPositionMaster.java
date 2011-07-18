@@ -109,7 +109,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           "ts.key_scheme AS trade_key_scheme, " +
           "ts.key_value AS trade_key_value, " +
           "ta.key AS trade_attr_key, " +
-          "ta.value AS trade_attr_value ";
+          "ta.value AS trade_attr_value, " +
+          "psAttr.key AS pos_attr_key, " +
+          "psAttr.value AS pos_attr_value ";
   /**
    * SQL from.
    */
@@ -120,7 +122,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           "LEFT JOIN pos_trade t ON (t.position_id = main.id) " +
           "LEFT JOIN pos_trade2idkey ti ON (ti.trade_id = t.id) " +
           "LEFT JOIN pos_idkey ts ON (ts.id = ti.idkey_id) " +
-          "LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id) ";
+          "LEFT JOIN pos_trade_attribute ta ON (ta.trade_id = t.id) " +
+          "LEFT JOIN pos_attribute psAttr ON (psAttr.position_id = main.id) ";
 
   /**
    * Creates an instance.
@@ -394,6 +397,19 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addValue("quantity", position.getQuantity())
         .addValue("provider_scheme", (position.getProviderKey() != null ? position.getProviderKey().getScheme().getName() : null))
         .addValue("provider_value", (position.getProviderKey() != null ? position.getProviderKey().getValue() : null));
+    
+    // the arguments for inserting into the pos_attribute table
+    final List<DbMapSqlParameterSource> posAttrList = Lists.newArrayList();
+    for (Entry<String, String> entry : position.getAttributes().entrySet()) {
+      final long posAttrId = nextId("pos_trade_attr_seq");
+      final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource()
+          .addValue("attr_id", posAttrId)
+          .addValue("pos_id", positionId)
+          .addValue("pos_oid", positionOid)
+          .addValue("key", entry.getKey())
+          .addValue("value", entry.getValue());
+      posAttrList.add(posAttrArgs);
+    }
 
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
@@ -481,6 +497,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTradeIdKey(), tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTradeAttributes(), tradeAttributeList.toArray(new DbMapSqlParameterSource[tradeAttributeList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertPositionAttributes(), posAttrList.toArray(new DbMapSqlParameterSource[posAttrList.size()]));
     
 
     // set the uniqueId
@@ -525,6 +542,16 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     return "INSERT INTO pos_trade_attribute " +
               "(id, trade_id, trade_oid, key, value) " +
            "VALUES (:attr_id, :trade_id, :trade_oid, :key, :value)";
+  }
+  
+  /**
+   * Gets the SQL for inserting position attributes.
+   * 
+   * @return the SQL, not null.
+   */
+  protected String sqlInsertPositionAttributes() {
+    return "INSERT INTO pos_attribute (id, position_id, position_oid, key, value) " +
+           "VALUES (:attr_id, :pos_id, :pos_oid, :key, :value)";
   }
 
   /**
@@ -690,6 +717,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         if (posIdScheme != null && posIdValue != null) {
           Identifier id = Identifier.of(posIdScheme, posIdValue);
           _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+        }
+        
+        final String posAttrKey = rs.getString("POS_ATTR_KEY");
+        final String posAttrValue = rs.getString("POS_ATTR_VALUE");
+        if (posAttrKey != null && posAttrValue != null) {
+          _position.addAttribute(posAttrKey, posAttrValue);
         }
 
         final long tradeId = rs.getLong("TRADE_ID");

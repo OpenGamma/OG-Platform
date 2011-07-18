@@ -10,6 +10,7 @@ import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication;
 import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -170,7 +171,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
-    NodeSensitivityCalculator distributor = NodeSensitivityCalculator.getInstance();
+    NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
   }
 

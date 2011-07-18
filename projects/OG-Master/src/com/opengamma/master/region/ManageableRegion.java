@@ -131,7 +131,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public String getCountryISO() {
-    return _identifiers.getIdentifier(RegionUtils.ISO_COUNTRY_ALPHA2);
+    return _identifiers.getIdentifierValue(RegionUtils.ISO_COUNTRY_ALPHA2);
   }
 
   /**
@@ -152,7 +152,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public Currency getCurrency() {
-    String code = _identifiers.getIdentifier(RegionUtils.ISO_CURRENCY_ALPHA3);
+    String code = _identifiers.getIdentifierValue(RegionUtils.ISO_CURRENCY_ALPHA3);
     return (code != null ? Currency.of(code) : null);
   }
 
@@ -176,7 +176,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public TimeZone getTimeZone() {
-    String id = _identifiers.getIdentifier(RegionUtils.TZDB_TIME_ZONE);
+    String id = _identifiers.getIdentifierValue(RegionUtils.TZDB_TIME_ZONE);
     return (id != null ? TimeZone.of(id) : null);
   }
 

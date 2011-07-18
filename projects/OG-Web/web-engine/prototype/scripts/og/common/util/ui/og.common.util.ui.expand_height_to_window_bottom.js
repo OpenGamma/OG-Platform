@@ -18,6 +18,7 @@ $.register_module({
                 height = $(window).height() + manual_offset,
                 new_height = height - element_offset;
             $(obj.element).css('height', new_height);
+            if ($.isFunction(obj.callback)) obj.callback();
         }
     }
 });

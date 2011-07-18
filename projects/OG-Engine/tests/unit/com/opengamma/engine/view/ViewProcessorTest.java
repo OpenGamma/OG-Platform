@@ -72,7 +72,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     vp.stop();
   }
@@ -85,7 +85,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess("Something random", ExecutionOptions.continuous(MarketData.live()));
+    client.attachToViewProcess("Something random", ExecutionOptions.infinite(MarketData.live()));
   }
 
   @Test
@@ -103,7 +103,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }
@@ -129,7 +129,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.continuous(MarketData.live()));
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
         client2.shutdown();
         latch.countDown();
       }

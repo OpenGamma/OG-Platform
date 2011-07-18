@@ -46,7 +46,7 @@ public interface SecurityTestCaseMethods {
   
   void testFXBarrierOptionSecurity();
 
-  void testSwapOptionSecurity();
+  void testSwaptionSecurity();
 
   void testForwardSwapSecurity();
 
@@ -61,5 +61,7 @@ public interface SecurityTestCaseMethods {
   void testCapFloorSecurity();
   
   void testCapFloorCMSSpreadSecurity();
+
+  void testRawSecurity();
 
 }

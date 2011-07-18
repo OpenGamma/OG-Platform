@@ -34,7 +34,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
     for (int i = 0; i < NUMBERS.length; i++) {
       for (int j = 0; j < STRIKES.length; j++) {
         final Identifier result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
-        assertEquals(result.getScheme(), SecurityUtils.BLOOMBERG_TICKER);
+        assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, result.getScheme());
         assertEquals(RESULTS[i][j], result.getValue());
       }
     }

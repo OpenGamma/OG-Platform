@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -37,8 +38,10 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
@@ -86,10 +89,14 @@ public class InterestRateDerivativeVisitorTest {
   private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(CUR, new double[] {1}, 0.05, CURVE_NAME, true);
   private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(CUR, new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME, true);
   private static final CouponFixed FCP = new CouponFixed(CUR, 1, CURVE_NAME, 1, 0.04);
-  private static final ContinuouslyMonitoredAverageRatePayment CM = new ContinuouslyMonitoredAverageRatePayment(CUR, 3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
+  private static final CouponOIS CM = new CouponOIS(CUR, 3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
   private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA_2);
   private static final SwaptionCashFixedIbor SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIbor();
   private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIbor();
+  private static final InterestRateFutureSecurity IR_FUT_SECURITY = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurity();
+  private static final InterestRateFutureTransaction IR_FUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureTransaction();
+  private static final BondFutureSecurity BNDFUT_SECURITY = FutureInstrumentsDescriptionDataSet.createBondFutureSecurity();
+  private static final BondFutureTransaction BNDFUT_TRANSACTION = FutureInstrumentsDescriptionDataSet.createBondFutureTransaction();
 
   private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
 
@@ -149,7 +156,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final Object anything) {
+    public Class<?> visitCouponOIS(final CouponOIS payment, final Object anything) {
       return visit(payment, anything);
     }
 
@@ -199,7 +206,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
+    public Class<?> visitCouponOIS(final CouponOIS payment) {
       return visit(payment);
     }
 
@@ -467,6 +474,26 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitBondFutureTransaction(final BondFutureTransaction bondFuture) {
       return visit(bondFuture);
     }
+
+    @Override
+    public Class<?> visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCapFloorCMSSpread(final CapFloorCMSSpread payment) {
+      return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitCouponIborFixed(CouponIborFixed payment, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponIborFixed(CouponIborFixed payment) {
+      return null;
+    }
   };
 
   @Test
@@ -487,7 +514,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLA.accept(VISITOR, curves), AnnuityCouponIbor.class);
     assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
     assertEquals(FCP.accept(VISITOR, curves), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR, curves), ContinuouslyMonitoredAverageRatePayment.class);
+    assertEquals(CM.accept(VISITOR, curves), CouponOIS.class);
     assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
     assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
     assertEquals(VISITOR.visit(CASH), Cash.class);
@@ -506,7 +533,11 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLA.accept(VISITOR), AnnuityCouponIbor.class);
     assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
+    assertEquals(CM.accept(VISITOR), CouponOIS.class);
+    assertEquals(IR_FUT_SECURITY.accept(VISITOR), InterestRateFutureSecurity.class);
+    assertEquals(IR_FUT_TRANSACTION.accept(VISITOR), InterestRateFutureTransaction.class);
+    assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFutureSecurity.class);
+    assertEquals(BNDFUT_TRANSACTION.accept(VISITOR), BondFutureTransaction.class);
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
@@ -712,15 +743,34 @@ public class InterestRateDerivativeVisitorTest {
   public void testSwaptionCash2() {
     ABSTRACT_VISITOR.visit(SWAPTION_CASH, CURVE_NAME);
   }
-  
+
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwaptionPhysical1() {
     ABSTRACT_VISITOR.visit(SWAPTION_PHYS);
   }
-  
+
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwaptionPhysical2() {
     ABSTRACT_VISITOR.visit(SWAPTION_PHYS, CURVE_NAME);
   }
-  
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testIRFutSec() {
+    ABSTRACT_VISITOR.visit(IR_FUT_SECURITY);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testIRFutTran() {
+    ABSTRACT_VISITOR.visit(IR_FUT_TRANSACTION);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testBondFutSec() {
+    ABSTRACT_VISITOR.visit(BNDFUT_SECURITY);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testBondFutTran() {
+    ABSTRACT_VISITOR.visit(BNDFUT_TRANSACTION);
+  }
 }

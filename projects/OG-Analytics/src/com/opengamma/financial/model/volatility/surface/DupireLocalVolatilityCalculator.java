@@ -108,7 +108,7 @@ public class DupireLocalVolatilityCalculator {
 
         final double vol = impliedVolatilitySurface.getVolatility(t, s);
         if (t == 0 && s == spot) {
-          return vol;
+          return s * vol;
         }
         //  double rootT = Math.sqrt(t);
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);

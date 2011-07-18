@@ -42,9 +42,19 @@ public class SecurityUtils {
    */
   public static final IdentificationScheme BLOOMBERG_BUID = IdentificationScheme.of("BLOOMBERG_BUID");
   /**
+   * Identification scheme for weak Bloomberg BUIDs.
+   * A weak ID permits the underlying market data to return old data. 
+   */
+  public static final IdentificationScheme BLOOMBERG_BUID_WEAK = IdentificationScheme.of("BLOOMBERG_BUID_WEAK");
+  /**
    * Identification scheme for Bloomberg tickers.
    */
   public static final IdentificationScheme BLOOMBERG_TICKER = IdentificationScheme.of("BLOOMBERG_TICKER");
+  /**
+   * Identification scheme for weak Bloomberg tickers.
+   * A weak ID permits the underlying market data to return old data. 
+   */
+  public static final IdentificationScheme BLOOMBERG_TICKER_WEAK = IdentificationScheme.of("BLOOMBERG_TICKER_WEAK");
   /**
    * Identification scheme for Bloomberg tickers.
    */

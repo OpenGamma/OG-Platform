@@ -11,19 +11,22 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.Surface;
 
 /**
- * 
+ * PDE Data bundle representing PDEs of the type  {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x)\\frac{\\partial^2}{\\partial x^2}\\left[ \\alpha(t,x) f \\right] +
+ * b(t,x)\\frac{\\partial}{\\partial x}\\left[\\beta(t,x) f \\right] + c(t,x)f = 0$}, which includes the Fokker-Planck PDE.
  */
 public class ExtendedConvectionDiffusionPDEDataBundle extends ConvectionDiffusionPDEDataBundle {
   private final Surface<Double, Double, Double> _alpha;
   private final Surface<Double, Double, Double> _beta;
 
   /**
-   * @param a a
-   * @param b b
-   * @param c c
-   * @param alpha alpha
-   * @param beta beta
-   * @param initialCondition The initial condition
+   * PDE Data bundle representing PDEs of the type  {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x)\\frac{\\partial^2}{\\partial x^2}\\left[ \\alpha(t,x) f \\right] +
+   * b(t,x)\\frac{\\partial}{\\partial x}\\left[\\beta(t,x) f \\right] + c(t,x)f = 0$}
+   * @param a a(t,x)
+   * @param b b(t,x)
+   * @param c c(t,x)
+   * @param alpha {@latex.inline $\\alpha(t,x)$}
+   * @param beta {@latex.inline $\\beta(t,x)$}
+   * @param initialCondition The initial condition f(0,x)
    */
   public ExtendedConvectionDiffusionPDEDataBundle(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c,
       final Surface<Double, Double, Double> alpha, final Surface<Double, Double, Double> beta, final Function1D<Double, Double> initialCondition) {
@@ -34,10 +37,22 @@ public class ExtendedConvectionDiffusionPDEDataBundle extends ConvectionDiffusio
     _beta = beta;
   }
 
+  /**
+   * 
+   * @param t Time value
+   * @param x Space value
+   * @return value of {@latex.inline $\\alpha(t,x)$}
+   */
   public double getAlpha(final double t, final double x) {
     return _alpha.getZValue(t, x);
   }
 
+  /**
+   * 
+   * @param t Time value
+   * @param x Space value
+   * @return value of {@latex.inline $\\beta(t,x)$}
+   */
   public double getBeta(final double t, final double x) {
     return _beta.getZValue(t, x);
   }

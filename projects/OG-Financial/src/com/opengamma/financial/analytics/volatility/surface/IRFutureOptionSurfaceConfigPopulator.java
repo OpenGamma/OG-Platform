@@ -43,21 +43,21 @@ public class IRFutureOptionSurfaceConfigPopulator {
 
   private static ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<Integer, Double> definition) {
     final ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName() + "_" + definition.getCurrency().getCode());
+    configDocument.setName(definition.getName());
     configDocument.setValue(definition);
     return configDocument;
   }
 
   private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
     final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName() + "_" + specification.getCurrency().getCode());
+    configDocument.setName(specification.getName());
     configDocument.setValue(specification);
     return configDocument;
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
-    final SurfaceInstrumentProvider<Integer, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
-        MarketDataRequirementNames.MID_IMPLIED_VOLATILITY, 97.775);
+    final SurfaceInstrumentProvider<Number, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE", Currency.USD, surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }

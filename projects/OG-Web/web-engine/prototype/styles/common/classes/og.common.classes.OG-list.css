@@ -3,6 +3,23 @@
  * @license See distribution for license
  */
 .OG-list {
-  margin: 0 0 0 20px;
+  margin: 15px 10px  15px  25px;
   line-height: 180%;
+}
+
+.OG-list li {
+  list-style: none;
+  position: relative;
+}
+
+.OG-list li:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  background-position: 0 0;
+  display: inline-block;
+  height: 3px;
+  width: 3px;
+  position: absolute;
+  top: 9px;
+  left: -6px;
 }

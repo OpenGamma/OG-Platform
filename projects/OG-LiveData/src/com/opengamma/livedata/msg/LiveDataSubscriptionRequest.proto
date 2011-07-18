@@ -35,7 +35,17 @@ namespace com.opengamma.livedata.msg {
     required repeated com.opengamma.livedata.LiveDataSpecification specifications;
     
     binding Java {
-      methods "equals, hashCode";
+      methods "equals, hashCode, no-toString";
+      body <<<JAVA
+      @Override
+      public String toString() {
+        return new StringBuilder()
+        .append("LiveDataSubscriptionRequest[")
+        .append(_specifications.size())
+        .append(" specifications]")
+        .toString();
+      }
+JAVA;
     }   
   }
   

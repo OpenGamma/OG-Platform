@@ -12,6 +12,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -68,6 +69,7 @@ public class NonLinearLeastSquaresSurfaceFittingFunction extends AbstractFunctio
     _resultSpecification = new ValueSpecification(_resultName, currencyTargetSpec, resultProperties);
   }
 
+  @SuppressWarnings("unused")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Object objectSurfaceData = inputs.getValue(_surfaceRequirement);

@@ -341,6 +341,26 @@ public class FutureDefinitionVisitorTest {
       return null;
     }
 
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureOptionMarginSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginTransactionDefinition future) {
+      return null;
+    }
+
   }
 
 }

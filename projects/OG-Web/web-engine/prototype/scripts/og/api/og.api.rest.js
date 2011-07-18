@@ -10,9 +10,9 @@ $.register_module({
     obj: function () {
         var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
-            end_loading = common.end_loading, encode = encodeURIComponent,
+            end_loading = common.end_loading, encode = encodeURIComponent, cache = {},
             outstanding_requests = {}, registrations = [],
-            meta_data = {configs: null, holidays: null, securities: null},
+            meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
                 portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
@@ -79,11 +79,14 @@ $.register_module({
                                 });
                             },
                             success: function (data, status, xhr) {
-                                var meta = {}, location = xhr.getResponseHeader('Location');
+                                var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
                                 if (location) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;
-                                config.meta.handler({error: false, message: status, data: data, meta: meta});
+                                result = {error: false, message: status, data: data, meta: meta};
+                                if (cache_for = config.meta.cache_for)
+                                    (cache[url] = result), setTimeout(function () {delete cache[url];}, cache_for);
+                                config.meta.handler(result);
                             },
                             complete: end_loading
                         });
@@ -91,7 +94,12 @@ $.register_module({
                     };
                 if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
+                if (config.meta.cache_for && config.meta.type !== 'GET')
+                    og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
+                if (typeof cache[url] === 'object') return (setTimeout(config.meta.handler.partial(cache[url]), 0)), id;
+                if (cache[url]) return (setTimeout(request.partial(method, config), 500)), id;
+                if (config.meta.cache_for) cache[url] = true;
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
             },
@@ -106,7 +114,7 @@ $.register_module({
                 common.check(params);
                 if (typeof params.bundle.config.handler !== 'function')
                     throw new TypeError(params.bundle.method + ': config.handler must be a function');
-                return ['handler', 'loading', 'update', 'dependencies'].reduce(function (acc, val) {
+                return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
                     return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
                 }, {type: 'GET'});
             },
@@ -262,11 +270,14 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
                         required: [{condition: version_search, one_of: ['id', 'node']}],
-                        empties: [{
-                            condition: name_search || id_search || node_search,
-                            label: 'search request cannot have id, node, or version',
-                            fields: ['id', 'node', 'version']
-                        }]
+                        empties: [
+                            {
+                                condition: name_search || id_search || node_search,
+                                label: 'search request cannot have id, node, or version',
+                                fields: ['id', 'node', 'version']
+                            },
+                            {condition: true, label: 'meta data unavailable for /' + root, fields: ['meta']}
+                        ]
                     });
                     if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;
@@ -401,7 +412,23 @@ $.register_module({
                 },
                 del: default_del
             },
-            update : deliver_updates
+            update : deliver_updates,
+            valuerequirementnames: {
+                root: 'valuerequirementnames',
+                get: function (config) {
+                    var root = this.root, method = [root], data = {}, meta, meta_request = config.meta,
+                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                    meta = check({
+                        bundle: {method: root + '#get', config: config},
+                        required: [{condition: true, all_of: ['meta']}]
+                    });
+                    data = {pageSize: page_size, page: page};
+                    if (meta_request) method.push('metaData');
+                    return request(method, {data: data, meta: meta});
+                },
+                put: not_implemented.partial('put'),
+                del: not_implemented.partial('del')
+            }
         };
     }
 });

@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
@@ -19,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * Base implementation for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
 public class NewtonVectorRootFinder extends VectorRootFinder {
+  private static final Logger s_logger = LoggerFactory.getLogger(NewtonVectorRootFinder.class);
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
   private static final int FULL_RECALC_FREQ = 20;
@@ -94,7 +98,9 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
-          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation");
+          s_logger.info("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: \n" + data.getX() + "\n function value: \n" + data.getY() + "\n Jacobian: \n"
+              + jacobianFunction.evaluate(data.getX()));
+          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation.");
         }
       }
       count++;

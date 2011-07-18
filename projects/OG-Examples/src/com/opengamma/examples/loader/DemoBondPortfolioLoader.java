@@ -18,6 +18,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -31,10 +32,13 @@ import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
- * Example code to load a simple bond portfolio.
+ * Example code to load and aggregate a bond portfolio.
  * <p>
- * This loads all equity securities previously stored in the master and
- * categorizes them by GICS code.
+ * This loads all bond securities previously stored in the master and
+ * categorizes them in a heirarchy by domicile, then issuer type, then issuer name.
+ * Note this requires that you've already populated your security master with 
+ * some bond securities, so you typically need some static market data lookup 
+ * service.
  */
 public class DemoBondPortfolioLoader {
 
@@ -195,10 +199,10 @@ public class DemoBondPortfolioLoader {
   protected ManageablePosition createPosition(BondSecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    String buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
+    Identifier buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
     IdentifierBundle bundle;
     if (buid != null) {
-      bundle = IdentifierBundle.of(SecurityUtils.bloombergBuidSecurityId(buid));
+      bundle = IdentifierBundle.of(buid);
     } else {
       bundle = security.getIdentifiers();
     }

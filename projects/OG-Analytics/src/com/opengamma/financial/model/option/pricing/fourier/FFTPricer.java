@@ -36,7 +36,6 @@ public class FFTPricer {
    * @param alpha Regularization factor. Values of 0 or -1 are not allowed. -0.5 is recommended  
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
-   * @return
    */
   public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final double lowestStrike,
       final double highestStrike, final int minStrikesDisplayed, final double limitSigma, final double alpha, final double tol) {

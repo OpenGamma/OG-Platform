@@ -56,7 +56,7 @@ public class VarSwapStaticReplication {
     _cutoffProvided = true;
   }
 
-  public VarSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator, Double strikeCutoff, Double strikeSpread) {
+  public VarSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator, final Double strikeCutoff, final Double strikeSpread) {
     _lowerBound = lowerBound;
     _upperBound = upperBound;
     _integrator = integrator;
@@ -98,7 +98,7 @@ public class VarSwapStaticReplication {
     double totalVar = realizedVar * (nObsActual / nObsExpected) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted) / nObsExpected;
     double finalPayment = deriv.getVarNotional() * (totalVar - deriv.getVarStrike());
 
-    double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
+    final double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
     return df * finalPayment;
 
   }
@@ -163,6 +163,7 @@ public class VarSwapStaticReplication {
     // The position to hold in each otmOption(k) = 2 / strike^2, 
     // where otmOption is a call if k > fwd and a put otherwise
     final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double moneyness) {
 
@@ -175,8 +176,8 @@ public class VarSwapStaticReplication {
         if (_cutoffProvided && moneyness < _strikeCutoff) { // Extrapolate with ShiftedLognormal
           otmPrice = leftExtrapolator.priceFromRelativeStrike(moneyness);
         } else {
-          DoublesPair coord = DoublesPair.of(expiry, strike);
-          double vol = vsurf.getVolatility(coord);
+          final DoublesPair coord = DoublesPair.of(expiry, strike);
+          final double vol = vsurf.getVolatility(coord);
           otmPrice = new BlackFormula(fwd, moneyness * fwd, expiry, vol, null, isCall).computePrice();
         }
 

@@ -29,6 +29,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
 
   private static final String EXECUTION_SEQUENCE_FIELD = "executionSequence";
   
+  private static final String AWAIT_MARKET_DATA_FIELD = "awaitMarketData";
   private static final String TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD = "liveDataTriggerEnabled";
   private static final String TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD = "timeElapsedTriggerEnabled";
   private static final String RUN_AS_FAST_AS_POSSIBLE_FIELD = "runAsFastAsPossible";
@@ -41,6 +42,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ExecutionOptions object) {
     MutableFudgeMsg msg = context.newMessage();
     context.addToMessageWithClassHeaders(msg, EXECUTION_SEQUENCE_FIELD, null, object.getExecutionSequence());
+    msg.add(AWAIT_MARKET_DATA_FIELD, object.getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA));
     msg.add(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED));
     msg.add(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED));
     msg.add(RUN_AS_FAST_AS_POSSIBLE_FIELD, object.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE));
@@ -56,6 +58,9 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   public ExecutionOptions buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ViewCycleExecutionSequence executionSequence = context.fudgeMsgToObject(ViewCycleExecutionSequence.class, message.getMessage(EXECUTION_SEQUENCE_FIELD));
     EnumSet<ViewExecutionFlags> flags = EnumSet.noneOf(ViewExecutionFlags.class);
+    if (BooleanUtils.isTrue(message.getBoolean(AWAIT_MARKET_DATA_FIELD))) {
+      flags.add(ViewExecutionFlags.AWAIT_MARKET_DATA);
+    }
     if (BooleanUtils.isTrue(message.getBoolean(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD))) {
       flags.add(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED);
     }

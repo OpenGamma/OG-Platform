@@ -1,24 +1,28 @@
-<div class="OG-config">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span data-og-editable="name">${name}</span>
-  </h1>
-  <div class="OG-field-box"></div>
-  <div class="og-treeLines">
-    <table class="OG-table-style-01">
-    <thead>
-      <tr>
-        <td><strong>${type}</strong></td>
-      </tr>
-    </thead>
-    <tfoot>
-      <tr><td><button class="OG-small-button og-button-secondary og-js-save-config">save</button></td></tr>
-    </tfoot>
-    <tbody>
-      <tr>
-        <td><textarea data-og="config-data" style="width: 99%; min-height: 400px;">${configData}</textarea></td><!-- TEMP -->
-      </tr>
-    </tbody>
-  </table>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1 data-og-editable="name">${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-config">
+  <div class="OG-c10 og-grid-last OG-max-width-l">
+    <div class="OG-field-box"></div>
+    <div class="og-treeLines">
+      <table class="OG-table-style-01">
+      <thead>
+        <tr>
+          <td><strong>${type}</strong></td>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr><td><button class="OG-small-button og-button-secondary og-js-save-config">save</button></td></tr>
+      </tfoot>
+      <tbody>
+        <tr>
+          <td><textarea data-og="config-data" style="width: 99%; min-height: 100px;">${configData}</textarea></td><!-- TEMP -->
+        </tr>
+      </tbody>
+    </table>
+    </div>
   </div>
+</div>
 </div>

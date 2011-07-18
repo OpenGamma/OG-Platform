@@ -42,12 +42,12 @@ public class ConfigDBVolatilitySurfaceSpecificationSource implements VolatilityS
   //-------------------------------------------------------------------------
 
   @Override
-  public VolatilitySurfaceSpecification getSpecification(final String currencyLabel, final String name, final String instrumentType) {
-    return _configSource.getLatestByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType + "_" + currencyLabel);
+  public VolatilitySurfaceSpecification getSpecification(final String name, final String instrumentType) {
+    return _configSource.getLatestByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType);
   }
 
   @Override
-  public VolatilitySurfaceSpecification getSpecification(final String ccyLabel, final String name, final String instrumentType, final Instant version) {
-    return _configSource.getByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType + "_" + ccyLabel, version);
+  public VolatilitySurfaceSpecification getSpecification(final String name, final String instrumentType, final Instant version) {
+    return _configSource.getByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType, version);
   }
 }

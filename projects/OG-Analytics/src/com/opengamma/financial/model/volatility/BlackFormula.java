@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.volatility;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -13,9 +16,6 @@ import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Black pricing in the forward measure. All prices, input/output, are *forward* prices, i.e. price(t,T) / Zero(t,T).
@@ -41,7 +41,7 @@ public class BlackFormula {
    * @param fwdPrice Forward, i.e. undiscounted, price of the option. May be null.
    * @param isCall True if the option is a Call; false if it is a Put. 
    */
-  public BlackFormula(double forward, double strike, double expiry, Double lognormalVol, Double fwdPrice, boolean isCall) {
+  public BlackFormula(final double forward, final double strike, final double expiry, final Double lognormalVol, final Double fwdPrice, final boolean isCall) {
     _forward = forward;
     _strike = strike;
     _expiry = expiry;
@@ -91,7 +91,7 @@ public class BlackFormula {
       return sign;
     }
     final double d1 = Math.log(_forward / _strike) / sigmaRootT + 0.5 * sigmaRootT;
-    double delta = sign * NORMAL.getCDF(sign * d1);
+    final double delta = sign * NORMAL.getCDF(sign * d1);
     return delta;
   }
 
@@ -105,10 +105,10 @@ public class BlackFormula {
    */
   public final Double computeStrikeImpliedByForwardDelta(final double fwdDelta, final boolean forCall) {
     Validate.isTrue(fwdDelta >= 0.0 && fwdDelta <= 1.0, "Delta must be between 0.0 and 1.0");
-    double sign = forCall ? 1. : -1.;
-    double d1 = sign * NORMAL.getInverseCDF(fwdDelta);
-    double sigmaRootT = _lognormalVol * Math.sqrt(_expiry);
-    double strike = _forward * Math.exp(sigmaRootT * (0.5 * sigmaRootT - d1));
+    final double sign = forCall ? 1. : -1.;
+    final double d1 = sign * NORMAL.getInverseCDF(fwdDelta);
+    final double sigmaRootT = _lognormalVol * Math.sqrt(_expiry);
+    final double strike = _forward * Math.exp(sigmaRootT * (0.5 * sigmaRootT - d1));
     return strike;
   }
 
@@ -140,9 +140,9 @@ public class BlackFormula {
     try {
       final BlackFunctionData blackData = new BlackFunctionData(_forward, 1.0, 0.0);
       final EuropeanVanillaOption blackOption = new EuropeanVanillaOption(_strike, _expiry, _isCall);
-      double impVol = new BlackImpliedVolatilityFormula().getImpliedVolatility(blackData, blackOption, _fwdMtm);
+      final double impVol = new BlackImpliedVolatilityFormula().getImpliedVolatility(blackData, blackOption, _fwdMtm);
       return impVol;
-    } catch (com.opengamma.math.MathException e) {
+    } catch (final com.opengamma.math.MathException e) {
       System.err.println("Failed to compute ImpliedVolatility");
       throw new OpenGammaRuntimeException(e.getMessage());
     }
@@ -157,11 +157,10 @@ public class BlackFormula {
 
       final Function1D<Double, Double> difference = new Function1D<Double, Double>() {
 
-        @SuppressWarnings({"synthetic-access" })
         @Override
         public Double evaluate(final Double strike) {
           black.setStrike(strike);
-          double delta = black.computeForwardDelta();
+          final double delta = black.computeForwardDelta();
           return delta - fwdDelta * (forCall ? 1.0 : -1.0); // TODO Case : confirm this is sufficient for calls and puts
         }
       };
@@ -169,12 +168,12 @@ public class BlackFormula {
       final NewtonRaphsonSingleRootFinder rootFinder = new NewtonRaphsonSingleRootFinder();
       if ((forCall && fwdDelta >= 0.5) || (!forCall && fwdDelta <= 0.5)) {
         // Strike is bounded below by 0 and above by the atmDelta
-        double atmDelta = _forward * Math.exp(0.5 * _lognormalVol * _lognormalVol * _expiry);
+        final double atmDelta = _forward * Math.exp(0.5 * _lognormalVol * _lognormalVol * _expiry);
         return rootFinder.getRoot(difference, 0.0, atmDelta);
       } // Give it a guess, and estimate finite-difference derivative
       return rootFinder.getRoot(difference, _strike);
 
-    } catch (com.opengamma.math.MathException e) {
+    } catch (final com.opengamma.math.MathException e) {
       System.err.println(e);
       System.err.println("Failed to compute ImpliedVolatility");
       return null;
@@ -193,7 +192,7 @@ public class BlackFormula {
    * Sets the forward.
    * @param forward  the forward
    */
-  public final void setForward(double forward) {
+  public final void setForward(final double forward) {
     _forward = forward;
   }
 
@@ -209,7 +208,7 @@ public class BlackFormula {
    * Sets the strike.
    * @param strike  the strike
    */
-  public final void setStrike(double strike) {
+  public final void setStrike(final double strike) {
     _strike = strike;
   }
 
@@ -225,7 +224,7 @@ public class BlackFormula {
    * Sets the expiry.
    * @param expiry  the expiry
    */
-  public final void setExpiry(double expiry) {
+  public final void setExpiry(final double expiry) {
     _expiry = expiry;
   }
 
@@ -241,7 +240,7 @@ public class BlackFormula {
    * Sets the vol.
    * @param vol  the vol
    */
-  public final void setLognormalVol(Double vol) {
+  public final void setLognormalVol(final Double vol) {
     Validate.isTrue(vol > 0.0 || CompareUtils.closeEquals(vol, 0.0), "Cannot set vol to be negative.");
     _lognormalVol = vol;
   }
@@ -258,7 +257,7 @@ public class BlackFormula {
    * Sets the forward mark-to-market price.
    * @param fwdMtm  forward mark-to-market price
    */
-  public final void setMtm(Double fwdMtm) {
+  public final void setMtm(final Double fwdMtm) {
     _fwdMtm = fwdMtm;
   }
 
@@ -266,7 +265,7 @@ public class BlackFormula {
    * Sets the forward mark-to-market price.
    * @param bCall  True if a call, false if a put
    */
-  public final void setIsCall(boolean bCall) {
+  public final void setIsCall(final boolean bCall) {
     _isCall = bCall;
   }
 
@@ -288,14 +287,14 @@ public class BlackFormula {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (!(obj instanceof BlackFormula)) {
       return false;
     }
-    BlackFormula other = (BlackFormula) obj;
+    final BlackFormula other = (BlackFormula) obj;
     if (Double.doubleToLongBits(_expiry) != Double.doubleToLongBits(other._expiry)) {
       return false;
     }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,14 +21,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.tuple.DoublesPair;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
 // For non-linear aggregates and large portfolios, you'll want to use a more refined
@@ -39,22 +35,42 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Able to sum a particular requirement name from a set of underlying
  * positions.
+ * <p>
  * While in general we assume that basic linear aggregates will be performed in the
  * presentation layer on demand, this Function can be used to perform aggregate
  * in the engine.
+ * <p>
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
  */
 public class SummingFunction extends PropertyPreservingFunction {
 
+  /**
+   * Value of the {@link ValuePropertyNames#AGGREGATION} property set on the output produced. This
+   * allows the result to be distinguished from a related summing function that doesn't apply
+   * uniformly to all inputs (e.g. it might filter or weight them). 
+   */
+  public static final String AGGREGATION_STYLE = "Full";
+
   @Override
-  protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CUBE,
-                         ValuePropertyNames.CURRENCY,
-                         ValuePropertyNames.CURVE,
-                         ValuePropertyNames.CURVE_CURRENCY,
-                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-                         YieldCurveFunction.PROPERTY_FUNDING_CURVE};
+  protected Collection<String> getPreservedProperties() {
+    return Collections.singleton(ValuePropertyNames.CURRENCY);
+  }
+  
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Arrays.asList(
+        ValuePropertyNames.CUBE,
+        ValuePropertyNames.CURVE,
+        ValuePropertyNames.CURVE_CURRENCY,
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+  }
+
+  @Override
+  protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
+    super.applyAdditionalResultProperties(builder);
+    builder.with(ValuePropertyNames.AGGREGATION, AGGREGATION_STYLE);
   }
 
   private final String _requirementName;
@@ -81,72 +97,12 @@ public class SummingFunction extends PropertyPreservingFunction {
       final Object positionValue = inputs.getValue(requirement);
       currentSum = addValue(currentSum, positionValue);
     }
-    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getCompositeValueProperties(inputs.getAllValues())), currentSum);
+    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultPropertiesFromInputs(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);
   }
 
   protected Object addValue(final Object previousSum, final Object currentValue) {
-    if (previousSum == null) {
-      return currentValue;
-    }
-    if (previousSum.getClass() != currentValue.getClass()) {
-      throw new IllegalArgumentException("Inputs have different value types for requirement " + _requirementName);
-    }
-    if (currentValue instanceof Double) {
-      final Double previousDouble = (Double) previousSum;
-      return previousDouble + (Double) currentValue;
-    } else if (currentValue instanceof BigDecimal) {
-      final BigDecimal previousDecimal = (BigDecimal) previousSum;
-      return previousDecimal.add((BigDecimal) currentValue);
-    } else if (currentValue instanceof DoubleTimeSeries<?>) {
-      final DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
-      return previousTS.add((DoubleTimeSeries<?>) currentValue);
-    } else if (currentValue instanceof DoubleLabelledMatrix1D) {
-      final DoubleLabelledMatrix1D previousMatrix = (DoubleLabelledMatrix1D) previousSum;
-      final DoubleLabelledMatrix1D currentMatrix = (DoubleLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    } else if (currentValue instanceof LocalDateLabelledMatrix1D) {
-      final LocalDateLabelledMatrix1D previousMatrix = (LocalDateLabelledMatrix1D) previousSum;
-      final LocalDateLabelledMatrix1D currentMatrix = (LocalDateLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    } else if (currentValue instanceof ZonedDateTimeLabelledMatrix1D) {
-      final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) previousSum;
-      final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) currentValue;
-      return previousMatrix.add(currentMatrix);
-    } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
-      @SuppressWarnings("unchecked")
-      final Map<String, List<DoublesPair>> previousMap = (Map<String, List<DoublesPair>>) previousSum;
-      @SuppressWarnings("unchecked")
-      final Map<String, List<DoublesPair>> currentMap = (Map<String, List<DoublesPair>>) currentValue;
-      final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-      for (final String name : previousMap.keySet()) {
-        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-        for (final DoublesPair pair : previousMap.get(name)) {
-          temp.add(pair);
-        }
-        if (currentMap.containsKey(name)) {
-          for (final DoublesPair pair : currentMap.get(name)) {
-            temp.add(pair);
-          }
-        }
-        result.put(name, temp);
-      }
-      for (final String name : currentMap.keySet()) {
-        if (!result.containsKey(name)) {
-          final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-          for (final DoublesPair pair : currentMap.get(name)) {
-            temp.add(pair);
-          }
-          result.put(name, temp);
-        }
-      }
-    } else if (currentValue instanceof DoubleLabelledMatrix2D) {
-      final DoubleLabelledMatrix2D previousMatrix = (DoubleLabelledMatrix2D) previousSum;
-      final DoubleLabelledMatrix2D currentMatrix = (DoubleLabelledMatrix2D) currentValue;
-      return previousMatrix.add(currentMatrix, 0.005, 0.005);
-    }
-    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
-        "or present value curve sensitivities right now.");
+    return SumUtils.addValue(previousSum, currentValue, getRequirementName());
   }
 
   @Override
@@ -173,7 +129,7 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getCompositeSpecificationProperties(inputs.keySet()));
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet()));
     return Collections.singleton(result);
   }
 

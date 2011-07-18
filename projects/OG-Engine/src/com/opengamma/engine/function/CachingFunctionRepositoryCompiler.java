@@ -59,31 +59,35 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       final FunctionDefinition function, final Instant atInstant) {
     if (before != null) {
       final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueId());
-      if (compiledFunction.getLatestInvocationTime() == null) {
-        // previous one always valid
-        compiled.addFunction(compiledFunction);
-        return true;
-      } else {
-        final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
-        if (!validUntil.isBefore(atInstant)) {
-          // previous one still valid
+      if (compiledFunction != null) {
+        if (compiledFunction.getLatestInvocationTime() == null) {
+          // previous one always valid
           compiled.addFunction(compiledFunction);
           return true;
+        } else {
+          final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
+          if (!validUntil.isBefore(atInstant)) {
+            // previous one still valid
+            compiled.addFunction(compiledFunction);
+            return true;
+          }
         }
       }
     }
     if (after != null) {
       final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueId());
-      if (compiledFunction.getEarliestInvocationTime() == null) {
-        // next one always valid
-        compiled.addFunction(compiledFunction);
-        return true;
-      } else {
-        final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
-        if (!validFrom.isAfter(atInstant)) {
-          // next one already valid
+      if (compiledFunction != null) {
+        if (compiledFunction.getEarliestInvocationTime() == null) {
+          // next one always valid
           compiled.addFunction(compiledFunction);
           return true;
+        } else {
+          final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
+          if (!validFrom.isAfter(atInstant)) {
+            // next one already valid
+            compiled.addFunction(compiledFunction);
+            return true;
+          }
         }
       }
     }
@@ -106,6 +110,10 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
             s_logger.debug("Compiling {}", function);
             return function.compile(context, atInstant);
           } catch (Exception e) {
+            System.out.println(e.getMessage());
+            for (StackTraceElement el : e.getStackTrace()) {
+              System.err.println(el);
+            }
             s_logger.error("Compiling {} threw {}", function.getShortName(), e);
             throw e;
           }

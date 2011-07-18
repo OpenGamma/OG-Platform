@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -439,11 +441,13 @@ public class DependencyGraphBuilder {
 
   // DON'T CHECK IN WITH =true
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
+  private static final AtomicInteger DEBUG_GRAPH_ID = new AtomicInteger();
 
   public DependencyGraph getDependencyGraph() {
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
-        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));
+        int graphFileId = DEBUG_GRAPH_ID.getAndIncrement();
+        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph" + graphFileId + ".txt"));
         _graph.dumpStructureASCII(ps);
         ps.close();
       } catch (IOException e) {

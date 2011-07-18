@@ -294,6 +294,11 @@ public final class ValueRequirementNames {
   public static final String HESTON_VOL0_FITS = "Heston Vol0 Fits";
   public static final String HESTON_OMEGA_FITS = "Heston Omega Fits";
   public static final String HESTON_RHO_FITS = "Heston Rho Fits";
-  //CSON
 
+  //FX analytics (temporary)
+  public static final String FX_PRESENT_VALUE = "FX Present Value";
+  public static final String FX_CURRENCY_EXPOSURE = "FX Currency Exposure";
+  public static final String FX_CURVE_SENSITIVITIES = "FX Curve Sensitivities";
+  public static final String FX_VOLATILITY_SENSITIVITIES = "FX Volatility Sensitivities";
+  //CSON
 }

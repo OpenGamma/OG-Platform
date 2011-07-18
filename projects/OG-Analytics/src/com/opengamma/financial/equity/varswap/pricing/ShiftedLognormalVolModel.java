@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.equity.varswap.pricing;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -13,9 +16,6 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -35,8 +35,8 @@ public class ShiftedLognormalVolModel {
   private static final double DEF_GUESS_SHIFT = 0.25; // fwd*(1+shift)
   private static final VectorRootFinder DEF_SOLVER = new BroydenVectorRootFinder(DEF_TOL, DEF_TOL, DEF_STEPS);
 
-  public ShiftedLognormalVolModel(double forward, double expiry, VolatilitySurface volSurface, double cutoffStrike, double secondStrike,
-      double volGuess, double shiftGuess, VectorRootFinder solver) {
+  public ShiftedLognormalVolModel(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike,
+      final double volGuess, final double shiftGuess, final VectorRootFinder solver) {
 
     _forward = forward;
     _expiry = expiry;
@@ -51,23 +51,23 @@ public class ShiftedLognormalVolModel {
 
   }
 
-  public ShiftedLognormalVolModel(double forward, double expiry, VolatilitySurface volSurface, double cutoffStrike, double secondStrike) {
+  public ShiftedLognormalVolModel(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike) {
     this(forward, expiry, volSurface, cutoffStrike, secondStrike, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
-  public ShiftedLognormalVolModel from(double forward, double expiry, VolatilitySurface volSurface, double cutoffStrike, double secondStrike) {
+  public ShiftedLognormalVolModel from(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike) {
     return new ShiftedLognormalVolModel(forward, expiry, volSurface, cutoffStrike, secondStrike, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
   private DoubleMatrix1D fitShiftedLnParams(
-      VolatilitySurface vsurf,
+      final VolatilitySurface vsurf,
       final double strikeTarget1, final double strikeTarget2,
-      double volGuess, double shiftGuess,
-      VectorRootFinder solver) {
+      final double volGuess, final double shiftGuess,
+      final VectorRootFinder solver) {
 
     Validate.notNull(solver, "solver");
     DoubleMatrix1D volShiftParams; // [vol,shift]
-    DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {volGuess, shiftGuess });
+    final DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {volGuess, shiftGuess});
 
     // Targets
     final DoublesPair target1 = DoublesPair.of(_expiry, strikeTarget1 * _forward);
@@ -82,11 +82,12 @@ public class ShiftedLognormalVolModel {
 
     // Function
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> priceDiffs = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D volShiftPair) {
-        double[] diffs = new double[] {100, 100 };
-        double vol = Math.max(1e-9, volShiftPair.getEntry(0));
-        double shift = volShiftPair.getEntry(1);
+        final double[] diffs = new double[] {100, 100};
+        final double vol = Math.max(1e-9, volShiftPair.getEntry(0));
+        final double shift = volShiftPair.getEntry(1);
 
         diffs[0] = (target1Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget1 + shift), _expiry, vol, null, strikeTarget1 > 1).computePrice()) * 1.0E+6;
         diffs[1] = (target2Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget2 + shift), _expiry, vol, null, strikeTarget2 > 1).computePrice()) * 1.0E+6;
@@ -97,12 +98,12 @@ public class ShiftedLognormalVolModel {
 
     try {
       volShiftParams = solver.getRoot(priceDiffs, guess);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       System.err.println("Failed to find roots to fit a Shifted Lognormal Distribution to your targets. Increase maxSteps, change guess, or change secondTarget.");
       // "Matrix is singular; could not perform LU decomposition" OR "Failed to converge in backtracking, even after a Jacobian recalculation."
       try {
-        volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {target2Vol, 0.0 }));
-      } catch (Exception e2) {
+        volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {target2Vol, 0.0}));
+      } catch (final Exception e2) {
         throw new OpenGammaRuntimeException(e.getMessage());
       }
 
@@ -111,7 +112,7 @@ public class ShiftedLognormalVolModel {
     return volShiftParams;
   }
 
-  public double priceFromRelativeStrike(double relStrike) {
+  public double priceFromRelativeStrike(final double relStrike) {
     _shiftedBlackOption.setStrike((relStrike + _shift) * _forward);
     _shiftedBlackOption.setIsCall(relStrike > 1.0);
     return _shiftedBlackOption.computePrice();
@@ -129,7 +130,7 @@ public class ShiftedLognormalVolModel {
    * Sets the forward.
    * @param forward  the forward
    */
-  public final void setForward(double forward) {
+  public final void setForward(final double forward) {
     _forward = forward;
   }
 
@@ -145,7 +146,7 @@ public class ShiftedLognormalVolModel {
    * Sets the expiry.
    * @param expiry  the expiry
    */
-  public final void setExpiry(double expiry) {
+  public final void setExpiry(final double expiry) {
     _expiry = expiry;
   }
 
@@ -161,7 +162,7 @@ public class ShiftedLognormalVolModel {
    * Sets the vol.
    * @param vol  the vol
    */
-  public final void setVol(double vol) {
+  public final void setVol(final double vol) {
     _vol = vol;
   }
 
@@ -177,7 +178,7 @@ public class ShiftedLognormalVolModel {
    * Sets the shift.
    * @param shift  the shift
    */
-  public final void setShift(double shift) {
+  public final void setShift(final double shift) {
     _shift = shift;
   }
 
@@ -193,7 +194,7 @@ public class ShiftedLognormalVolModel {
    * Sets the cutoff.
    * @param cutoff  the cutoff
    */
-  public final void setCutoff(double cutoff) {
+  public final void setCutoff(final double cutoff) {
     _cutoff = cutoff;
   }
 
@@ -209,7 +210,7 @@ public class ShiftedLognormalVolModel {
    * Sets the shiftedBlackOption.
    * @param shiftedBlackOption  the shiftedBlackOption
    */
-  public final void setShiftedBlackOption(BlackFormula shiftedBlackOption) {
+  public final void setShiftedBlackOption(final BlackFormula shiftedBlackOption) {
     _shiftedBlackOption = shiftedBlackOption;
   }
 
@@ -233,14 +234,14 @@ public class ShiftedLognormalVolModel {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (!(obj instanceof ShiftedLognormalVolModel)) {
       return false;
     }
-    ShiftedLognormalVolModel other = (ShiftedLognormalVolModel) obj;
+    final ShiftedLognormalVolModel other = (ShiftedLognormalVolModel) obj;
     if (Double.doubleToLongBits(_cutoff) != Double.doubleToLongBits(other._cutoff)) {
       return false;
     }

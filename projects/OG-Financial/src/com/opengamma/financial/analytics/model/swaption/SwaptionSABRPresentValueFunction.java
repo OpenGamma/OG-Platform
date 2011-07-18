@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.swaption;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -17,6 +18,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -28,7 +30,7 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -68,11 +70,15 @@ public class SwaptionSABRPresentValueFunction extends SwaptionSABRFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
-        createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
-            .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-            .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get()));
+    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), resultProperties));
   }
+
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
+    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), resultProperties)); 
+  }
+  
 }

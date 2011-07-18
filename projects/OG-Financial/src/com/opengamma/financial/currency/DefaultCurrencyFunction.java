@@ -47,6 +47,10 @@ public class DefaultCurrencyFunction extends AbstractFunction.NonCompiledInvoker
     return _valueNames;
   }
 
+  public boolean hasValueName(final String valueName) {
+    return getValueNames().contains(valueName);
+  }
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     throw new IllegalStateException("This function should never be executed");

@@ -34,6 +34,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Tenor;
 
@@ -114,6 +115,17 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           maturity = tenorSwapSecurity.getMaturityDate();
           security = tenorSwapSecurity;
           break;
+        case OIS_SWAP:
+          final Tenor tenor = strip.getMaturity();
+          if (tenor.getPeriod().getYears() != 0) {
+            security = getOISSwap(curveSpecification, strip, marketValues);
+          } else if ((tenor.getPeriod().getMonths() != 0 && tenor.getPeriod().getMonths() < 12) || tenor.getPeriod().getDays() != 0) {
+            security = getOISCash(curveSpecification, strip, marketValues);
+          } else {
+            throw new OpenGammaRuntimeException("Cannot handle OIS swaps of tenor " + tenor);
+          }
+          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
+          break;
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
@@ -162,7 +174,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
-    final Identifier floatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     Double initialRate = null;
     for (final Identifier identifier : floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {
@@ -218,8 +230,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final String counterparty = "";
     final ConventionBundle payLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     final ConventionBundle receiveLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapReceiveFloatingLegInitialRate());
-    final Identifier payLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
-    final Identifier receiveLegFloatRateBloombergTicker = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
+    final Identifier payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final Identifier receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }
@@ -250,6 +262,61 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 0.,
                                                 spread,
                                                 true));
+    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    return swap;
+  }
+
+  private CashSecurity getOISCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<Identifier, Double> marketValues) {
+    final Identifier identifier = strip.getSecurity();
+    final double rate = marketValues.get(identifier);
+    final ZonedDateTime maturity = spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
+    final Currency currency = spec.getCurrency();
+    final Identifier region = spec.getRegion();
+    final CashSecurity cash = new CashSecurity(currency, region, maturity, rate, 1);
+    cash.setIdentifiers(IdentifierBundle.of(identifier));
+    return cash;
+  }
+
+  private SwapSecurity getOISSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
+      final Map<Identifier, Double> marketValues) {
+    final Identifier swapIdentifier = strip.getSecurity();
+    final Double rate = marketValues.get(swapIdentifier);
+    final LocalDate curveDate = spec.getCurveDate();
+    final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
+    final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
+    final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
+    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
+    final String counterparty = "";
+    final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
+    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+    }
+    final double fixedRate = rate;
+    // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
+    final SwapSecurity swap = new SwapSecurity(tradeDate,
+                                          effectiveDate,
+                                          maturityDate,
+                                          counterparty,
+                                            new FloatingInterestRateLeg(
+                                                convention.getSwapFloatingLegDayCount(),
+                                                convention.getSwapFloatingLegFrequency(),
+                                                convention.getSwapFloatingLegRegion(),
+                                                convention.getSwapFloatingLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                floatRateBloombergTicker,
+                                                0.,
+                                                0,
+                                                true),
+                                            new FixedInterestRateLeg(
+                                                convention.getSwapFixedLegDayCount(),
+                                                convention.getSwapFixedLegFrequency(),
+                                                convention.getSwapFixedLegRegion(),
+                                                convention.getSwapFixedLegBusinessDayConvention(),
+                                                new InterestRateNotional(spec.getCurrency(), 1),
+                                                fixedRate));
     swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
     return swap;
   }

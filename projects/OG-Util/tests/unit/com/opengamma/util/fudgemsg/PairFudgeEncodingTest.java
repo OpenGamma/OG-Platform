@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.IntDoublePair;
 import com.opengamma.util.tuple.LongDoublePair;
@@ -27,7 +28,6 @@ import com.opengamma.util.tuple.Pair;
  */
 @Test
 public class PairFudgeEncodingTest {
-  // TODO: cannot handle secondary types ATM
 
   private static final Logger s_logger = LoggerFactory.getLogger(PairFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -69,6 +69,11 @@ public class PairFudgeEncodingTest {
 
   public void test_DD() {
     Pair<Double, Double> pair = DoublesPair.of(23.2, 4.5d);
+    testFudgeMessage(pair);
+  }
+  
+  public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
+    Pair<Tenor, Tenor> pair = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
     testFudgeMessage(pair);
   }
 

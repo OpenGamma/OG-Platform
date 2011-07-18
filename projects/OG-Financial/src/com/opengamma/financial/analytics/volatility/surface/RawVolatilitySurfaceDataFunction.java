@@ -18,8 +18,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -42,7 +45,7 @@ import com.opengamma.util.tuple.Pair;
  */
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(RawVolatilitySurfaceDataFunction.class);
   /**
    * Resultant value specification property for the surface result. Note these should be moved into either the ValuePropertyNames class
    * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
@@ -58,28 +61,21 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private String _currencyLabel;
   private final String _definitionName;
   private final String _specificationName;
   private String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public RawVolatilitySurfaceDataFunction(final String currencyLabel, final String definitionName, final String instrumentType, final String specificationName) {
-    Validate.notNull(currencyLabel, "Currency label");
+  public RawVolatilitySurfaceDataFunction(final String definitionName, final String instrumentType, final String specificationName) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
     Validate.notNull(specificationName, "Specification Name");
     _definition = null;
-    _currencyLabel = currencyLabel;
     _definitionName = definitionName;
     _instrumentType = instrumentType;
     _specificationName = specificationName;
     _result = null;
     _results = null;
-  }
-
-  public String getCurrencyLabel() {
-    return _currencyLabel;
   }
 
   public String getDefinitionName() {
@@ -94,17 +90,18 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_currencyLabel, _definitionName, _instrumentType);
+    _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_currencyLabel, _specificationName, _instrumentType);
-    _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getCurrency()),
+    _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
+    _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
+    s_logger.warn(getShortName() + _result + " target=" + _definition.getTarget().getUniqueId());
   }
 
   @Override
   public String getShortName() {
-    return _currencyLabel + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
+    return _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
   }
 
   @SuppressWarnings("unchecked")
@@ -113,10 +110,10 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
                                                         final FunctionCompilationContext context,
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       // don't care what these are
       for (final Y y : definition.getYs()) {
-        final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
         final Identifier identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }
@@ -158,7 +155,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueId(), _definition.getCurrency().getUniqueId());
+        return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
       @SuppressWarnings("unchecked")
@@ -173,15 +170,22 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
             final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
             final Identifier identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
-            final Double volatility = (Double) inputs.getValue(requirement);
-            volatilityValues.put(Pair.of(x, y), volatility / 100);
+            if (inputs.getValue(requirement) != null) {
+              final Double volatility = (Double) inputs.getValue(requirement);
+              volatilityValues.put(Pair.of(x, y), volatility / 100);
+            }
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
-                                                                                                     _definition.getCurrency(),
+                                                                                                     _definition.getTarget(),
                                                                                                      _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
+      }
+
+      @Override
+      public boolean canHandleMissingInputs() {
+        return true;
       }
 
     };

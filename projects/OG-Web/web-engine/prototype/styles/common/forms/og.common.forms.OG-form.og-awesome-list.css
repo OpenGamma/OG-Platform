@@ -1,0 +1,48 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-form .og-awesome-list li {
+  padding: 3px 5px;
+  position: relative;
+}
+
+.OG-form .og-awesome-list li label {
+  margin-bottom: 0;
+}
+
+.OG-form .og-awesome-list li:hover {
+  background-color: #d7e7f2;
+}
+
+.OG-form .og-awesome-list .og-del {
+  display: none;
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  cursor: pointer;
+  background-position: -22px  -9px;
+  height: 6px;
+  margin-top: -3px;
+  width: 7px;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  z-index: 1;
+}
+
+.OG-form .og-awesome-list li:hover {
+  background-color: #d7e7f2;
+}
+
+.OG-form .og-awesome-list li:hover .og-del {
+  display: block;
+}
+
+.OG-form .og-awesome-list .og-del:hover {
+  background-position: -11px -35px;
+  width: 11px;
+  height: 10px;
+  top: 50%;
+  margin-top: -5px;
+  right: 8px;
+}

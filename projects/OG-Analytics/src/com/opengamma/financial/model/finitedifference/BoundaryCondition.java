@@ -6,7 +6,7 @@
 package com.opengamma.financial.model.finitedifference;
 
 /**
- * 
+ * Represents a boundary condition for a PDE solver that has time dependent characteristics but is fixed at a space level 
  */
 public interface BoundaryCondition {
 

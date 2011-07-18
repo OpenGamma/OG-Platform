@@ -1,0 +1,12 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+.OG-main {
+  margin-top: 3em;
+  position: relative;
+  z-index: 1;
+}

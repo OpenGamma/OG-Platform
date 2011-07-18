@@ -12,6 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -20,6 +22,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
@@ -37,6 +40,8 @@ import com.opengamma.util.time.DateUtil;
 @Test
 @SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
+  
+  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
 
   private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
@@ -50,6 +55,7 @@ public class SABRFiniteDifferenceTest {
   private static final double NU = 0.3;
   private static final double RATE = 0.00;
   private static final double T = 5.0;
+  private static final ForwardCurve FORWARD = new ForwardCurve(SPOT);
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
@@ -58,13 +64,10 @@ public class SABRFiniteDifferenceTest {
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
 
-  private static Surface<Double, Double, Double> A;
-  private static Surface<Double, Double, Double> B;
-  private static Surface<Double, Double, Double> C;
 
   private static final PriceSurface SABR_PRICE_SURFACE;
   private static final BlackVolatilitySurface SABR_VOL_SURFACE;
-  private static final LocalVolatilitySurface SABR_LOCAL_VOL;
+  private static final AbsoluteLocalVolatilitySurface SABR_LOCAL_VOL;
   /**
    * 
    */
@@ -108,7 +111,7 @@ public class SABRFiniteDifferenceTest {
     SABR_PRICE_SURFACE = new PriceSurface(FunctionalDoublesSurface.from(priceSurface));
 
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    SABR_LOCAL_VOL = cal.getLocalVolatility(SABR_VOL_SURFACE, SPOT, RATE);
+    SABR_LOCAL_VOL = cal.getAbsoluteLocalVolatilitySurface(SABR_VOL_SURFACE, SPOT, RATE);
 
     STRIKE = SPOT / YIELD_CURVE.getDiscountFactor(T);
 
@@ -117,51 +120,8 @@ public class SABRFiniteDifferenceTest {
     LOWER = new DirichletBoundaryCondition(0, 0.0);
     UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * SPOT, false);
 
-    final Function<Double, Double> a = new Function<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        final double t = ts[0];
-        final double s = ts[1];
-        final double sigma = SABR_LOCAL_VOL.getVolatility(t, s);
-        return -s * s * sigma * sigma / 2.;
-      }
-    };
 
-    final Function<Double, Double> b = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        final double s = ts[1];
-        return -s * RATE;
-      }
-    };
-
-    final Function<Double, Double> c = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return RATE;
-      }
-    };
-
-    A = FunctionalDoublesSurface.from(a);
-    B = FunctionalDoublesSurface.from(b);
-    C = FunctionalDoublesSurface.from(c);
-
-    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double x) {
-
-        return Math.max(0, x - STRIKE);
-
-      }
-    };
-
-    DATA = new ConvectionDiffusionPDEDataBundle(A, B, C, payoff);
+    DATA = PDE_DATA_PROVIDER.getBackwardsLocalVol(FORWARD, STRIKE, T, 0.0, true, SABR_LOCAL_VOL);
   }
 
   public void test() {

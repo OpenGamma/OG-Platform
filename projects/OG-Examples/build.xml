@@ -3,11 +3,53 @@
 
 	<import file="${common.dir}/common.xml"/>
 
+	<!-- Targets used to locate script directories. These will be unnecessary once scripts are included in jars. -->
+
+	<import file="${common.dir}/../git-macros.xml" />
+
+	<macrodef name="check-dev-dir">
+		<attribute name="project" />
+		<attribute name="property" />
+		<sequential>
+			<available type="dir" file="${projects.dir}/@{project}" property="@{property}.dir" value="${projects.dir}/@{project}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="get-from-git">
+		<attribute name="project" />
+		<attribute name="property" />
+		<sequential>
+			<property name="@{property}.dir" value="${basedir}/temp/OG-Platform/projects/@{project}" />
+			<echo message="Cloning/pulling from git@github.com:OpenGamma/OG-Platform.git" />
+			<git-clone repository="git@github.com:OpenGamma/OG-Platform" dest="${basedir}/temp/OG-Platform" />
+			<git-pull dest="${basedir}/temp/OG-Platform" />
+		</sequential>
+	</macrodef>
+
+	<target name="check-og-masterdb-dev" unless="og-masterdb.dir">
+		<check-dev-dir project="OG-MasterDB" property="og-masterdb" />
+	</target>
+
+	<target name="check-og-masterdb-git" unless="og-masterdb.dir">
+		<get-from-git project="OG-MasterDB" property="og-masterdb" />
+	</target>
+
+	<target name="find-og-masterdb-dir" depends="check-og-masterdb-dev,check-og-masterdb-git">
+		<echo message="OG-MasterDB directory located at ${og-masterdb.dir}" />
+	</target>
+
+	<!-- End of targets used to locate script directories -->
+
 	<target name="new-hsqldb-impl">
 		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
 
-	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl" description="--> creates the hsqldb tables" />
+	<target name="new-user-financial-db" depends="find-og-masterdb-dir,jetty-stop">
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${og-masterdb.dir}" catalog="og-financial" />
+		<!-- scriptdir was og-masterdb.dir, maybe should be moved -->
+	</target>
+
+	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl,new-user-financial-db" description="--> creates the hsqldb tables" />
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
 
@@ -58,12 +100,26 @@
 		</java>
 	</target>
 
+	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
+		<java jar="${jetty.start}" fork="true" spawn="false">
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
+			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+			<jvmarg value="-Dopengamma.platform.os=posix" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+			<arg value="start.class=com.opengamma.examples.loader.DemoDatabasePopulater" />
+			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
+			<arg value="path=${toString:jetty.run.path}" />
+		</java>
+	</target>
+
 	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
 		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
 			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
@@ -114,6 +170,10 @@
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
 
-	<target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
+	<target name="test-hsqldb">
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/example-test" scriptdir="${basedir}" catalog="og-financial" />
+	</target>
+
+	<target name="test-batch" depends="test-hsqldb, common.test-batch" />
 
 </project>

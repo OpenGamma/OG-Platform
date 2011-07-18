@@ -53,7 +53,7 @@ public class RealizedVariance extends Function1D<VarianceSwap, Double> {
       logReturns += weights[i - 1] * FunctionUtils.square(Math.log(obs[i] / obs[i - 1]));
     }
 
-    return logReturns / nObs * swap.getAnnualizationFactor();
+    return logReturns / (nObs - 1) * swap.getAnnualizationFactor(); // FIXME Case Divisor - should this be n-1?
   }
 
 }

@@ -1,0 +1,45 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+.OG-filter {
+  position: relative;
+  background: #a3ceec;
+}
+
+.OG-filter input,
+.OG-filter select {
+  z-index: 1;
+}
+
+.OG-filter.og-filter-round {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+.OG-filter.og-filter-round.og-filter-glass:after {
+  -webkit-border-radius: 3px;
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius: 3px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  border-radius: 3px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.OG-filter.og-filter-glass:after {
+  background: #fff;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.3;
+  position: absolute;
+  top: 1px;
+  right: 1px;
+}

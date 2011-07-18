@@ -10,14 +10,13 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -263,11 +262,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+  
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
       if (fixedRate == null) {
-        ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
         fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
@@ -276,16 +276,25 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
-          ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
           fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
-        }        
-        if (fixedRate == null) {          
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+        if (fixedRate == null) {
+          fixedRate = indexFixingTimeSeries.getLatestValue(); //TODO remove me as soon as possible
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
-          fixedRate);
+//      //TODO this is a fix so that a single payment swap is still sensitive to the forward curve even though the payment is fixed (i.e. the reset date has passed)
+      final double fixingTime = 0.0;
+      double fixingPeriodStartTime = 0.0; //TODO How should this be handled?
+      if (date.isBefore(getFixingPeriodStartDate())) {
+        fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
+      }
+      final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
+      return new CouponIborFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate, fixingTime, fixingPeriodStartTime,
+          fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0.0, forwardCurveName);
     }
+
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());

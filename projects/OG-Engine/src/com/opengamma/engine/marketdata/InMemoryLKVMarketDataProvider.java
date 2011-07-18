@@ -164,7 +164,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
       return new ValueRequirement(valueName, ComputationTargetType.SECURITY, security.getUniqueId());
     } else {
       // 3 - treat the identifier as a UniqueIdentifier and assume it's a PRIMITIVE
-      UniqueIdentifier uniqueIdentifier = UniqueIdentifier.of(identifier);
+      UniqueIdentifier uniqueIdentifier = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
       return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueIdentifier);
     }
   }

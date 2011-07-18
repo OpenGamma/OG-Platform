@@ -28,9 +28,9 @@ $.register_module({
                 masthead.menu.set_tab(page_name);
                 layout('analytics');
                 $('#OG-analytics .OG-toolbar').hide();
-                $('#OG-analytics .og-main').html('<iframe id="temp_analytics_frame" ' +
+                $('.OG-js-analytics-panel .OG-analytics').html('<iframe id="temp_analytics_frame" ' +
                         'src="/analytics/" width="100%"></iframe>');
-                og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame'});
+                og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame', offsetpx: -59});
             },
             load_view: function (args) {
                 check_state({args: args, conditions: [{new_page: analytics.load}]});

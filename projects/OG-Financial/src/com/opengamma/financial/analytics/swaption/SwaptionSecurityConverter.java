@@ -56,15 +56,6 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }
     final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
-    //TODO
-    //    final boolean isCashSettled;
-    //    if (swaptionSecurity.getIsCashSettled() == null) {
-    //    final Currency currency = fixedFloat.getCurrency();
-    //      final ConventionBundle swaptionConvention = CONVENTIONS.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAPTION"));
-    //      isCashSettled = swaptionConvention.isSwaptionCashSettled();
-    //    } else {
-    //      isCashSettled = swaptionSecurity.getIsCashSettled();
-    //    }
     final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
     final boolean isLong = swaptionSecurity.getIsLong();
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)

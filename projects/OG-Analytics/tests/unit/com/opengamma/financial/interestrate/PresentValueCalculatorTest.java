@@ -94,8 +94,8 @@ public class PresentValueCalculatorTest {
     double fixingYearFraction = paymentYearFraction;
     final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double rate = (forwardCurve.getDiscountFactor(paymentTime) / forwardCurve.getDiscountFactor(fixingPeriodEnd) - 1.0) * 12.0;
-    ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurveName, paymentYearFraction, notional, index, fixingTime, fixingPeriodStart, fixingPeriodEnd,
-        fixingYearFraction, rate, forwardCurveName);
+    ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurveName, paymentYearFraction, notional, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction,
+        rate, forwardCurveName);
     double pv = PVC.visit(fra, CURVES);
     assertEquals(0.0, pv, 1e-12);
 
@@ -104,12 +104,11 @@ public class PresentValueCalculatorTest {
     paymentYearFraction = 30. / 360;
     fundingCurveName = FIVE_PC_CURVE_NAME;
     final double forwardRate = (forwardCurve.getDiscountFactor(fixingPeriodStart) / forwardCurve.getDiscountFactor(fixingPeriodEnd) - 1) / fixingYearFraction;
-    final double fv = (forwardRate - rate) * fixingYearFraction / (1 + forwardRate * fixingYearFraction);
+    final double fv = (forwardRate - rate) * paymentYearFraction / (1 + forwardRate * paymentYearFraction);
     final double pv2 = fv * forwardCurve.getDiscountFactor(paymentTime);
-    fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurveName, paymentYearFraction, notional, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction, rate,
-        forwardCurveName);
+    fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurveName, paymentYearFraction, notional, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction, rate, forwardCurveName);
     pv = PVC.visit(fra, CURVES);
-    assertEquals(pv, pv2);
+    assertEquals(pv, pv2, 1e-12);
   }
 
   @Test
@@ -130,8 +129,8 @@ public class PresentValueCalculatorTest {
     double pv = PVC.visit(ir, CURVES);
     assertEquals(0.0, pv, 1e-12);
     final double deltaPrice = 0.01;
-    ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
-        fixingPeriodAccrualFactor, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price + deltaPrice);
+    ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional,
+        paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price + deltaPrice);
     pv = PVC.visit(ir, CURVES);
     assertEquals(-deltaPrice * paymentAccrualFactor, pv, 1e-12);
   }
