@@ -55,6 +55,7 @@ $.register_module({
             form.children = [
                 new form.Block({ // form item_0
                     module: 'og.views.forms.view-definition-identifier-currency',
+                    extras: {name: master.name},
                     children: [
                         new forms.Dropdown({
                             form: form, resource: 'portfolios', index: 'identifier', value: master.identifier,
