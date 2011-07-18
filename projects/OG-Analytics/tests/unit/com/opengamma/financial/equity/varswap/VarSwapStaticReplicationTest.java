@@ -8,8 +8,6 @@ package com.opengamma.financial.equity.varswap;
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication;
 import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
@@ -28,6 +26,8 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
+
+import org.testng.annotations.Test;
 
 /**
  *    
@@ -66,15 +66,15 @@ public class VarSwapStaticReplicationTest {
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
                                                           1.0, 1.0, 1.0, 1.0,
                                                           5.0, 5.0, 5.0, 5.0,
-                                                          10.0, 10.0, 10.0, 10.0};
+                                                          10.0, 10.0, 10.0, 10.0 };
   private static final double[] STRIKES = new double[] {40, 80, 100, 120,
                                                         40, 80, 100, 120,
                                                         40, 80, 100, 120,
-                                                        40, 80, 100, 120};
+                                                        40, 80, 100, 120 };
   private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
                                                      0.25, 0.25, 0.25, 0.25,
                                                      0.26, 0.24, 0.23, 0.25,
-                                                     0.20, 0.20, 0.20, 0.20};
+                                                     0.20, 0.20, 0.20, 0.20 };
 
   private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -231,7 +231,6 @@ public class VarSwapStaticReplicationTest {
   /**
    * Instead of matching slope and level at the cutoff, try choosing a level at zero strike, then filling in with shifted lognormal distribution
    */
-  @SuppressWarnings("hiding")
   @Test
   public void testAlternativeUseOfShiftedLognormal() {
 
@@ -239,11 +238,11 @@ public class VarSwapStaticReplicationTest {
     final double upperBound = 5.0;
 
     final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                                            5.0, 5.0, 5.0, 5.0, 5.0, 5.0};
+                                            5.0, 5.0, 5.0, 5.0, 5.0, 5.0 };
     final double[] STRIKES = new double[] {0, 25, 75, 100, 125, 150,
-                                           0, 25, 75, 100, 125, 150};
+                                           0, 25, 75, 100, 125, 150 };
     final double[] VOLS = new double[] {.4, 0.3, 0.25, 0.25, 0.3, 0.3,
-                                        .4, 0.3, 0.25, 0.25, 0.3, 0.3};
+                                        .4, 0.3, 0.25, 0.25, 0.3, 0.3 };
 
     final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
