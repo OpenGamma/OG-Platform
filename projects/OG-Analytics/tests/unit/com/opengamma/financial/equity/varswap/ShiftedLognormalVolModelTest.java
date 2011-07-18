@@ -46,9 +46,12 @@ public class ShiftedLognormalVolModelTest {
   final double expiry1 = 1;
   final double expiry5 = 5;
   final int nObsExpected = 750;
+  final int nObsDisrupted = 0;
+  final double[] observations = {};
+  final double[] obsWeights = {};
 
-  final VarianceSwap swap1 = new VarianceSwap(0, expiry1, expiry1, varStrike, varNotional, Currency.EUR, 250, nObsExpected, null, null);
-  final VarianceSwap swap5 = new VarianceSwap(0, expiry5, expiry5, varStrike, varNotional, Currency.EUR, 250, nObsExpected, null, null);
+  final VarianceSwap swap1 = new VarianceSwap(0, expiry1, expiry1, varStrike, varNotional, Currency.EUR, 250, nObsExpected, nObsDisrupted, observations, obsWeights);
+  final VarianceSwap swap5 = new VarianceSwap(0, expiry5, expiry5, varStrike, varNotional, Currency.EUR, 250, nObsExpected, nObsDisrupted, observations, obsWeights);
 
   // The pricing method
   final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication();

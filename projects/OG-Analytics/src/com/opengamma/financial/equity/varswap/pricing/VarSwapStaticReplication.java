@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.equity.varswap.pricing;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -15,6 +13,8 @@ import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.tuple.DoublesPair;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * We construct a model independent method to price variance as a static replication
  * of an (in)finite sum of call and put option prices on the underlying.
@@ -22,11 +22,17 @@ import com.opengamma.util.tuple.DoublesPair;
  * The portfolio weighting is 1/k^2. As such, this method is especially sensitive to strike near zero,
  * so we allow the caller to override the Volatilities below a cutoff point (defined as a fraction of the forward rate).
  * We then fit a ShiftedLognormal model to the price of the linear (call) and digital (call spread) at the cutoff.
- * Note that this is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied. 
- * 
- *  Note:'moneyness', the parameterisation of Strike space,  is defined relative to the forward. moneyness := strike/fwd => atm moneyness = 1    
+ * <p>
+ * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.<p> 
+ * Note: 'moneyness', the parameterisation of Strike space,  is defined relative to the forward. moneyness := strike/fwd => atm moneyness = 1 <p>
+ * Note: Forward variance (forward starting observations) is intended to consider periods beginning more than A_FEW_WEEKS from trade inception
  */
 public class VarSwapStaticReplication {
+
+  // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
+  // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
+  // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs 
+  private final static double A_FEW_WEEKS = 0.05;
 
   // Vol Extrapolation 
   private final Double _strikeCutoff; // Lowest interpolated strike. ShiftedLognormal hits Put(_strikeCutoff)
@@ -70,11 +76,27 @@ public class VarSwapStaticReplication {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
-    // TODO Can we assert that we are double counting days?
-    final double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
-    final double remainingVar = impliedVariance(deriv, market); // Remaining variance implied by option prices
-    final double finalPayment = deriv.getVarNotional() * (realizedVar + remainingVar - deriv.getVarStrike());
-    // FIXME Case !!! Confirm relative scaling of past vs future var, and annualization
+    if (deriv.getTimeToSettlement() < 0) {
+      return 0.0; // All payments have been settled
+    }
+
+    // Compute contribution from past realizations
+    double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
+    // Compute contribution from future realizations
+    double remainingVar = impliedVariance(deriv, market); // Remaining variance implied by option prices
+
+    // Compute weighting
+    double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
+    double nObsDisrupted = deriv.getObsDisrupted(); // Number of observations missed due to market disruption
+    double nObsActual = 0;
+
+    if (deriv.getTimeToObsStart() <= 0) {
+      Validate.isTrue(deriv.getObservations().length > 0, "presentValue requested after first observation date, yet no observations have been provided.");
+      nObsActual = deriv.getObservations().length - 1; // From observation start until valuation
+    }
+
+    double totalVar = realizedVar * (nObsActual / nObsExpected) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted) / nObsExpected;
+    double finalPayment = deriv.getVarNotional() * (totalVar - deriv.getVarStrike());
 
     final double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
     return df * finalPayment;
@@ -82,7 +104,8 @@ public class VarSwapStaticReplication {
   }
 
   /**
-   * Compute the variance of the forward underlying until expiry implied by the market volatility surface 
+   * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param deriv VarianceSwap derivative to be priced
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
@@ -92,8 +115,35 @@ public class VarSwapStaticReplication {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
-    // 1. Unpack Market data
-    final double expiry = deriv.getTimeToObsEnd();
+    final double timeToLastObs = deriv.getTimeToObsEnd();
+    final double timeToFirstObs = deriv.getTimeToObsStart();
+
+    Validate.isTrue(timeToFirstObs + A_FEW_WEEKS < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs. "
+        + "This method is not intended to handle very short periods of volatility.");
+
+    // Compute Variance from spot until last observation
+    final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market);
+
+    // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
+    final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
+    if (!forwardStarting) {
+      return varianceSpotEnd;
+    } else {
+      final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
+      return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
+    }
+  }
+
+  /**
+   * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
+   * 
+   * @param expiry Time from spot until last observation
+   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @return presentValue of the *remaining* variance in the swap. 
+   */
+  private double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market) {
+    // 1. Unpack Market data 
     final double fwd = market.getForwardUnderlying();
     final VolatilitySurface vsurf = market.getVolatilitySurface();
 
@@ -136,7 +186,20 @@ public class VarSwapStaticReplication {
     };
 
     // 4. Compute variance hedge by integrating positions over all strikes
-    final double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
-    return variance;
+    double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
+    return variance / expiry;
+  }
+
+  /**
+   * Computes the fair value strike of a spot starting VarianceSwap parameterized in vol/vega terms.
+   * This is an estimate of annual Lognormal (Black) volatility 
+   * 
+   * @param deriv VarianceSwap derivative to be priced
+   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @return presentValue of the *remaining* variance in the swap. 
+   */
+  public double impliedVolatility(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+    final double sigmaSquared = impliedVariance(deriv, market);
+    return Math.sqrt(sigmaSquared);
   }
 }
