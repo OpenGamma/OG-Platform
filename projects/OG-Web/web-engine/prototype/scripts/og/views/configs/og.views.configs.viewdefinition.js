@@ -21,7 +21,7 @@ $.register_module({
             SPCT = 'computationTargetIdentifier',
             SPTT = 'computationTargetType',
             REQS = 'portfolioRequirement',
-            SECU = 'securityType'
+            SECU = 'securityType',
             REQO = 'requiredOutput',
             CONS = 'constraints';
         return function (config) {

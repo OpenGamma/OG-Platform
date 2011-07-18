@@ -8,10 +8,26 @@ $.register_module({
     name: 'og.common.routes',
     dependencies: ['og.dev'],
     obj: function () {
-        return $.extend(true, window.RouteMap, {
+        var routes, set_title = function (title) {document.title = 'OpenGamma: ' + title;};
+        return routes = $.extend(true, window.RouteMap, {
             init: function () {
-                $(window).bind('hashchange', this.handler);
-                $(this.handler); // in addition to binding hash change events to window, also fire it onload
+                var title, go = routes.go;
+                // overwrite routes.go so it can accept new title parameter
+                routes.go = function (location, new_title) {
+                    title = new_title;
+                    go(location);
+                };
+                // listen to all clicks that bubble up and capture their title attributes
+                $('a[href]').live('click', function (e) {title = $(e.target).attr('title');});
+                $(window).bind('hashchange', function () {
+                    routes.handler();
+                    set_title(title || routes.current().hash);
+                    title = null;
+                });
+                $(function () { // in addition to binding hash change events to window, also fire it onload
+                    routes.handler();
+                    set_title(routes.current().hash);
+                });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
             },
