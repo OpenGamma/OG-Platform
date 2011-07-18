@@ -162,6 +162,18 @@ $.register_module({
                         if (template in form_generators) return form_generators[template]({
                             data: details_json,
                             handler: function () {
+                                var json = details_json.template_data,
+                                    $warning = $('.OG-js-details-panel .og-box-error'),
+                                    warning_message = 'This configuration has been deleted';
+                                ui.toolbar(options.toolbar.active);
+
+                                if (json.template_data && json.template_data.deleted) {
+                                    $warning.html(warning_message).show();
+                                    resize();
+                                    $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                } else {$warning.empty().hide(), resize();}
+                                if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
+
                                 resize({element: '.OG-details-container', offsetpx: -41});
                                 resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                                 resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});

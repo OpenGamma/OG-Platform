@@ -89,9 +89,14 @@
   content: '';
   left: 1px;
   opacity: 0.3;
+  filter: alpha(opacity=30);
   position: absolute;
   top: 1px;
   right: 1px;
+}
+
+.ie8 .slick-header:before {
+  background: transparent;
 }
 
 .slick-resizable-handle {
