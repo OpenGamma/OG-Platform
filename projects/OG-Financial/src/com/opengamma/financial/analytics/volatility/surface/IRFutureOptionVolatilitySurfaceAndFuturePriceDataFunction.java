@@ -14,6 +14,8 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
+import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -38,7 +40,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -46,6 +50,8 @@ import com.opengamma.util.tuple.Pair;
  */
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends AbstractFunction {
+  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
+
   /**
    * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
    * surface, swaption ATM volatility surface). 
@@ -189,7 +195,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);
-            futurePriceValues.put(t, futurePrice / 100); //TODO how do we want this data? 99 or 0.01?
+            futurePriceValues.put(t, getRate(futurePrice));
           }
           for (final Double y : _volSurfaceDefinition.getYs()) {
             final SurfaceInstrumentProvider<Number, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Number, Double>) _volSurfaceSpecification.getSurfaceInstrumentProvider();
@@ -197,7 +203,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              final double k = getStrike(y); //TODO how do we want this data? 99 or 0.01?
+              final double k = getRate(y);
               ts[i] = t;
               ks[i++] = k;
               volatilityValues.put(Pair.of(t, k), volatility / 100);
@@ -209,7 +215,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
                                                                                                                ts, ks, volatilityValues);
         final ComputedValue volSurfaceResultValue = new ComputedValue(_volSurfaceResult, volSurfaceData);
         final FuturePriceCurveData<Double> futurePriceCurveData = new FuturePriceCurveData<Double>(_priceCurveDefinition.getName(), _priceCurveSpecification.getName(),
-                                                                                             _priceCurveDefinition.getTarget(), ts, futurePriceValues);
+                                                                                                   _priceCurveDefinition.getTarget(), ts, futurePriceValues);
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(_futurePriceCurveResult, futurePriceCurveData);
         return Sets.newHashSet(volSurfaceResultValue, futurePriceCurveResultValue);
       }
@@ -219,6 +225,15 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         return true;
       }
 
+      private double getTime(final Number x, final ZonedDateTime now) {
+        final int n = x.intValue();
+        final LocalDate ld = now.toLocalDate().plusMonths((n - 1) * 3); //TODO this is hard-coding it to be quarterly - needs to be changed to handle all types of options
+        return DateUtil.getDaysBetween(now.toLocalDate(), NEXT_EXPIRY_ADJUSTER.adjustDate(ld)) / 365; //TODO or use daycount?
+      }
+
+      private double getRate(final double quote) {
+        return 1 - quote / 100.;
+      }
     };
   }
 }

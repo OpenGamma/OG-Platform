@@ -29,7 +29,7 @@ public class FuturePriceCurveSpecificationBuilder implements FudgeBuilder<Future
     message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
     context.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
-    return null;
+    return message;
   }
 
   @Override

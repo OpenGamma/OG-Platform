@@ -53,7 +53,7 @@ public class FuturePriceCurveSpecification {
     }
     final FuturePriceCurveSpecification other = (FuturePriceCurveSpecification) o;
     return other.getName().equals(getName()) &&
-           other.getCurveInstrumentProvider().equals(other.getCurveInstrumentProvider()) &&
-           other.getTarget().equals(other.getTarget());
+           other.getCurveInstrumentProvider().equals(getCurveInstrumentProvider()) &&
+           other.getTarget().equals(getTarget());
   }
 }

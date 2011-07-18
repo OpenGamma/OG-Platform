@@ -42,7 +42,7 @@ public class FuturePriceCurveData<X> {
     return _xs;
   }
 
-  public Double getVolatility(final X x) {
+  public Double getFuturePrice(final X x) {
     return _values.get(x);
   }
 

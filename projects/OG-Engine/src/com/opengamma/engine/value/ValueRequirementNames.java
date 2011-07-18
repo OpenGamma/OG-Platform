@@ -38,7 +38,8 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
-  public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
+  public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";
+  public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   

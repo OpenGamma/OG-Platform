@@ -119,11 +119,11 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider)) {
+    if (!(obj instanceof BloombergIRFuturePriceCurveInstrumentProvider)) {
       return false;
     }
-    final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider other = (BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) obj;
-    return getFuturePrefix().equals(other.getFutureOptionPrefix()) &&
+    final BloombergIRFuturePriceCurveInstrumentProvider other = (BloombergIRFuturePriceCurveInstrumentProvider) obj;
+    return getFuturePrefix().equals(other.getFuturePrefix()) &&
            getPostfix().equals(other.getPostfix()) &&
            getDataFieldName().equals(other.getDataFieldName());
   }
