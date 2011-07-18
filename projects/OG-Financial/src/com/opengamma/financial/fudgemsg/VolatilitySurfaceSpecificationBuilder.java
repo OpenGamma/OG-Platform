@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
  * Builder for converting VolatilitySurfaceSpecification instances to/from Fudge messages.
  */
 @FudgeBuilderFor(VolatilitySurfaceSpecification.class)
-public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<VolatilitySurfaceSpecification> {
+public class VolatilitySurfaceSpecificationBuilder implements FudgeBuilder<VolatilitySurfaceSpecification> {
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceSpecification object) {
