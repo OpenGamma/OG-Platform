@@ -23,8 +23,9 @@ $.register_module({
             $(obj.location).html(html); // Add the buttons to the page
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': buttons}, obj)).buttons, function (i, val) {
-                $('.OG-js-details-panel .og-js-' + val.name).unbind('mousedown').bind('mousedown', val.handler);
+                $('.' + obj.location + ' .og-js-' + val.name).unbind('mousedown').bind('mousedown', val.handler);
             });
+
             og.common.util.ui.tooltip(obj.location);
         };
     }
