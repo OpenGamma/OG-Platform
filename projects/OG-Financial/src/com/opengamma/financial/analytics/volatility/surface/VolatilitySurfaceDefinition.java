@@ -24,7 +24,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
   private UniqueIdentifiable _target;
   private X[] _xs;
   private Y[] _ys;
-  
+
   public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(target, "Target");
@@ -48,7 +48,6 @@ public class VolatilitySurfaceDefinition<X, Y> {
     return _name;
   }
 
-  
   /**
    * @deprecated use getTarget()
    * @throws ClassCastException if target not a currency
@@ -58,7 +57,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
   public Currency getCurrency() {
     return (Currency) _target;
   }
-  
+
   public UniqueIdentifiable getTarget() {
     return _target;
   }

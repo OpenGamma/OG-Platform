@@ -37,8 +37,11 @@ public class IRFutureOptionSurfaceConfigPopulator {
       strikes[i] = strike;
       strike -= 0.125; // quoted option strikes decrease by this amount
     }
-    final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_IR_FUTURE", Currency.USD, futureOptionNumbers, strikes);
+    final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_IR_FUTURE_OPTION",
+        Currency.USD, futureOptionNumbers, strikes);
+    final FuturePriceCurveDefinition<Integer> usFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_IR_FUTURE_PRICE", Currency.USD, futureOptionNumbers);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFuturePriceCurveDefinition));
   }
 
   private static ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<Integer, Double> definition) {
@@ -55,10 +58,27 @@ public class IRFutureOptionSurfaceConfigPopulator {
     return configDocument;
   }
 
+  private static ConfigDocument<FuturePriceCurveDefinition<Integer>> makeConfigDocument(final FuturePriceCurveDefinition<Integer> definition) {
+    final ConfigDocument<FuturePriceCurveDefinition<Integer>> configDocument = new ConfigDocument<FuturePriceCurveDefinition<Integer>>(FuturePriceCurveDefinition.class);
+    configDocument.setName(definition.getName());
+    configDocument.setValue(definition);
+    return configDocument;
+  }
+
+  private static ConfigDocument<FuturePriceCurveSpecification> makeConfigDocument(final FuturePriceCurveSpecification specification) {
+    final ConfigDocument<FuturePriceCurveSpecification> configDocument = new ConfigDocument<FuturePriceCurveSpecification>(FuturePriceCurveSpecification.class);
+    configDocument.setName(specification.getName());
+    configDocument.setValue(specification);
+    return configDocument;
+  }
+
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final SurfaceInstrumentProvider<Number, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
         MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
-    final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE", Currency.USD, surfaceInstrumentProvider);
+    final FuturePriceCurveInstrumentProvider<Number> curveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
+    final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE_OPTION", Currency.USD, surfaceInstrumentProvider);
+    final FuturePriceCurveSpecification usFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_IR_FUTURE_PRICE", Currency.USD, curveInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFutureCurveDefinition));
   }
 }

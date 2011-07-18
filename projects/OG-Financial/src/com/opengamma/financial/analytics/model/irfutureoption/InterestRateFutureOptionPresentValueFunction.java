@@ -31,13 +31,15 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 /**
  * 
  */
+//TODO forward price surface
 public class InterestRateFutureOptionPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _surfaceName;
-  
-  public InterestRateFutureOptionPresentValueFunction(String surfaceName) { //TODO add the curve names 
+
+  public InterestRateFutureOptionPresentValueFunction(final String surfaceName) { //TODO add the curve names 
     Validate.notNull(surfaceName, "surface name");
     _surfaceName = surfaceName;
   }
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
@@ -96,7 +98,7 @@ public class InterestRateFutureOptionPresentValueFunction extends AbstractFuncti
 
   private ValueRequirement getSurfaceRequirement(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
-                                                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE").get(); //TODO shouldn't hard-code the string in here
+                                                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get(); //TODO shouldn't hard-code the string in here
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, FinancialSecurityUtils.getCurrency(target.getSecurity()), properties);
   }
 }
