@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Builder for converting VolatilitySurfaceDefinition instances to/from Fudge messages.
+ * Builder for converting VolatilitySurfaceData instances to/from Fudge messages.
  */
 @FudgeBuilderFor(VolatilitySurfaceData.class)
 public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurfaceData<?, ?>> {
@@ -110,7 +110,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
       }
       return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(xsArray), ys.toArray(ysArray), values);
     } else {
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double>emptyMap());
+      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double> emptyMap());
     }
   }
 

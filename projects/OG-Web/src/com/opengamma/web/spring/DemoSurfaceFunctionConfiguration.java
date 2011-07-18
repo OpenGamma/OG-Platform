@@ -28,7 +28,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
 
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "SWAPTION", "DEFAULT")));
-    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "IR_FUTURE", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "IR_FUTURE_OPTION", "DEFAULT")));
     configs.add(new ParameterizedFunctionConfiguration(RawVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "FX_VANILLA_OPTION", "DEFAULT")));
     configs.add(new ParameterizedFunctionConfiguration(EquityOptionVolatilitySurfaceDataFunction.class.getName(), Arrays.asList("DEFAULT", "EQUITY_OPTION", "DEFAULT")));
     return new RepositoryConfiguration(configs);
