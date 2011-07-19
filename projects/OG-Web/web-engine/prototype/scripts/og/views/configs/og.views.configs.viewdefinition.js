@@ -16,37 +16,39 @@ $.register_module({
             SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',
             COLS = 'portfolioRequirementsBySecurityType',
+            SPEC = 'specificRequirement',
+            SPVN = 'valueName',
+            SPCT = 'computationTargetIdentifier',
+            SPTT = 'computationTargetType',
             REQS = 'portfolioRequirement',
-            SECU = 'securityType'
+            SECU = 'securityType',
             REQO = 'requiredOutput',
             CONS = 'constraints';
-        return function (data) {
-            og.dev.log('data!', data.template_data.configJSON);
-            var id_count = 0, prefix = 'view_def_', master = data.template_data.configJSON, column_set_tabs,
+        return function (config) {
+            og.dev.log('config.data!', config.data.template_data.configJSON);
+            var load_handler = config.handler || $.noop, selector = config.selector,
+                id_count = 0, prefix = 'view_def_', master = config.data.template_data.configJSON, column_set_tabs,
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
-                    selector: '.OG-details',
+                    selector: selector,
                     extras: {name: master.name},
                     processor: function (data) { // remove undefineds that we added
                         if (!data[SETS]) return;
                         data[SETS] = data[SETS].filter(function (set) {return set !== undefined;});
                         data[SETS].forEach(function (set, set_idx) {
-                            if (!set[COLS]) return;
-                            set[COLS] = set[COLS].filter(function (col) {return col !== undefined;});
-                            set[COLS].forEach(function (col, col_idx) {
-                                if (!col[REQS]) return;
-                                col[REQS] = col[REQS].filter(function (req) {return req !== undefined;});
-                            });
+                            if (set[COLS]) {
+                                set[COLS] = set[COLS].filter(function (col) {return col !== undefined;});
+                                set[COLS].forEach(function (col, col_idx) {
+                                    if (!col[REQS]) return;
+                                    col[REQS] = col[REQS].filter(function (req) {return req !== undefined;});
+                                });
+                            }
+                            if (set[SPEC]) set[SPEC] = set[SPEC].filter(function (spec) {return spec !== undefined;});
                         });
                     },
                     handlers: [
-                        {type: 'form:load', handler: function () {
-                            og.common.layout.resize({element: '.OG-details-container', offsetpx: -41});
-                            og.common.layout.resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            og.common.layout.resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
-                        }},
+                        {type: 'form:load', handler: load_handler},
                         {type: 'form:submit', handler: function (result) {
                             og.dev.log(result.data);
                         }}
@@ -55,6 +57,7 @@ $.register_module({
             form.children = [
                 new form.Block({ // form item_0
                     module: 'og.views.forms.view-definition-identifier-currency',
+                    extras: {name: master.name},
                     children: [
                         new forms.Dropdown({
                             form: form, resource: 'portfolios', index: 'identifier', value: master.identifier,
@@ -94,20 +97,39 @@ $.register_module({
             (function () {
                 var column_sets = new form.Block,
                     new_col_set = function (set, set_idx) {
-                        var id = prefix + id_count++, column_set = new form.Block({
-                            wrap: '<div class="og-js-colset-holder" id="' + id + '">' +
-                                    '<div class="og-js-colset">{{html html}}</div>' +
-                                    '<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>' +
-                                '</div>',
+                        var id = prefix + id_count++, new_col_val, new_spec_val, column_set = new form.Block({
+                            wrap: '<div class="og-js-colset-holder" id="' + id + '">{{html html}}</div>',
                             handlers: [
                                 {
                                     type: 'click', selector: 'div#' + id + ' .og-js-add-col-val',
                                     handler: function (e) { // add a column value
-                                        var $div = $('#' + id + ' div.og-js-colset'), block, col = {};
+                                        var $span = $('#' + id + ' span.og-js-add-col-val'), block, col = {};
                                         col[SECU] = '';
                                         if (!set[COLS]) set[COLS] = [col]; else set[COLS].push(col);
                                         column_set.children.push(block = new_col_val(col, set[COLS].length - 1));
-                                        block.html(function (html) {$div.append($(html)), block.load();});
+                                        block.html(function (html) {$span.before($(html)), block.load();});
+                                        return false;
+                                    }
+                                },
+                                {
+                                    type: 'click', selector: 'div#' + id + ' .og-js-add-spec',
+                                    handler: function (e) { // add an additional value
+                                        var $span = $('#' + id + ' span.og-js-add-spec'), block, spec = {};
+                                        spec[SPVN] = '', spec[SPTT] = '', spec[SPCT] = '';
+                                        if (!set[SPEC]) set[SPEC] = [spec]; else set[SPEC].push(spec);
+                                        column_set.children.push(block = new_spec_val(spec, set[SPEC].length - 1));
+                                        block.html(function (html) {$span.before($(html)), block.load();});
+                                        return false;
+                                    }
+                                },
+                                {
+                                    type: 'click', selector: 'div#' + id + ' .og-js-rem-spec',
+                                    handler: function (e) { // remove an additional value
+                                        var $div = $(e.target).parents('div.og-js-spec:first'),
+                                            specs = $div.find('input:first').attr('name').split('.').slice(0, -1),
+                                            index = specs.pop();
+                                        specs.reduce(function (a, v) {return a[v];}, master)[index] = undefined;
+                                        $div.remove();
                                         return false;
                                     }
                                 },
@@ -155,7 +177,7 @@ $.register_module({
                                     }
                                 }
                             ]
-                        }),
+                        });
                         new_col_val = function (col, col_idx) {
                             var col_id = prefix + id_count++,
                                 new_port_req = function (req, req_idx) {
@@ -204,11 +226,28 @@ $.register_module({
                                 ]
                             });
                         };
+                        new_spec_val = function (spec, spec_idx) {
+                            var names = {
+                                name: 'Additional Value ' + (spec_idx + 1),
+                                value: [SETS, set_idx, SPEC, spec_idx, SPVN].join('.'),
+                                type: [SETS, set_idx, SPEC, spec_idx, SPTT].join('.'),
+                                identifier: [SETS, set_idx, SPEC, spec_idx, SPCT].join('.')
+                            };
+                            return new form.Block({
+                                module: 'og.views.forms.view-definition-specific-requirements',
+                                extras: names,
+                                handlers: [{type: 'form:load', handler: function () {
+                                    $('#' + id + ' input[name="' + names.value + '"]').val(spec[SPVN]);
+                                    $('#' + id + ' select[name="' + names.type + '"]').val(spec[SPTT]);
+                                    $('#' + id + ' input[name="' + names.identifier + '"]').val(spec[SPCT]);
+                                }}]
+                            });
+                        };
                         column_set.children = [
                             new form.Block({ // column set top (name, default properties, etc)
                                 module: 'og.views.forms.view-definition-column-set-top',
                                 extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
-                                children: [new forms.Constraints({
+                                children: [new forms.Constraints({ // default properties
                                     form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
                                 })],
                                 handlers: [{
@@ -219,7 +258,19 @@ $.register_module({
                                 }]
                             })
                         ];
+                        // column values
                         if (set[COLS]) Array.prototype.push.apply(column_set.children, set[COLS].map(new_col_val));
+                        column_set.children.push(new form.Field({generator: function (handler) {
+                            handler('<span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>');
+                        }}));
+                        column_set.children.push(new form.Field({generator: function (handler) {
+                            handler('<h2>Additional Values</h2>');
+                        }}));
+                        // additional values
+                        if (set[SPEC]) Array.prototype.push.apply(column_set.children, set[SPEC].map(new_spec_val));
+                        column_set.children.push(new form.Field({generator: function (handler) {
+                            handler('<span class="OG-icon og-icon-add og-js-add-spec">Add additional value</span>');
+                        }}));
                         return column_set;
                     };
                 form.children.push(

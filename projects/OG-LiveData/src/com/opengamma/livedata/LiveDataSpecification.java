@@ -7,16 +7,14 @@ package com.opengamma.livedata;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -86,7 +84,11 @@ public class LiveDataSpecification {
   
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE); 
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("LiveDataSpecification[");
+    stringBuilder.append(_domainSpecificIdentifiers.toString());
+    stringBuilder.append("]");
+    return stringBuilder.toString(); 
   }
 
   @Override

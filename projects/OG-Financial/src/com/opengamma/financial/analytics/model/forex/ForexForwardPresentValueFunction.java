@@ -26,7 +26,7 @@ public class ForexForwardPresentValueFunction extends ForexForwardFunction {
 
   @Override
   protected Object getResult(final ForexDerivative fxForward, final YieldCurveBundle data) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward);
+    final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward, data);
     final int n = result.size();
     final Currency[] keys = new Currency[n];
     final double[] values = new double[n];

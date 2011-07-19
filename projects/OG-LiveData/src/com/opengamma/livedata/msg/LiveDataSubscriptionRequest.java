@@ -3,6 +3,14 @@
 // CSOFF: Generated File
 package com.opengamma.livedata.msg;
 public class LiveDataSubscriptionRequest implements java.io.Serializable {
+        @Override
+      public String toString() {
+        return new StringBuilder()
+        .append("LiveDataSubscriptionRequest[")
+        .append(_specifications.size())
+        .append(" specifications]")
+        .toString();
+      }
   private static final long serialVersionUID = 666128997025752l;
   private com.opengamma.livedata.UserPrincipal _user;
   public static final String USER_KEY = "user";
@@ -195,9 +203,6 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
     hc *= 31;
     if (_specifications != null) hc += _specifications.hashCode ();
     return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
 ///CLOVER:ON

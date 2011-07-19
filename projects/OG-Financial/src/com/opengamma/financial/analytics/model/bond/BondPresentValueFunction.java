@@ -70,7 +70,7 @@ public abstract class BondPresentValueFunction extends AbstractFunction.NonCompi
     bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve });
     double pv = PV_CALCULATOR.visit(bond, bundle);   
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), 
-        createValueProperties().with(ValuePropertyNames.CURVE, curveName).get());
+        createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURRENCY, BondFunctionUtils.getCurrencyName(target)).get());
     return Sets.newHashSet(new ComputedValue(specification, pv)); 
   }
 
