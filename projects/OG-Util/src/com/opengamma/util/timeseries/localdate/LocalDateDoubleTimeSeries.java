@@ -15,7 +15,6 @@ import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -34,7 +33,7 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
     }
     
     @Override
-    public TimeSeries<LocalDate, Double> newInstance(final LocalDate[] dateTimes, final Double[] values) {
+    public LocalDateDoubleTimeSeries newInstance(final LocalDate[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
@@ -50,7 +49,7 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
     }
     
     @Override
-    public TimeSeries<LocalDate, Double> newInstance(final LocalDate[] dateTimes, final Double[] values) {
+    public LocalDateDoubleTimeSeries newInstance(final LocalDate[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 

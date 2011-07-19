@@ -23,6 +23,8 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_O
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.time.calendar.ZonedDateTime;
@@ -514,7 +516,29 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
       return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(times, values);
     }
   }
-  
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Iterator<Double> valuesIterator() {
+    return getFastSeries().valuesIterator();
+  }
+
+  @Override
+  public List<Double> values() {
+    return getFastSeries().values();
+  }
+
+  @Override
+  public Double[] valuesArray() {
+    return getFastSeries().valuesArray();
+  }
+
+  @Override
+  public double[] valuesArrayFast() {
+    return getFastSeries().valuesArrayFast();
+  }
+
+  //-------------------------------------------------------------------------
   public javax.time.calendar.TimeZone getTimeZone310() {
     return getConverter().getTimeZone310();
   }

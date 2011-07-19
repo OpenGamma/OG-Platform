@@ -92,8 +92,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    */
   T getLatestTime();
 
-  // TODO latestTime()
-
   /**
    * Gets the value at the latest date-time in the series.
    * 
@@ -101,8 +99,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @throws NoSuchElementException if empty
    */
   V getLatestValue();
-
-  // TODO latestValue()
 
   /**
    * Gets the earliest date-time for which there is a data point.
@@ -112,8 +108,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    */
   T getEarliestTime();
 
-  // TODO earliestTime()
-
   /**
    * Gets the value at the earliest date-time in the series.
    * 
@@ -121,8 +115,6 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @throws NoSuchElementException if empty
    */
   V getEarliestValue();
-
-  // TODO earliestValue()
 
   //-------------------------------------------------------------------------
   /**
@@ -253,7 +245,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
   List<V> values();
 
   /**
-   * Gets an array of all date-times in this series.
+   * Gets an array of all values in this series.
    * <p>
    * The index of each entry will match that used by the index lookup methods.
    * As such, the values will be in date-time order.

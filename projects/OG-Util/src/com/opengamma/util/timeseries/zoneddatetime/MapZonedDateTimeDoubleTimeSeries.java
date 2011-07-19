@@ -70,7 +70,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries newInstanceFast(final ZonedDateTime[] dateTimes, final double[] values) {
+  public MapZonedDateTimeDoubleTimeSeries newInstanceFast(final ZonedDateTime[] dateTimes, final double[] values) {
     return new MapZonedDateTimeDoubleTimeSeries(((ZonedDateTimeEpochMillisConverter) getConverter()).getTimeZone310(), dateTimes, values);
   }
 }

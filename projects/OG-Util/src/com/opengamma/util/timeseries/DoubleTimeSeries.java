@@ -54,6 +54,48 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
   @Override
   DoubleTimeSeries<T> lag(final int lagCount);
 
+//  //-------------------------------------------------------------------------
+//  /**
+//   * Gets the {@code double} value at the date-time specified.
+//   * <p>
+//   * This method provides {@code Map} style lookup of values.
+//   * The date/time is matched exactly, thus care must be taken with precision in times.
+//   * If there is no entry at the date-time, then null is returned.
+//   * 
+//   * @param dateTime  the date-time to retrieve, not null
+//   * @return the value at the date-time, null if date-time not present or
+//   *  if the implementation permits nulls
+//   */
+//  double getValueDouble(T dateTime);
+//
+//  /**
+//   * Gets the {@code double} value at the index specified.
+//   * <p>
+//   * This method provides {@code List} style lookup of values.
+//   * It is not guaranteed that the lookup is O(1), thus it should be avoided in loops.
+//   * 
+//   * @param index  the zero-based index to retrieve
+//   * @return the value at the index, null if the implementation permits nulls
+//   * @throws IndexOutOfBoundsException if the index is invalid
+//   */
+//  double getValueDoubleAt(int index);
+//
+//  /**
+//   * Gets the {@code double} value at the latest date-time in the series.
+//   * 
+//   * @return the value at the latest date-time
+//   * @throws NoSuchElementException if empty
+//   */
+//  double getLatestValueDouble();
+//
+//  /**
+//   * Gets the {@code double} value at the earliest date-time in the series.
+//   * 
+//   * @return the value at the earliest date-time
+//   * @throws NoSuchElementException if empty
+//   */
+//  double getEarliestValueDouble();
+
   //-------------------------------------------------------------------------
   /**
    * Creates a new time-series with each value in this time-series
@@ -1135,6 +1177,28 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @return the maximum value
    */
   double minValue();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets an array of all {@code double} values in this series.
+   * <p>
+   * The index of each entry will match that used by the index lookup methods.
+   * As such, the values will be in date-time order.
+   * 
+   * @return an array of all the values in order from earliest to latest, not null
+   */
+  double[] valuesArrayFast();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new instance with a new set of date-times and values.
+   * 
+   * @param dateTimes  the date-times, not null
+   * @param values  the values, not null
+   * @return the new time-series, not null
+   * @throws RuntimeException if the array sizes differ or the instance cannot be created
+   */
+  DoubleTimeSeries<T> newInstance(T[] dateTimes, Double[] values);
 
   //-------------------------------------------------------------------------
   /**

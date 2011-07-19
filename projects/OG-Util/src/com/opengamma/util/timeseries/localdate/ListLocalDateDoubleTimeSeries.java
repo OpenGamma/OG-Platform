@@ -6,9 +6,9 @@
 package com.opengamma.util.timeseries.localdate;
 
 import java.util.List;
-import javax.time.calendar.TimeZone;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -68,7 +68,7 @@ public class ListLocalDateDoubleTimeSeries extends MutableLocalDateDoubleTimeSer
   }
 
   @Override
-  public LocalDateDoubleTimeSeries newInstanceFast(final LocalDate[] dateTimes, final double[] values) {
+  public ListLocalDateDoubleTimeSeries newInstanceFast(final LocalDate[] dateTimes, final double[] values) {
     return new ListLocalDateDoubleTimeSeries(dateTimes, values);
   }
 
