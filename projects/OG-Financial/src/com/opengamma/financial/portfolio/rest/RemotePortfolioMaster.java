@@ -136,7 +136,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
   public ManageablePortfolioNode getNode(final UniqueIdentifier nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
     
-    URI uri = DataPortfolioResource.uriNode(_baseUri, nodeId);
+    URI uri = DataPortfolioNodeResource.uri(_baseUri, nodeId);
     return accessRemote(uri).get(ManageablePortfolioNode.class);
   }
 
