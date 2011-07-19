@@ -42,6 +42,11 @@ public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRoo
    */
   private AnnuityPaymentFixed _cfe;
 
+  /**
+   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value 
+   * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
+   * @param parameters The Hull-White parameters.
+   */
   public SwaptionPhysicalHullWhiteCalibrationObjective(final HullWhiteOneFactorPiecewiseConstantParameters parameters) {
     _hwParameters = parameters;
     setMinimumParameter(1.0E-6);

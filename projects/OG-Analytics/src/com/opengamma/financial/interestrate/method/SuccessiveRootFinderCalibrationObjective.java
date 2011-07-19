@@ -39,6 +39,8 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
    */
   private double _variableAbsoluteAccuracy = 1.0E-8;
 
+  //TODO: review the default values.
+
   /**
    * Sets the instrument to calibrate.
    * @param instrument  The instrument.

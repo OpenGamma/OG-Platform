@@ -59,8 +59,8 @@ public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implem
     // Integration
     final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlow, alpha);
     final double limit = 10.0;
-    final double absoluteTolerance = 1.0E-1 / Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
-    final double relativeTolerance = 1.0E-5;
+    final double absoluteTolerance = 1.0E-2;
+    final double relativeTolerance = 1.0E-6;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
     double pv = 0.0;
     try {

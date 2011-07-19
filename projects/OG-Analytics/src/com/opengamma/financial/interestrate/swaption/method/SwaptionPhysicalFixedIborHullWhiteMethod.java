@@ -85,6 +85,12 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
+  /**
+   * Present value sensitivity to Hull-White volatility parameters. The present value is computed using the explicit formula.
+   * @param swaption The physical delivery swaption.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value sensitivity.
+   */
   public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
     Validate.notNull(hwData);

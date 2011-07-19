@@ -78,7 +78,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   }
 
   /**
-   * The adjoint version of the method. Computes the (zero-coupon) bond volatility divided by a bond numeraire for a given period. 
+   * The adjoint version of the method. Computes the (zero-coupon) bond volatility divided by a bond numeraire for a given period ant its derivatives. 
    * @param startExpiry Start time of the expiry period.
    * @param endExpiry End time of the expiry period.
    * @param numeraireTime Time to maturity for the bond numeraire.
