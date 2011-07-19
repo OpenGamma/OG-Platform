@@ -19,8 +19,8 @@ public class BlackFunctionData {
   private final double _sigma;
 
   /**
-   * Data bundle for pricing in a Black framework. That is, the forward value of the underlying assert is a martingale in the chosen numeraire measure. 
-   * @param forward The forward value of the underlying assert (i.e. the forward value of a stock, the forward Libor rate, etc)
+   * Data bundle for pricing in a Black framework. That is, the forward value of the underlying asset is a martingale in the chosen numeraire measure. 
+   * @param forward The forward value of the underlying asset (i.e. the forward value of a stock, the forward Libor rate, etc)
    * @param numeraire The present value of the instrument used to discount the payoff (e.g. the zero coupon bond in the T-forward measure, the swap annuity for pricing 
    * swaptions, etc)
    * @param sigma The Black volatility 

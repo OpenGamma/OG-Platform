@@ -55,6 +55,7 @@
   display: inline-block;
   height: 80%;
   opacity: 0.2;
+  filter: alpha(opacity=20);
   position: absolute;
   top: -96px;
   left: 10%;

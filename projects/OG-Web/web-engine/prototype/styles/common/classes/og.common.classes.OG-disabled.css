@@ -4,5 +4,6 @@
  */
 .OG-disabled {
   opacity: .3;
+  filter: alpha(opacity=30);
   cursor: default!important;
 }

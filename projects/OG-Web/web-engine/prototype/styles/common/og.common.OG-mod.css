@@ -11,7 +11,7 @@
 /* Layout and default styling */
 .OG-mod-0,
 .OG-mod-1 {
-  margin: 30px 0 0 0;
+  margin: 20px 0 0 0;
 }
 
 /* MOD-0 */
@@ -141,20 +141,4 @@
 
 .OG-mod-1.og-style-2 .og-dotted td {
   background-color: #fff;
-}
-
-/* Dotted lines in table */
-.OG-mod-1 .og-dotted tr td:first-child::after {
-  content: ' .........................................................................................................................................';
-  position: absolute;
-  overflow: hidden;
-  left: 10px;
-  right: 0;
-  color: #ddd;
-}
-
-.OG-mod-1 .og-dotted td span {
-  background-color: #ecf5fa;
-  position: relative;
-  z-index: 1;
 }

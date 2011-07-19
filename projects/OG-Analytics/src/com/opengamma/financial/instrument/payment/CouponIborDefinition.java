@@ -284,8 +284,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
           //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
-//            return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
-//                fixedRate);
 //      //TODO this is a fix so that a single payment swap is still sensitive to the forward curve even though the payment is fixed (i.e. the reset date has passed)
       final double fixingTime = 0.0;
       double fixingPeriodStartTime = 0.0; //TODO How should this be handled?

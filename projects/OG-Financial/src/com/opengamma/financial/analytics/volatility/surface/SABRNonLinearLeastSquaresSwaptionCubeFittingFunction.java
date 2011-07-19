@@ -55,7 +55,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.NonCompiledInvoker {
+public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double ERROR = 0.001;
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
@@ -77,11 +77,11 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
 
   //TODO forward data helper? or in the cube?
 
-  public SABRNonLinearLeastSquaresFittingFunction(final String currency, final String definitionName) {
+  public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
 
-  public SABRNonLinearLeastSquaresFittingFunction(final Currency currency, final String definitionName) {
+  public SABRNonLinearLeastSquaresSwaptionCubeFittingFunction(final Currency currency, final String definitionName) {
     _volCubeHelper = new VolatilityCubeFunctionHelper(currency, definitionName);
   }
 
@@ -119,7 +119,7 @@ public class SABRNonLinearLeastSquaresFittingFunction extends AbstractFunction.N
         final double[] blackVols = swaptionExpiryEntry.getValue().getSecond();
         final int n = strikes.length;
         if (n != blackVols.length) {
-          throw new OpenGammaRuntimeException("Strike and black volatility arrays were not the same length; should never happen");
+          throw new OpenGammaRuntimeException("Strike and Black volatility arrays were not the same length; should never happen");
         }
         final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
         final BlackFunctionData[] data = new BlackFunctionData[n];
