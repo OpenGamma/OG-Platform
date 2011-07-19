@@ -17,7 +17,7 @@ $.register_module({
                     title = new_title;
                     go(location);
                 };
-                // listen to all clicks that bubble up and capture their title attributes
+                // listen to all clicks that bubble up and capture their titles
                 $('a[href]').live('click', function (e) {title = $(e.target).attr('title');});
                 $(window).bind('hashchange', function () {
                     routes.handler();
