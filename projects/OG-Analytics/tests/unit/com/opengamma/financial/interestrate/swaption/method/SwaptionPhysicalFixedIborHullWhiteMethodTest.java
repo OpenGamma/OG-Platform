@@ -41,6 +41,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 
+/**
+ * Tests related to the pricing of physical delivery swaption in Hull-White one factor model.
+ */
 public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -173,8 +176,10 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
       pvBumpedPlus[loopvol] = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
       volatilityBumped[loopvol] -= 2 * shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
       pvBumpedMinus[loopvol] = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
       assertEquals(
           "Swaption - Hull-White sensitivity adjoint: derivative " + loopvol + " - difference:" + ((pvBumpedPlus[loopvol] - pvBumpedMinus[loopvol]) / (2 * shiftVol) - hwSensitivity[loopvol]),
@@ -183,21 +188,13 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     }
   }
 
-  @Test
-  /**
-   * Tests the Hull-White parameters sensitivity.
-   */
-  public void calibration() {
-
-  }
-
   @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 1000;
+    final int nbTest = 10000;
     CurrencyAmount pvPayerLongExplicit = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongIntegration = CurrencyAmount.of(CUR, 0.0);
     startTime = System.currentTimeMillis();
@@ -206,20 +203,21 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv swaption Hull-White explicit method: " + (endTime - startTime) + " ms");
-    // Performance note: price: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 245 ms for 10000 swaptions.
+    // Performance note: HW price: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 325 ms for 10000 swaptions.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " SABR sensitivity swaption Hull-White explicit method: " + (endTime - startTime) + " ms");
-    // Performance note: HW sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 295 ms for 10000 swaptions.
+    // Performance note: HW sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 410 ms for 10000 swaptions.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
+    // Performance note: HW numerical integration: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1600 ms for 10000 swaptions.
 
     double difference = 0.0;
     difference = pvPayerLongExplicit.getAmount() - pvPayerLongIntegration.getAmount();

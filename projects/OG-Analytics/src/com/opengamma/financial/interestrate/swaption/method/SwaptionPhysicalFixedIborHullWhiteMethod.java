@@ -76,7 +76,6 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
       pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
     }
     return CurrencyAmount.of(swaption.getUnderlyingSwap().getFirstLeg().getCurrency(), pv * (swaption.isLong() ? 1.0 : -1.0));
-
   }
 
   @Override
@@ -86,6 +85,12 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
+  /**
+   * Present value sensitivity to Hull-White volatility parameters. The present value is computed using the explicit formula.
+   * @param swaption The physical delivery swaption.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value sensitivity.
+   */
   public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
     Validate.notNull(hwData);

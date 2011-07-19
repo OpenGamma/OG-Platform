@@ -256,16 +256,16 @@ public class NonLinearLeastSquareTest {
     final DoubleMatrix1D solution = new DoubleMatrix1D(new double[] {1.0, 1.0, 0.0, 0.0});
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final DoubleMatrix2D res = ls.calInverseJacobian(SIGMA,FUNCTION,GRAD,solution);
-    System.out.println("invese Jac: " + res);
+  //  System.out.println("invese Jac: " + res);
     
     DoubleMatrix1D deltaParms = (DoubleMatrix1D) ma.multiply(res, deltaY);
-    System.out.println("delta parms: " + deltaParms);
+   // System.out.println("delta parms: " + deltaParms);
     
     DoubleMatrix1D y = (DoubleMatrix1D) ma.add(Y, deltaY);
     
     final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
     DoubleMatrix1D trueDeltaParms  = (DoubleMatrix1D) ma.subtract(lsRes.getParameters(), solution);
-    System.out.println("true delta parms: " + trueDeltaParms);
+   // System.out.println("true delta parms: " + trueDeltaParms);
  
     assertEquals(trueDeltaParms.getEntry(0),deltaParms.getEntry(0),5e-5);
     assertEquals(trueDeltaParms.getEntry(1),deltaParms.getEntry(1),5e-5);
