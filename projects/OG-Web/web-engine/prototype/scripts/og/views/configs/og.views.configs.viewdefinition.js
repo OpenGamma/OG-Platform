@@ -16,6 +16,7 @@ $.register_module({
             SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',
             COLS = 'portfolioRequirementsBySecurityType',
+            RLTR = 'resolutionRuleTransform',
             SPEC = 'specificRequirement',
             SPVN = 'valueName',
             SPCT = 'computationTargetIdentifier',
@@ -247,9 +248,14 @@ $.register_module({
                             new form.Block({ // column set top (name, default properties, etc)
                                 module: 'og.views.forms.view-definition-column-set-top',
                                 extras: {name: [SETS, set_idx, 'name'].join('.'), value: set.name},
-                                children: [new forms.Constraints({ // default properties
-                                    form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
-                                })],
+                                children: [
+                                    new forms.Constraints({ // default properties
+                                        form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')
+                                    }),
+                                    new forms.RuleTransform({ // resolution rule transform
+                                        form: form, data: set[RLTR], index: [SETS, set_idx, RLTR].join('.')
+                                    })
+                                ],
                                 handlers: [{
                                     selector: 'input[name=' + [SETS, set_idx, 'name'].join('.') + ']', type: 'keyup',
                                     handler: function (e) {
@@ -294,8 +300,25 @@ $.register_module({
                                     is_new = $target.is(new_cl) || $target.parent(new_cl).length, index;
                                 if (is_active) return false;
                                 if (is_new) { // add a column set
-                                    var $div = $('#' + form.id + ' div.og-js-colsets');
-                                    og.dev.log('add a column set', $div);
+                                    (function () {
+                                        var $div = $('#' + form.id + ' div.og-js-colsets'),
+                                            block, set = {name: 'Set #'};
+                                        set[DEFP] = {};
+                                        if (!master[SETS]) master[SETS] = [set]; else master[SETS].push(set);
+                                        set.name += master[SETS].length;
+                                        column_sets.children.push(block = new_col_set(set, master[SETS].length - 1));
+                                        block.html(function (html) {
+                                            $div.append($(html));
+                                            $('#' + form.id + ' .og-js-colset-tab').removeClass('og-active');
+                                            $('#' + form.id + ' .og-js-colset-tabs .og-js-new').before($(
+                                                '<a class="og-tab og-js-colset-tab og-active" href="#"><span>' +
+                                                set.name + '</span></a>'
+                                            ));
+                                            $('div.og-js-colset-holder').hide();
+                                            $('div.og-js-colset-holder:last').show();
+                                            block.load();
+                                        });
+                                    })();
                                     return false;
                                 };
                                 if (!$target.is('a.og-js-colset-tab')) $target = $target.parent('a.og-js-colset-tab');
@@ -311,13 +334,10 @@ $.register_module({
                     column_sets // form item_4
                 );
                 Array.prototype.push.apply(column_sets.children, master[SETS].map(new_col_set));
-            })()
+            })();
             // new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
             // new form.Block({module: 'og.views.forms.constraints'}),
             // new form.Block({module: 'og.views.forms.constraints'}),
-            // new form.Block({
-            //     module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
-            // })
             form.dom();
         };
     }
