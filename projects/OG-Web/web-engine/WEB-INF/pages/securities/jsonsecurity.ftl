@@ -16,7 +16,7 @@
               "zone": "${security.startDate.zone}"
          },
       <#break>
-      <#case "Cash">
+      <#case "CASH">
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "maturity": {
