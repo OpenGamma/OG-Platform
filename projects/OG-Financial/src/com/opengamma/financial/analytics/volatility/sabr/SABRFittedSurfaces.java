@@ -10,6 +10,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.ObjectsSurface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,11 +22,17 @@ public class SABRFittedSurfaces {
   private final VolatilitySurface _betaSurface;
   private final VolatilitySurface _nuSurface;
   private final VolatilitySurface _rhoSurface;
+  private final ObjectsSurface<Double, Double, DoubleMatrix2D> _inverseJacobian;
   private final Currency _currency;
   private final DayCount _dayCount;
 
   public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
       final Currency currency, final DayCount dayCount) {
+    this(alphaSurface, betaSurface, nuSurface, rhoSurface, null, currency, dayCount);
+  }
+
+  public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
+      final ObjectsSurface<Double, Double, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
     Validate.notNull(alphaSurface, "alpha surface");
     Validate.notNull(betaSurface, "beta surface");
     Validate.notNull(nuSurface, "nu surface");
@@ -35,6 +43,7 @@ public class SABRFittedSurfaces {
     _betaSurface = betaSurface;
     _nuSurface = nuSurface;
     _rhoSurface = rhoSurface;
+    _inverseJacobian = inverseJacobian;
     _currency = currency;
     _dayCount = dayCount;
   }
@@ -55,6 +64,10 @@ public class SABRFittedSurfaces {
     return _rhoSurface;
   }
 
+  public ObjectsSurface<Double, Double, DoubleMatrix2D> getInverseJacobian() {
+    return _inverseJacobian;
+  }
+
   public Currency getCurrency() {
     return _currency;
   }
@@ -71,6 +84,7 @@ public class SABRFittedSurfaces {
     result = prime * result + _betaSurface.hashCode();
     result = prime * result + _nuSurface.hashCode();
     result = prime * result + _rhoSurface.hashCode();
+    result = prime * result + (_inverseJacobian == null ? 0 : _inverseJacobian.hashCode());
     result = prime * result + _currency.hashCode();
     result = prime * result + _dayCount.hashCode();
     return result;
@@ -95,6 +109,9 @@ public class SABRFittedSurfaces {
       return false;
     }
     if (!ObjectUtils.equals(_rhoSurface, other._rhoSurface)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_inverseJacobian, other._inverseJacobian)) {
       return false;
     }
     if (!ObjectUtils.equals(_currency, other._currency)) {
