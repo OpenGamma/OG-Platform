@@ -14,6 +14,7 @@ import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -233,6 +234,24 @@ public abstract class AbstractDbMaster {
       return stripped.setScale(0);
     }
     return stripped;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Improves the exception message.
+   * 
+   * @param ex  the exception to fix, not null
+   * @return the original exception, not null
+   */
+  protected DataAccessException fixSQLExceptionCause(DataAccessException ex) {
+    Throwable cause = ex.getCause();
+    if (cause instanceof SQLException && cause.getCause() == null) {
+      SQLException next = ((SQLException) cause).getNextException();
+      if (next != null) {
+        cause.initCause(next);
+      }
+    }
+    return ex;
   }
 
   //-------------------------------------------------------------------------

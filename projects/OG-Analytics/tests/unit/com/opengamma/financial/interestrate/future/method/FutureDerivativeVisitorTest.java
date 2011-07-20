@@ -77,7 +77,6 @@ public class FutureDerivativeVisitorTest {
     assertEquals("BondFutureTransaction2", BNDFUT_TRANSACTION.accept(VISITOR, o));
   }
 
-  @Test
   private static class MyVisitor<T, U> implements InterestRateDerivativeVisitor<T, String> {
 
     @Override

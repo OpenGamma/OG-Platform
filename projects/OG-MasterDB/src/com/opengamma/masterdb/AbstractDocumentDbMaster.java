@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -160,7 +161,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(extractor, "extractor");
     s_logger.debug("getByOidInstants {}", objectId);
     
-    final VersionCorrection vc = versionCorrection.withLatestFixed(now());
+    final VersionCorrection vc = (versionCorrection.containsLatest() ? versionCorrection.withLatestFixed(now()) : versionCorrection);
     final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<D> docs = namedJdbc.query(sqlGetByOidInstants(), args, extractor);
@@ -390,15 +391,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
-            // insert new row
-            final Instant now = now();
-            document.setVersionFromInstant(now);
-            document.setVersionToInstant(null);
-            document.setCorrectionFromInstant(now);
-            document.setCorrectionToInstant(null);
-            document.setUniqueId(null);
-            insert(document);
-            return document;
+            return doAddInTransaction(document);
           }
         });
         changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
@@ -407,8 +400,28 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
+  }
+
+  /**
+   * Processes the document add, within a retrying transaction.
+   * 
+   * @param document  the document to add, not null
+   * @return the added document, not null
+   */
+  protected D doAddInTransaction(final D document) {
+    // insert new row
+    final Instant now = now();
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    document.setUniqueId(null);
+    insert(document);
+    return document;
   }
 
   //-------------------------------------------------------------------------
@@ -427,21 +440,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
-            // load old row
-            final D oldDoc = getCheckLatestVersion(beforeId);
-            // update old row
-            final Instant now = now();
-            oldDoc.setVersionToInstant(now);
-            updateVersionToInstant(oldDoc);
-            // insert new row
-            document.setVersionFromInstant(now);
-            document.setVersionToInstant(null);
-            document.setCorrectionFromInstant(now);
-            document.setCorrectionToInstant(null);
-            document.setUniqueId(oldDoc.getUniqueId().toLatest());
-            mergeNonUpdatedFields(document, oldDoc);
-            insert(document);
-            return document;
+            return doUpdateInTransaction(document);
           }
         });
         changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
@@ -450,8 +449,34 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
+  }
+
+  /**
+   * Processes the document update, within a retrying transaction.
+   * 
+   * @param document  the document to update, not null
+   * @return the updated document, not null
+   */
+  protected D doUpdateInTransaction(final D document) {
+    // load old row
+    final D oldDoc = getCheckLatestVersion(document.getUniqueId());
+    // update old row
+    final Instant now = now();
+    oldDoc.setVersionToInstant(now);
+    updateVersionToInstant(oldDoc);
+    // insert new row
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    document.setUniqueId(oldDoc.getUniqueId().toLatest());
+    mergeNonUpdatedFields(document, oldDoc);
+    insert(document);
+    return document;
   }
 
   //-------------------------------------------------------------------------
@@ -467,13 +492,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
-            // load old row
-            final D oldDoc = getCheckLatestVersion(uniqueId);
-            // update old row
-            final Instant now = now();
-            oldDoc.setVersionToInstant(now);
-            updateVersionToInstant(oldDoc);
-            return oldDoc;
+            return doRemoveInTransaction(uniqueId);
           }
         });
         changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
@@ -482,8 +501,26 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
+  }
+
+  /**
+   * Processes the document update, within a retrying transaction.
+   * 
+   * @param uniqueId  the unique identifier to remove, not null
+   * @return the updated document, not null
+   */
+  protected D doRemoveInTransaction(final UniqueIdentifier uniqueId) {
+    // load old row
+    final D oldDoc = getCheckLatestVersion(uniqueId);
+    // update old row
+    final Instant now = now();
+    oldDoc.setVersionToInstant(now);
+    updateVersionToInstant(oldDoc);
+    return oldDoc;
   }
 
   //-------------------------------------------------------------------------
@@ -501,21 +538,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
-            // load old row
-            final D oldDoc = getCheckLatestCorrection(beforeId);
-            // update old row
-            final Instant now = now();
-            oldDoc.setCorrectionToInstant(now);
-            updateCorrectionToInstant(oldDoc);
-            // insert new row
-            document.setVersionFromInstant(oldDoc.getVersionFromInstant());
-            document.setVersionToInstant(oldDoc.getVersionToInstant());
-            document.setCorrectionFromInstant(now);
-            document.setCorrectionToInstant(null);
-            document.setUniqueId(oldDoc.getUniqueId().toLatest());
-            mergeNonUpdatedFields(document, oldDoc);
-            insert(document);
-            return document;
+            return doCorrectInTransaction(document);
           }
         });
         changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
@@ -524,8 +547,34 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         if (retry == getMaxRetries()) {
           throw ex;
         }
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
       }
     }
+  }
+
+  /**
+   * Processes the document correction, within a retrying transaction.
+   * 
+   * @param document  the document to correct, not null
+   * @return the corrected document, not null
+   */
+  protected D doCorrectInTransaction(final D document) {
+    // load old row
+    final D oldDoc = getCheckLatestCorrection(document.getUniqueId());
+    // update old row
+    final Instant now = now();
+    oldDoc.setCorrectionToInstant(now);
+    updateCorrectionToInstant(oldDoc);
+    // insert new row
+    document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+    document.setVersionToInstant(oldDoc.getVersionToInstant());
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    document.setUniqueId(oldDoc.getUniqueId().toLatest());
+    mergeNonUpdatedFields(document, oldDoc);
+    insert(document);
+    return document;
   }
 
   //-------------------------------------------------------------------------

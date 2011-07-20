@@ -10,7 +10,6 @@ import com.opengamma.util.timeseries.AbstractMutableLongObjectTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
@@ -25,7 +24,7 @@ public interface MutableYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTi
     }
 
     @Override
-    public TimeSeries<Double, T> newInstance(final Double[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<Double, T> newInstance(final Double[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 
@@ -40,7 +39,7 @@ public interface MutableYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTi
     }
 
     @Override
-    public TimeSeries<Double, T> newInstance(final Double[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<Double, T> newInstance(final Double[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 

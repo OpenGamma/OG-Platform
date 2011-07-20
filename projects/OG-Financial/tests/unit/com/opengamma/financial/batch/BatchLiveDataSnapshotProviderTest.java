@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.core.historicaldata.impl.MockHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
