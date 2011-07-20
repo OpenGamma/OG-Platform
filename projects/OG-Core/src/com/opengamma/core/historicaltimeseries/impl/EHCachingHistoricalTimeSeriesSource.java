@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.core.historicaldata.impl;
+package com.opengamma.core.historicaltimeseries.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,8 +21,8 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;

@@ -16,7 +16,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;

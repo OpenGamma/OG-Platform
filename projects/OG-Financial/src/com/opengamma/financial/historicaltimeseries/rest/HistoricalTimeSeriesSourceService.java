@@ -3,13 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.historicaldata.rest;
+package com.opengamma.financial.historicaltimeseries.rest;
 
 import javax.ws.rs.Path;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.util.rest.AbstractResourceService;
 
 /**

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.core.historicaldata.impl;
+package com.opengamma.core.historicaltimeseries.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -20,10 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaldata.impl.MockHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;

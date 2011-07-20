@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.core.historicaldata;
+package com.opengamma.core.historicaltimeseries;
 
 import java.util.Map;
 import java.util.Set;

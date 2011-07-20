@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.historicaldata.impl;
+package com.opengamma.core.historicaltimeseries.impl;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,8 +18,10 @@ import net.sf.ehcache.CacheManager;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

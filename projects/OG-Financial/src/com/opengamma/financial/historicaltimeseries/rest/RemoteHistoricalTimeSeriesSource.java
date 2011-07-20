@@ -3,26 +3,26 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.historicaldata.rest;
+package com.opengamma.financial.historicaltimeseries.rest;
 
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_TIMESERIES;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_UNIQUEID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.NULL_VALUE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUSIVE_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
-import static com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_TIMESERIES;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.HISTORICALTIMESERIESSOURCE_UNIQUEID;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.NULL_VALUE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_ALL_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_RESOLVED_BY_DATE;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_UID_BY_DATE;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,9 +37,9 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.impl.HistoricalTimeSeriesImpl;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;

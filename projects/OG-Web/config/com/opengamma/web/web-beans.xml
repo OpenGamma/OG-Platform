@@ -27,7 +27,7 @@
   </bean>
 
   <!-- Historical data source service -->
-  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceService">
+  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>

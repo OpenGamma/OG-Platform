@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;

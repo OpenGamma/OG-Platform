@@ -162,7 +162,7 @@
     <constructor-arg ref="htsDbSource"/>
     <property name="identifierScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
-  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource">
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
       <bean class="com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource">
         <constructor-arg ref="dbHtsMaster"/>

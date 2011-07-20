@@ -3,11 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.historicaldata.impl;
+package com.opengamma.core.historicaltimeseries.impl;
 
 import java.io.Serializable;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;

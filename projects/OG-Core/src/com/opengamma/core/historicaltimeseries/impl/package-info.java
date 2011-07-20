@@ -7,4 +7,4 @@
 /**
  * Basic building blocks around a daily historical time-series.
  */
-package com.opengamma.core.historicaldata.impl;
+package com.opengamma.core.historicaltimeseries.impl;
