@@ -218,6 +218,16 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
 
   //-------------------------------------------------------------------------
   /**
+   * Checks whether this object has either the version or correction instant
+   * set to 'latest'.
+   * 
+   * @return true if either instant is 'latest'
+   */
+  public boolean containsLatest() {
+    return (_versionAsOf == null || _correctedTo == null);
+  }
+
+  /**
    * Returns a copy of this object with any latest instant fixed to the specified instant.
    * <p>
    * This instance is immutable and unaffected by this method call.
@@ -227,10 +237,10 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   public VersionCorrection withLatestFixed(Instant now) {
     ArgumentChecker.notNull(now, "Now must not be null");
-    if (_versionAsOf != null && _correctedTo != null) {
-      return this;
+    if (containsLatest()) {
+      return new VersionCorrection(Objects.firstNonNull(_versionAsOf, now), Objects.firstNonNull(_correctedTo, now));
     }
-    return new VersionCorrection(Objects.firstNonNull(_versionAsOf, now), Objects.firstNonNull(_correctedTo, now));
+    return this;
   }
 
   //-------------------------------------------------------------------------

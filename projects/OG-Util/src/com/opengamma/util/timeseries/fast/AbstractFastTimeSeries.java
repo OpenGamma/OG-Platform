@@ -571,8 +571,6 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     return operate(ABS_OPERATOR);
   }
 
-  public abstract double[] valuesArrayFast();
-
   public double maxValue() {
     if (isEmpty()) {
       throw new OpenGammaRuntimeException("TimeSeries is empty");

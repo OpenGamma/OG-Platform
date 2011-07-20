@@ -85,6 +85,12 @@ public class DataPortfoliosResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @Path("nodes/{nodeId}")
+  public DataPortfolioNodeResource findPortfolioNode(@PathParam("nodeId") String idStr) {
+    UniqueIdentifier id = UniqueIdentifier.parse(idStr);
+    return new DataPortfolioNodeResource(this, id);
+  }
+
   @Path("{portfolioId}")
   public DataPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);

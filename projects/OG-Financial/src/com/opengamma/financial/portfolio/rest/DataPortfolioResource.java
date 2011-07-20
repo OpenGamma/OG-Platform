@@ -23,7 +23,6 @@ import javax.ws.rs.ext.Providers;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
@@ -134,14 +133,6 @@ public class DataPortfolioResource extends AbstractDataResource {
     return Response.ok(result).build();
   }
 
-  @GET
-  @Path("nodes/{nodeId}")
-  public Response getNode(@PathParam("nodeId") String idStr) {
-    UniqueIdentifier nodeId = UniqueIdentifier.parse(idStr);
-    ManageablePortfolioNode result = getPortfolioMaster().getNode(nodeId);
-    return Response.ok(result).build();
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for the resource.
@@ -188,18 +179,6 @@ public class DataPortfolioResource extends AbstractDataResource {
   public static URI uriVersion(URI baseUri, UniqueIdentifier uniqueId) {
     return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
-  }
-
-  /**
-   * Builds a URI for a specific node.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param nodeId  the resource unique identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriNode(URI baseUri, UniqueIdentifier nodeId) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/nodes/{nodeId}")
-      .build("-", nodeId);  // TODO: probably could do with a better URI
   }
 
 }

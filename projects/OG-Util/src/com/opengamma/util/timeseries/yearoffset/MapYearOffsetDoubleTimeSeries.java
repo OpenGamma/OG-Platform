@@ -94,7 +94,7 @@ public class MapYearOffsetDoubleTimeSeries extends MutableYearOffsetDoubleTimeSe
   }
 
   @Override
-  public YearOffsetDoubleTimeSeries newInstanceFast(final Double[] dateTimes, final double[] values) {
+  public MapYearOffsetDoubleTimeSeries newInstanceFast(final Double[] dateTimes, final double[] values) {
     return new MapYearOffsetDoubleTimeSeries(((YearOffsetEpochMillisConverter) getConverter()).getZonedOffset(), dateTimes, values);
   }
 
