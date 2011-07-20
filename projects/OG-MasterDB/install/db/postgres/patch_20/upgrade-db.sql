@@ -1,6 +1,6 @@
 UPDATE cfg_config
 SET config_type ='com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating'
-WHERE config_type = 'com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRating'
+WHERE config_type = 'com.opengamma.master.historicaldata.impl.HistoricalTimeSeriesRating';
 
 DROP TABLE IF EXISTS tss_data_point;
 DROP TABLE IF EXISTS tss_data_point_delta;
