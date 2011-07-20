@@ -117,7 +117,6 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * @param time The time to expiry.
    * @param strike The strike.
    * @param forward The forward.
-   * @param volatilitySensitivity
    * @param bucketSensitivity The array is changed by the method. The array should have the correct size. After the methods, it contains the volatility sensitivity to the data points. 
    * Only the lines of impacted dates are changed. The input data on the other lines will not be changed.
    * @return The volatility.

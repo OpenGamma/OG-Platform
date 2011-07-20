@@ -231,7 +231,6 @@ public class VarSwapStaticReplicationTest {
   /**
    * Instead of matching slope and level at the cutoff, try choosing a level at zero strike, then filling in with shifted lognormal distribution
    */
-  @SuppressWarnings("hiding")
   @Test
   public void testAlternativeUseOfShiftedLognormal() {
 
