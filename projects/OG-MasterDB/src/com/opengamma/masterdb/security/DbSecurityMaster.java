@@ -85,13 +85,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * SQL from.
    */
   protected static final String FROM =
-      "FROM sec_security main LEFT JOIN sec_raw raw ON (raw.security_id = main.id) " +
+      "FROM sec_security main " +
+        "LEFT JOIN sec_raw raw ON (raw.security_id = main.id) " +
         "LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) " +
         "LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
   /**
    * SQL select types.
    */
-  protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type ";
+  protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type FROM sec_security main";
 
   /**
    * The detail provider.
@@ -135,7 +136,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     ArgumentChecker.notNull(request, "request");
     SecurityMetaDataResult result = new SecurityMetaDataResult();
     if (request.isSecurityTypes()) {
-      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
+      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES, String.class);
       result.getSecurityTypes().addAll(securityTypes);
     }
     return result;
@@ -160,7 +161,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("sec_type", request.getSecurityType());
+      .addValueNullIgnored("sec_type", request.getSecurityType())
+      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
     if (request.getSecurityKeys() != null) {
       int i = 0;
       for (Identifier id : request.getSecurityKeys()) {
@@ -169,8 +171,6 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         i++;
       }
     }
-    
-    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
     
     searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request, args), args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {

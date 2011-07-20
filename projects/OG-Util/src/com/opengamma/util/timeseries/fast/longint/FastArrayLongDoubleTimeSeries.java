@@ -362,10 +362,12 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     return new PrimitiveArrayDoubleTimeSeriesValuesIterator();
   }
 
+  @Override
   public double[] valuesArrayFast() {
     return _values.clone();
   }
 
+  @Override
   public long[] timesArrayFast() {
     return _times.clone();
   }
@@ -375,6 +377,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     return _times[index];
   }
 
+  @Override
   public FastLongDoubleTimeSeries tail(final int numItems) {
     if (numItems <= _times.length) {
       final long[] times = new long[numItems];
@@ -392,6 +395,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     return tail(numItems);
   }
 
+  @Override
   public FastLongDoubleTimeSeries head(final int numItems) {
     if (numItems <= _times.length) {
       final long[] times = new long[numItems];

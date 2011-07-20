@@ -153,6 +153,14 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(IdentifierBundle.of(_id11, _id22), bundleWithDates.asIdentifierBundle());
   }
 
+  public void asIdentifierBundle_LocalDate() {
+    IdentifierBundleWithDates bundleWithDates = new IdentifierBundleWithDates(_idwd11, _idwd22);
+    assertEquals(IdentifierBundle.of(_id11, _id22), bundleWithDates.asIdentifierBundle(LocalDate.of(2000, 6, 1)));
+    assertEquals(IdentifierBundle.of(_id22), bundleWithDates.asIdentifierBundle(LocalDate.of(2002, 6, 1)));
+    assertEquals(IdentifierBundle.EMPTY, bundleWithDates.asIdentifierBundle(LocalDate.of(2011, 6, 1)));
+  }
+
+  //-------------------------------------------------------------------------
   public void withIdentifier() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates test = base.withIdentifier(_idwd21);

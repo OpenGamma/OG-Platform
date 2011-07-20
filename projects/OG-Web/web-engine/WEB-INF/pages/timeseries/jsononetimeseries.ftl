@@ -1,15 +1,15 @@
 <#escape x as x?html>
 {
     "template_data": {
-            "object_id": "${timeseries.uniqueId.objectId}",
-            "version_id": "${timeseries.uniqueId.version}",
-            "data_source": "${timeseries.dataSource}",
-            "data_provider": "${timeseries.dataProvider}",
-            "data_field": "${timeseries.dataField}",
-            "observation_time": "${timeseries.observationTime}"
+            "object_id": "${info.uniqueId.objectId}",
+            "version_id": "${info.uniqueId.version}",
+            "data_field": "${info.dataField}",
+            "data_source": "${info.dataSource}",
+            "data_provider": "${info.dataProvider}",
+            "observation_time": "${info.observationTime}"
     },
     "identifiers": [
-    <#list timeseries.identifiers.iterator() as item>
+    <#list info.identifiers.iterator() as item>
     	{"scheme": "${item.identityKey.scheme}", "value": "${item.identityKey.value}", "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}}<#if item_has_next>,</#if>
    	</#list>
     ],

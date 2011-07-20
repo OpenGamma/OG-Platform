@@ -168,10 +168,15 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   @Override
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Holiday not found: " + uniqueId);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HolidayDocument correct(final HolidayDocument document) {
+    return update(document);
   }
 
   //-------------------------------------------------------------------------
@@ -187,11 +192,6 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  public HolidayDocument correct(final HolidayDocument document) {
-    return update(document);
   }
 
 }

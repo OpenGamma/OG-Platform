@@ -8,6 +8,7 @@ package com.opengamma.util.db;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -26,10 +27,20 @@ import com.opengamma.util.ArgumentChecker;
 public class DbDateUtils {
 
   /**
+   * The maximum SQL date, used as far-future in the database.
+   */
+  @SuppressWarnings("deprecation")
+  public static final Date MAX_SQL_DATE = new Date(9999 - 1900, Calendar.DECEMBER, 31);
+  /**
+   * The minimum SQL date, used as far-past in the database.
+   */
+  @SuppressWarnings("deprecation")
+  public static final Date MIN_SQL_DATE = new Date(1800 - 1900, Calendar.JANUARY, 1);
+  /**
    * The maximum SQL time-stamp, used as far-future in the database.
    */
   @SuppressWarnings("deprecation")
-  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 0);
+  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, Calendar.DECEMBER, 31, 23, 59, 59, 0);
   /**
    * The maximum instant, used as far-future in the database.
    */
@@ -142,6 +153,32 @@ public class DbDateUtils {
   }
 
   /**
+   * Creates a SQL date from a {@code DateProvider}.
+   * 
+   * @param dateProvider  the date to convert, null returns max
+   * @return the SQL date, not null
+   */
+  public static Date toSqlDateNullFarFuture(DateProvider dateProvider) {
+    if (dateProvider == null) {
+      return MAX_SQL_DATE;
+    }
+    return toSqlDate(dateProvider);
+  }
+
+  /**
+   * Creates a SQL date from a {@code DateProvider}.
+   * 
+   * @param dateProvider  the date to convert, null returns max
+   * @return the SQL date, not null
+   */
+  public static Date toSqlDateNullFarPast(DateProvider dateProvider) {
+    if (dateProvider == null) {
+      return MIN_SQL_DATE;
+    }
+    return toSqlDate(dateProvider);
+  }
+
+  /**
    * Creates a {@code LocalDate} from a SQL date.
    * 
    * @param date  the SQL date to convert, not null
@@ -151,6 +188,42 @@ public class DbDateUtils {
   public static LocalDate fromSqlDate(Date date) {
     ArgumentChecker.notNull(date, "date");
     return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+  }
+
+  /**
+   * Creates a {@code LocalDate} from a SQL date.
+   * 
+   * @param date  the SQL date to convert, not null
+   * @return the date, null if far future
+   */
+  public static LocalDate fromSqlDateNullFarFuture(Date date) {
+    if (date.equals(MAX_SQL_DATE)) {
+      return null;
+    }
+    return fromSqlDate(date);
+  }
+
+  /**
+   * Creates a {@code LocalDate} from a SQL date.
+   * 
+   * @param date  the SQL date to convert, not null
+   * @return the date, null if far past
+   */
+  public static LocalDate fromSqlDateNullFarPast(Date date) {
+    if (date.equals(MIN_SQL_DATE)) {
+      return null;
+    }
+    return fromSqlDate(date);
+  }
+
+  /**
+   * Creates a {@code LocalDate} from a possibly null SQL date.
+   * 
+   * @param date  the SQL date to convert, null returns null
+   * @return the date, may be null
+   */
+  public static LocalDate fromSqlDateAllowNull(Date date) {
+    return (date != null ? fromSqlDate(date) : null);
   }
 
   //-------------------------------------------------------------------------
