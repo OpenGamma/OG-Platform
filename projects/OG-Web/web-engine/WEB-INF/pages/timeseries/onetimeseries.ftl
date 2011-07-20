@@ -18,6 +18,7 @@
     <@rowout label="Data provider">${info.dataProvider}</@rowout>
     <@rowout label="Data field">${info.dataField}</@rowout>
     <@rowout label="Observation time">${info.observationTime}</@rowout>
+    <@rowout label="Name">${info.name}</@rowout>
   </p>
   
 <#-- SUBSECTION Chart -->

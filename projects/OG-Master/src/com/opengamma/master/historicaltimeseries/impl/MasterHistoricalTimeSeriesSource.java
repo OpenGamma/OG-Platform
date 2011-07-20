@@ -198,7 +198,7 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, (LocalDate) null, (LocalDate) null, (LocalDate) null);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, (LocalDate) null, (LocalDate) null);
   }
 
   @Override
@@ -211,13 +211,13 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, (LocalDate) null, start, end);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, end);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, identifierValidityDate, null, null);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, null, null);
   }
 
   @Override
@@ -230,18 +230,18 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return doGetHistoricalTimeSeries(dataField, identifierBundle, resolutionKey, identifierValidityDate, start, end);
+    return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, end);
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey, LocalDate identifierValidityDate,
+      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     if (StringUtils.isBlank(resolutionKey)) {
       resolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     }
-    UniqueIdentifier uniqueId = getResolver().resolve(dataField, identifierBundle, resolutionKey);
+    UniqueIdentifier uniqueId = getResolver().resolve(dataField, identifierBundle, identifierValidityDate, resolutionKey);
     if (uniqueId == null) {
       return null;
     }
