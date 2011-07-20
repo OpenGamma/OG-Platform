@@ -113,7 +113,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
     when(_mockMaster.getTimeSeries(UID, null, null)).thenReturn(hts);
-    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG)).thenReturn(UID);
+    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, null, TEST_CONFIG)).thenReturn(UID);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).getTimeSeries(UID, null, null);
