@@ -130,7 +130,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractInt
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
+      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
       return method.presentValueSABRSensitivity(option, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
