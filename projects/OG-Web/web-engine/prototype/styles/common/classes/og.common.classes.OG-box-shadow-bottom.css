@@ -21,6 +21,7 @@
   display: inline-block;
   height: 10px;
   opacity: 0.15;
+  filter: alpha(opacity=15);
   position: absolute;
   bottom: 99px;
   left: -0.5%;

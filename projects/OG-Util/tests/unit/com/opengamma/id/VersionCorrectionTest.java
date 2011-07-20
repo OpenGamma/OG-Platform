@@ -179,6 +179,14 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_containsLatest() {
+    assertEquals(false, VersionCorrection.of(INSTANT1, INSTANT2).containsLatest());
+    assertEquals(true, VersionCorrection.of(null, INSTANT2).containsLatest());
+    assertEquals(true, VersionCorrection.of(INSTANT1, null).containsLatest());
+    assertEquals(true, VersionCorrection.of(null, null).containsLatest());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_withLatestFixed_noNulls() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertSame(test, test.withLatestFixed(INSTANT3));

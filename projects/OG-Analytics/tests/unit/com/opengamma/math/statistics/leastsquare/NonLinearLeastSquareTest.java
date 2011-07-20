@@ -126,35 +126,35 @@ public class NonLinearLeastSquareTest {
   @Test
   public void solveExactTest() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
-    LeastSquareResults res = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, res.getChiSq(), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
-    res = LS.solve(X, Y, SIGMA.getEntry(0), PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, res.getChiSq(), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
-    res = LS.solve(X, Y, PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, res.getChiSq(), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
+    LeastSquareResults result = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
+    assertEquals(0.0, result.getChiSq(), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(3), 1e-8);
+    result = LS.solve(X, Y, SIGMA.getEntry(0), PARAM_FUNCTION, PARAM_GRAD, start);
+    assertEquals(0.0, result.getChiSq(), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(3), 1e-8);
+    result = LS.solve(X, Y, PARAM_FUNCTION, PARAM_GRAD, start);
+    assertEquals(0.0, result.getChiSq(), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(3), 1e-8);
   }
 
   @Test
   public void solveExactTest2() {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.2, 1.8, 0.2, 0.3});
-    final LeastSquareResults res = LS.solve(Y, SIGMA, FUNCTION, start);
-    assertEquals(0.0, res.getChiSq(), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
+    final LeastSquareResults result = LS.solve(Y, SIGMA, FUNCTION, start);
+    assertEquals(0.0, result.getChiSq(), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(3), 1e-8);
   }
 
   public void solveExactFromChiSqTest() {
@@ -203,12 +203,12 @@ public class NonLinearLeastSquareTest {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
 
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    final LeastSquareResults res = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
-    assertEquals(0.0, res.getChiSq(), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
-    assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(2), 1e-8);
-    assertEquals(0.0, res.getParameters().getEntry(3), 1e-8);
+    final LeastSquareResults result = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
+    assertEquals(0.0, result.getChiSq(), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(0), 1e-8);
+    assertEquals(1.0, result.getParameters().getEntry(1), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(2), 1e-8);
+    assertEquals(0.0, result.getParameters().getEntry(3), 1e-8);
   }
 
   @Test
@@ -255,16 +255,16 @@ public class NonLinearLeastSquareTest {
     final DoubleMatrix1D solution = new DoubleMatrix1D(new double[] {1.0, 1.0, 0.0, 0.0});
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final DoubleMatrix2D res = ls.calInverseJacobian(SIGMA, FUNCTION, GRAD, solution);
-    System.out.println("invese Jac: " + res);
+    //  System.out.println("invese Jac: " + res);
 
     final DoubleMatrix1D deltaParms = (DoubleMatrix1D) ma.multiply(res, deltaY);
-    System.out.println("delta parms: " + deltaParms);
+    // System.out.println("delta parms: " + deltaParms);
 
     final DoubleMatrix1D y = (DoubleMatrix1D) ma.add(Y, deltaY);
 
     final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
     final DoubleMatrix1D trueDeltaParms = (DoubleMatrix1D) ma.subtract(lsRes.getParameters(), solution);
-    System.out.println("true delta parms: " + trueDeltaParms);
+    // System.out.println("true delta parms: " + trueDeltaParms);
 
     assertEquals(trueDeltaParms.getEntry(0), deltaParms.getEntry(0), 5e-5);
     assertEquals(trueDeltaParms.getEntry(1), deltaParms.getEntry(1), 5e-5);

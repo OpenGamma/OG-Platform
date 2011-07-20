@@ -25,7 +25,7 @@
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.region?replace("_", " ")}</@rowout>
       <#break>
-      <#case "Cash">
+      <#case "CASH">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Maturity">${security.maturity.date} - ${security.maturity.zone}</@rowout>

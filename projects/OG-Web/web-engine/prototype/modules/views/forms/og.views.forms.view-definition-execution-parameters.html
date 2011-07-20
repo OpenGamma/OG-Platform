@@ -1,29 +1,35 @@
-<section>
-  <h2>Execution Parameters</h2>
-  <small>
-    Execution parameters to control the minimum and maximum rates of computation for both full and delta cycles.
-    Within these limits, computation is driven by input data changes, such as market data ticks
-  </small>
-  <div class="og-sub-form og-ipt-lbl-inline">
-    <div class="og-c3">
-      <div>
-        <input id="minDeltaCalcPeriod" name="minDeltaCalcPeriod" type="text" class="og-c3" />
-        <label for="minDeltaCalcPeriod" class="og-c6">Minimum</label>
-      </div>
-      <div>
-        <input id="maxDeltaCalcPeriod" name="maxDeltaCalcPeriod" type="text" class="og-c3" />
-        <label for="maxDeltaCalcPeriod" class="og-c6">Maximum</label>
-      </div>
-    </div>
-    <div class="og-c3">
-      <div>
-        <input id="minFullCalcPeriod" name="minFullCalcPeriod" type="text" class="og-c3" />
-        <label for="minFullCalcPeriod" class="og-c6">Minimum full</label>
-      </div>
-      <div>
-        <input id="maxFullCalcPeriod" name="maxFullCalcPeriod" type="text" class="og-c3" />
-        <label for="maxFullCalcPeriod" class="og-c6">Maximum full</label>
-      </div>
-    </div>
+<section class="OG-mod-0 OG-c6 og-grid-last og-ex-params">
+  <h3>Execution Parameters</h3>
+  <div class="og-mod-content">
+    <table>
+      <tr>
+        <td class="og-c1">Minimum</td>
+        <td>
+          <label for="minDeltaCalcPeriod">
+            <span class="og-c2"><input id="minDeltaCalcPeriod" name="minDeltaCalcPeriod" type="text" /></span>
+          </label>
+        </td>
+        <td class="og-c1">Minimum full</td>
+        <td>
+          <label for="minFullCalcPeriod">
+            <span class="og-c2"><input id="minFullCalcPeriod" name="minFullCalcPeriod" type="text" /></span>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td class="og-c1">Maximum</td>
+        <td>
+          <label for="maxDeltaCalcPeriod">
+            <span class="og-c2"><input id="maxDeltaCalcPeriod" name="maxDeltaCalcPeriod" type="text" /></span>
+          </label>
+        </td>
+        <td class="og-c1">Maximum full</td>
+        <td>
+          <label for="maxFullCalcPeriod">
+            <span class="og-c2"><input id="maxFullCalcPeriod" name="maxFullCalcPeriod" type="text" /></span>
+          </label>
+        </td>
+      </tr>
+    </table>
   </div>
 </section>

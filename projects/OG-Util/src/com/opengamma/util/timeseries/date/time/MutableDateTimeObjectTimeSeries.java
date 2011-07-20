@@ -11,7 +11,7 @@ import com.opengamma.util.timeseries.AbstractMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongObjectTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
@@ -27,7 +27,7 @@ public interface MutableDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSe
     }
 
     @Override
-    public TimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 
@@ -41,7 +41,7 @@ public interface MutableDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSe
     }
 
     @Override
-    public TimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<Date, T> newInstance(final Date[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 

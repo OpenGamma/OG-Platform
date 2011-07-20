@@ -12,7 +12,6 @@ import com.opengamma.util.timeseries.AbstractLongObjectTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
@@ -30,7 +29,7 @@ public interface LocalDateObjectTimeSeries<T> extends ObjectTimeSeries<LocalDate
     }
 
     @Override
-    public TimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 
@@ -45,7 +44,7 @@ public interface LocalDateObjectTimeSeries<T> extends ObjectTimeSeries<LocalDate
     }
 
     @Override
-    public TimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
+    public ObjectTimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
     }
 

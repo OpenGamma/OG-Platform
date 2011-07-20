@@ -5,21 +5,20 @@
  */
 package com.opengamma.financial.portfolio.rest;
 
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.financial.portfolio.rest.DataPortfolioResource;
-import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -66,6 +65,13 @@ public class DataPortfoliosResourceTest {
     DataPortfolioResource test = _resource.findPortfolio("Test~PortA");
     assertSame(_resource, test.getPortfoliosResource());
     assertEquals(UniqueIdentifier.of("Test", "PortA"), test.getUrlPortfolioId());
+  }
+
+  @Test
+  public void testFindPortfolioNode() {
+    DataPortfolioNodeResource test = _resource.findPortfolioNode("Test~NodeA");
+    assertSame(_resource, test.getPortfoliosResource());
+    assertEquals(UniqueIdentifier.of("Test", "NodeA"), test.getUrlNodeId());
   }
 
 }
