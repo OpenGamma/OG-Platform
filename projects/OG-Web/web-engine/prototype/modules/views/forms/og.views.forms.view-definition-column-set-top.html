@@ -1,14 +1,40 @@
-<div class="og-sub-form og-lbl-top">
-  <span class="OG-icon og-icon-remove og-js-rem-colset">delete</span>
-  <div>
-    <label class="og-c4">
-      Name
-      <input name="${name}" class="og-c4" type="text" value="${value}" />
-    </label>
+<label class="og-name">
+  <span>Name</span>
+  <input name="${name}" class="og-c4" type="text" value="${value}" />
+</label>
+<div class="og-main-nav">
+  <ul class="og-js-colset-nav">
+    <li>Column Values</li>
+    <li>Additional Values</li>
+    <li class="og-active">Default Properties</li>
+    <li>Resolution Rule Transform</li>
+  </ul>
+</div>
+<!-- column values -->
+<div class="og-column og-js-col-vals" style="display: none">
+  <div class="og-col-content">
+    {{html item_0}}
+    <span class="OG-icon og-icon-add og-js-add-col-val">Add column value</span>
   </div>
 </div>
-<h2>Default Properties</h2>
-{{html item_0}}
-<h2>Resolution Rule Transform</h2>
-{{html item_1}}
-<h2>Column Values</h2>
+<!-- additional values -->
+<div class="og-column og-js-specs" style="display: none">
+  <div class="og-col-content">
+    <div class="og-content-items">
+      {{html item_1}}
+      <span class="og-new-link og-js-add-spec">Add additional value</span>
+    </div>
+  </div>
+</div>
+<!-- default properties -->
+<div class="og-column og-js-def-prop" style="display: block">
+  <div class="og-col-content">
+    {{html item_2}}
+  </div>
+</div>
+<!-- resolution rule transform -->
+<div class="og-column og-js-rule-trans" style="display: none">
+  <div class="og-col-content">
+    {{html item_3}}
+  </div>
+</div>
