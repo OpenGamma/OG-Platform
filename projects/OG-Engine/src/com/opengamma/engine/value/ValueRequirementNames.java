@@ -222,6 +222,7 @@ public final class ValueRequirementNames {
   public static final String PRESENT_VALUE_COUPON_SENSITIVITY = "Present Value Coupon Sensitivity";
   public static final String PRESENT_VALUE_CURVE_SENSITIVITY = "Present Value Curve Sensitivity"; 
   public static final String PRESENT_VALUE_SABR_ALPHA_SENSITIVITY = "Present Value SABR Alpha Sensitivity";
+  public static final String PRESENT_VALUE_SABR_BETA_SENSITIVITY = "Present Value SABR Beta Sensitivity";
   public static final String PRESENT_VALUE_SABR_RHO_SENSITIVITY = "Present Value SABR Rho Sensitivity";
   public static final String PRESENT_VALUE_SABR_NU_SENSITIVITY = "Present Value SABR Nu Sensitivity";
   
@@ -302,5 +303,8 @@ public final class ValueRequirementNames {
   public static final String FX_CURRENCY_EXPOSURE = "FX Currency Exposure";
   public static final String FX_CURVE_SENSITIVITIES = "FX Curve Sensitivities";
   public static final String FX_VOLATILITY_SENSITIVITIES = "FX Volatility Sensitivities";
+  
+  //Vega matrix
+  public static final String VEGA_MATRIX = "Vega Matrix";
   //CSON
 }
