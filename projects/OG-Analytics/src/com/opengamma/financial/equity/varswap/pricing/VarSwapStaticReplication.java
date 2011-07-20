@@ -32,7 +32,7 @@ public class VarSwapStaticReplication {
   // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
   // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs 
-  private final static double A_FEW_WEEKS = 0.05;
+  private static final double A_FEW_WEEKS = 0.05;
 
   // Vol Extrapolation 
   private final Double _strikeCutoff; // Lowest interpolated strike. ShiftedLognormal hits Put(_strikeCutoff)
@@ -46,12 +46,13 @@ public class VarSwapStaticReplication {
 
   /**
    * Default constructor with sensible inputs.
+   * A shiftedLognormal distribution is fit to extrapolate below 0.25*forward. It matches the 0.25*F and 0.3*F prices, representing a measure of level and slope 
    */
   public VarSwapStaticReplication() {
     _lowerBound = 1e-4; // almost zero
     _upperBound = 5.0; // multiple of the atm forward
     _integrator = new RungeKuttaIntegrator1D();
-    _strikeCutoff = 0.25; // TODO Choose how caller tells impliedVariance not to use ShiftedLognormal..
+    _strikeCutoff = 0.25;
     _strikeSpread = 0.05;
     _cutoffProvided = true;
   }

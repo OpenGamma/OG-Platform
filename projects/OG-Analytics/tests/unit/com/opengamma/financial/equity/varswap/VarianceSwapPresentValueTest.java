@@ -238,7 +238,7 @@ public class VarianceSwapPresentValueTest {
   /**
    * As valuation date approaches expiry, computation of ImpliedVariance remains robust. 
    * In particular, failures don't occur while fitting the left tail of the terminal distribution with a shiftedLognormal.. 
-   * FIXME CASE: shiftedLognormal fitting fails if price at cutoff and spread points are zero!
+   * FIXME CASE: shiftedLognormal fitting fails if the prices at cutoff and spread points are zero. => Reparameterise strike based on delta so that strikes come in as time to expiry approaches
    */
   public void successFittingLeftTailAsExpiryApproaches() {
 

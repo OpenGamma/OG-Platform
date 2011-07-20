@@ -8,9 +8,12 @@ package com.opengamma.financial.equity.varswap;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.varswap.definition.VarianceSwapDefinition;
-import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -25,18 +28,42 @@ public class VarianceSwapDefinitionTest {
   private final ZonedDateTime plus1y = now.plusYears(1);
   private final ZonedDateTime plus5y = now.plusYears(5);
   private final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
-  private final int nObsExpected = 750; // TODO Case Calendar. Get nObsExpected from calendar
   private final Currency ccy = Currency.EUR;
-  private final Calendar cal = null; // TODO Case Calendar.
+  private static final Calendar WEEKENDCAL = new WeekendCalendar();
   private final double obsPerYear = 250;
   private final double volStrike = 0.25;
   private final double volNotional = 1.0E6;
 
-  @Test
-  public void swapForwardStarting() {
-    final VarianceSwapDefinition varSwapDefn = new VarianceSwapDefinition(tPlus2, plus5y, plus5y, obsFreq, nObsExpected, ccy, cal, obsPerYear, volStrike, volNotional);
+  private final DoubleTimeSeries<ZonedDateTime> emptyTimeSeries = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[0], new double[0]);
 
-    VarianceSwap forwardVar = varSwapDefn.toDerivative(now, null);
+  private static class WeekendCalendar implements Calendar {
+
+    @Override
+    public String getConventionName() {
+      return "";
+    }
+
+    @Override
+    public boolean isWorkingDay(final LocalDate date) {
+      final DayOfWeek day = date.getDayOfWeek();
+      if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
+        return false;
+      }
+      return true;
+    }
   }
 
+  @Test
+  public void forwardStarting() {
+    // Construct a forward starting swap, Definition
+    final VarianceSwapDefinition varSwapDefn = new VarianceSwapDefinition(tPlus2, plus5y, plus5y, obsFreq, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
+    // Construct a forward starting swap, Derivative 
+    varSwapDefn.toDerivative(now, emptyTimeSeries);
+  }
+
+  @Test
+  public void weeklyObservations() {
+    final PeriodFrequency freqWeek = PeriodFrequency.WEEKLY;
+    new VarianceSwapDefinition(tPlus2, plus5y, plus5y, freqWeek, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
+  }
 }

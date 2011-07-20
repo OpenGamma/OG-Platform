@@ -48,8 +48,8 @@ public class VarianceSwap implements EquityDerivative {
    * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
   public VarianceSwap(double timeToObsStart, double timeToObsEnd, double timeToSettlement,
-      double varStrike, double varNotional, Currency currency, double annualizationFactor,
-      int nObsExpected, int nObsDisrupted, double[] observations, double[] observationWeights) {
+                      double varStrike, double varNotional, Currency currency, double annualizationFactor,
+                      int nObsExpected, int nObsDisrupted, double[] observations, double[] observationWeights) {
 
     _timeToObsStart = timeToObsStart;
     _timeToObsEnd = timeToObsEnd;
