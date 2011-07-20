@@ -657,7 +657,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
     if (isEmpty()) {
       throw new OpenGammaRuntimeException("TimeSeries is empty");
     }
-    Double[] values = valuesArray();
+    double[] values = valuesArrayFast();
     double max = Double.MIN_VALUE;
     for (int i = 0; i < values.length; i++) {
       if (values[i] > max) {
@@ -672,7 +672,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
     if (isEmpty()) {
       throw new OpenGammaRuntimeException("TimeSeries is empty");
     }
-    Double[] values = valuesArray();
+    double[] values = valuesArrayFast();
     double min = Double.MAX_VALUE;
     for (int i = 0; i < values.length; i++) {
       if (values[i] < min) {
