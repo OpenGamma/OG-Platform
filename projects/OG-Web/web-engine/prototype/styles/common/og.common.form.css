@@ -14,12 +14,11 @@ input[type="text"] {
 }
 
 input, select, textarea {
-  outline: none;
+  outline: 0 none;
 }
 
-/*input:focus,
-select:focus,
-textarea:focus {
-  border: 1px solid #c4dced;
-  position: relative;
-}*/
+/*input:focus,*/
+/*select:focus,*/
+/*textarea:focus {*/
+  /*background-color: #eef7fc;*/
+/*}*/

@@ -39,8 +39,8 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * Present value calculator using a third order approximation.
-   * @param swaption The swaption.
+   * Present value method using a third order approximation.
+   * @param swaption The cash-settled swaption.
    * @param hwData The Hull-White parameters and the curves.
    * @return The present value.
    */
@@ -97,8 +97,8 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
         + (swaption.getStrike() - rate)
         * (derivativesAnnuity[0] * derivativesRate[2] + 3 * derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[1] + derivativesAnnuity[2] * derivativesRate[0] * derivativesRate[0]
             * derivativesRate[0]) - rate * derivativesRate[2];
-    double kappatilde = kappa + alpha[0];
-    double alpha0tilde = alpha[0] + x0;
+    double kappatilde = kappa + alphaIbor[0];
+    double alpha0tilde = alphaIbor[0] + x0;
     double pv;
     if (!swaption.getUnderlyingSwap().getFixedLeg().isPayer()) {
       pv = (u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * NORMAL.getCDF(kappatilde)
@@ -121,8 +121,153 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
   }
 
   /**
-   * Computation of the swap rate for a given random variable.
-   * @param x The random variabale.
+   * Present value sensitivity to Hull-White volatility parameters. The present value is computed using a third order approximation.
+   * @param swaption The cash-settled swaption.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value sensitivity.
+   */
+  public double[] presentValueHullWhiteSensitivity(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    // Forward sweep
+    double expiryTime = swaption.getTimeToExpiry();
+    int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
+    double[] alphaFixed = new double[nbFixed];
+    double[] dfFixed = new double[nbFixed];
+    double[] discountedCashFlowFixed = new double[nbFixed];
+    for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
+      alphaFixed[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      dfFixed[loopcf] = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(
+          swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime());
+      discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction()
+          * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional();
+    }
+    AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
+    double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
+    double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
+    double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
+    for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
+      alphaIbor[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      dfIbor[loopcf] = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cfeIbor.getNthPayment(loopcf).getPaymentTime());
+      discountedCashFlowIbor[loopcf] = dfIbor[loopcf] * cfeIbor.getNthPayment(loopcf).getAmount();
+    }
+    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
+    double[] alpha = new double[cfe.getNumberOfPayments()];
+    double[] df = new double[cfe.getNumberOfPayments()];
+    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
+      discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
+    }
+    double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    final int nbFixedPaymentYear = (int) Math.round(1.0 / swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
+    double[] derivativesRate = new double[3];
+    double[] derivativesAnnuity = new double[3];
+    double x0 = 0.0; //    (swaption.getUnderlyingSwap().getFixedLeg().isPayer()) ? Math.max(kappa, 0) : Math.min(kappa, 0);
+    double rate = swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, derivativesRate);
+    double annuity = annuityCash(rate, nbFixedPaymentYear, swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments(), derivativesAnnuity);
+    double[] u = new double[4];
+    u[0] = annuity * (swaption.getStrike() - rate);
+    u[1] = (swaption.getStrike() - rate) * derivativesAnnuity[0] * derivativesRate[0] - derivativesRate[0] * annuity;
+    u[2] = (swaption.getStrike() - rate) * (derivativesAnnuity[0] * derivativesRate[1] + derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[0]) - 2 * derivativesAnnuity[0]
+        * derivativesRate[0] * derivativesRate[0] - annuity * derivativesRate[1];
+    u[3] = (-3 * derivativesRate[0] * (derivativesAnnuity[0] * derivativesRate[1] + derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[0]))
+        - (2 * derivativesAnnuity[0] * derivativesRate[0] * derivativesRate[1])
+        + ((swaption.getStrike() - rate) * (derivativesAnnuity[0] * derivativesRate[2] + 3 * derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[1] + derivativesAnnuity[2]
+            * derivativesRate[0] * derivativesRate[0] * derivativesRate[0])) - (rate * derivativesRate[2]);
+    double kappatilde = kappa + alphaIbor[0];
+    double alpha0tilde = alphaIbor[0] + x0;
+    double ncdf;
+    double npdf = NORMAL.getPDF(kappatilde);
+    if (!swaption.getUnderlyingSwap().getFixedLeg().isPayer()) {
+      ncdf = NORMAL.getCDF(kappatilde);
+    } else {
+      ncdf = NORMAL.getCDF(-kappatilde);
+    }
+    final double notional = Math.abs(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getNotional());
+    // Backward sweep
+    double pvTotalBar = 1.0;
+    double pvBar = notional * df[0] * (swaption.isLong() ? 1.0 : -1.0) * pvTotalBar;
+    double alpha0tildeBar = 0.0;
+    double kappatildeBar = 0.0;
+    double[] uBar = new double[4];
+    if (!swaption.getUnderlyingSwap().getFixedLeg().isPayer()) {
+      alpha0tildeBar = ((-u[1] - u[3] * (3 * alpha0tilde * alpha0tilde + 3.0) / 6.0) * ncdf + (u[2] + u[3] * (-6.0 * alpha0tilde + 3.0 * kappatilde) / 6.0) * npdf) * pvBar;
+      kappatildeBar = ((u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * npdf
+          + (-u[2] / 2.0 + u[3] * (3.0 * alpha0tilde - 2.0 * kappatilde) / 6.0) * npdf + (-u[1] - u[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + u[3]
+          * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0)
+          * npdf * -kappatilde)
+          * pvBar;
+      uBar[0] = ncdf * pvBar;
+      uBar[1] = (-alpha0tilde * ncdf - npdf) * pvBar;
+      uBar[2] = ((1 + alpha[0] * alpha[0]) / 2.0 * ncdf - (-2.0 * alpha0tilde + kappatilde) / 2.0 * npdf) * pvBar;
+      uBar[3] = (-(alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0 * ncdf + (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0
+          * npdf)
+          * pvBar;
+    } else {
+      alpha0tildeBar = (-(-u[1] - u[3] * (3 * alpha0tilde * alpha0tilde + 3.0) / 6.0) * ncdf + (u[2] + u[3] * (-6.0 * alpha0tilde + 3.0 * kappatilde) / 6.0) * npdf) * pvBar;
+      kappatildeBar = ((u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * npdf
+          + (-u[2] / 2.0 + u[3] * (3.0 * alpha0tilde - 2 * kappatilde) / 6.0) * npdf + (-u[1] - u[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + u[3]
+          * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0)
+          * npdf * -kappatilde)
+          * pvBar;
+      uBar[0] = -ncdf * pvBar;
+      uBar[1] = (+alpha0tilde * ncdf - npdf) * pvBar;
+      uBar[2] = (-(1 + alpha[0] * alpha[0]) / 2.0 * ncdf - (-2.0 * alpha0tilde + kappatilde) / 2.0 * npdf) * pvBar;
+      uBar[3] = ((alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0 * ncdf + (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0
+          * npdf)
+          * pvBar;
+    }
+    double annuityBar = (swaption.getStrike() - rate) * uBar[0] - derivativesRate[0] * uBar[1] + -derivativesRate[1] * uBar[2];
+    double[] derivativesAnnuityBar = new double[3];
+    derivativesAnnuityBar[0] = (swaption.getStrike() - rate) * derivativesRate[0] * uBar[1] + ((swaption.getStrike() - rate) * derivativesRate[1] - 2.0 * derivativesRate[0] * derivativesRate[0])
+        * uBar[2] + (-3 * derivativesRate[0] * derivativesRate[1] - 2 * derivativesRate[0] * derivativesRate[1] + (swaption.getStrike() - rate) * derivativesRate[2]) * uBar[3];
+    derivativesAnnuityBar[1] = (swaption.getStrike() - rate) * derivativesRate[0] * derivativesRate[0] * uBar[2]
+        + (-3 * derivativesRate[0] * derivativesRate[0] * derivativesRate[0] + (swaption.getStrike() - rate) * 3 * derivativesRate[0] * derivativesRate[1]) * uBar[3];
+    derivativesAnnuityBar[2] = (swaption.getStrike() - rate) * derivativesRate[0] * derivativesRate[0] * derivativesRate[0] * uBar[3];
+    double rateBar = (derivativesAnnuity[1] * derivativesAnnuityBar[0])
+        + (derivativesAnnuity[2] * derivativesAnnuityBar[1])
+        + (derivativesAnnuity[0] * annuityBar)
+        - (annuity * uBar[0])
+        - (derivativesAnnuity[0] * derivativesRate[0] * uBar[1])
+        - ((derivativesAnnuity[0] * derivativesRate[1] + derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[0]) * uBar[2])
+        - (((derivativesAnnuity[0] * derivativesRate[2] + 3 * derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[1] + derivativesAnnuity[2] * derivativesRate[0] * derivativesRate[0]
+            * derivativesRate[0]) + derivativesRate[2]) * uBar[3]);
+    double[] derivativesRateBar = new double[3];
+    derivativesRateBar[0] = ((swaption.getStrike() - rate) * derivativesAnnuity[0] - annuity)
+        * uBar[1]
+        + ((swaption.getStrike() - rate) * (2.0 * derivativesAnnuity[1] * derivativesRate[0]) - 4 * derivativesAnnuity[0] * derivativesRate[0])
+        * uBar[2]
+        + (-3 * (derivativesAnnuity[0] * derivativesRate[1] + 3.0 * derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[0]) - 2 * derivativesAnnuity[0] * derivativesRate[1] + (swaption
+            .getStrike() - rate) * (3 * derivativesAnnuity[1] * derivativesRate[1] + derivativesAnnuity[2] * 3.0 * derivativesRate[0] * derivativesRate[0])) * uBar[3];
+    derivativesRateBar[1] = ((swaption.getStrike() - rate) * (derivativesAnnuity[0]) - annuity) * uBar[2]
+        + (-3 * derivativesRate[0] * (derivativesAnnuity[0]) - 2 * derivativesAnnuity[0] * derivativesRate[0] + (swaption.getStrike() - rate) * (3 * derivativesAnnuity[1] * derivativesRate[0]))
+        * uBar[3];
+    derivativesRateBar[2] = ((swaption.getStrike() - rate) * derivativesAnnuity[0] - rate) * uBar[3];
+    //    double kappaBar = 0.0;
+    double[] alphaFixedBar = new double[nbFixed];
+    double[] alphaIborBar = new double[cfeIbor.getNumberOfPayments()];
+    swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, rateBar, derivativesRateBar, derivativesRate, alphaFixedBar, alphaIborBar);
+    alphaIborBar[0] += kappatildeBar + alpha0tildeBar;
+    double[] pvsensi = new double[hwData.getHullWhiteParameter().getVolatility().length];
+    double[] partialDerivatives = new double[hwData.getHullWhiteParameter().getVolatility().length];
+    for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
+      MODEL.alpha(0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter(), partialDerivatives);
+      for (int loopsigma = 0; loopsigma < hwData.getHullWhiteParameter().getVolatility().length; loopsigma++) {
+        pvsensi[loopsigma] += alphaFixedBar[loopcf] * partialDerivatives[loopsigma];
+      }
+    }
+    for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+      MODEL.alpha(0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter(), partialDerivatives);
+      for (int loopsigma = 0; loopsigma < hwData.getHullWhiteParameter().getVolatility().length; loopsigma++) {
+        pvsensi[loopsigma] += alphaIborBar[loopcf] * partialDerivatives[loopsigma];
+      }
+    }
+    return pvsensi;
+  }
+
+  /**
+   * Computation of the swap rate for a given random variable in the Hull-White one factor model.
+   * @param x The random variable.
    * @param discountedCashFlowFixed The discounted cash flows.
    * @param alphaFixed The bond volatilities.
    * @param discountedCashFlowIbor The discounted cash flows.
@@ -133,19 +278,20 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    */
   private double swapRate(double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, double[] derivatives) {
     double[] f = new double[3];
-    double y;
+    double y1;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
-      y = -discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - alphaIbor[loopcf] * alphaIbor[loopcf] / 2.0);
-      f[0] += y;
-      f[1] += -alphaIbor[loopcf] * y;
-      f[2] += alphaIbor[loopcf] * alphaIbor[loopcf] * y;
+      y1 = -discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - alphaIbor[loopcf] * alphaIbor[loopcf] / 2.0);
+      f[0] += y1;
+      f[1] += -alphaIbor[loopcf] * y1;
+      f[2] += alphaIbor[loopcf] * alphaIbor[loopcf] * y1;
     }
     double[] g = new double[3];
+    double y2;
     for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
-      y = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - alphaFixed[loopcf] * alphaFixed[loopcf] / 2.0);
-      g[0] += y;
-      g[1] += -alphaFixed[loopcf] * y;
-      g[2] += alphaFixed[loopcf] * alphaFixed[loopcf] * y;
+      y2 = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - alphaFixed[loopcf] * alphaFixed[loopcf] / 2.0);
+      g[0] += y2;
+      g[1] += -alphaFixed[loopcf] * y2;
+      g[2] += alphaFixed[loopcf] * alphaFixed[loopcf] * y2;
     }
     double swapRate = f[0] / g[0];
     derivatives[0] = (f[1] * g[0] - f[0] * g[1]) / (g[0] * g[0]);
@@ -154,7 +300,66 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
   }
 
   /**
-   * Computes the cash annuity from the swap rate.
+   * Computation of the swap rate and its derivative with respect to the input parameters for a given random variable in the Hull-White one factor model.
+   * @param x The random variable.
+   * @param discountedCashFlowFixed The discounted cash flows.
+   * @param alphaFixed The bond volatilities.
+   * @param discountedCashFlowIbor The discounted cash flows.
+   * @param alphaIbor The bond volatilities.
+   * @param swapRateBar The sensitivity to the swap rate in the rest of the computation.
+   * @param derivativesBar The sensitivity to the swap rate derivatives in the rest of the computation.
+   * @param derivatives Array used to return the derivatives of the swap rate with respect to the random variable. The array is changed by the method. 
+   * The values are [0] the first order derivative and [1] the second order derivative.
+   * @param alphaFixedBar Array used to return the derivatives of the result with respect to the alphaFixed variables.
+   * @param alphaIborBar Array used to return the derivatives of the result with respect to the alphaIbor variables.
+   * @return The swap rate.
+   */
+  private double swapRate(double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, double swapRateBar,
+      double[] derivativesBar, double[] derivatives, double[] alphaFixedBar, double[] alphaIborBar) {
+    double[] f = new double[3];
+    double[] y1 = new double[discountedCashFlowIbor.length];
+    for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
+      y1[loopcf] = -discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - alphaIbor[loopcf] * alphaIbor[loopcf] / 2.0);
+      f[0] += y1[loopcf];
+      f[1] += -alphaIbor[loopcf] * y1[loopcf];
+      f[2] += alphaIbor[loopcf] * alphaIbor[loopcf] * y1[loopcf];
+    }
+    double[] g = new double[3];
+    double[] y2 = new double[discountedCashFlowFixed.length];
+    for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
+      y2[loopcf] = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - alphaFixed[loopcf] * alphaFixed[loopcf] / 2.0);
+      g[0] += y2[loopcf];
+      g[1] += -alphaFixed[loopcf] * y2[loopcf];
+      g[2] += alphaFixed[loopcf] * alphaFixed[loopcf] * y2[loopcf];
+    }
+    double swapRate = f[0] / g[0];
+    derivatives[0] = (f[1] * g[0] - f[0] * g[1]) / (g[0] * g[0]);
+    derivatives[1] = (f[2] * g[0] - f[0] * g[2]) / (g[0] * g[0]) - (f[1] * g[0] - f[0] * g[1]) * 2 * g[1] / (g[0] * g[0] * g[0]);
+    // Backward sweep
+    double[] gBar = new double[3];
+    gBar[0] = -f[0] / (g[0] * g[0]) * swapRateBar + (-f[1] / (g[0] * g[0]) + f[0] * g[1] / (g[0] * g[0] * g[0])) * derivativesBar[0]
+        + (-f[2] / (g[0] * g[0]) + 2.0 * (f[0] * g[2] + 2 * g[1] * f[1]) / (g[0] * g[0] * g[0]) - 6.0 * f[0] * g[1] * g[1] / (g[0] * g[0] * g[0] * g[0])) * derivativesBar[1];
+    gBar[1] = -f[0] / (g[0] * g[0]) * derivativesBar[0] + (-2 * f[1] / (g[0] * g[0]) + 4 * f[0] * g[1] / (g[0] * g[0] * g[0])) * derivativesBar[1];
+    gBar[2] = -f[0] / (g[0] * g[0]) * derivativesBar[1];
+    double y2p;
+    for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
+      y2p = y2[loopcf] * (-x - alphaFixed[loopcf]);
+      alphaFixedBar[loopcf] = y2p * gBar[0] + (-y2[loopcf] - alphaFixed[loopcf] * y2p) * gBar[1] + (2.0 * alphaFixed[loopcf] * y2[loopcf] + alphaFixed[loopcf] * alphaFixed[loopcf] * y2p) * gBar[2];
+    }
+    double[] fBar = new double[3];
+    fBar[0] = 1.0 / g[0] * swapRateBar - g[1] / (g[0] * g[0]) * derivativesBar[0] + (-g[2] / (g[0] * g[0]) + 2 * g[1] * g[1] / (g[0] * g[0] * g[0])) * derivativesBar[1];
+    fBar[1] = 1.0 / g[0] * derivativesBar[0] + -2 * g[1] / (g[0] * g[0]) * derivativesBar[1];
+    fBar[2] = 1.0 / g[0] * derivativesBar[1];
+    double y1p;
+    for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
+      y1p = y1[loopcf] * (-x - alphaIbor[loopcf]);
+      alphaIborBar[loopcf] = y1p * fBar[0] + (-y1[loopcf] - alphaIbor[loopcf] * y1p) * fBar[1] + (2 * alphaIbor[loopcf] * y1[loopcf] + alphaIbor[loopcf] * alphaIbor[loopcf] * y1p) * fBar[2];
+    }
+    return swapRate;
+  }
+
+  /**
+   * Computes the cash annuity from the swap rate and its derivatives.
    * @param swapRate The swap rate.
    * @param nbFixedPaymentYear The number of fixed payment per year.
    * @param nbFixedPeriod The total number of payments.
