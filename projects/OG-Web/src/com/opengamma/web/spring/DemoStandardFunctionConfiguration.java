@@ -29,6 +29,7 @@ import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
+import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
@@ -83,6 +84,8 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentVa
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionVegaFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
@@ -99,6 +102,7 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalcula
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRCalculatorFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
@@ -124,8 +128,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static final boolean OUTPUT_REPO_CONFIGURATION = false;
 
   protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(PositionScalingFunction.class.getName(), Collections.singleton(requirementName));
-    functionConfigs.add(functionConfig);
+    ParameterizedFunctionConfiguration securityScalingFunctionConfig = new ParameterizedFunctionConfiguration(PositionScalingFunction.class.getName(), Collections.singleton(requirementName));
+    ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(PositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
+    functionConfigs.add(securityScalingFunctionConfig);
+    functionConfigs.add(tradeScalingFunctionConfig);
   }
 
   protected static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -272,7 +278,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardCurrencyExposureFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("DEFAULT")));
     //functionConfigs.add(new StaticFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName())); // TODO: haven't been brave enough for this one yet
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
