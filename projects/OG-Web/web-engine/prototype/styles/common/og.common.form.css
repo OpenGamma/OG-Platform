@@ -2,11 +2,23 @@
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
+
 input[type="text"] {
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-top: 1px solid #abadb3;
-    border-right: 1px solid #e3e9ef;
-    border-bottom: 1px solid #e3e9ef;
-    border-left: 1px solid #e3e9ef;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  border-bottom: 1px solid #e3e9ef;
+  border-left: 1px solid #e3e9ef;
+  border-right: 1px solid #e3e9ef;
+  border-top: 1px solid #abadb3;
 }
+
+input, select, textarea {
+  outline: 0 none;
+}
+
+/*input:focus,*/
+/*select:focus,*/
+/*textarea:focus {*/
+  /*background-color: #eef7fc;*/
+/*}*/

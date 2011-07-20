@@ -149,7 +149,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CMS_COUPON_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
-    assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivity(), pvsCalculator);
+    assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
 
   @Test
@@ -190,7 +190,7 @@ public class CouponCMSSABRReplicationMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> tempForward = pvsReceiver.getSensitivity().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> tempForward = pvsReceiver.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
       final YieldCurveBundle curvesBumpedForward = new YieldCurveBundle();
@@ -216,7 +216,7 @@ public class CouponCMSSABRReplicationMethodTest {
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimesFunding[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = pvsReceiver.getSensitivity().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvsReceiver.getSensitivities().get(FUNDING_CURVE_NAME);
     final double[] res = new double[nbPayDate];
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);

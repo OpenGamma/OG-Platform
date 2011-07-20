@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 

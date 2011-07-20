@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -90,7 +90,7 @@ import com.opengamma.util.tuple.Triple;
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
-  
+
   /** Label setting this function to use the par rate of the instruments in root-finding */
   public static final String PAR_RATE_STRING = "ParRateCalculator";
   /** Label setting this function to use the present value of the instruments in root-finding */
@@ -120,27 +120,29 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _forwardInterpolator;
   private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
   private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
+  private String _calculatorType;
 
-  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, String calculatorType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
     this(currency, curveDefinitionName, curveDefinitionName, calculatorType);
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName,
-      final String forwardCurveDefinitionName, String calculatorType) {
+      final String forwardCurveDefinitionName, final String calculatorType) {
     this(Currency.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName, calculatorType);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, String calculatorType) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, final String calculatorType) {
     this(currency, curveDefinitionName, curveDefinitionName, calculatorType);
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName,
-      final String forwardCurveDefinitionName, String calculatorType) {
+      final String forwardCurveDefinitionName, final String calculatorType) {
     _fundingHelper = new YieldCurveFunctionHelper(currency, fundingCurveDefinitionName);
     _forwardHelper = new YieldCurveFunctionHelper(currency, forwardCurveDefinitionName);
     _fundingCurveDefinitionName = fundingCurveDefinitionName;
     _forwardCurveDefinitionName = forwardCurveDefinitionName;
     _currencySpec = new ComputationTargetSpecification(currency);
+    _calculatorType = calculatorType;
     if (calculatorType.equals(PAR_RATE_STRING)) {
       _calculator = ParRateCalculator.getInstance();
       _sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
@@ -181,7 +183,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)
@@ -267,7 +269,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final double[] initialRatesGuess = new double[nFunding + nForward];
       final double[] fundingNodeTimes = new double[nFunding];
       final double[] forwardNodeTimes = new double[nForward];
-      final double[] parRates = new double[nFunding + nForward];
+      final double[] marketValues = new double[nFunding + nForward];
       int i = 0, fundingIndex = 0, forwardIndex = 0;
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
 
@@ -286,7 +288,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        parRates[i] = getNormalizedData(strip, marketValue);
+        if (_calculatorType.equals(PRESENT_VALUE_STRING)) {
+          marketValues[i] = 0;
+        } else {
+          marketValues[i] = getNormalizedData(strip, marketValue);
+        }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
         fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -310,7 +316,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        parRates[i] = getNormalizedData(strip, marketValue);
+        if (_calculatorType.equals(PRESENT_VALUE_STRING)) {
+          marketValues[i] = 0;
+        } else {
+          marketValues[i] = getNormalizedData(strip, marketValue);
+        }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
         forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -334,7 +344,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       // TODO have use finite difference or not as an input [FIN-147]
       sensitivityCalculators.put(_fundingCurveDefinitionName, _fundingSensitivityCalculator);
       sensitivityCalculators.put(_forwardCurveDefinitionName, _forwardSensitivityCalculator);
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, parRates,
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues,
           null, curveNodes, interpolators, sensitivityCalculators);
       // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data,
@@ -413,7 +423,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final int n = strips.size();
       final double[] initialRatesGuess = new double[n];
       final double[] nodeTimes = new double[n];
-      final double[] parRates = new double[n];
+      final double[] marketValues = new double[n];
       int i = 0;
       for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
         final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
@@ -429,7 +439,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
-        parRates[i] = getNormalizedData(strip, marketValue);
+        if (_calculatorType.equals(PRESENT_VALUE_STRING)) {
+          marketValues[i] = 0;
+        } else {
+          marketValues[i] = getNormalizedData(strip, marketValue);
+        }
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;
         nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -447,11 +461,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       // TODO have use finite difference or not as an input [FIN-147]
       sensitivityCalculators.put(_fundingCurveDefinitionName, _fundingSensitivityCalculator);
 
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, parRates,
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues,
           null, curveNodes, interpolators, sensitivityCalculators);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data,
           _calculator);
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, 
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data,
           _sensitivityCalculator);
       NewtonVectorRootFinder rootFinder;
       double[] yields = null;

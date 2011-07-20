@@ -15,7 +15,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -285,8 +284,6 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
           //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
-//            return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
-//                fixedRate);
 //      //TODO this is a fix so that a single payment swap is still sensitive to the forward curve even though the payment is fixed (i.e. the reset date has passed)
       final double fixingTime = 0.0;
       double fixingPeriodStartTime = 0.0; //TODO How should this be handled?

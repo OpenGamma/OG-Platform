@@ -52,6 +52,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
+  //TODO Rename me to be consistent with descendants and the par rate calculators
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
 
@@ -86,7 +87,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(fra, curves).getSensitivity();
+    return method.presentValueCurveSensitivity(fra, curves).getSensitivities();
   }
 
   /**
@@ -96,7 +97,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(future, curves).getSensitivity();
+    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
 
   /**
@@ -106,7 +107,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
     final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(future, curves).getSensitivity();
+    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
 
   @Override
@@ -117,13 +118,13 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
-    return method.presentValueSensitivity(bond, curves).getSensitivity();
+    return method.presentValueSensitivity(bond, curves).getSensitivities();
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
     final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
-    return method.presentValueSensitivity(bond, curves).getSensitivity();
+    return method.presentValueSensitivity(bond, curves).getSensitivities();
   }
 
   @Override
@@ -131,7 +132,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     Validate.notNull(curves);
     Validate.notNull(bondFuture);
     final BondFutureTransactionDiscountingMethod method = new BondFutureTransactionDiscountingMethod();
-    return method.presentValueCurveSensitivity(bondFuture, curves).getSensitivity();
+    return method.presentValueCurveSensitivity(bondFuture, curves).getSensitivities();
   }
 
   @Override
@@ -234,7 +235,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     DoublesPair s;
     s = new DoublesPair(tPay, -tPay * dfPay * notional * (avRate + payment.getSpread()) * payment.getPaymentYearFraction());
     temp.add(s);
@@ -278,17 +279,17 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   @Override
   public Map<String, List<DoublesPair>> visitCouponCMS(final CouponCMS payment, final YieldCurveBundle data) {
     final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
-    return method.presentValueSensitivity(payment, data).getSensitivity();
+    return method.presentValueSensitivity(payment, data).getSensitivities();
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
     final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(coupon, curves).getSensitivity();
+    return method.presentValueCurveSensitivity(coupon, curves).getSensitivities();
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 

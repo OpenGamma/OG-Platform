@@ -1,0 +1,14 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-form .og-resolution-rule select {
+  float: left;
+  width: 350px!important;
+  margin-right: 10px;
+}
+
+.OG-form .og-resolution-rule input {
+  width: 30px;
+}

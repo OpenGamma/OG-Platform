@@ -1,0 +1,9 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-disabled {
+  opacity: .3;
+  filter: alpha(opacity=30);
+  cursor: default!important;
+}

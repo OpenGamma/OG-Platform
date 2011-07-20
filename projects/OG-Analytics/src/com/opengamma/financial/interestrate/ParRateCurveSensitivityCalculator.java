@@ -87,7 +87,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
-    return method.parRateCurveSensitivity(fra, curves).getSensitivity();
+    return method.parRateCurveSensitivity(fra, curves).getSensitivities();
   }
 
   @Override

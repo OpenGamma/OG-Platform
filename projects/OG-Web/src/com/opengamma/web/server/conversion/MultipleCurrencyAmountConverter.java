@@ -5,10 +5,7 @@
  */
 package com.opengamma.web.server.conversion;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Iterator;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
@@ -19,25 +16,43 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class MultipleCurrencyAmountConverter implements ResultConverter<MultipleCurrencyAmount> {
 
+  private DoubleConverter _doubleConverter;
+
+  public MultipleCurrencyAmountConverter(DoubleConverter doubleConverter) {
+    _doubleConverter = doubleConverter;
+  }
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value, ConversionMode mode) {
-    Map<String, Object> result = new HashMap<String, Object>();
-    int size = value.size();
-    result.put("summary", size);
-    if (mode == ConversionMode.FULL) {
-      Set<Object> values = new LinkedHashSet<Object>();
-      for (CurrencyAmount entry : value) {
-        Object converted = context.convert(entry, mode);
-        values.add(converted);
+//    Map<String, Object> result = new HashMap<String, Object>();
+//    System.err.println(value);
+//    int size = value.size();
+//    result.put("summary", size);
+//    if (mode == ConversionMode.FULL) {
+//      Set<Object> values = new LinkedHashSet<Object>();
+//      for (CurrencyAmount entry : value) {
+//        Object converted = context.convert(entry, mode);
+//        values.add(converted);
+//      }
+//      result.put("full", values);
+//    }
+    StringBuilder sb = new StringBuilder();
+    Iterator<CurrencyAmount> iterator = value.iterator();
+    while (iterator.hasNext()) {
+      sb.append(_doubleConverter.convertForDisplay(context, valueSpec, iterator.next(), mode));
+      if (iterator.hasNext()) {
+        sb.append(", ");
       }
-      result.put("full", values);
     }
-    return result;
+    return sb.toString();
   }
 
   @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value) {
-    return null;
+    if (value.size() > 0) {
+      return _doubleConverter.convertForHistory(context, valueSpec, value.iterator().next()); 
+    } else {
+      return 0;
+    }
   }
 
   @Override

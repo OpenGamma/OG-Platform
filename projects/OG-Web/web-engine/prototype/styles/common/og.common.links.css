@@ -3,14 +3,6 @@
  *
  * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
- *
- * @colordef #487287; Turkwise blue from OG branding (main link colour)
- * @colordef #62be88; Green from OG branding (hover, focus)
- * @colordef #faa700; Orange (active)
- */
-
-/**
- * Default
  */
 
 a:link,
@@ -18,17 +10,37 @@ a:visited,
 a:focus,
 a:hover,
 a:active {
+  border-bottom: 1px solid #bed4e3;
   color: #487287;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 a:focus,
 a:hover,
 a:active {
-  color: #62be88;
-  text-decoration: none;
+  border-bottom: 1px solid #61d050;
+  color: #61d050;
 }
 
-a:active {
-  color: #faa700;
+a.OG-link-add {
+  border-bottom: 1px solid #d7f3d3;
+  color: #61d050;
+  margin-left: 8px;
+}
+
+a.OG-link-add:hover {
+  border-bottom: 1px solid #61d050;
+  color: #61d050;
+}
+
+a.OG-link-add:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  background-position: 0 -9px;
+  content: "";
+  cursor: pointer;
+  display: inline-block;
+  height: 6px;
+  position: relative;
+  margin: 7px 2px 0 -8px;
+  width: 6px;
 }

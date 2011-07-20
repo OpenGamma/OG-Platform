@@ -14,6 +14,7 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state',
         'og.views.configs.viewdefinition'
@@ -32,6 +33,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             configs,
+            resize = og.common.layout.resize,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -77,10 +79,22 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'configs',
+                    'selector': '.OG-js-search', 'page_type': 'configs',
                     'columns': [
                         {
-                            id: 'type', name: 'Type', field: 'type', width: 160,
+                            id: 'type',
+                            name: '<select class="og-js-type-filter" style="width: 140px">'
+                                + '  <option value="">Type</option>'
+                                + '  <option>CurrencyMatrix</option>'
+                                + '  <option>CurveSpecificationBuilderConfiguration</option>'
+                                + '  <option>SimpleCurrencyMatrix</option>'
+                                + '  <option>TimeSeriesMetaDataConfiguration</option>'
+                                + '  <option>ViewDefinition</option>'
+                                + '  <option>VolatilitySurfaceSpecification</option>'
+                                + '  <option>VolatilitySurfaceDefinition</option>'
+                                + '  <option>YieldCurveDefinition</option>'
+                                + '</select>',
+                            field: 'type', width: 160,
                             filter_type: 'select',
                             filter_type_options: [
                                 'CurrencyMatrix',
@@ -93,32 +107,26 @@ $.register_module({
                                 'YieldCurveDefinition'
                             ]
                         },
-                        {
-                            id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
-                            filter_type: 'input'
+                        {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
             },
@@ -135,14 +143,13 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Configs',
-                        favorites_list: history.get_html('history.configs.favorites') || 'no favorited configs',
-                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs',
-                        new_list: history.get_html('history.configs.new') || 'no new configs'
-                    }).appendTo($('#OG-details .og-main').empty());
+                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -152,17 +159,47 @@ $.register_module({
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        if (template in form_generators) return form_generators[template](details_json);
+                        if (template in form_generators) return form_generators[template]({
+                            data: details_json,
+                            handler: function () {
+                                var json = details_json.template_data,
+                                    $warning = $('.OG-js-details-panel .og-box-error'),
+                                    warning_message = 'This configuration has been deleted';
+                                ui.toolbar(options.toolbar.active);
+
+                                if (json.template_data && json.template_data.deleted) {
+                                    $warning.html(warning_message).show();
+                                    resize();
+                                    $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                } else {$warning.empty().hide(), resize();}
+                                if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
+
+                                resize({element: '.OG-details-container', offsetpx: -41});
+                                resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                                resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                            },
+                            selector: '.OG-details'
+                        });
                         api.text({module: module.name + '.' + template, handler: function (template) {
-                            var json = details_json.template_data, $warning,
-                                warning_message = 'This configuration has been deleted';
+                            var json = details_json.template_data,
+                                $warning, warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';
-                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
+                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
                             if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -177,9 +214,9 @@ $.register_module({
                                     handler: function (e) {
                                         if (e.error) return alert(e.message);
                                         $('.og-js-msg').html('saved');
-                                        ui.message({location: '#OG-details', message: 'saved'});
+                                        ui.message({location: '.OG-details', message: 'saved'});
                                         setTimeout(function () {
-                                            ui.message({location: '#OG-details', destroy: true});
+                                            ui.message({location: '.OG-details', destroy: true});
                                             editing = false;
                                         }, 250);
                                         routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {
@@ -200,7 +237,7 @@ $.register_module({
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({location: '.OG-js-details-panel', message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
             },
@@ -228,7 +265,6 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

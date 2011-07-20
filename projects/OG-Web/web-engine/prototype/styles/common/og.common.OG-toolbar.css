@@ -3,67 +3,87 @@
  * @license See distribution for license
  */
 
-/**
- * Toolbar buttons
- */
-.OG-toolbar .OG-favorites {
-    position: absolute;
-    margin-top: 4px;
+.OG-toolbar {
+  right: 1px;
+  top: 1px;
+  position: absolute;
+  z-index: 2;
 }
 
-.OG-toolbar .og-favorites:before {
-    margin-right: 5px;
-    margin-top: 4px;
-}
-
-.OG-toolbar .og-icons {
-  height: 30px;
-  left: 5px;
-}
-
-.OG-toolbar .OG-icon {
-  position: relative;
+.OG-toolbar div {
+  cursor: pointer;
   display: inline-block;
-  height: 21px;
-  background-color: transparent;
-  padding-top: 9px;
-}
-
-.OG-toolbar .og-title {
-    position: relative;
-    padding-right: 20px;
-    float: left;
-}
-
-/**
- * Divider for icons
- */
-.OG-toolbar .og-icon-divider {
-  height: 30px;
-  border-left: 1px solid #efefef;
-  border-right: 1px solid #d9d9d9;
-  display: inline-block;
-  margin: 0 3px;
-}
-
-.OG-toolbar .og-title {
-  position: relative;
-  padding-right: 20px;
   float: left;
 }
 
-.OG-toolbar .og-active, .OG-toolbar .og-active:hover {
-  background: #e4e4e5;
+.OG-toolbar div:after { /* glass effect */
+  background: #fff;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+  position: absolute;
+  right: 1px;
+  top: 1px;
+}
+
+.OG-toolbar span {
+  border-bottom: 1px solid #fff;
+  color: #fff;
+  display: inline-block;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-right: 5px;
+}
+
+.OG-toolbar .og-delete {
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  border-bottom-left-radius: 3px;
+  border-bottom: 1px solid #ed5d5d;
+  border-left: 1px solid #ed5d5d;
+  position: relative;
+}
+
+.OG-toolbar .og-delete span {
+  background-color: #ed5d5d;
   border-left: 1px solid #fff;
-  border-right: 1px solid transparent;
-  color: #626262;
-  cursor: default;
+  padding-left: 13px;
 }
 
-.OG-toolbar .og-active span {
-  text-shadow: 0 1px 0 #fff;
+.OG-toolbar .og-delete span:after {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  background-position: -14px -9px;
+  content: "";
+  height: 6px;
+  width: 7px;
+  position: absolute;
+  left: 5px;
+  top: 8px;
 }
 
-.OG-toolbar .og-tab:first-child span {
-  margin-left: 0!important;
+.OG-toolbar .og-new {
+  border-bottom: 1px solid #64d153;
+  border-left: 1px solid #fff;
+  position: relative;
+}
+
+.OG-toolbar .og-new span {
+  -webkit-border-top-right-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  border-top-right-radius: 4px;
+  background-color: #64d153;
+  padding-left: 13px;
+  display: inline-block;
+}
+
+.OG-toolbar .og-new span:after {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  background-position: -7px -9px;
+  height: 6px;
+  width: 6px;
+  position: absolute;
+  top: 8px; left: 5px;
 }

@@ -167,7 +167,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
+        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_BUID);
         result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
       }
     }

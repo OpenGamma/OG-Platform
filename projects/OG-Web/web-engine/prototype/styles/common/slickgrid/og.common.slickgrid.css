@@ -26,6 +26,14 @@
     color: #487287;
 }
 
+.ui-widget-content .slick-cell a {
+    color: #487287;
+}
+
+.ui-widget-content .slick-cell a:hover {
+  border-bottom: none;
+}
+
 .slick-row .og-uppercase {
     text-transform: uppercase;
 }
@@ -33,37 +41,12 @@
 /* Highlight rows on hover */
 .slick-row:hover,
 .slick-row:hover .slick-cell.og-link {
-    background-color: #487287;
-    color: #fff;
+    background-color: #d7e7f2;
 }
 
 /* Fix vertical alignment */
 .ui-widget-content .slick-cell {
     line-height: 22px;
-}
-
-/* Position icons in cells */
-.slick-row .og-clock-active,
-.slick-row .og-clock-stopped {
-    padding-left: 0;
-}
-
-/* Position icons in cells */
-.slick-row .og-clock-active:before,
-.slick-row .og-clock-stopped:before {
-    margin-top: 5px;
-    padding-right: 4px;
-}
-
-/* Add prompt for title text, TODO: replace with a generic class & JS tooltip */
-.slick-row .og-clock-active span,
-.slick-row .og-clock-stopped span {
-    border-bottom: 1px dotted;
-}
-
-/* Add spacer when no clock */
-.slick-row .og-no-clock {
-    padding-left: 13px;
 }
 
 /* Empty cell */
@@ -73,65 +56,80 @@
     text-align: center;
 }
 
-/* Excess Column header */
-.slick-header-columns {
-    background-color: #f3f3f3;
-    height: 30px;
-    background-image: -webkit-gradient(linear, left top, left bottom,
-        color-stop(0.0, #f9f9f9),
-        color-stop(0.50, #f2f3f5),
-        color-stop(0.51, #eaebed)
-    );
-    background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
+
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+  background: none;
 }
 
-.slick-header-column.ui-state-default {
-    border-left: 1px solid #fff;
-    border-right: 1px solid #d9d9d9;
-    height: 22px;
-    line-height: 22px;
+
+.slick-header {
+  position: relative;
+  background: #a3ceec;
+  height: 29px;
+  margin: 0 -2px 2px -2px;
+  padding: 0 4px 3px 0;
 }
 
-/* Column header text */
-.slick-header-columns span {
-    color: #999;
+.slick-header input,
+.slick-header select {
+  z-index: 1;
 }
 
-/* Column header - replace with gradient */
-.slick-header-columns div {
-    background-color: #f7f7f7;
-    background: -webkit-gradient(linear, left top, left bottom, from(#f9f9f8), to(#fefefe));
-    background: -moz-linear-gradient(top,  #f9f9f8,  #fefefe);
-    border-left: 1px solid #fff;
+.slick-header:before {
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  background: #fff;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+  position: absolute;
+  top: 1px;
+  right: 1px;
 }
 
-.ui-state-default {
-    border-top: none!important;
+.ie8 .slick-header:before {
+  background: transparent;
 }
 
-.slick-headerrow-column.ui-state-default {
-    padding: 0;
-    height: auto;
-    margin: 2px 0 4px 4px;
+.slick-resizable-handle {
+  z-index: 1;
+  border-right: 1px solid #9bc3e0;
+  top: 4px;
+  width: 7px;
 }
 
-.slick-headerrow-column {
-    background-color: transparent;
-    padding: 0;
-    height: auto;
+.slick-resizable-handle:before {
+  content: '';
+  border-left: 1px solid #b5d8f0;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  position: absolute;
 }
 
-.slick-headerrow-column input {
-    margin: 0;
-    padding: 0;
+.slick-header-column.ui-state-default  {
+  line-height: 20px;
+  border-style: none;
+  padding-left: 7px;
+  height: 20px;
 }
 
-.slick-headerrow-columns {
-    background-color: transparent;
-    height: 30px;
-    background-image: -webkit-gradient(linear, left top, left bottom,
-        color-stop(0.0, #ececec),
-        color-stop(1, #e7e7e7)
-    );
-    background-image: -moz-linear-gradient(#ececec 0%, #e7e7e7 100%);
+.slick-column-name {
+  color: #fff;
+  display: inline-block;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+  border: none;
+
 }

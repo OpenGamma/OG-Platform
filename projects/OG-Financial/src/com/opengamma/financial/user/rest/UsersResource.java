@@ -16,6 +16,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.financial.user.ClientTracker;
+import com.opengamma.financial.user.UserDataTracker;
+
 /**
  * RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
  * be created.
@@ -23,17 +29,24 @@ import javax.ws.rs.core.UriInfo;
 @Path("/data/users")
 public class UsersResource {
   
-  private final UsersResourceContext _context;
+  private static final Logger s_logger = LoggerFactory.getLogger(UsersResource.class);
   private final ConcurrentHashMap<String, UserResource> _userMap = new ConcurrentHashMap<String, UserResource>();
-
+  /**
+   * The backing bean.
+   */
+  private final UserResourceData _data;
+  
   /**
    * Information about the URI injected by JSR-311.
    */
   @Context
   private UriInfo _uriInfo;
   
-  public UsersResource(UsersResourceContext context) {
-    _context = context;
+  public UsersResource(final ClientTracker clientTracker, final UserDataTracker userDataTracker, final UsersResourceContext context) {
+    _data = new UserResourceData();
+    _data.setClientTracker(clientTracker);
+    _data.setUserDataTracker(userDataTracker);
+    _data.setContext(context);
   }
   
   /**
@@ -48,8 +61,9 @@ public class UsersResource {
   public UserResource getUser(@PathParam("username") String username) {
     UserResource user = _userMap.get(username);
     if (user == null) {
-      _context.getClientTracker().userCreated(username);
-      UserResource freshUser = new UserResource(this, username, _context);
+      _data.getClientTracker().userCreated(username);
+      _data.setUriInfo(getUriInfo());
+      UserResource freshUser = new UserResource(username, _data);
       user = _userMap.putIfAbsent(username, freshUser);
       if (user == null) {
         user = freshUser;
@@ -67,10 +81,12 @@ public class UsersResource {
     final Iterator<Map.Entry<String, UserResource>> userIterator = _userMap.entrySet().iterator();
     while (userIterator.hasNext()) {
       final Map.Entry<String, UserResource> userEntry = userIterator.next();
+      s_logger.debug("deleting clients for user {}", userEntry.getKey());
       userEntry.getValue().deleteClients(timestamp);
       if (userEntry.getValue().getLastAccessed() == 0) {
+        s_logger.debug("deleting user {}", userEntry.getKey());
         userIterator.remove();
-        _context.getClientTracker().userDiscarded(userEntry.getKey());
+        _data.getClientTracker().userDiscarded(userEntry.getKey());
       }
     }
   }

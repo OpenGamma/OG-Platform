@@ -71,7 +71,7 @@ public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Intege
   }
 
   @Override
-  public DateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
+  public ListDateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
     return new ListDateDoubleTimeSeries(dateTimes, values);
   }
   

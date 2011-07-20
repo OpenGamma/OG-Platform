@@ -38,7 +38,9 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
-  public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
+  public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";
+  public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
+  public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   
   public static final String VOLATILITY_CUBE = "VolatilityCube";
@@ -297,5 +299,8 @@ public final class ValueRequirementNames {
 
   //FX analytics (temporary)
   public static final String FX_PRESENT_VALUE = "FX Present Value";
+  public static final String FX_CURRENCY_EXPOSURE = "FX Currency Exposure";
+  public static final String FX_CURVE_SENSITIVITIES = "FX Curve Sensitivities";
+  public static final String FX_VOLATILITY_SENSITIVITIES = "FX Volatility Sensitivities";
   //CSON
 }

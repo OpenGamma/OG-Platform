@@ -17,11 +17,11 @@
 	
 	<tx:annotation-driven transaction-manager="txManager"/>
 
-    <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-        <property name="sessionFactory">
-            <bean factory-bean="dbSource" factory-method="getHibernateSessionFactory"/>
-        </property>
-	</bean>
+  <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory">
+      <bean factory-bean="dbSource" factory-method="getHibernateSessionFactory"/>
+    </property>
+  </bean>
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 	    <property name="driverClassName" value="${jdbc.driverClassName}"/>

@@ -152,10 +152,15 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   @Override
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Exchange not found: " + uniqueId);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeDocument correct(final ExchangeDocument document) {
+    return update(document);
   }
 
   //-------------------------------------------------------------------------
@@ -171,11 +176,6 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  public ExchangeDocument correct(final ExchangeDocument document) {
-    return update(document);
   }
 
 }

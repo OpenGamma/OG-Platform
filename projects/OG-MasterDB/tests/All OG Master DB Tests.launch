@@ -13,7 +13,7 @@
 <listEntry value="com.opengamma.masterdb.batch"/>
 <listEntry value="com.opengamma.masterdb.config"/>
 <listEntry value="com.opengamma.masterdb.exchange"/>
-<listEntry value="com.opengamma.masterdb.historicaldata"/>
+<listEntry value="com.opengamma.masterdb.historicaltimeseries"/>
 <listEntry value="com.opengamma.masterdb.holiday"/>
 <listEntry value="com.opengamma.masterdb.marketdatasnapshot"/>
 <listEntry value="com.opengamma.masterdb.portfolio"/>

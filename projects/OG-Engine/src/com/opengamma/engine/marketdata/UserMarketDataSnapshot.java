@@ -36,6 +36,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -61,6 +62,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
    */
   private abstract static class StructuredMarketDataKeyFactory {
 
+    
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
@@ -70,15 +72,22 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
     
     protected Currency getCurrency(ValueRequirement valueRequirement) {
-      if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
+      UniqueIdentifier targetId = getTarget(valueRequirement);
+      if (targetId == null) {
         return null;
       }
-      UniqueIdentifier targetId = valueRequirement.getTargetSpecification().getUniqueId();
       if (!Currency.OBJECT_IDENTIFIER_SCHEME.equals(targetId.getScheme())) {
         return null;
       }
       Currency currency = Currency.of(targetId.getValue());
       return currency;
+    }
+    
+    protected UniqueIdentifier getTarget(ValueRequirement valueRequirement) {
+      if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
+        return null;
+      }
+      return valueRequirement.getTargetSpecification().getUniqueId();
     }
     
   }
@@ -122,13 +131,13 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
       @Override
       public StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement) {
-        Currency currency = getCurrency(valueRequirement);
-        if (currency == null) {
+        UniqueIdentifiable target = getTarget(valueRequirement);
+        if (target == null) {
           return null;
         }
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
         String instrumentType = valueRequirement.getConstraint("InstrumentType");
-        return new VolatilitySurfaceKey(currency, name, instrumentType);
+        return new VolatilitySurfaceKey(target, name, instrumentType);
       }
       
     });
@@ -227,11 +236,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       }
       return buildVolatilityCubeData(volCubeSnapshot);
     } else if (marketDataKey instanceof VolatilitySurfaceKey) {
-      VolatilitySurfaceSnapshot snapshot = getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
-      if (snapshot == null) {
-        return null;
-      }
-      return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
+      return getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
@@ -269,20 +274,24 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     }
   }
   
-  private VolatilitySurfaceSnapshot getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
+  private VolatilitySurfaceData<Object, Object> getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
     if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null)
     {
-      return getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
+      VolatilitySurfaceSnapshot volatilitySurfaceSnapshot = getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
+      if (volatilitySurfaceSnapshot == null) {
+        return null;
+      }
+      return buildVolatilitySurfaceData(volatilitySurfaceSnapshot, (VolatilitySurfaceKey) volSurfaceKey);
     }
     
     //Match with wildcards
     for (Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : getSnapshot().getVolatilitySurfaces().entrySet()) {
       //This could return any old surface, but hey, that's what they asked for right?
       VolatilitySurfaceKey key = entry.getKey();
-      if (key.getCurrency().equals(volSurfaceKey.getCurrency())
-          && (key.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
-          && (key.getName() == null || key.getName() == volSurfaceKey.getName())) {
-        return entry.getValue();
+      if (key.getTarget().equals(volSurfaceKey.getTarget())
+          && (volSurfaceKey.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
+          && (volSurfaceKey.getName() == null || key.getName() == volSurfaceKey.getName())) {
+        return buildVolatilitySurfaceData(entry.getValue(), entry.getKey());
       }
     }
     return null;
@@ -382,7 +391,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       ys.add(entry.getKey().getSecond());
     }
 
-    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getCurrency(),
+    return new VolatilitySurfaceData<Object, Object>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getTarget(),
         xs.toArray(), ys.toArray(), values);
   }
 

@@ -48,17 +48,17 @@
     <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
   
-  <bean id="tssDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.tss.jdbc.driver}" />
-	<property name="url" value="${opengamma.tss.jdbc.url}" />
-	<property name="username" value="${opengamma.tss.jdbc.username}" />
-	<property name="password" value="${opengamma.tss.jdbc.password}" />
+  <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.hts.jdbc.driver}" />
+    <property name="url" value="${opengamma.hts.jdbc.url}" />
+    <property name="username" value="${opengamma.hts.jdbc.username}" />
+    <property name="password" value="${opengamma.hts.jdbc.password}" />
   </bean>
   
-  <bean id="tssDbSource" class="com.opengamma.util.db.DbSourceFactoryBean">
+  <bean id="htsDbSource" class="com.opengamma.util.db.DbSourceFactoryBean">
     <property name="name" value="TimeSeries"/>
-    <property name="dataSource" ref="tssDataSource"/>
-    <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
+    <property name="dataSource" ref="htsDataSource"/>
+    <property name="dialect" value="${opengamma.hts.db.dbhelper}"/>
   </bean>
   
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
@@ -71,7 +71,7 @@
     <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
   <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader, cubeLoader"> -->
-  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader, currencyMatrixLoader, swaptionSurfaceLoader, irFutureSurfaceLoader, fxVolatilitySurfaceLoader, cubeLoader">
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader, currencyMatrixLoader, swaptionSurfaceLoader, irFutureSurfaceLoader, fxVolatilitySurfaceLoader, equityOptionSurfaceLoader, cubeLoader">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <!-- Config loaders, should be commented out most of the time -->
@@ -90,6 +90,9 @@
   <bean id="fxVolatilitySurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
+  <bean id="equityOptionSurfaceLoader" class="com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator">
+    <constructor-arg ref="sharedConfigMaster" />
+  </bean>
   <bean id="cubeLoader" class="com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
@@ -97,7 +100,7 @@
   <!-- ExchangeMaster -->
   <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.refdata.db.exchangemaster.scheme}" />
+    <property name="identifierScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
   </bean>
 
   <bean id="sharedExchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
@@ -107,7 +110,7 @@
   <!-- HolidayMaster -->
   <bean id="dbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.refdata.db.holidaymaster.scheme}" />
+    <property name="identifierScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
   <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySource">
     <constructor-arg ref="dbHolidayMaster"/>
@@ -155,19 +158,17 @@
   </bean>
 
   <!-- TimeSeries database -->
-  <import resource="classpath:com/opengamma/masterdb/historicaldata/tssQueries.xml" />
-  <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
-    <constructor-arg ref="tssDbSource"/>
-    <constructor-arg ref="tssNamedSQLMap"/>
-    <constructor-arg value="false"/>
+  <bean id="dbHtsMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
+    <constructor-arg ref="htsDbSource"/>
+    <property name="identifierScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
-  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource">
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
-      <bean class="com.opengamma.master.historicaldata.impl.MasterHistoricalTimeSeriesSource">
-        <constructor-arg ref="timeseriesMaster"/>
+      <bean class="com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource">
+        <constructor-arg ref="dbHtsMaster"/>
         <constructor-arg>
-          <bean class="com.opengamma.master.historicaldata.impl.DefaultHistoricalTimeSeriesResolver">
-          	<constructor-arg ref="timeseriesMaster"/>
+          <bean class="com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver">
+          	<constructor-arg ref="dbHtsMaster"/>
           	<constructor-arg ref="sharedConfigSource"/>
           </bean>
         </constructor-arg>
@@ -175,7 +176,7 @@
     </constructor-arg>
     <constructor-arg ref="cacheManager" />
   </bean>
-  
+
   <!-- Curves -->
   <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.EHCachingInterpolatedYieldCurveDefinitionSource">
         <constructor-arg ref="configDBInterpolatedYieldCurveDefinitionSource" />

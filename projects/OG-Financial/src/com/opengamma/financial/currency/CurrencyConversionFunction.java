@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.value.ValueProperties.Builder;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -119,8 +120,31 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   /**
-   * Divides the value (as a double) by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if 
+   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if 
    * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
+   * 
+   * @param value input value to convert
+   * @param conversionRate conversion rate to use
+   * @return the converted value
+   */
+  protected double convertDouble(final double value, final double conversionRate) {
+    return value / conversionRate;
+  }
+
+  protected double[] convertDoubleArray(final double[] values, final double conversionRate) {
+    final double[] newValues = new double[values.length];
+    for (int i = 0; i < values.length; i++) {
+      newValues[i] = convertDouble(values[i], conversionRate);
+    }
+    return newValues;
+  }
+
+  protected DoubleLabelledMatrix1D convertDoubleLabelledMatrix1D(final DoubleLabelledMatrix1D value, final double conversionRate) {
+    return new DoubleLabelledMatrix1D(value.getKeys(), value.getLabels(), convertDoubleArray(value.getValues(), conversionRate));
+  }
+
+  /**
+   * Delegates off to the other convert methods depending on the type of value.
    * 
    * @param inputValue input value to convert
    * @param desiredValue requested value requirement
@@ -129,19 +153,21 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
    */
   protected Object convertValue(final ComputedValue inputValue, final ValueRequirement desiredValue, final double conversionRate) {
     final Object value = inputValue.getValue();
-    if (!(value instanceof Double)) {
+    if (value instanceof Double) {
+      return convertDouble((Double) value, conversionRate);
+    } else if (value instanceof DoubleLabelledMatrix1D) {
+      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);
+    } else {
       s_logger.warn("Can't convert {} to {}", inputValue, desiredValue);
       return null;
     }
-    return (Double) value / conversionRate;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final Collection<ComputedValue> inputValues = inputs.getAllValues();
-  desiredValueLoop:
-    for (ValueRequirement desiredValue : desiredValues) {
+    desiredValueLoop: for (ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement inputRequirement = getInputValueRequirement(desiredValue);
       final String outputCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
       for (ComputedValue inputValue : inputValues) {

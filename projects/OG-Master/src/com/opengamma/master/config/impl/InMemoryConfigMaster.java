@@ -172,7 +172,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
   @Override
   public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Config not found: " + uniqueId);
     }
@@ -182,7 +181,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   //-------------------------------------------------------------------------
   @Override
   public <T> ConfigDocument<T> correct(ConfigDocument<T> document) {
-    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
+    return update(document);
   }
 
   //-------------------------------------------------------------------------

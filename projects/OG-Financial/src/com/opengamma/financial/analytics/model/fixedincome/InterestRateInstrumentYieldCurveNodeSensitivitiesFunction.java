@@ -19,7 +19,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -37,9 +37,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
@@ -51,6 +52,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -84,10 +86,12 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     _visitor =
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(irFutureConverter).create();
+            .futureSecurityVisitor(irFutureConverter)
+            .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
   }
 
@@ -135,7 +139,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     interpolatedCurves.put(forwardCurveName, bundle.getCurve(forwardCurveName));
     interpolatedCurves.put(fundingCurveName, bundle.getCurve(fundingCurveName));
-    final DoubleMatrix1D sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, interpolatedCurves, parRateJacobian);
+    final DoubleMatrix1D sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, interpolatedCurves, parRateJacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (fundingCurveName.equals(forwardCurveName)) {
       return getSensitivitiesForSingleCurve(target, security, curveNames.getFirst(), bundle, sensitivitiesForCurves, currency);

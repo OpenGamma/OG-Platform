@@ -1,0 +1,61 @@
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
+.OG-box {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  background: #fff;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+  padding: 10px;
+  position: relative;
+  overflow: visible;
+}
+
+.OG-box.og-box-error {
+  background: #dd5252;
+  border: none;
+  color: #fff;
+  position: relative;
+}
+
+.OG-box.og-box-glass:after {
+  -webkit-border-radius: 5px;
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius: 5px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  background: #fff;
+  border-radius: 5px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+  position: absolute;
+  top: 1px;
+  right: 1px;
+}
+
+.OG-box.og-box-hat:after {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  content: '';
+  background-color: #2b343c;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}

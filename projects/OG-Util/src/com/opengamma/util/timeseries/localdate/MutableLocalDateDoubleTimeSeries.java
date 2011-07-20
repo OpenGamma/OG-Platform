@@ -13,7 +13,6 @@ import com.opengamma.util.timeseries.AbstractMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
@@ -30,11 +29,11 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
     }
 
     @Override
-    public TimeSeries<LocalDate, Double> newInstance(final LocalDate[] dateTimes, final Double[] values) {
+    public MutableLocalDateDoubleTimeSeries newInstance(final LocalDate[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract LocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
+    public abstract MutableLocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
   }
 
   /** */
@@ -45,10 +44,10 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
     }
 
     @Override
-    public TimeSeries<LocalDate, Double> newInstance(final LocalDate[] dateTimes, final Double[] values) {
+    public MutableLocalDateDoubleTimeSeries newInstance(final LocalDate[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract LocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
+    public abstract MutableLocalDateDoubleTimeSeries newInstanceFast(LocalDate[] dateTimes, double[] values);
   }
 }

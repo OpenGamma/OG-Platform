@@ -50,11 +50,9 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
-
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
-
   private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2016, 7, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, CALENDAR, SETTLEMENT_DAYS);
   private static final double NOTIONAL = 100000000; //100m
@@ -117,11 +115,11 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     CurrencyAmount pvPayerLongExplicit = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     CurrencyAmount pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvPayerLongExplicit.getAmount() / NOTIONAL * bp1, pvPayerLongIntegration.getAmount() / NOTIONAL * bp1,
-        5.0E-1);
+        3.0E-1);
     CurrencyAmount pvPayerShortExplicit = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_HW);
     CurrencyAmount pvPayerShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_HW);
     assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvPayerShortExplicit.getAmount() / NOTIONAL * bp1,
-        pvPayerShortIntegration.getAmount() / NOTIONAL * bp1, 5.0E-1);
+        pvPayerShortIntegration.getAmount() / NOTIONAL * bp1, 3.0E-1);
     CurrencyAmount pvReceiverLongExplicit = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_HW);
     CurrencyAmount pvReceiverLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_HW);
     assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvReceiverLongExplicit.getAmount() / NOTIONAL * bp1, pvReceiverLongIntegration.getAmount() / NOTIONAL
@@ -130,6 +128,37 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     CurrencyAmount pvReceiverShortIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_RECEIVER_SHORT, BUNDLE_HW);
     assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvReceiverShortExplicit.getAmount() / NOTIONAL * bp1, pvReceiverShortIntegration.getAmount() / NOTIONAL
         * bp1, 5.0E-1);
+  }
+
+  @Test
+  /**
+   * Tests the Hull-White parameters sensitivity.
+   */
+  public void hullWhiteSensitivity() {
+    double[] hwSensitivity = METHOD_HW_APPROXIMATION.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    int nbVolatility = PARAMETERS_HW.getVolatility().length;
+    double shiftVol = 1.0E-6;
+    double[] volatilityBumped = new double[nbVolatility];
+    System.arraycopy(PARAMETERS_HW.getVolatility(), 0, volatilityBumped, 0, nbVolatility);
+    double[] volatilityTime = new double[nbVolatility - 1];
+    System.arraycopy(PARAMETERS_HW.getVolatilityTime(), 1, volatilityTime, 0, nbVolatility - 1);
+    double[] pvBumpedPlus = new double[nbVolatility];
+    double[] pvBumpedMinus = new double[nbVolatility];
+    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(PARAMETERS_HW.getMeanReversion(), volatilityBumped, volatilityTime);
+    HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
+    double[] hwSensitivityExpected = new double[nbVolatility];
+    for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
+      volatilityBumped[loopvol] += shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
+      pvBumpedPlus[loopvol] = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
+      volatilityBumped[loopvol] -= 2 * shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
+      pvBumpedMinus[loopvol] = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, bundleBumped).getAmount();
+      hwSensitivityExpected[loopvol] = (pvBumpedPlus[loopvol] - pvBumpedMinus[loopvol]) / (2 * shiftVol);
+      assertEquals("Swaption - Hull-White sensitivity adjoint: derivative " + loopvol + " - difference:" + (hwSensitivityExpected[loopvol] - hwSensitivity[loopvol]), hwSensitivityExpected[loopvol],
+          hwSensitivity[loopvol], 2.0E+5);
+      volatilityBumped[loopvol] = PARAMETERS_HW.getVolatility()[loopvol];
+    }
   }
 
   @Test(enabled = true)
@@ -160,6 +189,42 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
       pvReceiverIntegration[loopstrike] = METHOD_HW_INTEGRATION.presentValue(swaptionStrikeReceiver, BUNDLE_HW).getAmount();
       assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvReceiverApproximation[loopstrike], pvReceiverIntegration[loopstrike], errorLimit);
     }
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 10000;
+    CurrencyAmount pvPayerLongExplicit = CurrencyAmount.of(CUR, 0.0);
+    CurrencyAmount pvPayerLongIntegration = CurrencyAmount.of(CUR, 0.0);
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongExplicit = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
+    // Performance note: HW price: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 330 ms for 10000 swaptions.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      METHOD_HW_APPROXIMATION.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " HW sensitivity swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
+    // Performance note: HW sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 525 ms for 10000 swaptions.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " cash swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
+    // Performance note: HW numerical integration: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1300 ms for 10000 swaptions.
+
+    double difference = 0.0;
+    difference = pvPayerLongExplicit.getAmount() - pvPayerLongIntegration.getAmount();
+    System.out.println("Difference: " + difference);
   }
 
 }

@@ -87,9 +87,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
-          if (curveNames.contains("SECONDARY")) {
-            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-          }
+//          if (curveNames.contains("SECONDARY")) {
+//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+//          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
           }
@@ -149,7 +149,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     }
     
     configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
-    for (int i = 1; i < parameters.size(); i++) {
+    for (int i = 1; i < parameters.size() - 1; i++) {
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
     }

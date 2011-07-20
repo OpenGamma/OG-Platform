@@ -98,6 +98,23 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     _changeManager = changeManager;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<MarketDataSnapshotDocument> list = new ArrayList<MarketDataSnapshotDocument>();
+    for (MarketDataSnapshotDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
+    }
+    MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument get(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -108,6 +125,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
@@ -119,6 +137,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument add(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
@@ -137,6 +156,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return doc;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument update(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
@@ -160,36 +180,23 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void remove(UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
     _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument correct(MarketDataSnapshotDocument document) {
-    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
+    return update(document);
   }
 
-  @Override
-  public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    final List<MarketDataSnapshotDocument> list = new ArrayList<MarketDataSnapshotDocument>();
-    for (MarketDataSnapshotDocument doc : _store.values()) {
-      if (request.matches(doc)) {
-        list.add(doc);
-      }
-    }
-    MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), list));
-    result.getDocuments().addAll(request.getPagingRequest().select(list));
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
@@ -202,6 +209,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MasterChangeManager changeManager() {
     return _changeManager;

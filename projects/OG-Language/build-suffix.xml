@@ -118,7 +118,7 @@
 #define VERSION_MINOR	verminor${module.version}
 #define REVISION	revision${module.version}
 #ifndef BUILD_NUMBER
-#define BUILD_NUMBER	1
+#define BUILD_NUMBER	${build.number}
 #endif /* ifndef BUILD_NUMBER */
 #ifndef VERSION_SUFFIX
 #ifdef _DEBUG
