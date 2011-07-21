@@ -101,7 +101,7 @@ public class MasterPositionSourceTest {
     manTrade.setQuantity(BigDecimal.valueOf(1234));
     manTrade.setSecurityKey(IdentifierBundle.of(Identifier.of("CC", "DD")));
     manTrade.setUniqueId(UID5);
-    manTrade.setPositionId(UID4);
+    manTrade.setParentPositionId(UID4);
     ManageablePosition manPos = new ManageablePosition();
     manPos.setQuantity(BigDecimal.valueOf(1235));
     manPos.setSecurityKey(IdentifierBundle.of(Identifier.of("AA", "BB")));

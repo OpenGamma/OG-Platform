@@ -13,11 +13,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
@@ -229,9 +227,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
         return null;
       }
     }
-    TradeImpl node = new TradeImpl();
-    convertTrade(nodeId, convertId(manTrade.getPositionId(), nodeId), manTrade, node);
-    return node;
+    convertTrade(nodeId, convertId(manTrade.getParentPositionId(), nodeId), manTrade);
+    return manTrade;
   }
 
   //-------------------------------------------------------------------------
@@ -275,15 +272,14 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param sourcePosition  the source position, not null
    */
   protected void convertPosition(final UniqueIdentifier nodeId, final ManageablePosition manPos, final PositionImpl sourcePosition) {
-    UniqueIdentifier posUid = convertId(manPos.getUniqueId(), nodeId);
-    sourcePosition.setUniqueId(posUid);
+    UniqueIdentifier posId = convertId(manPos.getUniqueId(), nodeId);
+    sourcePosition.setUniqueId(posId);
     sourcePosition.setParentNodeId(nodeId);
     sourcePosition.setQuantity(manPos.getQuantity());
     sourcePosition.setSecurityKey(manPos.getSecurityKey());
     for (ManageableTrade manTrade : manPos.getTrades()) {
-      TradeImpl sourceTrade = new TradeImpl();
-      convertTrade(nodeId, posUid, manTrade, sourceTrade);
-      sourcePosition.addTrade(sourceTrade);
+      convertTrade(nodeId, posId, manTrade);
+      sourcePosition.addTrade(manTrade);
     }
     sourcePosition.setAttributes(manPos.getAttributes());
   }
@@ -294,26 +290,10 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param nodeId  the parent node unique identifier, null if root
    * @param posId  the converted position unique identifier, not null
    * @param manTrade  the manageable trade, not null
-   * @param sourceTrade  the source trade, not null
    */
-  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
-    sourceTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
-    sourceTrade.setParentPositionId(posId);
-    sourceTrade.setQuantity(manTrade.getQuantity());
-    sourceTrade.setSecurityKey(manTrade.getSecurityKey());
-    if (manTrade.getCounterpartyKey() != null) {
-      sourceTrade.setCounterparty(new CounterpartyImpl(manTrade.getCounterpartyKey()));
-    }
-    sourceTrade.setTradeDate(manTrade.getTradeDate());
-    sourceTrade.setTradeTime(manTrade.getTradeTime());
-    
-    //set premium
-    sourceTrade.setPremium(manTrade.getPremium());
-    sourceTrade.setPremiumCurrency(manTrade.getPremiumCurrency());
-    sourceTrade.setPremiumDate(manTrade.getPremiumDate());
-    sourceTrade.setPremiumTime(manTrade.getPremiumTime());
-    
-    sourceTrade.setAttributes(manTrade.getAttributes());
+  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade) {
+    manTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
+    manTrade.setParentPositionId(posId);
   }
 
   /**
