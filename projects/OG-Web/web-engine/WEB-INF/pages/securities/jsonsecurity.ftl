@@ -6,13 +6,13 @@
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "endDate": {
-              "date": "${security.endDate.date}",
+              "date": "${security.endDate.toLocalDate()}",
               "zone": "${security.endDate.zone}"
           },
         "rate":"${security.rate}",
         "region":"${security.region?replace("_", " ")}",
         "startDate": {
-              "date": "${security.startDate.date}",
+              "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
          },
       <#break>
@@ -20,7 +20,7 @@
         "amount":"${security.amount}",
         "currency":"${security.currency}",
         "maturity": {
-              "date": "${security.maturity.date}",
+              "date": "${security.maturity.toLocalDate()}",
               "zone": "${security.maturity.zone}"
           },
         "rate":"${security.rate}",
@@ -51,15 +51,15 @@
         "businessDayConvention":"${security.businessDayConvention}",
         "announcementDate":"${security.announcementDate}",
         "interestAccrualDate": {
-            "date": "${security.interestAccrualDate.date}",
+            "date": "${security.interestAccrualDate.toLocalDate()}",
             "zone": "${security.interestAccrualDate.zone}"
         },
         "settlementDate": {
-            "date": "${security.settlementDate.date}",
+            "date": "${security.settlementDate.toLocalDate()}",
             "zone": "${security.settlementDate.zone}"
         },
         "firstCouponDate": {
-            "date": "${security.firstCouponDate.date}",
+            "date": "${security.firstCouponDate.toLocalDate()}",
             "zone": "${security.firstCouponDate.zone}"
         },
         "issuancePrice":"${security.issuancePrice}",
@@ -82,31 +82,32 @@
         <#if futureSecurityType == "BondFuture">
             "underlying Bond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
-            "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+            "underlyingIdentifier":"${security.underlyingIdentifier.scheme.name}-${security.underlyingIdentifier.value}",
         </#if>
         
         <#break>
       <#case "EQUITY_OPTION">
-        "exerciseType":"${security.exerciseType}",
-        "payOffStyle":"${security.payoffStyle}",
-        "optionType":"${security.optionType}",
-        "strike":"${security.strike}",
-        "expiryDate":"${security.expiry.expiry}",
-        "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
         "currency":"${security.currency}",
+        "exchange":"${security.exchange}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
         <#break>
+    
       <#case "SWAP">
         "tradeDate": {
-            "date": "${security.tradeDate.date}",
+            "date": "${security.tradeDate.toLocalDate()}",
             "zone": "${security.tradeDate.zone}"
         },
         "effectiveDate": {
-            "date": "${security.effectiveDate.date}",
+            "date": "${security.effectiveDate.toLocalDate()}",
             "zone": "${security.effectiveDate.zone}"
         },
         "maturityDate": {
-            "date": "${security.maturityDate.date}",
+            "date": "${security.maturityDate.toLocalDate()}",
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
@@ -156,6 +157,70 @@
             <#break>
           </#switch>
         },
+        <#break>
+       <#case "FX FORWARD">
+        "forwardDate":{"date":"${security.forwardDate.toLocalDate()}", "zone":"${security.forwardDate.zone}"},
+        "region":"${security.region.scheme}-${security.region.value}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        <#break>
+       <#case "FX">
+        "payAmount":"${security.payAmount}",
+        "payCurrency":"${security.payCurrency}",
+        "receiveAmount":"${security.receiveAmount}",
+        "receiveCurrency":"${security.receiveCurrency}",
+        "region":"${security.region.scheme}-${security.region.value}",
+        <#break>
+       <#case "FX_BARRIER_OPTION">
+        "barrierDirection":"${security.barrierDirection}",
+        "barrierLevel":"${security.barrierLevel}",
+        "barrierType":"${security.barrierType}",
+        "callAmount":"${security.callAmount}",
+        "callCurrency":"${security.callCurrency}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isLong":"${security.isLong?string?upper_case}",
+        "monitoringType":"${security.monitoringType}",
+        "putAmount":"${security.putAmount}",
+        "putCurrency":"${security.putCurrency}",
+        "samplingFrequency":"${security.samplingFrequency}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
+        <#break>
+       <#case "FX_OPTION">
+        "callAmount":"${security.callAmount}",
+        "callCurrency":"${security.callCurrency}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isLong":"${security.isLong?string?upper_case}",
+        "putAmount":"${security.putAmount}",
+        "putCurrency":"${security.putCurrency}",
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
+        <#break>
+       <#case "EQUITY_INDEX_OPTION">
+        "currency":"${security.currency}",
+        "exchange":"${security.exchange}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme} - ${security.underlyingIdentifier.value}",
+        <#break>
+       <#case "SWAPTION">
+        "currency":"${security.currency}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isCashSettled":"${security.isCashSettled?string?upper_case}",
+        "isLong":"${security.isLong?string?upper_case}",
+        "isPayer":"${security.isPayer?string?upper_case}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        <#break>
+       <#case "IRFUTURE_OPTION">
+        "currency":"${security.currency}",
+        "exchange":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+        "isMargined":"${security.isMargined?string?upper_case}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
         <#break>
     </#switch>
     "name": "${security.name}",

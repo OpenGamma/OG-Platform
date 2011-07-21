@@ -1,12 +1,8 @@
-<li>
-  <div>- ${title} <span class="OG-icon og-icon-remove og-js-rem-port-req"></span></div>
-  <div class="og-portfolio-requirement">
-    <div class="og-required-output">
-      <label>
-        Required Output
-        {{html item_0}} <!-- value requirement names -->
-      </label>
-    </div>
-    {{html item_1}} <!-- constraints -->
-  </div>
+<li class="og-js-collapse-container">
+  <div class="og-delete og-js-rem-port-req"></div>
+  <label>
+    <span class="og-open og-js-collapse-handle">${title}</span>
+    {{html item_0}} <!-- value requirement names -->
+  </label>
+  {{html item_1}} <!-- constraints -->
 </li>
