@@ -1,32 +1,14 @@
-<div class="OG-grid-box">
-  <div class="OG-gradient-02 og-container">
-  <table>
-    <tfoot>
-      <tr>
-        <td colspan="4">
-          <span class="og-labeled">priority</span><span class="og-remove">del</span><span class="og-add">add</span>
-        </td>
-      </tr>
-    </tfoot>
-    <tbody class="og-resolution-rule-transform">
-    <tr>
-      <td>
-        <input type="text" placeholder="rule" />
-      </td>
-      <td class="og-labeled"><input type="text" placeholder="priority" /></td>
-      <td class="og-remove"><span class="OG-icon og-icon-remove" title="delete this rule"></span></td>
-      <td class="og-add"><span class="OG-icon og-icon-add" title="add a new rule"></span></td>
-    </tr>
-    <tr>
-      <td>
-        <input type="text" placeholder="rule" />
-      </td>
-      <td class="og-labeled"><input type="text" placeholder="priority" /></td>
-      <td class="og-remove"><span class="OG-icon og-icon-remove" title="delete this rule"></span></td>
-      <td class="og-add"><span class="OG-icon og-icon-add" title="add a new rule"></span></td>
-    </tr>
-    </tbody>
-  </table>
-  </div>
+<div id="${id}" class="og-resolution-rule OG-clearFix">
+  <label>
+    Class:
+    <input class="og-js-class" type="text" value="${class_value}" />
+  </label>
+  <ul class="og-awesome-list og-js-res-rule-holder">
+    <li class="og-js-res-rule">
+      <div class="og-del og-js-rem-rule"></div>
+      <input type="text" class="og-rule og-js-key" value="" />
+      <label>Priority: <input class="og-priority og-js-val" placeholder="null" type="text" /></label>
+    </li>
+  </ul>
+  <div><span class="og-new-link og-js-add-rule">add rule transform</span></div>
 </div>
-
