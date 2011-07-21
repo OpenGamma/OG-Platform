@@ -164,10 +164,10 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final double[] beta = betaList.toDoubleArray();
     final double[] nu = nuList.toDoubleArray();
     final double[] rho = rhoList.toDoubleArray();
-    final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, alpha, INTERPOLATOR, "SABR alpha surface"));
-    final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, beta, INTERPOLATOR, "SABR beta surface"));
-    final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, nu, INTERPOLATOR, "SABR nu surface"));
-    final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swapMaturities, swaptionExpiries, rho, INTERPOLATOR, "SABR rho surface"));
+    final VolatilitySurface alphaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, alpha, INTERPOLATOR, "SABR alpha surface"));
+    final VolatilitySurface betaSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, beta, INTERPOLATOR, "SABR beta surface"));
+    final VolatilitySurface nuSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, nu, INTERPOLATOR, "SABR nu surface"));
+    final VolatilitySurface rhoSurface = new VolatilitySurface(InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, rho, INTERPOLATOR, "SABR rho surface"));
     final ObjectsSurface<Double, Double, DoubleMatrix2D> inverseJacobianSurface = NodalObjectsSurface.from(swapMaturitiesList.toArray(EMPTY_DOUBLE_ARRAY),
         swaptionExpiriesList.toArray(EMPTY_DOUBLE_ARRAY), inverseJacobianList.toArray(EMPTY_MATRIX_ARRAY));
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, _volCubeHelper.getCurrency(), DAY_COUNT);

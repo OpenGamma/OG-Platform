@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
@@ -73,7 +74,7 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
     final Position position = target.getPosition();
     final Set<Trade> trades = position.getTrades();
     if (trades.isEmpty()) {
-      throw new IllegalArgumentException("Position has no trades");
+      throw new OpenGammaRuntimeException("Position has no trades");
     }
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (final Trade trade : trades) {

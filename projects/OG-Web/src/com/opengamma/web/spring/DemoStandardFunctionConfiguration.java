@@ -36,6 +36,7 @@ import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.PresentValueSummingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
+import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
 import com.opengamma.financial.analytics.model.bond.BondConvexityFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
 import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFunction;
@@ -138,8 +139,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   protected static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    ParameterizedFunctionConfiguration functionConfig = new ParameterizedFunctionConfiguration(UnitPositionScalingFunction.class.getName(), Collections.singleton(requirementName));
-    functionConfigs.add(functionConfig);
+    ParameterizedFunctionConfiguration securityScalingFunctionConfig = new ParameterizedFunctionConfiguration(UnitPositionScalingFunction.class.getName(), Collections.singleton(requirementName));
+    ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(UnitPositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
+    functionConfigs.add(securityScalingFunctionConfig);
+    functionConfigs.add(tradeScalingFunctionConfig);
   }
 
   protected static void addDummyFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -338,7 +341,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addScalingFunction(functionConfigs, ValueRequirementNames.PV01);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
+    addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
@@ -388,7 +391,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PV01SummingFunction.class.getName()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
-    addDummyFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
+    addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
 
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
@@ -414,6 +417,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
+    addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
+    
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);

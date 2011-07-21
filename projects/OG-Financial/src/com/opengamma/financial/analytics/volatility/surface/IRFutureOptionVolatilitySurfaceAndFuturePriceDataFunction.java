@@ -232,11 +232,13 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final int n = x.intValue();
         //TODO this will not give the expected result if we go more than ~9 years into the future - not sure of the best way to do this.
         final LocalDate ld = now.toLocalDate().plusDays((n - 1) * 80); //TODO this is hard-coding it to be quarterly - needs to be changed to handle all types of options
-        return DateUtil.getDaysBetween(now.toLocalDate(), NEXT_EXPIRY_ADJUSTER.adjustDate(ld)) / 365.; //TODO or use daycount?
+        final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(ld);
+        final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
+        return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
       }
 
       private double getRate(final double quote) {
-        return 1 - quote / 100.;
+        return quote / 100.;
       }
     };
   }

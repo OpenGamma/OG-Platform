@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -30,7 +31,7 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
 
   @Override
   protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, final ValueSpecification[] specifications,
-      final Set<ValueRequirement> desiredValues, final String ccy, final FunctionInputs inputs) {
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
     if (specifications.length != 1 || !specifications[0].getValueName().equals(ValueRequirementNames.PRESENT_VALUE)) {
       throw new OpenGammaRuntimeException("This should never happen: value specifications do not match those required");
     }

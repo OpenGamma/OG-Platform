@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -34,8 +35,8 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
 
   @Override
   protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, final ValueSpecification[] specifications,
-      final Set<ValueRequirement> desiredValues, final String ccy, final FunctionInputs inputs) {
-    if (specifications.length != 4) {
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
+    if (specifications.length != 3) {
       throw new OpenGammaRuntimeException("Specifications array length did not match the number requested");
     }
     final PresentValueSABRSensitivityDataBundle sensitivities = CALCULATOR.visit(irFutureOption, data);

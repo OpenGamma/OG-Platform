@@ -109,11 +109,11 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     @SuppressWarnings("unchecked")
     final FixedIncomeInstrumentConverter<InterestRateDerivative> irFutureOptionDefinition = (FixedIncomeInstrumentConverter<InterestRateDerivative>) _converter.convert(trade);
     final InterestRateDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {curveNames.getFirst(), curveNames.getSecond()}, dataSource);
-    return getResults(irFutureOption, data, specifications, desiredValues, ccy, inputs);
+    return getResults(irFutureOption, data, specifications, desiredValues, inputs, target);
   }
 
   protected abstract Set<ComputedValue> getResults(InterestRateDerivative irFutureOption, SABRInterestRateDataBundle data, ValueSpecification[] specifications, Set<ValueRequirement> desiredValues,
-      String ccy, final FunctionInputs inputs);
+      final FunctionInputs inputs, ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {

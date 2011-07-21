@@ -26,6 +26,7 @@ public final class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFi
   private static final String BETA_SURFACE_NAME = "BetaSurface";
   private static final String NU_SURFACE_NAME = "NuSurface";
   private static final String RHO_SURFACE_NAME = "RhoSurface";
+  private static final String INVERSE_JACOBIAN_NAME = "InverseJacobian";
   private static final String DAYCOUNT_NAME = "DayCountName";
   private static final String CURRENCY_NAME = "Currency";
 
@@ -46,6 +47,7 @@ public final class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFi
     context.addToMessage(message, BETA_SURFACE_NAME, null, object.getBetaSurface());
     context.addToMessage(message, NU_SURFACE_NAME, null, object.getNuSurface());
     context.addToMessage(message, RHO_SURFACE_NAME, null, object.getRhoSurface());
+    context.addToMessage(message, INVERSE_JACOBIAN_NAME, null, object.getInverseJacobian());
     context.addToMessage(message, CURRENCY_NAME, null, object.getCurrency());
     context.addToMessage(message, DAYCOUNT_NAME, null, object.getDayCount().getConventionName());
   }

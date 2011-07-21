@@ -43,7 +43,7 @@ public class InterestRateFutureOptionSecurityConverter {
     final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier)));
     final InterestRateFutureSecurityDefinition underlyingFuture = (InterestRateFutureSecurityDefinition) _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
-    final double strike = security.getStrike();
+    final double strike = security.getStrike() / 100;
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;
     final boolean isMargined = security.getIsMargined();
     if (isMargined) {

@@ -60,7 +60,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
   private static final double ERROR = 0.001;
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(SABR_FUNCTION);
-  private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 0.5, 0.2, 0.0};
+  private static final double[] SABR_INITIAL_VALUES = new double[] {0.05, 1., 0.7, 0.0};
   private static final BitSet FIXED = new BitSet();
   private static final boolean RECOVER_ATM_VOL = false;
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
@@ -76,6 +76,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
 
   static {
     FIXED.set(1);
+    FIXED.set(3);
   }
 
   public SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction(final String currency, final String definitionName) {
@@ -146,8 +147,8 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
             final BlackFunctionData[] data = new BlackFunctionData[n];
             final double forward = futurePriceData.getFuturePrice(x[i - 1]);
             for (int j = 0; j < n; j++) {
-              options[j] = new EuropeanVanillaOption(strikes[j], oldX, true);
-              data[j] = new BlackFunctionData(forward, 1, blackVols[j]);
+              options[j] = new EuropeanVanillaOption(1 - strikes[j], oldX, true);
+              data[j] = new BlackFunctionData(1 - forward, 1, blackVols[j]);
               errors[j] = ERROR;
             }
             if (options.length > 4) {
