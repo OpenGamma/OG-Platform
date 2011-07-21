@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.historicaltimeseries;
 
+import javax.time.calendar.LocalDate;
+
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
@@ -29,9 +31,10 @@ public interface HistoricalTimeSeriesResolver {
    * 
    * @param dataField  the type of data that the time-series represents, not null
    * @param identifierBundle  the bundle of identifiers to resolve, not null
+   * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
    * @param resolutionKey  a key defining how the resolution is to occur, null for the default best match
    * @return the best matching time-series unique identifier, null if unable to find a match
    */
-  UniqueIdentifier resolve(String dataField, IdentifierBundle identifierBundle, String resolutionKey);
+  UniqueIdentifier resolve(String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey);
 
 }
