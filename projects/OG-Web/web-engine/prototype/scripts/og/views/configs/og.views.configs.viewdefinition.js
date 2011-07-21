@@ -292,9 +292,13 @@ $.register_module({
                                             new forms.Dropdown({
                                                 form: form, resource: 'valuerequirementnames', index: sel_name,
                                                 value: req[REQO], rest_options: {meta: true},
+                                                classes: 'og-js-collapse-element',
                                                 placeholder: 'Please select...'
                                             }),
-                                            new forms.Constraints({form: form, data: req[CONS], index: cons_name})
+                                            new forms.Constraints({
+                                                form: form, data: req[CONS], index: cons_name,
+                                                classes: 'og-js-collapse-element'
+                                            })
                                         ]
                                     });
                                 },

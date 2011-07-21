@@ -131,16 +131,7 @@ $.register_module({
                 }
             },
             form_generators = {
-                viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: function (config) {
-                    api.text({
-                        module: 'og.views.configs.viewdefinition',
-                        handler: function (html) {
-                            $(config.selector).html(html);
-                            config.handler();
-                        }
-                    });
-                }
+                viewdefinition: og.views.configs.viewdefinition
             },
             load_configs_without = function (field, args) {
                 check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});

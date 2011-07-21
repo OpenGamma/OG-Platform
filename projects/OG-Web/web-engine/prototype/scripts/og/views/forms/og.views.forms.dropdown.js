@@ -11,7 +11,7 @@ $.register_module({
             var name = config.index, resource = config.resource, form = config.form, placeholder = config.placeholder,
                 fields = config.fields || [0], values = fields[0], rest_options = config.rest_options || null,
                 texts = typeof fields[1] !== 'undefined' ? fields[1] : values, value = config.value,
-                id = prefix + id_count++, meta = rest_options && rest_options.meta, test,
+                id = prefix + id_count++, meta = rest_options && rest_options.meta, classes = config.classes,
                 field_options = {
                     generator: function (handler) {
                         var options = $.extend({}, rest_options, {
@@ -20,6 +20,7 @@ $.register_module({
                                 if (result.error) return handler('an error occurred');
                                 var $html = $('<p><select/></p>'), $select = $html.find('select');
                                 if (name) $select.attr('name', name);
+                                if (classes) $select.attr('class', classes);
                                 $select.attr('id', id);
                                 if (placeholder) $select.append($('<option/>').html(placeholder));
                                 if (meta) {
@@ -39,7 +40,7 @@ $.register_module({
                                 handler($html.html());
                             }
                         });
-                        test = og.api.rest[resource].get(options);
+                        og.api.rest[resource].get(options);
                     },
                     handlers: config.handlers || []
                 };
