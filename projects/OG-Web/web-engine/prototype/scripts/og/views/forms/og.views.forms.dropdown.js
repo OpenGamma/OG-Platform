@@ -40,9 +40,10 @@ $.register_module({
                             }
                         });
                         test = og.api.rest[resource].get(options);
-                    }
+                    },
+                    handlers: config.handlers || []
                 };
-            if (config.processor) field_options.processor = config.processor.partial('select#' + id);
+            if (config.processor) field_options.processor = config.processor.partial('#' + id);
             return new form.Field(field_options);
         };
     }

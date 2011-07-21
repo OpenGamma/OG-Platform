@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, id_count = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var data = config.data, data_index = config.index, render,
+            var data = config.data, data_index = config.index, render, classes = config.classes || '',
                 ids = {
                     container: prefix + id_count++,
                     widget: prefix + id_count++,
@@ -30,7 +30,7 @@ $.register_module({
                 };
             return new config.form.Block({
                 module: 'og.views.forms.constraints',
-                extras: ids,
+                extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
                     var indices = data_index.split('.'), last = indices.pop(), result = {},
                         $withs = $('#' + ids.widget + ' .og-js-with'),
@@ -82,7 +82,7 @@ $.register_module({
                     {type: 'change', selector: '#' + ids.widget + ' input.og-js-radio', handler: function (e) {
                         var target = e.target, value = target.value;
                         if (value === 'without' && $('#' + ids.widget + ' .og-js-without-field').length)
-                            return alert('Sorry, but only one without at a time.'), e.target.checked = '';
+                            return alert('Sorry, but only one "without" constraint at a time.'), e.target.checked = '';
                         render[value]({'with': {'': null}, without: ''}[value], $(target).closest('.og-js-row'));
                     }},
                     {type: 'click', selector: '#' + ids.widget + ' .og-js-remove', handler: function (e) {
