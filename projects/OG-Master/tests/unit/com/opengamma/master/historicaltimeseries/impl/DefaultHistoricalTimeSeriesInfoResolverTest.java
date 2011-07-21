@@ -97,7 +97,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
   public void test() throws Exception {
     List<IdentifierBundleWithDates> identifiers = addAndTestTimeSeries();
     for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
-      UniqueIdentifier uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
+      UniqueIdentifier uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), null, CONFIG_DOC_NAME);
       assertNotNull(uniqueId);
       HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(uniqueId);
       assertEquals(DEFAULT_DATA_SOURCE, doc.getInfo().getDataSource());

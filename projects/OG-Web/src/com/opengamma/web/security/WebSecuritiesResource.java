@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -48,6 +49,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.web.FreemarkerCustomRenderer;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -255,7 +257,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
     SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
-    out.put("securityTypes", metaData.getSecurityTypes());
+    out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
     return out;
   }
 

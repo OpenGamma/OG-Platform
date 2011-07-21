@@ -36,22 +36,22 @@
   vertical-align: top;
 }
 
-.OG-form .og-with input[type=text] {
+.OG-form .og-without input[type=text] {
   width: 276px;
 }
 
-.OG-form .og-without input[type=text] {
+.OG-form .og-with input[type=text] {
   width: 130px;
 }
 
-.OG-form .og-without span {
+.OG-form .og-with span {
   width: 10px;
   display: block;
   text-align: center;
   margin-right: 2px;
 }
 
-.OG-form .og-without label + input {
+.OG-form .og-with label + input {
   margin-right: 2px;
 }
 

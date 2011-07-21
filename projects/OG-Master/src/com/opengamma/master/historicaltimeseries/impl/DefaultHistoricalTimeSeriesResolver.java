@@ -7,6 +7,8 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +57,14 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier resolve(String dataField, IdentifierBundle identifiers, String resolutionKey) {
+  public UniqueIdentifier resolve(String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(identifiers, "identifiers");
     resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
     // find all matching time-series
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest(identifiers);
+    searchRequest.setIdentifierValidityDate(identifierValidityDate);
     searchRequest.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {

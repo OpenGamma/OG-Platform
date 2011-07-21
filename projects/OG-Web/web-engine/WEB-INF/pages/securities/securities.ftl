@@ -9,13 +9,9 @@
     <@rowin label="Type">
       <select name="type">
         <option value="" <#if searchRequest.securityType = ''>selected</#if>></option>
-        <option value="BOND" <#if searchRequest.securityType = 'BOND'>selected</#if>>Bond</option>
-        <option value="CASH" <#if searchRequest.securityType = 'CASH'>selected</#if>>Cash</option>
-        <option value="EQUITY" <#if searchRequest.securityType = 'EQUITY'>selected</#if>>Equity</option>
-        <option value="FRA" <#if searchRequest.securityType = 'FRA'>selected</#if>>FRA</option>
-        <option value="FUTURE" <#if searchRequest.securityType = 'FUTURE'>selected</#if>>Future</option>
-        <option value="EQUITY_OPTION" <#if searchRequest.securityType = 'EQUITY_OPTION'>selected</#if>>Equity Option</option>
-        <option value="SWAP" <#if searchRequest.securityType = 'SWAP'>selected</#if>>Swap</option>
+        <#list securityTypes as key>
+          <option value="${key}" <#if searchRequest.securityType = '${key}'>selected</#if>>${key}</option>
+        </#list>
       </select>
     </@rowin>
     <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.identifierValue}" /></@rowin>
