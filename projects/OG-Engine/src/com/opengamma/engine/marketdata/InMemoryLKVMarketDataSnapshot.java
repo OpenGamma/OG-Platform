@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
           try {
             awaitingValuesLatch.await(timeout, unit);
           } catch (InterruptedException e) {
-            s_logger.warn("Interrupted while waiting for required values to become available", e);
+            s_logger.warn(MessageFormat.format("Interrupted while waiting for required values to become available: {0}", unavailableRequirements), e);
           }
         }
       } finally {
