@@ -71,7 +71,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   /**
    * Fudge field name.
    */
-  private static final String FIELD_COUNTERPARTY = "counterparty";
+  private static final String FIELD_COUNTERPARTY = "counterpartyKey";
   /**
    * Fudge field name.
    */
