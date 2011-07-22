@@ -199,14 +199,14 @@ $.register_module({
                                                 is_active = $tab.is('.og-active'), $next_tab, $next_col;
                                             if (!is_last) {
                                                 $next_tab = $('#' + set_id + ' .og-js-col-tab:eq(' + next + ')');
-                                                $next_set = $('#' + set_id + ' .og-js-col-holder:eq(' + next + ')');
+                                                $next_col = $('#' + set_id + ' .og-js-col-holder:eq(' + next + ')');
                                             } else {
                                                 $('#' + set_id + ' .og-js-empty-cols').show();
                                             }
                                             $col.remove(), $tab.remove();
                                             if (is_last || !is_active) return false;
                                             $next_tab.addClass('og-active');
-                                            $next_set.show();
+                                            $next_col.show();
                                             cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = undefined;
                                             return false;
                                         }

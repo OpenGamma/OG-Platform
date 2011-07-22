@@ -6,6 +6,8 @@
 package com.opengamma.financial.user;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,6 +20,7 @@ import com.opengamma.financial.user.rest.UsersResourceContext;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,6 +32,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
 
   private final ConcurrentMap<String, Set<String>> _username2clients = new ConcurrentHashMap<String, Set<String>>();
   private final ConcurrentMap<Identifier, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<Identifier, Set<String>>();
+  private final ConcurrentMap<Identifier, Set<UniqueIdentifier>> _marketDataSnapShots = new ConcurrentHashMap<Identifier, Set<UniqueIdentifier>>();
   private final UsersResourceContext _context;
  
   public DefaultUsersTracker(UsersResourceContext context) {
@@ -46,17 +50,32 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
 
   @Override
   public void created(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
+    switch (type) {
+      case VIEW_DEFINITION:
+        trackCreatedViewDefinition(userName, clientName, identifier);
+        break;
+      case MARKET_DATA_SNAPSHOT:
+        trackCreatedMarketDataSnapshot(userName, clientName, identifier);
+        break;
+    }
     Set<String> clients = _username2clients.get(userName);
     if (clients != null) {
       if (clients.contains(clientName)) {
         s_logger.debug("{} created by {}", identifier, userName);
-        if (type == UserDataType.VIEW_DEFINITION) {
-          trackCreatedViewDefinition(userName, clientName, identifier);
-        }
-        return;
       }
-    } 
-    s_logger.debug("Late creation of {} by {}", identifier, userName);
+    } else {
+      s_logger.debug("Late creation of {} by {}", identifier, userName);
+    }
+  }
+
+  private void trackCreatedMarketDataSnapshot(String userName, String clientName, UniqueIdentifier identifier) {
+    ConcurrentSkipListSet<UniqueIdentifier> freshIds = new ConcurrentSkipListSet<UniqueIdentifier>();
+    Set<UniqueIdentifier> marketDataSnapshotIds = _marketDataSnapShots.putIfAbsent(Identifier.of(userName, clientName), freshIds);
+    if (marketDataSnapshotIds == null) {
+      marketDataSnapshotIds = freshIds;
+    }
+    freshIds.add(identifier);
+    s_logger.debug("{} marketdatasnapshot created by {}", identifier, userName);
   }
 
   private void trackCreatedViewDefinition(String userName, String clientName, UniqueIdentifier identifier) {
@@ -66,7 +85,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
       viewDefinitions = freshDefinitions;
     }
     viewDefinitions.add(identifier.getValue());
-    s_logger.debug("{} created by {}", identifier, userName);
+    s_logger.debug("{} view created by {}", identifier, userName);
   }
 
   @Override
@@ -97,11 +116,46 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     Set<String> clients = _username2clients.get(userName);
     if (clients == null) {
       s_logger.debug("Late client discard for discarded user {}", userName);
-      return;
+    } else {
+      clients.remove(clientName);
+      s_logger.debug("Client {} discarded for user {}", clientName, userName);
     }
-    clients.remove(clientName);
-    s_logger.debug("Client {} discarded for user {}", clientName, userName);
     removeUserViewDefinitions(userName, clientName);
+    removeUserMarketDataSnapshot(userName, clientName);
+  }
+
+  private void removeUserMarketDataSnapshot(String userName, String clientName) {
+    if (getContext() != null) {
+      MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
+      if (marketDataSnapshotMaster != null) {
+        Set<UniqueIdentifier> snapshotIds = _marketDataSnapShots.remove(Identifier.of(userName, clientName));
+        for (UniqueIdentifier uid : snapshotIds) {
+          marketDataSnapshotMaster.remove(uid);
+          s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, clientName});
+        }
+      }
+    }
+  }
+  
+  private void removeAllUserMarketDataSnapshot(String userName) {
+    if (getContext() != null) {
+      MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
+      if (marketDataSnapshotMaster != null) {
+        Iterator<Entry<Identifier, Set<UniqueIdentifier>>> iterator = _marketDataSnapShots.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<Identifier, Set<UniqueIdentifier>> entry = iterator.next();
+          Identifier identifier = entry.getKey();
+          if (identifier.getScheme().getName().equals(userName)) {
+            Set<UniqueIdentifier> uids = entry.getValue();
+            for (UniqueIdentifier uid : uids) {
+              marketDataSnapshotMaster.remove(uid);
+              s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, identifier.getValue()});
+            }
+            iterator.remove();
+          }
+        }
+      }
+    }
   }
 
   @Override
@@ -118,15 +172,40 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (removedClients != null) {
       for (String clientName : removedClients) {
         removeUserViewDefinitions(userName, clientName);
+        removeUserMarketDataSnapshot(userName, clientName);
+      }
+    } else {
+      removeAllUserViewDefinitions(userName);
+      removeAllUserMarketDataSnapshot(userName);
+    }
+  }
+
+  private void removeAllUserViewDefinitions(String userName) {
+    if (getContext() != null) {
+      ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
+      if (viewDefinitionRepository != null) {
+        Iterator<Entry<Identifier, Set<String>>> iterator = _viewDefinitionNames.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<Identifier, Set<String>> entry = iterator.next();
+          Identifier identifier = entry.getKey();
+          if (identifier.getScheme().getName().equals(userName)) {
+            Set<String> viewDefinitions = entry.getValue();
+            for (String viewDefinitionName : viewDefinitions) {
+              viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
+              s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, identifier.getValue()});
+            }
+            iterator.remove();
+          }
+        }
       }
     }
   }
 
   private void removeUserViewDefinitions(final String userName, final String clientName) {
-    Set<String> viewDefinitions = _viewDefinitionNames.get(Identifier.of(userName, clientName));
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
+        Set<String> viewDefinitions = _viewDefinitionNames.remove(Identifier.of(userName, clientName));
         for (String viewDefinitionName : viewDefinitions) {
           viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
           s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, clientName});
