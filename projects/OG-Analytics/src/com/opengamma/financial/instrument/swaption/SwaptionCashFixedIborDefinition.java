@@ -37,6 +37,9 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
    * The cash settlement date of the swaption.
    */
   private final ZonedDateTime _settlementDate;
+  /**
+   * The swaption expiry.
+   */
   private final Expiry _expiry;
 
   /**
