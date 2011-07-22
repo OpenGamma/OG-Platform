@@ -83,29 +83,8 @@ $.register_module({
                     'columns': [
                         {
                             id: 'type',
-                            name: '<select class="og-js-type-filter" style="width: 140px">'
-                                + '  <option value="">Type</option>'
-                                + '  <option>CurrencyMatrix</option>'
-                                + '  <option>CurveSpecificationBuilderConfiguration</option>'
-                                + '  <option>SimpleCurrencyMatrix</option>'
-                                + '  <option>TimeSeriesMetaDataConfiguration</option>'
-                                + '  <option>ViewDefinition</option>'
-                                + '  <option>VolatilitySurfaceSpecification</option>'
-                                + '  <option>VolatilitySurfaceDefinition</option>'
-                                + '  <option>YieldCurveDefinition</option>'
-                                + '</select>',
-                            field: 'type', width: 160,
-                            filter_type: 'select',
-                            filter_type_options: [
-                                'CurrencyMatrix',
-                                'CurveSpecificationBuilderConfiguration',
-                                'SimpleCurrencyMatrix',
-                                'HistoricalTimeSeriesRating',
-                                'ViewDefinition',
-                                'VolatilitySurfaceSpecification',
-                                'VolatilitySurfaceDefinition',
-                                'YieldCurveDefinition'
-                            ]
+                            name: null,
+                            field: 'type', width: 100, filter_type: 'select'
                         },
                         {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
                             name: '<input type="text" placeholder="Name" '
@@ -153,13 +132,15 @@ $.register_module({
                 api.rest.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var details_json = result.data, template = details_json.template_data.type.toLowerCase();
+                        var details_json = result.data,
+                            config_type = details_json.template_data.type.toLowerCase(),
+                            template = module.name + '.' + config_type, text_handler;
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        if (template in form_generators) return form_generators[template]({
+                        if (config_type in form_generators) return form_generators[config_type]({
                             data: details_json,
                             handler: function () {
                                 var json = details_json.template_data,
@@ -181,7 +162,11 @@ $.register_module({
                             },
                             selector: '.OG-details'
                         });
-                        api.text({module: module.name + '.' + template, handler: function (template) {
+                        api.text({module: template, handler: text_handler = function (template, error) {
+                            if (error) {
+                                og.dev.warn('using default config template for config type: ' + config_type);
+                                return api.text({module: module.name + '.default', handler: text_handler});
+                            }
                             var json = details_json.template_data,
                                 $warning, warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
@@ -267,6 +252,12 @@ $.register_module({
                 default_details_page();
             },
             load_filter: function (args) {
+                var search_filter = function () {
+                        var filter_name = options.slickgrid.columns[0].name;
+                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                            return setTimeout(search_filter, 500);
+                        search.filter($.extend(args, {filter: true}));
+                };
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -277,7 +268,7 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search_filter();
             },
             load_delete: function (args) {
                 configs.search(args);
@@ -289,7 +280,25 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: configs.load}]});
                 configs.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (options.slickgrid.columns[0].name === 'loading')
+                    return setTimeout(configs.search.partial(args), 500);
+                if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
+                    meta: true,
+                    handler: function (result) {
+                        options.slickgrid.columns[0].name = [
+                            '<select class="og-js-type-filter" style="width: 80px">',
+                            result.data.types.reduce(function (acc, type) {
+                                return acc + '<option value="' + type + '">' + type + '</option>';
+                            }, '<option value="">Type</option>'),
+                            '</select>'
+                        ].join('');
+                        configs.search(args);
+                    },
+                    loading: function () {options.slickgrid.columns[0].name = 'loading';}
+                });
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

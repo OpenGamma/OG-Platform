@@ -9,9 +9,10 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
 /**
- * 
+ * Test LocalDateDoubleTimeSeries.
  */
 public abstract class LocalDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<LocalDate> {
+
   @Override
   public LocalDate[] testTimes() {
     LocalDate one = LocalDate.of(2010, MonthOfYear.FEBRUARY, 8);
@@ -20,7 +21,7 @@ public abstract class LocalDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest
     LocalDate four = LocalDate.of(2010, MonthOfYear.FEBRUARY, 11);
     LocalDate five = LocalDate.of(2010, MonthOfYear.FEBRUARY, 12);
     LocalDate six = LocalDate.of(2010, MonthOfYear.FEBRUARY, 13);
-    return new LocalDate[] { one, two, three, four, five, six };
+    return new LocalDate[] {one, two, three, four, five, six };
   }
 
   @Override
@@ -31,11 +32,12 @@ public abstract class LocalDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest
     LocalDate four = LocalDate.of(2010, MonthOfYear.FEBRUARY, 14);
     LocalDate five = LocalDate.of(2010, MonthOfYear.FEBRUARY, 15);
     LocalDate six = LocalDate.of(2010, MonthOfYear.FEBRUARY, 16);
-    return new LocalDate[] { one, two, three, four, five, six };
-  } 
+    return new LocalDate[] {one, two, three, four, five, six };
+  }
 
   @Override
   public LocalDate[] emptyTimes() {
     return new LocalDate[] {};
   }
+
 }

@@ -13,7 +13,6 @@ import com.opengamma.util.timeseries.AbstractMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
@@ -29,11 +28,11 @@ public interface MutableDateDoubleTimeSeries extends DateDoubleTimeSeries, Mutab
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public MutableDateDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract DateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
+    public abstract MutableDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 
   /** */
@@ -43,10 +42,10 @@ public interface MutableDateDoubleTimeSeries extends DateDoubleTimeSeries, Mutab
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public MutableDateDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract DateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
+    public abstract MutableDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 }

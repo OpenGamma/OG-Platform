@@ -14,7 +14,6 @@ import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -29,7 +28,7 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
+    public ZonedDateTimeDoubleTimeSeries newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
@@ -42,7 +41,7 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
+    public ZonedDateTimeDoubleTimeSeries newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 

@@ -12,169 +12,257 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
+ * A time-series, which represents the changes in a value over time.
+ * <p>
+ * This interface is similar to both a {@code SortedMap} of value keyed by date-time
+ * and a {@code List} of date-time to value pairs.
+ * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <DATE_TYPE> The type of the dates
- * @param <VALUE_TYPE> The type of the data
+ * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <V> the value being viewed over time, such as {@code Double}
  */
-public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DATE_TYPE, VALUE_TYPE>>, Serializable {
+public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
+  // TODO containsTime
+  // tailSeries/headSeries by time
+
   /**
-   * Get the size of the time series, the number of data points.
+   * Gets the size of the time-series.
+   * <p>
+   * This is the number of data points in the series.
    * 
-   * @return the size
+   * @return the size, zero or greater
    */
   int size();
 
   /**
-   * @return true if the time series has no elements
+   * Checks if the series is empty.
+   * <p>
+   * This checks if there are no data points.
+   * 
+   * @return true if the time-series is empty
    */
   boolean isEmpty();
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the data point on the (exact) moment in time provided. If no entry in
-   * present
-   * in the time series, a null will be returned.  Note that this is not the same behaviour as getValueFast(), which throws an exception. 
+   * Gets the value at the date-time specified.
+   * <p>
+   * This method provides {@code Map} style lookup of values.
+   * The date/time is matched exactly, thus care must be taken with precision in times.
+   * If there is no entry at the date-time, then null is returned.
    * 
-   * @param instant the instant of the requested sample
-   * @return the requested sample
+   * @param dateTime  the date-time to retrieve, not null
+   * @return the value at the date-time, null if date-time not present or
+   *  if the implementation permits nulls
    */
-  VALUE_TYPE getValue(DATE_TYPE instant);
+  V getValue(T dateTime);
 
   /**
-   * Gets the data point at the (zero-based) index provided. If no entry is
-   * present, an IndexOutOfBoundsException is thrown. It should be noted that in
-   * some implementations, this call will not be O(1), so it's use should be
-   * avoided inside loops.
+   * Gets the date-time at the index specified.
+   * <p>
+   * This method provides {@code List} style lookup of date-times.
+   * It is not guaranteed that the lookup is O(1), thus it should be avoided in loops.
    * 
-   * @param index
-   *          of data point required
-   * @return the requested sample
+   * @param index  the zero-based index to retrieve, not null
+   * @return the date-time at the index, null if the implementation permits nulls
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
-  VALUE_TYPE getValueAt(int index);
+  T getTime(int index);
+
+  // TODO: getTimeAt
 
   /**
-   * Get the time at the (zero-based) index provided. If no entry is present
-   * an IndexOutOfBoundsException is thrown. It should be noted that in some
-   * implementations, this call will not be O(1), so its use should be
-   * avoided inside loops.
-   * @param index The index (zero-based)
-   * @return the time at the requested index
-   */
-  DATE_TYPE getTime(int index);
-
-  /**
-   * Gets the latest time for which there is a data point (most positive).
+   * Gets the value at the index specified.
+   * <p>
+   * This method provides {@code List} style lookup of values.
+   * It is not guaranteed that the lookup is O(1), thus it should be avoided in loops.
    * 
-   * @return the requested time
+   * @param index  the zero-based index to retrieve, not null
+   * @return the value at the index, null if the implementation permits nulls
+   * @throws IndexOutOfBoundsException if the index is invalid
    */
-  DATE_TYPE getLatestTime();
+  V getValueAt(int index);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the latest date-time for which there is a data point.
+   * 
+   * @return the latest date-time, not null
+   * @throws NoSuchElementException if empty
+   */
+  T getLatestTime();
 
   /**
-   * Gets the value associated with the latest data point in the series.
+   * Gets the value at the latest date-time in the series.
    * 
-   * @throws NoSuchElementException
-   *           if the series is empty.
-   * @return the requested value
+   * @return the value at the latest date-time, not null
+   * @throws NoSuchElementException if empty
    */
-  VALUE_TYPE getLatestValue();
+  V getLatestValue();
 
   /**
-   * Gets the earliest time for which there is a data point (least positive).
+   * Gets the earliest date-time for which there is a data point.
    * 
-   * @throws NoSuchElementException if the series is empty.
-   * @return the requested time
+   * @return the earliest date-time, not null
+   * @throws NoSuchElementException if empty
    */
-  DATE_TYPE getEarliestTime();
+  T getEarliestTime();
 
   /**
-   * Gets the value associated with the earliest data point in the series.
+   * Gets the value at the earliest date-time in the series.
    * 
-   * @throws NoSuchElementException if the series is empty.
-   * @return the requested value
+   * @return the value at the earliest date-time, not null
+   * @throws NoSuchElementException if empty
    */
-  VALUE_TYPE getEarliestValue();
+  V getEarliestValue();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets an iterator over the pairs of date-times and values.
+   * <p>
+   * The pairs are expressed as instances of {@code Map.Entry}.
+   * The iterator is in date-time order.
+   * 
+   * @return the pair iterator, not null
+   */
+  Iterator<Map.Entry<T, V>> iterator();
 
   /**
-   * Get an iterator that will allow iteration over the values in the series,
-   * from earliest to latest.
+   * Gets an iterator over the date-times in the time-series from earliest to latest.
+   * <p>
+   * The iterator is in date-time order.
    * 
-   * @throws NoSuchElementException if the series is empty.
-   * @return the iterator
+   * @return the date-times iterator, not null
    */
-  Iterator<VALUE_TYPE> valuesIterator();
+  Iterator<T> timeIterator();
 
   /**
-   * Get an iterator that will allow iteration over the times in the series,
-   * from the earliest to the latest.
+   * Gets an iterator over the values in the time-series from earliest to latest.
+   * <p>
+   * The iterator is in date-time order.
    * 
-   * @return the iterator
+   * @return the values iterator, not null
    */
-  Iterator<DATE_TYPE> timeIterator();
+  Iterator<V> valuesIterator();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets part of this series as a sub-series between two date-times.
+   * <p>
+   * The date-times do not have to match exactly.
+   * The sub-series contains all entries between the two date-times via
+   * {@code Comparable}, as modified by the inclusive start/end flags.
+   * 
+   * @param startTime  the start date-time, not null
+   * @param inclusiveStart  true to include the start date-time in the result
+   * @param endTime  the end date-time, not null
+   * @param exclusiveEnd  true to exclude the end date-time in the result
+   * @return the sub-series between the date-times, not null
+   */
+  TimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
 
   /**
-   * The standard iterator that returns pairs of times and values as instances
-   * of KeyValuePair/Map.Entry
+   * Gets part of this series as a sub-series between two date-times.
+   * <p>
+   * The date-times do not have to match exactly.
+   * The sub-series contains all entries between the two date-times via
+   * {@code Comparable}, with inclusive start and exclusive end.
    * 
-   * @return the iterator
+   * @param startTimeInclusive  the start date-time, not null
+   * @param endTimeExclusive  the end date-time, not null
+   * @return the sub-series between the date-times, not null
    */
-  Iterator<Map.Entry<DATE_TYPE, VALUE_TYPE>> iterator();
+  TimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
 
   /**
-   * Return the subset of the current TimeSeries from the start to the end time.
-   * If the start or end time are not present in the series then the nearest element is
-   * found instead.
+   * Gets part of this series as a sub-series, choosing the earliest entries.
+   * <p>
+   * The sub-series contains the specified number of entries taken from the
+   * earliest date-time in this series.
    * 
-   * @param startTime The start time
-   * @param inclusiveStart whether or not the startTime is included in the result.
-   * @param endTime The end time
-   * @param exclusiveEnd whether or not the endTime is included in the result.
-   * @return subset of TimeSeries
+   * @param numItems  the number of items to select, zero or greater
+   * @return the sub-series of the requested size starting with the earliest entry, not null
+   * @throws IndexOutOfBoundsException if the index is invalid, or the size of
+   *  this series is less than the size requested
    */
-  TimeSeries<DATE_TYPE, VALUE_TYPE> subSeries(DATE_TYPE startTime, boolean inclusiveStart, DATE_TYPE endTime, boolean exclusiveEnd);
-  
-  /**
-   * Return the subset of the current TimeSeries from the start to the end time.
-   * If the start or end time are not present in the series then the nearest element is
-   * found instead.  This version follows the standard Collections pattern of being 
-   * start INCLUSIVE and end EXCLUSIVE.
-   * 
-   * @param startTime The start time
-   * @param endTime The end time
-   * @return subset of TimeSeries
-   */
-  TimeSeries<DATE_TYPE, VALUE_TYPE> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);
+  TimeSeries<T, V> head(int numItems);
 
   /**
-   * return the first numItems from the time series as a new time series. These
-   * represent the earliest items in the series, by time.
+   * Gets part of this series as a sub-series, choosing the latest entries.
+   * <p>
+   * The sub-series contains the specified number of entries taken from the
+   * latest date-time in this series.
    * 
-   * @param numItems number of items from the beginning, must be positive.
-   * @throws IndexOutOfBoundsException
-   *           if the number of items requested is greater than the length of
-   *           the time series.
-   * @return TimeSeries of first numItems items.
+   * @param numItems  the number of items to select, zero or greater
+   * @return the sub-series of the requested size ending with the latest entry, not null
+   * @throws IndexOutOfBoundsException if the index is invalid, or the size of
+   *  this series is less than the size requested
    */
-  TimeSeries<DATE_TYPE, VALUE_TYPE> head(int numItems);
+  TimeSeries<T, V> tail(int numItems);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new time-series where the values lag the date-times.
+   * <p>
+   * This returns a new time-series where each value occurs at a different date-time.
+   * For example, the time series [(March,6),(April,7),(May,8),(June,9)] with a lag
+   * of +2 would result in [(May,6),(June,7)]. Similarly, a lag of -1 would result
+   * in [(March,7),(April,8),(May,9)].
+   * Note that this operates on the entries which are not necessarily continuous
+   * 
+   * @param lagCount  the number of entries to lag by, positive or negative
+   * @return the new time-series, not null
+   */
+  TimeSeries<T, V> lag(final int lagCount);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a list of all date-times in this series.
+   * <p>
+   * The index of each entry will match that used by the index lookup methods.
+   * 
+   * @return a list of all the date-times in order from earliest to latest, not null
+   */
+  List<T> times();
 
   /**
-   * return the last numItems from the time series as a new time series. These
-   * represent the latest items in the series, by time.
+   * Gets an array of all date-times in this series.
+   * <p>
+   * The index of each entry will match that used by the index lookup methods.
    * 
-   * @param numItems number of items from the end, must be positive.
-   * @throws IndexOutOfBoundsException
-   *           if the number of items requested is greater than the length of
-   *           the time series.
-   * @return TimeSeries of first numItems items.
+   * @return an array of all the date-times in order from earliest to latest, not null
    */
-  TimeSeries<DATE_TYPE, VALUE_TYPE> tail(int numItems);
+  T[] timesArray();
 
-  List<DATE_TYPE> times();
+  /**
+   * Gets a list of all values in this series.
+   * <p>
+   * The index of each entry will match that used by the index lookup methods.
+   * As such, the values will be in date-time order.
+   * 
+   * @return a list of all the values in order from earliest to latest, not null
+   */
+  List<V> values();
 
-  DATE_TYPE[] timesArray();
+  /**
+   * Gets an array of all values in this series.
+   * <p>
+   * The index of each entry will match that used by the index lookup methods.
+   * As such, the values will be in date-time order.
+   * 
+   * @return an array of all the values in order from earliest to latest, not null
+   */
+  V[] valuesArray();
 
-  List<VALUE_TYPE> values();
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new instance with a new set of date-times and values.
+   * 
+   * @param dateTimes  the date-times, not null
+   * @param values  the values, not null
+   * @return the new time-series, not null
+   * @throws RuntimeException if the array sizes differ or the instance cannot be created
+   */
+  TimeSeries<T, V> newInstance(T[] dateTimes, V[] values);
 
-  VALUE_TYPE[] valuesArray();
-
-  TimeSeries<DATE_TYPE, VALUE_TYPE> newInstance(DATE_TYPE[] dateTimes, VALUE_TYPE[] values);
-  
 }

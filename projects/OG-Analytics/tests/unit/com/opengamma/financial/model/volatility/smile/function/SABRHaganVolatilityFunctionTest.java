@@ -37,8 +37,10 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   @Test
+  /**
+   * Test if the Hagan volatility function implementation around ATM is numerically stable enough (the finite difference slope should be small enough).
+   */
   public void testATMSmoothness() {
-    // Test if the Hagan volatility function implementation around ATM is numerically stable enough (the finite difference slope should be small enough).
     double timeToExpiry = 1;
     boolean isCall = true;
     EuropeanVanillaOption option;
@@ -158,10 +160,38 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   @Test
-  public void testVolatilityAdjoint0() {
+  /**
+   * Test the adjoint version with a strike = 0.
+   */
+  public void testVolatilityAdjointVolatilty0() {
     // Price
     double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE_0).evaluate(DATA);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_STRIKE_0, DATA);
     assertEquals(volatility, volatilityAdjoint[0], 1E-6);
   }
+
+  @Test
+  /**
+   * Test the adjoint version with a correlation (rho) at 1.0 or very close.
+   */
+  public void volatilityAdjointCorrelation1() {
+    double rho1 = 1.0;
+    final SABRFormulaData data1 = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, rho1);
+    double volatility1 = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(data1);
+    double[] volatilityAdjoint1 = FUNCTION.getVolatilityAdjoint(CALL_STRIKE, data1);
+    assertEquals("SABR Hagan formula for rho=1", volatility1, volatilityAdjoint1[0], 1E-12);
+    double deltaR = 1E-7;
+    double rho1M = 1.0 - deltaR;
+    final SABRFormulaData data1M = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, rho1M);
+    double volatility1M = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(data1M);
+    double[] volatilityAdjoint1M = FUNCTION.getVolatilityAdjoint(CALL_STRIKE, data1M);
+    assertEquals("SABR Hagan formula for rho=1-eps", volatility1M, volatilityAdjoint1M[0], 1E-12);
+    assertEquals("SABR Hagan formula for rho=1-eps", volatilityAdjoint1[0], volatilityAdjoint1M[0], 1E-8);
+    //    assertEquals(volatilityAdjoint1[3], volatilityAdjoint1M[3], 1E-6);
+    //    assertEquals(volatilityAdjoint1[4], volatilityAdjoint1M[4], 1E-6);
+    //    assertEquals(volatilityAdjoint1[5], volatilityAdjoint1M[5], 1E-6);
+    //    double derivativeR_FD = (volatility1 - volatility1M) / deltaR;
+    //    assertEquals(derivativeR_FD, volatilityAdjoint1[4], 1E-6);
+  }
+
 }

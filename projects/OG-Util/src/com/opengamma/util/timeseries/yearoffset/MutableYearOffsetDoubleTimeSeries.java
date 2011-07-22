@@ -12,7 +12,6 @@ import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
@@ -27,11 +26,11 @@ public interface MutableYearOffsetDoubleTimeSeries extends YearOffsetDoubleTimeS
     }
 
     @Override
-    public TimeSeries<Double, Double> newInstance(final Double[] dateTimes, final Double[] values) {
+    public MutableYearOffsetDoubleTimeSeries newInstance(final Double[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract YearOffsetDoubleTimeSeries newInstanceFast(Double[] dateTimes, double[] values);
+    public abstract MutableYearOffsetDoubleTimeSeries newInstanceFast(Double[] dateTimes, double[] values);
 
   }
 
@@ -42,11 +41,11 @@ public interface MutableYearOffsetDoubleTimeSeries extends YearOffsetDoubleTimeS
     }
 
     @Override
-    public TimeSeries<Double, Double> newInstance(final Double[] dateTimes, final Double[] values) {
+    public MutableYearOffsetDoubleTimeSeries newInstance(final Double[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract YearOffsetDoubleTimeSeries newInstanceFast(Double[] dateTimes, double[] values);
+    public abstract MutableYearOffsetDoubleTimeSeries newInstanceFast(Double[] dateTimes, double[] values);
     
   }
 }

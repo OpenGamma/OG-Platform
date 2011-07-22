@@ -154,10 +154,15 @@ public class InMemoryRegionMaster implements RegionMaster {
   @Override
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Region not found: " + uniqueId);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public RegionDocument correct(final RegionDocument document) {
+    return update(document);
   }
 
   //-------------------------------------------------------------------------
@@ -173,11 +178,6 @@ public class InMemoryRegionMaster implements RegionMaster {
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  public RegionDocument correct(final RegionDocument document) {
-    return update(document);
   }
 
 }

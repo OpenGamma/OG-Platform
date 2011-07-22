@@ -13,7 +13,6 @@ import com.opengamma.util.timeseries.AbstractMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
@@ -30,11 +29,11 @@ public interface MutableSQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries,
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public MutableSQLDateDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract SQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
+    public abstract MutableSQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 
   /** */
@@ -45,11 +44,11 @@ public interface MutableSQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries,
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public MutableSQLDateDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract SQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
+    public abstract MutableSQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
 
   }
 }

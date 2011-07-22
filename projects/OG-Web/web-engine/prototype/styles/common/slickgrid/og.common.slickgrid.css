@@ -41,7 +41,7 @@
 /* Highlight rows on hover */
 .slick-row:hover,
 .slick-row:hover .slick-cell.og-link {
-    background-color: #d7e7f2;
+    background-color: #d7e7f2!important;
 }
 
 /* Fix vertical alignment */
@@ -95,8 +95,22 @@
   right: 1px;
 }
 
-.ie8 .slick-header:before {
-  background: transparent;
+ie8.slick-header:before {
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-bottomleft: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  background: #fff;
+  bottom: 50%;
+  content: '';
+  left: 1px;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+  position: absolute;
+  top: 1px;
+  right: 1px;
 }
 
 .slick-resizable-handle {
@@ -131,5 +145,4 @@
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
   border: none;
-
 }
