@@ -439,6 +439,31 @@ public class DateUtil {
     ArgumentChecker.notNull(date, "date");
     return YYYYMMDD_LOCAL_DATE.parse(date, LocalDate.rule());
   }
+  
+  /**
+   * Constructs a LocalDate from a <code>java.util.Date</code>
+   * using exactly the same field values.
+   * <p>
+   * Each field is queried from the Date and assigned to the LocalDate.
+   * This is useful if you have been using the Date as a local date,
+   * ignoring the zone.
+   *
+   * @param date  the Date to extract fields from
+   * @return the created LocalDate
+   * @throws IllegalArgumentException if the calendar is null
+   * @throws IllegalArgumentException if the date is invalid for the ISO chronology
+   */
+  @SuppressWarnings("deprecation")
+  public static LocalDate fromDateFields(java.util.Date date) {
+    if (date == null) {
+      throw new IllegalArgumentException("The date must not be null");
+    }
+    return LocalDate.of(
+        date.getYear() + 1900,
+        date.getMonth() + 1,
+        date.getDate()
+    );
+  }
 
   //-------------------------------------------------------------------------
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.

@@ -21,7 +21,7 @@ $.register_module({
                 module: 'og.views.forms.view-definition-resolution-rule-transform-fields',
                 extras: {
                     id: id,
-                    class_value: data[0]
+                    class_value: (data && data[0]) || ''
                 },
                 processor: function (data) {
                     if (!$('#' + id).length) return;
