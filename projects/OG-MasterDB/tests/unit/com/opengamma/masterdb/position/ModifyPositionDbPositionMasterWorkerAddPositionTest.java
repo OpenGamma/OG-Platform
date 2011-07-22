@@ -252,7 +252,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
       assertTrue(positionUid.isVersioned());
       assertTrue(Long.parseLong(positionUid.getValue()) >= 1000);
       assertEquals("0", positionUid.getVersion());
-      assertEquals(positionUid, testTrade.getPositionId());
+      assertEquals(positionUid, testTrade.getParentPositionId());
     }
   }
 

@@ -209,8 +209,13 @@ $.register_module({
                     render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios;
                         if (!!json.portfolios[0]) {
-                            display_columns = [{id:"name", name:"Name", field:"name", width: 300, formatter: format}],
-                            data_columns = [{id:"id", name:"Id", field:"id", width: 100, formatter: format}];
+                            display_columns = [{
+                                id:"name", name:"Name", field:"name", cssClass: 'og-link',
+                                width: 300, formatter: format
+                            }],
+                            data_columns = [{
+                                id:"id", name:"Id", field:"id", width: 100, formatter: format
+                            }];
                         }
                         if (!json.portfolios[0]) {
                             display_columns = [{id:"name", name:"Name", field:"name", width: 300}],
@@ -218,13 +223,19 @@ $.register_module({
                         }
                         slick = new Slick.Grid(selector, json.portfolios, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
+                        slick.onClick.subscribe(function (e, dd) {
+                            var rule = module.rules.load_portfolios,
+                                node = json.portfolios[dd.row].id,
+                                href = routes.hash(rule, {id: routes.current().args.id, node: node});
+                            routes.go(href);
+                        });
                         resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     },
                     render_position_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
                         if (!!json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300, formatter: format},
+                                {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link', formatter: format},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80}
                             ],
                             data_columns = [
@@ -240,6 +251,12 @@ $.register_module({
                         }
                         slick = new Slick.Grid(selector, json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
+                        slick.onClick.subscribe(function (e, dd) {
+                            var rule = og.views.positions.rules['load_positions'],
+                                node = json.positions[dd.row].id,
+                                href = routes.hash(rule, {id: node});
+                            routes.go(href);
+                        });
                         resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     };
                 api.rest.portfolios.get({

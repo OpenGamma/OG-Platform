@@ -467,7 +467,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       // set the trade uniqueId
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
       UniqueIdentifiables.setInto(trade, tradeUid);
-      trade.setPositionId(positionUid);
+      trade.setParentPositionId(positionUid);
       for (Identifier id : trade.getSecurityKey()) {
         final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
             .addValue("trade_id", tradeId)
@@ -813,7 +813,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         _trade.setPremiumTime(OffsetTime.of(premiumTime, ZoneOffset.ofTotalSeconds(premiumZoneOffset)));
       }
 
-      _trade.setPositionId(_position.getUniqueId());
+      _trade.setParentPositionId(_position.getUniqueId());
       _position.getTrades().add(_trade);
     }
   }

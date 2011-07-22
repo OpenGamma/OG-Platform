@@ -189,6 +189,7 @@
   <bundle id="views.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
     <fragment>/scripts/og/views/forms/og.views.forms.dropdown.js</fragment>
+    <fragment>/scripts/og/views/forms/og.views.forms.ruletransform.js</fragment>
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
