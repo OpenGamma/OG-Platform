@@ -35,6 +35,9 @@
   <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
+  <bean id="selfContainedSwapPortfolioLoader" class="com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
   <bean id="demoViewsPopulater" class="com.opengamma.examples.loader.DemoViewsPopulater">
     <property name="loaderContext" ref="loaderContext" />
   </bean>

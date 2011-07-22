@@ -71,9 +71,14 @@ public class DemoDatabasePopulater {
       appContext.start();
       
       try {
-        SelfContainedEquityPortfolioAndSecurityLoader loader = (SelfContainedEquityPortfolioAndSecurityLoader) appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader");
+        SelfContainedEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader", SelfContainedEquityPortfolioAndSecurityLoader.class);
         System.out.println("Creating example equity portfolio");
-        loader.createExamplePortfolio();
+        equityLoader.createExamplePortfolio();
+        System.out.println("Finished");
+        
+        SelfContainedSwapPortfolioLoader swapLoader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
+        System.out.println("Creating example swap portfolio");
+        swapLoader.createExamplePortfolio();
         System.out.println("Finished");
         
         DemoViewsPopulater populator = (DemoViewsPopulater) appContext.getBean("demoViewsPopulater");
