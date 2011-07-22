@@ -130,6 +130,7 @@ $.register_module({
                                         if (!acc.rem_idx) acc.idx = idx;
                                         return acc;
                                     }, {rem_idx: rem_idx + 1, idx: null}).idx;
+                                master[SETS][set_idx] = undefined;
                                 if (!is_last) {
                                     $next_tab = $('#' + form.id + ' .og-js-colset-tab:eq(' + next + ')');
                                     $next_set = $('#' + form.id + ' .og-js-colset-holder:eq(' + next + ')');
@@ -140,7 +141,6 @@ $.register_module({
                                 if (is_last || !is_active) return false;
                                 $next_tab.addClass('og-active');
                                 $next_set.show();
-                                master[SETS][set_idx] = undefined;
                                 return false;
                             }
                         }]
@@ -204,10 +204,10 @@ $.register_module({
                                                 $('#' + set_id + ' .og-js-empty-cols').show();
                                             }
                                             $col.remove(), $tab.remove();
+                                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = undefined;
                                             if (is_last || !is_active) return false;
                                             $next_tab.addClass('og-active');
                                             $next_col.show();
-                                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = undefined;
                                             return false;
                                         }
                                     },
