@@ -67,7 +67,7 @@ public class MapDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries
   }
 
   @Override
-  public DateTimeDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
+  public MapDateTimeDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
     return new MapDateTimeDoubleTimeSeries(((DateEpochMillisConverter) getConverter()).getTimeZone(), dateTimes, values);
   }
 }

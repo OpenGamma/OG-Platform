@@ -172,8 +172,6 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
 
   FastTimeSeries<T> abs();
 
-  double[] valuesArrayFast();
-
   double maxValue();
 
   double minValue();

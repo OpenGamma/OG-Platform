@@ -6,7 +6,6 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.jms.ConnectionFactory;
 import javax.time.Instant;
@@ -80,7 +79,8 @@ public class DataViewClientResource {
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
   private final JmsResultPublisher _resultPublisher;
-  private final AtomicLong _lastAccessed = new AtomicLong();
+
+  private volatile Instant _lastAccessed = Instant.now();
   
   public DataViewClientResource(ViewClient viewClient,
       DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
@@ -95,7 +95,7 @@ public class DataViewClientResource {
   }
   
   /*package*/ Instant getLastAccessed() {
-    return Instant.ofEpochMillis(_lastAccessed.get());
+    return _lastAccessed;
   }
   
   //-------------------------------------------------------------------------
@@ -339,7 +339,7 @@ public class DataViewClientResource {
   
   //-------------------------------------------------------------------------
   private void updateLastAccessed() {
-    _lastAccessed.set(System.currentTimeMillis());
+    _lastAccessed = Instant.now();
   }
   
 }

@@ -41,7 +41,7 @@ public abstract class AbstractSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
-  /** 
+  /**
    * The version-correction locator to search at, not null.
    */
   @PropertyDefinition(set = "manual")

@@ -636,6 +636,85 @@ CREATE TABLE sec_raw (
     constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
 );
 
+
+CREATE TABLE sec_fx (
+    id bigint not null,
+    security_id bigint not null,
+    pay_currency_id bigint not null,
+    receive_currency_id bigint not null,
+    region_scheme varchar(255) not null,
+    region_identifier varchar(255) not null,
+    pay_amount double precision not null,
+    receive_amount double precision not null,
+    primary key (id),
+    constraint sec_fk_fx2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxpay2currency foreign key (pay_currency_id) references sec_currency (id),
+    constraint sec_fk_fxreceive2currency foreign key (receive_currency_id) references sec_currency (id)
+);
+
+CREATE TABLE sec_fxforward (
+  id bigint not null,
+  security_id bigint not null,
+  region_scheme varchar(255) not null,
+  region_identifier varchar(255) not null,
+  underlying_scheme varchar(255) not null,
+  underlying_identifier varchar(255) not null,
+  forward_date timestamp not null,
+  forward_zone varchar(50) not null,
+  primary key (id),
+  constraint sec_fk_fxforward2sec foreign key (security_id) references sec_security (id)
+);
+
+CREATE TABLE sec_capfloor (
+  id bigint not null,
+  security_id bigint not null,
+  currency_id bigint not null,
+  daycountconvention_id bigint not null,
+  frequency_id bigint not null,
+  is_cap boolean not null,
+  is_ibor boolean not null,
+  is_payer boolean not null,
+  maturity_date timestamp not null,
+  maturity_zone varchar(50) not null,
+  notional double precision not null,
+  start_date timestamp not null,
+  start_zone varchar(50) not null,
+  strike double precision not null,
+  underlying_scheme varchar(255) not null,
+  underlying_identifier varchar(255) not null,
+  
+  primary key (id),
+  constraint sec_fk_capfloor2sec foreign key (security_id) references sec_security (id),
+  constraint sec_fk_capfloor2currency foreign key (currency_id) references sec_currency(id),
+  constraint sec_fk_capfloor2daycount foreign key (daycountconvention_id) references sec_daycount (id),
+  constraint sec_fk_capfloor2frequency foreign key (frequency_id) references sec_frequency (id)
+);
+
+CREATE TABLE  sec_capfloorcmsspread (
+  id bigint not null,
+  security_id bigint not null,
+  currency_id bigint not null,
+  daycountconvention_id bigint not null,
+  frequency_id bigint not null,
+  is_cap boolean not null,
+  is_payer boolean not null,
+  long_scheme varchar(255) not null,
+  long_identifier varchar(255) not null,
+  maturity_date timestamp not null,
+  maturity_zone varchar(50) not null,
+  notional double precision not null,
+  short_scheme varchar(255) not null,
+  short_identifier varchar(255) not null,
+  start_date timestamp not null,
+  start_zone varchar(50) not null,
+  strike double precision not null,
+  
+  primary key (id),
+  constraint sec_fk_capfloorcmsspread2sec foreign key (security_id) references sec_security (id),
+  constraint sec_fk_capfloorcmsspread2currency foreign key (currency_id) references sec_currency(id),
+  constraint sec_fk_capfloorcmsspread2daycount foreign key (daycountconvention_id) references sec_daycount (id),
+  constraint sec_fk_capfloorcmsspread2frequency foreign key (frequency_id) references sec_frequency (id)
+);
 -- create-db-portfolio.sql: Portfolio Master
 
 -- design has one document
@@ -1252,169 +1331,130 @@ rsk_run.run_time_id = rsk_observation_datetime.id and
 rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
 rsk_failure_reason.rsk_failure_id = rsk_failure.id and
 rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
-DROP TABLE IF EXISTS tss_identifier CASCADE;
-DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
-DROP TABLE IF EXISTS tss_data_point CASCADE;
-DROP TABLE IF EXISTS tss_data_point_delta CASCADE;
-DROP TABLE IF EXISTS tss_meta_data CASCADE;
-DROP TABLE IF EXISTS tss_identifier_bundle CASCADE;
-DROP TABLE IF EXISTS tss_data_source CASCADE;
-DROP TABLE IF EXISTS tss_data_provider CASCADE;
-DROP TABLE IF EXISTS tss_data_field CASCADE;
-DROP TABLE IF EXISTS tss_observation_time CASCADE;
+-- create-db-historicaltimeseries.sql: Historical time-series Master
 
-DROP SEQUENCE IF EXISTS tss_data_field_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_data_provider_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_data_source_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identification_scheme_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identifier_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_observation_time_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identifier_bundle_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_meta_data_id_seq CASCADE;
+-- design has one main document with data points handled separately
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
 
+-- Data point versioning is slightly different.
+-- Data points are inserted on a daily basis with a single version instant.
+-- There may be a delay between the value becoming available and the insertion
+-- which the version instant models, ensuring the exact state previously viewed.
+-- A new version of a point may not be created (the insertion of the point
+-- is the versioned item, and treated as being at the document level).
+-- A data point may however be corrected. A single instant recorded for this.
+-- The actual data point is the latest matching these criteria:
+--  hts_point.ver_instant <= search_version_instant &&
+--  hts_point.corr_instant <= search_correction_instant
 
-CREATE SEQUENCE tss_data_field_id_seq START 1;
-CREATE SEQUENCE tss_data_provider_id_seq START 1;
-CREATE SEQUENCE tss_data_source_id_seq START 1;
-CREATE SEQUENCE tss_identification_scheme_id_seq START 1;
-CREATE SEQUENCE tss_identifier_id_seq START 1;
-CREATE SEQUENCE tss_observation_time_id_seq START 1;
-CREATE SEQUENCE tss_identifier_bundle_id_seq START 1;
-CREATE SEQUENCE tss_meta_data_id_seq START 1;
+CREATE SEQUENCE hts_master_seq
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE hts_idkey_seq
+    start with 1000 increment by 1 no cycle;
+CREATE SEQUENCE hts_dimension_seq
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+-- "as bigint" required by Derby, not accepted by Postgresql
 
-CREATE TABLE tss_data_source (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_source_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_name (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
 );
-ALTER SEQUENCE tss_data_source_id_seq OWNED BY tss_data_source.id;
-CREATE UNIQUE INDEX idx_data_source_name on tss_data_source(name);
+CREATE UNIQUE INDEX ix_hts_name_name ON hts_name(name);
 
-CREATE TABLE tss_data_provider (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_provider_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_data_field (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
 );
-ALTER SEQUENCE tss_data_provider_id_seq OWNED BY tss_data_provider.id;
-CREATE UNIQUE INDEX idx_data_provider_name on tss_data_provider(name);
+CREATE UNIQUE INDEX ix_hts_data_field_name ON hts_data_field(name);
 
-CREATE TABLE tss_data_field (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_field_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_data_source (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
 );
-ALTER SEQUENCE tss_data_field_id_seq OWNED BY tss_data_field.id;
-CREATE UNIQUE INDEX idx_data_field_name on tss_data_field(name);
+CREATE UNIQUE INDEX ix_hts_data_source_name ON hts_data_source(name);
 
-CREATE TABLE tss_observation_time (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_observation_time_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_data_provider (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
 );
-ALTER SEQUENCE tss_observation_time_id_seq OWNED BY tss_observation_time.id;
-CREATE UNIQUE INDEX idx_observation_time_name on tss_observation_time(name);
+CREATE UNIQUE INDEX ix_hts_data_provider_name ON hts_data_provider(name);
 
-CREATE TABLE tss_identification_scheme (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identification_scheme_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_observation_time (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL,
+    PRIMARY KEY (id)
 );
-ALTER SEQUENCE tss_identification_scheme_id_seq OWNED BY tss_identification_scheme.id;
-CREATE UNIQUE INDEX idx_identification_scheme_name on tss_identification_scheme(name);
+CREATE UNIQUE INDEX ix_hts_observation_time_name ON hts_observation_time(name);
 
-CREATE TABLE tss_identifier_bundle (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identifier_bundle_id_seq'),
-	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255)
+CREATE TABLE hts_document (
+    id bigint NOT NULL,
+    oid bigint NOT NULL,
+    ver_from_instant timestamp NOT NULL,
+    ver_to_instant timestamp NOT NULL,
+    corr_from_instant timestamp NOT NULL,
+    corr_to_instant timestamp NOT NULL,
+    name_id bigint NOT NULL,
+    data_field_id bigint NOT NULL,
+    data_source_id bigint NOT NULL,
+    data_provider_id bigint NOT NULL,
+    observation_time_id bigint NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT hts_fk_doc2doc FOREIGN KEY (oid) REFERENCES hts_document (id),
+    CONSTRAINT hts_chk_doc_ver_order CHECK (ver_from_instant <= ver_to_instant),
+    CONSTRAINT hts_chk_doc_corr_order CHECK (corr_from_instant <= corr_to_instant),
+    CONSTRAINT hts_fk_doc2name FOREIGN KEY (name_id) REFERENCES hts_name (id),
+    CONSTRAINT hts_fk_doc2data_field FOREIGN KEY (data_field_id) REFERENCES hts_data_field (id),
+    CONSTRAINT hts_fk_doc2data_source FOREIGN KEY (data_source_id) REFERENCES hts_data_source (id),
+    CONSTRAINT hts_fk_doc2data_provider FOREIGN KEY (data_provider_id) REFERENCES hts_data_provider (id),
+    CONSTRAINT hts_fk_doc2observation_time FOREIGN KEY (observation_time_id) REFERENCES hts_observation_time (id)
 );
-ALTER SEQUENCE tss_identifier_bundle_id_seq OWNED BY tss_identifier_bundle.id;
-CREATE UNIQUE INDEX idx_identifier_bundle_name on tss_identifier_bundle(name);
+CREATE INDEX ix_hts_hts_oid ON hts_document(oid);
+CREATE INDEX ix_hts_hts_ver_from_instant ON hts_document(ver_from_instant);
+CREATE INDEX ix_hts_hts_ver_to_instant ON hts_document(ver_to_instant);
+CREATE INDEX ix_hts_hts_corr_from_instant ON hts_document(corr_from_instant);
+CREATE INDEX ix_hts_hts_corr_to_instant ON hts_document(corr_to_instant);
+CREATE INDEX ix_hts_hts_name_id ON hts_document(name_id);
+CREATE INDEX ix_hts_hts_data_field ON hts_document(data_field_id);
+CREATE INDEX ix_hts_hts_data_source ON hts_document(data_source_id);
+CREATE INDEX ix_hts_hts_data_provider ON hts_document(data_provider_id);
+CREATE INDEX ix_hts_hts_observation_time ON hts_document(observation_time_id);
 
-CREATE TABLE tss_meta_data (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_meta_data_id_seq'),
-	active INTEGER NOT NULL
-	  CONSTRAINT active_constraint CHECK (active IN (0,1)),
-	bundle_id BIGINT NOT NULL
-	  constraint fk_meta_bundle  REFERENCES tss_identifier_bundle(id),
-	data_source_id BIGINT NOT NULL
-	  constraint fk_meta_data_source  REFERENCES tss_data_source(id),
-	data_provider_id BIGINT NOT NULL
-	  constraint fk_meta_data_provider  REFERENCES tss_data_provider(id),
-	data_field_id BIGINT NOT NULL
-	  constraint fk_meta_data_field  REFERENCES tss_data_field(id),
-	observation_time_id BIGINT NOT NULL
-	  constraint fk_meta_observation_time  REFERENCES tss_observation_time(id)
+CREATE TABLE hts_idkey (
+    id bigint NOT NULL,
+    key_scheme varchar(255) NOT NULL,
+    key_value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT hts_chk_idkey UNIQUE (key_scheme, key_value)
 );
-ALTER SEQUENCE tss_meta_data_id_seq OWNED BY tss_meta_data.id;
-CREATE INDEX idx_meta_data ON tss_meta_data (active, data_source_id, data_provider_id, data_field_id, observation_time_id);
+CREATE INDEX ix_hts_key_scheme ON hts_idkey(key_scheme);
+CREATE INDEX ix_hts_key_value ON hts_idkey(key_value);
 
-CREATE TABLE tss_data_point (
-	meta_data_id BIGINT NOT NULL
-	  constraint fk_dp_meta_data  REFERENCES tss_meta_data (id),
-	ts_date date NOT NULL,
-	value DOUBLE PRECISION NOT NULL,
-	PRIMARY KEY (meta_data_id, ts_date)
+CREATE TABLE hts_doc2idkey (
+    doc_id bigint NOT NULL,
+    idkey_id bigint NOT NULL,
+    valid_from date NOT NULL,
+    valid_to date NOT NULL,
+    PRIMARY KEY (doc_id, idkey_id, valid_from, valid_to),
+    CONSTRAINT hts_fk_htsidkey2doc FOREIGN KEY (doc_id) REFERENCES hts_document (id),
+    CONSTRAINT hts_fk_htsidkey2idkey FOREIGN KEY (idkey_id) REFERENCES hts_idkey (id)
 );
+-- hts_doc2idkey is fully dependent of hts_document
 
-CREATE TABLE tss_data_point_delta (
-	meta_data_id BIGINT NOT NULL
-	  constraint fk_dp_delta_meta_data  REFERENCES tss_meta_data (id),
-	time_stamp TIMESTAMP NOT NULL,
-	ts_date date NOT NULL,
-	old_value DOUBLE PRECISION NOT NULL,
-	operation char(1) NOT NULL
-	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q'))
+CREATE TABLE hts_point (
+    doc_oid bigint NOT NULL,
+    point_date date NOT NULL,
+    ver_instant timestamp NOT NULL,
+    corr_instant timestamp NOT NULL,
+    point_value double precision,
+    PRIMARY KEY (doc_oid, point_date, ver_instant, corr_instant)
 );
-
-CREATE TABLE tss_intraday_data_point (
-	meta_data_id BIGINT NOT NULL
-	  constraint fk_i_dp_meta_data  REFERENCES tss_meta_data (id),
-	ts_date TIMESTAMP NOT NULL,
-	value DOUBLE PRECISION NOT NULL,
-	PRIMARY KEY (meta_data_id, ts_date)
-);
-
-CREATE TABLE tss_intraday_data_point_delta (
-	meta_data_id BIGINT NOT NULL
-	  constraint fk_i_dp_delta_meta_data  REFERENCES tss_meta_data (id),
-	time_stamp TIMESTAMP NOT NULL,
-	ts_date TIMESTAMP NOT NULL,
-	old_value DOUBLE PRECISION NOT NULL,
-	operation char(1) NOT NULL
-	 CONSTRAINT operation_constraint_i CHECK ( operation IN ('I', 'U', 'D', 'Q'))
-);
-
-CREATE TABLE tss_identifier (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identifier_id_seq'),
-	bundle_id BIGINT NOT NULL
-	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
-	identification_scheme_id BIGINT NOT NULL
-	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
-	identifier_value VARCHAR(255) NOT NULL,
-	valid_from date,
-	valid_to date,
-	constraint rsk_chk_uq_identifier unique (identification_scheme_id, identifier_value, valid_from, valid_to)
-);
-
-ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
-CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
-CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
+-- null value used to indicate point was deleted
 
 -- create-db-marketdatasnapshot.sql
 

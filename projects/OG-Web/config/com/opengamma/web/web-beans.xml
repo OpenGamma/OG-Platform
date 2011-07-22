@@ -27,7 +27,7 @@
   </bean>
 
   <!-- Historical data source service -->
-  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceService">
+  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>
@@ -339,9 +339,9 @@
   </bean>
   
   <!-- Time series RESTful service -->
-  <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaldata.WebAllHistoricalTimeSeriesResource" scope="request">
-    <constructor-arg ref="timeseriesMaster" />
-    <constructor-arg ref="timeseriesLoader"/>
+  <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg ref="htsLoader"/>
   </bean>
   
   <!-- Batch RESTful service -->
