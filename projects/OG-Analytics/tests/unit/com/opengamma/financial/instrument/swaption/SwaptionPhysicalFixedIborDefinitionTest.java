@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.instrument.swaption;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -22,12 +27,14 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
+/**
+ * Tests related to the construction of European physical delivery swaptions and its conversion to derivatives.
+ */
 public class SwaptionPhysicalFixedIborDefinitionTest {
-
   // Swaption: description
   private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2011, 3, 28);
   private static final boolean IS_LONG = true;

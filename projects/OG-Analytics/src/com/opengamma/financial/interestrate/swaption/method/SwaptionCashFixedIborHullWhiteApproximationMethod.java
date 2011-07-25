@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -133,7 +133,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * Present value sensitivity to Hull-White volatility parameters. The present value is computed using a third order approximation.
    * @param swaption The cash-settled swaption.
    * @param hwData The Hull-White parameters and the curves.
-   * @return The present value sensitivity.
+   * @return The present value HullWhite parameters sensitivity.
    */
   public double[] presentValueHullWhiteSensitivity(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     // Forward sweep
@@ -274,6 +274,12 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     return pvsensi;
   }
 
+  /**
+   * Present value curve sensitivity. The present value is computed using a third order approximation.
+   * @param swaption The cash-settled swaption.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value curve sensitivity.
+   */
   public PresentValueSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     // Forward sweep
     String fundingCurveName = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName();
@@ -281,14 +287,11 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
     double[] alphaFixed = new double[nbFixed];
     double[] dfFixed = new double[nbFixed];
-    //    double[] testdfFixed = new double[nbFixed];
     double[] discountedCashFlowFixed = new double[nbFixed];
     double[] testdiscountedCashFlowFixed = new double[nbFixed];
-    //    testdfFixed[4] += 1E-6;
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       alphaFixed[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
       dfFixed[loopcf] = hwData.getCurve(fundingCurveName).getDiscountFactor(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime());
-      //      testdfFixed[loopcf] += dfFixed[loopcf];
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction()
           * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional();
       testdiscountedCashFlowFixed[loopcf] = discountedCashFlowFixed[loopcf];
@@ -316,13 +319,9 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     final int nbFixedPaymentYear = (int) Math.round(1.0 / swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
     double[] derivativesRate = new double[3];
     double[] derivativesAnnuity = new double[3];
-    double[] testderivativesRate = new double[3];
-    double[] testderivativesAnnuity = new double[3];
     double x0 = 0.0; //    (swaption.getUnderlyingSwap().getFixedLeg().isPayer()) ? Math.max(kappa, 0) : Math.min(kappa, 0);
     double rate = swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, derivativesRate);
-    double testrate = swapRate(x0, testdiscountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, testderivativesRate);
     double annuity = annuityCash(rate, nbFixedPaymentYear, swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments(), derivativesAnnuity);
-    double testannuity = annuityCash(testrate, nbFixedPaymentYear, swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments(), testderivativesAnnuity);
     double[] u = new double[4];
     u[0] = annuity * (swaption.getStrike() - rate);
     u[1] = (swaption.getStrike() - rate) * derivativesAnnuity[0] * derivativesRate[0] - derivativesRate[0] * annuity;
@@ -332,36 +331,19 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
         - (2 * derivativesAnnuity[0] * derivativesRate[0] * derivativesRate[1])
         + ((swaption.getStrike() - rate) * (derivativesAnnuity[0] * derivativesRate[2] + 3 * derivativesAnnuity[1] * derivativesRate[0] * derivativesRate[1] + derivativesAnnuity[2]
             * derivativesRate[0] * derivativesRate[0] * derivativesRate[0])) - (rate * derivativesRate[2]);
-
-    double[] testu = new double[4];
-    testu[0] = testannuity * (swaption.getStrike() - testrate);
-    testu[1] = (swaption.getStrike() - testrate) * testderivativesAnnuity[0] * testderivativesRate[0] - testderivativesRate[0] * testannuity;
-    testu[2] = (swaption.getStrike() - testrate) * (testderivativesAnnuity[0] * testderivativesRate[1] + testderivativesAnnuity[1] * testderivativesRate[0] * testderivativesRate[0]) - 2
-        * testderivativesAnnuity[0] * testderivativesRate[0] * testderivativesRate[0] - testannuity * testderivativesRate[1];
-    testu[3] = (-3 * testderivativesRate[0] * (testderivativesAnnuity[0] * testderivativesRate[1] + testderivativesAnnuity[1] * testderivativesRate[0] * testderivativesRate[0]))
-        - (2 * testderivativesAnnuity[0] * testderivativesRate[0] * testderivativesRate[1])
-        + ((swaption.getStrike() - testrate) * (testderivativesAnnuity[0] * testderivativesRate[2] + 3 * testderivativesAnnuity[1] * testderivativesRate[0] * testderivativesRate[1] + testderivativesAnnuity[2]
-            * testderivativesRate[0] * testderivativesRate[0] * testderivativesRate[0])) - (testrate * testderivativesRate[2]);
-
     double kappatilde = kappa + alphaIbor[0];
     double alpha0tilde = alphaIbor[0] + x0;
     double ncdf;
     double npdf = NORMAL.getPDF(kappatilde);
     double pv;
-    double testpv;
     if (!swaption.getUnderlyingSwap().getFixedLeg().isPayer()) {
       ncdf = NORMAL.getCDF(kappatilde);
       pv = (u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * ncdf
-          + (-u[1] - u[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + u[3] * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0) * npdf;
-      testpv = (u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * ncdf
           + (-u[1] - u[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + u[3] * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0) * npdf;
     } else {
       ncdf = NORMAL.getCDF(-kappatilde);
       pv = -(u[0] - u[1] * alpha0tilde + u[2] * (1 + alpha[0] * alpha[0]) / 2.0 - u[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * ncdf
           + (-u[1] - u[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + u[3] * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0) * npdf;
-      testpv = -(testu[0] - testu[1] * alpha0tilde + testu[2] * (1 + alpha[0] * alpha[0]) / 2.0 - testu[3] * (alpha0tilde * alpha0tilde * alpha0tilde + 3.0 * alpha0tilde) / 6.0) * ncdf
-          + (-testu[1] - testu[2] * (-2.0 * alpha0tilde + kappatilde) / 2.0 + testu[3] * (-3 * alpha0tilde * alpha0tilde + 3.0 * kappatilde * alpha0tilde - kappatilde * kappatilde - 2.0) / 6.0)
-          * npdf;
     }
     final double notional = Math.abs(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getNotional());
     // Backward sweep
@@ -412,14 +394,8 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     //    double kappaBar = 0.0;
     double[] discountedCashFlowFixedBar = new double[nbFixed];
     double[] discountedCashFlowIborBar = new double[cfeIbor.getNumberOfPayments()];
-    //    double rate1 = swapRateAdjointDiscountedCF(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, 0.0, new double[] {1.0, 0.0, 0.0}, derivativesRate,
-    //        discountedCashFlowFixedBar, discountedCashFlowIborBar);
-    //    double rate2 = swapRateAdjointDiscountedCF(x0, testdiscountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, 1.0, new double[3], derivativesRate, discountedCashFlowFixedBar,
-    //        discountedCashFlowIborBar);
-
     swapRateAdjointDiscountedCF(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, rateBar, derivativesRateBar, derivativesRate, discountedCashFlowFixedBar,
         discountedCashFlowIborBar);
-
     double[] dfFixedBar = new double[nbFixed];
     final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
@@ -430,7 +406,6 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
           * dfFixed[loopcf] * dfFixedBar[loopcf]);
       listDf.add(dfSensi);
     }
-
     double[] dfIborBar = new double[cfeIbor.getNumberOfPayments()];
     double[] cfeAmountIborBar = new double[cfeIbor.getNumberOfPayments()];
     dfIborBar[0] = pv * notional * (swaption.isLong() ? 1.0 : -1.0);
@@ -443,7 +418,6 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
     pvsDF.put(fundingCurveName, listDf);
     PresentValueSensitivity sensitivity = new PresentValueSensitivity(pvsDF);
-
     Map<Double, PresentValueSensitivity> cfeIborCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
       PresentValueSensitivity sensiCfe = cfeIborCurveSensi.get(cfeIbor.getNthPayment(loopcf).getPaymentTime());
@@ -451,7 +425,6 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
         sensitivity = sensitivity.add(sensiCfe.multiply(cfeAmountIborBar[loopcf]));
       }
     }
-
     return sensitivity;
   }
 

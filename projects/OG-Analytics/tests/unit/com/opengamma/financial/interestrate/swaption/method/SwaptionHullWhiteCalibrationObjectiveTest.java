@@ -28,8 +28,8 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -139,12 +139,12 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     // Performance note: calibration: 15-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 260 ms for 100 calibration with 5 swaptions.
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
    */
   public void cashWithPhysicalCalibrationHWParameters() {
-    final int nbTest = 10000;
+    final int nbTest = 100;
     long startTime, endTime;
     // Cash swaption
     SwaptionCashFixedIborDefinition swaptionCashDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE[0], SWAP_PAYER_DEFINITION[0], IS_LONG);
@@ -200,12 +200,12 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1180 ms for 10000 SABR risk.
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
    */
   public void cashWithPhysicalCalibrationCurve() {
-    final int nbTest = 10000;
+    final int nbTest = 100;
     long startTime, endTime;
     // Cash swaption
     SwaptionCashFixedIborDefinition swaptionCashDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE[0], SWAP_PAYER_DEFINITION[0], IS_LONG);

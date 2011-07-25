@@ -40,13 +40,13 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -54,8 +54,9 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -492,6 +493,16 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitCouponIborFixed(CouponIborFixed payment) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption) {
       return null;
     }
   };

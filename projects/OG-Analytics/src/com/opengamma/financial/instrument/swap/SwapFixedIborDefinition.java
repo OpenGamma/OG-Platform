@@ -93,6 +93,17 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return getFixedLeg().getCurrency();
   }
 
+  /**
+   * Creates a new swap containing the coupons with start accrual date strictly before the given date.
+   * @param trimDate The date.
+   * @return The trimmed swap.
+   */
+  public SwapFixedIborDefinition trimStart(final ZonedDateTime trimDate) {
+    AnnuityCouponFixedDefinition fixedLegTrimmed = getFixedLeg().trimStart(trimDate);
+    AnnuityCouponIborDefinition iborLegTrimmed = getIborLeg().trimStart(trimDate);
+    return new SwapFixedIborDefinition(fixedLegTrimmed, iborLegTrimmed);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public FixedCouponSwap<Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {

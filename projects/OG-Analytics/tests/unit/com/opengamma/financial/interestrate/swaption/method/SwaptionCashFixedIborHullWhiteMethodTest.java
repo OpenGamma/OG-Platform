@@ -33,7 +33,7 @@ import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -245,13 +245,13 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 10000;
+    final int nbTest = 1000;
     CurrencyAmount pvPayerLongExplicit = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongIntegration = CurrencyAmount.of(CUR, 0.0);
     startTime = System.currentTimeMillis();
@@ -275,35 +275,6 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " curve sensitivity swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
     // Performance note: HW curve sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 10000 swaptions.
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " cash swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
-    // Performance note: HW numerical integration: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1300 ms for 10000 swaptions.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvPayerLongExplicit = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " pv swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
-    // Performance note: HW price: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 330 ms for 10000 swaptions.
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      METHOD_HW_APPROXIMATION.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " HW sensitivity swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
-    // Performance note: HW sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 525 ms for 10000 swaptions.
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      METHOD_HW_APPROXIMATION.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " HW sensitivity swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
-    // Performance note: HW sensitivity: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 525 ms for 10000 swaptions.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongIntegration = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);

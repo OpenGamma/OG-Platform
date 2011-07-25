@@ -131,6 +131,21 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     return new AnnuityCouponIborDefinition(coupons);
   }
 
+  /**
+   * Creates a new annuity containing the coupons with start accrual date strictly before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityCouponIborDefinition trimStart(ZonedDateTime trimDate) {
+    List<CouponIborDefinition> list = new ArrayList<CouponIborDefinition>();
+    for (CouponIborDefinition payment : getPayments()) {
+      if (!payment.getAccrualStartDate().isBefore(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponIborDefinition(list.toArray(new CouponIborDefinition[0]));
+  }
+
   @Override
   public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
