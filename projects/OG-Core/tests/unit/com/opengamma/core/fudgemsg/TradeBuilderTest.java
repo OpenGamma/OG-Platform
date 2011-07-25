@@ -3,13 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.core.fudgemsg;
 
-import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
@@ -18,6 +19,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Test the {@link TradeBuilder} class.

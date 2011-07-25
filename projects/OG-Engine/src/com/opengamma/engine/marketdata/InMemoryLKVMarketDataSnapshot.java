@@ -5,12 +5,9 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
@@ -47,53 +44,9 @@ public class InMemoryLKVMarketDataSnapshot implements MarketDataSnapshot {
 
   @Override
   public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
-    if (valuesRequired != null && !valuesRequired.isEmpty()) {
-      final Set<ValueRequirement> unavailableRequirements = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
-      unavailableRequirements.addAll(valuesRequired);
-      final CountDownLatch awaitingValuesLatch = new CountDownLatch(1);
-      MarketDataListener listener = new MarketDataListener() {
-
-        @Override
-        public void subscriptionSucceeded(ValueRequirement requirement) {
-        }
-
-        @Override
-        public void subscriptionFailed(ValueRequirement requirement, String msg) {
-        }
-
-        @Override
-        public void subscriptionStopped(ValueRequirement requirement) {
-        }
-
-        @Override
-        public void valuesChanged(Collection<ValueRequirement> requirements) {
-          unavailableRequirements.removeAll(requirements);
-          if (unavailableRequirements.isEmpty()) {
-            awaitingValuesLatch.countDown();
-          }
-        }
-        
-      };
-      getProvider().addListener(listener);
-      try {
-        for (ValueRequirement requirement : valuesRequired) {
-          if (getProvider().isAvailable(requirement)) {
-            unavailableRequirements.remove(requirement);
-          }
-        }
-        if (!unavailableRequirements.isEmpty()) {
-          try {
-            awaitingValuesLatch.await(timeout, unit);
-          } catch (InterruptedException e) {
-            s_logger.warn("Interrupted while waiting for required values to become available", e);
-          }
-        }
-      } finally {
-        getProvider().removeListener(listener); 
-      }
-    }
     _snapshot = getProvider().doSnapshot();
     _snapshotTime = Instant.now();
+    s_logger.debug("Snapshotted at {}", _snapshotTime);
   }
 
   @Override
