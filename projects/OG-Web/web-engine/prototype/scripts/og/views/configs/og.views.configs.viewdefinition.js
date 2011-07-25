@@ -310,8 +310,7 @@ $.register_module({
                                 generator: function (handler) {
                                     var secu = col[SECU] || 'not set';
                                     handler('<li class="og-js-col-tab"><div class="og-delete og-js-rem-col"></div>' +
-                                        '<strong>Column ' + (col_idx + 1) + '</strong><br />' +
-                                        '(<span class="og-js-secu">' + secu + '</span>)</li>');
+                                        '<strong class="og-js-secu">' + secu + '</strong></li>');
                                 }
                             });
                         };
@@ -322,7 +321,7 @@ $.register_module({
                                         cons_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, CONS].join('.');
                                     return new form.Block({
                                         module: 'og.views.forms.view-definition-portfolio-requirement',
-                                        extras: {title: 'Portfolio Requirement ' + (req_idx + 1), name: sel_name},
+                                        extras: {title: 'Column ' + (req_idx + 1), name: sel_name},
                                         children: [
                                             new forms.Dropdown({
                                                 form: form, resource: 'valuerequirementnames', index: sel_name,
