@@ -46,6 +46,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-box-shadow-bottom.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-max-width.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-disabled.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-table.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search-panel.css</fragment>
@@ -77,6 +78,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-constraints.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>

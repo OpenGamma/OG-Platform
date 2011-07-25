@@ -149,6 +149,8 @@
   float: left;
   padding-right: 10px;
   width: 75%;
+  height: 500px;
+  overflow: auto;
 }
 
 .OG-form .og-column-sets .og-column > ul {
@@ -237,7 +239,15 @@
   margin-left: 2px;
 }
 
+.OG-form .og-column-sets .og-col-vals {
+  margin-top: -4px;
+}
 
+.OG-form .og-column-sets .og-col-vals .og-top-bar {
+  height: 4px;
+  background-color: #ecf5fa;
+  margin-right: -10px;
+}
 
 /*
  *
@@ -247,7 +257,7 @@
 .OG-form .og-column .og-col-content {
   border-top: 1px solid #ecf5fa;
   color: #999;
-  padding: 10px;
+  padding: 10px 0 10px 10px;
 }
 
 .OG-form .og-column .og-col-content li {

@@ -1,8 +1,218 @@
 <div class="OG-toolbar"></div>
 <header class="OG-header-generic">
-  <h1 data-og-editable="name">${name}</h1>
+  <h1>${name}</h1>
 </header>
 <div class="OG-details-container">
+<div class="og-details-content OG-config">
+  <div class="OG-c10 og-grid-last OG-max-width-xl OG-form">
+    <!--
+      -- Curve spesification builder
+      -->
+    <style>
+
+      .OG-form .og-csb {
+        min-width: 600px;
+      }
+
+      .OG-form .og-csb .og-strip  {
+        height: 23px;
+        padding-right: 30px;
+        cursor: default;
+        white-space: nowrap;
+      }
+
+      .OG-form .og-csb .og-strip div {
+        width: 11%;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        position: relative;
+        padding: 5px 4px 4px;
+      }
+
+      .OG-form .og-csb .og-strip div {
+        border: 1px solid transparent;
+        margin: -3px 0 0;
+      }
+
+      .OG-form .og-csb .og-input {
+        border: 1px solid transparent!important;
+      }
+
+      .OG-form .og-csb .og-awesome-list .og-strip:hover {
+        color: #487287;
+      }
+
+      .OG-form .og-csb .og-awesome-list .og-strip div:hover {
+        border: 1px solid #eff5fa;
+      }
+
+      .OG-form .og-csb .og-strip input {
+        width: 90%;
+        margin: -5px 0 0 0;
+      }
+
+      .OG-form .og-csb .og-awesome-list {
+        color: #999;
+        margin: 0 -10px;
+      }
+
+      .OG-form .og-csb .og-footer {
+        background-color: #f6fafc;
+        margin: 10px -10px -10px -10px;
+        padding: 5px 5px 10px 5px;
+        border-top: 1px solid #ededed;
+      }
+
+      .OG-form .og-csb .og-a-list-header {
+        padding: 0 35px 3px 5px;
+        margin: 0 -10px
+      }
+
+      .OG-form .og-csb .OG-link-add {
+        margin:  2px 0 0 14px;
+      }
+
+      .OG-form .og-csb .og-value:hover span {
+        background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+        background-position: 0 -46px;
+        width: 14px;
+        height: 13px;
+        position: absolute;
+        top: 50%;
+        margin-top: -6px;
+        right: 0;
+        background-color: #d7e7f2;
+        cursor: default;
+        border-left: 5px solid #d7e7f2;
+        border-right: 2px solid #d7e7f2;
+      }
+
+      .OG-form .og-csb .og-value:hover span:after {
+        background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+        content: '';
+        background-position: 0 -4px;
+        width: 4px;
+        height: 4px;
+        position: absolute;
+        bottom: -7px;
+        right: -3px;
+        display: block;
+      }
+
+      .OG-form .og-csb .og-configure {
+        background-color: #f6fafc;
+        color: #487287;
+      }
+
+      .OG-form .og-csb .og-configure span {
+        border-bottom: 1px solid #bed4e3;
+        cursor: pointer;
+      }
+
+      .OG-form .og-csb .og-configure span:hover {
+        border-bottom: 1px solid #487287;
+      }
+
+    </style>
+    <section class="OG-mod-0 og-grid-last og-csb">
+      <h3>Curve Spesification Builder</h3>
+      <div class="og-mod-content">
+        <div class="og-a-list-header og-strip">
+          <div>Tenor</div>
+          <div>Rate</div>
+          <div>Cash</div>
+          <div>Swap</div>
+          <div>Future</div>
+          <div>FRA</div>
+          <div>Tenor Swap</div>
+          <div>Basis Swap</div>
+        </div>
+        <!-- TODO: fix whitespace bug -->
+        <ul class="og-awesome-list">
+          <li>
+            <div class="og-del"></div>
+            <div class="og-strip">
+              <div style="float: left" class="og-input"><input type="text" /></div>
+              <div style="float: left" class="og-value">EU0001M Index<span></span></div>
+              <div style="float: left" class="og-value">EUDR2Z Curncy<span></span></div>
+              <div style="float: left" class="og-configure"><span>configure</span></div>
+              <div style="float: left" class="og-value">EU0001M Index<span></span></div>
+              <div style="float: left" class="og-value">EUDR2Z Curncy<span></span></div>
+              <div style="float: left" class="og-configure"><span>configure</span></div>
+              <div class="og-value">EU0001M Index<span></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="og-del"></div>
+            <div class="og-strip">
+              <div class="og-input"><input type="text" /></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="og-del"></div>
+            <div class="og-strip">
+              <div class="og-input"><input type="text" /></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+            </div>
+          </li>
+          <li>
+            <div class="og-del"></div>
+            <div class="og-strip">
+              <div class="og-input"><input type="text" /></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-configure"><span>configure</span></div>
+              <div class="og-configure"><span>configure</span></div>
+            </div>
+          </li>
+          <li>
+            <div class="og-del"></div>
+            <div class="og-strip">
+              <div class="og-input"><input type="text" /></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value">EUDR1T Curncy<span></span></div>
+              <div class="og-value">EUSW10V3 Currency<span></span></div>
+              <div class="og-value">EU0002M Index<span></span></div>
+            </div>
+          </li>
+        </ul>
+        <div class="og-footer">
+          <span class="OG-link-add">add row</span>
+        </div>
+      </div>
+    </section>
+    <section class="OG-mod-0">
+      <button type="submit">Save</button>
+    </section>
+  </div>
+</div>
+</div>
+
+
+
+
+<div class="OG-details-container" style="display: none">
 <div class="og-details-content OG-config">
   <div class="OG-c10 og-grid-last OG-max-width-l">
     <div class="OG-field-box"></div>

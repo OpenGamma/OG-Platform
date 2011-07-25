@@ -338,7 +338,7 @@ $.register_module({
                                     });
                                 },
                                 reqs_block = new form.Block({
-                                    wrap: '<ul class="og-js-port-req og-portfolio-requirements">{{html html}}</ul>'
+                                    wrap: '<ul class="og-js-port-req">{{html html}}</ul>'
                                 });
                             if (col[REQS]) Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
                             return new form.Block({
