@@ -55,22 +55,14 @@ $.register_module({
                         });
                     }
                 }),
-                save_new_resource = function (data) {
-                    if (orig_name === data.name) return window.alert('Please select a new name.');
+                save_resource = function (data, as_new) {
+                    if (as_new && (orig_name === data.name)) return window.alert('Please select a new name.');
                     api.configs.put({
+                        id: as_new ? undefined : resource_id,
                         name: data.name,
                         json: JSON.stringify(data),
                         loading: loading,
-                        handler: new_handler
-                    });
-                },
-                save_resource = function (data) {
-                    api.configs.put({
-                        id: resource_id,
-                        name: data.name,
-                        json: JSON.stringify(data),
-                        loading: loading,
-                        handler: save_handler
+                        handler: as_new ? new_handler : save_handler
                     });
                 };
             form.attach([
@@ -80,10 +72,7 @@ $.register_module({
                 }},
                 {type: 'form:submit', handler: function (result) {
                     og.dev.log(submit_type, result.data, result.errors);
-                    switch (submit_type) {
-                        case 'save': save_resource(result.data); break;
-                        case 'save_as_new': save_new_resource(result.data); break;
-                    }
+                    save_resource(result.data, submit_type === 'save_as_new');
                 }},
                 {type: 'click', selector: '#' + form.id + ' .og-js-collapse-handle', handler: function (e) {
                     var $target = $(e.target), $handle = $target.is('.og-js-collapse-handle') ? $target
@@ -365,7 +354,9 @@ $.register_module({
                                             selector: '#' + set_id + ' [name="' +
                                                 [SETS, set_idx, COLS, col_idx, SECU].join('.') +'"]',
                                             handler: function (e) {
-                                                $('#' + set_id + ' .og-js-col-tab:eq(' + col_idx + ')')
+                                                var idx = $(this.selector).parents('.og-js-col-holder:first')
+                                                    .index('#' + set_id + ' .og-js-col-holder');
+                                                $('#' + set_id + ' .og-js-col-tab:eq(' + idx + ')')
                                                     .find('.og-js-secu').text($(e.target).val());
                                             }
                                         }],

@@ -143,21 +143,21 @@ $.register_module({
                         if (config_type in form_generators) return form_generators[config_type]({
                             data: details_json,
                             loading: function () {
-                                ui.message({location: '.OG-details', message: 'saving...'});
+                                ui.message({location: '.OG-js-details-panel', message: 'saving...'});
                             },
                             new_handler: function (result) {
-                                ui.message({location: '.OG-details', destroy: true});
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});
                                 routes.go(routes.hash(module.rules.load_new_configs,
                                     $.extend({}, routes.last().args, {id: result.meta.id, 'new': true})
                                 ));
                             },
                             save_handler: function (result) {
-                                ui.message({location: '.OG-details', destroy: true});
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                ui.message({location: '.OG-details', message: 'saved'});
+                                ui.message({location: '.OG-js-details-panel', message: 'saved'});
                                 setTimeout(function () {
-                                    ui.message({location: '.OG-details', destroy: true});
+                                    ui.message({location: '.OG-js-details-panel', destroy: true});
                                 }, 1500);
                             },
                             handler: function () {
