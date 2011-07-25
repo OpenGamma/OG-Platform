@@ -21,27 +21,3 @@ a:active {
   border-bottom: 1px solid #61d050;
   color: #61d050;
 }
-
-.OG-link-add {
-  border-bottom: 1px solid #d7f3d3!important;
-  color: #61d050!important;
-  margin-left: 8px;
-  cursor: pointer;
-}
-
-.OG-link-add:hover {
-  border-bottom: 1px solid #61d050!important;
-  color: #61d050;
-}
-
-.OG-link-add:before {
-  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
-  background-position: 0 -9px;
-  content: "";
-  cursor: pointer;
-  display: inline-block;
-  height: 6px;
-  position: relative;
-  margin: 7px 2px 0 -8px;
-  width: 6px;
-}
