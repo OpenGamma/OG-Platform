@@ -143,7 +143,6 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
-    setUniqueId(trade.getUniqueId());
     setParentPositionId(trade.getParentPositionId());
     setQuantity(trade.getQuantity());
     setSecurityKey(trade.getSecurityKey());

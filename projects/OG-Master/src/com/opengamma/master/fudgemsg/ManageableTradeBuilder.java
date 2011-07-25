@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.fudgemsg.TradeBuilder;
+import com.opengamma.core.position.Trade;
 import com.opengamma.master.position.ManageableTrade;
 
 /**
@@ -30,7 +31,10 @@ public class ManageableTradeBuilder implements FudgeBuilder<ManageableTrade> {
 
   @Override
   public ManageableTrade buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-    return new ManageableTrade(_delegate.buildObject(context, message));
+    final Trade trade = _delegate.buildObject(context, message);
+    final ManageableTrade manageableTrade = new ManageableTrade(trade);
+    manageableTrade.setUniqueId(trade.getUniqueId());
+    return manageableTrade;
   }
 
 }
