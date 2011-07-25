@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -71,7 +71,7 @@ public class SwaptionBermudaFixedIborTest {
   private static final double[] SETTLE_TIME = new double[NB_EXPIRY];
   @SuppressWarnings("unchecked")
   // TODO: Is this required?
-  private static final FixedCouponSwap<Payment>[] EXPIRY_SWAP = new FixedCouponSwap[NB_EXPIRY];
+  private static final FixedCouponSwap<Coupon>[] EXPIRY_SWAP = new FixedCouponSwap[NB_EXPIRY];
   static {
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
       EXPIRY_TIME[loopexp] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRY_DATE[loopexp]);

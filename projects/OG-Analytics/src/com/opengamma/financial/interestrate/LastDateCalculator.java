@@ -15,12 +15,11 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -100,11 +99,6 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitCouponFloating(final CouponFloating payment) {
-    return payment.getPaymentTime();
-  }
-
-  @Override
   public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity) {
     return visit(annuity.getNthPayment(annuity.getNumberOfPayments() - 1));
   }
@@ -128,7 +122,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
 
   @Override
   public Double visitFixedCouponPayment(final CouponFixed payment) {
-    return visitFixedPayment(payment);
+    return payment.getPaymentTime();
   }
 
   @Override

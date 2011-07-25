@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
 /**
@@ -23,7 +23,7 @@ public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
    * The swaps underlying the swaption. There is one swap for each expiration date. 
    * The swap do not need to be identical; this allow to incorporate fees or changing margins in the description.
    */
-  private final FixedCouponSwap<? extends Payment>[] _underlyingSwap;
+  private final FixedCouponSwap<? extends Coupon>[] _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
@@ -44,7 +44,7 @@ public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
    * @param expiryTime The swaption expiration times.
    * @param settlementTime The times (in year) to the swaps settlement.
    */
-  public SwaptionBermudaFixedIbor(FixedCouponSwap<? extends Payment>[] underlyingSwap, boolean isLong, double[] expiryTime, double[] settlementTime) {
+  public SwaptionBermudaFixedIbor(FixedCouponSwap<? extends Coupon>[] underlyingSwap, boolean isLong, double[] expiryTime, double[] settlementTime) {
     Validate.notNull(expiryTime, "Expiry time");
     Validate.notNull(underlyingSwap, "Underlying swap");
     Validate.notNull(settlementTime, "Settlement time");
@@ -60,7 +60,7 @@ public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
    * Gets the swaps underlying the swaption. There is one swap for each expiration date. 
    * @return The underlying swaps.
    */
-  public FixedCouponSwap<? extends Payment>[] getUnderlyingSwap() {
+  public FixedCouponSwap<? extends Coupon>[] getUnderlyingSwap() {
     return _underlyingSwap;
   }
 

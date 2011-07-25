@@ -30,7 +30,6 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -115,8 +114,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedPayment(PaymentFixed payment, S data);
 
-  T visitCouponFloating(CouponFloating payment, S data);
-
   T visitFixedCouponPayment(CouponFixed payment, S data);
 
   T visitCouponIbor(CouponIbor payment, S data);
@@ -200,8 +197,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedPayment(PaymentFixed payment);
 
   T visitFixedCouponPayment(CouponFixed payment);
-
-  T visitCouponFloating(CouponFloating payment);
 
   T visitCouponIborFixed(CouponIborFixed payment);
 

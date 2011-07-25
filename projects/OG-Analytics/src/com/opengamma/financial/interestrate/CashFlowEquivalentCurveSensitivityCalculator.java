@@ -62,8 +62,10 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends AbstractIntere
   }
 
   @Override
-  public Map<Double, PresentValueSensitivity> visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle curves) {
-    return visitFixedPayment(payment, curves);
+  public Map<Double, PresentValueSensitivity> visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(coupon);
+    return new HashMap<Double, PresentValueSensitivity>();
   }
 
   @Override

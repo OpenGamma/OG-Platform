@@ -32,7 +32,6 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -441,16 +440,6 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitFixedPayment(final PaymentFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
-  }
-
-  @Override
-  public T visitCouponFloating(final CouponFloating payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponFloating()");
-  }
-
-  @Override
-  public T visitCouponFloating(final CouponFloating payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponFloating()");
   }
 
   @Override

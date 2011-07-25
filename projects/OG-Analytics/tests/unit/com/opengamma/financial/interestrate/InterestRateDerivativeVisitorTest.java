@@ -42,7 +42,6 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -83,7 +82,7 @@ public class InterestRateDerivativeVisitorTest {
   private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
   private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(CUR, 1, -1, CURVE_NAME);
   private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
-  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
+  //  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
   private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
   private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
   private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
@@ -447,16 +446,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponFloating(final CouponFloating payment, final Object data) {
-      return visit(payment, data);
-    }
-
-    @Override
-    public Class<?> visitCouponFloating(final CouponFloating payment) {
-      return visit(payment);
-    }
-
-    @Override
     public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture, final Object data) {
       return visit(bondFuture, data);
     }
@@ -552,7 +541,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
-    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
+    //    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -733,16 +722,6 @@ public class InterestRateDerivativeVisitorTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCM2() {
     ABSTRACT_VISITOR.visit(CM);
-  }
-
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCouponFloating1() {
-    ABSTRACT_VISITOR.visit(FLOATING_COUPON, CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCouponFloating2() {
-    ABSTRACT_VISITOR.visit(FLOATING_COUPON);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

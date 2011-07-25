@@ -92,7 +92,7 @@ public class Bond implements InterestRateDerivative {
     final int n = _coupons.getNumberOfPayments();
     final PaymentFixed[] temp = new PaymentFixed[n + 1];
     for (int i = 0; i < n; i++) {
-      temp[i] = _coupons.getNthPayment(i);
+      temp[i] = _coupons.getNthPayment(i).toPaymentFixed();
     }
     temp[n] = _principle;
     return new GenericAnnuity<PaymentFixed>(temp);
