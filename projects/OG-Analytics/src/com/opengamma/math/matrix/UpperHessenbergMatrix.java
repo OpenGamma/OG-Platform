@@ -41,8 +41,6 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
   private static final Logger s_log = LoggerFactory.getLogger(UpperHessenbergMatrix.class);
   private final double[][] _data;
   private final int _dimension;
-  private final int _rows;
-  private final int _columns;
   private final int _elements;
   private final boolean _debug = false; // set to true to turn on the logging code for debug
 
@@ -56,24 +54,13 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
    */
   public UpperHessenbergMatrix(final int dimension) {
     Validate.isTrue(dimension > 0, "dimension cannot be negative or zero");
-    _rows = dimension;
-    _columns = dimension;
     _dimension = dimension;
-    _data = new double[_rows][];
-    _data[0] = new double [dimension];
-    for (int i = 1; i < dimension; i++) {
-      _data[i] = new double [dimension + 1 - i];
+    _data = new double[_dimension][];
+    _data[0] = new double [_dimension];
+    for (int i = 1; i < _dimension; i++) {
+      _data[i] = new double [_dimension + 1 - i];
     }
     _elements = _dimension * (_dimension + 1) / 2 + (_dimension - 1);
-
-    // print matrix if debug
-    if (_debug) {
-      for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _data[i].length; j++) {
-          s_log.info("i=" + i + " j=" + j + " data= " + _data[i][j]);
-        }
-      }
-    }
 
   }
 
@@ -87,26 +74,18 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
       _data = new double[0][0];
       _dimension = 0;
       _elements = 0;
-      _rows = 0;
-      _columns = 0;
     } else {
 
       _dimension = indata.length;
-      _rows = _dimension;
-      _columns = _dimension;
       _elements = _dimension * (_dimension + 1) / 2 + (_dimension - 1);
-
-      if (_debug) {
-        s_log.info("rows = " + _rows + " _columns =" + _columns + " _dimension= " + _dimension);
-      }
 
       /**
        * Ragged array, number of should vary from _columns to 2 with row.
        */
-      _data = new double[_rows][];
-      _data[0] = new double [_rows];
-      for (int i = 1; i < _rows; i++) {
-        _data[i] = new double [_rows - i + 1];
+      _data = new double[_dimension][];
+      _data[0] = new double [_dimension];
+      for (int i = 1; i < _dimension; i++) {
+        _data[i] = new double [_dimension - i + 1];
         if (_debug) {
           s_log.info("_data[" + i + "].length=" + _data[i].length);
         }
@@ -118,8 +97,8 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
       int sqc = 0;
 
       // see if indata is square
-      for (int i = 0; i < _rows; i++) {
-        if (indata[i].length == _rows) {
+      for (int i = 0; i < _dimension; i++) {
+        if (indata[i].length == _dimension) {
           sqc++;
         }
       }
@@ -130,16 +109,16 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
         _data[0][j] = indata[0][j];
       }
 
-      if (sqc == _rows) {
+      if (sqc == _dimension) {
         // try to unwind the data assuming it is a "square" array
-        for (int i = 1; i < _rows; i++) {
+        for (int i = 1; i < _dimension; i++) {
           for (int j = 0; j < _data[i].length; j++) {
             _data[i][j] = indata[i][i - 1 + j];
           }
         }
       } else {
         // try to unwind the data assuming it is a "ragged" array
-        for (int i = 1; i < _rows; i++) {
+        for (int i = 1; i < _dimension; i++) {
           Validate.isTrue(indata[i].length >= _data[i].length);
           for (int j = 0; j < _data[i].length; j++) {
             _data[i][j] = indata[i][j];
@@ -149,7 +128,7 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
 
       // print matrix if debug
       if (_debug) {
-        for (int i = 0; i < _rows; i++) {
+        for (int i = 0; i < _dimension; i++) {
           for (int j = 0; j < _data[i].length; j++) {
             s_log.info("i=" + i + " j=" + j + " data= " + _data[i][j]);
           }
@@ -160,6 +139,9 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
 
 
   /** Methods: **/
+
+
+  /** To-ers **/
 
   /**
    * toFullMatrix() converts an Upper Hessenberg matrix to a full (DoubleMatrix2D) matrix.
@@ -193,6 +175,14 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
     final DoubleMatrix2D tmp = toFullMatrix();
     return tmp.getData();
   }
+
+  /**
+   * toCRS() returns the array in compressed row storage format.
+   */
+
+
+
+  /** Get-ers **/
 
   /**
    * getRowVector(index) returns the row "index" of the Upper Hessenberg matrix,
@@ -243,13 +233,29 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
     int len = Math.min(index + 2, _dimension);
     double[] tmp = new double[len];
     tmp[0] = _data[0][index];
-    for (int i = 1; i < index + 1; i++) {
-      s_log.warn("adding _data = " + _data[i][len - i + 1]);
-      tmp[i] = _data[i][len - i + 1];
+    for (int i = 1; i < len; i++) {
+      tmp[i] = _data[i][index - i + 1];
     }
     return new DoubleMatrix1D(tmp);
   }
 
+  /**
+   * getFullColumnVector(index) returns the column "index" of the Upper Hessenberg matrix,
+   * data which is by definition zero is not returned.
+   *  @param index The index of the column to be returned
+   *  @return DoubleMatrix1D the column specified by index
+   **/
+  public DoubleMatrix1D getFullColumnVector(final int index) {
+    Validate.isTrue(index < _dimension);
+    Validate.isTrue(index >= 0);
+    int len = Math.min(index + 2, _dimension);
+    double[] tmp = new double[_dimension];
+    tmp[0] = _data[0][index];
+    for (int i = 1; i < len; i++) {
+      tmp[i] = _data[i][index - i + 1];
+    }
+    return new DoubleMatrix1D(tmp);
+  }
 
   /**
    * getDiag()returns a DoubleMatrix1D of the diagonal entries in the Upper Hessenberg matrix
@@ -257,8 +263,9 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
    */
   public DoubleMatrix1D getDiag() {
     final double[] tmp = new double[_dimension];
-    for (int i = 0; i < _dimension; i++) {
-      tmp[i] = _data[i][i];
+    tmp[0] = _data[0][0];
+    for (int i = 1; i < _dimension; i++) {
+      tmp[i] = _data[i][1];
     }
     return new DoubleMatrix1D(tmp);
   }
@@ -280,13 +287,12 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _columns;
-    result = prime * result + Arrays.hashCode(_data);
+    result = prime * result + Arrays.hashCode(_data[0]);
     result = prime * result + _dimension;
     result = prime * result + _elements;
-    result = prime * result + _rows;
     return result;
   }
+
 
   @Override
   public boolean equals(Object obj) {
@@ -300,34 +306,27 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
       return false;
     }
     UpperHessenbergMatrix other = (UpperHessenbergMatrix) obj;
-    if (_columns != other._columns) {
-      return false;
-    }
-    if (!Arrays.equals(_data, other._data)) {
-      return false;
-    }
     if (_dimension != other._dimension) {
       return false;
     }
-    if (_elements != other._elements) {
-      return false;
+//    test array equals array, need to loop as only vectors can be tested despite the ArrayS name.
+    for (int i = 0; i < _dimension; i++) {
+      if (!Arrays.equals(_data[i], other._data[i])) {
+        return false;
+      }
     }
-    if (_rows != other._rows) {
-      return false;
-    }
-    return true;
+    return true; // if we've got here they are probably ;-)  the same
   }
 
   @Override
   public String toString() {
-    String tmp = new String("\nUpperHessenbergMatrix:\n" +
-      "_dimension=" + _dimension + "\n_rows=" + _rows + "\n_columns=" +
-      _columns + "\n_elements=" + _elements);
+    String tmp = new String("UpperHessenbergMatrix:\n" +
+      "_dimension=" + _dimension + "\n_elements=" + _elements);
     tmp += "\n_data=";
-    for (int i = 0; i < _rows; i++) {
+    for (int i = 0; i < _dimension; i++) {
       tmp += "\n";
       for (int j = 0; j < _data[i].length; j++) {
-        tmp += String.format("%12.8f ", _data[i][j]);
+        tmp += String.format("%12.8f", _data[i][j]);
       }
     }
     tmp += "\n";
