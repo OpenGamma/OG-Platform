@@ -5,13 +5,15 @@
 $.register_module({
     name: 'og.views.configs.viewdefinition',
     dependencies: [
+        'og.api.rest',
+        'og.common.routes',
         'og.common.util.ui.message',
         'og.common.util.ui.Form',
         'og.views.forms.Constraints',
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms,
+        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, routes = og.common.routes,
             RMDF = 'resultModelDefinition',
             SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',
@@ -28,6 +30,10 @@ $.register_module({
         return function (config) {
             og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
+                loading = config.loading || $.noop,
+                orig_name = config.data.template_data.name, submit_type,
+                resource_id = config.data.template_data.object_id,
+                new_handler = config.new_handler, save_handler = config.save_handler,
                 id_count = 0, prefix = 'view_def_', master = config.data.template_data.configJSON, column_set_tabs,
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
@@ -47,23 +53,52 @@ $.register_module({
                             }
                             if (set[SPEC]) set[SPEC] = set[SPEC].filter(function (spec) {return spec !== undefined;});
                         });
-                    },
-                    handlers: [
-                        {type: 'form:load', handler: load_handler},
-                        {type: 'form:submit', handler: function (result) {
-                            og.dev.log(result.data);
-                        }}
-                    ]
-                });
+                    }
+                }),
+                save_new_resource = function (data) {
+                    if (orig_name === data.name) return window.alert('Please select a new name.');
+                    api.configs.put({
+                        name: data.name,
+                        json: JSON.stringify(data),
+                        loading: loading,
+                        handler: new_handler
+                    });
+                },
+                save_resource = function (data) {
+                    api.configs.put({
+                        id: resource_id,
+                        name: data.name,
+                        json: JSON.stringify(data),
+                        loading: loading,
+                        handler: save_handler
+                    });
+                };
             form.attach([
+                {type: 'form:load', handler: load_handler},
+                {type: 'click', selector: '#' + form.id + ' .og-js-submit', handler: function (e) {
+                    submit_type = $(e.target).val();
+                }},
+                {type: 'form:submit', handler: function (result) {
+                    og.dev.log(submit_type, result.data, result.errors);
+                    switch (submit_type) {
+                        case 'save': save_resource(result.data); break;
+                        case 'save_as_new': save_new_resource(result.data); break;
+                    }
+                }},
                 {type: 'click', selector: '#' + form.id + ' .og-js-collapse-handle', handler: function (e) {
                     var $target = $(e.target), $handle = $target.is('.og-js-collapse-handle') ? $target
                             : $target.parents('.og-js-collapse-handle:first'),
-                        $el = $target.parents('.og-js-collapse-container:first').find('.og-js-collapse-element');
-                    if ($handle.is('.og-open'))
-                        $el.hide(), $handle.removeClass('og-open').addClass('og-closed');
-                    else
-                        $el.show(), $handle.removeClass('og-closed').addClass('og-open');
+                        $container = $target.parents('.og-js-collapse-container:first'),
+                        $el = $container.find('.og-js-collapse-element');
+                    if ($handle.is('.og-open')) {
+                        $el.hide();
+                        $handle.removeClass('og-open').addClass('og-closed');
+                        $container.removeClass('og-container-closed');
+                    } else {
+                        $el.show();
+                        $handle.removeClass('og-closed').addClass('og-open');
+                        $container.addClass('og-container-closed');
+                    }
                 }}
             ]);
             form.children = [
