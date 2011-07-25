@@ -35,13 +35,17 @@
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-list.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-add.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-cancel.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-02.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-rounded.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-shadow-light.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-txt-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-box-shadow-bottom.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-max-width.css</fragment>
