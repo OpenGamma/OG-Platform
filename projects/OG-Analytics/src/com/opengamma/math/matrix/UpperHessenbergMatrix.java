@@ -148,7 +148,6 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
    * @return a DoubleMatrix2D representation of an Upper Hessenberg matrix.
    */
   public DoubleMatrix2D toFullMatrix() {
-    DoubleMatrix2D matrix2d;
     double[][] tmp = new double[_dimension][_dimension];
     //copy first row
     for (int j = 0; j < _dimension; j++) {
@@ -162,8 +161,7 @@ public class UpperHessenbergMatrix implements Matrix<Double> {
       }
     }
     //create new double matrix based on the unwound data
-    matrix2d = new DoubleMatrix2D(tmp);
-    return matrix2d;
+    return new DoubleMatrix2D(tmp);
   }
 
   /**

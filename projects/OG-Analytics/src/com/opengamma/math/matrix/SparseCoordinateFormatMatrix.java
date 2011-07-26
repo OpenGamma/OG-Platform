@@ -10,8 +10,14 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- *
+ * Converts or instantiates a matrix to Sparse Coordinate Format (COO). COO is a non optimal method of storing sparse matrix data and is generally used as
+ * an intermediary storage format prior to conversion to @see {@link CompressedSparseRowFormatMatrix} or {@link CompressedSparseColumnFormatMatrix}.
+ * Only the non-zero components of the matrix are stored (note: there is no tolerance for testing zero to machine precision, zero is solely tested bitwise).
+ * The COO format requires three vectors:
+ * (x,y): form a coordinate pairing to give the location of an element within the sparse matrix
+ * values: contains the values at coordinate pairings (x,y)
  */
+
 public class SparseCoordinateFormatMatrix implements Matrix<Double> {
   private double[] _values;
   private int[] _x;
@@ -21,7 +27,6 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
   private int _cols;
 
   // constructors
-
   /**
    * Construct from DoubleMatrix2D type
    * @param aMatrix is a DoubleMatrix2D
@@ -42,8 +47,8 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
     for (int i = 0; i < aMatrix.getNumberOfRows(); i++) {
       for (int j = 0; j < aMatrix.getNumberOfColumns(); j++) {
         if (Double.doubleToLongBits(aMatrix.getEntry(i, j)) != 0L) {
-          xTmp[ptr] = i;
-          yTmp[ptr] = j;
+          xTmp[ptr] = j;
+          yTmp[ptr] = i;
           valuesTmp[ptr] = aMatrix.getEntry(i, j);
           ptr++;
         }
@@ -62,7 +67,7 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
    * @param aMatrix is an UpperHessenbergMatrix
    */
   public SparseCoordinateFormatMatrix(final UpperHessenbergMatrix aMatrix) {
-    // for now, convert to DoubleMatrix2D and use it's constructor
+    // for now, convert to DoubleMatrix2D and use its constructor
     this(aMatrix.toFullMatrix());
   }
 
@@ -79,28 +84,67 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
 // here we shall shove in constructors for just about all types (eventually).
 
 
-
-
 // Methods
+  /**
+   * Returns the "coordinates" of the columns where there are nonzero entries
+   * @return _x, the column coordinates
+   */
   public int[] getColumnCoordinates() {
     return _x;
   }
 
+  /**
+   * Returns the "coordinates" of the rows where there are nonzero entries
+   * @return _y, the row coordinates
+   */
   public int[] getRowCoordinates() {
     return _y;
   }
 
+  /**
+   * Returns the nonzero entries
+   * @return _values, the values
+   */
   public double[] getNonZeroEntries() {
     return _values;
   }
 
+  /**
+   * Returns the number of rows corresponding to the full matrix representation
+   * @return _rows, the number of rows in the matrix
+   */
   public int getNumberOfRows() {
     return _rows;
   }
 
+  /**
+   * Returns the number of columns corresponding to the full matrix representation
+   * @return _cols, the number of columns in the matrix
+   */
   public int getNumberOfColumns() {
     return _cols;
   }
+
+  /**
+   * Converts COO to array of arrays
+   * @return tmp, an array of arrays corresponding to the full matrix representation
+   */
+  public double[][] toArray() {
+    double[][] tmp = new double[_rows][_cols];
+    for (int i = 0; i < _x.length; i++) {
+      tmp[_y[i]][_x[i]] = _values[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * Converts COO to DoubleMatrix2D
+   * @return tmp, a DoubleMatrix2D corresponding to the full matrix representation
+   */
+  public DoubleMatrix2D toFullMatrix() {
+    return new DoubleMatrix2D(this.toArray());
+  }
+
 
   @Override
   public int getNumberOfElements() {
@@ -114,12 +158,12 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
     Validate.notNull(_values);
 
     // no real fast way of doing this, brute force used
-    for (int i = 0; i < _x.length; i++) {
-      if (_x[i] == indices[0] && _y[i] == indices[1]) {
+    for (int i = 0; i < _y.length; i++) {
+      if (_y[i] == indices[0] && _x[i] == indices[1]) {
         return _values[i];
       }
     }
-    return 0D; // index pairing not found so value must be a zero entry
+    return 0.0; // index pairing not found so value must be a zero entry
   }
 
   @Override

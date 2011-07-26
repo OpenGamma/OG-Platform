@@ -8,6 +8,10 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+/**
+ * Tests the SparseCoordinateFormatMatrix format to make sure it is vaguely sane
+ */
+
 public class SparseCoordinateFormatMatrixTest {
   double[][]data = {{1,2,0,0},{3,0,4,0},{0,5,6,0},{0,0,7,0}};
   double[] expectedData = {1.0,2.0,3.0,4.0,5.0,6.0,7.0};
@@ -82,6 +86,18 @@ public class SparseCoordinateFormatMatrixTest {
    assertEquals(tmp.getNumberOfColumns(),4);
  }
 
+ @Test //test toArray
+ public void testToArray() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   assertTrue(Arrays.deepEquals(data,tmp.toArray()));
+ }
+
+ @Test //test toFullMatrix
+ public void testToFullMatrix() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   DoubleMatrix2D N = new DoubleMatrix2D(data);
+   assertTrue(N.equals(tmp.toFullMatrix()));
+ }
 
 //test sanity of equals and hashcode
  @Test
