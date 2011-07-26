@@ -105,7 +105,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
       addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
       addYieldCurveFunction(configs, "GBP", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     }
 
