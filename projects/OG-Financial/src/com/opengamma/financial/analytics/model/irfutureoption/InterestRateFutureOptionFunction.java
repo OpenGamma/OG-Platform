@@ -179,7 +179,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
         advisoryForward, advisoryFunding);
   }
 
-  private ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
+  protected ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode())
                                                       .with(ValuePropertyNames.SURFACE, _surfaceName)

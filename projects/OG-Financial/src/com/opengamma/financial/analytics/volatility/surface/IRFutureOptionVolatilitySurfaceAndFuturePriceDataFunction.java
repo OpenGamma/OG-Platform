@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -53,6 +54,7 @@ import com.opengamma.util.tuple.Pair;
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
 public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends AbstractFunction {
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
+  private static final DateAdjuster FIRST_OF_MONTH_ADJUSTER = DateAdjusters.firstDayOfMonth();
 
   /**
    * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
@@ -230,9 +232,14 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
 
       private double getTime(final Number x, final ZonedDateTime now) {
         final int n = x.intValue();
-        //TODO this will not give the expected result if we go more than ~9 years into the future - not sure of the best way to do this.
-        final LocalDate ld = now.toLocalDate().plusDays((n - 1) * 80); //TODO this is hard-coding it to be quarterly - needs to be changed to handle all types of options
-        final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(ld);
+        if (n == 1) {
+          final LocalDate nextExpiry = NEXT_EXPIRY_ADJUSTER.adjustDate(now.toLocalDate());
+          final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
+          return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
+        }
+        final LocalDate date = FIRST_OF_MONTH_ADJUSTER.adjustDate(now.toLocalDate());
+        final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
+        final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(plusMonths);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
         return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
       }

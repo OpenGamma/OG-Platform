@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.analytics.volatility.sabr;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.surface.ObjectsSurface;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -22,7 +24,7 @@ public class SABRFittedSurfaces {
   private final VolatilitySurface _betaSurface;
   private final VolatilitySurface _nuSurface;
   private final VolatilitySurface _rhoSurface;
-  private final ObjectsSurface<Double, Double, DoubleMatrix2D> _inverseJacobian;
+  private final Map<DoublesPair, DoubleMatrix2D> _inverseJacobian;
   private final Currency _currency;
   private final DayCount _dayCount;
 
@@ -32,7 +34,7 @@ public class SABRFittedSurfaces {
   }
 
   public SABRFittedSurfaces(final VolatilitySurface alphaSurface, final VolatilitySurface betaSurface, final VolatilitySurface nuSurface, final VolatilitySurface rhoSurface,
-      final ObjectsSurface<Double, Double, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
+      final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
     Validate.notNull(alphaSurface, "alpha surface");
     Validate.notNull(betaSurface, "beta surface");
     Validate.notNull(nuSurface, "nu surface");
@@ -64,7 +66,7 @@ public class SABRFittedSurfaces {
     return _rhoSurface;
   }
 
-  public ObjectsSurface<Double, Double, DoubleMatrix2D> getInverseJacobian() {
+  public Map<DoublesPair, DoubleMatrix2D> getInverseJacobians() {
     return _inverseJacobian;
   }
 
