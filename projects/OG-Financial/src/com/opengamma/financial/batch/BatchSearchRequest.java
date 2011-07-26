@@ -66,6 +66,9 @@ public class BatchSearchRequest extends DirectBean {
   public static BatchSearchRequest.Meta meta() {
     return BatchSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(BatchSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public BatchSearchRequest.Meta metaBean() {
@@ -73,7 +76,7 @@ public class BatchSearchRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
@@ -82,11 +85,11 @@ public class BatchSearchRequest extends DirectBean {
       case 951232793:  // observationTime
         return getObservationTime();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
@@ -98,7 +101,7 @@ public class BatchSearchRequest extends DirectBean {
         setObservationTime((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

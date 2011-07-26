@@ -145,6 +145,9 @@ public class ManageableExchangeDetail extends DirectBean {
   public static ManageableExchangeDetail.Meta meta() {
     return ManageableExchangeDetail.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableExchangeDetail.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableExchangeDetail.Meta metaBean() {
@@ -152,7 +155,7 @@ public class ManageableExchangeDetail extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 992343760:  // productGroup
         return getProductGroup();
@@ -193,11 +196,11 @@ public class ManageableExchangeDetail extends DirectBean {
       case 105008833:  // notes
         return getNotes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 992343760:  // productGroup
         setProductGroup((String) newValue);
@@ -257,7 +260,7 @@ public class ManageableExchangeDetail extends DirectBean {
         setNotes((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

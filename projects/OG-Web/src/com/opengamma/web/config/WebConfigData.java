@@ -120,6 +120,9 @@ public class WebConfigData extends DirectBean {
   public static WebConfigData.Meta meta() {
     return WebConfigData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebConfigData.Meta.INSTANCE);
+  }
 
   @Override
   public WebConfigData.Meta metaBean() {
@@ -127,7 +130,7 @@ public class WebConfigData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         return getConfigMaster();
@@ -148,12 +151,12 @@ public class WebConfigData extends DirectBean {
       case 1769625218:  // templateMap
         return getTemplateMap();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
@@ -183,7 +186,7 @@ public class WebConfigData extends DirectBean {
         setTemplateMap((Map<Class<?>, String>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

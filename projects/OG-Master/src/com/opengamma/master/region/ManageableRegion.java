@@ -201,6 +201,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   public static ManageableRegion.Meta meta() {
     return ManageableRegion.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableRegion.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableRegion.Meta metaBean() {
@@ -208,7 +211,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -225,12 +228,12 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
       case 3076010:  // data
         return getData();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -254,7 +257,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
         setData((FlexiBean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

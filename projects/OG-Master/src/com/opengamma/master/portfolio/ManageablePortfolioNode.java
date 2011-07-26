@@ -273,6 +273,9 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   public static ManageablePortfolioNode.Meta meta() {
     return ManageablePortfolioNode.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageablePortfolioNode.Meta.INSTANCE);
+  }
 
   @Override
   public ManageablePortfolioNode.Meta metaBean() {
@@ -280,7 +283,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -295,12 +298,12 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
       case -137459505:  // positionIds
         return getPositionIds();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -321,7 +324,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
         setPositionIds((List<ObjectIdentifier>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
