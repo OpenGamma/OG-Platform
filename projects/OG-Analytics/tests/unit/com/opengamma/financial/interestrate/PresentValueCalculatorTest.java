@@ -325,7 +325,7 @@ public class PresentValueCalculatorTest {
     final double coupon = 0.07;
     final double notional = 1000;
 
-    final PaymentFixed payment = new CouponFixed(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
+    final CouponFixed payment = new CouponFixed(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
     final double expected = notional * yearFrac * coupon;
     final double pv = PVC.visit(payment, CURVES);
     assertEquals(expected, pv, 1e-8);

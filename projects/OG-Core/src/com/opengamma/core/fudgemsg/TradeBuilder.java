@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.core.fudgemsg;
 
 import java.math.BigDecimal;
 import java.util.Map.Entry;

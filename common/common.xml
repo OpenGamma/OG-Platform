@@ -291,6 +291,7 @@
 			<classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
 			<jvmarg value="${junit.logback.jvmarg}" />
 			<jvmarg value="-Xmx${junit.maxheap}" />
+			<jvmarg value="-XX:MaxPermSize=${junit.maxpermgen}" />
 			<sysproperty key="user.name" value="${user.name}" />
 			<!-- Read in TestProperties.java -->
 			<sysproperty key="test.properties" value="${test.properties}" />

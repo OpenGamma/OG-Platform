@@ -138,12 +138,10 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
       zBar = -rho / 2 * rzxzBar;
     } else {
       if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
-        s_logger.error("SABR derivatives are not correct in the degenerate case were rho=1.0.");
-        //FIXME: Complete the derivatives in the degenerate case.
         if (z >= 1.0) {
           zBar = 0.0;
         } else {
-          zBar = -1.0 / Math.log(1 - z) * (1 + z / Math.log(1 - z) / (1 - z));
+          zBar = -1.0 / Math.log(1 - z) * (1 + z / Math.log(1 - z) / (1 - z)) * rzxzBar;
         }
       } else {
         xzBar = -z / (xz * xz) * rzxzBar;
@@ -161,6 +159,8 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
       rhoBar = -z / 2 * rzxzBar;
     } else {
       if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        s_logger.error("SABR derivatives are not correct in the degenerate case were rho=1.0.");
+        //FIXME: Complete the derivatives in the degenerate case.
         rhoBar = 0.0;
       } else {
         rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / (1 - rho)) * xzBar;

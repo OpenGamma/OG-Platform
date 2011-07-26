@@ -35,8 +35,8 @@ public final class SimpleFrequencyFactory {
    * Creates the factory.
    */
   private SimpleFrequencyFactory() {
-    store(SimpleFrequency.ANNUAL, "12m");
-    store(SimpleFrequency.SEMI_ANNUAL, "6m");
+    store(SimpleFrequency.ANNUAL, "12m", "Yearly");
+    store(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
     store(SimpleFrequency.QUARTERLY, "3m");
     store(SimpleFrequency.BIMONTHLY, "2m");
     store(SimpleFrequency.MONTHLY, "1m");

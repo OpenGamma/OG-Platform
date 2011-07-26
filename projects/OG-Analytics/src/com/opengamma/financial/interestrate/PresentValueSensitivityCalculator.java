@@ -263,7 +263,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle data) {
-    return visitFixedPayment(payment, data);
+    return visitFixedPayment(payment.toPaymentFixed(), data);
   }
 
   @Override

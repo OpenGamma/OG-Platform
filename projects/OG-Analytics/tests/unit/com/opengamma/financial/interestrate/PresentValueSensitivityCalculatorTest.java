@@ -40,6 +40,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -416,7 +417,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double coupon = 0.07;
     final double notional = 100;
 
-    final PaymentFixed payment = new CouponFixed(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
+    final CouponFixed payment = new CouponFixed(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
 
     final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
@@ -630,7 +631,7 @@ public class PresentValueSensitivityCalculatorTest {
   private static final SwapGenerator SWAP_GENERATOR = new SwapGenerator(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
   private static final CMSIndex CMS_INDEX = new CMSIndex(SWAP_GENERATOR, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
-  private static final FixedCouponSwap<Payment> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final FixedCouponSwap<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test
   public void testFixedCouponSwap() {
@@ -643,7 +644,7 @@ public class PresentValueSensitivityCalculatorTest {
     final int nbPayDate = SWAP_PAYER.getSecondLeg().getPayments().length;
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesName = {bumpedCurveName, FORWARD_CURVE_NAME};
-    final FixedCouponSwap<Payment> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
+    final FixedCouponSwap<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
     final double pvSwap = PVC.visit(SWAP_PAYER, curves);
     // 2. Funding curve sensitivity
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);

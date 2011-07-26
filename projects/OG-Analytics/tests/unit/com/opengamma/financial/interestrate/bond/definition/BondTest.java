@@ -48,7 +48,7 @@ public class BondTest {
     for (int i = 0; i < n; i++) {
       PAYMENTS[i] = COUPON * YEAR_FRACTIONS[i] + (i == (n - 1) ? 1.0 : 0.0);
       payment = new CouponFixed(CUR, TIMES[i], BOND_CURVE, YEAR_FRACTIONS[i], COUPON);
-      fixedPayments[i] = payment;
+      fixedPayments[i] = payment.toPaymentFixed();
       couponPayments[i] = payment;
       unit[i] = new CouponFixed(CUR, TIMES[i], BOND_CURVE, YEAR_FRACTIONS[i], 1);
     }
