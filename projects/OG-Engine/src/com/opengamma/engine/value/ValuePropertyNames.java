@@ -114,4 +114,8 @@ public final class ValuePropertyNames {
    */
   public static final String SURFACE = "Surface";
 
+  /**
+   * The symbolic name of the calculation method used to produce a curve (par rate or present value)
+   */
+  public static final String CURVE_CALCULATION_METHOD = "CurveCalculationMethod";
 }

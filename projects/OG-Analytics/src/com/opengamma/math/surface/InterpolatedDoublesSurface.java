@@ -479,6 +479,10 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
     return _interpolator;
   }
 
+  public Map<Double, ? extends Interpolator1DDataBundle> getInterpolatorData() {
+    return _data;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

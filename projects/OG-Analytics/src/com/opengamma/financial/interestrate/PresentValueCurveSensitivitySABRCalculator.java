@@ -134,7 +134,7 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
+      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
       return method.presentValueCurveSensitivity(option, sabrBundle).getSensitivities();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
