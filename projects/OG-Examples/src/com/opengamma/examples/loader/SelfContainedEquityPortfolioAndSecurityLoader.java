@@ -52,7 +52,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
 
   /**
    * The context.
@@ -213,7 +213,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "demoEquityPortfolioLoader".
+   * under the name "selfContainedEquityPortfolioAndSecurityLoader".
    * 
    * @param args  the arguments, unused
    */

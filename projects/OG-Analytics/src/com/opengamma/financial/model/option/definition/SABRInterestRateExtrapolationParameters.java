@@ -9,7 +9,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
- * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modeling.
+ * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modelling.
  */
 public class SABRInterestRateExtrapolationParameters extends SABRInterestRateParameters {
 
@@ -23,7 +23,7 @@ public class SABRInterestRateExtrapolationParameters extends SABRInterestRatePar
   private final double _mu;
 
   /**
-   * Constructor from the parameter surfaces and extrapolation parmeters. The SABR volatility formula is HaganVolatilityFunction.
+   * Constructor from the parameter surfaces and extrapolation parameters. The SABR volatility formula is HaganVolatilityFunction.
    * @param alpha The alpha parameters.
    * @param beta The beta parameters.
    * @param rho The rho parameters.
@@ -32,7 +32,8 @@ public class SABRInterestRateExtrapolationParameters extends SABRInterestRatePar
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
    */
-  public SABRInterestRateExtrapolationParameters(VolatilitySurface alpha, VolatilitySurface beta, VolatilitySurface rho, VolatilitySurface nu, DayCount dayCount, double cutOffStrike, double mu) {
+  public SABRInterestRateExtrapolationParameters(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, final DayCount dayCount,
+      final double cutOffStrike, final double mu) {
     super(alpha, beta, rho, nu, dayCount);
     this._cutOffStrike = cutOffStrike;
     this._mu = mu;

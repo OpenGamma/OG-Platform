@@ -224,6 +224,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
         vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point);
       }
     }
+    //TODO this needs to have delta labels, not the strike
     return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile.getSmile()
         .getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getVolatilityTerm()[0].getStrike(forward)), new DoubleMatrix2D(vega));
   }

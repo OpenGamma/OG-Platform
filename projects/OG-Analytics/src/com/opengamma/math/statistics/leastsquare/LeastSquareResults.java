@@ -18,17 +18,24 @@ public class LeastSquareResults {
   private final double _chiSq;
   private final DoubleMatrix1D _parameters;
   private final DoubleMatrix2D _covariance;
+  private final DoubleMatrix2D _inverseJacobian;
 
   public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
+    this(chiSq, parameters, covariance, null);
+  }
+
+  public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance, final DoubleMatrix2D inverseJacobian) {
     Validate.isTrue(chiSq >= 0, "chi square < 0");
     Validate.notNull(parameters, "parameters");
     Validate.notNull(covariance, "covariance");
     final int n = parameters.getNumberOfElements();
     Validate.isTrue(covariance.getNumberOfColumns() == n, "covariance matrix not square");
     Validate.isTrue(covariance.getNumberOfRows() == n, "covariance matrix wrong size");
+    //TODO test size of inverse Jacobian
     _chiSq = chiSq;
     _parameters = parameters;
     _covariance = covariance;
+    _inverseJacobian = inverseJacobian;
   }
 
   /**
@@ -55,6 +62,10 @@ public class LeastSquareResults {
     return _covariance;
   }
 
+  public DoubleMatrix2D getInverseJacobian() {
+    return _inverseJacobian;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -64,6 +75,7 @@ public class LeastSquareResults {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _covariance.hashCode();
     result = prime * result + _parameters.hashCode();
+    result = prime * result + (_inverseJacobian == null ? 0 : _inverseJacobian.hashCode());
     return result;
   }
 
@@ -83,6 +95,9 @@ public class LeastSquareResults {
       return false;
     }
     if (!ObjectUtils.equals(_covariance, other._covariance)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_inverseJacobian, other._inverseJacobian)) {
       return false;
     }
     return ObjectUtils.equals(_parameters, other._parameters);

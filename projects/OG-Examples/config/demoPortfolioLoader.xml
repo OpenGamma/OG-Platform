@@ -35,6 +35,9 @@
   <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
+  <bean id="selfContainedSwapPortfolioLoader" class="com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
   <bean id="demoViewsPopulater" class="com.opengamma.examples.loader.DemoViewsPopulater">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
@@ -52,4 +55,16 @@
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   -->
+  
+  <!-- save timeseries configuration document -->
+  <bean id="timeSeriesRatingLoader" class="com.opengamma.examples.loader.TimeSeriesRatingLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  
+  <!-- run historical data generator -->
+  <bean id="simulatedHistoricalDataGenerator" class="com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg value="${opengamma.example.marketdata.historical}" />
+  </bean>
+  
 </beans>
