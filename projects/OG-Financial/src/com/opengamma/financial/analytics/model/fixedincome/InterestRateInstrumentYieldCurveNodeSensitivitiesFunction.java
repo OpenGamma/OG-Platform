@@ -92,7 +92,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .futureSecurityVisitor(irFutureConverter)
             .bondSecurityVisitor(bondConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource); 
   }
 
   @Override

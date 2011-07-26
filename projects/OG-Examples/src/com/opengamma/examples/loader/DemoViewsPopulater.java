@@ -14,8 +14,13 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
@@ -34,13 +39,10 @@ import com.opengamma.util.money.Currency;
  */
 public class DemoViewsPopulater {
 
+  private static final UniqueIdentifier UID_USD = UniqueIdentifier.of("CurrencyISO", "USD");
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DemoViewsPopulater.class);
-
-  /**
-   * The name of the portfolio.
-   */
-  private static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
 
   /**
    * The context.
@@ -59,7 +61,7 @@ public class DemoViewsPopulater {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
       throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
     }
-    return searchResult.getFirstPortfolio().getUniqueId();
+    return searchResult.getFirstPortfolio().getUniqueId().toLatest();
   }
   
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
@@ -73,10 +75,41 @@ public class DemoViewsPopulater {
   }
   
   public void persistViewDefinitions() {
-    ViewDefinition equityViewDef = makeEquityViewDefinition(PORTFOLIO_NAME);
+    saveViewDefinition(makeEquityViewDefinition(SelfContainedEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeSwapViewDefinition(SelfContainedSwapPortfolioLoader.PORTFOLIO_NAME));
+  }
+
+  private ViewDefinition makeSwapViewDefinition(String portfolioName) {
+    UniqueIdentifier portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, "Default");
+    ValueProperties defaultProperties = ValueProperties.with("Curve", "SECONDARY").with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get(); 
+    defaultCalc.setDefaultProperties(defaultProperties);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    defaultCalc.addSpecificRequirement(new ValueRequirement(
+        ValueRequirementNames.YIELD_CURVE, 
+        ComputationTargetType.PRIMITIVE, 
+        UID_USD,
+        ValueProperties.with("Curve", "SECONDARY").get()));
+    viewDefinition.addViewCalculationConfiguration(defaultCalc);
+    
+    return viewDefinition;
+  }
+
+  private void saveViewDefinition(ViewDefinition viewDefinition) {
     ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
-    configDocument.setName(equityViewDef.getName());
-    configDocument.setValue(equityViewDef);
+    configDocument.setName(viewDefinition.getName());
+    configDocument.setValue(viewDefinition);
     ConfigMasterUtils.storeByName(_loaderContext.getConfigMaster(), configDocument);
   }
 
@@ -86,7 +119,7 @@ public class DemoViewsPopulater {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "demoEquityPortfolioLoader".
+   * under the name "demoViewsPopulater".
    * 
    * @param args  the arguments, unused
    */

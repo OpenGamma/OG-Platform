@@ -83,7 +83,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     _converter = new InterestRateFutureOptionTradeConverter(holidaySource, conventionSource, regionSource, securitySource);
-    _dataConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource);
+    //    _dataConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
   @Override
