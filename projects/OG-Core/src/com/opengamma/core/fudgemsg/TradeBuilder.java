@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.core.fudgemsg;
 
 import java.math.BigDecimal;
 import java.util.Map.Entry;
@@ -71,7 +71,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   /**
    * Fudge field name.
    */
-  private static final String FIELD_COUNTERPARTY = "counterparty";
+  private static final String FIELD_COUNTERPARTY = "counterpartyKey";
   /**
    * Fudge field name.
    */

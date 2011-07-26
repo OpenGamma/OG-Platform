@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
  * Describes a generic single currency bond issue.
  * @param <C> The coupon type.
  */
-public abstract class BondSecurity<C extends Payment> implements InterestRateDerivative {
+public abstract class BondSecurity<C extends Coupon> implements InterestRateDerivative {
   /**
    * The nominal payments. For bullet bond, it is restricted to a single payment.
    */

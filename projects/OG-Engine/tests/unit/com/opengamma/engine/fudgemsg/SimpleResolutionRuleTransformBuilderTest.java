@@ -11,6 +11,7 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.resolver.ApplyToAllTargets;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Test the {@link SimpleResolutionRuleTransformBuilder} class.
