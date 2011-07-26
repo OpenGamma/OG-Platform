@@ -11,6 +11,6 @@
     <appender-ref ref="STDOUT" />
   </root>
   
-  <!-- <logger name="com.opengamma.engine.depgraph" level="DEBUG" /> -->
+  <logger name="com.opengamma.engine.depgraph" level="DEBUG" />
   
 </configuration>
