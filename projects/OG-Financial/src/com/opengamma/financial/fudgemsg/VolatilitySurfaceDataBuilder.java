@@ -49,19 +49,25 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
     for (final Object x : object.getXs()) {
-      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      if (x != null) {
+        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      }
     }
     for (final Object y : object.getYs()) {
-      message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+      if (y != null) {
+        message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+      }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
       @SuppressWarnings("unchecked")
       final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = context.newMessage();
-      subMessage.add("x", null, context.objectToFudgeMsg(pair.getFirst()));
-      subMessage.add("y", null, context.objectToFudgeMsg(pair.getSecond()));
-      subMessage.add("value", null, entry.getValue());
-      message.add("values", null, subMessage);
+      if (pair.getFirst() != null && pair.getSecond() != null) {
+        subMessage.add("x", null, context.objectToFudgeMsg(pair.getFirst()));
+        subMessage.add("y", null, context.objectToFudgeMsg(pair.getSecond()));
+        subMessage.add("value", null, entry.getValue());
+        message.add("values", null, subMessage);
+      }
     }
     return message;
   }

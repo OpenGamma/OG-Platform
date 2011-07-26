@@ -29,17 +29,18 @@ import com.opengamma.util.time.Tenor;
  */
 public class SecondaryCurveDefinitionAndSpecifications {
  
-
+  private static final String SPEC_NAME = "SECONDARY";
+  
   public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] depositStrips, Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor depositTenor : depositStrips) {
       if (depositTenor.getPeriod().equals(Period.ofDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
-      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, depositTenor, SPEC_NAME));
     }
     for (Tenor tenorSwapTenor : tenorSwaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, SPEC_NAME));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
@@ -48,15 +49,15 @@ public class SecondaryCurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildForwardCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor liborTenor : liborStrips) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, SPEC_NAME));
     }
     if (futureStartTenor != null) {
       for (int i = 1; i <= numQuarterlyFutures; i++) {
-        strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
+        strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, SPEC_NAME));
       }
     }
     for (Tenor swapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, swapTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, swapTenor, SPEC_NAME));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
@@ -65,15 +66,15 @@ public class SecondaryCurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildSecondaryCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor liborTenor : liborStrips) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, liborTenor, SPEC_NAME));
     }
     if (futureStartTenor != null) {
       for (int i = 1; i <= numQuarterlyFutures; i++) {
-        strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
+        strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, SPEC_NAME));
       }
     }
     for (Tenor tenorSwapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, tenorSwapTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, tenorSwapTenor, SPEC_NAME));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
@@ -87,7 +88,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     if (includeSpotNext) {
       results.add(Tenor.ofDays(3));
     }
-    results.add(Tenor.ofDays(7));
+    //results.add(Tenor.ofDays(7));
     if (include2W) {
       results.add(Tenor.ofDays(14));
     }
@@ -115,44 +116,59 @@ public class SecondaryCurveDefinitionAndSpecifications {
     Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     Currency usd = Currency.USD;
     Identifier usdRegion = RegionUtils.countryRegionId("US");
-    singleDefinitions.put(usd, buildSecondaryCurve(usd, usdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(usd, buildSecondaryCurve(usd, usdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency eur = Currency.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
-    singleDefinitions.put(eur, buildSecondaryCurve(eur, eurRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(eur, buildSecondaryCurve(eur, eurRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency gbp = Currency.GBP;
     Identifier gbpRegion = RegionUtils.countryRegionId("GB");
-    singleDefinitions.put(gbp, buildSecondaryCurve(gbp, gbpRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(gbp, buildSecondaryCurve(gbp, gbpRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency chf = Currency.CHF;
     Identifier chfRegion = RegionUtils.countryRegionId("CH");
-    singleDefinitions.put(chf, buildSecondaryCurve(chf, chfRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(chf, buildSecondaryCurve(chf, chfRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency aud = Currency.AUD;
     Identifier audRegion = RegionUtils.countryRegionId("AU");
-    singleDefinitions.put(aud, buildSecondaryCurve(aud, audRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(aud, buildSecondaryCurve(aud, audRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency sek = Currency.of("SEK");
     Identifier sekRegion = RegionUtils.countryRegionId("SE");
-    singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
+    singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency nzd = Currency.of("NZD");
     Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
-    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
+    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 30 })));
     
     Currency cad = Currency.CAD;
     Identifier cadRegion = RegionUtils.countryRegionId("CA");
-    singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency dkk = Currency.of("DKK");
     Identifier dkkRegion = RegionUtils.countryRegionId("DK");
-    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency jpy = Currency.JPY;
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
-    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
-    
+    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 35, 40})));
+//    Currency nzd = Currency.of("NZD");
+//    Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
+//    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
+//    
+//    Currency cad = Currency.CAD;
+//    Identifier cadRegion = RegionUtils.countryRegionId("CA");
+//    singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+//    
+//    Currency dkk = Currency.of("DKK");
+//    Identifier dkkRegion = RegionUtils.countryRegionId("DK");
+//    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+//    
+//    Currency jpy = Currency.JPY;
+//    Identifier jpyRegion = RegionUtils.countryRegionId("JP");
+//    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
+//    
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     //results.put("FORWARD", forwardDefinitions);
     //results.put("FUNDING", fundingDefinitions);
@@ -192,7 +208,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     
-    Tenor[] tenors = new Tenor[] {Tenor.DAY, Tenor.MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, 
+    Tenor[] tenors = new Tenor[] {Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, 
                                   Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS, Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS,
                                   Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7),
                                   Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20),

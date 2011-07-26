@@ -20,6 +20,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -180,7 +181,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), optionForex.getStrike());
-    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
     result.put(point, volatilitySensitivityValue);
     final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
         .getCurrency2(), result);
@@ -223,7 +224,9 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
         vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point);
       }
     }
-    return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix2D(vega));
+    //TODO this needs to have delta labels, not the strike
+    return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile.getSmile()
+        .getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getVolatilityTerm()[0].getStrike(forward)), new DoubleMatrix2D(vega));
   }
 
 }

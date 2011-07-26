@@ -5,6 +5,13 @@
  */
 package com.opengamma.examples.loader;
 
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -13,39 +20,56 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
-import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingRule;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
- * Example code to create a demo portfolio and view
+ * Example code to create a timeseries rating document
  * <p>
  * It is designed to run against the HSQLDB example database.  
  * It should be possible to run this class with no extra command line parameters.
  */
-public class DemoDatabasePopulater {
+public class TimeSeriesRatingLoader {
 
   /** Logger. */
   @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoDatabasePopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesRatingLoader.class);
 
   /**
    * The context.
    */
-  @SuppressWarnings("unused")
   private LoaderContext _loaderContext;
 
   public void setLoaderContext(LoaderContext loaderContext) {
     _loaderContext = loaderContext;
   }
+ 
   
+  public void saveHistoricalTimeSeriesRatings() {
+    ConfigMaster configMaster = _loaderContext.getConfigMaster();
+    ConfigDocument<HistoricalTimeSeriesRating> configDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
+    List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 1));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "OG_DATA_SOURCE", 2));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 1));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "OG_DATA_PROVIDER", 2));
+    HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
+    configDoc.setName(DEFAULT_CONFIG_NAME);
+    configDoc.setValue(ratingConfig);
+    configMaster.add(configDoc);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sets up and loads the context.
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "demoEquityPortfolioLoader".
+   * under the name "timeSeriesRatingLoader".
    * 
    * @param args  the arguments, unused
    */
@@ -64,31 +88,9 @@ public class DemoDatabasePopulater {
       appContext.start();
       
       try {
-        SelfContainedEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader", SelfContainedEquityPortfolioAndSecurityLoader.class);
-        System.out.println("Creating example equity portfolio");
-        equityLoader.createExamplePortfolio();
-        System.out.println("Finished");
-        
-        SelfContainedSwapPortfolioLoader swapLoader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
-        System.out.println("Creating example swap portfolio");
-        swapLoader.createExamplePortfolio();
-        System.out.println("Finished");
-        
-        DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);
-        System.out.println("Creating demo view definition");
-        populator.persistViewDefinitions();
-        System.out.println("Finished");
-        
-        SimulatedHistoricalDataGenerator historicalDataGenerator = appContext.getBean("simulatedHistoricalDataGenerator", SimulatedHistoricalDataGenerator.class);
-        System.out.println("Creating simulated historical timeseries");
-        historicalDataGenerator.run();
-        System.out.println("Finished");
-        
-        TimeSeriesRatingLoader tsConfigLoader = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
-        System.out.println("Creating Timeseries configuration");
-        tsConfigLoader.saveHistoricalTimeSeriesRatings();
-        
-        
+        TimeSeriesRatingLoader populator = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
+        System.out.println("Loading data");
+        populator.saveHistoricalTimeSeriesRatings();
       } finally {
         appContext.close();
       }
