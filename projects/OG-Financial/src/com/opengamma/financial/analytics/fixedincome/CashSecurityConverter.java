@@ -44,6 +44,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
     ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Currency currency = security.getCurrency();
     if (conventions == null) {
+      // remove this
       conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_GENERIC_CASH"));
       if (conventions == null) {
         throw new OpenGammaRuntimeException("Could not get convention for " + security);

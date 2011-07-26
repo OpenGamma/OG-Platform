@@ -55,4 +55,16 @@
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   -->
+  
+  <!-- save timeseries configuration document -->
+  <bean id="timeSeriesRatingLoader" class="com.opengamma.examples.loader.TimeSeriesRatingLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  
+  <!-- run historical data generator -->
+  <bean id="simulatedHistoricalDataGenerator" class="com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg value="${opengamma.example.marketdata.historical}" />
+  </bean>
+  
 </beans>

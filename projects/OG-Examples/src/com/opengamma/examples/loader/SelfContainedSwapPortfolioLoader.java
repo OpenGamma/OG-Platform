@@ -25,11 +25,16 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.com.bytecode.opencsv.CSVReader;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionUtils;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -53,6 +58,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.PlatformConfigUtils;
+import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -71,7 +78,7 @@ public class SelfContainedSwapPortfolioLoader {
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Self Contained Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Self Contained Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -249,7 +256,7 @@ public class SelfContainedSwapPortfolioLoader {
     Notional floatingNotional = new InterestRateNotional(floatingCurrency, floatingNotionalAmount);
     // TODO: not sure that this actually does anything, or what identifier we're looking for - just invented something for now
     String floatingReferenceRate = getWithException(swapDetails, FLOATING_LEG_REFERENCE);
-    Identifier floatingReferenceRateIdentifier = Identifier.of("Ref", floatingReferenceRate);
+    Identifier floatingReferenceRateIdentifier = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, floatingReferenceRate);
     double floatingInitialRate = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_RATE));
     FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(floatingDayCount, floatingFrequency,
         floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, floatingReferenceRateIdentifier,
@@ -303,5 +310,45 @@ public class SelfContainedSwapPortfolioLoader {
     }
     return result;
   }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Sets up and loads the database.
+   * <p>
+   * This loader requires a Spring configuration file that defines the security,
+   * position and portfolio masters, together with an instance of this bean
+   * under the name "selfContainedSwapPortfolioLoader".
+   * 
+   * @param args  the arguments, unused
+   */
+  public static void main(String[] args) {  // CSIGNORE
+    try {
+      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+      JoranConfigurator configurator = new JoranConfigurator();
+      configurator.setContext(lc);
+      lc.reset(); 
+      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
+      
+      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
+      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
+      System.out.println("Starting connections");
+      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
+      appContext.start();
+      
+      try {
+        SelfContainedSwapPortfolioLoader loader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
+        System.out.println("Loading data");
+        loader.createExamplePortfolio();
+      } finally {
+        appContext.close();
+      }
+      System.out.println("Finished");
+      
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    System.exit(0);
+  }
+
 
 }
