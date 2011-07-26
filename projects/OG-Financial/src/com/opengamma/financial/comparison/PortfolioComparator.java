@@ -26,7 +26,7 @@ public class PortfolioComparator extends PositionSetComparator {
 
   private static Collection<Position> getFlattenedPositions(final Portfolio portfolio) {
     final Collection<Position> positions = new LinkedList<Position>();
-    PortfolioNodeTraverser.breadthFirst(new AbstractPortfolioNodeTraversalCallback() {
+    PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override
       public void preOrderOperation(final Position position) {
         positions.add(position);

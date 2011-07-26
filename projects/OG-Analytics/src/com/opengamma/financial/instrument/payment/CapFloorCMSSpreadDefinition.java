@@ -15,8 +15,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -215,7 +215,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -229,20 +229,20 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     // CMS spread is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
     final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<Payment> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
+    final FixedCouponSwap<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
     String[] yieldCurveNames2;
     if (yieldCurveNames.length == 2) {
       yieldCurveNames2 = yieldCurveNames;
     } else {
       yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
     }
-    final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
+    final FixedCouponSwap<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
         fundingCurveName);
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
@@ -259,14 +259,14 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     // CMS spread is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
     final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<Payment> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
+    final FixedCouponSwap<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
     String[] yieldCurveNames2;
     if (yieldCurveNames.length == 2) {
       yieldCurveNames2 = yieldCurveNames;
     } else {
       yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
     }
-    final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
+    final FixedCouponSwap<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
         fundingCurveName);
   }

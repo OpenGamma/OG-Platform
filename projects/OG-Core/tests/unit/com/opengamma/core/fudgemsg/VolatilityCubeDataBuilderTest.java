@@ -1,4 +1,4 @@
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.core.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -13,6 +13,7 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 

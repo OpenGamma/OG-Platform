@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.util.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.BeforeMethod;
@@ -14,8 +14,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.fudgemsg.BuilderTestProxyFactory.BuilderTestProxy;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 
 /**
  * Base class for builder tests.

@@ -13,6 +13,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
@@ -43,14 +44,11 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConve
  * 
  */
 public class FixedIncomeConverterDataProvider {
-  private final String _dataSourceName;
-  private final String _fieldName;
-  private final String _dataProvider = "CMPL"; // TODO: totally fix this.
+  
+  private final String _fieldName = HistoricalTimeSeriesFields.LAST_PRICE;
   private final ConventionBundleSource _conventionSource;
-
-  public FixedIncomeConverterDataProvider(final String dataSourceName, final String fieldName, final ConventionBundleSource conventionSource) {
-    _dataSourceName = dataSourceName;
-    _fieldName = fieldName;
+  
+  public FixedIncomeConverterDataProvider(final ConventionBundleSource conventionSource) {
     _conventionSource = conventionSource;
   }
 
@@ -77,7 +75,7 @@ public class FixedIncomeConverterDataProvider {
     final IdentifierBundle id = security.getIdentifiers();
     final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -93,7 +91,7 @@ public class FixedIncomeConverterDataProvider {
     final Identifier id = security.getUnderlyingIdentifier();
     final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(IdentifierBundle.of(id), _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, IdentifierBundle.of(id), null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -137,22 +135,23 @@ public class FixedIncomeConverterDataProvider {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
 
       Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
-      if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
-        ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
-        if (indexConvention == null) {
-          //TODO remove this immediately
-          indexConvention = _conventionSource.getConventionBundle(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
-        }
-        indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-      } 
-
-      final IdentifierBundle id = indexID.toBundle();
+      final IdentifierBundle id;
+      //if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
+      ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
+      if (indexConvention == null) {
+        //TODO remove this immediately
+        indexConvention = _conventionSource.getConventionBundle(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
+      }
+      id = indexConvention.getIdentifiers();
+      //indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+      
+      //final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7); 
       final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(id, _dataSourceName, _dataProvider, _fieldName, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
       if (ts == null) {        
-        throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
+        throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString() + " bundle used was " + id);
       }
       FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here

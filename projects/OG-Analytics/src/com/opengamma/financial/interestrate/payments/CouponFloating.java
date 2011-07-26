@@ -7,13 +7,12 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic floating coupon with a unique fixing date.
  */
-public class CouponFloating extends Coupon {
+public abstract class CouponFloating extends Coupon {
 
   /**
    * The floating coupon fixing time.
@@ -74,16 +73,6 @@ public class CouponFloating extends Coupon {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitCouponFloating(this, data);
-  }
-
-  @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCouponFloating(this);
   }
 
 }

@@ -183,7 +183,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     _instrumentAdapter =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
             .cashSecurityVisitor(cashConverter)
             .fraSecurityVisitor(fraConverter)
             .swapSecurityVisitor(swapConverter)
@@ -203,7 +203,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           .getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(),
               Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     }
-    _definitionConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource); //TODO this should not be hard-coded
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource); 
   }
 
   //TODO this normalization should not be happening here
@@ -519,5 +519,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   private InstantProvider min(final InstantProvider a, final InstantProvider b) {
     return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+  }
+  
+  public int getPriority() {
+    if (isSecondary()) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
+
+  private boolean isSecondary() {
+    return _fundingCurveDefinitionName.equals("SECONDARY") && _forwardCurveDefinitionName.equals("SECONDARY");
   }
 }
