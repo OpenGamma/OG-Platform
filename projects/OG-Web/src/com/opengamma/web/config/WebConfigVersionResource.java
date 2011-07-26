@@ -75,13 +75,13 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
 
   private String toJSON(final Object config) {
     if (config.getClass().isAssignableFrom(ViewDefinition.class)) {
-      return  new ViewDefinitionJSONBuilder().toJSON((ViewDefinition) config);
+      return  ViewDefinitionJSONBuilder.INSTANCE.toJSON((ViewDefinition) config);
     }
     if (config.getClass().isAssignableFrom(YieldCurveDefinition.class)) {
-      return new YieldCurveDefinitionJSONBuilder().toJSON((YieldCurveDefinition) config);
+      return YieldCurveDefinitionJSONBuilder.INSTANCE.toJSON((YieldCurveDefinition) config);
     }
     if (config.getClass().isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
-      return new CurveSpecificationBuilderConfigurationJSONBuilder().toJSON((CurveSpecificationBuilderConfiguration) config);
+      return CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE.toJSON((CurveSpecificationBuilderConfiguration) config);
     }
     return null;
   }

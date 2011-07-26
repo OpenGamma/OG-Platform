@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -76,6 +77,12 @@ public class WebConfigData extends DirectBean {
    */
   @PropertyDefinition(set = "setClearPutAll")
   private final BiMap<String, Class<?>> _typeMap = HashBiMap.create();
+  
+  /**
+   * The valid map of templates.
+   */
+  @PropertyDefinition
+  private final Map<Class<?>, String> _templateMap = Maps.newHashMap();
   
   /**
    * Creates an instance.
@@ -138,6 +145,8 @@ public class WebConfigData extends DirectBean {
         return getVersioned();
       case -853107774:  // typeMap
         return getTypeMap();
+      case 1769625218:  // templateMap
+        return getTemplateMap();
     }
     return super.propertyGet(propertyName);
   }
@@ -170,6 +179,9 @@ public class WebConfigData extends DirectBean {
       case -853107774:  // typeMap
         setTypeMap((BiMap<String, Class<?>>) newValue);
         return;
+      case 1769625218:  // templateMap
+        setTemplateMap((Map<Class<?>, String>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
@@ -188,7 +200,8 @@ public class WebConfigData extends DirectBean {
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getConfig(), other.getConfig()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap());
+          JodaBeanUtils.equal(getTypeMap(), other.getTypeMap()) &&
+          JodaBeanUtils.equal(getTemplateMap(), other.getTemplateMap());
     }
     return false;
   }
@@ -204,6 +217,7 @@ public class WebConfigData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfig());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTypeMap());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTemplateMap());
     return hash;
   }
 
@@ -416,6 +430,32 @@ public class WebConfigData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the valid map of templates.
+   * @return the value of the property
+   */
+  public Map<Class<?>, String> getTemplateMap() {
+    return _templateMap;
+  }
+
+  /**
+   * Sets the valid map of templates.
+   * @param templateMap  the new value of the property
+   */
+  public void setTemplateMap(Map<Class<?>, String> templateMap) {
+    this._templateMap.clear();
+    this._templateMap.putAll(templateMap);
+  }
+
+  /**
+   * Gets the the {@code templateMap} property.
+   * @return the property, not null
+   */
+  public final Property<Map<Class<?>, String>> templateMap() {
+    return metaBean().templateMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebConfigData}.
    */
   public static class Meta extends DirectMetaBean {
@@ -469,6 +509,12 @@ public class WebConfigData extends DirectBean {
     private final MetaProperty<BiMap<String, Class<?>>> _typeMap = DirectMetaProperty.ofReadWrite(
         this, "typeMap", WebConfigData.class, (Class) BiMap.class);
     /**
+     * The meta-property for the {@code templateMap} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<Class<?>, String>> _templateMap = DirectMetaProperty.ofReadWrite(
+        this, "templateMap", WebConfigData.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -480,7 +526,8 @@ public class WebConfigData extends DirectBean {
         "uriVersionId",
         "config",
         "versioned",
-        "typeMap");
+        "typeMap",
+        "templateMap");
 
     /**
      * Restricted constructor.
@@ -507,6 +554,8 @@ public class WebConfigData extends DirectBean {
           return _versioned;
         case -853107774:  // typeMap
           return _typeMap;
+        case 1769625218:  // templateMap
+          return _templateMap;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -589,6 +638,14 @@ public class WebConfigData extends DirectBean {
      */
     public final MetaProperty<BiMap<String, Class<?>>> typeMap() {
       return _typeMap;
+    }
+
+    /**
+     * The meta-property for the {@code templateMap} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<Class<?>, String>> templateMap() {
+      return _templateMap;
     }
 
   }
