@@ -24,14 +24,14 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value of Bermuda swaptions with the Hull-White one factor model by numerical integration.
- * Reference: Henrard, M. Bermudan Swaptions in Gaussian HJM One-Factor Model: Analytical and Numerical Approaches SSRN, 2008.
+ * Reference: Henrard, M. Bermudan Swaptions in Gaussian HJM One-Factor Model: Analytical and Numerical Approaches. SSRN, October 2008. Available at SSRN: http://ssrn.com/abstract=1287982
  */
 public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod implements PricingMethod {
 
   /**
    * The number of points used in the numerical integration process.
    */
-  private static int _nbPoint;
+  private final int _nbPoint;
   /**
    * The cash flow equivalent calculator used in computations.
    */
@@ -45,6 +45,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  public SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod() {
+    _nbPoint = 50;
+  }
+
   /**
    * Computes the present value of the Physical delivery swaption.
    * @param swaption The swaption.
@@ -54,23 +58,24 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
   public CurrencyAmount presentValue(final SwaptionBermudaFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
     Validate.notNull(hwData);
+    int nbExpiry = swaption.getExpiryTime().length;
+    Validate.isTrue(nbExpiry > 1, "At least two expiry dates required for this method");
 
     double tmpdb;
     YieldAndDiscountCurve discountingCurve = hwData.getCurve(swaption.getUnderlyingSwap()[0].getFirstLeg().getDiscountCurve());
 
-    int N = swaption.getExpiryTime().length;
-    double[] theta = new double[N + 1];
+    double[] theta = new double[nbExpiry + 1]; // Extended expiry time (with 0).
     theta[0] = 0.0;
-    System.arraycopy(swaption.getExpiryTime(), 0, theta, 1, N);
-    AnnuityPaymentFixed[] cashflow = new AnnuityPaymentFixed[N];
-    for (int loopexp = 0; loopexp < N; loopexp++) {
+    System.arraycopy(swaption.getExpiryTime(), 0, theta, 1, nbExpiry);
+    AnnuityPaymentFixed[] cashflow = new AnnuityPaymentFixed[nbExpiry];
+    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       cashflow[loopexp] = CFEC.visit(swaption.getUnderlyingSwap()[loopexp], hwData);
     }
-    int[] n = new int[N];
-    double[][][] alpha = new double[N][][];
-    double[][][] alpha2 = new double[N][][]; // alpha^2
+    int[] n = new int[nbExpiry];
+    double[][][] alpha = new double[nbExpiry][][];
+    double[][][] alpha2 = new double[nbExpiry][][]; // alpha^2
 
-    for (int loopexp = 0; loopexp < N; loopexp++) {
+    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       n[loopexp] = cashflow[loopexp].getNumberOfPayments();
       alpha[loopexp] = new double[loopexp + 1][];
       alpha2[loopexp] = new double[loopexp + 1][];
@@ -85,51 +90,51 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
     }
 
     int nbPoint2 = 2 * _nbPoint + 1;
-    int[] startInt = new int[N - 1];
-    int[] endInt = new int[N - 1];
-    for (int i = 1; i < N - 1; i++) {
+    int[] startInt = new int[nbExpiry - 1];
+    int[] endInt = new int[nbExpiry - 1];
+    for (int i = 1; i < nbExpiry - 1; i++) {
       startInt[i] = 0;
       endInt[i] = nbPoint2 - 1;
     }
     startInt[0] = _nbPoint;
     endInt[0] = _nbPoint;
 
-    double[][] t = new double[N][]; // payment time
-    double[][] dfS = new double[N][]; // discount factor
-    double[] beta = new double[N];
-    double[][] H = new double[N][];
-    double[][] Sa2 = new double[N][];
+    double[][] t = new double[nbExpiry][]; // payment time
+    double[][] dfS = new double[nbExpiry][]; // discount factor
+    double[] beta = new double[nbExpiry];
+    double[][] h = new double[nbExpiry][];
+    double[][] sa2 = new double[nbExpiry][];
 
-    for (int loopexp = 0; loopexp < N; loopexp++) {
+    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       beta[loopexp] = MODEL.beta(theta[loopexp], theta[loopexp + 1], hwData.getHullWhiteParameter());
       t[loopexp] = new double[n[loopexp]];
       dfS[loopexp] = new double[n[loopexp]];
-      H[loopexp] = new double[n[loopexp]];
-      Sa2[loopexp] = new double[n[loopexp]];
+      h[loopexp] = new double[n[loopexp]];
+      sa2[loopexp] = new double[n[loopexp]];
       for (int loopcf = 0; loopcf < n[loopexp]; loopcf++) {
         t[loopexp][loopcf] = cashflow[loopexp].getNthPayment(loopcf).getPaymentTime();
         dfS[loopexp][loopcf] = discountingCurve.getDiscountFactor(t[loopexp][loopcf]);
-        H[loopexp][loopcf] = (Math.exp(hwData.getHullWhiteParameter().getMeanReversion() * t[loopexp][loopcf]) - 1) / hwData.getHullWhiteParameter().getMeanReversion();
+        h[loopexp][loopcf] = (1 - Math.exp(-hwData.getHullWhiteParameter().getMeanReversion() * t[loopexp][loopcf])) / hwData.getHullWhiteParameter().getMeanReversion();
         tmpdb = 0.0;
         for (int k = 0; k <= loopexp; k++) {
           tmpdb += alpha2[loopexp][k][loopcf];
         }
-        Sa2[loopexp][loopcf] = tmpdb;
+        sa2[loopexp][loopcf] = tmpdb;
       }
     }
-    double[] discountedCashFlowN = new double[n[N - 1]];
-    for (int loopcf = 0; loopcf < n[N - 1]; loopcf++) {
-      discountedCashFlowN[loopcf] = dfS[N - 1][loopcf] * cashflow[N - 1].getNthPayment(loopcf).getAmount();
+    double[] discountedCashFlowN = new double[n[nbExpiry - 1]];
+    for (int loopcf = 0; loopcf < n[nbExpiry - 1]; loopcf++) {
+      discountedCashFlowN[loopcf] = dfS[nbExpiry - 1][loopcf] * cashflow[nbExpiry - 1].getNthPayment(loopcf).getAmount();
     }
-    double lambda = MODEL.lambda(discountedCashFlowN, Sa2[N - 1], H[N - 1]);
-    double[] betaSort = new double[N];
-    System.arraycopy(beta, 0, betaSort, 0, N);
+    double lambda = MODEL.lambda(discountedCashFlowN, sa2[nbExpiry - 1], h[nbExpiry - 1]);
+    double[] betaSort = new double[nbExpiry];
+    System.arraycopy(beta, 0, betaSort, 0, nbExpiry);
     Arrays.sort(betaSort);
     double minbeta = betaSort[0];
-    double maxbeta = betaSort[N - 1];
+    double maxbeta = betaSort[nbExpiry - 1];
 
     double b = Math.min(10 * minbeta, maxbeta);
-    double epsilon = -2.0 / _nbPoint * NORMAL.getInverseCDF(1.0 / (50.0 * _nbPoint)) * b;
+    double epsilon = -2.0 / _nbPoint * NORMAL.getInverseCDF(1.0 / (200.0 * _nbPoint)) * b; // <-
     double[] bX = new double[nbPoint2];
     for (int looppt = 0; looppt < nbPoint2; looppt++) {
       bX[looppt] = -_nbPoint * epsilon + looppt * epsilon;
@@ -138,62 +143,63 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
     for (int looppt = 0; looppt < 4 * _nbPoint + 1; looppt++) {
       bX2[looppt] = -2 * _nbPoint * epsilon + looppt * epsilon;
     }
-    double[] Htheta = new double[N];
-    for (int loopexp = 0; loopexp < N; loopexp++) {
-      Htheta[loopexp] = (1 - Math.exp(-theta[loopexp] * hwData.getHullWhiteParameter().getMeanReversion())) / hwData.getHullWhiteParameter().getMeanReversion();
+    double[] htheta = new double[nbExpiry];
+    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
+      htheta[loopexp] = (1 - Math.exp(-hwData.getHullWhiteParameter().getMeanReversion() * theta[loopexp + 1])) / hwData.getHullWhiteParameter().getMeanReversion();
     }
 
-    double[][] Z = new double[N - 1][nbPoint2];
-    for (int i = N - 2; i >= 0; i--) {
+    double[][] vZ = new double[nbExpiry - 1][nbPoint2];
+    for (int i = nbExpiry - 2; i >= 0; i--) {
       for (int looppt = 0; looppt < nbPoint2; looppt++) {
-        Z[i][looppt] = Math.exp(bX[looppt] * Htheta[i]);
+        vZ[i][looppt] = Math.exp(bX[looppt] * htheta[i]);
       }
     }
-    double[] Sa2N_1 = new double[n[N - 1]];
-    for (int i = 0; i < n[N - 1]; i++) {
-      tmpdb = 0;
-      for (int k = 0; k <= N - 2; k++) {
-        tmpdb += alpha2[N - 1][k][i];
-      }
-      Sa2N_1[i] = tmpdb;
-    }
 
-    double[][] W = new double[N][];
-    double[][] T = new double[N - 1][];
+    double[][] vW = new double[nbExpiry][]; // Swaption
+    double[][] vT = new double[nbExpiry - 1][]; // Swap
 
-    double omega = -Math.signum(cashflow[N - 1].getNthPayment(0).getAmount());
+    double omega = -Math.signum(cashflow[nbExpiry - 1].getNthPayment(0).getAmount());
     double[] kappaL = new double[nbPoint2];
     for (int looppt = 0; looppt < nbPoint2; looppt++) {
-      kappaL[looppt] = (lambda - bX[looppt]) / beta[N - 1];
+      kappaL[looppt] = (lambda - bX[looppt]) / beta[nbExpiry - 1];
     }
 
-    W[N - 1] = new double[4 * _nbPoint + 1];
-    for (int j = 0; j < n[N - 1]; j++) {
+    double[] sa2N1 = new double[n[nbExpiry - 1]];
+    for (int i = 0; i < n[nbExpiry - 1]; i++) {
+      tmpdb = 0;
+      for (int k = 0; k <= nbExpiry - 2; k++) {
+        tmpdb += alpha2[nbExpiry - 1][k][i];
+      }
+      sa2N1[i] = tmpdb;
+    }
+
+    vW[nbExpiry - 1] = new double[4 * _nbPoint + 1];
+    for (int j = 0; j < n[nbExpiry - 1]; j++) {
       for (int looppt = 0; looppt < nbPoint2; looppt++) {
-        W[N - 1][_nbPoint + looppt] += discountedCashFlowN[j] * Math.exp(-Sa2N_1[j] - H[N - 1][j] * bX[looppt]) * NORMAL.getCDF(omega * (kappaL[looppt] + alpha[N - 1][N - 1][j]));
+        vW[nbExpiry - 1][_nbPoint + looppt] += discountedCashFlowN[j] * Math.exp(-sa2N1[j] / 2.0 - h[nbExpiry - 1][j] * bX[looppt])
+            * NORMAL.getCDF(omega * (kappaL[looppt] + alpha[nbExpiry - 1][nbExpiry - 1][j]));
       }
     }
     for (int looppt = 0; looppt < _nbPoint; looppt++) {
-      W[N - 1][looppt] = W[N - 1][_nbPoint];
+      vW[nbExpiry - 1][looppt] = vW[nbExpiry - 1][_nbPoint];
     }
     for (int looppt = 0; looppt < _nbPoint; looppt++) {
-      W[N - 1][3 * _nbPoint + 1 + looppt] = W[N - 1][3 * _nbPoint];
+      vW[nbExpiry - 1][3 * _nbPoint + 1 + looppt] = vW[nbExpiry - 1][3 * _nbPoint];
     }
 
     double c1sqrt2pi = 1.0 / Math.sqrt(2 * Math.PI);
-    double[][] pvcfT = new double[N - 1][];
-    double[] L; // Left side of intersection
-    double[] R; // Right side of intersection
-    double[][] Labc;
-    double[][] Rabc;
-    double[][] LabcM = new double[3][4 * _nbPoint + 1];
-    double[][] RabcM = new double[3][4 * _nbPoint + 1];
-    double[][] Xabc = new double[3][2 * _nbPoint];
+    double[][] pvcfT = new double[nbExpiry - 1][];
+    double[] vL; // Left side of intersection
+    double[] vR; // Right side of intersection
+    double[][] labc;
+    double[][] rabc;
+    double[][] labcM = new double[3][4 * _nbPoint + 1];
+    double[][] rabcM = new double[3][4 * _nbPoint + 1];
 
-    double[] Dabc = new double[3];
-    int[] indSwap = new int[N - 1]; // index of the intersection
+    double[] dabc = new double[3];
+    int[] indSwap = new int[nbExpiry - 1]; // index of the intersection
     double xroot;
-    double[][] xN = new double[N - 1][nbPoint2];
+    double[][] xN = new double[nbExpiry - 1][nbPoint2];
     double ci;
     double coi;
     int is;
@@ -201,65 +207,64 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
     double[] ncdf1 = new double[nbPoint2];
     double[] ncdf2 = new double[nbPoint2];
     double[] ncdf0X = new double[nbPoint2 + 1];
-    double[] ncdf1X;
-    double[] ncdf2X;
-    double ncdf0_x;
-    double ncdf1_x;
-    double ncdf2_x;
-    double ncdf_init;
+    double[] ncdf1X = new double[nbPoint2 + 1];
+    double[] ncdf2X = new double[nbPoint2 + 1];
+    double ncdf0x;
+    double ncdf1x;
+    double ncdf2x;
+    double ncdfinit;
 
     // Main loop for the different expiry dates (except the last one)
-    for (int i = N - 2; i >= 0; i--) {
-      W[i] = new double[4 * _nbPoint + 1];
-      T[i] = new double[4 * _nbPoint + 1];
+    for (int i = nbExpiry - 2; i >= 0; i--) {
+      vW[i] = new double[4 * _nbPoint + 1];
+      vT[i] = new double[4 * _nbPoint + 1];
       // T: swap
       pvcfT[i] = new double[n[i]];
       for (int j = 0; j < n[i]; j++) {
         pvcfT[i][j] = cashflow[i].getNthPayment(j).getAmount() * dfS[i][j];
         for (int looppt = 0; looppt < 4 * _nbPoint + 1; looppt++) {
-          T[i][looppt] += pvcfT[i][j] * Math.exp(-Sa2[i][j] / 2.0 - H[i][j] * bX2[looppt]);
-
+          vT[i][looppt] += pvcfT[i][j] * Math.exp(-sa2[i][j] / 2.0 - h[i][j] * bX2[looppt]);
         }
       }
       // Preparation
       for (int looppt = 0; looppt < nbPoint2; looppt++) {
         xN[i][looppt] = bX[looppt] / beta[i];
       }
-      ci = Htheta[i] * beta[i];
+      ci = htheta[i] * beta[i];
       coi = Math.exp(ci * ci / 2);
 
       // Left/Right
       if (omega < 0) {
-        L = W[i + 1];
-        R = T[i];
+        vL = vW[i + 1];
+        vR = vT[i];
       } else {
-        R = W[i + 1];
-        L = T[i];
+        vR = vW[i + 1];
+        vL = vT[i];
       }
       indSwap[i] = 0;
-      while (L[indSwap[i] + 1] >= R[indSwap[i] + 1]) {
+      while (vL[indSwap[i] + 1] >= vR[indSwap[i] + 1]) {
         indSwap[i]++;
       }
       // Parabola fit
-      Labc = parafit(epsilon / beta[i], L);
-      Rabc = parafit(epsilon / beta[i], R);
+      labc = parafit(epsilon / beta[i], vL);
+      rabc = parafit(epsilon / beta[i], vR);
       for (int k = 0; k < 3; k++) {
-        Dabc[k] = Labc[k][indSwap[i]] - Rabc[k][indSwap[i]];
-        System.arraycopy(Labc[k], 0, LabcM[k], 0, indSwap[i] + 1);
-        System.arraycopy(Labc[k], indSwap[i], LabcM[k], indSwap[i] + 1, Labc[k].length - indSwap[i]);
-        System.arraycopy(Rabc[k], 0, RabcM[k], 0, indSwap[i] + 1);
-        System.arraycopy(Rabc[k], indSwap[i], RabcM[k], indSwap[i] + 1, Rabc[k].length - indSwap[i]);
+        dabc[k] = labc[k][indSwap[i]] - rabc[k][indSwap[i]];
+        System.arraycopy(labc[k], 0, labcM[k], 0, indSwap[i] + 1);
+        System.arraycopy(labc[k], indSwap[i], labcM[k], indSwap[i] + 1, labc[k].length - indSwap[i]);
+        System.arraycopy(rabc[k], 0, rabcM[k], 0, indSwap[i] + 1);
+        System.arraycopy(rabc[k], indSwap[i], rabcM[k], indSwap[i] + 1, rabc[k].length - indSwap[i]);
       }
 
       for (int looppt = 0; looppt < 4 * _nbPoint + 1; looppt++) {
-        LabcM[1][looppt] = LabcM[1][looppt] + LabcM[0][looppt] * 2 * ci;
-        LabcM[2][looppt] = LabcM[2][looppt] + LabcM[1][looppt] * ci - LabcM[0][looppt] * ci * ci;
-        RabcM[1][looppt] = RabcM[1][looppt] + RabcM[0][looppt] * 2 * ci;
-        RabcM[2][looppt] = RabcM[2][looppt] + RabcM[1][looppt] * ci - RabcM[0][looppt] * ci * ci;
+        labcM[1][looppt] = labcM[1][looppt] + labcM[0][looppt] * 2 * ci;
+        labcM[2][looppt] = labcM[2][looppt] + labcM[1][looppt] * ci - labcM[0][looppt] * ci * ci;
+        rabcM[1][looppt] = rabcM[1][looppt] + rabcM[0][looppt] * 2 * ci;
+        rabcM[2][looppt] = rabcM[2][looppt] + rabcM[1][looppt] * ci - rabcM[0][looppt] * ci * ci;
       }
-      xroot = (-Dabc[1] - Math.sqrt(Dabc[1] * Dabc[1] - 4 * Dabc[0] * Dabc[2])) / (2 * Dabc[0]);
+      xroot = (-dabc[1] - Math.sqrt(dabc[1] * dabc[1] - 4 * dabc[0] * dabc[2])) / (2 * dabc[0]);
 
-      ncdf_init = NORMAL.getCDF(xN[i][0]);
+      ncdfinit = NORMAL.getCDF(xN[i][0]);
 
       for (int looppt = 0; looppt < nbPoint2; looppt++) {
         ncdf0[looppt] = NORMAL.getCDF(xN[i][looppt] - ci);
@@ -271,52 +276,65 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
         is = indSwap[i] - j + 1;
         // % all L
         if (j + 2 * _nbPoint <= indSwap[i]) {
+          double[][] xabc = new double[3][2 * _nbPoint];
           for (int k = 0; k < 3; k++) {
-            System.arraycopy(LabcM[k], j, Xabc[k], 0, 2 * _nbPoint);
+            System.arraycopy(labcM[k], j, xabc[k], 0, 2 * _nbPoint);
           }
           for (int looppt = 0; looppt < 2 * _nbPoint; looppt++) {
-            Xabc[1][looppt] = Xabc[1][looppt] + Xabc[0][looppt] * 2 * xN[i][j];
-            Xabc[2][looppt] = Xabc[2][looppt] + Xabc[1][looppt] * xN[i][j] - Xabc[0][looppt] * xN[i][j] * xN[i][j];
+            xabc[1][looppt] = xabc[1][looppt] + xabc[0][looppt] * 2 * xN[i][j];
+            xabc[2][looppt] = xabc[2][looppt] + xabc[1][looppt] * xN[i][j] - xabc[0][looppt] * xN[i][j] * xN[i][j];
           }
-          W[i][j + _nbPoint] = 0;
-          W[i][j + _nbPoint] = W[i][j + _nbPoint] + coi * ni2ncdf(ncdf2, ncdf1, ncdf0, Xabc);
+          vW[i][j + _nbPoint] = 0;
+          vW[i][j + _nbPoint] = vW[i][j + _nbPoint] + coi * ni2ncdf(ncdf2, ncdf1, ncdf0, xabc);
         } else if (j < indSwap[i]) {
+          double[][] xabc = new double[3][2 * _nbPoint + 1];
           tmpdb = xroot - xN[i][j] - ci;
-          ncdf0_x = NORMAL.getCDF(tmpdb);
-          ncdf1_x = -Math.exp(-(tmpdb * tmpdb) / 2) * c1sqrt2pi;
-          ncdf2_x = ncdf1_x * tmpdb + ncdf0_x;
-          //          for (int k = 0; k < 3; k++) {
-          //            Xabc[k] = LabcM[k].getSubVector(j, 2 * nbPoint_ + 1);
-          //            Xabc[k].setSubVector(indSwap[i] + 1 - j, RabcM[k].getSubVector(indSwap[i] + 1, j + 2 * nbPoint_ - indSwap[i]));
-          //          }
-          //          Xabc[1] = Xabc[1].add(Xabc[0].mapMultiply(2 * xN[i].getEntry(j)));
-          //          Xabc[2] = Xabc[2].add(Xabc[1].mapMultiply(xN[i].getEntry(j))).subtract(Xabc[0].mapMultiply(xN[i].getEntry(j) * xN[i].getEntry(j)));
-          //          ncdf0X.setSubVector(0, ncdf0.getSubVector(0, is));
-          //          ncdf0X.setEntry(is, ncdf0_x);
-          //          ncdf0X.setSubVector(is + 1, ncdf0.getSubVector(is, ncdf0.getDimension() - is));
-          //          ncdf1X = ncdf1.getSubVector(0, is).append(ncdf1_x).append(ncdf1.getSubVector(is, ncdf1.getDimension() - is));
-          //          ncdf2X = ncdf2.getSubVector(0, is).append(ncdf2_x).append(ncdf2.getSubVector(is, ncdf2.getDimension() - is));
-          //          W[i][j + _nbPoint] = L[j] * Z[i][0] * ncdf_init;
-          //          W[i][j + _nbPoint] += +coi * ni2ncdf(ncdf2X, ncdf1X, ncdf0X, Xabc);
-          //          W[i][j + _nbPoint] += R[j + 2 * _nbPoint] * Z[i][Z[i].length - 1] * ncdf_init;
-          //        }else {
-          //          for (int k = 0; k < 3; k++) {
-          //            Xabc[k] = RabcM[k].getSubVector(j + 1, 2 * nbPoint_);
-          //          }
-          //          Xabc[1] = Xabc[1].add(Xabc[0].mapMultiply(2 * xN[i]
-          //              .getEntry(j)));
-          //          Xabc[2] = Xabc[2].add(
-          //              Xabc[1].mapMultiply(xN[i].getEntry(j))).subtract(
-          //              Xabc[0].mapMultiply(xN[i].getEntry(j)
-          //                  * xN[i].getEntry(j)));
-          W[i][j + _nbPoint] = R[j] * Z[i][0] * ncdf_init;
-          W[i][j + _nbPoint] += coi * ni2ncdf(ncdf2, ncdf1, ncdf0, Xabc);
-          W[i][j + _nbPoint] += R[j + 2 * _nbPoint] * Z[i][Z[i].length - 1] * ncdf_init;
+          ncdf0x = NORMAL.getCDF(tmpdb);
+          ncdf1x = -Math.exp(-(tmpdb * tmpdb) / 2) * c1sqrt2pi;
+          ncdf2x = ncdf1x * tmpdb + ncdf0x;
+          for (int k = 0; k < 3; k++) {
+            //            System.arraycopy(rabcM[k], j, xabc[k], 0, 2 * _nbPoint + 1); // Swap
+            System.arraycopy(labcM[k], j, xabc[k], 0, 2 * _nbPoint + 1);
+            System.arraycopy(rabcM[k], indSwap[i] + 1, xabc[k], indSwap[i] + 1 - j, j + 2 * _nbPoint - indSwap[i]);
+          }
+          for (int looppt = 0; looppt < 2 * _nbPoint; looppt++) {
+            xabc[1][looppt] = xabc[1][looppt] + xabc[0][looppt] * 2 * xN[i][j];
+            xabc[2][looppt] = xabc[2][looppt] + xabc[1][looppt] * xN[i][j] - xabc[0][looppt] * xN[i][j] * xN[i][j];
+          }
+          System.arraycopy(ncdf0, 0, ncdf0X, 0, is);
+          ncdf0X[is] = ncdf0x;
+          System.arraycopy(ncdf0, is, ncdf0X, is + 1, ncdf0.length - is);
+          System.arraycopy(ncdf1, 0, ncdf1X, 0, is);
+          ncdf1X[is] = ncdf1x;
+          System.arraycopy(ncdf1, is, ncdf1X, is + 1, ncdf1.length - is);
+          System.arraycopy(ncdf2, 0, ncdf2X, 0, is);
+          ncdf2X[is] = ncdf2x;
+          System.arraycopy(ncdf2, is, ncdf2X, is + 1, ncdf2.length - is);
+          vW[i][j + _nbPoint] = vL[j] * vZ[i][0] * ncdfinit;
+          vW[i][j + _nbPoint] += coi * ni2ncdf(ncdf2X, ncdf1X, ncdf0X, xabc);
+          vW[i][j + _nbPoint] += vR[j + 2 * _nbPoint] * vZ[i][vZ[i].length - 1] * ncdfinit;
+        } else {
+          double[][] xabc = new double[3][2 * _nbPoint];
+          for (int k = 0; k < 3; k++) {
+            System.arraycopy(rabcM[k], j + 1, xabc[k], 0, 2 * _nbPoint);
+            //            System.arraycopy(labcM[k], j + 1, xabc[k], 0, 2 * _nbPoint); // Swaption
+          }
+          for (int looppt = 0; looppt < 2 * _nbPoint; looppt++) {
+            xabc[1][looppt] = xabc[1][looppt] + xabc[0][looppt] * 2 * xN[i][j];
+            xabc[2][looppt] = xabc[2][looppt] + xabc[1][looppt] * xN[i][j] - xabc[0][looppt] * xN[i][j] * xN[i][j];
+          }
+          vW[i][j + _nbPoint] = vR[j] * vZ[i][0] * ncdfinit;
+          vW[i][j + _nbPoint] += coi * ni2ncdf(ncdf2, ncdf1, ncdf0, xabc);
+          vW[i][j + _nbPoint] += vR[j + 2 * _nbPoint] * vZ[i][vZ[i].length - 1] * ncdfinit;
         }
       }
-    }
+      for (int j = 0; j < _nbPoint; j++) { // Flat extrapolation
+        vW[i][j] = vW[i][_nbPoint];
+        vW[i][3 * _nbPoint + 1 + j] = vW[i][3 * _nbPoint];
+      }
+    } // End main loop
 
-    return CurrencyAmount.of(swaption.getUnderlyingSwap()[0].getFixedLeg().getCurrency(), 0.0);
+    return CurrencyAmount.of(swaption.getUnderlyingSwap()[0].getFixedLeg().getCurrency(), vW[0][2 * _nbPoint] * (swaption.isLong() ? 1.0 : -1.0));
   }
 
   @Override
@@ -326,6 +344,12 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
     return presentValue(instrument, curves);
   }
 
+  /**
+   * Fit the parabolas.
+   * @param dx Distance between the x values.
+   * @param y The y values.
+   * @return The parabolas coefficients.
+   */
   private static double[][] parafit(double dx, double[] y) {
     int nbPts = y.length;
     int nbStep = (nbPts - 1) / 2;
@@ -352,6 +376,14 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod impleme
     return abc;
   }
 
+  /**
+   * Numerical integration of the parabolas against the normal distribution.
+   * @param n2 Second order integrals.
+   * @param n1 First order integrals.
+   * @param n0 Order 0 integrals.
+   * @param abc The parabolas coefficients.
+   * @return The integral.
+   */
   private static double ni2ncdf(double[] n2, double[] n1, double[] n0, double[][] abc) {
     double s = 0;
     for (int i = 0; i < abc[0].length; i++) {
