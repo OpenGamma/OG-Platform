@@ -18,8 +18,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -62,21 +60,19 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
   }
 
   @Override
-  protected abstract Object getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data);
-
-  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
     return target.getSecurity() instanceof FXBarrierOptionSecurity;
   }
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXBarrierOptionSecurity fxOption = (FXBarrierOptionSecurity) target.getSecurity();
-    String putCurveName = getPutCurveName();
-    String callCurveName = getCallCurveName();
-    String surfaceName = getSurfaceName();
+    final String putCurveName = getPutCurveName();
+    final String callCurveName = getCallCurveName();
+    final String surfaceName = getSurfaceName();
     final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putCurveName, putCurveName, putCurveName);
     final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callCurveName, callCurveName, callCurveName);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)

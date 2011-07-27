@@ -31,12 +31,10 @@ import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmoun
 import com.opengamma.financial.analytics.FXSummingFunction;
 import com.opengamma.financial.analytics.PV01SummingFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
-import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.PresentValueSummingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
-import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondConvexityFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
@@ -85,6 +83,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentVa
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
@@ -275,6 +274,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
