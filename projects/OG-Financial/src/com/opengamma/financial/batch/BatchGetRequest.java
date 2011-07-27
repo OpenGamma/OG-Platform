@@ -81,6 +81,9 @@ public class BatchGetRequest extends DirectBean {
   public static BatchGetRequest.Meta meta() {
     return BatchGetRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(BatchGetRequest.Meta.INSTANCE);
+  }
 
   @Override
   public BatchGetRequest.Meta metaBean() {
@@ -88,7 +91,7 @@ public class BatchGetRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -97,11 +100,11 @@ public class BatchGetRequest extends DirectBean {
       case 704383035:  // errorPagingRequest
         return getErrorPagingRequest();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -113,7 +116,7 @@ public class BatchGetRequest extends DirectBean {
         setErrorPagingRequest((PagingRequest) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

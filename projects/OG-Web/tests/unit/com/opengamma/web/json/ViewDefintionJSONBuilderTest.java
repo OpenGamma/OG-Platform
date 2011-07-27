@@ -11,7 +11,7 @@ import com.opengamma.engine.view.ViewDefinition;
 
 public class ViewDefintionJSONBuilderTest {
   
-  private final ViewDefinitionJSONBuilder _jsonBuilder = new ViewDefinitionJSONBuilder();
+  private final ViewDefinitionJSONBuilder _jsonBuilder = ViewDefinitionJSONBuilder.INSTANCE;
   
   @Test
   public void test_encode_decode_cycle() {

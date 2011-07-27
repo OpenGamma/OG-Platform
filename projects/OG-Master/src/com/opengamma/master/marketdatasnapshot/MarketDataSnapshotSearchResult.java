@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for snapshots.
@@ -97,6 +98,9 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   public static MarketDataSnapshotSearchResult.Meta meta() {
     return MarketDataSnapshotSearchResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MarketDataSnapshotSearchResult.Meta.INSTANCE);
+  }
 
   @Override
   public MarketDataSnapshotSearchResult.Meta metaBean() {
@@ -104,13 +108,13 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

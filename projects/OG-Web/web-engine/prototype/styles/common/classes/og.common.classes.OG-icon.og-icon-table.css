@@ -1,0 +1,8 @@
+.OG-icon.og-icon-table:after {
+  background-position: 0 -60px;
+  background-color: transparent;
+  height: 14px;
+  width: 15px;
+  z-index: 2;
+  position: absolute;
+}

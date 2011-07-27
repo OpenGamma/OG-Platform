@@ -44,6 +44,9 @@ public class SnapshotDataBundle extends DirectBean {
   public static SnapshotDataBundle.Meta meta() {
     return SnapshotDataBundle.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SnapshotDataBundle.Meta.INSTANCE);
+  }
 
   @Override
   public SnapshotDataBundle.Meta metaBean() {
@@ -51,23 +54,23 @@ public class SnapshotDataBundle extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1186222381:  // dataPoints
         return getDataPoints();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1186222381:  // dataPoints
         setDataPoints((Map<UniqueIdentifier, Double>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

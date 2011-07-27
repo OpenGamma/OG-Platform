@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for portfolio trees.
@@ -72,6 +73,9 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
   public static PortfolioSearchResult.Meta meta() {
     return PortfolioSearchResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PortfolioSearchResult.Meta.INSTANCE);
+  }
 
   @Override
   public PortfolioSearchResult.Meta metaBean() {
@@ -79,13 +83,13 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

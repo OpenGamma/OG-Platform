@@ -163,6 +163,9 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public static PortfolioSearchRequest.Meta meta() {
     return PortfolioSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PortfolioSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public PortfolioSearchRequest.Meta metaBean() {
@@ -170,7 +173,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -160779184:  // portfolioIds
         return getPortfolioIds();
@@ -181,12 +184,12 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
       case 95472323:  // depth
         return getDepth();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -160779184:  // portfolioIds
         setPortfolioIds((List<ObjectIdentifier>) newValue);
@@ -201,7 +204,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         setDepth((Integer) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

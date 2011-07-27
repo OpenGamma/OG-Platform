@@ -30,33 +30,33 @@
 
 	<target name="init" depends="get-build-projects-file-for-user"
 		description="initialises the system config (user/pw required)" />
-	
+
 	<!-- get user-specific build-projects.xml file -->
 	<target name="get-build-projects-file-for-user" depends="init-credentials">
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/tests.properties" dest="${common.dir}/tests.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/db.properties" dest="${common.dir}/db.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 	</target>
-	
-	<!-- dump the credentials established in dependant targets to a properties file for use by ivy --> 
+
+	<!-- dump the credentials established in dependant targets to a properties file for use by ivy -->
 	<target name="init-credentials" depends="init-prompt,init-env">
 		<echo file="${common.dir}/credentials.properties">opengamma.username=${opengamma.username}${line.separator}opengamma.password=${opengamma.password}</echo>
     </target>
-    	
+
 	<!-- prompts the user for username and password if environemnt variables are not set -->
 	<target name="init-prompt" depends="check-user-env-and-password-present" unless="og.user.and.password.set">
 		<echo message="Please enter your credentials or use the defaults if you don't have an account"/>
 		<input message="${line.separator}Username" defaultvalue="opengamma-public" addproperty="opengamma.username"/>
 		<input message="Password" defaultvalue="opengamma" addproperty="opengamma.password"/>
-		<!-- would like to use secure password handling, but it's going in a file and that only works on Ant 1.8 --> 
+		<!-- would like to use secure password handling, but it's going in a file and that only works on Ant 1.8 -->
 	</target>
-	
+
 	<!-- copies the username and password properties from environment vairables if they're set -->
 	<target name="init-env" depends="check-user-env-and-password-present" if="og.user.and.password.set">
 		<property name="opengamma.username" value="${env.OG_USER}"/>
 		<property name="opengamma.password" value="${env.OG_PASSWORD}"/>
-	</target>	
-	
+	</target>
+
 	<!-- this task sets the og.user.and.password.set property if the environment variables OG_USER and OG_PASSWORD are set -->
 	<!-- which overrides the manual prompt so we can do automated builds from within Bamboo -->
 	<target name="check-user-env-and-password-present">
@@ -67,7 +67,7 @@
 		  </and>
 		</condition>
 	</target>
-		
+
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
@@ -287,7 +287,7 @@
 			<globmapper from="og-*" to="${dist.file.prefix}*" />
 		</copy>
 	</target>
-	
+
   <!-- ================================================================== -->
 	<target name="tests-individual-reports" depends="buildlist"
 		description="run tests for all projects with separate reports">
@@ -316,7 +316,7 @@
 			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
 			<!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
 			<!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
-			<!-- you might also need to up the stack frame size with -Xms --> 
+			<!-- you might also need to up the stack frame size with -Xms -->
 			<report todir="${tests.junit.dir}/html" format="noframes" />
 		</junitreport>
 	</target>
@@ -342,6 +342,11 @@
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
+	<target name="clean-lib-all" depends="buildlist"
+		description="clean all project lib directories (dependencies)">
+		<og-subant target="clean-lib" buildpathref="build-path" />
+	</target>
+
 	<target name="clean" depends="clean-all, load-ivy"
 		description="clean all projects, delete repository &amp; reload ivy">
 		<delete dir="${repository.dir}" />
@@ -361,7 +366,7 @@
   <!-- ================================================================== -->
 	<!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
 	<!-- to filter the output -->
-	<target name="javadoc-public" depends="load-ivy, resolve" 
+	<target name="javadoc-public" depends="load-ivy, resolve"
 		description="javadoc for public APIs and SPIs of the project">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
@@ -440,7 +445,7 @@
     </javadoc>
     <delete dir="${docs.dir}/temp-src"/>
   </target>
-  
+
 	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
 	<target name="javadoc-public-jar" depends="javadoc-public"
 		description="javadoc (public) built into a jar file">
@@ -460,7 +465,7 @@
     <target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
 	    <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
     </target>
-	
+
 	<import file="${common.dir}/clover-common.xml"/>
 	<import file="${common.dir}/build-projects.xml" optional="true"/>
 

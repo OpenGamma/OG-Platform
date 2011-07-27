@@ -31,11 +31,19 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   private static final String INTERPOLATOR_NAME_FIELD = "interpolatorName";
   private static final String REGION_FIELD = "region";
   private static final String CURRENCY_FIELD = "currency";
+  /**
+   * Singleton
+   */
+  public static final YieldCurveDefinitionJSONBuilder INSTANCE = new YieldCurveDefinitionJSONBuilder();
+  /**
+   * JSON template
+   */
+  public static final String TEMPLATE = getTemplate();
 
   /**
-   * Creates an instance 
+   * Restricted constructor 
    */
-  public YieldCurveDefinitionJSONBuilder() {
+  private YieldCurveDefinitionJSONBuilder() {
   }
 
   @Override
@@ -97,6 +105,10 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
     return jsonObject.toString();
+  }
+  
+  private static String getTemplate() {
+    return null;
   }
 
 }

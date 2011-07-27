@@ -86,6 +86,9 @@ public class ConfigDocument<T> extends AbstractDocument {
   public static <R> ConfigDocument.Meta<R> meta() {
     return ConfigDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ConfigDocument.Meta.INSTANCE);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -94,7 +97,7 @@ public class ConfigDocument<T> extends AbstractDocument {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -105,12 +108,12 @@ public class ConfigDocument<T> extends AbstractDocument {
       case 3575610:  // type
         return getType();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -125,7 +128,7 @@ public class ConfigDocument<T> extends AbstractDocument {
         setType((Class<T>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
