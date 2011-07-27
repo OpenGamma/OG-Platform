@@ -110,7 +110,8 @@ $.register_module({
                 }
             },
             form_generators = {
-                viewdefinition: og.views.configs.viewdefinition
+                viewdefinition: og.views.configs.viewdefinition,
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
             },
             load_configs_without = function (field, args) {
                 check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
