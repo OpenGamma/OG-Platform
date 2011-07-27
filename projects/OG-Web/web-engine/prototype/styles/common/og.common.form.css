@@ -16,9 +16,3 @@ input[type="text"] {
 input, select, textarea {
   outline: 0 none;
 }
-
-/*input:focus,*/
-/*select:focus,*/
-/*textarea:focus {*/
-  /*background-color: #eef7fc;*/
-/*}*/

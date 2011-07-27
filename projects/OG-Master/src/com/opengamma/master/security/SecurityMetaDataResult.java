@@ -53,6 +53,9 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   public static SecurityMetaDataResult.Meta meta() {
     return SecurityMetaDataResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SecurityMetaDataResult.Meta.INSTANCE);
+  }
 
   @Override
   public SecurityMetaDataResult.Meta metaBean() {
@@ -60,23 +63,23 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         return getSecurityTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         setSecurityTypes((List<String>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

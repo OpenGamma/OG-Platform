@@ -7,6 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import org.testng.annotations.Test;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Test the {@link ValuePropertiesBuilder} class.

@@ -252,6 +252,9 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public static HistoricalTimeSeriesInfoSearchRequest.Meta meta() {
     return HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public HistoricalTimeSeriesInfoSearchRequest.Meta metaBean() {
@@ -259,7 +262,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1945391914:  // infoIds
         return getInfoIds();
@@ -280,12 +283,12 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
       case 951232793:  // observationTime
         return getObservationTime();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1945391914:  // infoIds
         setInfoIds((List<ObjectIdentifier>) newValue);
@@ -315,7 +318,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
         setObservationTime((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

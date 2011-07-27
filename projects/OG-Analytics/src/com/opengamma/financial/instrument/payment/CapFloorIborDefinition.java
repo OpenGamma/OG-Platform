@@ -13,8 +13,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -46,8 +46,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param isCap The cap/floor flag.
    */
   public CapFloorIborDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional,
-      final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
     Validate.isTrue(currency == index.getCurrency(), "payment currency should be same as the index currency");
     _strike = strike;
@@ -68,8 +67,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @return The cap/floor.
    */
   public static CapFloorIborDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate,
-      final IborIndex index, final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
     Validate.notNull(index, "index");
     return new CapFloorIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, strike, isCap);
   }
@@ -126,7 +124,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -142,11 +140,11 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
     return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
+        getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(indexFixingTS, "index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -166,7 +164,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
     return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
+        getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
   @Override

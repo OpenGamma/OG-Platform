@@ -24,12 +24,12 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureTransact
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -215,7 +215,10 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle curves) {
-    return visitFixedPayment(payment, curves);
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
+    return payment.getAmount() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
   @Override
@@ -239,11 +242,10 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValue(coupon, curves).getAmount();
   }
-  
+
   @Override
   public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
-
 
 }

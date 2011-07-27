@@ -26,8 +26,8 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
    * @param parameters The parameters that were fit
    * @param covariance The covariance matrix of the result
    */
-  public GeneralizedLeastSquareResults(final List<Function1D<T, Double>> basisFunctions, double chiSq, DoubleMatrix1D parameters, DoubleMatrix2D covariance) {
-    super(chiSq, parameters, covariance);
+  public GeneralizedLeastSquareResults(final List<Function1D<T, Double>> basisFunctions, final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
+    super(chiSq, parameters, covariance, null);
 
     _function = new BasisFunctionAggregation<T>(basisFunctions, parameters.getData());
   }

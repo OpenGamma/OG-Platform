@@ -92,6 +92,9 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
   public static MarketDataSnapshotDocument.Meta meta() {
     return MarketDataSnapshotDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MarketDataSnapshotDocument.Meta.INSTANCE);
+  }
 
   @Override
   public MarketDataSnapshotDocument.Meta metaBean() {
@@ -99,18 +102,18 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
       case 284874180:  // snapshot
         return getSnapshot();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -119,7 +122,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
         setSnapshot((ManageableMarketDataSnapshot) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

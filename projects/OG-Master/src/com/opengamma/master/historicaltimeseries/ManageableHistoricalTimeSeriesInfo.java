@@ -107,6 +107,9 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   public static ManageableHistoricalTimeSeriesInfo.Meta meta() {
     return ManageableHistoricalTimeSeriesInfo.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableHistoricalTimeSeriesInfo.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableHistoricalTimeSeriesInfo.Meta metaBean() {
@@ -114,7 +117,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -133,11 +136,11 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
       case 2129430654:  // timeSeriesObjectId
         return getTimeSeriesObjectId();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -164,7 +167,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         setTimeSeriesObjectId((ObjectIdentifier) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

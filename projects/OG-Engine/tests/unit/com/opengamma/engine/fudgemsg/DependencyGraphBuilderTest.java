@@ -16,6 +16,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Tests {@link DependencyGraphBuilder}

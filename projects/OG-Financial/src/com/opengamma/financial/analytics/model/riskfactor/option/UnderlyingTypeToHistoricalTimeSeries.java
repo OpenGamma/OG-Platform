@@ -34,7 +34,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
           final Security underlyingSecurity = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
           final HistoricalTimeSeries hts = source.getHistoricalTimeSeries(underlyingSecurity.getIdentifiers(), dataSourceName, dataProviderName, LAST_PRICE);
           if (hts == null) {
-            throw new NullPointerException("Could not get time series pair for " + underlying + " for security " + security);
+            throw new NullPointerException("Could not get time series pair for " + underlying + " for security " + security + "for " + dataSourceName + "/" + dataProviderName);
           }
           return hts.getTimeSeries();
         default:

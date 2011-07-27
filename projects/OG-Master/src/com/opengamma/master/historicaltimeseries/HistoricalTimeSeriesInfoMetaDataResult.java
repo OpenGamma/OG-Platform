@@ -71,6 +71,9 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   public static HistoricalTimeSeriesInfoMetaDataResult.Meta meta() {
     return HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE);
+  }
 
   @Override
   public HistoricalTimeSeriesInfoMetaDataResult.Meta metaBean() {
@@ -78,7 +81,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 894268163:  // dataFields
         return getDataFields();
@@ -89,12 +92,12 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
       case -576554374:  // observationTimes
         return getObservationTimes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 894268163:  // dataFields
         setDataFields((List<String>) newValue);
@@ -109,7 +112,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
         setObservationTimes((List<String>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

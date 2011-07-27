@@ -15,6 +15,7 @@ import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.math.surface.NodalObjectsSurface;
 
 /**
  * 
@@ -75,5 +76,29 @@ final class MathSurface {
       context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
       context.addToMessage(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
     }
+  }
+
+  /**
+   * Fudge builder for {@code NodalObjectsSurface}
+   */
+  @FudgeBuilderFor(NodalObjectsSurface.class)
+  public static final class NodalObjectsSurfaceBuilder extends AbstractFudgeBuilder<NodalObjectsSurface<?, ?, ?>> {
+    private static final String X_DATA_FIELD_NAME = "x data";
+    private static final String Y_DATA_FIELD_NAME = "y data";
+    private static final String Z_DATA_FIELD_NAME = "z data";
+    private static final String SURFACE_NAME_FIELD_NAME = "surface name";
+
+    @Override
+    public NodalObjectsSurface<?, ?, ?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final String name = message.getFieldValue(String.class, message.getByName(SURFACE_NAME_FIELD_NAME));
+      //      return NodalObjectsSurface.from(xData, yData, zData, name);
+      return null;
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final NodalObjectsSurface<?, ?, ?> object) {
+      message.add(SURFACE_NAME_FIELD_NAME, null, object.getName());
+    }
+
   }
 }

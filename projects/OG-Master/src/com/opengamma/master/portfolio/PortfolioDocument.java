@@ -74,6 +74,9 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
   public static PortfolioDocument.Meta meta() {
     return PortfolioDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PortfolioDocument.Meta.INSTANCE);
+  }
 
   @Override
   public PortfolioDocument.Meta metaBean() {
@@ -81,18 +84,18 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
       case 1121781064:  // portfolio
         return getPortfolio();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -101,7 +104,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
         setPortfolio((ManageablePortfolio) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

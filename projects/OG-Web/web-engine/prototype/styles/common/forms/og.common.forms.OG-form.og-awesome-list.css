@@ -6,6 +6,7 @@
 .OG-form .og-awesome-list li {
   padding: 3px 5px;
   position: relative;
+  list-style:  none;
 }
 
 .OG-form .og-awesome-list li label {
