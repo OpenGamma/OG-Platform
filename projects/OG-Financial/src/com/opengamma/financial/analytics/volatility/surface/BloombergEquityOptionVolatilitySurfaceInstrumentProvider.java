@@ -17,7 +17,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Generates equity option Bloomberg ticker codes from ATM strike (set via ini

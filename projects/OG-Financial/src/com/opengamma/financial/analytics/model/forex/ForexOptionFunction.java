@@ -75,15 +75,15 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
   protected String getPutCurveName() {
     return _putCurveName;
   }
-  
+
   protected String getCallCurveName() {
     return _callCurveName;
   }
-  
+
   protected String getSurfaceName() {
     return _surfaceName;
   }
-  
+
   @Override
   public void init(final FunctionCompilationContext context) {
     _visitor = new ForexSecurityConverter(OpenGammaCompilationContext.getSecuritySource(context));
@@ -112,7 +112,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     if (callCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + callCurveName + " curve");
     }
-    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) putCurveObject;
+    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) callCurveObject;
     final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
     final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);

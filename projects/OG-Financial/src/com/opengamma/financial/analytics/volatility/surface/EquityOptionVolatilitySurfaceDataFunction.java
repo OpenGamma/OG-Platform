@@ -14,9 +14,7 @@ import java.util.Set;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -26,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -198,6 +195,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             }
             final Identifier identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+            @SuppressWarnings("unused")
             final double relativeStrikeBps = ((underlyingSpot - strike) / underlyingSpot) * 100;
             // TODO: totally bogus
             @SuppressWarnings("unused")
