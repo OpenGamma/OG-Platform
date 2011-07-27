@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a market data snapshot.
@@ -98,6 +99,9 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
   public static MarketDataSnapshotHistoryResult.Meta meta() {
     return MarketDataSnapshotHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MarketDataSnapshotHistoryResult.Meta.INSTANCE);
+  }
 
   @Override
   public MarketDataSnapshotHistoryResult.Meta metaBean() {
@@ -105,13 +109,13 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

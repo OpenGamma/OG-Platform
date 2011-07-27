@@ -79,6 +79,9 @@ public class WebBundlesData extends DirectBean {
   public static WebBundlesData.Meta meta() {
     return WebBundlesData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebBundlesData.Meta.INSTANCE);
+  }
 
   @Override
   public WebBundlesData.Meta metaBean() {
@@ -86,7 +89,7 @@ public class WebBundlesData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1459962059:  // bundleManager
         return getBundleManager();
@@ -103,11 +106,11 @@ public class WebBundlesData extends DirectBean {
       case -173275078:  // uriInfo
         return getUriInfo();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1459962059:  // bundleManager
         setBundleManager((BundleManager) newValue);
@@ -131,7 +134,7 @@ public class WebBundlesData extends DirectBean {
         setUriInfo((UriInfo) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -88,6 +88,9 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   public static HistoricalTimeSeriesInfoDocument.Meta meta() {
     return HistoricalTimeSeriesInfoDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoDocument.Meta.INSTANCE);
+  }
 
   @Override
   public HistoricalTimeSeriesInfoDocument.Meta metaBean() {
@@ -95,26 +98,29 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3237038:  // info
         return getInfo();
       case -294460212:  // uniqueId
         return getUniqueId();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3237038:  // info
         setInfo((ManageableHistoricalTimeSeriesInfo) newValue);
         return;
       case -294460212:  // uniqueId
+        if (quiet) {
+          return;
+        }
         throw new UnsupportedOperationException("Property cannot be written: uniqueId");
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

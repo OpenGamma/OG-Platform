@@ -135,6 +135,9 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   public static <R> ConfigSearchRequest.Meta<R> meta() {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ConfigSearchRequest.Meta.INSTANCE);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -143,7 +146,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -804471786:  // configIds
         return getConfigIds();
@@ -152,12 +155,12 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
       case 3575610:  // type
         return getType();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -804471786:  // configIds
         setConfigIds((List<ObjectIdentifier>) newValue);
@@ -169,7 +172,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
         setType((Class<T>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

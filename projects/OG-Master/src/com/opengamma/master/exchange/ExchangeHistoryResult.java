@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of an exchange.
@@ -98,6 +99,9 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
   public static ExchangeHistoryResult.Meta meta() {
     return ExchangeHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ExchangeHistoryResult.Meta.INSTANCE);
+  }
 
   @Override
   public ExchangeHistoryResult.Meta metaBean() {
@@ -105,13 +109,13 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

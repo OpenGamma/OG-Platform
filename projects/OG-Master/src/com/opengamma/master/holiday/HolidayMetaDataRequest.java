@@ -50,6 +50,9 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   public static HolidayMetaDataRequest.Meta meta() {
     return HolidayMetaDataRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HolidayMetaDataRequest.Meta.INSTANCE);
+  }
 
   @Override
   public HolidayMetaDataRequest.Meta metaBean() {
@@ -57,22 +60,22 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 15120129:  // holidayTypes
         return isHolidayTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 15120129:  // holidayTypes
         setHolidayTypes((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
