@@ -18,6 +18,7 @@ import javax.time.calendar.OffsetDateTime;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -36,8 +37,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityKey().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(1, test.getSecurityLink().getIdBundle().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -56,8 +57,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityKey().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(1, test.getSecurityLink().getIdBundle().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -76,8 +77,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityKey().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(1, test.getSecurityLink().getIdBundle().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -101,8 +102,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityKey().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(1, test.getSecurityLink().getIdBundle().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -128,8 +129,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityKey().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(1, test.getSecurityLink().getIdBundle().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
     assertEquals(true, test.toString().startsWith("Position[B~C, 1"));
   }
 
@@ -184,32 +185,18 @@ public class PositionImplTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_setSecurityKey() {
+  public void test_setSecurityLink() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    test.setSecurityKey(IdentifierBundle.EMPTY);
-    assertSame(IdentifierBundle.EMPTY, test.getSecurityKey());
+    test.setSecurityLink(new SecurityLink());
+    assertEquals(new SecurityLink(), test.getSecurityLink());
   }
 
-  public void test_setSecurityKey_nullAllowed() {
+  @Test(expectedExceptions=IllegalArgumentException.class)
+  public void test_setSecurityKey_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    test.setSecurityKey(null);
-    assertEquals(null, test.getSecurityKey());
+    test.setSecurityLink(null);
   }
 
-  //-------------------------------------------------------------------------
-  public void test_setSecurity() {
-    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    Security sec = new MockSecurity("");
-    test.setSecurity(sec);
-    assertSame(sec, test.getSecurity());
-  }
-
-  public void test_setSecurity_nullAllowed() {
-    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    test.setSecurity(null);
-    assertEquals(null, test.getSecurity());
-  }
-  
   //-------------------------------------------------------------------------
   public void test_addTrade() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));

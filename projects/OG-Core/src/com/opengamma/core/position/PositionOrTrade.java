@@ -7,8 +7,7 @@ package com.opengamma.core.position;
 
 import java.math.BigDecimal;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
@@ -41,21 +40,13 @@ public interface PositionOrTrade extends UniqueIdentifiable {
   BigDecimal getQuantity();
 
   /**
-   * Gets a bundle of identifiers referencing the security.
+   * Gets a link connecting to the security.
    * <p>
-   * This allows the security to be referenced without actually loading the security itself.
+   * The link holds a strong or weak reference to the security
+   * and can be resolved to the actual security when required.
    * 
-   * @return the security key
+   * @return the security link, not null
    */
-  IdentifierBundle getSecurityKey();
-
-  /**
-   * Gets the security being held, returning {@code null} if it has not been loaded.
-   * <p>
-   * This method is guaranteed to return a security within an analytic function.
-   * 
-   * @return the security
-   */
-  Security getSecurity();
+  SecurityLink getSecurityLink();
 
 }
