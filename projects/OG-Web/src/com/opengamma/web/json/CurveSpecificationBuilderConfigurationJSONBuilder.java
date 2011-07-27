@@ -29,9 +29,24 @@ import com.opengamma.util.time.Tenor;
 /**
  * Custom JSON builder to convert CurveSpecificationBuilderConfiguration to JSON object and back again
  */
-public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJSONBuilder<CurveSpecificationBuilderConfiguration> {
+public final class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJSONBuilder<CurveSpecificationBuilderConfiguration> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurveSpecificationBuilderConfigurationJSONBuilder.class);
+  /**
+   * Singleton
+   */
+  public static final CurveSpecificationBuilderConfigurationJSONBuilder INSTANCE = new CurveSpecificationBuilderConfigurationJSONBuilder();
+  
+  /**
+   * JSON template
+   */
+  public static final String TEMPLATE = getTemplate();
+  
+  /**
+   * Restricted constructor
+   */
+  private CurveSpecificationBuilderConfigurationJSONBuilder() {
+  }
 
   @Override
   public CurveSpecificationBuilderConfiguration fromJSON(String json) {
@@ -209,6 +224,10 @@ public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJ
     }
         
     return message.toString();
+  }
+
+  private static String getTemplate() {
+    return null;
   }
 
 }

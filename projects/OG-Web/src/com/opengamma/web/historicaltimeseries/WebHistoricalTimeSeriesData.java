@@ -85,6 +85,9 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   public static WebHistoricalTimeSeriesData.Meta meta() {
     return WebHistoricalTimeSeriesData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebHistoricalTimeSeriesData.Meta.INSTANCE);
+  }
 
   @Override
   public WebHistoricalTimeSeriesData.Meta metaBean() {
@@ -92,7 +95,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
@@ -107,11 +110,11 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
       case 779431844:  // timeSeries
         return getTimeSeries();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
@@ -132,7 +135,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
         setTimeSeries((ManageableHistoricalTimeSeries) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

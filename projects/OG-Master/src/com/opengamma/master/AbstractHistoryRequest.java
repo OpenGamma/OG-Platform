@@ -144,6 +144,9 @@ public abstract class AbstractHistoryRequest extends DirectBean {
   public static AbstractHistoryRequest.Meta meta() {
     return AbstractHistoryRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AbstractHistoryRequest.Meta.INSTANCE);
+  }
 
   @Override
   public AbstractHistoryRequest.Meta metaBean() {
@@ -151,7 +154,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
@@ -166,11 +169,11 @@ public abstract class AbstractHistoryRequest extends DirectBean {
       case -1241747055:  // correctionsToInstant
         return getCorrectionsToInstant();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
@@ -191,7 +194,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
         setCorrectionsToInstant((Instant) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

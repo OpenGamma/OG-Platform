@@ -110,6 +110,9 @@ public class WebRegionData extends DirectBean {
   public static WebRegionData.Meta meta() {
     return WebRegionData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebRegionData.Meta.INSTANCE);
+  }
 
   @Override
   public WebRegionData.Meta metaBean() {
@@ -117,7 +120,7 @@ public class WebRegionData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1820969354:  // regionMaster
         return getRegionMaster();
@@ -136,12 +139,12 @@ public class WebRegionData extends DirectBean {
       case -1407102089:  // versioned
         return getVersioned();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1820969354:  // regionMaster
         setRegionMaster((RegionMaster) newValue);
@@ -168,7 +171,7 @@ public class WebRegionData extends DirectBean {
         setVersioned((RegionDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

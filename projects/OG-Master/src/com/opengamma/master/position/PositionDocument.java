@@ -70,6 +70,9 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   public static PositionDocument.Meta meta() {
     return PositionDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PositionDocument.Meta.INSTANCE);
+  }
 
   @Override
   public PositionDocument.Meta metaBean() {
@@ -77,18 +80,18 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
       case 747804969:  // position
         return getPosition();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -97,7 +100,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
         setPosition((ManageablePosition) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

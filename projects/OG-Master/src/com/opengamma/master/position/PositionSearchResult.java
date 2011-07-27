@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for positions.
@@ -69,6 +70,9 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
   public static PositionSearchResult.Meta meta() {
     return PositionSearchResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PositionSearchResult.Meta.INSTANCE);
+  }
 
   @Override
   public PositionSearchResult.Meta metaBean() {
@@ -76,13 +80,13 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
