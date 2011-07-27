@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.forex;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
@@ -23,7 +22,7 @@ public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwa
 
   @Override
   protected Object getResult(final ForexDerivative fxForward, final YieldCurveBundle data) {
-    final PresentValueSensitivity result = CALCULATOR.visit(fxForward, data);
-    return result;
+    return CALCULATOR.visit(fxForward, data);
   }
+
 }

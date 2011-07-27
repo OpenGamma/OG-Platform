@@ -79,6 +79,9 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     for (Class<?> configType : metaData.getConfigTypes()) {
       data().getTypeMap().put(configType.getSimpleName(), configType);
     }
+    // init json templates
+    data().getTemplateMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.TEMPLATE);
+    data().getTemplateMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.TEMPLATE);
   }
 
   /**
@@ -171,11 +174,11 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     }
     Object value = null;
     if (clazz.isAssignableFrom(ViewDefinition.class)) {
-      value = new ViewDefinitionJSONBuilder().fromJSON(json);
+      value = ViewDefinitionJSONBuilder.INSTANCE.fromJSON(json);
     } else if (clazz.isAssignableFrom(YieldCurveDefinition.class)) {
-      value = new YieldCurveDefinitionJSONBuilder().fromJSON(json);
+      value = YieldCurveDefinitionJSONBuilder.INSTANCE.fromJSON(json);
     } else if (clazz.isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
-      value = new CurveSpecificationBuilderConfigurationJSONBuilder().fromJSON(json);
+      value = CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE.fromJSON(json);
     } else {
       throw new OpenGammaRuntimeException("No custom JSON builder for  " + className);
     }

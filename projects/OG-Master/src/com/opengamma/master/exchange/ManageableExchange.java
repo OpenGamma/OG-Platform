@@ -153,6 +153,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
   public static ManageableExchange.Meta meta() {
     return ManageableExchange.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableExchange.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableExchange.Meta metaBean() {
@@ -160,7 +163,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -175,12 +178,12 @@ public class ManageableExchange extends DirectBean implements Exchange {
       case -1335224239:  // detail
         return getDetail();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -201,7 +204,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
         setDetail((List<ManageableExchangeDetail>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

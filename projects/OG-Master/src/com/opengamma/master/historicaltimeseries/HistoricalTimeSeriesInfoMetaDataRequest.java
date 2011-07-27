@@ -65,6 +65,9 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
   public static HistoricalTimeSeriesInfoMetaDataRequest.Meta meta() {
     return HistoricalTimeSeriesInfoMetaDataRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoMetaDataRequest.Meta.INSTANCE);
+  }
 
   @Override
   public HistoricalTimeSeriesInfoMetaDataRequest.Meta metaBean() {
@@ -72,7 +75,7 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 894268163:  // dataFields
         return isDataFields();
@@ -83,11 +86,11 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
       case -576554374:  // observationTimes
         return isObservationTimes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 894268163:  // dataFields
         setDataFields((Boolean) newValue);
@@ -102,7 +105,7 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
         setObservationTimes((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

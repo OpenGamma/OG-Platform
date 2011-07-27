@@ -74,10 +74,6 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final ForexConverter<?> definition = _visitor.visitFXForwardSecurity(security);
     final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fx, true);
-
-    //TODO the marked off area should be done in init()
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
     final String payCurveName = _payCurveName + "_" + payCurrency.getCode();
@@ -94,19 +90,12 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     }
     final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) putCurveObject;
     final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
-    final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
+    final ForexDerivative fxForward = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
-    //    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    //    final Object spotObject = inputs.getValue(spotRequirement);
-    //    if (spotObject == null) {
-    //      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
-    //    }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @SuppressWarnings("unchecked")
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _payCurveName)
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName).get();
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, getResult(fxOption, yieldCurves)));
+    return Collections.singleton(new ComputedValue(spec, getResult(fxForward, yieldCurves)));
   }
 
   protected abstract Object getResult(ForexDerivative fxForward, YieldCurveBundle data);
@@ -141,5 +130,17 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName).get();
     return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(),
         properties));
+  }
+
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  protected String getPayCurveName() {
+    return _payCurveName;
+  }
+
+  protected String getReceiveCurveName() {
+    return _receiveCurveName;
   }
 }
