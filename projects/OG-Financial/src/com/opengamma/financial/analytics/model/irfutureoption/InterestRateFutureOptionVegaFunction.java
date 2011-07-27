@@ -57,7 +57,7 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     super(surfaceName, ValueRequirementNames.VEGA_MATRIX);
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings({"unchecked" })
   @Override
   protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, final ValueSpecification[] specifications,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {

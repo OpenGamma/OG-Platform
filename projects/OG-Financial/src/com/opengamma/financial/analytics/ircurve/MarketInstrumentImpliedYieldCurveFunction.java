@@ -56,7 +56,9 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCouponSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -91,9 +93,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
   /** Label setting this function to use the par rate of the instruments in root-finding */
-  public static final String PAR_RATE_STRING = "ParRateCalculator";
+  public static final String PAR_RATE_STRING = "ParRate";
   /** Label setting this function to use the present value of the instruments in root-finding */
-  public static final String PRESENT_VALUE_STRING = "PresentValueCalculator";
+  public static final String PRESENT_VALUE_STRING = "PresentValue";
 
   private final YieldCurveFunctionHelper _fundingHelper;
   private final YieldCurveFunctionHelper _forwardHelper;
@@ -148,10 +150,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _calculator = ParRateCalculator.getInstance();
       _sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
     } else if (calculationType.equals(PRESENT_VALUE_STRING)) {
-      //      _calculator = PresentValueCalculator.getInstance();
-      //      _sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();      
-      _calculator = ParRateCalculator.getInstance();
-      _sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
+      _calculator = PresentValueCalculator.getInstance();
+      _sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();
       _couponSensitivityCalculator = PresentValueCouponSensitivityCalculator.getInstance();
     } else {
       throw new IllegalArgumentException("Could not get calculator type " + calculationType);
@@ -236,7 +236,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   //TODO this normalization should not be happening here
   private double getNormalizedData(final FixedIncomeStripWithSecurity strip, final Double marketValue) {
     if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-      return 1.0 - marketValue / 100;
+      return 1 - marketValue / 100;
     } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
       return marketValue / 10000;
     }
@@ -407,12 +407,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes,
           forwardYields, _forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
+      //TODO separate out the jacobians for each curve
       final Set<ComputedValue> result = Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve),
                                                         new ComputedValue(_forwardCurveResult, forwardCurve),
                                                         new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
                                                         new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities),
                                                         new ComputedValue(_forwardCurveSpecResult, forwardCurveSpecificationWithSecurities));
       if (_calculationType.equals(PRESENT_VALUE_STRING)) {
+        //TODO separate out the sensitivities for different curves
         if (_couponSensitivityCalculator == null) {
           throw new OpenGammaRuntimeException("Should never happen - coupon sensitivity calculator was null but requested calculation method was present value");
         }
@@ -528,7 +530,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
               .getData();
         } catch (final Exception eSV) {
           s_logger.warn("Could not find root using SV decomposition and present value method for curve " +
-              _fundingCurveDefinitionName + ". Error was: " + eLU.getMessage());
+              _fundingCurveDefinitionName + ". Error was: " + eSV.getMessage());
           throw new OpenGammaRuntimeException(eSV.getMessage());
         }
       }
