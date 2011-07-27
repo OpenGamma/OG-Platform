@@ -49,11 +49,18 @@ public class PortfolioAggregator {
   }
 
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    String aggPortfolioId = buildPortfolioName(inputPortfolio.getUniqueId().getValue());
+    UniqueIdentifier portfolioId = inputPortfolio.getUniqueId();
+    UniqueIdentifier aggId;
+    // can't assume the portfolio will have a unique ID
+    if (portfolioId != null) {
+      String aggPortfolioId = buildPortfolioName(portfolioId.getValue());
+      aggId = UniqueIdentifier.of(portfolioId.getScheme(), aggPortfolioId);
+    } else {
+      aggId = createSyntheticIdentifier();
+    }
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
-    UniqueIdentifier aggId = UniqueIdentifier.of(inputPortfolio.getUniqueId().getScheme(), aggPortfolioId);
     final PortfolioNodeImpl root = new PortfolioNodeImpl(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
     PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName, root);
     aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
