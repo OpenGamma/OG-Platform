@@ -17,10 +17,7 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.JodaBeanUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
@@ -193,7 +190,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     
     final ObjectIdentifier objectId = _objectIdSupplier.get();
     final UniqueIdentifier uniqueId = objectId.atVersion("");
-    final HistoricalTimeSeriesInfoDocument cloned = clone(document);
+    final HistoricalTimeSeriesInfoDocument cloned = JodaBeanUtils.clone(document);
     final ManageableHistoricalTimeSeriesInfo info = cloned.getInfo();
     info.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -377,21 +374,6 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
-  private <T extends Bean> T clone(T original) {
-    BeanBuilder<? extends Bean> builder = original.metaBean().builder();
-    for (MetaProperty<Object> mp : original.metaBean().metaPropertyIterable()) {
-      if (mp.readWrite().isWritable()) {
-        Object value = mp.get(original);
-        if (value instanceof DirectBean) {
-          value = clone((DirectBean) value);
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return (T) builder.build();
-  }
-
   private long validateId(ObjectIdentifiable objectId) {
     ArgumentChecker.notNull(objectId, "objectId");
     try {

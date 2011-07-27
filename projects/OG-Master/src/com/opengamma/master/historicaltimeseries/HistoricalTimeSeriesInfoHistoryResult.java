@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching historical time-series information.
@@ -86,6 +87,9 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
   public static HistoricalTimeSeriesInfoHistoryResult.Meta meta() {
     return HistoricalTimeSeriesInfoHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoHistoryResult.Meta.INSTANCE);
+  }
 
   @Override
   public HistoricalTimeSeriesInfoHistoryResult.Meta metaBean() {
@@ -93,13 +97,13 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

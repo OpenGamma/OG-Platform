@@ -19,8 +19,16 @@ import com.opengamma.util.tuple.DoublesPair;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date, 
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public class InterestRateFutureOptionMarginSecuritySABRMethod {
-
+public final class InterestRateFutureOptionMarginSecuritySABRMethod {
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod INSTANCE = new InterestRateFutureOptionMarginSecuritySABRMethod();
+  
+  public static InterestRateFutureOptionMarginSecuritySABRMethod getInstance() {
+    return INSTANCE;
+  }
+  
+  private InterestRateFutureOptionMarginSecuritySABRMethod() {
+  }
+  
   /**
    * The Black function used in the pricing.
    */

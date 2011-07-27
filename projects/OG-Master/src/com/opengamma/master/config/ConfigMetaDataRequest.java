@@ -50,6 +50,9 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   public static ConfigMetaDataRequest.Meta meta() {
     return ConfigMetaDataRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ConfigMetaDataRequest.Meta.INSTANCE);
+  }
 
   @Override
   public ConfigMetaDataRequest.Meta metaBean() {
@@ -57,22 +60,22 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 7511639:  // configTypes
         return isConfigTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 7511639:  // configTypes
         setConfigTypes((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

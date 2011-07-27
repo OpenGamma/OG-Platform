@@ -122,6 +122,9 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   public static MarketDataSnapshotSearchRequest.Meta meta() {
     return MarketDataSnapshotSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MarketDataSnapshotSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public MarketDataSnapshotSearchRequest.Meta metaBean() {
@@ -129,7 +132,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -168607148:  // snapshotIds
         return getSnapshotIds();
@@ -138,12 +141,12 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
       case 274670706:  // includeData
         return isIncludeData();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -168607148:  // snapshotIds
         setSnapshotIds((List<ObjectIdentifier>) newValue);
@@ -155,7 +158,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
         setIncludeData((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

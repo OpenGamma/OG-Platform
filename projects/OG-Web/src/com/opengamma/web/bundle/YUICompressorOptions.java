@@ -60,6 +60,9 @@ public class YUICompressorOptions extends DirectBean {
   public static YUICompressorOptions.Meta meta() {
     return YUICompressorOptions.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(YUICompressorOptions.Meta.INSTANCE);
+  }
 
   @Override
   public YUICompressorOptions.Meta metaBean() {
@@ -67,7 +70,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1489046604:  // lineBreakPosition
         return getLineBreakPosition();
@@ -80,11 +83,11 @@ public class YUICompressorOptions extends DirectBean {
       case 3641990:  // warn
         return isWarn();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1489046604:  // lineBreakPosition
         setLineBreakPosition((Integer) newValue);
@@ -102,7 +105,7 @@ public class YUICompressorOptions extends DirectBean {
         setWarn((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

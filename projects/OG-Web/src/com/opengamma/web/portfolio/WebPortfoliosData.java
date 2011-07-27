@@ -137,6 +137,9 @@ public class WebPortfoliosData extends DirectBean {
   public static WebPortfoliosData.Meta meta() {
     return WebPortfoliosData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebPortfoliosData.Meta.INSTANCE);
+  }
 
   @Override
   public WebPortfoliosData.Meta metaBean() {
@@ -144,7 +147,7 @@ public class WebPortfoliosData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -772274742:  // portfolioMaster
         return getPortfolioMaster();
@@ -169,11 +172,11 @@ public class WebPortfoliosData extends DirectBean {
       case -1407102089:  // versioned
         return getVersioned();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -772274742:  // portfolioMaster
         setPortfolioMaster((PortfolioMaster) newValue);
@@ -209,7 +212,7 @@ public class WebPortfoliosData extends DirectBean {
         setVersioned((PortfolioDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

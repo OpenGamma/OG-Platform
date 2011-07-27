@@ -90,10 +90,10 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
 
   public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final Builder properties) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    properties/*.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())*/
+    properties
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode ());
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties.get();
   }
 
@@ -101,7 +101,6 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       final String forwardCurveName, final Builder properties) {
     final String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    //properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode());
     for (final String name : curveNames) {
       if (name.equals(fundingCurveName)) {
         properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
@@ -110,7 +109,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName);
       }
     }
-    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode ());
+    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties.get();
   }
 

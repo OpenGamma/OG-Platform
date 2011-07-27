@@ -59,6 +59,9 @@ public class UserResourceData extends DirectBean {
   public static UserResourceData.Meta meta() {
     return UserResourceData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(UserResourceData.Meta.INSTANCE);
+  }
 
   @Override
   public UserResourceData.Meta metaBean() {
@@ -66,7 +69,7 @@ public class UserResourceData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -173275078:  // uriInfo
         return getUriInfo();
@@ -77,11 +80,11 @@ public class UserResourceData extends DirectBean {
       case 951530927:  // context
         return getContext();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -96,7 +99,7 @@ public class UserResourceData extends DirectBean {
         setContext((UsersResourceContext) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

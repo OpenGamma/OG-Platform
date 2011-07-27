@@ -70,6 +70,9 @@ public class VolatilityPoint extends DirectBean {
   public static VolatilityPoint.Meta meta() {
     return VolatilityPoint.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(VolatilityPoint.Meta.INSTANCE);
+  }
 
   @Override
   public VolatilityPoint.Meta metaBean() {
@@ -77,7 +80,7 @@ public class VolatilityPoint extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1282130707:  // swapTenor
         return getSwapTenor();
@@ -86,11 +89,11 @@ public class VolatilityPoint extends DirectBean {
       case 776076702:  // relativeStrike
         return getRelativeStrike();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1282130707:  // swapTenor
         setSwapTenor((Tenor) newValue);
@@ -102,7 +105,7 @@ public class VolatilityPoint extends DirectBean {
         setRelativeStrike((Double) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -53,6 +53,9 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   public static ConfigMetaDataResult.Meta meta() {
     return ConfigMetaDataResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ConfigMetaDataResult.Meta.INSTANCE);
+  }
 
   @Override
   public ConfigMetaDataResult.Meta metaBean() {
@@ -60,23 +63,23 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 7511639:  // configTypes
         return getConfigTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 7511639:  // configTypes
         setConfigTypes((List<Class<?>>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

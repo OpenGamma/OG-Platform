@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for regions.
@@ -97,6 +98,9 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
   public static RegionSearchResult.Meta meta() {
     return RegionSearchResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(RegionSearchResult.Meta.INSTANCE);
+  }
 
   @Override
   public RegionSearchResult.Meta metaBean() {
@@ -104,13 +108,13 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

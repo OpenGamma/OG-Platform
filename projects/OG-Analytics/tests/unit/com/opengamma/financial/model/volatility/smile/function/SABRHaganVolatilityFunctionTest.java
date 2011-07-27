@@ -187,9 +187,10 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     double[] volatilityAdjoint1M = FUNCTION.getVolatilityAdjoint(CALL_STRIKE, data1M);
     assertEquals("SABR Hagan formula for rho=1-eps", volatility1M, volatilityAdjoint1M[0], 1E-12);
     assertEquals("SABR Hagan formula for rho=1-eps", volatilityAdjoint1[0], volatilityAdjoint1M[0], 1E-8);
-    //    assertEquals(volatilityAdjoint1[3], volatilityAdjoint1M[3], 1E-6);
+    assertEquals(volatilityAdjoint1[3], volatilityAdjoint1M[3], 1E-6);
+    //FIXME: Complete the derivatives computation in the degenerate case rho=1.
     //    assertEquals(volatilityAdjoint1[4], volatilityAdjoint1M[4], 1E-6);
-    //    assertEquals(volatilityAdjoint1[5], volatilityAdjoint1M[5], 1E-6);
+    assertEquals(volatilityAdjoint1[5], volatilityAdjoint1M[5], 1E-6);
     //    double derivativeR_FD = (volatility1 - volatility1M) / deltaR;
     //    assertEquals(derivativeR_FD, volatilityAdjoint1[4], 1E-6);
   }

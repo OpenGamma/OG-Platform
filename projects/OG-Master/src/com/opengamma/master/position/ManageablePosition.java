@@ -233,6 +233,9 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   public static ManageablePosition.Meta meta() {
     return ManageablePosition.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageablePosition.Meta.INSTANCE);
+  }
 
   @Override
   public ManageablePosition.Meta metaBean() {
@@ -240,7 +243,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -257,12 +260,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case 3373707:  // name
         return getName();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -283,9 +286,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         setAttributes((Map<String, String>) newValue);
         return;
       case 3373707:  // name
+        if (quiet) {
+          return;
+        }
         throw new UnsupportedOperationException("Property cannot be written: name");
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
