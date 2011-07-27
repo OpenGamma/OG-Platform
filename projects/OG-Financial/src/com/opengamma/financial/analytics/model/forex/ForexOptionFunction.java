@@ -84,6 +84,10 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     return _surfaceName;
   }
 
+  protected String getValueRequirementName() {
+    return _valueRequirementName;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
     _visitor = new ForexSecurityConverter(OpenGammaCompilationContext.getSecuritySource(context));
@@ -98,8 +102,6 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
     final Identifier spotIdentifier = getSpotIdentifier(security);
-    //TODO the marked off area should be done in init()
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     final String putCurveName = _putCurveName + "_" + putCurrency.getCode();
     final String callCurveName = _callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames = new String[] {putCurveName, callCurveName};
@@ -130,7 +132,6 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
     final Object[] objectTenors = fxVolatilitySurface.getXs();
@@ -156,18 +157,14 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     }
     final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(smiles, spot, yieldCurves);
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName)
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
-                                                              .with(ValuePropertyNames.SURFACE, _surfaceName).get();
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, getResult(fxOption, smileBundle)));
+    return getResult(fxOption, smileBundle, inputs, target);
   }
 
   protected ForexSecurityConverter getVisitor() {
     return _visitor;
   }
 
-  protected abstract Object getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data);
+  protected abstract Set<ComputedValue> getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
 
   protected abstract ForexConverter<?> getDefinition(FinancialSecurity target);
 

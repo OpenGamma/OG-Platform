@@ -5,7 +5,16 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
+import java.util.Collections;
+import java.util.Set;
+
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaSensitivityCalculator;
@@ -23,7 +32,7 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
   }
 
   @Override
-  protected Object getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data) {
+  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] strikes = result.getStrikes().getData();
@@ -46,7 +55,11 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
         values[i][j] = vega[j][i];
       }
     }
-    return new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
 
   private String getFormattedExpiry(final double expiry) {
