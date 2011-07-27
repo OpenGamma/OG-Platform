@@ -132,9 +132,22 @@ $.register_module({
                     handler(template);
                 }}),
                 new forms.Dropdown({
-                    form: form, value: master.region.Value, resource: 'regions', rest_options: {page: 'all'},
+                    form: form, value: master.region.Value, resource: 'regions',
                     index: 'region.Value', placeholder: 'Please select...',
-                    fields: [3, 1]
+                    data_generator: function (handler) {
+                        api.regions.get({
+                            page: 'all',
+                            handler: function (result) {
+                                handler(result.data.data.map(function (region) {
+                                    var split = region.split('|');
+                                    if (!split[3]) return null;
+                                    return {value: split[3], text: split[3] + ' - ' + split[1]}
+                                }).filter(Boolean).sort(function (a, b) {
+                                    return a.text < b.text ? -1 : a === b ? 0 : 1;
+                                }));
+                            }
+                        });
+                    }
                 }),
                 strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>'}) // item_1
             ];
