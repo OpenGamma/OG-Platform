@@ -1,0 +1,71 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-form .og-yc-strips {
+  min-width: 300px;
+}
+
+.OG-form .og-yc-strips li {
+  padding-left: 10px!important;
+}
+
+.OG-form .og-yc-strips input,
+.OG-form .og-yc-strips select {
+  float: left;
+  margin-right: 10px;
+}
+
+.OG-form .og-yc-strips .OG-link-add {
+  margin:  2px 0 0 14px;
+}
+
+.OG-form .og-yc-strips .og-icon-table:after {
+  cursor: pointer;
+  top: -10px;
+  left: -7px;
+}
+
+.OG-form .og-yc-strips .og-awesome-list {
+  margin: 0 -10px;
+}
+
+.OG-form .og-yc-strips .og-tenor {
+  width: 10%;
+}
+
+.OG-form .og-yc-strips .og-type {
+  width: 30%;
+}
+
+.OG-form .og-yc-strips .og-num {
+  width: 10%;
+}
+
+.OG-form .og-yc-strips .og-convention {
+  width: 30%;
+}
+
+.OG-form .og-yc-strips small {
+  font-size: 10px;
+  color: #999;
+}
+
+.OG-form .og-yc-strips .og-footer {
+  background-color: #f6fafc;
+  margin: 10px -10px -10px -10px;
+  padding: 5px 5px 10px 5px;
+  border-top: 1px solid #ededed;
+}
+
+.OG-form .og-yc-strips .og-a-list-header span {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: top;
+  line-height: 12px;
+}
+
+.OG-form .og-yc-strips .og-a-list-header .og-type {
+  margin-left: -1px;
+}

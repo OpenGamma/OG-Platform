@@ -35,17 +35,22 @@
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-list.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-add.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-cancel.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-02.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-rounded.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-shadow-light.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-txt-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-box-shadow-bottom.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-max-width.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-disabled.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-table.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search-panel.css</fragment>
@@ -77,6 +82,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-constraints.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
@@ -193,6 +199,7 @@
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
+    <fragment>/scripts/og/views/configs/og.views.configs.yieldcurvedefinition.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>
