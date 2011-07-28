@@ -139,13 +139,13 @@ public class MasterPositionSourceTest {
     UniqueIdentifier combinedUid5 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID5.getScheme(), UID3.getValue() + "-" + UID5.getValue(), "-");
     assertEquals(combinedUid4, pos.getUniqueId());
     assertEquals(BigDecimal.valueOf(1235), pos.getQuantity());
-    assertEquals(IdentifierBundle.of("AA", "BB"), pos.getSecurityLink().getIdBundle());
+    assertEquals(IdentifierBundle.of("AA", "BB"), pos.getSecurityLink().getWeakId());
     assertEquals(1, pos.getTrades().size());
     Trade trade = pos.getTrades().iterator().next();
     assertEquals(combinedUid5, trade.getUniqueId());
     assertEquals(combinedUid4, trade.getParentPositionId());
     assertEquals(BigDecimal.valueOf(1234), trade.getQuantity());
-    assertEquals(IdentifierBundle.of("CC", "DD"), trade.getSecurityLink().getIdBundle());
+    assertEquals(IdentifierBundle.of("CC", "DD"), trade.getSecurityLink().getWeakId());
   }
 
   //-------------------------------------------------------------------------

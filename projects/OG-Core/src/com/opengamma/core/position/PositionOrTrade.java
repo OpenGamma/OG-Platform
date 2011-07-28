@@ -7,6 +7,7 @@ package com.opengamma.core.position;
 
 import java.math.BigDecimal;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -48,5 +49,15 @@ public interface PositionOrTrade extends UniqueIdentifiable {
    * @return the security link, not null
    */
   SecurityLink getSecurityLink();
+
+  /**
+   * Gets the target security from the link.
+   * <p>
+   * This convenience method gets the target security from the link.
+   * This is guaranteed to return a security within an analytic function.
+   * 
+   * @return the security link, null if target not resolved in the link
+   */
+  Security getSecurity();
 
 }

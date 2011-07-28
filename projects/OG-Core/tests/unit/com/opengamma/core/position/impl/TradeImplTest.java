@@ -37,14 +37,14 @@ public class TradeImplTest {
   private static final UniqueIdentifier POSITION_UID = UniqueIdentifier.of("P", "A");
   private static final Position POSITION = new PositionImpl(POSITION_UID, BigDecimal.ONE, Identifier.of("A", "B"));
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
-  private static final IdentifierBundle BUNDLE = POSITION.getSecurityLink().getIdBundle();
+  private static final IdentifierBundle BUNDLE = POSITION.getSecurityLink().getWeakId();
 
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {
     TradeImpl test = new TradeImpl(POSITION.getUniqueId(), BUNDLE, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getIdBundle().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
+    assertEquals(1, test.getSecurityLink().getWeakId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
     assertEquals(POSITION_UID, test.getParentPositionId());
     assertEquals(COUNTERPARTY, test.getCounterparty());
     assertNull(test.getSecurityLink().getTarget());
@@ -85,8 +85,8 @@ public class TradeImplTest {
     TradeImpl test = new TradeImpl(POSITION_UID, security, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getIdBundle().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getIdBundle().iterator().next());
+    assertEquals(1, test.getSecurityLink().getWeakId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
     assertEquals(POSITION_UID, test.getParentPositionId());
     assertEquals(COUNTERPARTY, test.getCounterparty());
     assertEquals(security, test.getSecurityLink().getTarget());

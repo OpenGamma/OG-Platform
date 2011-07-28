@@ -13,12 +13,15 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.Link;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -36,7 +39,42 @@ public class SecurityLink extends Link<Security> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityLink.class);
 
+  /**
+   * Obtains an instance from a security, locking by strong object identifier
+   * if possible and the weak if not.
+   * The result will contain the resolved target and either the strong or weak reference.
+   * 
+   * @param security  the security to store, not null
+   * @return the link with target and object identifier set, not null
+   */
+  public static SecurityLink of(Security security) {
+    ArgumentChecker.notNull(security, "security");
+    SecurityLink link = new SecurityLink();
+    link.setAndLockTarget(security);
+    if (link.getObjectId() == null) {
+      link.setWeakId(security.getIdentifiers());
+    }
+    return link;
+  }
+
+  /**
+   * Obtains an instance from a security, locking by weak identifier bundle.
+   * The result will contain the weak identifier bundle and the resolved target.
+   * 
+   * @param security  the security to store, not null
+   * @return the link with target and identifier bundle set, not null
+   */
+  public static SecurityLink ofWeakId(Security security) {
+    ArgumentChecker.notNull(security, "security");
+    SecurityLink link = new SecurityLink(security.getIdentifiers());
+    link.setTarget(security);
+    return link;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an new instance.
    */
@@ -80,16 +118,6 @@ public class SecurityLink extends Link<Security> {
     super(bundle);
   }
 
-  /**
-   * Creates a link from a security.
-   * 
-   * @param target  the resolved security, not null
-   */
-  public SecurityLink(final Security target) {
-    super(target);
-    setIdBundle(target.getIdentifiers());
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the best descriptive name.
@@ -99,7 +127,7 @@ public class SecurityLink extends Link<Security> {
   public String getBestName() {
     Security security = getTarget();
     ObjectIdentifier objectId = getObjectId();
-    IdentifierBundle bundle = getIdBundle();
+    IdentifierBundle bundle = getWeakId();
     if (security != null) {
       bundle = security.getIdentifiers();
     }
@@ -120,6 +148,54 @@ public class SecurityLink extends Link<Security> {
     return "";
   }
 
+  /**
+   * Resolves the security using a security source.
+   * 
+   * @param source  the source to use to resolve, not null
+   * @return the resolved security, null if unable to resolve
+   * @throws RuntimeException if an error occurs while resolving
+   */
+  public Security resolve(SecuritySource source) {
+    Security target = getTarget();
+    if (target != null) {
+      return target;
+    }
+    ObjectIdentifier objectId = getObjectId();
+    if (objectId != null) {
+      target = source.getSecurity(objectId.atLatestVersion());
+      if (target != null) {
+        setTarget(target);
+        return target;
+      }
+    }
+    IdentifierBundle bundle = getWeakId();
+    if (bundle.size() > 0) {
+      target = source.getSecurity(bundle);
+      if (target != null) {
+        setTarget(target);
+        return target;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the security using a security source,
+   * logging any exception and returning null.
+   * 
+   * @param source  the source to use to resolve, not null
+   * @return the resolved security, null if unable to resolve
+   */
+  public Security resolveQuiet(SecuritySource source) {
+    try {
+      return resolve(source);
+    } catch (RuntimeException ex) {
+      s_logger.warn("Unable to resolve security {}: {}", this, ex);
+      return null;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Clones this link, sharing the target security.
    * 

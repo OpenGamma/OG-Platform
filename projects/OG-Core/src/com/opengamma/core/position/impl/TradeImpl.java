@@ -143,7 +143,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   }
 
   /**
-   * Creates a trade from a positionId, an amount of a security, counterparty and tradeinstant.
+   * Creates a trade from a positionId, an amount of a security, counterparty and trade instant.
    * 
    * @param parentPositionId  the parent position id, not null
    * @param security  the security, not null
@@ -163,7 +163,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _parentPositionId = parentPositionId;
-    _securityLink = new SecurityLink(security);
+    _securityLink = SecurityLink.of(security);
   }
 
   /**
@@ -267,6 +267,20 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public void setSecurityLink(SecurityLink securityLink) {
     ArgumentChecker.notNull(securityLink, "securityLink");
     _securityLink = securityLink;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the target security from the link.
+   * <p>
+   * This convenience method gets the target security from the link.
+   * This is guaranteed to return a security within an analytic function.
+   * 
+   * @return the security link, null if target not resolved in the link
+   */
+  @Override
+  public Security getSecurity() {
+    return _securityLink.getTarget();
   }
 
   //-------------------------------------------------------------------------

@@ -139,7 +139,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(security, "security");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityLink = new SecurityLink(security);
+    _securityLink = SecurityLink.of(security);
   }
 
   /**
@@ -240,6 +240,20 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public void setSecurityLink(SecurityLink securityLink) {
     ArgumentChecker.notNull(securityLink, "securityLink");
     _securityLink = securityLink;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the target security from the link.
+   * <p>
+   * This convenience method gets the target security from the link.
+   * This is guaranteed to return a security within an analytic function.
+   * 
+   * @return the security link, null if target not resolved in the link
+   */
+  @Override
+  public Security getSecurity() {
+    return _securityLink.getTarget();
   }
 
   //-------------------------------------------------------------------------

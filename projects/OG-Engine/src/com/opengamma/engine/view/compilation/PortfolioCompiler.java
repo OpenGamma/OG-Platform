@@ -173,34 +173,33 @@ public final class PortfolioCompiler {
    */
   private static Set<IdentifierBundle> getSecurityKeysForResolution(PortfolioNode node) {
     Set<IdentifierBundle> result = new TreeSet<IdentifierBundle>();
-
+    
     for (Position position : node.getPositions()) {
       if (position.getSecurity() != null) {
-        // Nothing to do here; they pre-resolved the security.
+        // security is pre-resolved
         s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueId());
-      } else if (position.getSecurityKey() != null) {
-        result.add(position.getSecurityKey());
+      } else if (position.getSecurityLink().getWeakId().size() > 0) {
+        result.add(position.getSecurityLink().getWeakId());  // TODO: handle SecuityLink properly (objectId)
       } else {
         throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueId());
       }
       
-      //get trades security identifiers as well
+      // get trades security identifiers as well
       for (Trade trade : position.getTrades()) {
         if (trade.getSecurity() != null) {
-          // Nothing to do here; they pre-resolved the security.
+          // security is pre-resolved
           s_logger.debug("Security pre-resolved by PositionSource for {}", trade.getUniqueId());
-        } else if (trade.getSecurityKey() != null) {
-          result.add(trade.getSecurityKey());
+        } else if (trade.getSecurityLink().getWeakId().size() > 0) {
+          result.add(trade.getSecurityLink().getWeakId());  // TODO: handle SecuityLink properly (objectId)
         } else {
           throw new IllegalArgumentException("Security or security key must be provided: " + trade.getUniqueId());
         }
       }
     }
-
+    
     for (PortfolioNode subNode : node.getChildNodes()) {
       result.addAll(getSecurityKeysForResolution(subNode));
     }
-
     return result;
   }
 
@@ -232,13 +231,13 @@ public final class PortfolioCompiler {
     for (Position position : rootNode.getPositions()) {
       Security security = position.getSecurity();
       if (position.getSecurity() == null) {
-        security = securitiesByKey.get(position.getSecurityKey());
+        security = securitiesByKey.get(position.getSecurityLink().getWeakId());
       }
       if (security == null) {
-        throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
+        throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityLink().getWeakId() + " for position " + position);
       }
       PositionImpl populatedPosition = new PositionImpl(position);
-      populatedPosition.setSecurity(security);
+      populatedPosition.getSecurityLink().setTarget(security);
       populatedPosition.setParentNodeId(populatedNode.getUniqueId());
       // set the children trade security as well
       final Set<Trade> origTrades = populatedPosition.getTrades();
@@ -247,7 +246,7 @@ public final class PortfolioCompiler {
         for (Trade trade : origTrades) {
           TradeImpl populatedTrade = new TradeImpl(trade);
           populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
-          populatedTrade.setSecurity(security);
+          populatedTrade.getSecurityLink().setTarget(security);
           newTrades.add(populatedTrade);
         }
         populatedPosition.setTrades(newTrades);

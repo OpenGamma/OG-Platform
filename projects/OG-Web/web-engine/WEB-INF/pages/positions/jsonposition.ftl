@@ -12,10 +12,13 @@
         "security_unique_id": "${security.uniqueId.objectId}",
         "security_type": "${security.securityType}",
         </#if>
+        <#if position.securityLink.objectId?has_content>
+        "security_object_id": "${position.securityLink.objectId}",
+        </#if>
         "quantity": "${position.quantity}"
     },
     "securities": [
-        <#list position.securityKey.identifiers as item>{
+        <#list position.securityLink.weakId.identifiers as item>{
             "scheme": "${item.scheme.name}",
             "value": "${item.value}"
         }<#if item_has_next>,</#if></#list>

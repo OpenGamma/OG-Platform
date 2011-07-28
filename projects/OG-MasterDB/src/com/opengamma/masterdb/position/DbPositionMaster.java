@@ -431,7 +431,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
     final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
-    for (Identifier id : position.getSecurityLink()) {
+    for (Identifier id : position.getSecurityLink().getAllIdentifiers()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
           .addValue("position_id", positionId)
           .addValue("key_scheme", id.getScheme().getName())
@@ -496,7 +496,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
       UniqueIdentifiables.setInto(trade, tradeUid);
       trade.setParentPositionId(positionUid);
-      for (Identifier id : trade.getSecurityKey()) {
+      for (Identifier id : trade.getSecurityLink().getAllIdentifiers()) {
         final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
             .addValue("trade_id", tradeId)
             .addValue("key_scheme", id.getScheme().getName())
@@ -733,7 +733,6 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     @Override
     public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {
           if (_trade != null) {
@@ -742,12 +741,17 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           _lastPositionId = positionId;
           buildPosition(rs, positionId);
         }
-
+        
         final String posIdScheme = rs.getString("POS_KEY_SCHEME");
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
-          Identifier id = Identifier.of(posIdScheme, posIdValue);
-          _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+          if (posIdScheme.equals(ObjectIdentifier.OID.getName())) {
+            ObjectIdentifier oid = ObjectIdentifier.parse(posIdValue);
+            _position.getSecurityLink().setObjectId(oid);
+          } else {
+            Identifier id = Identifier.of(posIdScheme, posIdValue);
+            _position.getSecurityLink().addWeakId(id);
+          }
         }
         
         final String posAttrKey = rs.getString("POS_ATTR_KEY");
@@ -755,17 +759,22 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         if (posAttrKey != null && posAttrValue != null) {
           _position.addAttribute(posAttrKey, posAttrValue);
         }
-
+        
         final long tradeId = rs.getLong("TRADE_ID");
         if (_lastTradeId != tradeId && tradeId != 0) {
           buildTrade(rs, tradeId);
         }
-
+        
         final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
         final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
         if (tradeIdScheme != null && tradeIdValue != null) {
-          Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
-          _trade.setSecurityKey(_trade.getSecurityKey().withIdentifier(id));
+          if (tradeIdScheme.equals(ObjectIdentifier.OID.getName())) {
+            ObjectIdentifier oid = ObjectIdentifier.parse(tradeIdValue);
+            _trade.getSecurityLink().setObjectId(oid);
+          } else {
+            Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
+            _trade.getSecurityLink().addWeakId(id);
+          }
         }
         
         final String tradeAttrKey = rs.getString("TRADE_ATTR_KEY");
