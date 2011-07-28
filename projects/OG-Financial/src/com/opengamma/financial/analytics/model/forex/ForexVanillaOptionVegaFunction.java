@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
  */
 public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
+  private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
   public ForexVanillaOptionVegaFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
     super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.VEGA_MATRIX);
@@ -35,18 +37,18 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
   protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
-    final double[] strikes = result.getStrikes().getData();
+    final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();
-    final int nStrikes = strikes.length;
+    final int nDelta = delta.length;
     final int nExpiries = expiries.length;
     final Double[] rowValues = new Double[nExpiries];
     final String[] rowLabels = new String[nExpiries];
-    final Double[] columnValues = new Double[nStrikes];
-    final String[] columnLabels = new String[nStrikes];
-    final double[][] values = new double[nStrikes][nExpiries];
-    for (int i = 0; i < nStrikes; i++) {
-      columnValues[i] = strikes[i];
-      columnLabels[i] = ForexUtils.getFormattedStrike(strikes[i], result.getCurrencyPair());
+    final Double[] columnValues = new Double[nDelta];
+    final String[] columnLabels = new String[nDelta];
+    final double[][] values = new double[nDelta][nExpiries];
+    for (int i = 0; i < nDelta; i++) {
+      columnValues[i] = delta[i];
+      columnLabels[i] = "P" + DELTA_FORMATTER.format(delta[i] * 100) + " " + result.getCurrencyPair().getFirst() + "/" + result.getCurrencyPair().getSecond();
       for (int j = 0; j < nExpiries; j++) {
         if (i == 0) {
           rowValues[j] = expiries[j];
@@ -55,8 +57,7 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
         values[i][j] = vega[j][i];
       }
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));

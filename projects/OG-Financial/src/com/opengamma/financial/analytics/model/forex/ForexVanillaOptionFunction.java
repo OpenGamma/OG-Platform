@@ -56,7 +56,7 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
   @Override
   protected Identifier getSpotIdentifier(final FinancialSecurity target) {
     final FXOptionSecurity security = (FXOptionSecurity) target;
-    return FXUtils.getSpotIdentifier(security, true);
+    return FXUtils.getSpotIdentifier(security);
   }
 
   @Override
@@ -76,10 +76,10 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
     final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putCurveName, putCurveName, putCurveName);
     final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callCurveName, callCurveName, callCurveName);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
-                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement);
   }
