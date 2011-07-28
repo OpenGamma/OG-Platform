@@ -9,6 +9,9 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  * @param <S> The type of the keys
@@ -21,20 +24,17 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   private final double[] _values;
   private final T _defaultTolerance;
 
-  public LabelledMatrix1D(final S[] keys, final double[] values, final T defaultTolerance) {
-    Validate.notNull(keys, "labels");
-    Validate.notNull(values, "values");
-    final int n = keys.length;
-    Validate.isTrue(n == values.length, "length of keys array must match length of values array");
-    _keys = Arrays.copyOf(keys, n);
-    _values = Arrays.copyOf(values, n);
-    _labels = new Object[n];
-    int i = 0;
-    for (final S s : keys) {
-      _labels[i++] = s;
+  /* package */static <T> Object[] toString(final T[] arr) {
+    ArgumentChecker.notNull(arr, "arr");
+    final Object[] result = new Object[arr.length];
+    for (int i = 0; i < arr.length; i++) {
+      result[i] = arr[i].toString();
     }
-    sort(_keys, _labels, _values);
-    _defaultTolerance = defaultTolerance;
+    return result;
+  }
+
+  public LabelledMatrix1D(final S[] keys, final double[] values, final T defaultTolerance) {
+    this(keys, toString(keys), values, defaultTolerance);
   }
 
   public LabelledMatrix1D(final S[] keys, final Object[] labels, final double[] values, final T defaultTolerance) {
@@ -42,13 +42,13 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     Validate.notNull(labels, "label names");
     Validate.notNull(values, "values");
     final int n = keys.length;
-    Validate.isTrue(n == labels.length, "length of keys array (" + n + ") must match length of label names array (" + labels.length + ")");
-    Validate.isTrue(n == values.length, "length of keys array (" + n + ") must match length of values array (" + values.length + ")");
+    Validate.isTrue(n == labels.length, "length of keys array must match length of label names array");
+    Validate.isTrue(n == values.length, "length of keys array must match length of values array");
     _keys = Arrays.copyOf(keys, n);
     _labels = Arrays.copyOf(labels, n);
     _values = Arrays.copyOf(values, n);
-    sort(_keys, _labels, _values);
     _defaultTolerance = defaultTolerance;
+    quickSort();
   }
 
   public S[] getKeys() {
@@ -280,9 +280,22 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
 
   protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values);
 
-  protected void sort(final S[] keys, final Object[] labels, final double[] values) {
-    final int n = keys.length;
-    tripleArrayQuickSort(keys, labels, values, 0, n - 1);
+  private void quickSort() {
+    (new ArrayQuickSorter<S>(_keys) {
+
+      @Override
+      protected int compare(final S first, final S second) {
+        return LabelledMatrix1D.this.compare(first, second);
+      }
+
+      @Override
+      protected void swap(final int first, final int second) {
+        super.swap(first, second);
+        swap(_labels, first, second);
+        swap(_values, first, second);
+      }
+
+    }).sort();
   }
 
   protected int binarySearchWithTolerance(final S[] keys, final S key, final T tolerance) {
@@ -301,41 +314,6 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
       }
     }
     return -(low + 1);
-  }
-
-  private void tripleArrayQuickSort(final S[] keys, final Object[] labels, final double[] values, final int left, final int right) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partition(keys, labels, values, left, right, pivot);
-      tripleArrayQuickSort(keys, labels, values, left, pivotNewIndex - 1);
-      tripleArrayQuickSort(keys, labels, values, pivotNewIndex + 1, right);
-    }
-  }
-
-  private int partition(final S[] keys, final Object[] labels, final double[] values, final int left, final int right, final int pivot) {
-    final S pivotValue = keys[pivot];
-    swap(keys, labels, values, pivot, right);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i].compareTo(pivotValue) < 0) {
-        swap(keys, labels, values, i, storeIndex);
-        storeIndex++;
-      }
-    }
-    swap(keys, labels, values, storeIndex, right);
-    return storeIndex;
-  }
-
-  private void swap(final S[] keys, final Object[] labels, final double[] values, final int first, final int second) {
-    final S x = keys[first];
-    keys[first] = keys[second];
-    keys[second] = x;
-    final Object y = labels[first];
-    labels[first] = labels[second];
-    labels[second] = y;
-    final double z = values[first];
-    values[first] = values[second];
-    values[second] = z;
   }
 
   @Override
