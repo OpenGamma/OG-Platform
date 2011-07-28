@@ -41,7 +41,7 @@ $.register_module({
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                         buttons: {
-                            "Ok": function () {
+                            'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
                                     handler: function (r) {
@@ -145,7 +145,7 @@ $.register_module({
                                 title: 'Add New sub Portfolio',
                                 fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                                 buttons: {
-                                    "Ok": function () {
+                                    'OK': function () {
                                         if (ui.dialog({return_field_value: 'name'}) === '') return;
                                         $(this).dialog('close');
                                         do_update();
@@ -178,7 +178,7 @@ $.register_module({
                                 title: 'Add Position',
                                 fields: [{type: 'input', name: 'Identifier', id: 'name'}],
                                 buttons: {
-                                    "Ok": function () {
+                                    'OK': function () {
                                         if (ui.dialog({return_field_value: 'name'}) === '') return;
                                         do_update();
                                         $(this).dialog('close');
