@@ -208,17 +208,16 @@ $.register_module({
                     },
                     render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios;
-                        if (!!json.portfolios[0]) {
+                        if (json.portfolios[0]) {
                             display_columns = [{
-                                id:"name", name:"Name", field:"name", cssClass: 'og-link',
+                                id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
                                 width: 300, formatter: format
                             }],
                             data_columns = [{
-                                id:"id", name:"Id", field:"id", width: 100, formatter: format
+                                id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
                             }];
-                        }
-                        if (!json.portfolios[0]) {
-                            display_columns = [{id:"name", name:"Name", field:"name", width: 300}],
+                        } else {
+                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 300}],
                             json.portfolios = [{name: 'No portfolios', id: ''}]
                         }
                         slick = new Slick.Grid(selector, json.portfolios, display_columns.concat(data_columns));
@@ -256,7 +255,7 @@ $.register_module({
                     },
                     render_position_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
-                        if (!!json.positions[0]) {
+                        if (json.positions[0]) {
                             display_columns = [
                                 {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link'},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80, formatter: format}
@@ -264,8 +263,7 @@ $.register_module({
                             data_columns = [
                                 {id:"id", name:"Id", field:"id", width: 100, formatter: format}
                             ];
-                        }
-                        if (!json.positions[0]) {
+                        } else {
                             display_columns = [
                                 {id:"name", name:"Name", field:"name", width: 300},
                                 {id:"quantity", name:"Quantity", field:"quantity", width: 80}
@@ -292,7 +290,6 @@ $.register_module({
                                             position: position,
                                             handler: function (r) {
                                                 if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                                portfolios.deleted = true;
                                                 routes.handler();
                                             }
                                         });
