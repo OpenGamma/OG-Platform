@@ -28,24 +28,24 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
    */
   private final DoubleMatrix2D _vega;
   private final DoubleMatrix1D _expiries;
-  private final DoubleMatrix1D _strikes;
+  private final DoubleMatrix1D _delta;
 
   /**
    * Constructor with empty sensitivities for a given currency pair.
    * @param ccy1 First currency, not null
    * @param ccy2 Second currency, not null
    * @param numberExpiry The number of expiries, not negative
-   * @param numberStrike The number of strikes, not negative
+   * @param numberDelta The number of deltas, not negative
    */
-  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final int numberExpiry, final int numberStrike) {
+  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final int numberExpiry, final int numberDelta) {
     Validate.notNull(ccy1, "currency 1");
     Validate.notNull(ccy2, "currency 2");
     Validate.isTrue(numberExpiry >= 0);
-    Validate.isTrue(numberStrike >= 0);
+    Validate.isTrue(numberDelta >= 0);
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _expiries = new DoubleMatrix1D(new double[numberExpiry]);
-    _strikes = new DoubleMatrix1D(new double[numberStrike]);
-    _vega = new DoubleMatrix2D(numberExpiry, numberStrike);
+    _delta = new DoubleMatrix1D(new double[numberDelta]);
+    _vega = new DoubleMatrix2D(numberExpiry, numberDelta);
   }
 
   /**
@@ -53,20 +53,20 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
    * @param ccy1 First currency, not null
    * @param ccy2 Second currency, not null
    * @param expiries The expiries for the vega matrix, not null
-   * @param strikes The strikes for the vega matrix, not null
+   * @param delta The deltas for the vega matrix, not null
    * @param vega The initial sensitivity, not null
    */
-  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix1D expiries, final DoubleMatrix1D strikes, final DoubleMatrix2D vega) {
+  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix1D expiries, final DoubleMatrix1D delta, final DoubleMatrix2D vega) {
     Validate.notNull(ccy1, "currency 1");
     Validate.notNull(ccy2, "currency 2");
     Validate.notNull(expiries, "expiries");
-    Validate.notNull(strikes, "strikes");
+    Validate.notNull(delta, "strikes");
     Validate.notNull(vega, "Matrix");
     Validate.isTrue(vega.getNumberOfRows() == expiries.getNumberOfElements(), "Number of rows did not match number of expiries");
-    Validate.isTrue(vega.getNumberOfColumns() == strikes.getNumberOfElements(), "Number of columns did not match number of strikes");
+    Validate.isTrue(vega.getNumberOfColumns() == delta.getNumberOfElements(), "Number of columns did not match number of delta");
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _expiries = expiries;
-    _strikes = strikes;
+    _delta = delta;
     _vega = vega;
   }
 
@@ -90,8 +90,8 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
     return _expiries;
   }
 
-  public DoubleMatrix1D getStrikes() {
-    return _strikes;
+  public DoubleMatrix1D getDelta() {
+    return _delta;
   }
 
   //TODO Add possibility to add a sensitivity?
@@ -102,7 +102,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
     int result = 1;
     result = prime * result + _currencyPair.hashCode();
     result = prime * result + _expiries.hashCode();
-    result = prime * result + _strikes.hashCode();
+    result = prime * result + _delta.hashCode();
     result = prime * result + _vega.hashCode();
     return result;
   }
@@ -128,7 +128,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
     if (!ObjectUtils.equals(_expiries, other._expiries)) {
       return false;
     }
-    if (!ObjectUtils.equals(_strikes, other._strikes)) {
+    if (!ObjectUtils.equals(_delta, other._delta)) {
       return false;
     }
     return true;

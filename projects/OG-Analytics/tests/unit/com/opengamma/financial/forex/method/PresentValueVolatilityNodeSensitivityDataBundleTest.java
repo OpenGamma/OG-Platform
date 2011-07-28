@@ -107,7 +107,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundleTest {
     final PresentValueVolatilityNodeSensitivityDataBundle nodeSensi = new PresentValueVolatilityNodeSensitivityDataBundle(CUR_1, CUR_2, expiries, strikes, vega);
     assertEquals("Currency pair", pair, nodeSensi.getCurrencyPair());
     assertEquals("Expiries", expiries, nodeSensi.getExpiries());
-    assertEquals("Strikes", strikes, nodeSensi.getStrikes());
+    assertEquals("Strikes", strikes, nodeSensi.getDelta());
     assertEquals("Vega", vega, nodeSensi.getVega());
   }
 
