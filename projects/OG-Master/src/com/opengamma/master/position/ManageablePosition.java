@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -66,11 +66,11 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private BigDecimal _quantity;
   /**
-   * The security key identifier bundle specifying the security.
-   * This field must not be null for the object to be valid.
+   * The link referencing the security, not null.
+   * This may also hold the resolved security.
    */
-  @PropertyDefinition
-  private IdentifierBundle _securityKey;
+  @PropertyDefinition(validate = "notNull")
+  private SecurityLink _securityLink;
   /**
    * The trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
@@ -84,7 +84,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    */
   @PropertyDefinition
   private Identifier _providerKey;
-  
   /**
    * Position attributes used for aggregation
    */
@@ -95,10 +94,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * Creates an instance.
    */
   public ManageablePosition() {
+    _securityLink = new SecurityLink();
   }
 
   /**
    * Creates a position from an amount of a security identified by key.
+   * 
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
@@ -106,11 +107,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     _quantity = quantity;
-    _securityKey = IdentifierBundle.of(securityKey);
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
    * Creates a position from an amount of a security identified by key.
+   * 
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
@@ -118,21 +120,13 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     _quantity = quantity;
-    _securityKey = securityKey;
+    _securityLink = new SecurityLink(securityKey);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the security key.
-   * @param securityKeyIdentifier  the identifier to add, not null
-   */
-  public void addSecurityKey(final Identifier securityKeyIdentifier) {
-    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
-    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
-  }
-
-  /**
    * Adds a trade to the list.
+   * 
    * @param trade  the trade to add, not null
    */
   public void addTrade(final ManageableTrade trade) {
@@ -142,23 +136,16 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   /**
    * Gets a suitable name for the position.
+   * 
    * @return the name, not null
    */
   @DerivedProperty
   public String getName() {
-    if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
-      final String amount = JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x ";
-      if (getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.RIC) != null) {
-        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.RIC);
-      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER);
-      } else {
-        return amount + getSecurityKey().getIdentifiers().iterator().next().getValue();
-      }
+    String bestName = getSecurityLink().getBestName();
+    if (getQuantity() != null && bestName.length() > 0) {
+      return JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x " + bestName;
     }
-    return getUniqueId() != null ? getUniqueId().toLatest().toString() : "";
+    return getUniqueId() != null ? getUniqueId().getObjectId().toString() : "";
   }
 
   //-------------------------------------------------------------------------
@@ -249,8 +236,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         return getUniqueId();
       case -1285004149:  // quantity
         return getQuantity();
-      case 1550083839:  // securityKey
-        return getSecurityKey();
+      case 807992154:  // securityLink
+        return getSecurityLink();
       case -865715313:  // trades
         return getTrades();
       case 2064682670:  // providerKey
@@ -273,8 +260,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
         return;
-      case 1550083839:  // securityKey
-        setSecurityKey((IdentifierBundle) newValue);
+      case 807992154:  // securityLink
+        setSecurityLink((SecurityLink) newValue);
         return;
       case -865715313:  // trades
         setTrades((List<ManageableTrade>) newValue);
@@ -295,6 +282,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_securityLink, "securityLink");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -303,7 +296,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       ManageablePosition other = (ManageablePosition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityKey(), other.getSecurityKey()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
           JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
@@ -317,7 +310,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
@@ -383,30 +376,31 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security key identifier bundle specifying the security.
-   * This field must not be null for the object to be valid.
-   * @return the value of the property
+   * Gets the link referencing the security, not null.
+   * This may also hold the resolved security.
+   * @return the value of the property, not null
    */
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
+  public SecurityLink getSecurityLink() {
+    return _securityLink;
   }
 
   /**
-   * Sets the security key identifier bundle specifying the security.
-   * This field must not be null for the object to be valid.
-   * @param securityKey  the new value of the property
+   * Sets the link referencing the security, not null.
+   * This may also hold the resolved security.
+   * @param securityLink  the new value of the property, not null
    */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    this._securityKey = securityKey;
+  public void setSecurityLink(SecurityLink securityLink) {
+    JodaBeanUtils.notNull(securityLink, "securityLink");
+    this._securityLink = securityLink;
   }
 
   /**
-   * Gets the the {@code securityKey} property.
-   * This field must not be null for the object to be valid.
+   * Gets the the {@code securityLink} property.
+   * This may also hold the resolved security.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> securityKey() {
-    return metaBean().securityKey().createProperty(this);
+  public final Property<SecurityLink> securityLink() {
+    return metaBean().securityLink().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -525,10 +519,10 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
         this, "quantity", ManageablePosition.class, BigDecimal.class);
     /**
-     * The meta-property for the {@code securityKey} property.
+     * The meta-property for the {@code securityLink} property.
      */
-    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(
-        this, "securityKey", ManageablePosition.class, IdentifierBundle.class);
+    private final MetaProperty<SecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
+        this, "securityLink", ManageablePosition.class, SecurityLink.class);
     /**
      * The meta-property for the {@code trades} property.
      */
@@ -558,7 +552,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         this, null,
         "uniqueId",
         "quantity",
-        "securityKey",
+        "securityLink",
         "trades",
         "providerKey",
         "attributes",
@@ -577,8 +571,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
           return _uniqueId;
         case -1285004149:  // quantity
           return _quantity;
-        case 1550083839:  // securityKey
-          return _securityKey;
+        case 807992154:  // securityLink
+          return _securityLink;
         case -865715313:  // trades
           return _trades;
         case 2064682670:  // providerKey
@@ -624,11 +618,11 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     }
 
     /**
-     * The meta-property for the {@code securityKey} property.
+     * The meta-property for the {@code securityLink} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> securityKey() {
-      return _securityKey;
+    public final MetaProperty<SecurityLink> securityLink() {
+      return _securityLink;
     }
 
     /**

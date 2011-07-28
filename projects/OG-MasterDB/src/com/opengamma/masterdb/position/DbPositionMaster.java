@@ -431,7 +431,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
     final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
-    for (Identifier id : position.getSecurityKey()) {
+    for (Identifier id : position.getSecurityLink()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
           .addValue("position_id", positionId)
           .addValue("key_scheme", id.getScheme().getName())

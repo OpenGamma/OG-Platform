@@ -152,7 +152,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _uniqueId = copyFrom.getUniqueId();
     _parentNodeId = copyFrom.getParentNodeId();
     _quantity = copyFrom.getQuantity();
-    _securityLink = new SecurityLink(copyFrom.getSecurityLink());
+    _securityLink = copyFrom.getSecurityLink().clone();
     _trades.addAll(copyFrom.getTrades());
     setAttributes(copyFrom.getAttributes());
   }

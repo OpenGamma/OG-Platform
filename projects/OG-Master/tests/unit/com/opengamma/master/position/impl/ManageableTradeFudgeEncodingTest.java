@@ -18,8 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -37,7 +38,8 @@ public class ManageableTradeFudgeEncodingTest {
     ManageableTrade obj = new ManageableTrade();
     obj.setUniqueId(UniqueIdentifier.of("U", "1"));
     obj.setQuantity(BigDecimal.ONE);
-    obj.setSecurityKey(IdentifierBundle.of(Identifier.of("A", "B")));
+    obj.setSecurityLink(new SecurityLink(Identifier.of("A", "B")));
+    obj.getSecurityLink().setObjectId(ObjectIdentifier.of("O", "1"));
     obj.setTradeDate(LocalDate.of(2011, 6, 1));
     obj.setCounterpartyKey(Identifier.of("C", "D"));
     testFudgeMessage(obj);

@@ -179,7 +179,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = copyFrom.getTradeDate();
     _tradeTime = copyFrom.getTradeTime();
     _parentPositionId = copyFrom.getParentPositionId();
-    _securityLink = new SecurityLink(copyFrom.getSecurityLink());
+    _securityLink = copyFrom.getSecurityLink().clone();
     setAttributes(copyFrom.getAttributes());
   }
 
