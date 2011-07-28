@@ -213,8 +213,12 @@ public class DependencyGraphBuilder {
           final Pair<DependencyNode, ValueSpecification> existingNode = existingNodesByFunction.get(resolvedFunction.getFirst());
           if (existingNode != null) {
             final ValueSpecification resolvedOutput = existingNode.getSecond().compose(requirement);
-            s_logger.debug("Reducing existing specification {} to {}", existingNode, resolvedOutput);
-            existingNode.getFirst().replaceOutputValue(existingNode.getSecond(), resolvedOutput);
+            if (!existingNode.getSecond().equals(resolvedOutput)) {
+              s_logger.debug("Reducing existing specification {} to {}", existingNode, resolvedOutput);
+              _graph.removeDependencyNode(existingNode.getFirst());
+              existingNode.getFirst().replaceOutputValue(existingNode.getSecond(), resolvedOutput);
+              _graph.addDependencyNode(existingNode.getFirst());
+            }
             resolutionState.addExistingNode(existingNode.getFirst(), resolvedOutput);
             return true;
           }
