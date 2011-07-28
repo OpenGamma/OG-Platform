@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -24,6 +25,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   private final T _defaultTolerance;
 
   /* package */static <T> Object[] toString(final T[] arr) {
+    ArgumentChecker.notNull(arr, "arr");
     final Object[] result = new Object[arr.length];
     for (int i = 0; i < arr.length; i++) {
       result[i] = arr[i].toString();
