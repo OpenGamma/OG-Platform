@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -70,37 +71,29 @@ public class SwaptionSABRPresentValueCurveSensitivityFunction extends SwaptionSA
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
+    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties)); 
+    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties));
   }
 
-  private Set<ComputedValue> getSensitivities(final ComputationTarget target, final SwaptionSecurity swaptionSecurity, Map<String, List<DoublesPair>> sensitivities) {
-    Set<ComputedValue> computedValues = new HashSet<ComputedValue>();
-    for (Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
+  private Set<ComputedValue> getSensitivities(final ComputationTarget target, final SwaptionSecurity swaptionSecurity, final Map<String, List<DoublesPair>> sensitivities) {
+    final Set<ComputedValue> computedValues = new HashSet<ComputedValue>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
       final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), createValueProperties()
           .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
           .with(ValuePropertyNames.CURVE, entry.getKey())
           .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
-      List<DoublesPair> data = entry.getValue();
-      int n = data.size();
-      Double[] keys = new Double[n];
-      Object[] labels = new Object[n];
-      double[] values = new double[n];
-      int i = 0;
-      for (DoublesPair pair : entry.getValue()) {
-        double tenor = pair.getKey();
-        keys[i] = tenor;
-        labels[i] = FORMATTER.format(tenor);
-        values[i++] = pair.getValue();
+      LabelledMatrix1D<Double, Double> labelledMatrix = new DoubleLabelledMatrix1D(new Double[0], new String[0], new double[0]);
+      for (final DoublesPair pair : entry.getValue()) {
+        final double tenor = pair.getKey();
+        labelledMatrix = labelledMatrix.add(tenor, FORMATTER.format(tenor), pair.getValue());
       }
-      DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
       computedValues.add(new ComputedValue(specification, labelledMatrix));
     }
     return computedValues;

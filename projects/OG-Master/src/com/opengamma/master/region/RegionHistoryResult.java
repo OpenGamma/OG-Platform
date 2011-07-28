@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a region.
@@ -98,6 +99,9 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
   public static RegionHistoryResult.Meta meta() {
     return RegionHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(RegionHistoryResult.Meta.INSTANCE);
+  }
 
   @Override
   public RegionHistoryResult.Meta metaBean() {
@@ -105,13 +109,13 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -55,6 +55,9 @@ public class AttachToViewProcessRequest extends DirectBean {
   public static AttachToViewProcessRequest.Meta meta() {
     return AttachToViewProcessRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AttachToViewProcessRequest.Meta.INSTANCE);
+  }
 
   @Override
   public AttachToViewProcessRequest.Meta metaBean() {
@@ -62,7 +65,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -10926973:  // viewDefinitionName
         return getViewDefinitionName();
@@ -71,11 +74,11 @@ public class AttachToViewProcessRequest extends DirectBean {
       case -1977436267:  // newBatchProcess
         return isNewBatchProcess();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -10926973:  // viewDefinitionName
         setViewDefinitionName((String) newValue);
@@ -87,7 +90,7 @@ public class AttachToViewProcessRequest extends DirectBean {
         setNewBatchProcess((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

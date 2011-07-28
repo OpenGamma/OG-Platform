@@ -24,8 +24,8 @@ public final class DoubleMatrixUtils {
     final int rows = matrix.getNumberOfRows();
     final int columns = matrix.getNumberOfColumns();
     final double[][] primitives = new double[columns][rows];
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < columns; j++) {
+    for (int i = 0; i < columns; i++) {
+      for (int j = 0; j < rows; j++) {
         primitives[i][j] = matrix.getEntry(j, i);
       }
     }

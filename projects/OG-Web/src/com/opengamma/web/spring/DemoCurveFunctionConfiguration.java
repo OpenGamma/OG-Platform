@@ -87,9 +87,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
-//          if (curveNames.contains("SECONDARY")) {
-//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-//          }
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
           }
@@ -105,13 +105,13 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
       addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
       addYieldCurveFunction(configs, "GBP", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     }
 
     // The curves below are for testing curve names as value requirements - they might not be particularly useful
-    addYieldCurveFunction(configs, "USD", "SWAP_ONLY_NO3YR", "SWAP_ONLY_NO3YR", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-    addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+    addYieldCurveFunction(configs, "USD", "SWAP_ONLY_NO3YR", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+    addYieldCurveFunction(configs, "USD", "SWAP_ONLY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");

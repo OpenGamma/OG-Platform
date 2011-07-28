@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.fudgemsg;
+package com.opengamma.core.fudgemsg;
 
 import java.math.BigDecimal;
 import java.util.Map.Entry;
@@ -35,51 +35,51 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   /**
    * Attributes fudge field name.
    */
-  private static final String ATTRIBUTES = "attributes";
+  public static final String ATTRIBUTES = "attributes";
   /**
    * Premium time fudge field name.
    */
-  private static final String PREMIUM_TIME = "premiumTime";
+  public static final String PREMIUM_TIME = "premiumTime";
   /**
    * Premium date fudge field name.
    */
-  private static final String PREMIUM_DATE = "premiumDate";
+  public static final String PREMIUM_DATE = "premiumDate";
   /**
    * Premium currency fudge field name.
    */
-  private static final String PREMIUM_CURRENCY = "premiumCurrency";
+  public static final String PREMIUM_CURRENCY = "premiumCurrency";
   /**
    * Premium value fudge field name.
    */
-  private static final String PREMIUM = "premium";
+  public static final String PREMIUM = "premium";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_UNIQUE_ID = "uniqueId";
+  public static final String FIELD_UNIQUE_ID = "uniqueId";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_PARENT_POSITION_ID = "parentPositionId";
+  public static final String FIELD_PARENT_POSITION_ID = "parentPositionId";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_QUANTITY = "quantity";
+  public static final String FIELD_QUANTITY = "quantity";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_SECURITYKEY = "securityKey";
+  public static final String FIELD_SECURITYKEY = "securityKey";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_COUNTERPARTY = "counterpartyKey";
+  public static final String FIELD_COUNTERPARTY = "counterpartyKey";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_TRADE_DATE = "tradeDate";
+  public static final String FIELD_TRADE_DATE = "tradeDate";
   /**
    * Fudge field name.
    */
-  private static final String FIELD_TRADE_TIME = "tradeTime";
+  public static final String FIELD_TRADE_TIME = "tradeTime";
 
   protected static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final Trade trade) {
     final MutableFudgeMsg message = context.newMessage();

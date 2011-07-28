@@ -342,6 +342,11 @@
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
+	<target name="clean-lib-all" depends="buildlist"
+		description="clean all project lib directories (dependencies)">
+		<og-subant target="clean-lib" buildpathref="build-path" />
+	</target>
+
 	<target name="clean" depends="clean-all, load-ivy"
 		description="clean all projects, delete repository &amp; reload ivy">
 		<delete dir="${repository.dir}" />

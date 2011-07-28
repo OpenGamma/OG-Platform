@@ -96,6 +96,9 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   public static SecurityHistoryRequest.Meta meta() {
     return SecurityHistoryRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SecurityHistoryRequest.Meta.INSTANCE);
+  }
 
   @Override
   public SecurityHistoryRequest.Meta metaBean() {
@@ -103,22 +106,22 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1233600576:  // fullDetail
         return isFullDetail();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1233600576:  // fullDetail
         setFullDetail((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

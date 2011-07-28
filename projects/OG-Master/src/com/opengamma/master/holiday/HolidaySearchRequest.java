@@ -460,6 +460,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public static HolidaySearchRequest.Meta meta() {
     return HolidaySearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HolidaySearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public HolidaySearchRequest.Meta metaBean() {
@@ -467,7 +470,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1121781952:  // holidayIds
         return getHolidayIds();
@@ -486,12 +489,12 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case 1429431991:  // exchangeKeys
         return getExchangeKeys();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1121781952:  // holidayIds
         setHolidayIds((List<ObjectIdentifier>) newValue);
@@ -518,7 +521,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         setExchangeKeys((IdentifierSearch) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

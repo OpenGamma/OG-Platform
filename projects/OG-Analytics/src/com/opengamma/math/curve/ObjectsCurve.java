@@ -48,8 +48,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     for (int i = 0; i < _n; i++) {
       Validate.notNull(xData[i], "element " + i + " of x data");
       Validate.notNull(yData[i], "element " + i + " of y data");
-      _xData[i] = xData[i];
-      _yData[i] = yData[i];
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);

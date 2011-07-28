@@ -104,6 +104,9 @@ public class FunctionCostsDocument extends DirectBean {
   public static FunctionCostsDocument.Meta meta() {
     return FunctionCostsDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(FunctionCostsDocument.Meta.INSTANCE);
+  }
 
   @Override
   public FunctionCostsDocument.Meta metaBean() {
@@ -111,7 +114,7 @@ public class FunctionCostsDocument extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 302577825:  // configurationName
         return getConfigurationName();
@@ -126,11 +129,11 @@ public class FunctionCostsDocument extends DirectBean {
       case -1404333128:  // dataOutputCost
         return getDataOutputCost();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 302577825:  // configurationName
         setConfigurationName((String) newValue);
@@ -151,7 +154,7 @@ public class FunctionCostsDocument extends DirectBean {
         setDataOutputCost((Double) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

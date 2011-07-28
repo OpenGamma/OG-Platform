@@ -52,6 +52,9 @@ public class ComputationCacheResponse extends DirectBean {
   public static ComputationCacheResponse.Meta meta() {
     return ComputationCacheResponse.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ComputationCacheResponse.Meta.INSTANCE);
+  }
 
   @Override
   public ComputationCacheResponse.Meta metaBean() {
@@ -59,23 +62,23 @@ public class ComputationCacheResponse extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1097546742:  // results
         return getResults();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1097546742:  // results
         setResults((List<Pair<ValueSpecification, Object>>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -256,6 +256,9 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public static RegionSearchRequest.Meta meta() {
     return RegionSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(RegionSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public RegionSearchRequest.Meta metaBean() {
@@ -263,7 +266,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 74326820:  // regionIds
         return getRegionIds();
@@ -278,12 +281,12 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
       case 178436081:  // childrenOfId
         return getChildrenOfId();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 74326820:  // regionIds
         setRegionIds((List<ObjectIdentifier>) newValue);
@@ -304,7 +307,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
         setChildrenOfId((UniqueIdentifier) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

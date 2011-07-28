@@ -20,12 +20,19 @@ import com.opengamma.util.money.CurrencyAmount;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date, 
  * i.e. 0 for normal options and x for x-year mid-curve options.
  */
-public class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionMethod {
-
+public final class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionMethod {
+  private static final InterestRateFutureOptionMarginTransactionSABRMethod INSTANCE = new InterestRateFutureOptionMarginTransactionSABRMethod();
+  
+  public static InterestRateFutureOptionMarginTransactionSABRMethod getInstance() {
+    return INSTANCE;
+  }
   /**
    * The method used to compute the underlying security price.
    */
-  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = new InterestRateFutureOptionMarginSecuritySABRMethod();
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
+
+  private InterestRateFutureOptionMarginTransactionSABRMethod() {
+  }
 
   /**
    * Computes the present value of a transaction from the future price and SABR data.
