@@ -47,6 +47,10 @@ public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalcul
     return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
   }
 
+  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+    return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

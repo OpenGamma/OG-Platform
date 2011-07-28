@@ -32,6 +32,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -63,10 +64,19 @@ public class SwaptionSABRPresentValueCurveSensitivityFunction extends SwaptionSA
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
+    final String forwardCurveName = curveNames.getFirst();
+    final String fundingCurveName = curveNames.getSecond();
+    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(forwardCurveName, fundingCurveName, target, inputs));
     final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
     final Map<String, List<DoublesPair>> presentValueCurveSensitivity = _calculator.visit(swaption, data);
-    return getSensitivities(target, swaptionSecurity, presentValueCurveSensitivity);
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
+    final PresentValueSensitivity result = new PresentValueSensitivity(presentValueCurveSensitivity);
+    return Collections.singleton(new ComputedValue(specification, result));
+    //    return getSensitivities(target, swaptionSecurity, presentValueCurveSensitivity);
   }
 
   @Override
