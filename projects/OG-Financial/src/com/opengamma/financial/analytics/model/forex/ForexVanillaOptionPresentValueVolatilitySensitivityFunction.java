@@ -7,11 +7,19 @@ package com.opengamma.financial.analytics.model.forex;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
@@ -35,7 +43,7 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
   }
 
   @Override
-  protected Object getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data) {
+  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final PresentValueVolatilitySensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final Map<DoublesPair, Double> vega = result.getVega();
     final List<Double> rowValue = new ArrayList<Double>();
@@ -58,7 +66,12 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
       rowLabel.add(getFormattedStrike(k, result.getCurrencyPair()));
       values[0][0] = entry.getValue();
     }
-    return new DoubleLabelledMatrix2D(columnValue.toArray(EMPTY_ARRAY), columnLabel.toArray(), rowValue.toArray(EMPTY_ARRAY), rowLabel.toArray(), values);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    return Collections
+        .singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(columnValue.toArray(EMPTY_ARRAY), columnLabel.toArray(), rowValue.toArray(EMPTY_ARRAY), rowLabel.toArray(), values)));
   }
 
   private String getFormattedTime(final double t) {

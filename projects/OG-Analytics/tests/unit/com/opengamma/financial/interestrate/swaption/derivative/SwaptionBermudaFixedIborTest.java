@@ -29,6 +29,9 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
+/**
+ * Tests the Bermuda swaption constructor.
+ */
 public class SwaptionBermudaFixedIborTest {
   // General
   private static final Currency CUR = Currency.USD;

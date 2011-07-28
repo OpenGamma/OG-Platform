@@ -151,4 +151,45 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     return rootFinder.getRoot(swapValue, range[0], range[1]);
   }
 
+  public double beta(final double startExpiry, final double endExpiry, final HullWhiteOneFactorPiecewiseConstantParameters data) {
+    double numerator = 2 * data.getMeanReversion();
+    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    while (startExpiry > data.getVolatilityTime()[indexStart]) {
+      indexStart++;
+    }
+    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
+    while (endExpiry > data.getVolatilityTime()[indexEnd]) {
+      indexEnd++;
+    }
+    int sLen = indexEnd - indexStart + 1;
+    double[] s = new double[sLen + 1];
+    s[0] = startExpiry;
+    System.arraycopy(data.getVolatilityTime(), indexStart, s, 1, sLen - 1);
+    s[sLen] = endExpiry;
+    double denominator = 0.0;
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      denominator += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1]
+          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
+    }
+    return Math.sqrt(denominator / numerator);
+  }
+
+  public double lambda(final double[] discountedCashFlow, final double[] alpha2, final double[] hwH) {
+    final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double x) {
+        double value = 0.0;
+        for (int loopcf = 0; loopcf < alpha2.length; loopcf++) {
+          value += discountedCashFlow[loopcf] * Math.exp(-0.5 * alpha2[loopcf] - hwH[loopcf] * x);
+        }
+        return value;
+      }
+    };
+    final BracketRoot bracketer = new BracketRoot();
+    double accuracy = 1.0E-8;
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
+    final double[] range = bracketer.getBracketedPoints(swapValue, -2.0, 2.0);
+    return rootFinder.getRoot(swapValue, range[0], range[1]);
+  }
+
 }
