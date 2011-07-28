@@ -35,13 +35,35 @@
 }
 
 .slick-row .og-uppercase {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 /* Highlight rows on hover */
-.slick-row:hover,
-.slick-row:hover .slick-cell.og-link {
-    background-color: #d7e7f2!important;
+.slick-row:hover {
+  background-color: #d7e7f2!important;
+}
+
+/* contexual button */
+.slick-row:hover .og-button {
+  display: none;
+  height: 25px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 18px;
+}
+
+.slick-row:hover .og-button {
+  display: block!important;
+}
+
+.slick-row .og-button .og-icon-delete {
+  top: -6px;
+  right: -5px;
+}
+
+.slick-row .og-button .og-icon-unhook {
+
 }
 
 /* Fix vertical alignment */

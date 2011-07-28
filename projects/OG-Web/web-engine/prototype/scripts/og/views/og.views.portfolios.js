@@ -227,7 +227,30 @@ $.register_module({
                             var rule = module.rules.load_portfolios,
                                 node = json.portfolios[dd.row].id,
                                 href = routes.hash(rule, {id: routes.current().args.id, node: node});
-                            routes.go(href);
+                            if ($(e.target).hasClass('og-icon-delete')) {
+                                ui.dialog({
+                                    type: 'confirm',
+                                    title: 'Delete sub portfolio?',
+                                    message: 'Are you sure you want to permanently delete this sub portfolio?',
+                                    buttons: {'Delete': function () {
+                                        api.rest.portfolios.del({
+                                            id: routes.last().args.id, node: node,
+                                            handler: function (r) {
+                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                                portfolios.deleted = true;
+                                                routes.handler();
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    }}
+                                });
+                            } else routes.go(href);
+                        });
+                        slick.onMouseEnter.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                        });
+                        slick.onMouseLeave.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
                         resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     },
@@ -235,8 +258,8 @@ $.register_module({
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
                         if (!!json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link', formatter: format},
-                                {id:"quantity", name:"Quantity", field:"quantity", width: 80}
+                                {id:"name", name:"Name", field:"name", width: 300, cssClass: 'og-link'},
+                                {id:"quantity", name:"Quantity", field:"quantity", width: 80, formatter: format}
                             ],
                             data_columns = [
                                 {id:"id", name:"Id", field:"id", width: 100, formatter: format}
@@ -252,10 +275,38 @@ $.register_module({
                         slick = new Slick.Grid(selector, json.positions, display_columns.concat(data_columns));
                         slick.setColumns(display_columns);
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = og.views.positions.rules['load_positions'],
-                                node = json.positions[dd.row].id,
-                                href = routes.hash(rule, {id: node});
-                            routes.go(href);
+                            var rule = og.views.positions.rules['load_positions'], row = json.positions[dd.row],
+                                position = row.id, position_name = row.name,
+                                href = routes.hash(rule, {id: position});
+                            if ($(e.target).hasClass('og-icon-unhook')) {
+                                ui.dialog({
+                                    type: 'confirm',
+                                    title: 'Remove Position?',
+                                    message: 'Are you sure you want to remove the position '
+                                        + '<strong style="white-space: nowrap">' + position_name + '</strong>'
+                                        + ' from this portfolio?',
+                                    buttons: {'Delete': function () {
+                                        api.rest.portfolios.del({
+                                            id: routes.last().args.id,
+                                            node: json.template_data.node,
+                                            position: position,
+                                            handler: function (r) {
+                                                if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                                portfolios.deleted = true;
+                                                routes.handler();
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    }}
+                                });
+                            } else routes.go(href);
+
+                        });
+                        slick.onMouseEnter.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                        });
+                        slick.onMouseLeave.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
                         resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     };
@@ -315,12 +366,6 @@ $.register_module({
             load_filter: {
                 route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
             },
-            load_delete_node: {
-                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
-            },
-            load_delete: {
-                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
-            },
             load_portfolios: {
                 route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name
             },
@@ -357,12 +402,14 @@ $.register_module({
                 search.filter($.extend(args, {filter: true}));
             },
             load_delete: function (args) {
+                portfolios.deleted = false;
                 portfolios.search(args);
-                portfolios.load($({name: args.name}, args));
+                portfolios.details($.extend({name: args.name}, args));
             },
             load_new_portfolios: load_portfolios_without.partial('new'),
             load_edit_portfolios: load_portfolios_without.partial('edit'),
             load_portfolios: function (args) {
+                if (portfolios.deleted) return portfolios.load_delete(args);
                 check_state({args: args, conditions: [{new_page: portfolios.load}]});
                 portfolios.details(args);
             },
