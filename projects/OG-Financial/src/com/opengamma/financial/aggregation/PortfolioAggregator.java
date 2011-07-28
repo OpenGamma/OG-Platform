@@ -51,7 +51,6 @@ public class PortfolioAggregator {
   public Portfolio aggregate(Portfolio inputPortfolio) {
     UniqueIdentifier portfolioId = inputPortfolio.getUniqueId();
     UniqueIdentifier aggId;
-    // can't assume the portfolio will have a unique ID
     if (portfolioId != null) {
       String aggPortfolioId = buildPortfolioName(portfolioId.getValue());
       aggId = UniqueIdentifier.of(portfolioId.getScheme(), aggPortfolioId);
