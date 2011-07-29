@@ -131,23 +131,19 @@ public final class PortfolioCompiler {
     return createFullyResolvedPortfolio(portfolio, securitiesByKey);
   }
 
-  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
-    final Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
-    final Map<IdentifierBundle, Security> securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, executorService, securitySource);
-    return createFullyResolvedPortfolio(portfolio, securitiesByKey);
-  }
-
   /**
    * Resolves all of the securities for all positions within the portfolio.
    * 
-   * @param portfolio the portfolio to resolve
+   * @param portfolio  the portfolio to resolve, not null
    * @param viewCompilationContext the compilation context containing the view being compiled
    */
   private static Map<IdentifierBundle, Security> resolveSecurities(Portfolio portfolio, ViewCompilationContext viewCompilationContext) {
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", portfolio.getName());
     
-    // First retrieve all of the security keys referenced within the portfolio, then resolve them all as a single step
+    // find all unresolved security links
     Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
+    
+    // resolve the links
     Map<IdentifierBundle, Security> securitiesByKey;
     try {
       securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, viewCompilationContext);
@@ -156,7 +152,7 @@ public final class PortfolioCompiler {
     } finally {
       timer.finished();
     }
-
+    
     // While we've got the resolved securities to hand, we might as well cache them since they are all computation
     // targets that will be needed later
     CachingComputationTargetResolver resolver = viewCompilationContext.getServices().getComputationTargetResolver();
@@ -165,10 +161,25 @@ public final class PortfolioCompiler {
     return securitiesByKey;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves the securities in the portfolio.
+   * 
+   * @param portfolio  the portfolio to resolve, not null
+   * @param executorService  the threading service, not null
+   * @param securitySource  the security source, not null
+   * @return the resolved portfolio, not null
+   */
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
+    final Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
+    final Map<IdentifierBundle, Security> securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, executorService, securitySource);
+    return createFullyResolvedPortfolio(portfolio, securitiesByKey);
+  }
+
   /**
    * Walks the portfolio structure collecting all of the security identifiers referenced by the position nodes.
    * 
-   * @param node a portfolio node to process
+   * @param node  the portfolio node to resolve, not null
    * @return the set of security identifiers for any positions under the given portfolio node 
    */
   private static Set<IdentifierBundle> getSecurityKeysForResolution(PortfolioNode node) {
@@ -204,10 +215,10 @@ public final class PortfolioCompiler {
   }
 
   /**
-   * Constructs a new {@link Portfolio} instance containing resolved positions that reference {@link Security} instances.
+   * Constructs a new {@code Portfolio} containing resolved positions that reference {@code Security} instances.
    * 
-   * @param portfolio the unresolved portfolio to copy
-   * @param securitiesByKey the resolved securities to use
+   * @param portfolio  the unresolved portfolio to copy, not null
+   * @param securitiesByKey  the resolved securities to use, not null
    */
   private static Portfolio createFullyResolvedPortfolio(Portfolio portfolio, Map<IdentifierBundle, Security> securitiesByKey) {
     return new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), createFullyResolvedPortfolioHierarchy(portfolio.getRootNode(), securitiesByKey));
@@ -230,11 +241,11 @@ public final class PortfolioCompiler {
     // Take copies of any positions directly under this node, adding the resolved security instances. 
     for (Position position : rootNode.getPositions()) {
       Security security = position.getSecurity();
-      if (position.getSecurity() == null) {
-        security = securitiesByKey.get(position.getSecurityLink().getWeakId());
-      }
       if (security == null) {
-        throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityLink().getWeakId() + " for position " + position);
+        security = securitiesByKey.get(position.getSecurityLink().getWeakId());
+        if (security == null) {
+          throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityLink().getWeakId() + " for position " + position);
+        }
       }
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.getSecurityLink().setTarget(security);
