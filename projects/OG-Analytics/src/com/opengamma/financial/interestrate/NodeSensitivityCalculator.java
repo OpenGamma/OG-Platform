@@ -53,12 +53,70 @@ public abstract class NodeSensitivityCalculator {
     return curveToNodeSensitivities(senseMap, interpolatedCurves);
   }
 
+  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+    Validate.notNull(ird, "null InterestRateDerivative");
+    Validate.notNull(calculator, "null calculator");
+    Validate.notNull(interpolatedCurves, "interpolated curves");
+    //TODO fix me
+    //    final YieldCurveBundle allCurves = new YieldCurveBundle(interpolatedCurves);
+    //    if (fixedCurves != null) {
+    //      for (final String name : interpolatedCurves.getAllNames()) {
+    //        Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also in interpolated curves");
+    //      }
+    //      allCurves.addAll(fixedCurves);
+    //    }
+    final Map<String, List<DoublesPair>> senseMap = calculator.visit(ird, interpolatedCurves);
+    return curveToNodeSensitivities(senseMap, interpolatedCurves);
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes" })
   //REVIEW emcleod 13-7-2011 this duplicates a lot of the code in the next method
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.keySet()) { // loop over all curves (by name)
       final YieldAndDiscountCurve curve = interpolatedCurves.get(name);
+      if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
+        throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
+      }
+      final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = interpolatedCurve.getInterpolator();
+      final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
+      Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
+      // TODO move this logic into a factory
+      if (interpolator instanceof CombinedInterpolatorExtrapolator) {
+        final CombinedInterpolatorExtrapolator combined = (CombinedInterpolatorExtrapolator) interpolator;
+        final String interpolatorName = Interpolator1DFactory.getInterpolatorName(combined.getInterpolator());
+        final String leftExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getLeftExtrapolator());
+        final String rightExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getRightExtrapolator());
+        sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName, false);
+      } else {
+        final String interpolatorName = Interpolator1DFactory.getInterpolatorName(interpolator);
+        sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
+      }
+      final List<DoublesPair> sensitivityList = curveSensitivities.get(name);
+      final double[][] sensitivity = new double[sensitivityList.size()][];
+      int k = 0;
+      for (final DoublesPair timeAndDF : sensitivityList) {
+        sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
+      }
+      for (int j = 0; j < sensitivity[0].length; j++) {
+        double temp = 0.0;
+        k = 0;
+        for (final DoublesPair timeAndDF : sensitivityList) {
+          temp += timeAndDF.getSecond() * sensitivity[k++][j];
+        }
+        result.add(temp);
+      }
+    }
+    return new DoubleMatrix1D(result.toArray(new Double[0]));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
+    final List<Double> result = new ArrayList<Double>();
+    for (final String name : interpolatedCurves.getAllNames()) { // loop over all curves (by name)
+      final YieldAndDiscountCurve curve = interpolatedCurves.getCurve(name);
       if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
         throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
       }

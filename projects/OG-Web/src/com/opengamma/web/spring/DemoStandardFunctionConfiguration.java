@@ -85,6 +85,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentVa
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureImpliedRepoFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
@@ -99,6 +100,7 @@ import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValue
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueSABRFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRSummingFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.OptionPortfolioParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.OptionPositionParametricVaRCalculatorFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRCalculatorFunction;
@@ -132,16 +134,16 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     ParameterizedFunctionConfiguration securityScalingFunctionConfig = new ParameterizedFunctionConfiguration(PositionScalingFunction.class.getName(), Collections.singleton(requirementName));
-    //ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(PositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
+    ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(PositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
     functionConfigs.add(securityScalingFunctionConfig);
-    //functionConfigs.add(tradeScalingFunctionConfig);
+    functionConfigs.add(tradeScalingFunctionConfig);
   }
 
   protected static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     ParameterizedFunctionConfiguration securityScalingFunctionConfig = new ParameterizedFunctionConfiguration(UnitPositionScalingFunction.class.getName(), Collections.singleton(requirementName));
-    //ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(UnitPositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
+    ParameterizedFunctionConfiguration tradeScalingFunctionConfig = new ParameterizedFunctionConfiguration(UnitPositionTradeScalingFunction.class.getName(), Collections.singleton(requirementName));
     functionConfigs.add(securityScalingFunctionConfig);
-    //functionConfigs.add(tradeScalingFunctionConfig);
+    functionConfigs.add(tradeScalingFunctionConfig);
   }
 
   protected static void addDummyFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -268,6 +270,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "true", "SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionSABRSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
@@ -275,6 +278,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
@@ -391,7 +395,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
-    addSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
 
     addSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);

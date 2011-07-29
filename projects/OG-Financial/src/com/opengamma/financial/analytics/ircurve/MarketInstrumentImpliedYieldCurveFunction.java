@@ -384,8 +384,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         // TODO have the decomposition as an optional input [FIN-146]
         rootFinder = new BroydenVectorRootFinder(5e-4, 5e-4, 1000,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-        yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();
+        final DoubleMatrix1D result = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess));
+        yields = result.getData();
       } catch (final Exception eLU) {
         try {
           s_logger.warn("Could not find root using LU decomposition and present value method for curves " +
@@ -518,8 +518,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         // TODO have the decomposition as an optional input [FIN-146]
         rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100,
             DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
-        yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
-            .getData();
+        final DoubleMatrix1D result = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess));
+
+        yields = result.getData();
       } catch (final Exception eLU) {
         try {
           s_logger.warn("Could not find root using LU decomposition and present value method for curve " +

@@ -5,9 +5,18 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
+import java.util.Collections;
+import java.util.Set;
+
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
@@ -21,8 +30,10 @@ public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwa
   }
 
   @Override
-  protected Object getResult(final ForexDerivative fxForward, final YieldCurveBundle data) {
-    return CALCULATOR.visit(fxForward, data);
+  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveCurveName()).get();
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, CALCULATOR.visit(fxForward, data)));
   }
-
 }

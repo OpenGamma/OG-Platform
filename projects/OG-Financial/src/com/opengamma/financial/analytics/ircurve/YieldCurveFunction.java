@@ -228,6 +228,7 @@ public final class YieldCurveFunction {
         throw new IllegalArgumentException("fundingCurveName");
       } else {
         if (!desiredCurveName.equals(forwardCurveName) && !desiredCurveName.equals(fundingCurveName)) {
+          //TODO put a Jira in about this stupidity
           throw new IllegalArgumentException("curveName " + desiredCurveName + " not one of forwardCurveName=" + forwardCurveName + " or fundingCurveName=" + fundingCurveName);
         }
       }
