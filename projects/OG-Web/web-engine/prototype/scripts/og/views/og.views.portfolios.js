@@ -357,9 +357,6 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter_node: {
-                route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'
-            },
             load_filter: {
                 route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
             },
@@ -410,7 +407,9 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: portfolios.load}]});
                 portfolios.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
