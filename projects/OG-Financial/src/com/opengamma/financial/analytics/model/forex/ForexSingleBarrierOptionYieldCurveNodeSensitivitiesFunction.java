@@ -33,6 +33,7 @@ import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurface
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueForexYieldCurveNodeSensitivityCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -51,16 +52,17 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends ForexVanillaOptionFunction {
+public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends ForexSingleBarrierOptionFunction {
   private static final PresentValueForexYieldCurveNodeSensitivityCalculator CALCULATOR = PresentValueForexYieldCurveNodeSensitivityCalculator.getInstance();
 
-  public ForexVanillaOptionYieldCurveNodeSensitivitiesFunction(final String putCurveName, final String receiveCurveName, final String surfaceName) {
+  public ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction(final String putCurveName, final String receiveCurveName, final String surfaceName) {
     super(putCurveName, receiveCurveName, surfaceName, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final ForexDerivative forex, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final ForexOptionVanilla fxOption = (ForexOptionVanilla) forex;
+    final ForexOptionSingleBarrier fxBarrierOption = (ForexOptionSingleBarrier) forex;
+    final ForexOptionVanilla fxOption = fxBarrierOption.getUnderlyingOption();
     final Forex fx = fxOption.getUnderlyingForex();
     final Currency putCurrency = fx.getCurrency1();
     final Currency callCurrency = fx.getCurrency2();
