@@ -20,7 +20,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 public class SwaptionBermudaFixedIbor implements InterestRateDerivative {
 
   /**
-   * The swaps underlying the swaption. There is one swap for each expiration date. 
+   * The swaps underlying the swaption. There is one swap for each expiration date. All swaps shoud have the same currency.
    * The swap do not need to be identical; this allow to incorporate fees or changing margins in the description.
    */
   private final FixedCouponSwap<? extends Coupon>[] _underlyingSwap;

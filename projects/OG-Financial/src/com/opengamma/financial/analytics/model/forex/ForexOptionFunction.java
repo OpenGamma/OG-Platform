@@ -75,15 +75,19 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
   protected String getPutCurveName() {
     return _putCurveName;
   }
-  
+
   protected String getCallCurveName() {
     return _callCurveName;
   }
-  
+
   protected String getSurfaceName() {
     return _surfaceName;
   }
-  
+
+  protected String getValueRequirementName() {
+    return _valueRequirementName;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
     _visitor = new ForexSecurityConverter(OpenGammaCompilationContext.getSecuritySource(context));
@@ -98,11 +102,14 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
     final Identifier spotIdentifier = getSpotIdentifier(security);
-    //TODO the marked off area should be done in init()
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     final String putCurveName = _putCurveName + "_" + putCurrency.getCode();
     final String callCurveName = _callCurveName + "_" + callCurrency.getCode();
-    final String[] curveNames = new String[] {putCurveName, callCurveName};
+    final String[] curveNames;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+      curveNames = new String[] {putCurveName, callCurveName};
+    } else {
+      curveNames = new String[] {callCurveName, putCurveName};
+    }
     final Object putCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putCurveName, _putCurveName, _putCurveName));
     if (putCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + putCurveName + " curve");
@@ -112,8 +119,13 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     if (callCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + callCurveName + " curve");
     }
-    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) putCurveObject;
-    final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
+    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) callCurveObject;
+    final YieldAndDiscountCurve[] curves;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+      curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
+    } else {
+      curves = new YieldAndDiscountCurve[] {callCurve, putCurve};
+    }
     final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
@@ -123,14 +135,13 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     }
     final double spot = (Double) spotObject;
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
-                                                             .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
     final Object[] objectTenors = fxVolatilitySurface.getXs();
@@ -156,18 +167,14 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     }
     final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(smiles, spot, yieldCurves);
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName)
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
-                                                              .with(ValuePropertyNames.SURFACE, _surfaceName).get();
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, getResult(fxOption, smileBundle)));
+    return getResult(fxOption, smileBundle, inputs, target);
   }
 
   protected ForexSecurityConverter getVisitor() {
     return _visitor;
   }
 
-  protected abstract Object getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data);
+  protected abstract Set<ComputedValue> getResult(ForexDerivative fxOption, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
 
   protected abstract ForexConverter<?> getDefinition(FinancialSecurity target);
 
@@ -184,11 +191,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName)
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
-                                                              .with(ValuePropertyNames.SURFACE, _surfaceName).get();
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(),
-        properties));
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _putCurveName).with(ValuePropertyNames.RECEIVE_CURVE, _callCurveName)
+        .with(ValuePropertyNames.SURFACE, _surfaceName).get();
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties));
   }
 
   private Tenor[] convertTenors(final Object[] objectTenors) {

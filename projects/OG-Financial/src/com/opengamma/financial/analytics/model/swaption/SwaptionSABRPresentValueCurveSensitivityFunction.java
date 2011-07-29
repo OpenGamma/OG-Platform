@@ -26,11 +26,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -62,45 +64,46 @@ public class SwaptionSABRPresentValueCurveSensitivityFunction extends SwaptionSA
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
+    final String forwardCurveName = curveNames.getFirst();
+    final String fundingCurveName = curveNames.getSecond();
+    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(forwardCurveName, fundingCurveName, target, inputs));
     final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
     final Map<String, List<DoublesPair>> presentValueCurveSensitivity = _calculator.visit(swaption, data);
-    return getSensitivities(target, swaptionSecurity, presentValueCurveSensitivity);
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
+    final PresentValueSensitivity result = new PresentValueSensitivity(presentValueCurveSensitivity);
+    return Collections.singleton(new ComputedValue(specification, result));
+    //    return getSensitivities(target, swaptionSecurity, presentValueCurveSensitivity);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
+    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity());
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties)); 
+    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), resultProperties));
   }
 
-  private Set<ComputedValue> getSensitivities(final ComputationTarget target, final SwaptionSecurity swaptionSecurity, Map<String, List<DoublesPair>> sensitivities) {
-    Set<ComputedValue> computedValues = new HashSet<ComputedValue>();
-    for (Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
+  private Set<ComputedValue> getSensitivities(final ComputationTarget target, final SwaptionSecurity swaptionSecurity, final Map<String, List<DoublesPair>> sensitivities) {
+    final Set<ComputedValue> computedValues = new HashSet<ComputedValue>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
       final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(), createValueProperties()
           .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
           .with(ValuePropertyNames.CURVE, entry.getKey())
           .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
-      List<DoublesPair> data = entry.getValue();
-      int n = data.size();
-      Double[] keys = new Double[n];
-      Object[] labels = new Object[n];
-      double[] values = new double[n];
-      int i = 0;
-      for (DoublesPair pair : entry.getValue()) {
-        double tenor = pair.getKey();
-        keys[i] = tenor;
-        labels[i] = FORMATTER.format(tenor);
-        values[i++] = pair.getValue();
+      LabelledMatrix1D<Double, Double> labelledMatrix = new DoubleLabelledMatrix1D(new Double[0], new String[0], new double[0]);
+      for (final DoublesPair pair : entry.getValue()) {
+        final double tenor = pair.getKey();
+        labelledMatrix = labelledMatrix.add(tenor, FORMATTER.format(tenor), pair.getValue());
       }
-      DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
       computedValues.add(new ComputedValue(specification, labelledMatrix));
     }
     return computedValues;

@@ -6,8 +6,10 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
@@ -31,7 +33,6 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final DoubleLabelledMatrix1D m5 = new DoubleLabelledMatrix1D(keys, keys, values);
     final DoubleLabelledMatrix1D m6 = cycleObject(DoubleLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
-    assertEquals(m3, m6);
   }
 
   @Test
@@ -48,6 +49,5 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final LocalDateLabelledMatrix1D m5 = new LocalDateLabelledMatrix1D(keys, keys, values);
     final LocalDateLabelledMatrix1D m6 = cycleObject(LocalDateLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
-    assertEquals(m3, m6);
   }
 }

@@ -109,6 +109,9 @@ public class WebPositionsData extends DirectBean {
   public static WebPositionsData.Meta meta() {
     return WebPositionsData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebPositionsData.Meta.INSTANCE);
+  }
 
   @Override
   public WebPositionsData.Meta metaBean() {
@@ -116,7 +119,7 @@ public class WebPositionsData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1840419605:  // positionMaster
         return getPositionMaster();
@@ -135,11 +138,11 @@ public class WebPositionsData extends DirectBean {
       case -1407102089:  // versioned
         return getVersioned();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1840419605:  // positionMaster
         setPositionMaster((PositionMaster) newValue);
@@ -166,7 +169,7 @@ public class WebPositionsData extends DirectBean {
         setVersioned((PositionDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

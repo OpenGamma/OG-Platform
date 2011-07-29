@@ -273,7 +273,7 @@ public class NonLinearLeastSquare {
 
     //If we start at the solution we are done
     if (oldChiSqr == 0.0) {
-      return finish(oldChiSqr, jacobian, theta);
+      return finish(oldChiSqr, jacobian, theta, sigma);
     }
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
@@ -295,7 +295,7 @@ public class NonLinearLeastSquare {
       if (Math.abs(newChiSqr - oldChiSqr) / oldChiSqr < _eps) {
         beta = getChiSqrGrad(error, jacobian);
         //System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
-        return finish(newChiSqr, jacobian, newTheta);
+        return finish(newChiSqr, jacobian, newTheta, sigma);
       }
 
       if (newChiSqr < oldChiSqr) {
@@ -307,7 +307,7 @@ public class NonLinearLeastSquare {
 
         // check for convergence
         if (_algebra.getNorm2(beta) < _eps * g0) {
-          return finish(newChiSqr, jacobian, newTheta);
+          return finish(newChiSqr, jacobian, newTheta, sigma);
         }
 
         //        System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " grad: " + _algebra.getNorm2(beta) +
@@ -328,7 +328,7 @@ public class NonLinearLeastSquare {
   }
 
   /**
-   * TODO this information could be returned with LeastSquareResults since it involves calculating the covariance matrix which is already calculated there 
+   * 
    * the inverse-Jacobian where the i-j entry is the sensitivity of the ith (fitted) parameter (a_i) to the jth data point (y_j).
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
@@ -338,26 +338,20 @@ public class NonLinearLeastSquare {
    */
   public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
-    DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
-    DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
-    DoubleMatrix2D bT = getBTanspose(jacobian, sigma);
-    DecompositionResult decRes = _decomposition.evaluate(a);
+    final DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
+    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
+    final DecompositionResult decRes = _decomposition.evaluate(a);
     return decRes.solve(bT);
   }
 
-  /**
-   * @param newChiSqr
-   * @param jacobian
-   * @param newTheta
-   * @return
-   */
-  private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta) {
-    DoubleMatrix2D alpha;
-    DecompositionResult decmp;
-    alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
-    decmp = _decomposition.evaluate(alpha);
+  private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
+    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DecompositionResult decmp = _decomposition.evaluate(alpha);
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
-    return new LeastSquareResults(newChiSqr, newTheta, covariance);
+    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
+    final DoubleMatrix2D inverseJacobian = decmp.solve(bT);
+    return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
@@ -372,11 +366,11 @@ public class NonLinearLeastSquare {
     return new DoubleMatrix1D(res);
   }
 
-  private DoubleMatrix2D getBTanspose(DoubleMatrix2D jacobian, final DoubleMatrix1D sigma) {
+  private DoubleMatrix2D getBTranspose(final DoubleMatrix2D jacobian, final DoubleMatrix1D sigma) {
     final int n = jacobian.getNumberOfRows();
     final int m = jacobian.getNumberOfColumns();
 
-    double[][] res = new double[m][n];
+    final double[][] res = new double[m][n];
 
     for (int k = 0; k < m; k++) {
       for (int i = 0; i < n; i++) {

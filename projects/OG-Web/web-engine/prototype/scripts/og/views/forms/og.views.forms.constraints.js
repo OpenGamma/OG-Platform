@@ -85,7 +85,7 @@ $.register_module({
                             return alert('Sorry, but only one "without" constraint at a time.'), e.target.checked = '';
                         render[value]({'with': {'': null}, without: ''}[value], $(target).closest('.og-js-row'));
                     }},
-                    {type: 'click', selector: '#' + ids.widget + ' .og-js-remove', handler: function (e) {
+                    {type: 'click', selector: '#' + ids.widget + ' .og-js-rem', handler: function (e) {
                         $(e.target).closest('.og-js-row').remove();
                     }},
                     {type: 'click', selector: '#' + ids.container + ' .og-js-add', handler: function (e) {

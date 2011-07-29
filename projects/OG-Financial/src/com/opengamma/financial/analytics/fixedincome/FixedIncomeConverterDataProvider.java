@@ -21,12 +21,14 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -44,10 +46,10 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConve
  * 
  */
 public class FixedIncomeConverterDataProvider {
-  
+
   private final String _fieldName = HistoricalTimeSeriesFields.LAST_PRICE;
   private final ConventionBundleSource _conventionSource;
-  
+
   public FixedIncomeConverterDataProvider(final ConventionBundleSource conventionSource) {
     _conventionSource = conventionSource;
   }
@@ -67,6 +69,11 @@ public class FixedIncomeConverterDataProvider {
     if (security instanceof FRASecurity) {
       return convert((FRASecurity) security, (ForwardRateAgreementDefinition) definition, now, curveNames, dataSource);
     }
+    if (security instanceof IRFutureOptionSecurity) {
+      if (definition instanceof InterestRateFutureOptionMarginTransactionDefinition) {
+        return convert((IRFutureOptionSecurity) security, (InterestRateFutureOptionMarginTransactionDefinition) definition, now, curveNames, dataSource);
+      }
+    }
     return definition.toDerivative(now, curveNames);
   }
 
@@ -80,10 +87,24 @@ public class FixedIncomeConverterDataProvider {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
-    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2);
-    final double price = ts.getTimeSeries().getValueAt(length - 1); //TODO this is wrong need margin data and previous close for lastMarginPrice
+    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2) / 100;
+    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
     return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
+  }
+
+  public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
+        final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
+    final IdentifierBundle id = IdentifierBundle.of(security.getUnderlyingIdentifier());
+    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final HistoricalTimeSeries ts = dataSource
+            .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
+    if (ts == null) {
+      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+    }
+    final int length = ts.getTimeSeries().size();
+    final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 1);
+    return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
 
   public InterestRateDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
@@ -101,7 +122,7 @@ public class FixedIncomeConverterDataProvider {
     final FastLongDoubleTimeSeries convertedTS = localDateTS
         .toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
     final LocalTime fixingTime = LocalTime.of(11, 0);
-    DoubleTimeSeries<ZonedDateTime> indexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime),
+    final DoubleTimeSeries<ZonedDateTime> indexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime),
         convertedTS);
     return definition.toDerivative(now, indexTS, curveNames);
   }
@@ -134,7 +155,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
 
-      Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+      final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
       final IdentifierBundle id;
       //if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
@@ -144,13 +165,13 @@ public class FixedIncomeConverterDataProvider {
       }
       id = indexConvention.getIdentifiers();
       //indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-      
+
       //final IdentifierBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
-          .minusDays(7); 
+          .minusDays(7);
       final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
-      if (ts == null) {        
+      if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString() + " bundle used was " + id);
       }
       FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();

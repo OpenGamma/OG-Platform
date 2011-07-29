@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +17,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -31,29 +32,29 @@ import com.opengamma.util.tuple.DoublesPair;
 
   @FudgeBuilderFor(PresentValueSensitivity.class)
   public static final class PresentValueSensitivityBuilder extends AbstractFudgeBuilder<PresentValueSensitivity> {
-    private static final String CURVE_NAME_LABEL = "curve name";
-    private static final String SENSITIVITIES_LABEL = "sensitivities";
-    private static final String PAIR_LABEL = null;
+    private static final String CURVE_NAME = "CurveName";
+    private static final String PAIR_NAME = "Pair";
+    private static final String SENSITIVITIES_NAME = "Sensitivities";
 
     @Override
     public PresentValueSensitivity buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final List<FudgeField> curveNameFields = message.getAllByName(CURVE_NAME);
+      final List<FudgeField> sensitivitiesFields = message.getAllByName(SENSITIVITIES_NAME);
       final Map<String, List<DoublesPair>> data = new HashMap<String, List<DoublesPair>>();
-      final List<FudgeField> curveNames = message.getAllByName(CURVE_NAME_LABEL);
-      final List<FudgeField> sensitivities = message.getAllByName(SENSITIVITIES_LABEL);
-      final Iterator<FudgeField> curveNamesIterator = curveNames.iterator();
-      final Iterator<FudgeField> sensitivitiesIterator = sensitivities.iterator();
-      while (curveNamesIterator.hasNext()) {
-        final FudgeField curveName = curveNamesIterator.next();
-        final FudgeField sensitivitiesList = sensitivitiesIterator.next();
-        final String curveNameStr = context.fieldValueToObject(String.class, curveName);
-        final FudgeMsg listSensitivities = (FudgeMsg) sensitivitiesList.getValue();
-        final List<FudgeField> pairsFields = listSensitivities.getAllByName(PAIR_LABEL);
-        final List<DoublesPair> results = new ArrayList<DoublesPair>();
-        for (final FudgeField pairField : pairsFields) {
-          final FudgeMsg pairMsg = (FudgeMsg) pairField.getValue();
-          results.add(DoublesPair.of(pairMsg.getDouble(0).doubleValue(), pairMsg.getDouble(1).doubleValue()));
+      final int n = curveNameFields.size();
+      if (sensitivitiesFields.size() != n) {
+        throw new OpenGammaRuntimeException("Sensitivities list not same size as names list");
+      }
+      for (int i = 0; i < n; i++) {
+        final FudgeField nameField = curveNameFields.get(i);
+        final String name = context.fieldValueToObject(String.class, nameField);
+        final FudgeField listField = sensitivitiesFields.get(i);
+        final List<DoublesPair> pairs = new ArrayList<DoublesPair>();
+        final List<FudgeField> pairsField = ((FudgeMsg) listField.getValue()).getAllByName(PAIR_NAME);
+        for (final FudgeField pair : pairsField) {
+          pairs.add((DoublesPair) context.fieldValueToObject(Pair.class, pair));
         }
-        data.put(curveNameStr, results);
+        data.put(name, pairs);
       }
       return new PresentValueSensitivity(data);
     }
@@ -61,43 +62,14 @@ import com.opengamma.util.tuple.DoublesPair;
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final PresentValueSensitivity object) {
       final Map<String, List<DoublesPair>> data = object.getSensitivities();
-      final String[] curveNames = data.keySet().toArray(new String[0]);
-      context.addToMessage(message, CURVE_NAME_LABEL, null, curveNames);
-      for (final String curveName : curveNames) {
-        final MutableFudgeMsg perCurveMessage = context.newMessage();
-        final List<DoublesPair> sensitivities = data.get(curveName);
-        for (final DoublesPair pair : sensitivities) {
-          final MutableFudgeMsg perPairMessage = context.newMessage();
-          perPairMessage.add(null, 0, pair.getFirst());
-          perPairMessage.add(null, 1, pair.getSecond());
-          perCurveMessage.add(PAIR_LABEL, null, perPairMessage);
+      for (final Map.Entry<String, List<DoublesPair>> entry : data.entrySet()) {
+        message.add(CURVE_NAME, null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(entry.getKey()), entry.getKey().getClass()));
+        final MutableFudgeMsg perPairMessage = context.newMessage();
+        for (final DoublesPair pair : entry.getValue()) {
+          perPairMessage.add(PAIR_NAME, null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(pair), pair.getClass()));
         }
-        message.add(SENSITIVITIES_LABEL, perCurveMessage);
+        message.add(SENSITIVITIES_NAME, null, perPairMessage);
       }
     }
   }
-
-  //  @FudgeBuilderFor(PresentValueVolatilitySensitivityDataBundle.class)
-  //  public static final class PresentValueVolatilitySensitivityDataBundleBuilder extends AbstractFudgeBuilder<PresentValueVolatilitySensitivityDataBundle> {
-  //    private static final String CURRENCY_PAIR_LABEL = "currency pair";
-  //    private static final String VEGA_LABEL = "vega label";
-  //
-  //    @Override
-  //    public PresentValueVolatilitySensitivityDataBundle buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-  //      final Pair<Currency, Currency> currencyPair = null;
-  //      final Map<DoublesPair, Double> vega = null;
-  //      //      final PresentValueVolatilitySensitivityDataBundle result = new PresentValueVolatilitySensitivityDataBundle(currencyPair.getFirst(), currencyPair.getSecond());
-  //      //      for (final Map.Entry<DoublesPair, Double> entry : vega.entrySet()) {
-  //      //        result.add(entry.getKey(), entry.getValue());
-  //      //      }
-  //      //      return result;
-  //    }
-  //
-  //    @Override
-  //    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final PresentValueVolatilitySensitivityDataBundle object) {
-  //      final Pair<Currency, Currency> currencyPair = object.getCurrencyPair();
-  //      final Map<DoublesPair, Double> vega = object.getVega();
-  //    }
-  //
-  //  }
 }

@@ -49,7 +49,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * Computes the present value of the vanilla option with the Black function and a volatility from a volatility surface.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
-   * @return The present value.
+   * @return The present value. The value is in the domestic currency (currency 2).
    */
   public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
@@ -167,7 +167,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * is computed with respect to the computed Black implied volatility and not with respect to the volatility surface input.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
-   * @return The volatility sensitivity.
+   * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
@@ -192,7 +192,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * Computes the present value volatility sensitivity with a generic instrument as argument.
    * @param instrument A vanilla Forex option.
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
-   * @return The volatility sensitivity.
+   * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueVolatilitySensitivityDataBundle presentValueVolatilitySensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
@@ -205,7 +205,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * is computed with respect to each node in the volatility surface.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
-   * @return The volatility node sensitivity.
+   * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueVolatilityNodeSensitivityDataBundle presentValueVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
@@ -225,7 +225,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
       }
     }
     return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile.getSmile()
-        .getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getVolatilityTerm()[0].getStrike(forward)), new DoubleMatrix2D(vega));
+        .getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
 }

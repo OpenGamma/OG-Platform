@@ -1,0 +1,20 @@
+<li class="og-js-strip">
+  <div class="og-del og-js-rem"></div>
+  <div class="OG-clearFix og-strip">
+    <input type="text" class="og-tenor" name="strip.${idx}.tenor" value="${tenor}" />
+    <select class="og-type" name="strip.${idx}.type">
+      <option>Please select...</option>
+      <option value="LIBOR">Libor rate</option>
+      <option value="CASH">Cash rate</option>
+      <option value="FRA">Forward-rate agreement</option>
+      <option value="FUTURE">Interest-rate future</option>
+      <option value="SWAP">Swap rate</option>
+      <option value="TENOR_SWAP">Tenor swap</option>
+      <option value="BASIS_SWAP">Basis swap</option>
+      <option value="OIS_SWAP">OIS swap</option>
+    </select>
+    <input class="og-num" type="text" name="strip.${idx}.numFutures" value="${future}" />
+    <!-- convention name -->
+    {{html item_0}}
+  </div>
+</li>
