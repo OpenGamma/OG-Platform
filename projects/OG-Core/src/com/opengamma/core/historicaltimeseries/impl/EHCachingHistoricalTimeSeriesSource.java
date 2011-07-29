@@ -145,12 +145,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
     HistoricalTimeSeries hts = getFromCache(key);
     if (hts == null) {
-      hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField);
+      hts = _underlying.getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
       if (hts != null) {
         s_logger.debug("Caching time-series {}", hts);
         _cache.put(new Element(key, hts.getUniqueId()));
@@ -242,13 +242,19 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       for (Map.Entry<IdentifierBundle, HistoricalTimeSeries> tsResult : remainingTsResults.entrySet()) {
         IdentifierBundle identifiers = tsResult.getKey();
         HistoricalTimeSeries hts = tsResult.getValue();
-        hts = getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+        HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
+        if (hts != null) {
+          s_logger.debug("Caching time-series {}", hts);
+          _cache.put(new Element(key, hts.getUniqueId()));
+          _cache.put(new Element(hts.getUniqueId(), hts));
+          hts = getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+        }
         result.put(identifiers, hts);
       }
     }
     return result;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Attempts to retrieve the time-series with the given key from the cache.
