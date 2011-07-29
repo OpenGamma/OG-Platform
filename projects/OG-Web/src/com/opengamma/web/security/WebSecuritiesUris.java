@@ -8,6 +8,7 @@ package com.opengamma.web.security;
 import java.net.URI;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -54,6 +55,18 @@ public class WebSecuritiesUris {
    */
   public URI securities(final IdentifierBundle identifiers) {
     return WebSecuritiesResource.uri(_data, identifiers);
+  }
+
+  /**
+   * Gets the URI, returning a security serach or single security.
+   * @param link  the link to search for, may be null
+   * @return the URI
+   */
+  public URI securities(final SecurityLink link) {
+    if (link.getObjectId() != null) {
+      return WebSecurityResource.uri(_data, link.getObjectId().atLatestVersion());
+    }
+    return WebSecuritiesResource.uri(_data, link.getWeakId());
   }
 
   /**
