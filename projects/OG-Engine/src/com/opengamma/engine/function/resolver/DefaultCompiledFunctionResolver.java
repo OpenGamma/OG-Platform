@@ -189,9 +189,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     if (cached == null) {
       final SortedMap<Integer, Collection<ResolutionRule>> storedRuleMap = _type2Priority2Rules.get(atNode.getComputationTarget().getType());
       final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = Lists.newLinkedList();
-      for (Collection<ResolutionRule> storedRules : storedRuleMap.values()) {
+      for (Collection<ResolutionRule> storedRulesPerPriority : storedRuleMap.values()) {
         int rulesFound = 0;
-        for (ResolutionRule storedRule : storedRules) {
+        for (ResolutionRule storedRule : storedRulesPerPriority) {
           final Set<ValueSpecification> results = storedRule.getResults(atNode.getComputationTarget(), getFunctionCompilationContext());
           if (results != null) {
             applicableRules.add(Pair.of(storedRule, results));
@@ -199,7 +199,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           }
         }
         if (rulesFound > 1) {
-          // REVIEW 2011-07-29 SJC: isn't all this just a sort?
+          // sort only the sub-list of rules associated with the priority
           final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
           final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
           for (int i = 0; i < rulesFound; i++) {
