@@ -45,22 +45,6 @@ public class DefaultFunctionResolver implements FunctionResolver {
   private Set<ResolutionRule> _defaultRules;
 
   /**
-   * Strategy to provide the priority of a function.
-   */
-  public static interface FunctionPriority {
-    // TODO: move to top level interface
-
-    /**
-     * Gets the integer priority of the function, where larger is higher priority.
-     * 
-     * @param function  the function to examine, not null
-     * @return the priority, larger is higher priority
-     */
-    int getPriority(CompiledFunctionDefinition function);
-
-  }
-
-  /**
    * Creates an instance.
    * 
    * @param functionCompilationService  the provider of compiled functions, not null
