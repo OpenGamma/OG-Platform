@@ -60,6 +60,12 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
   }
 
   @Override
+  protected Identifier getInverseSpotIdentifier(final FinancialSecurity target) {
+    final FXOptionSecurity security = (FXOptionSecurity) target;
+    return FXUtils.getInverseSpotIdentifier(security);
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
@@ -81,6 +87,8 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement);
+    final Identifier inverseSpotIdentifier = FXUtils.getSpotIdentifier(fxOption);
+    final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
+    return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement, inverseSpotRequirement);
   }
 }

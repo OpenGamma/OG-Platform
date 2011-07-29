@@ -130,10 +130,18 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final Object spotObject = inputs.getValue(spotRequirement);
+    double spot;
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      final Identifier inverseSpotIdentifier = getInverseSpotIdentifier(security);
+      final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
+      final Object inverseSpotObject = inputs.getValue(inverseSpotRequirement);
+      if (inverseSpotObject == null) {
+        throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      }
+      spot = 1. / ((Double) inverseSpotObject);
+    } else {
+      spot = (Double) spotObject;
     }
-    final double spot = (Double) spotObject;
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
@@ -183,6 +191,8 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
   protected abstract Currency getCallCurrency(FinancialSecurity target);
 
   protected abstract Identifier getSpotIdentifier(FinancialSecurity target);
+
+  protected abstract Identifier getInverseSpotIdentifier(FinancialSecurity target);
 
   @Override
   public ComputationTargetType getTargetType() {
