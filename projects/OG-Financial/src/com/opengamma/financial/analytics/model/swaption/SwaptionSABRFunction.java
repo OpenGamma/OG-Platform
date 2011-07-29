@@ -124,7 +124,7 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   protected VolatilityCubeFunctionHelper getHelper() {
     return _helper;
   }
-  
+
   protected SecuritySource getSecuritySource() {
     return _securitySource;
   }
@@ -169,21 +169,21 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     return _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
         new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
-  
-  protected ValueProperties getResultProperties(FinancialSecurity security) {
+
+  protected ValueProperties getResultProperties(final FinancialSecurity security) {
     return createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-      .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
   }
-  
-  protected ValueProperties getResultProperties(FinancialSecurity security, String fundingCurveName, String forwardCurveName) {
+
+  protected ValueProperties getResultProperties(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName) {
     return createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-      .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-      .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
   }
-  
+
 }

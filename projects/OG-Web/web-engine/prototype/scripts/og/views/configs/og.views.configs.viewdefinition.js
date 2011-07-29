@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.configs.viewdefinition',
     dependencies: [
         'og.api.rest',
-        'og.common.util.ui.Form',
+        'og.common.util.ui',
         'og.views.forms.Constraints',
         'og.views.forms.Dropdown'
     ],
@@ -31,7 +31,7 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted,
                 orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
-                new_handler = config.new_handler, save_handler = config.save_handler,
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 id_count = 0, prefix = 'viewdef_', master = config.data.template_data.configJSON, column_set_tabs,
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
@@ -55,13 +55,14 @@ $.register_module({
                 }),
                 form_id = '#' + form.id,
                 save_resource = function (data, as_new) {
-                    if (as_new && (orig_name === data.name)) return window.alert('Please select a new name.');
+                    if (!deleted && as_new && (orig_name === data.name))
+                        return window.alert('Please select a new name.');
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
                         json: JSON.stringify(data),
                         loading: loading,
-                        handler: as_new ? new_handler : save_handler
+                        handler: as_new ? save_new_handler : save_handler
                     });
                 };
             form.attach([
@@ -352,9 +353,9 @@ $.register_module({
                                 }],
                                 children: [
                                     new forms.Dropdown({
-                                        form: form, resource: 'securities', rest_options: {meta: true},
+                                        form: form, resource: 'securities', value: col[SECU],
+                                        rest_options: {meta: true, cache_for: 300 * 1000},
                                         index: [SETS, set_idx, COLS, col_idx, SECU].join('.'),
-                                        value: col[SECU],
                                         handlers: [{
                                             type: 'change',
                                             selector: '#' + set_id + ' [name="' +

@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.swaption;
 
 import java.util.Collections;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
@@ -23,7 +24,7 @@ public class SwaptionSABRSummingFunction extends FilteringSummingFunction {
   }
 
   @Override
-  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties) {
+  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties, SecuritySource securities) {
     return security instanceof SwaptionSecurity;
   }
 

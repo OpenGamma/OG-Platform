@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.configs.yieldcurvedefinition',
     dependencies: [
         'og.api.rest',
-        'og.common.util.ui.Form',
+        'og.common.util.ui',
         'og.views.forms.Constraints',
         'og.views.forms.Dropdown'
     ],
@@ -18,7 +18,7 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted,
                 orig_name = config.data.template_data.configJSON.name, submit_type,
                 resource_id = config.data.template_data.object_id,
-                new_handler = config.new_handler, save_handler = config.save_handler,
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON, strips,
                 CONV = 'conventionName', NUMF = 'numFutures',
                 CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName'
@@ -86,7 +86,7 @@ $.register_module({
                         name: data.name + '_' + data.currency,
                         json: JSON.stringify(data),
                         loading: loading,
-                        handler: as_new ? new_handler : save_handler
+                        handler: as_new ? save_new_handler : save_handler
                     });
                 };
             form.attach([
@@ -142,7 +142,7 @@ $.register_module({
                                     var split = region.split('|');
                                     if (!split[3]) return null;
                                     return {value: split[3], text: split[3] + ' - ' + split[1]}
-                                }).filter(Boolean).sort(function (a, b) {
+                                }).filter(Boolean).sort(function (a, b) { // alphabetize
                                     return a.text < b.text ? -1 : a === b ? 0 : 1;
                                 }));
                             }

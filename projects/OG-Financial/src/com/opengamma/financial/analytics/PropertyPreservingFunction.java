@@ -124,7 +124,10 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
     ValueProperties referenceRequiredProperties = null;
     for (ValueSpecification input : inputs) {
       if (compositeProperties == null) {
-        compositeProperties = input.getProperties().compose(getInputConstraints());
+        // Compose both ways to:
+        //   a) remove anything that's not a preserved property
+        //   b) remove any preserved property that's not in this input to prevent optional wildcards propagating
+        compositeProperties = input.getProperties().compose(getInputConstraints().compose(input.getProperties()));
         referenceRequiredProperties = _requiredProperties.compose(input.getProperties());
       } else {
         ValueProperties requiredPropertyComposition = _requiredProperties.compose(input.getProperties());

@@ -235,7 +235,6 @@ $.register_module({
                         api_fields = ['name', 'configJSON', 'configXML'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{one_of: ['json', 'xml']}, {all_of: ['name']}],
                         empties: [{
                             condition: !!config.json, label: 'json and xml are mutually exclusive', fields: ['xml']
                         }]
