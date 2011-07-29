@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.spring;
 
+import static com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields.LAST_PRICE;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,7 +129,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This should be replaced by something that loads the functions from the configuration database
  */
 public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
-
+  
   private static final boolean OUTPUT_REPO_CONFIGURATION = false;
 
   protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -188,8 +191,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PositionEquityPnLFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PortfolioEquityPnLFunction.class.getName()));
 
-    String dataSource = "BLOOMBERG";
-    String dataField = "PX_LAST";
+//    String dataSource = "BLOOMBERG";
+//    String dataField = "PX_LAST";
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
     // TODO if this is changed, need to have the ability to change the # of observations in a year in the portfolio analysis calculators (e.g. Sharpe ratio)
@@ -202,17 +205,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     String marketStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(TradeEquityPnLFunction.class.getName(), Arrays.asList("BLOOMBERG", "CMPL", "PX_LAST", "COST_OF_CARRY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityPriceSeriesFunction.class.getName(), Arrays.asList(dataSource, dataField, startDate, scheduleName, samplingCalculatorName)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityPriceSeriesFunction.class.getName(), 
+        Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, startDate, scheduleName, samplingCalculatorName)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityPnLFunction.class.getName(), Collections.singleton(returnCalculatorName)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PositionHistoricalVaRCalculatorFunction.class.getName(), Arrays.asList(StatisticsCalculatorFactory.MEAN,
         StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION, "0.99")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PortfolioHistoricalVaRCalculatorFunction.class.getName(), Arrays.asList(StatisticsCalculatorFactory.MEAN,
         StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION, "0.99")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionPositionParametricVaRCalculatorFunction.class.getName(), Arrays.asList(dataSource, startDate, returnCalculatorName, scheduleName,
+    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionPositionParametricVaRCalculatorFunction.class.getName(), 
+        Arrays.asList(DEFAULT_CONFIG_NAME, startDate, returnCalculatorName, scheduleName,
         samplingCalculatorName, "0.99", "1", ValueRequirementNames.VALUE_DELTA)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionPortfolioParametricVaRCalculatorFunction.class.getName(), Arrays.asList(dataSource, startDate, returnCalculatorName, scheduleName,
+    functionConfigs.add(new ParameterizedFunctionConfiguration(OptionPortfolioParametricVaRCalculatorFunction.class.getName(), 
+        Arrays.asList(DEFAULT_CONFIG_NAME, startDate, returnCalculatorName, scheduleName,
         samplingCalculatorName, "0.99", "1", ValueRequirementNames.VALUE_DELTA)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(PositionValueGreekSensitivityPnLFunction.class.getName(), Arrays.asList(dataSource, startDate, returnCalculatorName, scheduleName,
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PositionValueGreekSensitivityPnLFunction.class.getName(), 
+        Arrays.asList(DEFAULT_CONFIG_NAME, startDate, returnCalculatorName, scheduleName,
         samplingCalculatorName, ValueRequirementNames.VALUE_DELTA)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(CAPMBetaModelPositionFunction.class.getName(), Arrays.asList(returnCalculatorName, startDate)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(CAPMBetaModelPortfolioNodeFunction.class.getName(), Arrays.asList(returnCalculatorName, startDate)));

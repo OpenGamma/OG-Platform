@@ -296,13 +296,13 @@ public class SelfContainedSwapPortfolioLoader {
     return swap;
   }
   
-  private static void normaliseHeaders(String[] headers) {
+  public static void normaliseHeaders(String[] headers) {
     for (int i = 0; i < headers.length; i++) {
       headers[i] = headers[i].toLowerCase();
     }
   }
   
-  private String getWithException(Map<String, String> fieldValueMap, String fieldName) {
+  public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
       System.err.println(fieldValueMap);
