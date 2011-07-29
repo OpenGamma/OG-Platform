@@ -107,12 +107,6 @@ $.register_module({
                 viewdefinition: og.views.configs.viewdefinition,
                 yieldcurvedefinition: og.views.configs.yieldcurvedefinition
             },
-            load_configs_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
-                delete args[field];
-                configs.search(args);
-                routes.go(routes.hash(module.rules.load_configs, args));
-            },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
@@ -196,8 +190,7 @@ $.register_module({
                         });
                     }
                 });
-            },
-            state = {};
+            };
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
             load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
@@ -216,10 +209,10 @@ $.register_module({
             },
             load_filter: function (args) {
                 var search_filter = function () {
-                        var filter_name = options.slickgrid.columns[0].name;
-                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
+                    var filter_name = options.slickgrid.columns[0].name;
+                    if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                        return setTimeout(search_filter, 500);
+                    search.filter($.extend(args, {filter: true}));
                 };
                 check_state({args: args, conditions: [{new_page: configs.load_configs}]});
                 search_filter();
@@ -248,7 +241,6 @@ $.register_module({
                 });
                 search.load($.extend(options.slickgrid, {url: args}));
             },
-            state: {},
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
