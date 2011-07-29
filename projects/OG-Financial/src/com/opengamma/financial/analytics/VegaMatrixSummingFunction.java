@@ -9,6 +9,7 @@ import java.util.Collections;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -32,17 +33,17 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 /**
  * Temporary hack to allow propagation of aggregates in mixed portfolios until [PLAT-366] is resolved.
  */
-public class FXSummingFunction extends FilteringSummingFunction implements FinancialSecurityVisitor<Boolean> {
+public class VegaMatrixSummingFunction extends FilteringSummingFunction implements FinancialSecurityVisitor<Boolean> {
 
-  public FXSummingFunction(String valueName) {
-    super(valueName, Collections.<String>emptySet());
+  public VegaMatrixSummingFunction() {
+    super(ValueRequirementNames.VEGA_MATRIX, Collections.<String>emptySet());
   }
-  
+
   @Override
   protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties, SecuritySource securities) {
     return security.accept(this);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public Boolean visitBondSecurity(BondSecurity security) {
@@ -96,12 +97,12 @@ public class FXSummingFunction extends FilteringSummingFunction implements Finan
 
   @Override
   public Boolean visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
-    return false;
+    return true;
   }
 
   @Override
   public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-    return true;
+    return false;
   }
 
   @Override
@@ -111,7 +112,7 @@ public class FXSummingFunction extends FilteringSummingFunction implements Finan
 
   @Override
   public Boolean visitFXForwardSecurity(FXForwardSecurity security) {
-    return true;
+    return false;
   }
 
   @Override

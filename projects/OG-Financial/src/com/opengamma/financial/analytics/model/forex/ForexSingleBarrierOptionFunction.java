@@ -60,6 +60,12 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
   }
 
   @Override
+  protected Identifier getInverseSpotIdentifier(final FinancialSecurity target) {
+    final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
+    return FXUtils.getInverseSpotIdentifier(security, true);
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;

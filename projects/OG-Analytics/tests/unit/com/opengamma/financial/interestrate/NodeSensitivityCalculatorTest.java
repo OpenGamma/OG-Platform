@@ -71,7 +71,7 @@ public abstract class NodeSensitivityCalculatorTest {
   protected abstract NodeSensitivityCalculator getCalculator();
 
   protected abstract InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> getSensitivityCalculator();
-  
+
   protected abstract InterestRateDerivativeVisitor<YieldCurveBundle, Double> getValueCalculator();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -86,7 +86,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolatedCurves() {
-    getCalculator().calculateSensitivities(IRD, getSensitivityCalculator(), null, null);
+    getCalculator().calculateSensitivities(IRD, getSensitivityCalculator(), null, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

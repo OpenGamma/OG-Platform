@@ -10,19 +10,23 @@ import javax.time.InstantProvider;
 import com.opengamma.util.PublicAPI;
 
 /**
- * The function resolver is responsible for matching the requirements of a particular computation target and value requirement
- * to a given function.  It is separated from the FunctionRepository so different implementations can be plugged in and used to
- * match functions given different criteria e.g. Optimized for speed.
+ * Strategy for resolving that is responsible for matching the requirements of a particular computation
+ * target and value requirement to a given function.
+ * <p>
+ * This behavior is separated as a strategy from the {@code FunctionRepository} to allow different implementations.
+ * For example, functions may be matched on given different criteria, such as speed.
  */
 @PublicAPI
 public interface FunctionResolver {
 
   /**
-   * Returns a {@link CompiledFunctionResolver} to perform the actual resolution with functions compiled for use at the given
-   * snapshot time.
+   * Provides a resolver that is locked to a specific instant.
+   * <p>
+   * This creates a {@link CompiledFunctionResolver} that can perform the actual resolution with
+   * functions compiled for use at the given snapshot time.
    * 
-   * @param atInstant snapshot time the functions will be used at
-   * @return the function resolver
+   * @param atInstant  the snapshot time the functions will be used at, not null
+   * @return the compiled function resolver, not null
    */
   CompiledFunctionResolver compile(InstantProvider atInstant);
 
