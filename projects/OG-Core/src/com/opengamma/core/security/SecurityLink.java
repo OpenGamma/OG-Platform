@@ -16,6 +16,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Link;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -148,11 +149,13 @@ public class SecurityLink extends Link<Security> {
     return "";
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Resolves the security using a security source.
    * 
    * @param source  the source to use to resolve, not null
-   * @return the resolved security, null if unable to resolve
+   * @return the resolved security, not null
+   * @throws DataNotFoundException if the security could not be resolved
    * @throws RuntimeException if an error occurs while resolving
    */
   public Security resolve(SecuritySource source) {
@@ -176,7 +179,7 @@ public class SecurityLink extends Link<Security> {
         return target;
       }
     }
-    return null;
+    throw new DataNotFoundException("Unable to resolve security: " + getBestName());
   }
 
   /**
@@ -189,6 +192,9 @@ public class SecurityLink extends Link<Security> {
   public Security resolveQuiet(SecuritySource source) {
     try {
       return resolve(source);
+    } catch (DataNotFoundException ex) {
+      s_logger.warn("Unable to resolve security {}", this);
+      return null;
     } catch (RuntimeException ex) {
       s_logger.warn("Unable to resolve security {}: {}", this, ex);
       return null;

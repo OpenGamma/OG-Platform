@@ -211,7 +211,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     s_logger.info("Resolved position UID {} to position {}", positionId, position);
     
     // resolve linked security
-    Security security = position.getSecurityLink().resolve(getSecuritySource());
+    Security security = position.getSecurityLink().resolveQuiet(getSecuritySource());
     if (security == null) {
       s_logger.warn("Unable to resolve security {} for position UID {}", position.getSecurityLink(), positionId);
     } else {
@@ -248,7 +248,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     s_logger.info("Resolved trade UID {} to trade {}", tradeId, trade);
     
     // resolve linked security
-    Security security = trade.getSecurityLink().resolve(getSecuritySource());
+    Security security = trade.getSecurityLink().resolveQuiet(getSecuritySource());
     if (security == null) {
       s_logger.warn("Unable to resolve security {} for trade UID {}", trade.getSecurityLink(), tradeId);
     } else {

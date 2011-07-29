@@ -214,6 +214,7 @@ public final class PortfolioCompiler {
     return result;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Constructs a new {@code Portfolio} containing resolved positions that reference {@code Security} instances.
    * 
