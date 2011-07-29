@@ -137,6 +137,10 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
         String instrumentType = valueRequirement.getConstraint("InstrumentType");
+        if (valueRequirement.getConstraints().getProperties() != null && valueRequirement.getConstraints().getProperties().size() > 2) {
+          //Don't satisfy random constraints, perhaps this is a derived surface
+          return null;
+        }
         return new VolatilitySurfaceKey(target, name, instrumentType);
       }
       

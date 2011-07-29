@@ -10,16 +10,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,60 +35,80 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Default implementation of the compiled function resolver.
+ * <p>
+ * The aim of the resolution is to find functions that are capable of satisfying a requirement.
+ * In addition, a priority mechanism is used to return functions in priority order
+ * from highest to lowest.
+ * <p>
+ * This class is not thread-safe.
  */
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
 
   /**
-   * Custom comparator to sort integers in descending order - the natural ordering is ascending which
-   * is incorrect for descending priority iteration over the resolution rules.
+   * The rules by target type, where the inner map is sorted high to low.
    */
-  private static final Comparator<Integer> s_priorityComparator = new Comparator<Integer>() {
-    @Override
-    public int compare(Integer o1, Integer o2) {
-      return -o1.compareTo(o2);
-    }
-  };
-
+  private final Map<ComputationTargetType, SortedMap<Integer, Collection<ResolutionRule>>> _type2Priority2Rules = Maps.newHashMap();
   /**
-   * The map is sorted from highest to lowest priority
+   * The compilation context.
    */
-  private Map<ComputationTargetType, Map<Integer, Collection<ResolutionRule>>> _type2Priority2Rules = new HashMap<ComputationTargetType, Map<Integer, Collection<ResolutionRule>>>();
-
   private final FunctionCompilationContext _functionCompilationContext;
 
+  /**
+   * Creates a resolver.
+   * 
+   * @param functionCompilationContext  the context, not null
+   */
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext) {
-    ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
-    _functionCompilationContext = functionCompilationContext;
+    this(functionCompilationContext, Collections.<ResolutionRule>emptyList());
   }
 
+  /**
+   * Creates a resolver.
+   * 
+   * @param functionCompilationContext  the context, not null
+   * @param resolutionRules  the resolution rules, not null
+   */
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext, Collection<ResolutionRule> resolutionRules) {
-    this(functionCompilationContext);
+    ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
+    _functionCompilationContext = functionCompilationContext;
     ArgumentChecker.notNull(resolutionRules, "resolutionRules");
     addRules(resolutionRules);
   }
 
-  public void addRule(ResolutionRule rule) {
-    addRules(Collections.singleton(rule));
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single rule to the resolver.
+   * 
+   * @param resolutionRule  the rule to add, not null
+   */
+  public void addRule(ResolutionRule resolutionRule) {
+    addRules(Collections.singleton(resolutionRule));
   }
 
-  public void addRules(Collection<ResolutionRule> resolutionRules) {
+  /**
+   * Adds rules to the resolver.
+   * 
+   * @param resolutionRules  the rules to add, no nulls, not null
+   */
+  public void addRules(Iterable<ResolutionRule> resolutionRules) {
     for (ResolutionRule resolutionRule : resolutionRules) {
       final ComputationTargetType type = resolutionRule.getFunction().getFunction().getTargetType();
-      Map<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(type);
+      SortedMap<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(type);
       if (priority2Rules == null) {
-        priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>(s_priorityComparator);
+        priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>(Collections.reverseOrder());
         _type2Priority2Rules.put(type, priority2Rules);
       }
-      Collection<ResolutionRule> rules = priority2Rules.get(resolutionRule.getPriority());
-      if (rules == null) {
-        rules = new ArrayList<ResolutionRule>();
-        priority2Rules.put(resolutionRule.getPriority(), rules);
+      Collection<ResolutionRule> storedRules = priority2Rules.get(resolutionRule.getPriority());
+      if (storedRules == null) {
+        storedRules = new ArrayList<ResolutionRule>();
+        priority2Rules.put(resolutionRule.getPriority(), storedRules);
       }
-      rules.add(resolutionRule);
+      storedRules.add(resolutionRule);
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<ResolutionRule> getAllResolutionRules() {
     final ArrayList<ResolutionRule> rules = new ArrayList<ResolutionRule>();
@@ -98,16 +120,21 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     return rules;
   }
 
+  /**
+   * Gets the function compilation context.
+   * 
+   * @return the context, not null
+   */
   protected FunctionCompilationContext getFunctionCompilationContext() {
     return _functionCompilationContext;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Comparator to give a fixed ordering of value specifications for use by the rule comparator. This is not a robust implementation, working
-   * only within the confines of the rule comparator's limited use.
+   * Comparator to give a fixed ordering of value specifications for use by the rule comparator.
+   * This is not a robust implementation, working only within the confines of the rule comparator's limited use.
    */
-  private static final Comparator<ValueSpecification> s_valueSpecificationComparator = new Comparator<ValueSpecification>() {
-
+  private static final Comparator<ValueSpecification> VALUE_SPECIFICATION_COMPARATOR = new Comparator<ValueSpecification>() {
     @Override
     public int compare(ValueSpecification o1, ValueSpecification o2) {
       int c = o1.getValueName().compareTo(o2.getValueName());
@@ -120,14 +147,13 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       return 0;
     }
-
   };
 
   /**
-   * Comparator to give a fixed ordering of functions at the same priority so that we at least have deterministic behavior between runs.
+   * Comparator to give a fixed ordering of functions at the same priority so that we at
+   * least have deterministic behavior between runs.
    */
-  private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> s_ruleComparator = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
-
+  private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
     @Override
     public int compare(Pair<ResolutionRule, Set<ValueSpecification>> o1, Pair<ResolutionRule, Set<ValueSpecification>> o2) {
       final Set<ValueSpecification> s1 = o1.getSecond();
@@ -139,19 +165,21 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       final List<ValueSpecification> s1list = new ArrayList<ValueSpecification>(s1);
       final List<ValueSpecification> s2list = new ArrayList<ValueSpecification>(s2);
-      Collections.sort(s1list, s_valueSpecificationComparator);
-      Collections.sort(s2list, s_valueSpecificationComparator);
+      Collections.sort(s1list, VALUE_SPECIFICATION_COMPARATOR);
+      Collections.sort(s2list, VALUE_SPECIFICATION_COMPARATOR);
       for (int i = 0; i < s1list.size(); i++) {
-        final int c = s_valueSpecificationComparator.compare(s1list.get(i), s2list.get(i));
+        final int c = VALUE_SPECIFICATION_COMPARATOR.compare(s1list.get(i), s2list.get(i));
         if (c != 0) {
           return c;
         }
       }
       throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
-
   };
 
+  /**
+   * Cache of targets.
+   */
   private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   @SuppressWarnings("unchecked")
@@ -159,17 +187,19 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final DependencyNode atNode) {
     List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(atNode.getComputationTarget());
     if (cached == null) {
-      final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
-      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(atNode.getComputationTarget().getType()).values()) {
+      final SortedMap<Integer, Collection<ResolutionRule>> storedRuleMap = _type2Priority2Rules.get(atNode.getComputationTarget().getType());
+      final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = Lists.newLinkedList();
+      for (Collection<ResolutionRule> storedRulesPerPriority : storedRuleMap.values()) {
         int rulesFound = 0;
-        for (ResolutionRule rule : rules) {
-          final Set<ValueSpecification> results = rule.getResults(atNode.getComputationTarget(), getFunctionCompilationContext());
+        for (ResolutionRule storedRule : storedRulesPerPriority) {
+          final Set<ValueSpecification> results = storedRule.getResults(atNode.getComputationTarget(), getFunctionCompilationContext());
           if (results != null) {
-            applicableRules.add(Pair.of(rule, results));
+            applicableRules.add(Pair.of(storedRule, results));
             rulesFound++;
           }
         }
         if (rulesFound > 1) {
+          // sort only the sub-list of rules associated with the priority
           final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
           final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
           for (int i = 0; i < rulesFound; i++) {
@@ -178,10 +208,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           }
           // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
           // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-          // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
-          // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
-          // that will detect the equality case and trigger an exception.
-          Arrays.<Pair<ResolutionRule, Set<ValueSpecification>>>sort(found, s_ruleComparator);
+          // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
+          // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
+          // We should wrap it at construction in something that will detect the equality case and trigger an exception.
+          Arrays.sort(found, RULE_COMPARATOR);
           for (int i = 0; i < rulesFound; i++) {
             applicableRules.add(found[i]);
           }
@@ -193,8 +223,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     return new It(atNode, requirement, cached, getFunctionCompilationContext());
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Iterator.
+   * Iterator of functions and specifications from a dependency node.
    */
   private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
     private final DependencyNode _atNode;

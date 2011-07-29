@@ -56,7 +56,7 @@ public class SummingFunction extends PropertyPreservingFunction {
   protected Collection<String> getPreservedProperties() {
     return Collections.singleton(ValuePropertyNames.CURRENCY);
   }
-  
+
   @Override
   protected Collection<String> getOptionalPreservedProperties() {
     return Arrays.asList(
@@ -64,7 +64,8 @@ public class SummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CURVE,
         ValuePropertyNames.CURVE_CURRENCY,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+        ValuePropertyNames.CURVE_CALCULATION_METHOD);
   }
 
   @Override

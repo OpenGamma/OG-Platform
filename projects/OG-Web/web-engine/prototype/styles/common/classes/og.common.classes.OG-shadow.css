@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 .OG-shadow {
-  -moz-box-shadow: 0 2px 5px #888;
-  -webkit-box-shadow: 0 2px 5px #888;
-  box-shadow: 0 2px 5px #888;
+  -moz-box-shadow: 0 2px 5px #ccc;
+  -webkit-box-shadow: 0 2px 5px #ccc;
+  box-shadow: 0 2px 5px #ccc;
 }

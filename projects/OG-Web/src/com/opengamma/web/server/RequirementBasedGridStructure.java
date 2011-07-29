@@ -219,9 +219,10 @@ public class RequirementBasedGridStructure {
       }
       sb.append(propertyName).append("=");
       Set<String> propertyValues = constraints.getValues(propertyName);
+      boolean isOptional = constraints.isOptional(propertyName);
       if (propertyValues.size() == 0) {
         sb.append("[empty]");
-      } else if (propertyValues.size() == 1) {
+      } else if (propertyValues.size() == 1 && !isOptional) {
         sb.append(propertyValues.iterator().next());
       } else {
         sb.append("(");
@@ -235,6 +236,9 @@ public class RequirementBasedGridStructure {
           sb.append(propertyValue);
         }
         sb.append(")");
+      }
+      if (isOptional) {
+        sb.append("?");
       }
     }
     return sb.toString();
