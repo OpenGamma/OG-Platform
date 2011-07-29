@@ -8,28 +8,37 @@ package com.opengamma.engine.function.resolver;
 import java.util.Collection;
 
 /**
- * Trivial implementation of {@link ResolutionRuleTransform} that leaves the input rule set unchanged.
+ * Resolution rule transform that trivially leaves the input rule set unchanged.
  */
 public final class IdentityResolutionRuleTransform implements ResolutionRuleTransform {
 
   /**
-   * Default instance.
+   * Standard single instance, not managed as a singleton.
    */
   public static final IdentityResolutionRuleTransform INSTANCE = new IdentityResolutionRuleTransform();
 
+  /**
+   * Creates an instance.
+   * Use the static constant where possible.
+   */
+  public IdentityResolutionRuleTransform() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
     return rules;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object other) {
-    return (other == this) || (other instanceof IdentityResolutionRuleTransform);
+    return other instanceof IdentityResolutionRuleTransform;
   }
 
   @Override
   public int hashCode() {
-    return System.identityHashCode(INSTANCE);
+    return IdentityResolutionRuleTransform.class.hashCode();
   }
 
 }

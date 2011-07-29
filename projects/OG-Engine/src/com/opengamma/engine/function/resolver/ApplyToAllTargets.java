@@ -5,34 +5,40 @@
  */
 package com.opengamma.engine.function.resolver;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.engine.depgraph.DependencyNode;
 
 /**
- * 
+ * Computation target filter that applies to all nodes in the dependency graph.
  */
-public class ApplyToAllTargets implements ComputationTargetFilter {
-  
+public final class ApplyToAllTargets implements ComputationTargetFilter {
+
   /**
-   * Since the class has no state, you can always use this instance.
+   * Standard instance, singleton not enforced.
    */
   public static final ApplyToAllTargets INSTANCE = new ApplyToAllTargets();
 
+  /**
+   * Creates an instance.
+   * Use the static constant where possible.
+   */
+  public ApplyToAllTargets() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean accept(DependencyNode node) {
     return true;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+  public boolean equals(Object obj) {
+    return obj instanceof ApplyToAllTargets;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
+  public int hashCode() {
+    return ApplyToAllTargets.class.hashCode();
   }
 
 }
