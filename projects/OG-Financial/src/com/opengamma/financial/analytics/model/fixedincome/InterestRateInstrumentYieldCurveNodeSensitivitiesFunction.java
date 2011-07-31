@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
+import com.opengamma.financial.analytics.bond.BondSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
