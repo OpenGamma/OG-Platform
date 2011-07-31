@@ -132,7 +132,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -148,7 +148,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondIborSecurity(final BondIborSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -244,7 +244,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 

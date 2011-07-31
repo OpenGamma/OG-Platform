@@ -92,7 +92,7 @@ public class BondFutureTransactionDiscountingMethodTest {
   private static final BondFutureSecurity BOND_FUTURE_SECURITY = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
       BASKET, CONVERSION_FACTOR);
   private static final BondFutureTransactionDiscountingMethod METHOD_FUTURE_TRANSACTION = new BondFutureTransactionDiscountingMethod();
-  private static final BondFutureSecurityDiscountingMethod METHOD_FUTURE_SECURITY = new BondFutureSecurityDiscountingMethod();
+  private static final BondFutureSecurityDiscountingMethod METHOD_FUTURE_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
   // Transaction
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
@@ -103,16 +103,16 @@ public class BondFutureTransactionDiscountingMethodTest {
    * Tests the present value method for bond futures transactions.
    */
   public void presentValue() {
-    CurrencyAmount pvComputed = METHOD_FUTURE_TRANSACTION.presentValue(FUTURE_TRANSACTION, CURVES);
-    double priceFuture = METHOD_FUTURE_SECURITY.priceFromCurves(BOND_FUTURE_SECURITY, CURVES);
-    double pvExpected = (priceFuture - REFERENCE_PRICE) * NOTIONAL * QUANTITY;
+    final CurrencyAmount pvComputed = METHOD_FUTURE_TRANSACTION.presentValue(FUTURE_TRANSACTION, CURVES);
+    final double priceFuture = METHOD_FUTURE_SECURITY.priceFromCurves(BOND_FUTURE_SECURITY, CURVES);
+    final double pvExpected = (priceFuture - REFERENCE_PRICE) * NOTIONAL * QUANTITY;
     assertEquals("Bond future transaction Discounting Method: present value currency", CUR, pvComputed.getCurrency());
     assertEquals("Bond future transaction Discounting Method: present value amount", pvExpected, pvComputed.getAmount(), 1.0E-2);
-    InterestRateDerivative derivative = FUTURE_TRANSACTION;
-    CurrencyAmount pvComputed2 = METHOD_FUTURE_TRANSACTION.presentValue(derivative, CURVES);
+    final InterestRateDerivative derivative = FUTURE_TRANSACTION;
+    final CurrencyAmount pvComputed2 = METHOD_FUTURE_TRANSACTION.presentValue(derivative, CURVES);
     assertEquals("Bond future transaction Discounting Method: present value", pvComputed, pvComputed2);
-    PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-    double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
+    final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
+    final double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
     assertEquals("IR future transaction Method: present value from price", pvComputed.getAmount(), presentValueCalculator);
   }
 
@@ -121,11 +121,11 @@ public class BondFutureTransactionDiscountingMethodTest {
    * Tests the present value method for bond futures transactions.
    */
   public void presentValueFromPrice() {
-    double quotedPrice = 1.05;
-    double presentValueMethod = METHOD_FUTURE_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
+    final double quotedPrice = 1.05;
+    final double presentValueMethod = METHOD_FUTURE_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
     assertEquals("Bond future transaction Method: present value from price", (quotedPrice - REFERENCE_PRICE) * QUANTITY * NOTIONAL, presentValueMethod);
-    PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
-    double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, quotedPrice);
+    final PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
+    final double presentValueCalculator = calculator.visit(FUTURE_TRANSACTION, quotedPrice);
     assertEquals("Bond future transaction Method: present value from price", presentValueMethod, presentValueCalculator);
   }
 
@@ -134,12 +134,12 @@ public class BondFutureTransactionDiscountingMethodTest {
    * Tests the present value curve sensitivity method for bond futures transactions.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
-    PresentValueSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
-    PresentValueSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY);
+    final PresentValueSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
+    final PresentValueSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, CURVES);
+    final PresentValueSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
-    PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
-    PresentValueSensitivity pvcsCalculator = new PresentValueSensitivity(calculator.visit(FUTURE_TRANSACTION, CURVES));
+    final PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
+    final PresentValueSensitivity pvcsCalculator = new PresentValueSensitivity(calculator.visit(FUTURE_TRANSACTION, CURVES));
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsComputed, pvcsCalculator);
   }
 
