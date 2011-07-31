@@ -40,7 +40,7 @@ public final class ModifiedDurationFromCurvesCalculator extends AbstractInterest
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.modifiedDurationFromCurves(bond, curves);
   }
 
