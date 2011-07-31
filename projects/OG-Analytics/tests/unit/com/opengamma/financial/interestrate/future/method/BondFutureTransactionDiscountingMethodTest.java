@@ -91,7 +91,7 @@ public class BondFutureTransactionDiscountingMethodTest {
   }
   private static final BondFutureSecurity BOND_FUTURE_SECURITY = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
       BASKET, CONVERSION_FACTOR);
-  private static final BondFutureTransactionDiscountingMethod METHOD_FUTURE_TRANSACTION = new BondFutureTransactionDiscountingMethod();
+  private static final BondFutureTransactionDiscountingMethod METHOD_FUTURE_TRANSACTION = BondFutureTransactionDiscountingMethod.getInstance();
   private static final BondFutureSecurityDiscountingMethod METHOD_FUTURE_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
   // Transaction
   private static final int QUANTITY = 4321;

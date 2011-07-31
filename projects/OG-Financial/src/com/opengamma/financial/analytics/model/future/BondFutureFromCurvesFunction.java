@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bond;
+package com.opengamma.financial.analytics.model.future;
 
 import java.util.Set;
 

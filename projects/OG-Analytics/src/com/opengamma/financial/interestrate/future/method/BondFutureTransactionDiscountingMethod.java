@@ -17,7 +17,15 @@ import com.opengamma.util.money.CurrencyAmount;
  * Method to compute the present value and its sensitivities for an bond future with discounting (using the cheapest-to-deliver). 
  * The delivery option is not taken into account.
  */
-public class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+public final class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+  private static final BondFutureTransactionDiscountingMethod INSTANCE = new BondFutureTransactionDiscountingMethod();
+
+  public static BondFutureTransactionDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondFutureTransactionDiscountingMethod() {
+  }
 
   /**
    * The bond future security method.

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bond;
+package com.opengamma.financial.analytics.model.future;
 
 import java.util.List;
 import java.util.Set;
@@ -14,6 +14,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.calculator.BondFutureGrossBasisFromCurvesCalculator;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -26,11 +27,11 @@ public class BondFutureGrossBasisFromCurvesFunction extends BondFutureFromCurves
   private static final BondFutureGrossBasisFromCurvesCalculator CALCULATOR = BondFutureGrossBasisFromCurvesCalculator.getInstance();
 
   public BondFutureGrossBasisFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.DIRTY_PRICE, BondFunction.FROM_CURVES_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.GROSS_BASIS, BondFunction.FROM_CURVES_METHOD);
   }
 
   public BondFutureGrossBasisFromCurvesFunction(final Currency currency, final String creditCurveName, final String riskFreeCurveName) {
-    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.DIRTY_PRICE, BondFunction.FROM_CURVES_METHOD);
+    super(currency, creditCurveName, riskFreeCurveName, ValueRequirementNames.GROSS_BASIS, BondFunction.FROM_CURVES_METHOD);
   }
 
   @Override
