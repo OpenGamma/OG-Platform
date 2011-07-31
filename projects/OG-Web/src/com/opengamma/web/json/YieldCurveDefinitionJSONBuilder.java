@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,11 +17,13 @@ import org.json.JSONObject;
 import com.beust.jcommander.internal.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Custom JSON builder to convert YieldCurveDefinition to JSON object and back again
@@ -99,8 +102,9 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       if (!strips.isEmpty()) {
         jsonObject.put(STRIP_FIELD, strips);
       }
-      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(object.getUniqueId()));
-            
+      if (object.getUniqueId() != null) {
+        jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(object.getUniqueId()));
+      }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
@@ -108,7 +112,17 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   }
   
   private static String getTemplate() {
-    return null;
+    YieldCurveDefinitionJSONBuilder builder = YieldCurveDefinitionJSONBuilder.INSTANCE; 
+    String json = builder.toJSON(getDummyYieldCurveDefinition());
+    json = StringUtils.replace(json, ":\"GBP\"", ":\" \"");
+    json = StringUtils.replace(json, ":\"Dummy\"", ":\" \"");
+    return json.toString();
+  }
+
+  private static YieldCurveDefinition getDummyYieldCurveDefinition() {
+    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, Identifier.of("Dummy", "Dummy"), "Dummy", "Dummy");
+    dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, "Dummy"));
+    return dummy;
   }
 
 }
