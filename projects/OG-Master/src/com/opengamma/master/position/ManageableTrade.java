@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.position;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +48,12 @@ import com.opengamma.util.money.Currency;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable {
+public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable, Serializable {
 
+  /**
+   * Version
+   */
+  private static final long serialVersionUID = 1L;
   /**
    * The trade unique identifier.
    * This field should be null until added to the master.

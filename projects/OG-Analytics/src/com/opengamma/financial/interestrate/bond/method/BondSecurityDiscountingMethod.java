@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bond security valued by discounting.
  */
-public class BondSecurityDiscountingMethod {
+public final class BondSecurityDiscountingMethod {
 
   /**
    * The present value calculator (for the different parts of the bond transaction).
@@ -47,6 +47,14 @@ public class BondSecurityDiscountingMethod {
    * The root finder used for yield finding.
    */
   private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
+  private static final BondSecurityDiscountingMethod INSTANCE = new BondSecurityDiscountingMethod();
+
+  public static BondSecurityDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondSecurityDiscountingMethod() {
+  }
 
   /**
    * Compute the present value of a bond security (without settlement amount payment).

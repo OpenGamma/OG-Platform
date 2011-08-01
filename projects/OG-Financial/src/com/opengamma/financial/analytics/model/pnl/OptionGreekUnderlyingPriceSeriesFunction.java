@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _dataSourceName;
+  private final String _resolutionKey;
   //private final String _fieldName; //TODO start using this
   private final LocalDate _startDate;
   private final Schedule _scheduleCalculator;
@@ -63,14 +63,14 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
         .getFunction(samplingFunctionName));
   }
 
-  public OptionGreekUnderlyingPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate, final String valueRequirementName,
+  public OptionGreekUnderlyingPriceSeriesFunction(final String resolutionKey, final String fieldName, final LocalDate startDate, final String valueRequirementName,
       final Schedule scheduleCalculator,
       final TimeSeriesSamplingFunction samplingFunction) {
-    Validate.notNull(dataSourceName, "data source name");
+    Validate.notNull(resolutionKey, "resolution key");
     Validate.notNull(fieldName, "field name");
     Validate.notNull(startDate, "start date");
     Validate.notNull(valueRequirementName, "value requirement name");
-    _dataSourceName = dataSourceName;
+    _resolutionKey = resolutionKey;
     _startDate = startDate;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
@@ -92,7 +92,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (final Pair<UnderlyingType, String> underlying : _underlyings) {
       final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueId());
-      final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _dataSourceName, null, securitySource,
+      final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource,
           underlying.getFirst(), security);
       if (ts == null) {
         throw new NullPointerException("Could not get price series for security " + security);
