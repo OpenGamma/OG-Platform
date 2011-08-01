@@ -5,6 +5,11 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -29,6 +34,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
+
 
 /**
  * General utility method applying to Financial Securities
@@ -151,7 +157,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          return security.getCallCurrency();
+          return new UnsupportedOperationException("FX Barrier Options do not have a currency");
         }
 
         @Override
@@ -184,4 +190,130 @@ public class FinancialSecurityUtils {
     }
     return null;
   }
+  /**
+   * @param security the security to be examined.
+   * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
+   */
+  public static Collection<Currency> getCurrencies(final Security security) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final Collection<Currency> ccy = finSec.accept(new FinancialSecurityVisitor<Collection<Currency>>() {
+        @Override
+        public Collection<Currency> visitBondSecurity(final BondSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCashSecurity(final CashSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEquitySecurity(final EquitySecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitFRASecurity(final FRASecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitFutureSecurity(final FutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitSwapSecurity(final SwapSecurity security) {
+           
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return Collections.singletonList(payLeg.getCurrency());
+            } else {
+              Collection<Currency> collection = new ArrayList<Currency>();
+              collection.add(payLeg.getCurrency());
+              collection.add(receiveLeg.getCurrency());
+              return collection;
+            }
+          }
+          return null;
+        }
+
+        @Override
+        public Collection<Currency> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEquityOptionSecurity(final EquityOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitFXOptionSecurity(final FXOptionSecurity security) {
+          Collection<Currency> currencies = new ArrayList<Currency>();
+          currencies.add(security.getCallCurrency());
+          currencies.add(security.getPutCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitSwaptionSecurity(final SwaptionSecurity security) {
+          // REVIEW: jim 1-Aug-2011 -- should we include the currencies of the underlying?
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+          Collection<Currency> currencies = new ArrayList<Currency>();
+          currencies.add(security.getCallCurrency());
+          currencies.add(security.getPutCurrency());
+          return currencies;
+        }
+
+        @Override
+        public Collection<Currency> visitFXSecurity(final FXSecurity security) {
+          Collection<Currency> currencies = new ArrayList<Currency>();
+          currencies.add(security.getPayCurrency());
+          currencies.add(security.getReceiveCurrency());
+          return currencies;          
+        }
+
+        // REVIEW: jim 1-Aug-2011 -- fix once FXForwardSecurity is refactored
+        @Override
+        public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
+          Collection<Currency> currencies = new ArrayList<Currency>();
+          //currencies.add(security.getPayCurrency());
+          //currencies.add(security.getReceiveCurrency());
+          return Collections.emptyList();          
+        }
+
+        @Override
+        public Collection<Currency> visitCapFloorSecurity(final CapFloorSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+      });
+      return ccy;
+    }
+    return null;
+  }
+
 }
