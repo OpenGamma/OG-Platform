@@ -53,11 +53,14 @@ public class DependencyGraphBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
+  private static final AtomicInteger s_nextDebugGraphId = new AtomicInteger();
 
-  // DON'T CHECK IN WITH =true
+  // DON'T CHECK IN WITH =true, !=-1, or =true
   private static final boolean NO_BACKGROUND_THREADS = false;
+  private static final int MAX_ADDITIONAL_THREADS = -1;
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
 
-  private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : Runtime.getRuntime().availableProcessors();
+  private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
 
   // Injected Inputs:
   private String _calculationConfigurationName;
@@ -366,8 +369,8 @@ public class DependencyGraphBuilder {
   }
 
   /**
-   * For compatability with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. When
-   * branch is merged with the mainline, remove this.
+   * For compatibility with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. When
+   * branch is merged with the master, remove this.
    * 
    * @param requirement requirement to add, not {@code null}
    * @deprecated update OG-Integration and remove this when the branch is merged
@@ -383,17 +386,23 @@ public class DependencyGraphBuilder {
 
       @Override
       public void failed(final ValueRequirement value) {
+        s_logger.warn("Couldnt resolve {}", value);
         exception.set(new UnsatisfiableDependencyGraphException(value));
+        latch.countDown();
       }
 
       @Override
       public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+        s_logger.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
         exception.set(null);
+        latch.countDown();
       }
 
     });
     try {
-      latch.await(1000, TimeUnit.MILLISECONDS);
+      if (!latch.await(1000, TimeUnit.MILLISECONDS)) {
+        throw new OpenGammaRuntimeException("Timeout waiting for failure or resolution of " + requirement);
+      }
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
@@ -440,7 +449,7 @@ public class DependencyGraphBuilder {
     }
 
     @Override
-    protected void finished() {
+    protected boolean finished() {
       boolean addFallback = false;
       synchronized (this) {
         if (getPendingTasks() == 0) {
@@ -452,11 +461,12 @@ public class DependencyGraphBuilder {
         final ResolveTask task = getOrCreateTaskResolving(getValueRequirement(), _parentTask);
         if (_tasks.add(task)) {
           task.addCallback(this);
+          return true;
         } else {
-          super.finished();
+          return super.finished();
         }
       } else {
-        super.finished();
+        return super.finished();
       }
     }
 
@@ -468,13 +478,14 @@ public class DependencyGraphBuilder {
   }
 
   protected ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
-    s_logger.debug("addTargetImpl {}", requirement);
+    s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
       s_logger.debug("Can't introduce a ValueRequirement loop");
       return new ResolvedValueProducer() {
         @Override
-        public void addCallback(final ResolvedValueCallback callback) {
+        public Cancellable addCallback(final ResolvedValueCallback callback) {
           callback.failed(requirement);
+          return null;
         }
       };
     }
@@ -708,10 +719,6 @@ public class DependencyGraphBuilder {
     return createDependencyGraph();
   }
 
-  // DON'T CHECK IN WITH =true
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
-  private static final AtomicInteger DEBUG_GRAPH_ID = new AtomicInteger();
-
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
     s_logger.debug("Converting internal representation to dependency graph");
@@ -724,7 +731,7 @@ public class DependencyGraphBuilder {
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
-        int graphFileId = DEBUG_GRAPH_ID.getAndIncrement();
+        int graphFileId = s_nextDebugGraphId.getAndIncrement();
         final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph" + graphFileId + ".txt"));
         graph.dumpStructureASCII(ps);
         ps.close();

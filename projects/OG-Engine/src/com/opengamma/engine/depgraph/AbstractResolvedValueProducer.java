@@ -7,12 +7,14 @@ package com.opengamma.engine.depgraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.Cancellable;
 
 /* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer {
 
@@ -20,7 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck 
 
-  private final class Callback implements ResolutionPump {
+  private final class Callback implements ResolutionPump, Cancellable {
 
     private final ResolvedValueCallback _callback;
     private ResolvedValue[] _results;
@@ -74,6 +76,15 @@ import com.opengamma.engine.value.ValueRequirement;
     }
 
     @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+      s_logger.debug("Cancelling callback {}", this);
+      synchronized (AbstractResolvedValueProducer.this) {
+        _pumped.remove(this);
+      }
+      return true;
+    }
+
+    @Override
     public String toString() {
       return "Callback[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
     }
@@ -81,7 +92,7 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   private final ValueRequirement _valueRequirement;
-  private final List<Callback> _pumped = new ArrayList<Callback>();
+  private final Set<Callback> _pumped = new HashSet<Callback>();
   private ResolvedValue[] _results;
   private boolean _finished;
 
@@ -92,7 +103,7 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
-  public void addCallback(final ResolvedValueCallback valueCallback) {
+  public Cancellable addCallback(final ResolvedValueCallback valueCallback) {
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
@@ -117,6 +128,7 @@ import com.opengamma.engine.value.ValueRequirement;
       s_logger.debug("Pushing failure");
       valueCallback.failed(getValueRequirement());
     }
+    return callback;
   }
 
   protected void pushResult(final ResolvedValue value) {
@@ -149,11 +161,14 @@ import com.opengamma.engine.value.ValueRequirement;
 
   protected abstract void pumpImpl();
 
-  protected void finished() {
-    assert !_finished;
+  protected boolean finished() {
     s_logger.debug("Finished producing results at {}", this);
     final Collection<Callback> pumped;
     synchronized (this) {
+      if (_finished) {
+        s_logger.debug("Already finished on other thread");
+        return false;
+      }
       _finished = true;
       if (_pumped.isEmpty()) {
         pumped = null;
@@ -168,8 +183,9 @@ import com.opengamma.engine.value.ValueRequirement;
         callback._callback.failed(getValueRequirement());
       }
     } else {
-      s_logger.debug("No pumped callbacks to propogate failure to", this);
+      s_logger.debug("No pumped callbacks");
     }
+    return true;
   }
 
   public ValueRequirement getValueRequirement() {

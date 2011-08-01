@@ -213,8 +213,8 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           }
         }
       }
-      cached = _targetCache.putIfAbsent(target, applicableRules);
-      cached = _targetCache.get(target);
+      final List<Pair<ResolutionRule, Set<ValueSpecification>>> existing = _targetCache.putIfAbsent(target, applicableRules);
+      cached = (existing != null) ? existing : applicableRules;
     }
     return new It(target, requirement, cached);
   }

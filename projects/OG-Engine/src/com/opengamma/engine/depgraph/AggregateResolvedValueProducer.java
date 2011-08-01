@@ -70,7 +70,10 @@ import com.opengamma.engine.value.ValueRequirement;
         // We have nothing to pump, so must have failed
         finished();
       } else {
-        s_logger.debug("Pumping {} origin tasks", pumps.size());
+        synchronized (this) {
+          s_logger.debug("Pumping {} origin tasks", pumps.size());
+          setPendingTasks(pumps.size());
+        }
         for (ResolutionPump pump : pumps) {
           pump.pump();
         }

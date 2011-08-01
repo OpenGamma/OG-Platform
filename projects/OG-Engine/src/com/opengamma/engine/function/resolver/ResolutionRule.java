@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -132,7 +131,7 @@ public class ResolutionRule {
     try {
       return function.getResults(context, target);
     } catch (Throwable t) {
-      s_logger.debug("Exception thrown by getResults", t);
+      s_logger.warn("Exception thrown by getResults", t);
     }
     return null;
   }
@@ -169,34 +168,6 @@ public class ResolutionRule {
     return validSpec;
   }
 
-  /**
-   * Checks dependent nodes.
-   * <p>
-   * Note that because the method is called during dependency graph construction,
-   * you can only validly access:
-   * <ul>
-   * <li>The computation target of the node
-   * <li>Functions and computation targets of the nodes above this node
-   * </ul>  
-   * 
-   * @param function  the parameterized function, not null
-   * @param target  the target, not null
-   * @param nodes  the set of nodes, not null
-   * @return true if there is no cycle in the graph
-   */
-  private static boolean checkDependentNodes(final ParameterizedFunction function, final ComputationTarget target, final Set<DependencyNode> nodes) {
-    for (DependencyNode node : nodes) {
-      if (function.equals(node.getFunction()) && target.equals(node.getComputationTarget())) {
-        return false;
-      }
-      if (!checkDependentNodes(function, target, node.getDependentNodes())) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";

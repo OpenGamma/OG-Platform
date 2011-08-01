@@ -7,6 +7,7 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.Cancellable;
 import com.opengamma.util.tuple.Pair;
 
 /* package */final class GetFunctionsStep extends ResolveTask.State {
@@ -36,13 +38,23 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public void addCallback(final ResolvedValueCallback callback) {
+    public Cancellable addCallback(final ResolvedValueCallback callback) {
+      final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
       callback.resolved(_valueRequirement, _resolvedValue, new ResolutionPump() {
         @Override
         public void pump() {
-          callback.failed(_valueRequirement);
+          final ResolvedValueCallback callback = callbackRef.getAndSet(null);
+          if (callback != null) {
+            callback.failed(_valueRequirement);
+          }
         }
       });
+      return new Cancellable() {
+        @Override
+        public boolean cancel(final boolean mayInterruptIfRunning) {
+          return callbackRef.getAndSet(null) != null;
+        }
+      };
     }
 
   }

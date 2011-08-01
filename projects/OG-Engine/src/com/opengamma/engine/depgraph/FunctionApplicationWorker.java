@@ -17,15 +17,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.Cancellable;
 
 /* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
-  
-  private static final AtomicInteger s_nextIdentifier = new AtomicInteger ();
+
+  private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
 
   private final int _identifier = s_nextIdentifier.incrementAndGet();
   private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
+  private final Map<ValueRequirement, Cancellable> _inputHandles = new HashMap<ValueRequirement, Cancellable>();
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
@@ -65,9 +67,11 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public void failed(final ValueRequirement value) {
+    s_logger.debug("Resolution failed at {}", this);
     s_logger.info("Resolution of {} failed", value);
-    FunctionApplicationStep.PumpingState state;
+    final FunctionApplicationStep.PumpingState state;
     synchronized (this) {
+      _inputHandles.remove(value);
       _pendingInputs--;
       _validInputs--;
       if (((_pendingInputs > 0) || (_validInputs > 0)) && (_inputs.get(value) != null)) {
@@ -79,14 +83,22 @@ import com.opengamma.engine.value.ValueSpecification;
       _taskState = null;
     }
     // Not ok; we either couldn't satisfy anything or the pumped enumeration is complete
-    s_logger.info("Worker complete");
-    finished();
-    s_logger.debug("Calling finished on {} from {}", state, this);
-    state.finished();
+    s_logger.info("{} complete", this);
+    // Unsubscribe from any inputs that are still valid
+    for (Map.Entry<ValueRequirement, Cancellable> handle : _inputHandles.entrySet()) {
+      s_logger.debug("Unsubscribing from {}", handle.getKey());
+      handle.getValue().cancel(false);
+    }
+    // Propagate the failure message to anything subscribing to us
+    if (finished()) {
+      s_logger.debug("Calling finished on {}", state);
+      state.finished();
+    }
   }
 
   @Override
   public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+    s_logger.debug("Resolution complete at {}", this);
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue);
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
@@ -101,7 +113,7 @@ import com.opengamma.engine.value.ValueSpecification;
         state = _taskState;
         s_logger.debug("Full input set available");
       } else {
-        s_logger.debug("Waiting for {} other inputs", _pendingInputs);
+        s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
       }
       _pumps.add(pump);
     }
@@ -111,11 +123,24 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   public void addInput(final ValueRequirement valueRequirement, final ResolvedValueProducer inputProducer) {
+    s_logger.debug("Adding input {} to {}", valueRequirement, this);
     synchronized (this) {
       _inputs.put(valueRequirement, null);
+      _inputHandles.put(valueRequirement, null);
       _pendingInputs++;
     }
-    inputProducer.addCallback(this);
+    final Cancellable handle = inputProducer.addCallback(this);
+    synchronized (this) {
+      if (handle != null) {
+        // Only store the handle if the producer hasn't already failed
+        if (_inputHandles.containsKey(valueRequirement)) {
+          _inputHandles.put(valueRequirement, handle);
+        }
+      } else {
+        // Remove the handle placeholder if the producer called us inline
+        _inputHandles.remove(valueRequirement);
+      }
+    }
   }
 
   public void setPumpingState(final FunctionApplicationStep.PumpingState state, final int validInputs) {
@@ -138,6 +163,7 @@ import com.opengamma.engine.value.ValueSpecification;
             resolvedValues.put(input.getValue(), input.getKey());
           }
           state = _taskState;
+          s_logger.debug("Full input set available at {}", this);
         }
       }
     }

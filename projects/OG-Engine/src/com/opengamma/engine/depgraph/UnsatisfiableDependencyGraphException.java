@@ -133,11 +133,11 @@ public class UnsatisfiableDependencyGraphException extends OpenGammaRuntimeExcep
       for (String name : _state.keySet()) {
         sb.append("\n| ").append(name).append("=");
         Object obj = _state.get(name);
-        if (obj instanceof Collection) {
+        if (obj instanceof Collection<?>) {
           for (Object loop : (Collection<?>) obj) {
             sb.append("\n||  ").append(loop);
           }
-        } else if (obj instanceof Map) {
+        } else if (obj instanceof Map<?, ?>) {
           for (Object loop : ((Map<?, ?>) obj).entrySet()) {
             sb.append("\n||  ").append(loop);
           }

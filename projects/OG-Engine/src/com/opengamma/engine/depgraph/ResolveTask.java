@@ -122,9 +122,9 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  protected void finished() {
+  protected boolean finished() {
     _state = null;
-    super.finished();
+    return super.finished();
   }
 
   protected void setComputationTarget(final ComputationTarget target) {

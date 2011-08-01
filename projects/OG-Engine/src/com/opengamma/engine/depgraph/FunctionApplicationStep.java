@@ -161,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (getOutputs().equals(newOutputValues)) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput, false);
+        getAdditionalRequirementsAndPushResults(null, inputs, resolvedOutput);
         return;
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
@@ -183,7 +183,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
         // The resolved output has not changed
-        getAdditionalRequirementsAndPushResults(getWorker(), inputs, resolvedOutput, false);
+        getAdditionalRequirementsAndPushResults(null, inputs, resolvedOutput);
         return;
       }
       // Has the resolved output now reduced this to something already produced elsewhere
@@ -215,7 +215,7 @@ import com.opengamma.util.tuple.Pair;
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = getBuilder().declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
-        getAdditionalRequirementsAndPushResults(newWorker, inputs, resolvedOutput, true);
+        getAdditionalRequirementsAndPushResults(newWorker, inputs, resolvedOutput);
       } else {
         // An equivalent task is producing the revised value specification
         final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
@@ -266,8 +266,8 @@ import com.opengamma.util.tuple.Pair;
 
     }
 
-    private void getAdditionalRequirementsAndPushResults(final FunctionApplicationWorker worker, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
-        final boolean killWorkerAfterwards) {
+    private void getAdditionalRequirementsAndPushResults(final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
+        final ValueSpecification resolvedOutput) {
       Set<ValueRequirement> additionalRequirements = null;
       try {
         additionalRequirements = getFunction().getFunction().getAdditionalRequirements(getBuilder().getCompilationContext(), getComputationTarget(), inputs.keySet(), getOutputs());
@@ -277,29 +277,29 @@ import com.opengamma.util.tuple.Pair;
       }
       if (additionalRequirements == null) {
         s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
-        if (killWorkerAfterwards) {
-          worker.finished();
+        if (substituteWorker != null) {
+          substituteWorker.finished();
         }
         pump();
         return;
       }
       if (additionalRequirements.isEmpty()) {
-        pushResult(worker, inputs, resolvedOutput);
-        if (killWorkerAfterwards) {
-          worker.finished();
+        pushResult(getWorker(), inputs, resolvedOutput);
+        if (substituteWorker != null) {
+          pushResult(substituteWorker, inputs, resolvedOutput);
+          substituteWorker.finished();
         }
         return;
       }
       s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
       final AtomicInteger lock = new AtomicInteger(1);
-      final FunctionApplicationWorker workerCopy = worker;
       final ResolvedValueCallback callback = new ResolvedValueCallback() {
 
         @Override
         public void failed(final ValueRequirement value) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
-          if (killWorkerAfterwards) {
-            worker.finished();
+          if (substituteWorker != null) {
+            substituteWorker.finished();
           }
           pump();
         }
@@ -309,9 +309,10 @@ import com.opengamma.util.tuple.Pair;
           inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
           if (lock.decrementAndGet() == 0) {
             s_logger.debug("Additional requirements complete");
-            pushResult(workerCopy, inputs, resolvedOutput);
-            if (killWorkerAfterwards) {
-              worker.finished();
+            pushResult(getWorker(), inputs, resolvedOutput);
+            if (substituteWorker != null) {
+              pushResult(substituteWorker, inputs, resolvedOutput);
+              substituteWorker.finished();
             }
           }
         }
@@ -329,9 +330,10 @@ import com.opengamma.util.tuple.Pair;
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
-        pushResult(worker, inputs, resolvedOutput);
-        if (killWorkerAfterwards) {
-          worker.finished();
+        pushResult(getWorker(), inputs, resolvedOutput);
+        if (substituteWorker != null) {
+          pushResult(substituteWorker, inputs, resolvedOutput);
+          substituteWorker.finished();
         }
       }
     }
@@ -413,7 +415,7 @@ import com.opengamma.util.tuple.Pair;
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), builder, worker);
       setTaskState(state);
       if (inputRequirements.isEmpty()) {
-        s_logger.debug("Function {} required no inputs", functionDefinition);
+        s_logger.debug("Function {} requires no inputs", functionDefinition);
         worker.setPumpingState(state, 0);
         state.inputsAvailable(Collections.<ValueSpecification, ValueRequirement>emptyMap());
       } else {

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.depgraph;
 
+import com.opengamma.util.Cancellable;
+
 /**
  * Deferred source of a {@link ResolvedValue}.
  */
@@ -15,7 +17,8 @@ package com.opengamma.engine.depgraph;
    * been produced it may be called immediately.
    * 
    * @param callback callback object to receive the notifications, not {@code null}
+   * @return a handle for removing the callback, not {@code null}
    */
-  void addCallback(ResolvedValueCallback callback);
+  Cancellable addCallback(ResolvedValueCallback callback);
 
 }
