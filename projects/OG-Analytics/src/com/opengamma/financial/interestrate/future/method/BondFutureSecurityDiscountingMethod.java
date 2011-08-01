@@ -16,12 +16,19 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity
 /**
  * Method to compute the price of bond future as the cheapest forward.
  */
-public class BondFutureSecurityDiscountingMethod {
-
+public final class BondFutureSecurityDiscountingMethod {
+  private static final BondFutureSecurityDiscountingMethod INSTANCE = new BondFutureSecurityDiscountingMethod();
   /**
    * The method to compute bond security figures.
    */
-  private static final BondSecurityDiscountingMethod BOND_METHOD = new BondSecurityDiscountingMethod();
+  private static final BondSecurityDiscountingMethod BOND_METHOD = BondSecurityDiscountingMethod.getInstance();
+
+  public static BondFutureSecurityDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondFutureSecurityDiscountingMethod() {
+  }
 
   /**
    * Computes the future price from the curves used to price the underlying bonds.
@@ -47,8 +54,8 @@ public class BondFutureSecurityDiscountingMethod {
     for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
       priceFromBond[loopbasket] = (BOND_METHOD.cleanPriceFromCurves(future.getDeliveryBasket()[loopbasket], curves) - netBasis) / future.getConversionFactor()[loopbasket];
     }
-    Min minFunction = new Min();
-    double priceFuture = minFunction.evaluate(priceFromBond);
+    final Min minFunction = new Min();
+    final double priceFuture = minFunction.evaluate(priceFromBond);
     return priceFuture;
   }
 
@@ -84,9 +91,9 @@ public class BondFutureSecurityDiscountingMethod {
    * @return The gross basis for each bond in the basket.
    */
   public double[] grossBasisFromPrices(final BondFutureSecurity future, final double[] cleanPrices, final double futurePrice) {
-    int nbBasket = future.getDeliveryBasket().length;
+    final int nbBasket = future.getDeliveryBasket().length;
     Validate.isTrue(cleanPrices.length == nbBasket, "Number of clean prices");
-    double[] grossBasis = new double[nbBasket];
+    final double[] grossBasis = new double[nbBasket];
     for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
       grossBasis[loopbasket] = cleanPrices[loopbasket] - futurePrice * future.getConversionFactor()[loopbasket];
     }
@@ -101,9 +108,9 @@ public class BondFutureSecurityDiscountingMethod {
    * @return The gross basis for each bond in the basket.
    */
   public double[] grossBasisFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves, final double futurePrice) {
-    int nbBasket = future.getDeliveryBasket().length;
-    double[] grossBasis = new double[nbBasket];
-    double[] cleanPrices = new double[nbBasket];
+    final int nbBasket = future.getDeliveryBasket().length;
+    final double[] grossBasis = new double[nbBasket];
+    final double[] cleanPrices = new double[nbBasket];
     for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
       cleanPrices[loopbasket] = BOND_METHOD.cleanPriceFromCurves(future.getDeliveryBasket()[loopbasket], curves);
       grossBasis[loopbasket] = cleanPrices[loopbasket] - futurePrice * future.getConversionFactor()[loopbasket];
@@ -120,9 +127,9 @@ public class BondFutureSecurityDiscountingMethod {
    * @return The net basis for each bond in the basket.
    */
   public double[] netBasisFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves, final double futurePrice) {
-    int nbBasket = future.getDeliveryBasket().length;
+    final int nbBasket = future.getDeliveryBasket().length;
     final double[] bondDirtyPrice = new double[nbBasket];
-    double[] netBasis = new double[nbBasket];
+    final double[] netBasis = new double[nbBasket];
     for (int loopbasket = 0; loopbasket < future.getDeliveryBasket().length; loopbasket++) {
       bondDirtyPrice[loopbasket] = BOND_METHOD.dirtyPriceFromCurves(future.getDeliveryBasket()[loopbasket], curves);
       netBasis[loopbasket] = bondDirtyPrice[loopbasket] - (futurePrice * future.getConversionFactor()[loopbasket] + future.getDeliveryBasket()[loopbasket].getAccruedInterest());

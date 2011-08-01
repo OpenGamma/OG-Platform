@@ -37,7 +37,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
 
   public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
-    Validate.isTrue(payments.length > 0);
+    Validate.isTrue(payments.length > 0, "Have no payments in annuity");
     Currency currency0 = payments[0].getCurrency();
     double amount = payments[0].getReferenceAmount();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {

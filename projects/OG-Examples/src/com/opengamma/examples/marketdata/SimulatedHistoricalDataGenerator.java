@@ -95,7 +95,6 @@ public class SimulatedHistoricalDataGenerator {
       Identifier identifier = entry.getKey().getFirst();
       String dataField = entry.getKey().getSecond();
       Double startValue = entry.getValue();
-      
       ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
       info.setName(dataField + " " + identifier);
       info.setDataField(dataField);

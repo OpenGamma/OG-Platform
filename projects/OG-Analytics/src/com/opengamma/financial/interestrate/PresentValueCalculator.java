@@ -132,7 +132,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -140,7 +140,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -148,7 +148,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondIborSecurity(final BondIborSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -156,7 +156,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -164,7 +164,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bondFuture);
-    final BondFutureTransactionDiscountingMethod method = new BondFutureTransactionDiscountingMethod();
+    final BondFutureTransactionDiscountingMethod method = BondFutureTransactionDiscountingMethod.getInstance();
     return method.presentValue(bondFuture, curves).getAmount();
   }
 
@@ -244,7 +244,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
