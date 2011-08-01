@@ -61,7 +61,6 @@ $.register_module({
                         'Delete': function () {
                             var args = routes.current().args;
                             $(this).dialog('close');
-                            return;
                             api.rest.configs.del({
                                 handler: function (result) {
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
