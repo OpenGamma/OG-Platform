@@ -23,10 +23,10 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +42,7 @@ public class DependencyGraphBuilderOriginal {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderOriginal.class);
   // Injected Inputs:
   private String _calculationConfigurationName;
-  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private MarketDataAvailabilityProvider _liveDataAvailabilityProvider;
   private ComputationTargetResolver _targetResolver;
   private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
@@ -67,14 +67,14 @@ public class DependencyGraphBuilderOriginal {
   /**
    * @return the liveDataAvailabilityProvider
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
 
   /**
    * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
    */
-  public void setLiveDataAvailabilityProvider(LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+  public void setLiveDataAvailabilityProvider(MarketDataAvailabilityProvider liveDataAvailabilityProvider) {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
   }
 
@@ -188,7 +188,7 @@ public class DependencyGraphBuilderOriginal {
       // Find live data
       if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
         s_logger.debug("Live Data : {} on {}", requirement, target);
-        LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
+        MarketDataSourcingFunction function = new MarketDataSourcingFunction(requirement);
         return new ResolutionState(requirement, function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), createDependencyNode(target, dependent));
       }
       resolutionState = new ResolutionState(requirement);

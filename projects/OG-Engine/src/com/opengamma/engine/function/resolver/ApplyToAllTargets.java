@@ -10,7 +10,7 @@ import com.opengamma.engine.ComputationTarget;
 /**
  * Computation target filter that applies to all nodes in the dependency graph.
  */
-public final class ApplyToAllTargets implements ComputationTargetFilter {
+public final class ApplyToAllTargets extends ComputationTargetFilter {
 
   /**
    * Standard instance, singleton not enforced.

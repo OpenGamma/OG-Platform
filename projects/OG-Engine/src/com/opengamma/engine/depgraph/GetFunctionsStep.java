@@ -11,7 +11,7 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -49,9 +49,9 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected void run(final DependencyGraphBuilder builder) {
-    if (builder.getLiveDataAvailabilityProvider().isAvailable(getValueRequirement())) {
+    if (builder.getMarketDataAvailabilityProvider().isAvailable(getValueRequirement())) {
       s_logger.info("Found live data for {}", getValueRequirement());
-      final LiveDataSourcingFunction function = new LiveDataSourcingFunction(getValueRequirement());
+      final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
       final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
           .singleton(function.getResult()));
       builder.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
