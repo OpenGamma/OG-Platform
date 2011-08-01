@@ -33,7 +33,7 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
   public Double visitVarianceSwap(final VarianceSwap derivative, final VarianceSwapDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
-    VarSwapStaticReplication pricer = new VarSwapStaticReplication(); //TODO Review
+    VarSwapStaticReplication pricer = new VarSwapStaticReplication(null); //TODO Review
     return pricer.presentValue(derivative, market);
   }
 

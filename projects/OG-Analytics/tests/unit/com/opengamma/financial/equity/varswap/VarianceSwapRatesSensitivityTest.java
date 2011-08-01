@@ -11,11 +11,11 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication;
+import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
 import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -175,8 +175,8 @@ public class VarianceSwapRatesSensitivityTest {
   // Setup ------------------------------------------
 
   // The pricing method
-  final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication();
-  final VarSwapStaticReplication pricer_without_cutoff = new VarSwapStaticReplication(1e-4, 5.0, new RungeKuttaIntegrator1D(), null, null);
+  final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.STRIKE);
+  final VarSwapStaticReplication pricer_without_cutoff = new VarSwapStaticReplication();
 
   // Market data
   private static final double SPOT = 80;
@@ -203,7 +203,7 @@ public class VarianceSwapRatesSensitivityTest {
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
-  private static final BlackVolatilitySurface VOL_SURFACE = new BlackVolatilitySurface(SURFACE);
+  private static final BlackVolatilityFixedStrikeSurface VOL_SURFACE = new BlackVolatilityFixedStrikeSurface(SURFACE);
 
   private static double[] maturities = {0.5, 1.0, 5.0, 10.0, 20.0 };
   private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04 };

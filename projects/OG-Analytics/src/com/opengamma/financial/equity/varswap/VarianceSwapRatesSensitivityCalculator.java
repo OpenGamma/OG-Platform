@@ -12,7 +12,7 @@ import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.InterpolatedSurfaceShiftFunction;
@@ -102,7 +102,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(market);
     Validate.notNull(swap);
     // Sensitivity from the discounting
-    VarSwapStaticReplication pricer = new VarSwapStaticReplication();
+    VarSwapStaticReplication pricer = new VarSwapStaticReplication(null);
     double pv = pricer.presentValue(swap, market);
     double timeToSettlement = swap.getTimeToSettlement();
 
@@ -202,7 +202,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(market, "null VarianceSwapDataBundle");
 
     // Unpack market data
-    // TODO Case : Assert is InterpolatedDoublesSurface
+    Validate.isTrue(market.getVolatilitySurface().getSurface() instanceof InterpolatedDoublesSurface, "The volatility surface in a VarianceSwapDataBundle must be an InterpolatedDoublesSurface");
     InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) market.getVolatilitySurface().getSurface();
 
     Double[] maturities = blackSurf.getXData();
@@ -215,12 +215,12 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // Parallel shift UP
     InterpolatedDoublesSurface bumpedUp = volShifter.evaluate(blackSurf, shift);
-    VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilitySurface(bumpedUp), market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
+    VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(bumpedUp), market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
     double pvUp = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // Parallel shift DOWN
     InterpolatedDoublesSurface bumpedDown = volShifter.evaluate(blackSurf, -shift);
-    bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilitySurface(bumpedDown), market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
+    bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(bumpedDown), market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
     double pvDown = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // Centered-difference result
@@ -290,13 +290,13 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // shift UP
     final InterpolatedDoublesSurface bumpedVolUp = volShifter.evaluate(blackSurf, maturity, strike, shift);
-    final VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilitySurface(bumpedVolUp), market.getDiscountCurve(), market.getSpotUnderlying(),
+    final VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(bumpedVolUp), market.getDiscountCurve(), market.getSpotUnderlying(),
         market.getForwardUnderlying());
     final double pvUp = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // shift DOWN
     final InterpolatedDoublesSurface bumpedVolDown = volShifter.evaluate(blackSurf, maturity, strike, -shift);
-    final VarianceSwapDataBundle bumpedMarketUp = new VarianceSwapDataBundle(new BlackVolatilitySurface(bumpedVolDown), market.getDiscountCurve(), market.getSpotUnderlying(),
+    final VarianceSwapDataBundle bumpedMarketUp = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(bumpedVolDown), market.getDiscountCurve(), market.getSpotUnderlying(),
         market.getForwardUnderlying());
     final double pvDown = pricer.visitVarianceSwap(swap, bumpedMarketUp);
 

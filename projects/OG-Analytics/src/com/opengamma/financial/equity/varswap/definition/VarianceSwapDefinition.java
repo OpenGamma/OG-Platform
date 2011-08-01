@@ -66,7 +66,8 @@ public class VarianceSwapDefinition {
     _obsEndDate = obsEndDate;
     _settlementDate = settlementDate;
     _obsFreq = obsFreq;
-    Validate.isTrue(obsFreq == PeriodFrequency.DAILY, "Only DAILY observation frequencies are currently supported. obsFreq = " + obsFreq.toString());
+    Validate.isTrue(obsFreq == PeriodFrequency.DAILY, "Only DAILY observation frequencies are currently supported. obsFreq = " + obsFreq.toString()
+        + ". Please contact quant to extend.");
     // TODO CASE Extend to periods longer than daily. Consider working this into ScheduleCalculator
 
     _currency = currency;

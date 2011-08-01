@@ -12,13 +12,13 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
 import com.opengamma.financial.equity.varswap.pricing.RealizedVariance;
 import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication;
+import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
 import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
 import com.opengamma.math.FunctionUtils;
-import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -41,8 +41,8 @@ public class VarianceSwapPresentValueTest {
   // Setup ------------------------------------------
 
   // The pricing method
-  final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication();
-  final VarSwapStaticReplication pricer_without_cutoff = new VarSwapStaticReplication(1e-4, 5.0, new RungeKuttaIntegrator1D(), null, null);
+  final VarSwapStaticReplication pricer_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.STRIKE);
+  final VarSwapStaticReplication pricer_without_cutoff = new VarSwapStaticReplication();
 
   // Market data
   private static final double SPOT = 80;
@@ -72,7 +72,7 @@ public class VarianceSwapPresentValueTest {
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE));
-  private static final BlackVolatilitySurface VOL_SURFACE = new BlackVolatilitySurface(SURFACE);
+  private static final BlackVolatilityFixedStrikeSurface VOL_SURFACE = new BlackVolatilityFixedStrikeSurface(SURFACE);
   private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, DISCOUNT, SPOT, FORWARD);
 
   // The derivative
