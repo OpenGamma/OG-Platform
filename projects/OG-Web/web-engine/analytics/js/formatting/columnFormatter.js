@@ -28,7 +28,11 @@
       }
       var value = dataContext[colDef.field];
       if (!value || !value.v) {
-        $cell.empty().html("<span class='cell-value'>" + _columnStructure.nullValue + "</span>");
+        if (value == false) {
+          $cell.empty();
+        } else {
+          $cell.empty().html("<span class='cell-value'>" + _columnStructure.nullValue + "</span>");
+        }
         return;
       }
       
