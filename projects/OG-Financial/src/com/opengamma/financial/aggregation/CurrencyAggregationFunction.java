@@ -7,22 +7,21 @@ package com.opengamma.financial.aggregation;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.money.Currency;
 
 /**
  * Function to classify positions by Currency.
  *
  */
-public class CurrencyAggregationFunction implements AggregationFunction<Currency> {
+public class CurrencyAggregationFunction implements AggregationFunction<String> {
 
   private static final String NAME = "Currency";
   
   @Override
-  public Currency classifyPosition(Position position) {
+  public String classifyPosition(Position position) {
     try {
-      return FinancialSecurityUtils.getCurrency(position.getSecurity());
+      return FinancialSecurityUtils.getCurrency(position.getSecurity()).toString();
     } catch (UnsupportedOperationException ex) {
-      return "Unknown";
+      return "No or multiple currencies";
     }
   }
 

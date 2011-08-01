@@ -154,10 +154,10 @@ public class FinancialSecurityUtils {
         public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getCurrency();
         }
-
+        
         @Override
         public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          return new UnsupportedOperationException("FX Barrier Options do not have a currency");
+          throw new UnsupportedOperationException("FX Barrier Options do not have a currency");
         }
 
         @Override
@@ -256,6 +256,7 @@ public class FinancialSecurityUtils {
           Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
+          return currencies;
         }
 
         @Override
