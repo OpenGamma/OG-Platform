@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic coupon.
  */
-public class Coupon extends Payment {
+public abstract class Coupon extends Payment {
 
   /**
    * The payment period year fraction (or accrual factor).
@@ -33,7 +31,7 @@ public class Coupon extends Payment {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    */
-  public Coupon(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional) {
+  public Coupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional) {
     super(currency, paymentTime, fundingCurveName);
     Validate.isTrue(paymentYearFraction >= 0, "year fraction < 0");
     _paymentYearFraction = paymentYearFraction;
@@ -79,7 +77,7 @@ public class Coupon extends Payment {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -89,7 +87,7 @@ public class Coupon extends Payment {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Coupon other = (Coupon) obj;
+    final Coupon other = (Coupon) obj;
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
@@ -97,16 +95,6 @@ public class Coupon extends Payment {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
-  }
-
-  @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
   }
 
 }

@@ -47,6 +47,8 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -60,6 +62,8 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -103,6 +107,7 @@ import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
@@ -381,6 +386,19 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
     });
+    s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
+      @Override
+      public void getValues(Collection<byte[]> values) {
+        
+        values.add(getRandomBytes());
+      }
+
+      private byte[] getRandomBytes() {
+        byte[] randomBytes = new byte[s_random.nextInt(100) + 10];
+        s_random.nextBytes(randomBytes);
+        return randomBytes;
+      }
+    });
   }
 
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
@@ -476,10 +494,14 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       }
       c = c.getSuperclass();
     }
-    assertNotNull(securityType);
+    if (securityClass != RawSecurity.class) {
+      assertNotNull(securityType);
+    }
     for (final T security : securities) {
       // Force the security type to be a valid string; they're random nonsense otherwise
-      security.setSecurityType(securityType);
+      if (securityClass != RawSecurity.class) {
+        security.setSecurityType(securityType);
+      }
       assertSecurity(securityClass, security);
     }
   }
@@ -617,7 +639,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   @Override
   @Test
-  public void testSwapOptionSecurity() {
+  public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 
@@ -632,7 +654,34 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
-  
-  
+  @Override
+  @Test
+  public void testFXSecurity() {
+    assertSecurities(FXSecurity.class);
+  }
 
+  @Override
+  @Test
+  public void testFXForwardSecurity() {
+    assertSecurities(FXForwardSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testCapFloorSecurity() {
+    assertSecurities(CapFloorSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testCapFloorCMSSpreadSecurity() {
+    assertSecurities(CapFloorCMSSpreadSecurity.class);
+  }
+  
+  @Override
+  @Test
+  public void testRawSecurity() {
+    assertSecurities(RawSecurity.class);
+  }
+ 
 }

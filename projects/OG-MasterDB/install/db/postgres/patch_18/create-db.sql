@@ -177,10 +177,12 @@ CREATE TABLE sec_security (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     sec_type varchar(255) not null,
+    detail_type char not null,
     primary key (id),
     constraint sec_fk_sec2sec foreign key (oid) references sec_security (id),
     constraint sec_chk_sec_ver_order check (ver_from_instant <= ver_to_instant),
-    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant)
+    constraint sec_chk_sec_corr_order check (corr_from_instant <= corr_to_instant),
+    constraint sec_chk_detail_type check (detail_type in ('D', 'M', 'R'))
 );
 CREATE INDEX ix_sec_security_oid ON sec_security(oid);
 CREATE INDEX ix_sec_security_ver_from_instant ON sec_security(ver_from_instant);
@@ -328,6 +330,23 @@ CREATE TABLE sec_fxoption (
     constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
+CREATE TABLE sec_swaption (
+    id bigint not null,
+    security_id bigint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    cash_settled boolean not null,
+    is_long boolean not null,
+    is_payer boolean not null,
+    currency_id bigint not null,
+    primary key (id),
+    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
+    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
+);
+
 CREATE TABLE sec_irfutureoption (
     id bigint not null,
     security_id bigint not null,
@@ -371,23 +390,6 @@ CREATE TABLE sec_fxbarrieroption (
     constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
     constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
-);
-
-CREATE TABLE sec_swaption (
-    id bigint not null,
-    security_id bigint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    expiry_date timestamp not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    cash_settled boolean not null,
-    is_long boolean not null,
-    is_payer boolean not null,
-    currency_id bigint not null,
-    primary key (id),
-    constraint sec_fk_swaption2currency foreign key (currency_id) references sec_currency(id),
-    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
 );
 
 CREATE TABLE sec_frequency (
@@ -619,6 +621,13 @@ CREATE TABLE sec_swap (
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
+
+CREATE TABLE sec_raw (
+    security_id bigint not null,
+    raw_data bytea not null,
+    constraint sec_fk_raw2sec foreign key (security_id) references sec_security (id)
+);
+
 
 -- create-db-portfolio.sql: Portfolio Master
 

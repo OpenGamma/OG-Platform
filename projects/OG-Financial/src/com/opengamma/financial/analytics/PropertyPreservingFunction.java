@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.opengamma.engine.function.AbstractFunction;
@@ -15,13 +16,30 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Able to preserve a set of optional constraints on output values through to function inputs.
+ * A base class for functions which need to preserve a set of properties from their inputs to their outputs, and
+ * also therefore need to request the appropriate inputs. 
  */
 public abstract class PropertyPreservingFunction extends AbstractFunction.NonCompiledInvoker {
 
-  protected abstract String[] getPreservedProperties();
+  /**
+   * Gets the properties which the function must preserve. If a property in this category occurs on any input then all
+   * inputs must declare the same property value, and this will be propagated to the outputs, or the function will
+   * fail. If no inputs declare a property then it will not appear on the outputs.
+   * 
+   * @return the properties which the function is required to preserve, not {@code null}
+   */
+  protected abstract Collection<String> getPreservedProperties();
+  
+  /**
+   * Gets the properties which the function will attempt to preserve. A property in this category will appear on the
+   * the function outputs if the property is present and has the same value across every input, otherwise it will be
+   * dropped.
+   * 
+   * @return the properties which the function will attempt to preserve, not {@code null}
+   */
+  protected abstract Collection<String> getOptionalPreservedProperties();
 
-  private ValueProperties createInputConstraints(final String[] preserve) {
+  private ValueProperties createInputConstraints(final Collection<String> preserve) {
     final ValueProperties.Builder builder = ValueProperties.builder();
     for (String value : preserve) {
       builder.withOptional(value);
@@ -29,23 +47,41 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
     return builder.get();
   }
 
-  private ValueProperties createResultProperties(final String[] preserve) {
+  private ValueProperties createResultProperties(final Collection<String> preserve) {
     final ValueProperties.Builder builder = ValueProperties.builder();
     for (String value : preserve) {
       builder.withAny(value);
     }
-    return builder.with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    applyAdditionalResultProperties(builder);
+    return builder.get();
+  }
+
+  /**
+   * Add additional properties to the results. The default here adds the function identifier; override
+   * this to add further information, but call the superclass method if the function identifier is not
+   * added.
+   * 
+   * @param builder to add properties to
+   */
+  protected void applyAdditionalResultProperties(final ValueProperties.Builder builder) {
+    builder.with(ValuePropertyNames.FUNCTION, getUniqueId());
   }
 
   private ValueProperties _inputConstraints;
   private ValueProperties _resultProperties;
+  private ValueProperties _requiredProperties;
 
   @Override
   public void setUniqueId(final String identifier) {
     super.setUniqueId(identifier);
-    final String[] preserve = getPreservedProperties();
-    _resultProperties = createResultProperties(preserve);
-    _inputConstraints = createInputConstraints(preserve);
+    final Collection<String> optionalProperties = getOptionalPreservedProperties();
+    final Collection<String> requiredProperties = getPreservedProperties();
+    final Collection<String> preservationCandidates = new ArrayList<String>(optionalProperties.size() + requiredProperties.size());
+    preservationCandidates.addAll(optionalProperties);
+    preservationCandidates.addAll(requiredProperties);
+    _resultProperties = createResultProperties(preservationCandidates);
+    _requiredProperties = createInputConstraints(requiredProperties);
+    _inputConstraints = createInputConstraints(preservationCandidates);
   }
 
   protected ValueProperties getInputConstraint(final ValueRequirement desiredValue) {
@@ -61,52 +97,57 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   }
 
   private ValueProperties getResultProperties(final ValueProperties properties) {
-    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    final ValueProperties.Builder builder = properties.copy().withoutAny(ValuePropertyNames.FUNCTION);
+    applyAdditionalResultProperties(builder);
+    return builder.get();
   }
 
   /**
-   * Produces the input constraints composed against the properties of the input value.
+   * Produces the properties of the input value composed against the input constraints.
    * 
    * @param inputSpec an input value specification
    * @return the composed properties
    */
   protected ValueProperties getResultProperties(final ValueSpecification inputSpec) {
-    return getResultProperties(getInputConstraints().compose(inputSpec.getProperties()));
+    return getResultProperties(inputSpec.getProperties().compose(getInputConstraints()));
   }
 
   /**
-   * Produces the input constraints composed against the properties of an input value, asserting that the composition against
-   * all input values gives identical results.
+   * Produces the input constraints composed against the properties of the inputs, ensuring that any required preserved
+   * properties are identical if present.
    * 
    * @param inputs a set of input value specifications
    * @return the composed properties
    */
-  protected ValueProperties getCompositeSpecificationProperties(final Collection<ValueSpecification> inputs) {
-    ValueProperties properties = null;
-    ValueSpecification previousInput = null;
+  protected ValueProperties getResultProperties(final Collection<ValueSpecification> inputs) {
+    ValueProperties compositeProperties = null;
+    ValueProperties referenceRequiredProperties = null;
     for (ValueSpecification input : inputs) {
-      final ValueProperties inputProperties = getInputConstraints().compose(input.getProperties());
-      if (properties == null) {
-        properties = inputProperties;
-        previousInput = input;
+      if (compositeProperties == null) {
+        // Compose both ways to:
+        //   a) remove anything that's not a preserved property
+        //   b) remove any preserved property that's not in this input to prevent optional wildcards propagating
+        compositeProperties = input.getProperties().compose(getInputConstraints().compose(input.getProperties()));
+        referenceRequiredProperties = _requiredProperties.compose(input.getProperties());
       } else {
-        if (!properties.equals(inputProperties)) {
-          throw new IllegalArgumentException("Composition of input constraints with " + input + " yields different results to " + previousInput + ". Previous composition = " + properties +
-              ", this composition = " + inputProperties);
+        ValueProperties requiredPropertyComposition = _requiredProperties.compose(input.getProperties());
+        if (!requiredPropertyComposition.equals(referenceRequiredProperties)) {
+          throw new IllegalArgumentException("Required property composition " + requiredPropertyComposition +
+              " produced from input " + input + " differs from current required property composition " + referenceRequiredProperties + " implying incompatible property values among the inputs");
         }
+        // Know that the required properties are preserved correctly, so now compose everything 
+        compositeProperties = compositeProperties.compose(input.getProperties());
       }
     }
-    return properties.copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    return getResultProperties(compositeProperties);
   }
 
-  protected ValueProperties getCompositeValueProperties(final Collection<ComputedValue> inputs) {
-    ValueProperties properties = getInputConstraints();
+  protected ValueProperties getResultPropertiesFromInputs(final Collection<ComputedValue> inputs) {
+    Collection<ValueSpecification> specs = new ArrayList<ValueSpecification>(inputs.size());
     for (ComputedValue input : inputs) {
-      properties = properties.compose(input.getSpecification().getProperties());
-      // We only need to consider the first as all input are equal (asserted by getCompositeSpecificationProperties)
-      break;
+      specs.add(input.getSpecification());
     }
-    return getResultProperties(properties);
+    return getResultProperties(specs);
   }
 
 }

@@ -214,7 +214,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
-    assertEquals(pvsCapLong.getSensitivity(), pvsCapShort_1.getSensitivity());
+    assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
@@ -227,7 +227,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime()};
     double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivity().get(FORWARD_CURVE_NAME);
+    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -239,7 +239,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime()};
     double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivity().get(FUNDING_CURVE_NAME);
+    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -259,7 +259,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_HIGH_SHORT, sabrBundle);
     // Long/short parity
     final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
-    assertEquals(pvsCapLong.getSensitivity(), pvsCapShort_1.getSensitivity());
+    assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
@@ -272,7 +272,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime()};
     double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivity().get(FORWARD_CURVE_NAME);
+    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -284,7 +284,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime()};
     double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivity().get(FUNDING_CURVE_NAME);
+    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);

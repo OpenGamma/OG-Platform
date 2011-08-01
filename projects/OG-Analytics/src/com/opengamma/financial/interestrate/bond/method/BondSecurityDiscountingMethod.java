@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bond security valued by discounting.
  */
-public class BondSecurityDiscountingMethod {
+public final class BondSecurityDiscountingMethod {
 
   /**
    * The present value calculator (for the different parts of the bond transaction).
@@ -47,6 +47,14 @@ public class BondSecurityDiscountingMethod {
    * The root finder used for yield finding.
    */
   private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
+  private static final BondSecurityDiscountingMethod INSTANCE = new BondSecurityDiscountingMethod();
+
+  public static BondSecurityDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondSecurityDiscountingMethod() {
+  }
 
   /**
    * Compute the present value of a bond security (without settlement amount payment).
@@ -67,8 +75,8 @@ public class BondSecurityDiscountingMethod {
    * @return The present value curve sensitivity.
    */
   public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
-    PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    final PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
     return pvcsNominal.add(pvcsCoupon);
   }
 
@@ -136,12 +144,12 @@ public class BondSecurityDiscountingMethod {
    * @return The price curve sensitivity.
    */
   public PresentValueSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    double pv = presentValue(bond, curves);
-    PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
-    double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listDf = new ArrayList<DoublesPair>();
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    final double pv = presentValue(bond, curves);
+    final PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
+    final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
     PresentValueSensitivity result = new PresentValueSensitivity(resultMap);

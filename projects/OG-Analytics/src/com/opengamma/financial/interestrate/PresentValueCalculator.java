@@ -18,19 +18,18 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.fra.definition.ZZZForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -81,47 +80,23 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final double ta = cash.getTradeTime();
     final double tb = cash.getMaturity();
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
-    return curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta);
+    return cash.getNotional() * (curve.getDiscountFactor(tb) * (1 + cash.getYearFraction() * cash.getRate()) - curve.getDiscountFactor(ta));
   }
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(fra);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
-    final double fwdAlpha = fra.getForwardYearFraction();
-    final double discountAlpha = fra.getDiscountingYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
-    final double fv = (forward - fra.getStrike()) * fwdAlpha / (1 + forward * discountAlpha);
-    return fv * fundingCurve.getDiscountFactor(fra.getSettlementDate());
+    return ForwardRateAgreementDiscountingMethod.getInstance().presentValue(fra, curves).getAmount();
   }
 
-  @Override
-  public Double visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(fra);
-    final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
-    return method.presentValue(fra, curves).getAmount();
-  }
-
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(future);
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(future.getCurveName());
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-    final double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / future.getIndexYearFraction();
-    return future.getValueYearFraction() * (1 - rate - future.getPrice() / 100);
-  }
-
-  @Override
   /**
+   * {@inheritDoc}
    * Future transaction pricing without convexity adjustment.
    */
+  @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
     return method.presentValue(future, curves).getAmount();
   }
 
@@ -157,7 +132,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -165,7 +140,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -173,7 +148,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondIborSecurity(final BondIborSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -181,7 +156,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondIborTransaction(final BondIborTransaction bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
   }
 
@@ -189,7 +164,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondFutureTransaction(final BondFutureTransaction bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bondFuture);
-    final BondFutureTransactionDiscountingMethod method = new BondFutureTransactionDiscountingMethod();
+    final BondFutureTransactionDiscountingMethod method = BondFutureTransactionDiscountingMethod.getInstance();
     return method.presentValue(bondFuture, curves).getAmount();
   }
 
@@ -223,15 +198,14 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle curves) {
+  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    final YieldAndDiscountCurve indexCurve = curves.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();
-    final double avRate = (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
-    return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (avRate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
+    final double rate = (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+    return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (rate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
 
   @Override
@@ -241,7 +215,10 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle curves) {
-    return visitFixedPayment(payment, curves);
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
+    return payment.getAmount() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
   @Override
@@ -256,14 +233,19 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
-    final CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
     return method.presentValue(cmsCoupon, curves);
   }
 
   @Override
   public Double visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
-    final CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    final CouponIborGearingDiscountingMethod method = CouponIborGearingDiscountingMethod.getInstance();
     return method.presentValue(coupon, curves).getAmount();
+  }
+
+  @Override
+  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
+    return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
 }

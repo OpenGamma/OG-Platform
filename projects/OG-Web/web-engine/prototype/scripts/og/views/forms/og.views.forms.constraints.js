@@ -8,8 +8,13 @@ $.register_module({
     obj: function () {
         var module = this, id_count = 0, prefix = 'constraints_widget_';
         return function (config) {
-            var data = config.data, data_index = config.index, render,
-                ids = {widget: prefix + id_count++, row_with: prefix + id_count++, row_without: prefix + id_count++},
+            var data = config.data, data_index = config.index, render, classes = config.classes || '',
+                ids = {
+                    container: prefix + id_count++,
+                    widget: prefix + id_count++,
+                    row_with: prefix + id_count++,
+                    row_without: prefix + id_count++
+                },
                 convert = function (datum) {
                     var length = 0, item;
                     if (!datum || typeof datum === 'string') return datum || '';
@@ -25,17 +30,20 @@ $.register_module({
                 };
             return new config.form.Block({
                 module: 'og.views.forms.constraints',
-                extras: ids,
+                extras: $.extend({classes: classes}, ids),
                 processor: function (data) {
-                    var indices = data_index.split('.'), last = indices.pop(), result = {};
-                    $('#' + ids.widget + ' tr.og-js-with').each(function (idx, el) {
+                    var indices = data_index.split('.'), last = indices.pop(), result = {},
+                        $withs = $('#' + ids.widget + ' .og-js-with'),
+                        $withouts = $('#' + ids.widget + ' .og-js-without');
+                    if (!$('#' + ids.widget).length) return;
+                    $withs.each(function (idx, el) {
                         var $el = $(el), optional = $el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val();
                         if (!key) throw Error('Type in a with constraint must be defined.');
                         if (!result['with']) result['with'] = {};
                         result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });
-                    $('#' + ids.widget + ' tr.og-js-without').each(function (idx, el) {
+                    $withouts.each(function (idx, el) {
                         result.without = $(el).find('input.og-js-key').val() || {};
                     });
                     indices.reduce(function (acc, level) {
@@ -73,15 +81,15 @@ $.register_module({
                     }},
                     {type: 'change', selector: '#' + ids.widget + ' input.og-js-radio', handler: function (e) {
                         var target = e.target, value = target.value;
-                        if (value === 'without' && $('#' + ids.widget + ' td.og-without').length)
-                            return alert('Sorry, but only one without at a time.'), e.target.checked = '';
-                        render[value]({'with': {'': null}, without: ''}[value], $(target).closest('tr'));
+                        if (value === 'without' && $('#' + ids.widget + ' .og-js-without-field').length)
+                            return alert('Sorry, but only one "without" constraint at a time.'), e.target.checked = '';
+                        render[value]({'with': {'': null}, without: ''}[value], $(target).closest('.og-js-row'));
                     }},
-                    {type: 'click', selector: '#' + ids.widget + ' .og-icon-remove', handler: function (e) {
-                        $(e.target).closest('tr').remove();
+                    {type: 'click', selector: '#' + ids.widget + ' .og-js-rem', handler: function (e) {
+                        $(e.target).closest('.og-js-row').remove();
                     }},
-                    {type: 'click', selector: '#' + ids.widget + ' .og-icon-add', handler: function (e) {
-                        render['with']({'': null}, null, $(e.target).closest('tr'));
+                    {type: 'click', selector: '#' + ids.container + ' .og-js-add', handler: function (e) {
+                        render['with']({'': null});
                     }}
                 ]
             });

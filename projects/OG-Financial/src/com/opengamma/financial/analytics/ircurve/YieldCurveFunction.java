@@ -46,7 +46,8 @@ public final class YieldCurveFunction {
   private YieldCurveFunction() {
   }
 
-  private static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final ValueRequirement requirement) {
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     if ((curveNames == null) || (curveNames.size() != 1)) {
       return null;
@@ -55,7 +56,8 @@ public final class YieldCurveFunction {
     }
   }
 
-  private static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
+  // TODO: these should be somewhere else
+  public static String getPropertyValue(final String propertyName, final FunctionCompilationContext context, final ValueRequirement requirement) {
     s_logger.debug("propertyName={} requirement={}", propertyName, requirement);
     final Set<String> curveNames = requirement.getConstraints().getValues(propertyName);
     final Set<String> defaultCurves;
@@ -82,7 +84,7 @@ public final class YieldCurveFunction {
       default:
         defaultCurves = context.getViewCalculationConfiguration().getDefaultProperties().getValues(propertyName);
         String foundCurve = null;
-        for (String curveName : curveNames) {
+        for (final String curveName : curveNames) {
           if (defaultCurves.contains(curveName)) {
             if (foundCurve == null) {
               foundCurve = curveName;
@@ -152,15 +154,40 @@ public final class YieldCurveFunction {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), props.get());
   }
 
+  public static ValueRequirement getCurveRequirement(final Currency currency, final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod) {
+    final ValueProperties.Builder props = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
+    if (advisoryForward != null) {
+      props.with(PROPERTY_FORWARD_CURVE, advisoryForward).withOptional(PROPERTY_FORWARD_CURVE);
+    }
+    if (advisoryFunding != null) {
+      props.with(PROPERTY_FUNDING_CURVE, advisoryFunding).withOptional(PROPERTY_FUNDING_CURVE);
+    }
+    props.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), props.get());
+  }
+
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.with(
         YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
   }
 
+  public static ValueRequirement getCouponSensitivityRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.with(
+        YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
+  }
+
+  public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+        ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+                       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+                       .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+                       .get());
+  }
+
   public static Pair<String, String> getDesiredValueCurveNames(final Set<ValueRequirement> desiredValues) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       if (forwardCurveName == null) {
         final String curveName = getForwardCurveName(desiredValue);
         if (curveName != null) {
@@ -201,6 +228,7 @@ public final class YieldCurveFunction {
         throw new IllegalArgumentException("fundingCurveName");
       } else {
         if (!desiredCurveName.equals(forwardCurveName) && !desiredCurveName.equals(fundingCurveName)) {
+          //TODO put a Jira in about this stupidity
           throw new IllegalArgumentException("curveName " + desiredCurveName + " not one of forwardCurveName=" + forwardCurveName + " or fundingCurveName=" + fundingCurveName);
         }
       }
@@ -211,7 +239,7 @@ public final class YieldCurveFunction {
   public static Pair<String, String> getInputCurveNames(final Map<ValueSpecification, ValueRequirement> inputs) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
         if (curveName.equals(input.getValue().getConstraint(PROPERTY_FORWARD_CURVE))) {

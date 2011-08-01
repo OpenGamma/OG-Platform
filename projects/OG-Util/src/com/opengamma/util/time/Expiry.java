@@ -9,10 +9,8 @@ import java.io.Serializable;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
@@ -91,46 +89,39 @@ public class Expiry implements InstantProvider, Serializable {
       return false;
     }
     final Expiry other = (Expiry) obj;
-    // REVIEW Yomi 20100905 expiry should not be null to start with
-    if (getExpiry() == null) {
-      return (other.getExpiry() == null);
-    }
-    if (other.getExpiry() == null) {
+    // Can't be the same if different accuracies encoded
+    if (!getAccuracy().equals(other.getAccuracy())) {
       return false;
     }
-    if (getAccuracy() == null) {
-      if (other.getAccuracy() != null) {
-        return false;
-      }
-      return getExpiry().equalInstant(other.getExpiry());
-    } else {
-      if (!getAccuracy().equals(other.getAccuracy())) {
-        return false;
-      }
-    }
     // Only compare to the accuracy agreed
-    // REVIEW Yomi 20100905 is above "getExpiry().equalInstant(other.getExpiry()" not testing the same?
-    if (getAccuracy() == null) {
-      return ObjectUtils.equals(getExpiry(), other.getExpiry());
-    }
-    // convert both to UTC to compare with accuracy
-    ZonedDateTime utc = ZonedDateTime.ofInstant(toInstant(), TimeZone.UTC);
-    ZonedDateTime otherUtc = ZonedDateTime.ofInstant(other.toInstant(), TimeZone.UTC);
-    switch (getAccuracy()) {
+    return equalsToAccuracy(getAccuracy(), getExpiry(), other.getExpiry());
+  }
+
+  /**
+   * Compares two expiry dates for equality to the given level of accuracy only.
+   * 
+   * @param accuracy accuracy to compare to
+   * @param expiry1 first date/time to compare
+   * @param expiry2 second date/time to compare
+   * @return {@code true} if the two dates/times are equal to the requested accuracy, {@code false} otherwise
+   */
+  public static boolean equalsToAccuracy(final ExpiryAccuracy accuracy, final ZonedDateTime expiry1, final ZonedDateTime expiry2) {
+    switch (accuracy) {
       case MIN_HOUR_DAY_MONTH_YEAR:
-        return (utc.getMinuteOfHour() == otherUtc.getMinuteOfHour()) && (utc.getHourOfDay() == otherUtc.getHourOfDay()) && (utc.getDayOfMonth() == otherUtc.getDayOfMonth())
-            && (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
+        return (expiry1.getMinuteOfHour() == expiry2.getMinuteOfHour()) && (expiry1.getHourOfDay() == expiry2.getHourOfDay()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth())
+            && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
       case HOUR_DAY_MONTH_YEAR:
-        return (utc.getHourOfDay() == otherUtc.getHourOfDay()) && (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear())
-            && (utc.getYear() == otherUtc.getYear());
+        return (expiry1.getHourOfDay() == expiry2.getHourOfDay()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear())
+            && (expiry1.getYear() == expiry2.getYear());
       case DAY_MONTH_YEAR:
-        return (utc.getDayOfMonth() == otherUtc.getDayOfMonth()) && (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
+        return (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
       case MONTH_YEAR:
-        return (utc.getMonthOfYear() == otherUtc.getMonthOfYear()) && (utc.getYear() == otherUtc.getYear());
+        return (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
       case YEAR:
-        return (utc.getYear() == otherUtc.getYear());
+        return (expiry1.getYear() == expiry2.getYear());
+      default:
+        throw new IllegalArgumentException("accuracy");
     }
-    return false;
   }
 
   @Override

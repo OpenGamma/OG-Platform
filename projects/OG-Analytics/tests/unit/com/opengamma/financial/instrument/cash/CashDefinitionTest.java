@@ -20,12 +20,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class CashDefinitionTest {
+  private static final Currency CCY = Currency.USD;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -34,17 +36,23 @@ public class CashDefinitionTest {
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 25);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2011, 7, 25);
+  private static final double NOTIONAL = 1000;
   private static final double RATE = 0.05;
-  private static final CashDefinition CASH = new CashDefinition(MATURITY, RATE, CONVENTION);
+  private static final CashDefinition CASH = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, CONVENTION);
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCurrency() {
+    new CashDefinition(null, MATURITY, NOTIONAL, RATE, CONVENTION);
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
-    new CashDefinition(null, RATE, CONVENTION);
+    new CashDefinition(CCY, null, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
-    new CashDefinition(MATURITY, RATE, null);
+    new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -64,17 +72,23 @@ public class CashDefinitionTest {
 
   @Test
   public void test() {
+    assertEquals(CCY, CASH.getCurrency());
     assertEquals(MATURITY, CASH.getMaturity());
     assertEquals(RATE, CASH.getRate(), 0);
     assertEquals(CONVENTION, CASH.getConvention());
-    CashDefinition other = new CashDefinition(MATURITY, RATE, CONVENTION);
+    assertEquals(NOTIONAL, CASH.getNotional());
+    CashDefinition other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, CONVENTION);
     assertEquals(other, CASH);
     assertEquals(other.hashCode(), CASH.hashCode());
-    other = new CashDefinition(MATURITY.plusDays(1), RATE, CONVENTION);
+    other = new CashDefinition(Currency.CAD, MATURITY, NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(CASH));
-    other = new CashDefinition(MATURITY, RATE + 0.01, CONVENTION);
+    other = new CashDefinition(CCY, MATURITY.plusDays(1), NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(CASH));
-    other = new CashDefinition(MATURITY, RATE, new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME));
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL + 100, RATE, CONVENTION);
+    assertFalse(other.equals(CASH));
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE + 0.01, CONVENTION);
+    assertFalse(other.equals(CASH));
+    other = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME));
     assertFalse(other.equals(CASH));
   }
 
@@ -82,12 +96,14 @@ public class CashDefinitionTest {
   public void testConversion() {
     final String name = "YC";
     Cash cash = CASH.toDerivative(DATE, name);
+    assertEquals(cash.getCurrency(), CCY);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
     assertEquals(cash.getTradeTime(), 2. / 365, 0);
     assertEquals(cash.getYearFraction(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
     cash = CASH.toDerivative(DATE, name, name, name);
+    assertEquals(cash.getCurrency(), CCY);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
     assertEquals(cash.getTradeTime(), 2. / 365, 0);

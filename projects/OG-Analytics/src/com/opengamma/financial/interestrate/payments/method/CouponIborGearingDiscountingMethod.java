@@ -24,7 +24,18 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
  */
-public class CouponIborGearingDiscountingMethod implements PricingMethod {
+public final class CouponIborGearingDiscountingMethod implements PricingMethod {
+  private static final CouponIborGearingDiscountingMethod INSTANCE = new CouponIborGearingDiscountingMethod();
+
+  /**
+   * @return A static instance
+   */
+  public static CouponIborGearingDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private CouponIborGearingDiscountingMethod() {
+  }
 
   /**
    * Compute the present value of a Ibor coupon with gearing factor and spread by discounting.
@@ -35,15 +46,16 @@ public class CouponIborGearingDiscountingMethod implements PricingMethod {
   public CurrencyAmount presentValue(final CouponIborGearing coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
-    YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
-    YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
-    double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * discountingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
+    final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount())
+        * discountingCurve.getDiscountFactor(coupon.getPaymentTime());
     return CurrencyAmount.of(coupon.getCurrency(), value);
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponIborGearing, "Forward rate agreement");
     return presentValue((CouponIborGearing) instrument, curves);
   }
@@ -57,27 +69,27 @@ public class CouponIborGearingDiscountingMethod implements PricingMethod {
   public PresentValueSensitivity presentValueCurveSensitivity(final CouponIborGearing coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
-    YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
-    YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
-    double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
-    double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
-    double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingAccrualFactor();
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
+    final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
+    final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
+    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingAccrualFactor();
     // Backward sweep
-    double pvBar = 1.0;
-    double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * coupon.getFactor() * df * pvBar;
-    double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * forwardBar;
-    double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * forwardBar;
-    double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * pvBar;
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double pvBar = 1.0;
+    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * coupon.getFactor() * df * pvBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * forwardBar;
+    final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * forwardBar;
+    final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * pvBar;
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMap.put(coupon.getFundingCurveName(), listDiscounting);
-    List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(coupon.getForwardCurveName(), listForward);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
     return result;
   }
 

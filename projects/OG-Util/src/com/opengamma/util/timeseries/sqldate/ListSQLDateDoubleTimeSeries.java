@@ -67,7 +67,7 @@ public class ListSQLDateDoubleTimeSeries extends MutableSQLDateDoubleTimeSeries.
   }
 
   @Override
-  public SQLDateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
+  public ListSQLDateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
     return new ListSQLDateDoubleTimeSeries(dateTimes, values);
   }
 

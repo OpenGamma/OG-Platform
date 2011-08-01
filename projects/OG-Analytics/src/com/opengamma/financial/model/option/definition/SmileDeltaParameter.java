@@ -53,16 +53,18 @@ public class SmileDeltaParameter {
    * @param riskReversal The risk reversal volatility figures, in the same order as the delta.
    * @param strangle The strangle volatility figures, in the same order as the delta.
    */
-  public SmileDeltaParameter(double timeToExpiry, double atm, double[] delta, double[] riskReversal, double[] strangle) {
+  public SmileDeltaParameter(final double timeToExpiry, final double atm, final double[] delta, final double[] riskReversal, final double[] strangle) {
     Validate.notNull(delta, "Delta");
     Validate.notNull(riskReversal, "Risk Reversal");
     Validate.notNull(strangle, "Strangle");
     Validate.isTrue(delta.length == riskReversal.length, "Length of delta should be equal to length of risk reversal");
     Validate.isTrue(delta.length == strangle.length, "Length of delta should be equal to length of strangle");
     //TODO: check that delta is sorted (ascending).
+    //REVIEW 6-7-2011 emcleod better to do a parallel sort of delta, risk reversal and strangle and have another constructor
+    // with an isSorted parameter that will not attempt the sort
     this._timeToExpiry = timeToExpiry;
     this._delta = delta;
-    int nbDelta = delta.length;
+    final int nbDelta = delta.length;
     _volatility = new double[2 * nbDelta + 1];
     _volatility[nbDelta] = atm;
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
@@ -76,9 +78,9 @@ public class SmileDeltaParameter {
    * @param forward The forward.
    * @return The strikes.
    */
-  public double[] getStrike(double forward) {
-    int nbDelta = _delta.length;
-    double[] strike = new double[2 * nbDelta + 1];
+  public double[] getStrike(final double forward) {
+    final int nbDelta = _delta.length;
+    final double[] strike = new double[2 * nbDelta + 1];
     strike[nbDelta] = forward * Math.exp(_volatility[nbDelta] * _volatility[nbDelta] * _timeToExpiry / 2.0);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       strike[loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(-_delta[loopdelta], false, forward, _timeToExpiry, _volatility[loopdelta]); // Put
@@ -124,7 +126,7 @@ public class SmileDeltaParameter {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -134,7 +136,7 @@ public class SmileDeltaParameter {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SmileDeltaParameter other = (SmileDeltaParameter) obj;
+    final SmileDeltaParameter other = (SmileDeltaParameter) obj;
     if (!Arrays.equals(_delta, other._delta)) {
       return false;
     }

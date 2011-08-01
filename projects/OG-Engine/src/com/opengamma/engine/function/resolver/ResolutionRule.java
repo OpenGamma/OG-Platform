@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -25,44 +26,75 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ResolutionRule {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ResolutionRule.class);
 
+  /**
+   * The parameterized function.
+   */
   private final ParameterizedFunction _parameterizedFunction;
+  /**
+   * The target filter.
+   */
   private final ComputationTargetFilter _computationTargetFilter;
+  /**
+   * The priority.
+   */
   private final int _priority;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param function  the function, not null
+   * @param computationTargetFilter  the filter, not null
+   * @param priority  the priority
+   */
   public ResolutionRule(ParameterizedFunction function, ComputationTargetFilter computationTargetFilter, int priority) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(computationTargetFilter, "computationTargetFilter");
-
     _parameterizedFunction = function;
     _computationTargetFilter = computationTargetFilter;
     _priority = priority;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return The function this rule is advertising
+   * Gets the parameterized function.
+   * 
+   * @return the function this rule is advertising, not null
    */
   public ParameterizedFunction getFunction() {
     return _parameterizedFunction;
   }
 
   /**
-   * @return The computation target filter being used.
+   * Gets the filter that the rule uses.
+   * 
+   * @return the filter in use, not null
    */
   public ComputationTargetFilter getComputationTargetFilter() {
     return _computationTargetFilter;
   }
 
   /**
+   * Gets the priority of the rule.
+   * If multiple rules can produce a given output, the one with the highest priority is chosen.
+   * 
+   * @return the priority
+   */
+  public int getPriority() {
+    return _priority;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * The function advertised by this rule can validly produce the desired
    * output only if:
-   * 
    * <ol>
    * <li>The function can produce the output
    * <li>This resolution rule applies to the given computation target  
    * </ol>
-   * 
+   * <p>
    * The implementation has been split into two accessible components to allow
    * a resolver to cache the intermediate results.
    * 
@@ -92,11 +124,11 @@ public class ResolutionRule {
    */
   public Set<ValueSpecification> getResults(final ComputationTarget target, final FunctionCompilationContext context) {
     final CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
-    // Check the function can apply to the target
+    // check the function can apply to the target
     if (!function.canApplyTo(context, target)) {
       return null;
     }
-    // Return the maximal set of results the function can produce for the target
+    // return the maximal set of results the function can produce for the target
     try {
       return function.getResults(context, target);
     } catch (Throwable t) {
@@ -138,15 +170,33 @@ public class ResolutionRule {
   }
 
   /**
-   * If multiple rules can produce a given output, the one with the highest 
-   * priority is chosen.
+   * Checks dependent nodes.
+   * <p>
+   * Note that because the method is called during dependency graph construction,
+   * you can only validly access:
+   * <ul>
+   * <li>The computation target of the node
+   * <li>Functions and computation targets of the nodes above this node
+   * </ul>  
    * 
-   * @return the priority
+   * @param function  the parameterized function, not null
+   * @param target  the target, not null
+   * @param nodes  the set of nodes, not null
+   * @return true if there is no cycle in the graph
    */
-  public int getPriority() {
-    return _priority;
+  private static boolean checkDependentNodes(final ParameterizedFunction function, final ComputationTarget target, final Set<DependencyNode> nodes) {
+    for (DependencyNode node : nodes) {
+      if (function.equals(node.getFunction()) && target.equals(node.getComputationTarget())) {
+        return false;
+      }
+      if (!checkDependentNodes(function, target, node.getDependentNodes())) {
+        return false;
+      }
+    }
+    return true;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";

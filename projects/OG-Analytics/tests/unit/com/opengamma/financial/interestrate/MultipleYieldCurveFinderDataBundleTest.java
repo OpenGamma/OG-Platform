@@ -27,11 +27,13 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.FiniteDifferenceInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class MultipleYieldCurveFinderDataBundleTest {
+  private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME1 = "Test1";
   private static final String CURVE_NAME2 = "Test2";
   private static final List<InterestRateDerivative> DERIVATIVES;
@@ -57,8 +59,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
     for (int i = 0; i < n; i++) {
       final double t1 = i / 10.;
       final double t2 = t1 + 0.005;
-      DERIVATIVES.add(new Cash(t1, Math.random(), CURVE_NAME1));
-      DERIVATIVES.add(new Cash(t2, Math.random(), CURVE_NAME2));
+      DERIVATIVES.add(new Cash(CUR, t1, 1, Math.random(), CURVE_NAME1));
+      DERIVATIVES.add(new Cash(CUR, t2, 1, Math.random(), CURVE_NAME2));
       TIMES1[i] = t1;
       TIMES2[i] = t2;
       PAR_RATES[i] = 0.05;
@@ -237,7 +239,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>(DERIVATIVES);
-    derivatives.set(0, new Cash(1000, 0.05, CURVE_NAME1));
+    derivatives.set(0, new Cash(CUR, 1000, 1, 0.05, CURVE_NAME1));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
     assertFalse(other.equals(DATA));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);

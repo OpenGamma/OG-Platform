@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.test.TestViewDefinitionProvider;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Tests ViewDefinitionBuilder

@@ -327,6 +327,20 @@ CREATE TABLE sec_fxoption (
     constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
+CREATE TABLE sec_swaption (
+    id bigint not null,
+    security_id bigint not null,
+    underlying_scheme varchar(255) not null,
+    underlying_identifier varchar(255) not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    cash_settled boolean not null,
+    is_long boolean not null,
+    primary key (id),
+    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
+);
+
 CREATE TABLE sec_irfutureoption (
     id bigint not null,
     security_id bigint not null,
@@ -368,20 +382,6 @@ CREATE TABLE sec_fxbarrieroption (
     constraint sec_fk_fxbarrieroption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fxbarrieroption2putcurrency foreign key (put_currency_id) references sec_currency (id),
     constraint sec_fk_fxbarrieroption2callcurrency foreign key (call_currency_id) references sec_currency (id)
-);
-
-CREATE TABLE sec_swaption (
-    id bigint not null,
-    security_id bigint not null,
-    underlying_scheme varchar(255) not null,
-    underlying_identifier varchar(255) not null,
-    expiry_date timestamp not null,
-    expiry_zone varchar(50) not null,
-    expiry_accuracy smallint not null,
-    cash_settled boolean not null,
-    is_long boolean not null,
-    primary key (id),
-    constraint sec_fk_swaption2sec foreign key (security_id) references sec_security (id)
 );
 
 CREATE TABLE sec_frequency (

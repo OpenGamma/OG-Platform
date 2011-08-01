@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -33,10 +34,16 @@ public class PresentValueVolatilitySensitivityDataBundle {
    * Constructor with empty sensitivities for a given currency pair.
    * @param ccy1 First currency.
    * @param ccy2 Second currency.
+   * @param vega Map containing values for vega
    */
-  public PresentValueVolatilitySensitivityDataBundle(final Currency ccy1, final Currency ccy2) {
+  public PresentValueVolatilitySensitivityDataBundle(final Currency ccy1, final Currency ccy2, final Map<DoublesPair, Double> vega) {
+    Validate.notNull(ccy1, "currency 1");
+    Validate.notNull(ccy2, "currency 2");
+    Validate.notNull(vega, "vega");
+    Validate.isTrue(!vega.isEmpty(), "vega map was empty");
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _vega = new HashMap<DoublesPair, Double>();
+    _vega.putAll(vega);
   }
 
   /**
@@ -56,16 +63,35 @@ public class PresentValueVolatilitySensitivityDataBundle {
   }
 
   /**
+   * Return a new volatility sensitivity with all the exposures multiplied by a common factor.
+   * @param factor The multiplicative factor.
+   * @return The new sensitivity.
+   */
+  public PresentValueVolatilitySensitivityDataBundle multiply(final double factor) {
+    final Map<DoublesPair, Double> multiplied = new HashMap<DoublesPair, Double>();
+    for (final Map.Entry<DoublesPair, Double> entry : _vega.entrySet()) {
+      multiplied.put(entry.getKey(), entry.getValue() * factor);
+    }
+    return new PresentValueVolatilitySensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), multiplied);
+  }
+
+  /**
    * Add the sensitivity at a given (expiry/strike) point. If the point is already present, the sensitivity is added.
    * @param point The expiry/strike point.
    * @param value The sensitivity value (in second/domestic currency).
+   * @return A data bundle that has a point added
    */
-  public void add(final DoublesPair point, final double value) {
-    if (_vega.containsKey(point)) {
-      _vega.put(point, value + _vega.get(point));
-    } else {
-      _vega.put(point, value);
+  public PresentValueVolatilitySensitivityDataBundle add(final DoublesPair point, final double value) {
+    final Map<DoublesPair, Double> vega = new HashMap<DoublesPair, Double>();
+    for (final Map.Entry<DoublesPair, Double> entry : _vega.entrySet()) {
+      vega.put(entry.getKey(), entry.getValue());
     }
+    if (vega.containsKey(point)) {
+      vega.put(point, value + vega.get(point));
+    } else {
+      vega.put(point, value);
+    }
+    return new PresentValueVolatilitySensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), vega);
   }
 
   @Override
@@ -78,7 +104,7 @@ public class PresentValueVolatilitySensitivityDataBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -88,7 +114,7 @@ public class PresentValueVolatilitySensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PresentValueVolatilitySensitivityDataBundle other = (PresentValueVolatilitySensitivityDataBundle) obj;
+    final PresentValueVolatilitySensitivityDataBundle other = (PresentValueVolatilitySensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }

@@ -10,13 +10,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -69,24 +70,9 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(fra.getIndexCurveName());
-    final double ta = fra.getFixingDate();
-    final double tb = fra.getMaturity();
-    final double yearFrac = fra.getForwardYearFraction();
-    Validate.isTrue(yearFrac > 0, "tenor span must be greater than zero");
-    final double pa = curve.getDiscountFactor(ta);
-    final double pb = curve.getDiscountFactor(tb);
-    return (pa / pb - 1) / yearFrac;
-  }
-
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(future.getCurveName());
-    final double ta = future.getFixingDate();
-    final double tb = future.getMaturity();
-    final double pa = curve.getDiscountFactor(ta);
-    final double pb = curve.getDiscountFactor(tb);
-    return (pa / pb - 1) / future.getIndexYearFraction();
+    Validate.notNull(curves);
+    Validate.notNull(fra);
+    return ForwardRateAgreementDiscountingMethod.getInstance().parRate(fra, curves);
   }
 
   @Override
@@ -94,7 +80,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
     return method.parRate(future, curves);
   }
 
@@ -103,7 +89,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    * Compute the future rate (1-price) without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
     return method.parRate(future.getUnderlyingFuture(), curves);
   }
 
@@ -139,19 +125,6 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return (-pvFirst - pvSecond) / pvSpread;
   }
 
-  //  @Override
-  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    final GenericAnnuity<PaymentFixed> pay = frn.getFirstLeg();
-  //    final AnnuityCouponIbor receive = (AnnuityCouponIbor) frn.getSecondLeg();
-  //    final double pvPay = PVC.visit(pay, curves);
-  //    final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
-  //    final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
-  //    if (pvSpread == 0.0) {
-  //      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
-  //    }
-  //    return (pvPay - pvReceive) / pvSpread;
-  //  }
-
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
    * For a bonds yield use ??????????????? //TODO
@@ -178,15 +151,22 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
+  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();
-    return (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
+    return (fundingCurve.getInterestRate(tb) * tb - fundingCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
   }
 
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
   }
+
+  @Override
+  public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+    return visitCouponIbor(payment.toCouponIbor(), data);
+  }
+
+
 }

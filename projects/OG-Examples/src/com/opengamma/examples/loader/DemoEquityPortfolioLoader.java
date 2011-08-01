@@ -215,11 +215,11 @@ public class DemoEquityPortfolioLoader {
   protected ManageablePosition createPosition(EquitySecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    String buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
-    String ticker = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    Identifier buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
+    Identifier ticker = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
     IdentifierBundle bundle;
     if (buid != null && ticker != null) {
-      bundle = IdentifierBundle.of(SecurityUtils.bloombergBuidSecurityId(buid), SecurityUtils.bloombergTickerSecurityId(ticker));
+      bundle = IdentifierBundle.of(buid, ticker);
     } else {
       bundle = security.getIdentifiers();
     }

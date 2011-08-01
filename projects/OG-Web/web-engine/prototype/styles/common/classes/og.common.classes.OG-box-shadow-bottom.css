@@ -1,0 +1,30 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-box-shadow-bottom:before {
+  /* Use border radius to fake perspective */
+  -webkit-border-radius: 25px;
+  -webkit-border-bottom-right-radius: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -moz-border-radius: 25px;
+  -moz-border-radius-bottomright: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  border-radius: 25px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  /* Shadow */
+  -moz-box-shadow: 0 100px 0.1em #000;
+  -webkit-box-shadow: 0 100px 0.2em #000;
+  background-color: transparent;
+  content: "";
+  display: inline-block;
+  height: 10px;
+  opacity: 0.15;
+  filter: alpha(opacity=15);
+  position: absolute;
+  bottom: 99px;
+  left: -0.5%;
+  width: 101%;
+  z-index: -1;
+}

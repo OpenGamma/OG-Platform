@@ -9,12 +9,43 @@ $.register_module({
     name: 'og.common.layout.resize',
     dependencies: ['og.common.util.ui.expand_height_to_window_bottom'],
     obj: function () {
-        var expand = og.common.util.ui.expand_height_to_window_bottom;
-        return function () {
-            expand({element: '#OG-sr .og-js-results-slick', offsetpx: -3});
-            expand({element: '.OG-resizeBar', offsetpx: -3});
-            expand({element: '#OG-details .og-main', offsetpx: -3});
-            expand({element: '#OG-analytics .og-main', offsetpx: -3});
+        var expand = og.common.util.ui.expand_height_to_window_bottom,
+            // default selectors to watch
+            defaults = [
+                {element: '.OG-js-details-panel .OG-details', offsetpx: -48},
+                {element: '.OG-resizeBar', offsetpx: -40},
+                {element: '.OG-details', offsetpx: -59}
+            ],
+            all = [];
+
+        return function (obj) {
+            // Just load the defaults
+            if (obj === 'defaults') {
+                defaults.forEach(function (e) {
+                    if ($(e.element).length !== 0) {
+                        expand(e);
+                    }
+                });
+                return;
+            }
+            // Add a new selector to the list and then call this on its own
+            if (typeof obj === 'object') {
+                if ($(obj.element).length !== 0) all = defaults, all.push(obj), expand(obj);
+                return;
+            }
+            // Load all
+            if (typeof obj === 'undefined' || 'number' /* Mozilla */) {
+                all.forEach(function (e, i) {
+                    if ($(e.element).length !== 0) {
+                        expand(e);
+                        if (e.callback) e.callback();
+                    } else {
+                        all.splice(i, 1); // remove item from array
+                    }
+                });
+                return;
+            }
+            throw new TypeError('og.common.layout.resize: invalid argument type', obj);
         };
     }
 });

@@ -79,6 +79,9 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   public static <R extends AbstractDocument> AbstractDocumentsResult.Meta<R> meta() {
     return AbstractDocumentsResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AbstractDocumentsResult.Meta.INSTANCE);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -87,19 +90,19 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -995747956:  // paging
         return getPaging();
       case 943542968:  // documents
         return getDocuments();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -995747956:  // paging
         setPaging((Paging) newValue);
@@ -108,7 +111,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
         setDocuments((List<D>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

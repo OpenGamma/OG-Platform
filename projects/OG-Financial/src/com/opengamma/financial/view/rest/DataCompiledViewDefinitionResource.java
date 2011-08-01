@@ -71,7 +71,7 @@ public class DataCompiledViewDefinitionResource {
   
   @GET
   @Path(PATH_MARKET_DATA_REQUIREMENTS)
-  public Response getMArketDataRequirements() {
+  public Response getMarketDataRequirements() {
     return Response.ok(_compiledViewDefinition.getMarketDataRequirements()).build();
   }
   

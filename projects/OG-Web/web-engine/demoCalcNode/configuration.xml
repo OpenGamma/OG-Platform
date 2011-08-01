@@ -21,9 +21,9 @@
   </bean>
 
   <!-- Historical data source -->
-  <bean id="historicalTimeSeriesSource" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalTimeSeriesSource">
+  <bean id="historicalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.historicaldata.rest.RemoteHistoricalTimeSeriesSource">
+      <bean class="com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesSource">
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
@@ -187,7 +187,7 @@
         </constructor-arg>
 		    <property name="identifierScheme">
 	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.refdata.db.exchangemaster.scheme" />
+	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.exchangemaster.scheme" />
 	        </bean>
 	      </property>
 		  </bean>
@@ -237,7 +237,7 @@
 		    </constructor-arg>
 		    <property name="identifierScheme">
 	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.refdata.db.holidaymaster.scheme" />
+	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.holidaymaster.scheme" />
 	        </bean>
 	      </property>
 		  </bean>
@@ -375,6 +375,8 @@
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="currencyMatrixSource" ref="currencyMatrixSource" />
+    <property name="exchangeSource" ref="exchangeSource" />
+    <property name="holidaySource" ref="holidaySource" />
     <property name="interpolatedYieldCurveDefinitionSource" ref="interpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="interpolatedYieldCurveSpecificationBuilder" />
     <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />

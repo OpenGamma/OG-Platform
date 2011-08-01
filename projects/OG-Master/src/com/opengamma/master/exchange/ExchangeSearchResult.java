@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for exchanges.
@@ -97,6 +98,9 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
   public static ExchangeSearchResult.Meta meta() {
     return ExchangeSearchResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ExchangeSearchResult.Meta.INSTANCE);
+  }
 
   @Override
   public ExchangeSearchResult.Meta metaBean() {
@@ -104,13 +108,13 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

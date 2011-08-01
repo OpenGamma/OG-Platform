@@ -1,0 +1,17 @@
+/*
+ * Common generic styles
+ *
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * @note This file should be right after the reset sheet
+ */
+.OG-details-container {
+  margin: 0 -8px 0 -8px;
+  overflow: auto;
+}
+.OG-details-container .og-details-content {
+  overflow: auto;
+  margin: 10px 10px -9px 10px;
+  overflow: visible;
+}

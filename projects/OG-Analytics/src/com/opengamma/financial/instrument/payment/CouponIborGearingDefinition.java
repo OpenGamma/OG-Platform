@@ -9,12 +9,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -51,8 +53,8 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
    * @param spread The spread paid above the Ibor rate.
    * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
    */
-  public CouponIborGearingDefinition(Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, double spread, double factor) {
+  public CouponIborGearingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread, final double factor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
     _spread = spread;
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
@@ -66,7 +68,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
    * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
    * @return The Ibor coupon with spread.
    */
-  public static CouponIborGearingDefinition from(CouponIborDefinition couponIbor, double spread, double factor) {
+  public static CouponIborGearingDefinition from(final CouponIborDefinition couponIbor, final double spread, final double factor) {
     Validate.notNull(couponIbor, "Ibor coupon");
     return new CouponIborGearingDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(),
         couponIbor.getPaymentYearFraction(), couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), spread, factor);
@@ -84,7 +86,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
    * @return The coupon.
    */
   public static CouponIborGearingDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional, final IborIndex index,
-      double spread, double factor) {
+      final double spread, final double factor) {
     Validate.notNull(accrualStartDate, "Fixing date");
     Validate.notNull(accrualEndDate, "Fixing date");
     Validate.notNull(index, "Index");
@@ -117,7 +119,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -135,7 +137,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(indexFixingTimeSeries, "Index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -145,8 +147,18 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
-    final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
-    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()) && (fixedRate != null))) {
+    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
+      // then the previous day can be used. Otherwise, the exception should be thrown. 
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(),
+            getFixingDate().minusDays(1));
+        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
+        if (fixedRate == null) {
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+      }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
     }
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
@@ -176,7 +188,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -186,7 +198,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborGearingDefinition other = (CouponIborGearingDefinition) obj;
+    final CouponIborGearingDefinition other = (CouponIborGearingDefinition) obj;
     if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
     }

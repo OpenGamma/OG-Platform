@@ -39,6 +39,11 @@ public class VolatilityCubeData {
    */
   private Map<Pair<Tenor, Tenor>, Double> _strikes;
   
+  /**
+   * The ATM vols
+   */
+  private Map<Pair<Tenor, Tenor>, Double> _atmVolatilities;
+  
   private Map<Tenor, Map<Tenor, Pair<double[], double[]>>> _smiles;
   
   
@@ -91,6 +96,22 @@ public class VolatilityCubeData {
     _strikes = strikes;
   }
 
+  /**
+   * Gets The ATM volatilities
+   * @return the volatilities
+   */
+  public Map<Pair<Tenor, Tenor>, Double> getATMVolatilities() {
+    return _atmVolatilities;
+  }
+
+  /**
+   * Sets The ATM volatilities
+   * @param atmVolatilities the volatilities
+   */
+  public void setATMVolatilities(Map<Pair<Tenor, Tenor>, Double> atmVolatilities) {
+    _atmVolatilities = atmVolatilities;
+  }
+  
   /**
    * Gets the smiles field.
    * Swap Tenor -> Option Expiry -> (relative strikes in bps[], volatility[])
@@ -190,5 +211,30 @@ public class VolatilityCubeData {
 
   public Set<Tenor> getSwapTenors() {
     return getSmiles().keySet();
+  }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    final Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = getSmiles();
+    for (final Map.Entry<Tenor, Map<Tenor, Pair<double[], double[]>>> e1 : smiles.entrySet()) {
+      sb.append("Swap tenor = " + e1.getKey() + "\n");
+      for (final Map.Entry<Tenor, Pair<double[], double[]>> e2 : e1.getValue().entrySet()) {
+        sb.append("\t" + e2.getKey() + "\t");
+        final double[] strikes = e2.getValue().getFirst();
+        final double[] vols = e2.getValue().getSecond();
+        for (double strike : strikes) {
+          sb.append("\t" + strike);
+        }        
+        sb.append("\n");
+        sb.append("\t\t\t\t");
+        for (double vol : vols) {
+          sb.append("\t" + vol);
+        }
+        sb.append("\n");
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
   }
 }

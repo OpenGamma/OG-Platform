@@ -1,34 +1,38 @@
-<div class="OG-security">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span class="OG-editable">${name}</span>
-  </h1>
-  <div class="og-box">
-    <div class="og-lbl">
-        <div>Type</div>
-        <div>Exercise type</div>
-        <div>Pay off style</div>
-        <div>Option type</div>
-        <div>Strike</div>
-        <div>Expiry date</div>
-        <div>Expiry accuracy</div>
-        <div>Underlying identifier</div>
-        <div>Currency</div>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1>${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-security">
+  <div class="OG-c10 og-grid-last OG-max-width-l">
+    <div class="og-box">
+      <div class="og-lbl">
+          <div>Type</div>
+          <div>Exercise type</div>
+          <div>Pay off style</div>
+          <div>Option type</div>
+          <div>Strike</div>
+          <div>Expiry date</div>
+          <div>Expiry accuracy</div>
+          <div>Underlying identifier</div>
+          <div>Currency</div>
+      </div>
+      <div class="og-cnt">
+        <div><strong>${securityType}</strong>&nbsp;</div>
+        <div><strong>${exerciseType}</strong>&nbsp;</div>
+        <div><strong>${payOffStyle}</strong>&nbsp;</div>
+        <div><strong>${optionType}</strong>&nbsp;</div>
+        <div><strong>${strike}</strong>&nbsp;</div>
+        <div><strong>${expiryDate}</strong>&nbsp;</div>
+        <div><strong>${expiryAccuracy}</strong>&nbsp;</div>
+        <div><strong>${underlyingIdentifier}</strong>&nbsp;</div>
+        <div><strong>${currency}</strong>&nbsp;</div>
+      </div>
     </div>
-    <div class="og-cnt">
-      <div><strong>${securityType}</strong>&nbsp;</div>
-      <div><strong>${exerciseType}</strong>&nbsp;</div>
-      <div><strong>${payOffStyle}</strong>&nbsp;</div>
-      <div><strong>${optionType}</strong>&nbsp;</div>
-      <div><strong>${strike}</strong>&nbsp;</div>
-      <div><strong>${expiryDate}</strong>&nbsp;</div>
-      <div><strong>${expiryAccuracy}</strong>&nbsp;</div>
-      <div><strong>${underlyingIdentifier}</strong>&nbsp;</div>
-      <div><strong>${currency}</strong>&nbsp;</div>
+    <div class="og-box">
+      <div class="og-lbl">Identifiers</div>
+      <div class="og-cnt og-js-identifiers"></div>
     </div>
   </div>
-  <div class="og-box">
-    <div class="og-lbl">Identifiers</div>
-    <div class="og-cnt og-js-identifiers"></div>
-  </div>
+</div>
 </div>

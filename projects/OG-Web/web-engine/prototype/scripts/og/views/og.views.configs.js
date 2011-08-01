@@ -14,8 +14,10 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
+        'og.common.layout.resize',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.views.configs.viewdefinition'
     ],
     obj: function () {
         var api = og.api,
@@ -31,6 +33,7 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             configs,
+            resize = og.common.layout.resize,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -76,50 +79,39 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.og-js-results-slick', 'page_type': 'configs',
+                    'selector': '.OG-js-search', 'page_type': 'configs',
                     'columns': [
                         {
-                            id: 'type', name: 'Type', field: 'type', width: 160,
-                            filter_type: 'select',
-                            filter_type_options: [
-                                'CurrencyMatrix',
-                                'CurveSpecificationBuilderConfiguration',
-                                'SimpleCurrencyMatrix',
-                                'HistoricalTimeSeriesRating',
-                                'ViewDefinition',
-                                'VolatilitySurfaceSpecification',
-                                'VolatilitySurfaceDefinition',
-                                'YieldCurveDefinition'
-                            ]
+                            id: 'type',
+                            name: null,
+                            field: 'type', width: 100, filter_type: 'select'
                         },
-                        {
-                            id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',
-                            filter_type: 'input'
+                        {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
                 toolbar: {
                     'default': {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', enabled: 'OG-disabled'},
-                            {name: 'edit', enabled: 'OG-disabled'},
                             {name: 'delete', enabled: 'OG-disabled'},
-                            {name: 'favorites', enabled: 'OG-disabled'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     },
                     active: {
                         buttons: [
-                            {name: 'new', handler: toolbar_buttons['new']},
-                            {name: 'up', handler: 'handler'},
-                            {name: 'edit', handler: 'handler'},
                             {name: 'delete', handler: toolbar_buttons['delete']},
-                            {name: 'favorites', handler: 'handler'}
+                            {name: 'new', handler: toolbar_buttons['new']}
                         ],
-                        location: '.OG-toolbar .og-js-buttons'
+                        location: '.OG-toolbar'
                     }
                 }
+            },
+            form_generators = {
+                viewdefinition: og.views.configs.viewdefinition,
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
             },
             load_configs_without = function (field, args) {
                 check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
@@ -131,33 +123,87 @@ $.register_module({
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Configs',
-                        favorites_list: history.get_html('history.configs.favorites') || 'no favorited configs',
-                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs',
-                        new_list: history.get_html('history.configs.new') || 'no new configs'
-                    }).appendTo($('#OG-details .og-main').empty());
+                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
+                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    ui.toolbar(options.toolbar['default']);
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
-                ui.toolbar(options.toolbar.active);
                 api.rest.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var details_json = result.data, template = details_json.template_data.type.toLowerCase();
+                        var details_json = result.data,
+                            config_type = details_json.template_data.type.toLowerCase(),
+                            template = module.name + '.' + config_type, text_handler;
                         history.put({
                             name: details_json.template_data.name,
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name + '.' + template, handler: function (template) {
-                            var json = details_json.template_data, $warning,
-                                warning_message = 'This configuration has been deleted';
+                        if (config_type in form_generators) return form_generators[config_type]({
+                            data: details_json,
+                            loading: function () {
+                                ui.message({location: '.OG-js-details-panel', message: 'saving...'});
+                            },
+                            new_handler: function (result) {
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                                if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                routes.go(routes.hash(module.rules.load_new_configs,
+                                    $.extend({}, routes.last().args, {id: result.meta.id, 'new': true})
+                                ));
+                            },
+                            save_handler: function (result) {
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                                if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                ui.message({location: '.OG-js-details-panel', message: 'saved'});
+                                setTimeout(function () {
+                                    ui.message({location: '.OG-js-details-panel', destroy: true});
+                                }, 1500);
+                            },
+                            handler: function () {
+                                var json = details_json.template_data,
+                                    $warning = $('.OG-js-details-panel .og-box-error'),
+                                    warning_message = 'This configuration has been deleted';
+                                ui.toolbar(options.toolbar.active);
+
+                                if (json.template_data && json.template_data.deleted) {
+                                    $warning.html(warning_message).show();
+                                    resize();
+                                    $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                } else {$warning.empty().hide(), resize();}
+                                if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
+
+                                resize({element: '.OG-details-container', offsetpx: -41});
+                                resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                                resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                            },
+                            selector: '.OG-details'
+                        });
+                        api.text({module: template, handler: text_handler = function (template, error) {
+                            if (error) {
+                                og.dev.warn('using default config template for config type: ' + config_type);
+                                return api.text({module: module.name + '.default', handler: text_handler});
+                            }
+                            var json = details_json.template_data,
+                                $warning, warning_message = 'This configuration has been deleted';
                             json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                                     : json.configXML ? json.configXML : '';
-                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
-                            $warning = $('#OG-details .OG-warning-message');
+                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
+                            $warning = $('.OG-js-details-panel .og-box-error');
+                            ui.toolbar(options.toolbar.active);
+                            if (json.template_data && json.template_data.deleted) {
+                                $warning.html(warning_message).show();
+                                resize();
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {$warning.empty().hide(), resize();}
                             if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
-                            ui.message({location: '#OG-details', destroy: true});
+                            resize({element: '.OG-details-container', offsetpx: -41});
+                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
+                            resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -172,9 +218,9 @@ $.register_module({
                                     handler: function (e) {
                                         if (e.error) return alert(e.message);
                                         $('.og-js-msg').html('saved');
-                                        ui.message({location: '#OG-details', message: 'saved'});
+                                        ui.message({location: '.OG-details', message: 'saved'});
                                         setTimeout(function () {
-                                            ui.message({location: '#OG-details', destroy: true});
+                                            ui.message({location: '.OG-details', destroy: true});
                                             editing = false;
                                         }, 250);
                                         routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {
@@ -191,33 +237,13 @@ $.register_module({
                                 data_obj = data.charAt(0) === '<' ? {xml: data} : {json: data};
                                 api.rest.configs.put($.extend(rest_obj, data_obj));
                             });
-                            /* TMP work on configs form */
-                            /*
-                            var form = new ui.Form({
-                                module: 'og.views.forms.view-definition',
-                                selector: '#OG-details .og-form-container'
-                            });
-                            form.children = [
-                                new form.Block({module: 'og.views.forms.view-definition-main'}),
-                                new form.Block({module: 'og.views.forms.view-definition-result-model-definition'}),
-                                new form.Block({module: 'og.views.forms.view-definition-execution-parameters'}),
-                                new form.Block({module: 'og.views.forms.tabs'}),
-                                new form.Block({module: 'og.views.forms.view-definition-column-set-name'}),
-                                new form.Block({module: 'og.views.forms.view-definition-column-values'}),
-                                new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
-                                new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({
-                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
-                                })
-                            ];
-                            form.dom();
-                            */
                         }});
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({
+                            location: '.OG-js-details-panel', message: {0: 'loading...', 3000: 'still loading...'}
+                        });
                     }
                 });
             },
@@ -245,9 +271,14 @@ $.register_module({
                 ]});
                 if (args.id) return;
                 default_details_page();
-                ui.toolbar(options.toolbar['default']);
             },
             load_filter: function (args) {
+                var search_filter = function () {
+                        var filter_name = options.slickgrid.columns[0].name;
+                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                            return setTimeout(search_filter, 500);
+                        search.filter($.extend(args, {filter: true}));
+                };
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -258,7 +289,7 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
+                search_filter();
             },
             load_delete: function (args) {
                 configs.search(args);
@@ -270,7 +301,25 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: configs.load}]});
                 configs.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (options.slickgrid.columns[0].name === 'loading')
+                    return setTimeout(configs.search.partial(args), 500);
+                if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
+                    meta: true,
+                    handler: function (result) {
+                        options.slickgrid.columns[0].name = [
+                            '<select class="og-js-type-filter" style="width: 80px">',
+                            result.data.types.reduce(function (acc, type) {
+                                return acc + '<option value="' + type + '">' + type + '</option>';
+                            }, '<option value="">Type</option>'),
+                            '</select>'
+                        ].join('');
+                        configs.search(args);
+                    },
+                    loading: function () {options.slickgrid.columns[0].name = 'loading';}
+                });
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

@@ -6,12 +6,19 @@
  *
  * @note This file should be right after the reset sheet
  */
-html, body {
-    background-color: #f3f3f3;
-    overflow: hidden;
+
+html {
+  background-color: #cdcdcd;
+  background-image: -moz-radial-gradient(cover, #fafafa, #cdcdcd);
+  background-image: -webkit-radial-gradient(cover, #fafafa, #cdcdcd);
+  background-image: radial-gradient(cover, #fafafa, #cdcdcd);
+  height: 100%;
 }
 
-#container {
-    border-bottom: 2px solid #313b44;
-    display: none;
+body {
+  background: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
 }

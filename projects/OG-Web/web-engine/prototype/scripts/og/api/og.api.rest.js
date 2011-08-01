@@ -10,9 +10,9 @@ $.register_module({
     obj: function () {
         var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
-            end_loading = common.end_loading, encode = encodeURIComponent,
+            end_loading = common.end_loading, encode = encodeURIComponent, cache = {},
             outstanding_requests = {}, registrations = [],
-            meta_data = {configs: null, holidays: null, securities: null},
+            meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
                 portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
@@ -22,7 +22,8 @@ $.register_module({
                 batches: false, configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
-            request_id = 0, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
+            request_id = 0,
+            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
             /** @ignore */
             register = function (obj) {
                 var url = obj.url, current = obj.current, update = obj.config.meta.update,
@@ -79,11 +80,14 @@ $.register_module({
                                 });
                             },
                             success: function (data, status, xhr) {
-                                var meta = {}, location = xhr.getResponseHeader('Location');
+                                var meta = {}, location = xhr.getResponseHeader('Location'), result, cache_for;
                                 delete outstanding_requests[id];
                                 if (location) meta.id = location.split('/').pop();
                                 if (config.meta.type in no_post_body) meta.url = url;
-                                config.meta.handler({error: false, message: status, data: data, meta: meta});
+                                result = {error: false, message: status, data: data, meta: meta};
+                                if (cache_for = config.meta.cache_for)
+                                    (cache[url] = result), setTimeout(function () {delete cache[url];}, cache_for);
+                                config.meta.handler(result);
                             },
                             complete: end_loading
                         });
@@ -91,7 +95,12 @@ $.register_module({
                     };
                 if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
+                if (config.meta.cache_for && config.meta.type !== 'GET')
+                    og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
+                if (typeof cache[url] === 'object') return (setTimeout(config.meta.handler.partial(cache[url]), 0)), id;
+                if (cache[url]) return (setTimeout(request.partial(method, config), 500)), id;
+                if (config.meta.cache_for) cache[url] = true;
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
             },
@@ -106,7 +115,9 @@ $.register_module({
                 common.check(params);
                 if (typeof params.bundle.config.handler !== 'function')
                     throw new TypeError(params.bundle.method + ': config.handler must be a function');
-                return ['handler', 'loading', 'update', 'dependencies'].reduce(function (acc, val) {
+                if (params.bundle.config.page_size === 'all' || params.bundle.config.page === 'all')
+                    params.bundle.config.page_size = MAX_INT, params.bundle.config.page = PAGE;
+                return ['handler', 'loading', 'update', 'dependencies', 'cache_for'].reduce(function (acc, val) {
                     return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
                 }, {type: 'GET'});
             },
@@ -121,7 +132,7 @@ $.register_module({
                     ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                     search = field_search || id_search || version_search || !id,
                     has_meta = root in meta_data, meta_request = has_meta && config.meta,
-                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                    page, page_size;
                 meta = check({
                     bundle: {method: root + '#get', config: config},
                     dependencies: [{fields: ['version'], require: 'id'}],
@@ -132,6 +143,8 @@ $.register_module({
                         {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
                     ]
                 });
+                // page_size and page might be overwritten in check so set their values after check returns
+                page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                 if (meta_request) method.push('metaData');
                 if (search) data = {pageSize: page_size, page: page};
                 if (field_search) fields.forEach(function (val, idx) {
@@ -193,7 +206,7 @@ $.register_module({
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         field_search = !type_search && fields.some(function (val) {return val in config;}),
                         meta_request = config.meta,
-                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                        page, page_size;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
@@ -203,6 +216,8 @@ $.register_module({
                             {condition: meta_request, label: 'meta data request', fields: all}
                         ]
                     });
+                    // page_size and page might be overwritten in check so set their values after check returns
+                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     if (meta_request)
                         method.push('metaData');
                     else if (!type_search && (field_search || version_search || id_search || !id))
@@ -220,7 +235,7 @@ $.register_module({
                         api_fields = ['name', 'configJSON', 'configXML'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{one_of: fields}],
+                        required: [{one_of: ['json', 'xml']}, {all_of: ['name']}],
                         empties: [{
                             condition: !!config.json, label: 'json and xml are mutually exclusive', fields: ['xml']
                         }]
@@ -257,17 +272,22 @@ $.register_module({
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
                         search = !id || id_search || node_search || name_search || version_search,
-                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                        page, page_size;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
                         required: [{condition: version_search, one_of: ['id', 'node']}],
-                        empties: [{
-                            condition: name_search || id_search || node_search,
-                            label: 'search request cannot have id, node, or version',
-                            fields: ['id', 'node', 'version']
-                        }]
+                        empties: [
+                            {
+                                condition: name_search || id_search || node_search,
+                                label: 'search request cannot have id, node, or version',
+                                fields: ['id', 'node', 'version']
+                            },
+                            {condition: true, label: 'meta data unavailable for /' + root, fields: ['meta']}
+                        ]
                     });
+                    // page_size and page might be overwritten in check so set their values after check returns
+                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;
                     if (id_search) data.portfolioId = ids;
@@ -374,11 +394,13 @@ $.register_module({
                         fields = ['identifier', 'data_source', 'data_provider', 'data_field', 'observation_time'],
                         api_fields = ['identifier', 'dataSource', 'dataProvider', 'dataField', 'observationTime'],
                         search = !id || fields.some(function (val) {return val in config;}),
-                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                        page, page_size;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: search, label: 'search request', fields: ['id']}]
                     });
+                    // page_size and page might be overwritten in check so set their values after check returns
+                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     if (search) {
                         data = {pageSize: page_size, page: page};
                         fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
@@ -401,7 +423,25 @@ $.register_module({
                 },
                 del: default_del
             },
-            update : deliver_updates
+            update : deliver_updates,
+            valuerequirementnames: {
+                root: 'valuerequirementnames',
+                get: function (config) {
+                    var root = this.root, method = [root], data = {}, meta, meta_request = config.meta,
+                        page, page_size;
+                    meta = check({
+                        bundle: {method: root + '#get', config: config},
+                        required: [{condition: true, all_of: ['meta']}]
+                    });
+                    // page_size and page might be overwritten in check so set their values after check returns
+                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
+                    data = {pageSize: page_size, page: page};
+                    if (meta_request) method.push('metaData');
+                    return request(method, {data: data, meta: meta});
+                },
+                put: not_implemented.partial('put'),
+                del: not_implemented.partial('del')
+            }
         };
     }
 });

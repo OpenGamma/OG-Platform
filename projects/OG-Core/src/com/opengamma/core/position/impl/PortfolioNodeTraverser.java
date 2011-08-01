@@ -68,6 +68,10 @@ public class PortfolioNodeTraverser {
   public PortfolioNodeTraverser(TraversalStyle traversalStyle, PortfolioNodeTraversalCallback callback) {
     ArgumentChecker.notNull(traversalStyle, "traversalStyle");
     ArgumentChecker.notNull(callback, "callback");
+    // [PLAT-1431]
+    if (traversalStyle == TraversalStyle.BREADTH_FIRST) {
+      throw new UnsupportedOperationException("[PLAT-1431] - breadth first is not correctly implemented");
+    }
     _traversalStyle = traversalStyle;
     _callback = callback;
   }

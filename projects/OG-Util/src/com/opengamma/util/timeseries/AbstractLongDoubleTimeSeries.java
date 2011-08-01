@@ -178,18 +178,8 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
   }
 
   @Override
-  public Iterator<Double> valuesIterator() {
-    return getFastSeries().valuesIterator();
-  }
-
-  @Override
   public List<DATE_TYPE> times() {
     return _converter.convertFromLong(getFastSeries().timesFast());
-  }
-
-  @Override
-  public List<Double> values() {
-    return getFastSeries().values();
   }
 
   @Override
@@ -197,11 +187,6 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
     return _converter.convertFromLong(getFastSeries().timesArrayFast());
   }
 
-  @Override
-  public Double[] valuesArray() {
-    return getFastSeries().valuesArray();
-  }
-  
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final UnaryOperator operator) {
     FastTimeSeries<Long> fastResult = getFastSeries().operate(operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, (FastLongDoubleTimeSeries) fastResult);

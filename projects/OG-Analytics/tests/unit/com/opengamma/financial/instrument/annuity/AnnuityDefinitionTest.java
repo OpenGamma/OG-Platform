@@ -25,6 +25,7 @@ import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
@@ -57,9 +58,7 @@ public class AnnuityDefinitionTest {
     for (int i = 0; i < n; i++) {
       FIXED_PAYMENTS[i] = new PaymentFixedDefinition(CCY, date, 1000);
       FIXED_FLOAT_PAYMENTS[i] = (i < 8 ? new CouponFixedDefinition(CCY, date, date.minusMonths(1), date, ACCRUAL_FACTOR, 1000, 0.05) : CouponIborDefinition.from(date, date.minusMonths(1), date,
-          ACCRUAL_FACTOR, FLOAT_NOTIONAL,
-          date.minusMonths(1),
-          index));
+          ACCRUAL_FACTOR, FLOAT_NOTIONAL, date.minusMonths(1), index));
       if (i == 8) {
         FIXING_DATE = date.minusMonths(1);
       }
@@ -166,7 +165,7 @@ public class AnnuityDefinitionTest {
     assertEquals(annuity.getNumberOfPayments(), 5);
     for (int i = 0; i < annuity.getNumberOfPayments(); i++) {
       if (i < 3) {
-        assertTrue(annuity.getNthPayment(i) instanceof PaymentFixed);
+        assertTrue(annuity.getNthPayment(i) instanceof CouponFixed);
         assertEquals(annuity.getNthPayment(i), FIXED_FLOAT_DEFINITION.getNthPayment(i + 5).toDerivative(date, "A", "N"));
       } else {
         assertTrue(annuity.getNthPayment(i) instanceof CouponFloating);

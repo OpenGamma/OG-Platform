@@ -9,13 +9,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -120,7 +121,7 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -139,7 +140,7 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(indexFixingTS, "Index fixing data time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -149,8 +150,19 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The Ibor coupon has already fixed, it is now a fixed coupon.
-      final double fixedRate = indexFixingTS.getValue(getFixingDate());
+    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) { // The Ibor coupon has already fixed, it is now a fixed coupon.
+      Double fixedRate = indexFixingTS.getValue(getFixingDate());
+      //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
+      // then the previous day can be used. Otherwise, the exception should be thrown. 
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(),
+            getFixingDate().minusDays(1));
+        fixedRate = indexFixingTS.getValue(previousBusinessDay);
+        if (fixedRate == null) {
+          fixedRate = indexFixingTS.getLatestValue();
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+      }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate + _spread);
     }
     // Ibor is not fixed yet, all the details are required.

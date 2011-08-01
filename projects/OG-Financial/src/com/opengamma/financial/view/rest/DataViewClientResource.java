@@ -6,7 +6,6 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.jms.ConnectionFactory;
 import javax.time.Instant;
@@ -62,6 +61,7 @@ public class DataViewClientResource {
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_SHUTDOWN = "shutdown";
   public static final String PATH_HEARTBEAT = "heartbeat";
+  public static final String PATH_TRIGGER_CYCLE = "triggerCycle";
   
   public static final String PATH_START_JMS_COMPILATION_STREAM = "startJmsCompilationStream";
   public static final String PATH_STOP_JMS_COMPILATION_STREAM = "stopJmsCompilationStream";
@@ -79,7 +79,8 @@ public class DataViewClientResource {
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
   private final JmsResultPublisher _resultPublisher;
-  private final AtomicLong _lastAccessed = new AtomicLong();
+
+  private volatile Instant _lastAccessed = Instant.now();
   
   public DataViewClientResource(ViewClient viewClient,
       DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
@@ -94,7 +95,7 @@ public class DataViewClientResource {
   }
   
   /*package*/ Instant getLastAccessed() {
-    return Instant.ofEpochMillis(_lastAccessed.get());
+    return _lastAccessed;
   }
   
   //-------------------------------------------------------------------------
@@ -248,6 +249,14 @@ public class DataViewClientResource {
     return Response.ok().build();
   }
   
+  @POST
+  @Path(PATH_TRIGGER_CYCLE)
+  public Response triggerCycle() {
+    updateLastAccessed();
+    getViewClient().triggerCycle();
+    return Response.ok().build();
+  }
+  
   @GET
   @Path(PATH_COMPLETED)
   public Response isCompleted() {
@@ -330,7 +339,7 @@ public class DataViewClientResource {
   
   //-------------------------------------------------------------------------
   private void updateLastAccessed() {
-    _lastAccessed.set(System.currentTimeMillis());
+    _lastAccessed = Instant.now();
   }
   
 }

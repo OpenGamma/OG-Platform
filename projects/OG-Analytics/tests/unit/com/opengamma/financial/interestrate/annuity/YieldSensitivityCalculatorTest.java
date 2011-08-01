@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.util.money.Currency;
 
@@ -22,27 +22,27 @@ public class YieldSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity1() {
-    YSC.calculateYield(null, 1.0);
+    YSC.calculateYield((AnnuityCouponFixed) null, 1.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity2() {
-    YSC.calculatePriceForYield(null, 0.05);
+    YSC.calculatePriceForYield((AnnuityCouponFixed) null, 0.05);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity3() {
-    YSC.calculateNthOrderSensitivity(null, 1.0, 3);
+    YSC.calculateNthOrderSensitivity((AnnuityCouponFixed) null, 1.0, 3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity4() {
-    YSC.calculateNthOrderSensitivityFromYield(null, 0.04, 1);
+    YSC.calculateNthOrderSensitivityFromYield((AnnuityCouponFixed) null, 0.04, 1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    YSC.calculateNthOrderSensitivity(new GenericAnnuity<CouponFixed>(new CouponFixed[] {new CouponFixed(CUR, 2, "A", 2, 0.4)}), 1, -1);
+    YSC.calculateNthOrderSensitivity(new AnnuityCouponFixed(new CouponFixed[] {new CouponFixed(CUR, 2, "A", 2, 0.4)}), 1, -1);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class YieldSensitivityCalculatorTest {
     }
     payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
     final double yield = YieldSensitivityCalculator.getInstance().calculateYield(annuity, pv);
     assertEquals(Math.log(2.0 * tau / pv) / 10.0 / tau, yield, 1e-8);
   }
@@ -73,7 +73,7 @@ public class YieldSensitivityCalculatorTest {
     }
     payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
 
     for (int order = 1; order < 5; order++) {
       final double sense = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(annuity, pv, order);
@@ -92,7 +92,7 @@ public class YieldSensitivityCalculatorTest {
     }
     payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
 
     final double pv = YieldSensitivityCalculator.getInstance().calculatePriceForYield(annuity, yield);
     for (int order = 1; order < 5; order++) {

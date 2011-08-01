@@ -1,0 +1,110 @@
+Trade date,Effective date,Termination date,Pay fixed,Fixed currency,Fixed notional (MM),Fixed daycount,Fixed business day convention,Fixed frequency,Fixed region,Fixed rate,Floating currency,Floating notional (MM),Floating daycount,Floating business day convention,Floating frequency,Floating region,Initial floating rate,Floating reference
+15/07/2010,15/07/2010,15/07/2030,TRUE,USD,100,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,100,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD LIBOR 6m
+07/08/2010,07/08/2010,07/08/2040,TRUE,USD,50,Actual/365 (Fixed),Preceding,Annual,US,0.01,USD,50,Actual/365 (Fixed),Preceding,Annual,US,0.005,USD LIBOR 12m
+07/11/2010,07/11/2010,04/11/2035,FALSE,USD,20,Actual/365 (Fixed),Preceding,Quarterly,US,0.01,USD,20,Actual/365 (Fixed),Preceding,Quarterly,US,0.01,USD LIBOR 3m
+07/11/2010,07/11/2010,01/11/2050,TRUE,USD,50,Actual/360,Following,Annual,US,0.01,USD,50,Actual/360,Following,Annual,US,0.02,USD LIBOR 12m
+07/11/2010,07/11/2010,01/11/2030,FALSE,USD,34,Actual/Actual,Modified,Semi-annual,US,0.01,USD,34,Actual/Actual,Modified,Semi-annual,US,0.01,USD LIBOR 6m
+14/07/2010,14/07/2010,14/10/2035,FALSE,USD,16,30E/360,Preceding,Quarterly,US,0.01,USD,16,30E/360,Preceding,Quarterly,US,0.005,USD LIBOR 3m
+21/07/2010,21/07/2010,21/03/2018,TRUE,USD,67,Actual/365 (Fixed),Preceding,Annual,US,0.01,USD,67,Actual/365 (Fixed),Preceding,Annual,US,0.02,USD LIBOR 12m
+21/07/2010,21/07/2010,21/07/2040,TRUE,USD,63,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,63,Actual/365 (Fixed),Following,Semi-annual,US,0.005,USD LIBOR 6m
+13/07/2010,13/07/2010,13/06/2028,TRUE,USD,83,Actual/360,None,Quarterly,US,0.01,USD,80,Actual/360,None,Quarterly,US,0.03,USD LIBOR 3m
+13/07/2010,13/07/2010,13/07/2040,FALSE,USD,100,30/360,Following,Annual,US,0.01,USD,100,30/360,Following,Annual,US,0.005,USD LIBOR 12m
+07/09/2010,07/09/2010,01/09/2043,TRUE,USD,200,Actual/365 (Fixed),Preceding,Semi-annual,US,0.01,USD,200,Actual/365 (Fixed),Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+07/11/2010,07/11/2010,11/11/2020,FALSE,USD,47,30E/360,Preceding,Semi-annual,US,0.01,USD,47,30E/360,Preceding,Semi-annual,US,0.003,USD LIBOR 6m
+07/11/2010,07/11/2010,01/11/2025,TRUE,USD,125,30/360,Modified,Quarterly,US,0.01,USD,125,30/360,Modified,Quarterly,US,0.003,USD LIBOR 3m
+25/07/2010,25/07/2010,25/07/2050,TRUE,USD,50,30/360,Modified,Annual,US,0.01,USD,50,30/360,Modified,Annual,US,0.001,USD LIBOR 12m
+16/07/2010,16/07/2010,16/07/2043,TRUE,USD,60,Actual/365 (Fixed),Modified,Annual,US,0.01,USD,75,Actual/365 (Fixed),Modified,Semi-annual,US,0.025,USD LIBOR 6m
+13/07/2010,13/07/2010,13/01/2015,FALSE,USD,30,Actual/365 (Fixed),Preceding,Semi-annual,US,0.01,USD,30,Actual/365 (Fixed),Preceding,Annual,US,0.05,USD LIBOR 12m
+15/07/2010,15/07/2010,15/07/2056,FALSE,USD,70,Actual/Actual,None,Annual,US,0.01,USD,70,Actual/Actual,None,Quarterly,US,0.005,USD LIBOR 3m
+24/07/2010,24/07/2010,24/10/2030,FALSE,USD,206,30E/360,Preceding,Quarterly,US,0.01,USD,206,30E/360,Preceding,Semi-annual,US,0.006,USD LIBOR 6m
+15/07/2010,15/07/2010,15/04/2040,TRUE,USD,84,Actual/360,Following,Quarterly,US,0.01,USD,84,Actual/360,Following,Annual,US,0.004,USD LIBOR 12m
+21/07/2010,21/07/2010,21/04/2029,FALSE,USD,87,Actual/365 (Fixed),Following,Annual,US,0.01,USD,87,Actual/365 (Fixed),Following,Quarterly,US,0.01,USD LIBOR 3m
+14/07/2010,14/07/2010,14/01/2046,TRUE,USD,56,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,55,Actual/365 (Fixed),Following,Annual,US,0.01,USD LIBOR 12m
+30/07/2010,30/07/2010,30/08/2028,FALSE,USD,50,Actual/365 (Fixed),Preceding,Annual,US,0.01,USD,50,Actual/365 (Fixed),Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+07/11/2010,07/11/2010,07/11/2040,FALSE,USD,54,Actual/365 (Fixed),Preceding,Quarterly,US,0.01,USD,54,Actual/365 (Fixed),Preceding,Semi-annual,US,0.01,USD LIBOR 6m
+20/07/2010,20/07/2010,20/07/2040,TRUE,USD,30,Actual/360,Following,Annual,US,0.01,USD,30,Actual/360,Following,Quarterly,US,0.02,USD LIBOR 3m
+07/08/2010,07/08/2010,07/08/2027,TRUE,USD,40,Actual/Actual,Modified,Semi-annual,US,0.01,USD,40,Actual/Actual,Modified,Annual,US,0.01,USD LIBOR 12m
+07/08/2010,07/08/2010,09/08/2021,TRUE,USD,100,30E/360,Preceding,Quarterly,US,0.01,USD,100,30E/360,Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+13/07/2010,13/07/2010,13/07/2039,TRUE,USD,90,Actual/365 (Fixed),Preceding,Annual,US,0.01,USD,90,Actual/365 (Fixed),Preceding,Semi-annual,US,0.02,USD LIBOR 6m
+24/07/2010,24/07/2010,24/07/2040,FALSE,USD,65,Actual/360,None,Quarterly,US,0.01,USD,65,Actual/360,Modified,Quarterly,US,0.03,USD LIBOR 3m
+23/07/2010,23/07/2010,23/07/2056,FALSE,USD,80,30/360,Following,Annual,US,0.01,USD,80,30/360,Preceding,Annual,US,0.005,USD LIBOR 12m
+07/10/2010,07/10/2010,07/10/2020,TRUE,USD,70,Actual/365 (Fixed),Preceding,Semi-annual,US,0.01,USD,70,Actual/365 (Fixed),Following,Semi-annual,US,0.005,USD LIBOR 6m
+07/09/2010,07/09/2010,05/09/2025,FALSE,USD,80,30E/360,Preceding,Semi-annual,US,0.01,USD,80,30E/360,Following,Semi-annual,US,0.003,USD LIBOR 6m
+16/07/2010,16/07/2010,16/07/2020,FALSE,USD,68,30/360,Modified,Quarterly,US,0.01,USD,68,30/360,None,Quarterly,US,0.003,USD LIBOR 3m
+16/07/2010,16/07/2010,16/07/2020,TRUE,USD,60,30/360,Modified,Annual,US,0.01,USD,60,30/360,Following,Annual,US,0.001,USD LIBOR 12m
+29/07/2010,29/07/2010,29/07/2045,FALSE,USD,80,30E/360,Following,Semi-annual,US,0.01,USD,80,30E/360,Preceding,Semi-annual,US,0.063,USD LIBOR 6m
+14/07/2010,14/07/2010,14/09/2037,TRUE,USD,23,Actual/365 (Fixed),Modified,Annual,US,0.01,USD,23,Actual/365 (Fixed),Preceding,Annual,US,0.025,USD LIBOR 12m
+16/07/2010,16/07/2010,16/07/2015,TRUE,USD,10,Actual/365 (Fixed),Preceding,Semi-annual,US,0.01,USD,11,Actual/365 (Fixed),Modified,Semi-annual,US,0.05,USD LIBOR 6m
+21/07/2010,21/07/2010,21/07/2019,FALSE,USD,20,Actual/Actual,None,Annual,US,0.01,USD,20,Actual/Actual,Following,Annual,US,0.005,USD LIBOR 12m
+21/07/2010,21/07/2010,21/03/2051,TRUE,USD,90,30E/360,Preceding,Quarterly,US,0.01,USD,90,30E/360,Following,Quarterly,US,0.006,USD LIBOR 3m
+22/07/2010,22/07/2010,22/07/2021,FALSE,USD,10,Actual/360,Following,Quarterly,US,0.01,USD,10,Actual/360,Modified,Quarterly,US,0.004,USD LIBOR 3m
+14/07/2010,14/07/2010,14/07/2041,TRUE,USD,200,Actual/365 (Fixed),Following,Annual,US,0.01,USD,200,Actual/365 (Fixed),Modified,Annual,US,0.01,USD LIBOR 12m
+14/07/2010,14/07/2010,14/07/2025,FALSE,USD,65,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,65,Actual/365 (Fixed),Modified,Semi-annual,US,0.01,USD LIBOR 6m
+15/07/2010,15/07/2010,15/07/2055,FALSE,USD,100,Actual/365 (Fixed),Preceding,Quarterly,US,0.01,USD,100,Actual/360,Preceding,Quarterly,US,0.01,USD LIBOR 3m
+07/08/2010,07/08/2010,07/08/2046,TRUE,USD,50,Actual/360,Following,Annual,US,0.01,USD,50,30/360,Following,Annual,US,0.02,USD LIBOR 12m
+07/11/2010,07/11/2010,07/11/2032,TRUE,USD,20,Actual/Actual,Modified,Semi-annual,US,0.01,USD,20,Actual/360,Modified,Semi-annual,US,0.01,USD LIBOR 6m
+07/11/2010,07/11/2010,07/11/2040,TRUE,USD,50,30E/360,Preceding,Quarterly,US,0.01,USD,50,Actual/365 (Fixed),Preceding,Quarterly,US,0.005,USD LIBOR 3m
+07/11/2010,07/11/2010,05/11/2020,FALSE,USD,34,Actual/365 (Fixed),Preceding,Annual,US,0.02,USD,34,Actual/Actual,Preceding,Annual,US,0.02,USD LIBOR 12m
+14/07/2010,14/07/2010,14/07/2023,FALSE,USD,16,Actual/365 (Fixed),Following,Semi-annual,US,0.04,USD,16,Actual/360,Following,Semi-annual,US,0.005,USD LIBOR 6m
+21/07/2010,21/07/2010,21/07/2030,TRUE,USD,67,Actual/360,None,Quarterly,US,0.02,USD,67,30E/360,None,Quarterly,US,0.03,USD LIBOR 3m
+21/07/2010,21/07/2010,21/07/2030,FALSE,USD,63,30/360,Following,Annual,US,0.02,USD,63,Actual/365 (Fixed),Following,Annual,US,0.005,USD LIBOR 12m
+13/07/2010,13/07/2010,13/07/2028,TRUE,USD,83,Actual/365 (Fixed),Preceding,Semi-annual,US,0.03,USD,83,Actual/Actual,Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+13/07/2010,13/07/2010,13/07/2040,FALSE,USD,100,30E/360,Preceding,Semi-annual,US,0.025,USD,100,30/360,Preceding,Semi-annual,US,0.003,USD LIBOR 6m
+07/09/2010,07/09/2010,07/09/2040,TRUE,USD,200,30/360,Modified,Quarterly,US,0.03,USD,200,30E/360,Modified,Quarterly,US,0.003,USD LIBOR 3m
+07/11/2010,07/11/2010,07/11/2030,TRUE,USD,47,30/360,Modified,Annual,US,0.024,USD,50,Actual/360,Modified,Annual,US,0.001,USD LIBOR 12m
+07/11/2010,07/11/2010,07/11/2040,TRUE,USD,125,Actual/Actual,Following,Annual,US,0.036,USD,125,Actual/365 (Fixed),Following,Annual,US,0.008,USD LIBOR 12m
+25/07/2010,25/07/2010,25/07/2030,FALSE,USD,50,Actual/365 (Fixed),Modified,Annual,US,0.025,USD,50,30/360,Modified,Annual,US,0.025,USD LIBOR 12m
+16/07/2010,16/07/2010,16/07/2013,FALSE,USD,60,Actual/Actual,None,Annual,US,0.05,USD,60,Actual/Actual,Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+13/07/2010,13/07/2010,13/07/2030,TRUE,USD,30,30E/360,Preceding,Quarterly,US,0.04,USD,30,30E/360,Modified,Semi-annual,US,0.006,USD LIBOR 6m
+15/07/2010,15/07/2010,15/07/2055,TRUE,USD,70,Actual/360,Following,Quarterly,US,0.05,USD,70,Actual/360,None,Annual,US,0.004,USD LIBOR 12m
+24/07/2010,24/07/2010,24/07/2036,FALSE,USD,206,Actual/365 (Fixed),Following,Annual,US,0.045,USD,206,Actual/365 (Fixed),Modified,Quarterly,US,0.01,USD LIBOR 3m
+15/07/2010,15/07/2010,15/08/2029,TRUE,USD,84,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,84,Actual/365 (Fixed),Preceding,Annual,US,0.01,USD LIBOR 12m
+21/07/2010,21/07/2010,21/07/2020,FALSE,USD,87,Actual/365 (Fixed),Preceding,Annual,US,0.035,USD,87,Actual/365 (Fixed),Following,Semi-annual,US,0.005,USD LIBOR 6m
+14/07/2010,14/07/2010,14/07/2045,TRUE,USD,56,Actual/365 (Fixed),Preceding,Quarterly,US,0.02,USD,56,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD LIBOR 6m
+30/07/2010,30/07/2010,30/10/2040,FALSE,USD,50,Actual/360,Following,Annual,US,0.04,USD,55,Actual/360,Modified,Quarterly,US,0.02,USD LIBOR 3m
+07/11/2010,07/11/2010,07/11/2050,TRUE,USD,54,Actual/Actual,Modified,Semi-annual,US,0.02,USD,54,Actual/Actual,Preceding,Quarterly,US,0.01,USD LIBOR 3m
+20/07/2010,20/07/2010,20/11/2015,FALSE,USD,30,30E/360,Preceding,Quarterly,US,0.03,USD,30,30E/360,None,Annual,US,0.005,USD LIBOR 12m
+07/08/2010,07/08/2010,07/08/2025,FALSE,USD,40,Actual/365 (Fixed),Preceding,Annual,US,0.02,USD,40,Actual/365 (Fixed),None,Semi-annual,US,0.02,USD LIBOR 6m
+07/08/2010,07/08/2010,07/08/2012,TRUE,USD,100,Actual/365 (Fixed),Following,Semi-annual,US,0.04,USD,100,Actual/365 (Fixed),Modified,Annual,US,0.005,USD LIBOR 12m
+13/07/2010,13/07/2010,13/07/2028,FALSE,USD,90,Actual/360,None,Quarterly,US,0.02,USD,90,Actual/360,Following,Annual,US,0.03,USD LIBOR 12m
+24/07/2010,24/07/2010,15/07/2030,TRUE,USD,65,Actual/365 (Fixed),Preceding,Semi-annual,US,0.03,USD,65,30/360,Preceding,Annual,US,0.005,USD LIBOR 12m
+23/07/2010,23/07/2010,07/08/2040,TRUE,USD,80,30E/360,Preceding,Semi-annual,US,0.025,USD,80,30/360,Preceding,Quarterly,US,0.003,USD LIBOR 3m
+07/10/2010,07/10/2010,04/11/2035,TRUE,USD,70,30/360,Modified,Quarterly,US,0.03,USD,70,Actual/365 (Fixed),Modified,Annual,US,0.003,USD LIBOR 12m
+07/09/2010,07/09/2010,01/11/2050,FALSE,USD,80,30/360,Modified,Annual,US,0.024,USD,80,Actual/365 (Fixed),Modified,Semi-annual,US,0.001,USD LIBOR 6m
+16/07/2010,16/07/2010,01/11/2030,TRUE,USD,68,Actual/365 (Fixed),Following,Quarterly,US,0.05,USD,68,Actual/360,Following,Semi-annual,US,0.006,USD LIBOR 6m
+16/07/2010,16/07/2010,14/10/2035,FALSE,USD,60,Actual/365 (Fixed),Modified,Annual,US,0.025,USD,60,Actual/Actual,Modified,Semi-annual,US,0.025,USD LIBOR 6m
+29/07/2010,29/07/2010,21/07/2018,FALSE,USD,80,Actual/365 (Fixed),Preceding,Semi-annual,US,0.015,USD,80,Actual/360,Preceding,Annual,US,0.05,USD LIBOR 12m
+14/07/2010,14/07/2010,21/12/2040,FALSE,USD,23,Actual/Actual,None,Annual,US,0.05,USD,23,Actual/360,None,Semi-annual,US,0.005,USD LIBOR 6m
+16/07/2010,16/07/2010,13/07/2028,TRUE,USD,10,30E/360,Preceding,Quarterly,US,0.04,USD,10,30/360,Preceding,Annual,US,0.006,USD LIBOR 12m
+21/07/2010,21/07/2010,13/07/2040,FALSE,USD,20,Actual/360,Following,Quarterly,US,0.05,USD,23,30/360,Following,Semi-annual,US,0.004,USD LIBOR 6m
+21/07/2010,21/07/2010,01/09/2043,TRUE,USD,90,Actual/365 (Fixed),Following,Annual,US,0.045,USD,90,30/360,Following,Quarterly,US,0.01,USD LIBOR 3m
+22/07/2010,22/07/2010,01/11/2020,TRUE,USD,10,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,10,Actual/360,Following,Quarterly,US,0.01,USD LIBOR 3m
+14/07/2010,14/07/2010,01/11/2025,FALSE,USD,200,Actual/365 (Fixed),Preceding,Annual,US,0.035,USD,200,Actual/360,Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+14/07/2010,14/07/2010,25/07/2050,TRUE,USD,65,Actual/365 (Fixed),Preceding,Quarterly,US,0.02,USD,65,Actual/Actual,Preceding,Annual,US,0.01,USD LIBOR 12m
+15/07/2010,15/07/2010,16/07/2043,FALSE,USD,100,Actual/Actual,Modified,Semi-annual,US,0.02,USD,100,30E/360,Preceding,Semi-annual,US,0.01,USD LIBOR 6m
+07/08/2010,07/08/2010,13/01/2015,TRUE,USD,50,30E/360,Preceding,Quarterly,US,0.03,USD,50,30/360,Following,Quarterly,US,0.005,USD LIBOR 3m
+07/11/2010,07/11/2010,15/07/2056,FALSE,USD,20,Actual/365 (Fixed),Preceding,Annual,US,0.02,USD,20,Actual/360,Modified,Annual,US,0.02,USD LIBOR 12m
+07/11/2010,07/11/2010,24/10/2030,TRUE,USD,50,Actual/365 (Fixed),Following,Semi-annual,US,0.04,USD,50,Actual/Actual,None,Semi-annual,US,0.005,USD LIBOR 6m
+07/11/2010,07/11/2010,15/04/2040,TRUE,USD,34,Actual/360,None,Quarterly,US,0.02,USD,34,Actual/365 (Fixed),Preceding,Quarterly,US,0.03,USD LIBOR 3m
+14/07/2010,14/07/2010,21/07/2029,FALSE,USD,16,30/360,Following,Annual,US,0.02,USD,16,30E/360,Preceding,Annual,US,0.005,USD LIBOR 12m
+21/07/2010,21/07/2010,14/01/2046,FALSE,USD,67,Actual/365 (Fixed),Preceding,Semi-annual,US,0.03,USD,67,30/360,Following,Semi-annual,US,0.005,USD LIBOR 6m
+21/07/2010,21/07/2010,30/07/2028,FALSE,USD,63,30E/360,Preceding,Semi-annual,US,0.025,USD,63,30/360,Following,Semi-annual,US,0.003,USD LIBOR 6m
+13/07/2010,13/07/2010,07/11/2040,FALSE,USD,83,30/360,Modified,Quarterly,US,0.03,USD,83,Actual/360,Following,Quarterly,US,0.003,USD LIBOR 3m
+13/07/2010,13/07/2010,20/07/2040,TRUE,USD,100,30/360,Modified,Annual,US,0.024,USD,110,Actual/360,Preceding,Annual,US,0.001,USD LIBOR 12m
+07/09/2010,07/09/2010,07/08/2027,TRUE,USD,200,Actual/360,Modified,Semi-annual,US,0.036,USD,200,Actual/365 (Fixed),Preceding,Semi-annual,US,0.05,USD LIBOR 6m
+07/11/2010,07/11/2010,07/08/2021,FALSE,USD,47,Actual/365 (Fixed),Modified,Annual,US,0.025,USD,47,Actual/360,Following,Annual,US,0.025,USD LIBOR 12m
+07/11/2010,07/11/2010,13/07/2039,TRUE,USD,125,Actual/365 (Fixed),Preceding,Semi-annual,US,0.015,USD,125,Actual/Actual,Modified,Semi-annual,US,0.05,USD LIBOR 6m
+25/07/2010,25/07/2010,24/07/2040,TRUE,USD,50,Actual/Actual,None,Annual,US,0.05,USD,50,30E/360,Modified,Annual,US,0.005,USD LIBOR 12m
+16/07/2010,16/07/2010,23/07/2056,FALSE,USD,60,Actual/360,Following,Quarterly,US,0.05,USD,60,Actual/365 (Fixed),Modified,Annual,US,0.004,USD LIBOR 12m
+13/07/2010,13/07/2010,07/10/2040,FALSE,USD,30,Actual/365 (Fixed),Following,Annual,US,0.045,USD,30,Actual/Actual,Modified,Semi-annual,US,0.01,USD LIBOR 6m
+15/07/2010,15/07/2010,07/09/2025,TRUE,USD,70,Actual/365 (Fixed),Following,Semi-annual,US,0.01,USD,70,Actual/360,Preceding,Annual,US,0.01,USD LIBOR 12m
+24/07/2010,24/07/2010,16/07/2020,TRUE,USD,206,Actual/365 (Fixed),Preceding,Annual,US,0.035,USD,206,30/360,Modified,Quarterly,US,0.005,USD LIBOR 3m
+15/07/2010,15/07/2010,16/07/2020,FALSE,USD,84,Actual/365 (Fixed),Preceding,Quarterly,US,0.02,USD,84,30/360,Modified,Semi-annual,US,0.01,USD LIBOR 6m
+21/07/2010,21/07/2010,29/07/2045,FALSE,USD,87,Actual/360,Following,Annual,US,0.04,USD,84,Actual/365 (Fixed),None,Semi-annual,US,0.02,USD LIBOR 6m
+14/07/2010,14/07/2010,14/06/2037,FALSE,USD,56,Actual/Actual,Modified,Semi-annual,US,0.02,USD,56,30E/360,Preceding,Annual,US,0.01,USD LIBOR 12m
+30/07/2010,30/07/2010,16/04/2015,TRUE,USD,50,30E/360,Preceding,Quarterly,US,0.03,USD,50,30/360,Following,Annual,US,0.005,USD LIBOR 12m
+07/11/2010,07/11/2010,21/07/2019,FALSE,USD,54,Actual/365 (Fixed),Preceding,Annual,US,0.02,USD,54,Actual/360,Modified,Semi-annual,US,0.02,USD LIBOR 6m
+20/07/2010,20/07/2010,21/12/2051,TRUE,USD,30,Actual/365 (Fixed),Following,Semi-annual,US,0.04,USD,30,Actual/Actual,Preceding,Quarterly,US,0.005,USD LIBOR 3m
+07/08/2010,07/08/2010,22/07/2021,FALSE,USD,40,Actual/360,None,Quarterly,US,0.02,USD,40,Actual/365 (Fixed),Modified,Semi-annual,US,0.03,USD LIBOR 6m
+07/08/2010,07/08/2010,14/07/2041,TRUE,USD,100,30/360,Following,Annual,US,0.02,USD,100,Actual/360,Preceding,Semi-annual,US,0.005,USD LIBOR 6m
+13/07/2010,13/07/2010,14/07/2025,FALSE,USD,90,Actual/365 (Fixed),Preceding,Semi-annual,US,0.03,USD,90,Actual/Actual,Modified,Annual,US,0.005,USD LIBOR 12m

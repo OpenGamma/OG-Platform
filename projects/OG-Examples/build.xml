@@ -45,7 +45,8 @@
 	</target>
 
 	<target name="new-user-financial-db" depends="find-og-masterdb-dir,jetty-stop">
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${og-masterdb.dir}" catalog="og-financial" /> <!-- scriptdir was og-masterdb.dir, maybe should be moved -->
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${og-masterdb.dir}" catalog="og-financial" />
+		<!-- scriptdir was og-masterdb.dir, maybe should be moved -->
 	</target>
 
 	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl,new-user-financial-db" description="--> creates the hsqldb tables" />
@@ -99,12 +100,23 @@
 		</java>
 	</target>
 
+	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
+		<java classname="com.opengamma.examples.loader.DemoDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
+			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+			<jvmarg value="-Dopengamma.platform.os=posix" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+		</java>
+	</target>
+
 	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
 		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
 			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
@@ -151,12 +163,14 @@
 		</copy>
 	</target>
 
-        <target name="compile" depends="new-user-financial-db, common.compile"/>
-
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
 
-	<target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
+	<target name="test-hsqldb">
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/example-test" scriptdir="${basedir}" catalog="og-financial" />
+	</target>
+
+	<target name="test-batch" depends="test-hsqldb, common.test-batch" />
 
 </project>

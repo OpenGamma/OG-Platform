@@ -8,9 +8,7 @@ package com.opengamma.financial.instrument.payment;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -70,10 +68,9 @@ public class CouponFixedDefinitionTest {
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
+    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
     final String fundingCurve = "Funding";
-    final CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, RATE);
+    final CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, RATE, FIXED_COUPON.getAccrualStartDate(), FIXED_COUPON.getAccrualEndDate());
     final CouponFixed convertedDefinition = FIXED_COUPON.toDerivative(REFERENCE_DATE, fundingCurve);
     assertEquals(couponFixed, convertedDefinition);
   }

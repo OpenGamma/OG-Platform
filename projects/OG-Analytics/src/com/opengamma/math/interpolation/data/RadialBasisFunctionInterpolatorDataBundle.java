@@ -25,6 +25,7 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
   private final Function1D<Double, Double> _basisFunction;
   private final boolean _useNormalized;
   private final double[] _weights;
+  private DecompositionResult _decompRes;
   private final Decomposition<?> _decomp = DecompositionFactory.LU_COMMONS;
 
   public RadialBasisFunctionInterpolatorDataBundle(final List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
@@ -37,6 +38,10 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
 
   public double[] getWeights() {
     return _weights;
+  }
+
+  public DecompositionResult getDecompositionResult() {
+    return _decompRes;
   }
 
   /**
@@ -88,8 +93,8 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
       }
     }
 
-    final DecompositionResult decompRes = _decomp.evaluate(new com.opengamma.math.matrix.DoubleMatrix2D(radii));
-    final DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
+    _decompRes = _decomp.evaluate(new com.opengamma.math.matrix.DoubleMatrix2D(radii));
+    final DoubleMatrix1D res = _decompRes.solve(new DoubleMatrix1D(y));
 
     return res.toArray();
   }

@@ -7,7 +7,7 @@
       <value>classpath:marketData-${opengamma.platform.runmode}.properties</value>
     </property>
   </bean>  
-
+  
   <bean id="marketDataProvider" class="com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider">
     <constructor-arg ref="sharedSecuritySource" />
   </bean>
@@ -16,7 +16,9 @@
     <constructor-arg ref="marketDataProvider" />
     <constructor-arg value="${opengamma.example.marketdata.file}" />
   </bean>
+  
   <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolverFactoryBean" depends-on="simulatedMarketDataGenerator">
     <property name="provider" ref="marketDataProvider"/>
   </bean>
+  
 </beans>

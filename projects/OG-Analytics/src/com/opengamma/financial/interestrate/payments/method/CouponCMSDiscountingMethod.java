@@ -18,7 +18,18 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  *  Pricing and sensitivities of a CMS coupon by discounting (no convexity adjustment).
  */
-public class CouponCMSDiscountingMethod {
+public final class CouponCMSDiscountingMethod {
+  private static final CouponCMSDiscountingMethod INSTANCE = new CouponCMSDiscountingMethod();
+
+  /**
+   * @return A static instance
+   */
+  public static CouponCMSDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private CouponCMSDiscountingMethod() {
+  }
 
   /**
    * Compute the present value of a CMS coupon by discounting (no convexity adjustment).
@@ -29,11 +40,11 @@ public class CouponCMSDiscountingMethod {
   public double presentValue(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
     Validate.notNull(cmsCoupon);
     Validate.notNull(curves);
-    ParRateCalculator parRate = ParRateCalculator.getInstance();
-    double swapRate = parRate.visitFixedCouponSwap(cmsCoupon.getUnderlyingSwap(), curves);
+    final ParRateCalculator parRate = ParRateCalculator.getInstance();
+    final double swapRate = parRate.visitFixedCouponSwap(cmsCoupon.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(cmsCoupon.getFundingCurveName());
-    double paymentDiscountFactor = fundingCurve.getDiscountFactor(cmsCoupon.getPaymentTime());
-    double pv = swapRate * cmsCoupon.getPaymentYearFraction() * cmsCoupon.getNotional() * paymentDiscountFactor;
+    final double paymentDiscountFactor = fundingCurve.getDiscountFactor(cmsCoupon.getPaymentTime());
+    final double pv = swapRate * cmsCoupon.getPaymentYearFraction() * cmsCoupon.getNotional() * paymentDiscountFactor;
     return pv;
   }
 
@@ -46,15 +57,15 @@ public class CouponCMSDiscountingMethod {
   public PresentValueSensitivity presentValueSensitivity(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
     Validate.notNull(cmsCoupon);
     Validate.notNull(curves);
-    ParRateCalculator parRateCal = ParRateCalculator.getInstance();
-    double swapRate = parRateCal.visitFixedCouponSwap(cmsCoupon.getUnderlyingSwap(), curves);
-    String fundingCurveName = cmsCoupon.getFundingCurveName();
+    final ParRateCalculator parRateCal = ParRateCalculator.getInstance();
+    final double swapRate = parRateCal.visitFixedCouponSwap(cmsCoupon.getUnderlyingSwap(), curves);
+    final String fundingCurveName = cmsCoupon.getFundingCurveName();
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fundingCurveName);
-    double paymentTime = cmsCoupon.getPaymentTime();
-    double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
-    ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
-    PresentValueSensitivity swapRateSens = new PresentValueSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
-    PresentValueSensitivity payDFSens = new PresentValueSensitivity(PresentValueSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
+    final double paymentTime = cmsCoupon.getPaymentTime();
+    final double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
+    final ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
+    final PresentValueSensitivity swapRateSens = new PresentValueSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
+    final PresentValueSensitivity payDFSens = new PresentValueSensitivity(PresentValueSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
     PresentValueSensitivity result = swapRateSens.multiply(paymentDiscountFactor);
     result = result.add(payDFSens.multiply(swapRate));
     result = result.multiply(cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction());

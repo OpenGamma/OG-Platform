@@ -11,6 +11,7 @@ import java.util.Queue;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -21,8 +22,11 @@ import org.fudgemsg.types.FudgeDate;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.StringLabelledMatrix1D;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -180,5 +184,116 @@ final class LabelledMatrix1DBuilder {
       return new LocalDateLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
   }
-  //TODO add LocalDate and ZonedDateTime versions
+
+  //TODO add ZonedDateTime version
+
+  @FudgeBuilderFor(CurrencyLabelledMatrix1D.class)
+  public static final class CurrencyLabelledMatrix1DBuilder extends AbstractFudgeBuilder<CurrencyLabelledMatrix1D> {
+
+    @Override
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final CurrencyLabelledMatrix1D object) {
+      final MutableFudgeMsg msg = context.newMessage();
+
+      final Currency[] keys = object.getKeys();
+      final Object[] labels = object.getLabels();
+      final double[] values = object.getValues();
+      for (int i = 0; i < object.size(); i++) {
+        msg.add(LABEL_TYPE_ORDINAL, labels[i].getClass().getName());
+        msg.add(KEY_ORDINAL, keys[i]);
+        context.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
+        msg.add(VALUE_ORDINAL, values[i]);
+      }
+
+      message.add(MATRIX_FIELD, msg);
+    }
+
+    @Override
+    public CurrencyLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+
+      final Queue<String> labelTypes = new LinkedList<String>();
+      final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
+
+      final List<Currency> keys = new LinkedList<Currency>();
+      final List<Object> labels = new LinkedList<Object>();
+      final List<Double> values = new LinkedList<Double>();
+
+      for (final FudgeField field : msg) {
+        switch (field.getOrdinal()) {
+          case LABEL_TYPE_ORDINAL:
+            labelTypes.add((String) field.getValue());
+            break;
+          case KEY_ORDINAL:
+            keys.add(Currency.of((String) field.getValue()));
+            break;
+          case LABEL_ORDINAL:
+            labelValues.add(field);
+            break;
+          case VALUE_ORDINAL:
+            values.add((Double) field.getValue());
+            break;
+        }
+
+        if (!labelTypes.isEmpty() && !labelValues.isEmpty()) {
+          // Have a type and a value, which can be consumed
+          final String labelType = labelTypes.remove();
+          Class<?> labelClass;
+          try {
+            labelClass = Class.forName(labelType);
+          } catch (final ClassNotFoundException ex) {
+            throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
+          }
+          final FudgeField labelValue = labelValues.remove();
+          final Object label = context.fieldValueToObject(labelClass, labelValue);
+          //          labels.add(Currency.of((String) label));
+          labels.add(label);
+        }
+      }
+
+      final int matrixSize = keys.size();
+      final Currency[] keysArray = new Currency[matrixSize];
+      keys.toArray(keysArray);
+      final Object[] labelsArray = new Object[matrixSize];
+      labels.toArray(labelsArray);
+      final double[] valuesArray = Doubles.toArray(values);
+      return new CurrencyLabelledMatrix1D(keysArray, labelsArray, valuesArray);
+    }
+  }
+
+  @FudgeBuilderFor(StringLabelledMatrix1D.class)
+  public static final class StringLabelledMatrix1DBuilder extends AbstractFudgeBuilder<StringLabelledMatrix1D> {
+
+    @Override
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final StringLabelledMatrix1D object) {
+      final MutableFudgeMsg msg = context.newMessage();
+      final String[] keys = object.getKeys();
+      final double[] values = object.getValues();
+      for (int i = 0; i < object.size(); i++) {
+        msg.add(KEY_ORDINAL, keys[i]);
+        msg.add(VALUE_ORDINAL, values[i]);
+      }
+      message.add(MATRIX_FIELD, msg);
+    }
+
+    @Override
+    public StringLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final List<String> keys = new LinkedList<String>();
+      final List<Double> values = new LinkedList<Double>();
+      for (final FudgeField field : msg) {
+        switch (field.getOrdinal()) {
+          case KEY_ORDINAL:
+            keys.add((String) field.getValue());
+            break;
+          case VALUE_ORDINAL:
+            values.add((Double) field.getValue());
+            break;
+        }
+      }
+      String[] keysArray = keys.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+      final double[] valuesArray = Doubles.toArray(values);
+      return new StringLabelledMatrix1D(keysArray, valuesArray);
+    }
+  }
+
 }

@@ -19,7 +19,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  * <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/solvers/RiddersSolver.html">Commons Math library implementation</a>
  * of Ridder's method.
  */
-public class RidderSingleRootFinder extends RealSingleRootFinder {  
+public class RidderSingleRootFinder extends RealSingleRootFinder {
   private static final int MAX_ITER = 10000;
   private final RiddersSolver _ridder = new RiddersSolver();
 
@@ -31,10 +31,20 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
   }
 
   /**
-   * @param accuracy The accuracy of the function evaluations.
+   * @param functionValueAccuracy The accuracy of the function evaluations.
    */
-  public RidderSingleRootFinder(final double accuracy) {
-    _ridder.setFunctionValueAccuracy(accuracy);
+  public RidderSingleRootFinder(final double functionValueAccuracy) {
+    _ridder.setFunctionValueAccuracy(functionValueAccuracy);
+    _ridder.setMaximalIterationCount(MAX_ITER);
+  }
+
+  /**
+   * @param functionValueAccuracy The accuracy of the function evaluations.
+   * @param absoluteAccurary The maximum absolute error of the variable.
+   */
+  public RidderSingleRootFinder(final double functionValueAccuracy, final double absoluteAccurary) {
+    _ridder.setAbsoluteAccuracy(absoluteAccurary);
+    _ridder.setFunctionValueAccuracy(functionValueAccuracy);
     _ridder.setMaximalIterationCount(MAX_ITER);
   }
 

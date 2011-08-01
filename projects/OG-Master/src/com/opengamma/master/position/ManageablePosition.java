@@ -148,12 +148,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   public String getName() {
     if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
       final String amount = JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x ";
-      if (getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (getSecurityKey().getIdentifier(SecurityUtils.RIC) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.RIC);
-      } else if (getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return amount + getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER);
+      if (getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER);
+      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.RIC) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.RIC);
+      } else if (getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
+        return amount + getSecurityKey().getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER);
       } else {
         return amount + getSecurityKey().getIdentifiers().iterator().next().getValue();
       }
@@ -233,6 +233,9 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   public static ManageablePosition.Meta meta() {
     return ManageablePosition.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageablePosition.Meta.INSTANCE);
+  }
 
   @Override
   public ManageablePosition.Meta metaBean() {
@@ -240,7 +243,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -257,12 +260,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case 3373707:  // name
         return getName();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -283,9 +286,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         setAttributes((Map<String, String>) newValue);
         return;
       case 3373707:  // name
+        if (quiet) {
+          return;
+        }
         throw new UnsupportedOperationException("Property cannot be written: name");
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -13,7 +13,6 @@ import com.opengamma.util.timeseries.AbstractMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
@@ -28,11 +27,11 @@ public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubl
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
+    public MutableZonedDateTimeDoubleTimeSeries newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
+    public abstract MutableZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
   /** */
   public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<ZonedDateTime> implements MutableZonedDateTimeDoubleTimeSeries {
@@ -41,10 +40,10 @@ public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubl
     }
 
     @Override
-    public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
+    public MutableZonedDateTimeDoubleTimeSeries newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
-    public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
+    public abstract MutableZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
 }

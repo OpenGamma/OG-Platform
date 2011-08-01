@@ -327,6 +327,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
       }
     }
 
+    @Override
     public double nextDouble() {
       if (hasNext()) {
         final double value = _values[_current];
@@ -358,10 +359,12 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     return new PrimitiveArrayIntDoubleTimeSeriesValuesIterator();
   }
 
+  @Override
   public double[] valuesArrayFast() {
     return _values.clone();
   }
 
+  @Override
   public int[] timesArrayFast() {
     return _times.clone();
   }
@@ -371,6 +374,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     return _times[index];
   }
 
+  @Override
   public FastIntDoubleTimeSeries tailFast(final int numItems) {
     if (numItems <= _times.length) {
       final int[] times = new int[numItems];
@@ -383,6 +387,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     }
   }
 
+  @Override
   public FastIntDoubleTimeSeries headFast(final int numItems) {
     if (numItems <= _times.length) {
       final int[] times = new int[numItems];

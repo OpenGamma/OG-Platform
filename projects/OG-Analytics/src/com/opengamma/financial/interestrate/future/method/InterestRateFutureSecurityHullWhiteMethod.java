@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
@@ -22,7 +22,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   /**
    * The model used for the convexity adjustment computation.
    */
-  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
+  private final HullWhiteOneFactorPiecewiseConstantParameters _data;
 
   /**
    * The Hull-White model.
@@ -38,14 +38,14 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   public InterestRateFutureSecurityHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    _data = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility, volatilityTime);
   }
 
   /**
    * Constructor from the model.
    * @param data The Hull-White one factor model parameters.
    */
-  public InterestRateFutureSecurityHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+  public InterestRateFutureSecurityHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantParameters data) {
     Validate.notNull(data, "data");
     _data = data;
   }

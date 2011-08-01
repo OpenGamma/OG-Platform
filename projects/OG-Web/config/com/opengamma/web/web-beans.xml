@@ -27,7 +27,7 @@
   </bean>
 
   <!-- Historical data source service -->
-  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaldata.rest.HistoricalTimeSeriesSourceService">
+  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="sharedHistoricalTimeSeriesSource" />
   </bean>
@@ -137,20 +137,29 @@
     </property>
   </bean>
   
-  <!--  User supplied data -->
-  <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
-    <constructor-arg>
-      <bean class="com.opengamma.financial.user.rest.UsersResourceContext">
-        <property name="fudgeContext" ref="fudgeContext" />
-        <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
-        <property name="userPositionMaster" ref="userFinancialPositionMaster" />
-        <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
-        <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-        <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
-        <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
-      </bean>
-    </constructor-arg>
+  <!-- Users resource context -->
+  <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
+    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="userPortfolioMaster" ref="userFinancialPortfolioMaster" />
+    <property name="userPositionMaster" ref="userFinancialPositionMaster" />
+    <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
+    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
+    <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
   </bean>
+  
+  <!-- Users Tracker -->
+  <bean id="usersTracker" class="com.opengamma.financial.user.DefaultUsersTracker">
+    <constructor-arg ref="usersResourceContext"/>
+  </bean>
+
+  <!-- User supplied data -->
+  <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
+    <constructor-arg ref="usersTracker" />
+    <constructor-arg ref="usersTracker" />
+    <constructor-arg ref="usersResourceContext"/>
+  </bean>
+  
   <bean id="usersRestBeanCleaner" factory-bean="usersRestBean" factory-method="createDeleteTask">
     <property name="timeout" value="${opengamma.financial-user.timeout}" />
     <property name="scheduler" ref="scheduler" />
@@ -321,15 +330,18 @@
     </constructor-arg>
   </bean>
   
+  <!-- ValueRequirementNames RESTful service -->
+  <bean id="webValueRequirementNamesRestBean" class="com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource" scope="request" />
+    
   <!-- Config RESTful service -->
   <bean id="webConfigsRestBean" class="com.opengamma.web.config.WebConfigsResource" scope="request">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   
   <!-- Time series RESTful service -->
-  <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaldata.WebAllHistoricalTimeSeriesResource" scope="request">
-    <constructor-arg ref="timeseriesMaster" />
-    <constructor-arg ref="timeseriesLoader"/>
+  <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg ref="htsLoader"/>
   </bean>
   
   <!-- Batch RESTful service -->

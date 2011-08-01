@@ -17,7 +17,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -33,6 +33,9 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
    * Flag indicating if the option is long (true) or short (false).
    */
   private final boolean _isLong;
+  /**
+   * The swaption expiry.
+   */
   private final Expiry _expiry;
 
   /**
@@ -111,7 +114,6 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double expiryTime = actAct.getDayCountFraction(date, _expiry.getExpiry());
     final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
@@ -129,7 +131,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -139,7 +141,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
+    final SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }

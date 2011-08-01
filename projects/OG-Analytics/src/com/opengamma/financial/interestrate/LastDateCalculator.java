@@ -12,12 +12,14 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -25,7 +27,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 
 /**
  * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
@@ -73,12 +75,17 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra) {
-    return fra.getMaturity();
+    return fra.getFixingPeriodEndTime();
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future) {
-    return future.getMaturity();
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
+    return future.getFixingPeriodEndTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
+    return future.getUnderlyingFuture().getFixingPeriodEndTime();
   }
 
   @Override
@@ -104,7 +111,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
+  public Double visitCouponOIS(final CouponOIS payment) {
     return payment.getPaymentTime();
   }
 
@@ -115,7 +122,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
 
   @Override
   public Double visitFixedCouponPayment(final CouponFixed payment) {
-    return visitFixedPayment(payment);
+    return payment.getPaymentTime();
   }
 
   @Override
@@ -134,9 +141,19 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitCouponCMS(CouponCMS payment, Object data) {
+  public Double visitCouponCMS(final CouponCMS payment, final Object data) {
     final double swapLastTime = visit(payment.getUnderlyingSwap());
     final double paymentTime = payment.getPaymentTime();
     return Math.max(swapLastTime, paymentTime);
+  }
+
+  @Override
+  public Double visitCouponIborFixed(CouponIborFixed payment, Object data) {
+    return visitFixedCouponPayment(payment);
+  }
+
+  @Override
+  public Double visitCouponIborFixed(CouponIborFixed payment) {
+    return visitFixedCouponPayment(payment);
   }
 }

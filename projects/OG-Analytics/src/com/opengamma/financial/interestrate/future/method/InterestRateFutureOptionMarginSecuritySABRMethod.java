@@ -19,8 +19,16 @@ import com.opengamma.util.tuple.DoublesPair;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date, 
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public class InterestRateFutureOptionMarginSecuritySABRMethod {
-
+public final class InterestRateFutureOptionMarginSecuritySABRMethod {
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod INSTANCE = new InterestRateFutureOptionMarginSecuritySABRMethod();
+  
+  public static InterestRateFutureOptionMarginSecuritySABRMethod getInstance() {
+    return INSTANCE;
+  }
+  
+  private InterestRateFutureOptionMarginSecuritySABRMethod() {
+  }
+  
   /**
    * The Black function used in the pricing.
    */
@@ -29,7 +37,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
   /**
    * The method used to compute the future price. It is a method without convexity adjustment.
    */
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = new InterestRateFutureSecurityDiscountingMethod();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Computes the option security price from future price.
@@ -39,13 +47,13 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @return The security price.
    */
   public double optionPriceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData, final double priceFuture) {
-    double rateStrike = 1.0 - security.getStrike();
-    EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
-    double forward = 1 - priceFuture;
-    double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
-    double volatility = sabrData.getSABRParameter().getVolatility(new double[] {security.getExpirationTime(), delay, rateStrike, forward});
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
+    final double rateStrike = 1.0 - security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFuture;
+    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double volatility = sabrData.getSABRParameter().getVolatility(new double[] {security.getExpirationTime(), delay, rateStrike, forward});
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
   }
 
@@ -56,7 +64,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @return The security price.
    */
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
-    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
+    final double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
   }
 

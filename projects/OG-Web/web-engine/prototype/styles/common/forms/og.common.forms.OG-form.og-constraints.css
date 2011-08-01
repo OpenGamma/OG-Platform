@@ -1,0 +1,64 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-form .og-constraints input[type=text] {
+  width: 100px;
+}
+
+.OG-form .og-with,
+.OG-form .og-without {
+  clear: both;
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+.OG-form .og-with > *,
+.OG-form .og-without > * {
+  float: left;
+  margin: 0 10px 0 0;
+}
+
+.OG-form .og-with > label:last-child,
+.OG-form .og-without > label:last-child {
+  float: none;
+}
+
+.OG-form .og-constraints label {
+  margin-bottom: 0;
+  color: #555;
+}
+
+.OG-form .og-constraints input,
+.OG-form .og-constraints select {
+  vertical-align: top;
+}
+
+.OG-form .og-without input[type=text] {
+  width: 276px;
+}
+
+.OG-form .og-with input[type=text] {
+  width: 130px;
+}
+
+.OG-form .og-with span {
+  width: 10px;
+  display: block;
+  text-align: center;
+  margin-right: 2px;
+}
+
+.OG-form .og-with label + input {
+  margin-right: 2px;
+}
+
+.OG-form .og-constraints .og-new-link {
+  margin-left: 11px;
+}
+
+.OG-form .og-constraints > div:last-child {
+  margin-bottom: 5px;
+}

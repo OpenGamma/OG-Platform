@@ -23,6 +23,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -86,11 +87,12 @@ public class ForexOptionVanillaMethodTest {
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(SMILE_TERM, SPOT, CURVES);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  private static final ForexOptionVanillaBlackMethod METHOD_OPTION = new ForexOptionVanillaBlackMethod();
-  private static final ForexDiscountingMethod METHOD_DISC = new ForexDiscountingMethod();
+  private static final ForexOptionVanillaBlackMethod METHOD_OPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueVolatilitySensitivityBlackCalculator PVVSC_BLACK = PresentValueVolatilitySensitivityBlackCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
   private static final boolean IS_CALL = true;
@@ -99,8 +101,8 @@ public class ForexOptionVanillaMethodTest {
   private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofMonths(9));
   private static final ZonedDateTime OPTION_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, OPTION_PAY_DATE, NOTIONAL, STRIKE);
-  private static final ForexOptionVanillaDefinition FOREX_OPTION_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
-  private static final ForexOptionVanilla FOREX_OPTION = FOREX_OPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final ForexOptionVanillaDefinition FOREX_OPTION_CALL_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
+  private static final ForexOptionVanilla FOREX_CALL_OPTION = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test
   /**
@@ -177,10 +179,10 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanillaDefinition forexOptionShortDefinition = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, !IS_LONG);
     final ForexDerivative forexOptionShort = forexOptionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvShort = METHOD_OPTION.presentValue(forexOptionShort, SMILE_BUNDLE);
-    final MultipleCurrencyAmount pvLong = METHOD_OPTION.presentValue(FOREX_OPTION, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvLong = METHOD_OPTION.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: present value long/short parity", pvLong.getAmount(CUR_2), -pvShort.getAmount(CUR_2), 1E-2);
     final MultipleCurrencyAmount ceShort = METHOD_OPTION.currencyExposure(forexOptionShort, SMILE_BUNDLE);
-    final MultipleCurrencyAmount ceLong = METHOD_OPTION.currencyExposure(FOREX_OPTION, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceLong = METHOD_OPTION.currencyExposure(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: currency exposure long/short parity", ceLong.getAmount(CUR_2), -ceShort.getAmount(CUR_2), 1E-2);
     assertEquals("Forex vanilla option: currency exposure long/short parity", ceLong.getAmount(CUR_1), -ceShort.getAmount(CUR_1), 1E-2);
   }
@@ -325,8 +327,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomestic, volatility);
     final double bumpedPvForeignMinus = func.evaluate(dataBlack) * notional;
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[0]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivity().get(CURVES_NAME[0]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[0]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultForeign, sensi.getSensitivities().get(CURVES_NAME[0]).get(0).second, 1E-2);
     //Domestic
     yields[0] = curveDomestic.getInterestRate(nodeTimes[0]);
     yields[1] = curveDomestic.getInterestRate(nodeTimes[1]);
@@ -346,8 +348,8 @@ public class ForexOptionVanillaMethodTest {
     dataBlack = new BlackFunctionData(forwardBumped, dfDomesticBumped, volatility);
     final double bumpedPvDomesticMinus = func.evaluate(dataBlack) * notional;
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
-    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivity().get(CURVES_NAME[1]).get(0).first, 1E-2);
-    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivity().get(CURVES_NAME[1]).get(0).second, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", forexForward.getPaymentTime(), sensi.getSensitivities().get(CURVES_NAME[1]).get(0).first, 1E-2);
+    assertEquals("Forex vanilla option: curve exposure", resultDomestic, sensi.getSensitivities().get(CURVES_NAME[1]).get(0).second, 1E-2);
   }
 
   @Test
@@ -355,8 +357,8 @@ public class ForexOptionVanillaMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    final PresentValueSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_OPTION, SMILE_BUNDLE);
-    final PresentValueSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_OPTION, SMILE_BUNDLE);
+    final PresentValueSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final PresentValueSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
@@ -365,9 +367,9 @@ public class ForexOptionVanillaMethodTest {
    * Tests present value volatility sensitivity.
    */
   public void volatilitySensitivity() {
-    PresentValueVolatilitySensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
-    Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
-    DoublesPair point = new DoublesPair(FOREX_OPTION.getTimeToExpiry(), STRIKE);
+    final PresentValueVolatilitySensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    final DoublesPair point = new DoublesPair(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().entrySet().size());
     assertTrue("Forex vanilla option: vega", sensi.getVega().containsKey(point));
@@ -376,12 +378,27 @@ public class ForexOptionVanillaMethodTest {
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, STRIKE, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
-    double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_OPTION, dataBlack);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_CALL_OPTION, dataBlack);
     assertEquals("Forex vanilla option: vega", priceAdjoint[2] * NOTIONAL, sensi.getVega().get(point));
     final ForexOptionVanillaDefinition optionShortDefinition = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, !IS_LONG);
     final ForexOptionVanilla optionShort = optionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    PresentValueVolatilitySensitivityDataBundle sensiShort = METHOD_OPTION.presentValueVolatilitySensitivity(optionShort, SMILE_BUNDLE);
+    final PresentValueVolatilitySensitivityDataBundle sensiShort = METHOD_OPTION.presentValueVolatilitySensitivity(optionShort, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega short", -sensi.getVega().get(point), sensiShort.getVega().get(point));
+    // Put/call parity
+    ForexOptionVanillaDefinition optionShortPutDefinition = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, !IS_CALL, !IS_LONG);
+    ForexOptionVanilla optionShortPut = optionShortPutDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final PresentValueVolatilitySensitivityDataBundle sensiShortPut = METHOD_OPTION.presentValueVolatilitySensitivity(optionShortPut, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: vega short", sensiShortPut.getVega().get(point) + sensi.getVega().get(point), 0.0, 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Test the present value curve sensitivity through the method and through the calculator.
+   */
+  public void volatilitySensitivityMethodVsCalculator() {
+    final PresentValueVolatilitySensitivityDataBundle pvvsMethod = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final PresentValueVolatilitySensitivityDataBundle pvvsCalculator = PVVSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
   }
 
   @Test
@@ -389,17 +406,17 @@ public class ForexOptionVanillaMethodTest {
    * Tests present value volatility node sensitivity.
    */
   public void volatilityNodeSensitivity() {
-    PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_OPTION, SMILE_BUNDLE);
+    final PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
-    Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
-    PresentValueVolatilitySensitivityDataBundle pointSensitivity = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_OPTION, SMILE_BUNDLE);
-    double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
+    final PresentValueVolatilitySensitivityDataBundle pointSensitivity = METHOD_OPTION.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    SMILE_TERM.getVolatilityAdjoint(FOREX_OPTION.getTimeToExpiry(), STRIKE, forward, nodeWeight);
-    DoublesPair point = DoublesPair.of(FOREX_OPTION.getTimeToExpiry(), STRIKE);
+    SMILE_TERM.getVolatilityAdjoint(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE, forward, nodeWeight);
+    final DoublesPair point = DoublesPair.of(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE);
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
         assertEquals("Forex vanilla option: vega node", nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point), sensi.getVega().getData()[loopexp][loopstrike]);

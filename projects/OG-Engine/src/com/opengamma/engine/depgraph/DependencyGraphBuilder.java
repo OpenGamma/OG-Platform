@@ -39,6 +39,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -709,6 +710,7 @@ public class DependencyGraphBuilder {
 
   // DON'T CHECK IN WITH =true
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
+  private static final AtomicInteger DEBUG_GRAPH_ID = new AtomicInteger();
 
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
@@ -722,7 +724,8 @@ public class DependencyGraphBuilder {
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       try {
-        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));
+        int graphFileId = DEBUG_GRAPH_ID.getAndIncrement();
+        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph" + graphFileId + ".txt"));
         graph.dumpStructureASCII(ps);
         ps.close();
       } catch (IOException e) {

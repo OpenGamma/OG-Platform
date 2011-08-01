@@ -3,83 +3,138 @@
  * @license See distribution for license
  */
 
-/**
- * Tabs
- */
+/*
+* Page Masthead styles
+*
+* @copyright 2009 - present by OpenGamma Inc
+* @license See distribution for license
+*/
+
 .OG-tabs {
-    position: relative;
-    display: inline-block;
-    white-space: nowrap;
+  position: relative;
 }
 
-.OG-tabs .og-tab {
-  -moz-transform: skew(-20deg);
-  -webkit-transform: skew(-20deg);
-  background-color: #ccc;
-  background-image: -webkit-gradient(linear, left top, left bottom,
-      color-stop(0.0, #f9f9f9),
-      color-stop(0.50, #f2f3f5),
-      color-stop(0.51, #eaebed)
-  );
-  background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #fff;
-  color: #487287;
+.OG-tabs li {
   display: inline-block;
-  float: left;
-  height: 30px;
-  line-height: 30px;
-  padding: 0 10px;
-  left: -10px;
-  position: relative;
+  margin: 0 5px 0 0;
+}
+
+.OG-tabs a {
+  color: #555;
+  display: inline-block;
+  padding: 7px 5px 14px 5px;
   text-decoration: none;
 }
 
-.OG-tabs .og-tab:hover {
-  background-color: #487287;
-  background-image: -webkit-gradient(linear, left top, left bottom,
-      color-stop(0.0, #4d7d94),
-      color-stop(0.50, #4d7d94),
-      color-stop(0.51, #4d7d94)
-  );
-  background-image: -moz-linear-gradient(#4d7d94 50%, #4d7d94 51%, #eaebed 100%);
-  background: #4d7d94;
-  border-left: 1px solid #4d7d94;
-  border-right: 1px solid #4d7d94;
+.OG-tabs a:hover {
+  color: #61d050;
+}
+
+/* ACTIVE */
+.OG-tabs .og-active {
+  -webkit-border-top-left-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-topright: 2px;
+  background: #363f47;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  color: #fff;
+  position: relative;
+}
+
+.OG-tabs .og-active:hover {
   color: #fff;
 }
 
-.OG-tabs .og-tab span {
-  -moz-transform: skew(20deg);
-  -webkit-transform: skew(20deg);
+.OG-tabs .og-active:before {
+  -moz-box-shadow: 0 100px 1.5em #fff;
+  -webkit-box-shadow: 0 100px 1.5em #fff;
+  background-color: transparent;
+  content: "";
   display: inline-block;
+  height: 80%;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+  position: absolute;
+  top: -96px;
+  left: 10%;
+  width: 80%;
 }
 
-.OG-tabs .og-active, .OG-tabs .og-active:hover {
-    background: #e4e4e5;
-    border-left: 1px solid #fff;
-    border-right: 1px solid transparent;
-    color: #626262;
-    cursor: default;
-}
-
-.OG-tabs .og-active span {
-    text-shadow: 0 1px 0 #fff;
-}
-
-.OG-tabs .og-tab:first-child span {
-    margin-left: 10px
-}
-
+/* NEW */
 .OG-tabs .og-new {
-    margin-right: 0; border-right: none;
+  color: #61d050;
+  position: relative;
+  margin-left: 5px;
 }
 
-.OG-tabs .og-new:hover {
-    background: none;
-    color: inherit;
-    border-left: 1px solid #fff;
-    border-right: none;
-    color: #64be89;
+.OG-tabs .og-new:after {
+  content: '';
+  height: 1px;
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  right: 9px;
+  border-bottom: 1px solid #d7f3d3;
+}
 
+.OG-tabs .og-new:hover:after {
+  border-bottom-color: #61d050;
+}
+
+.OG-tabs .og-new:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  cursor: pointer;
+  background-position: 0 -9px;
+  height: 6px;
+  width: 6px;
+  position: absolute;
+  left: 0;
+  top: 14px;
+}
+
+.OG-tabs a:hover.og-home:after {
+  background-position: -20px -75px;
+}
+
+.OG-tabs .og-home.og-active:before {
+  background-position: -20px -75px;
+}
+
+.OG-tabs .og-home {
+  width: 18px;
+}
+
+.OG-tabs a {
+  border-bottom: none;
+}
+
+.OG-tabs .og-home:after {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  cursor: pointer;
+  background-position: 0 -75px;
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  top: 8px; left: 6px;
+}
+
+.OG-tabs.og-tab-hat:after {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  outline: 1px solid #fff;
+  content: '';
+  background-color: #2b343c;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,7 +37,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class VolatilityCubeFunction extends AbstractFunction {
-
+  //TODO use this class to get data in useable form
   private final VolatilityCubeFunctionHelper _helper;
   private ValueSpecification _cubeResult;
   private HashSet<ValueSpecification> _results;
@@ -44,59 +46,74 @@ public class VolatilityCubeFunction extends AbstractFunction {
     this(Currency.of(currency), definitionName);
   }
 
-  public VolatilityCubeFunction(Currency currency, String definitionName) {
+  public VolatilityCubeFunction(final Currency currency, final String definitionName) {
     _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
   }
-  
+
   @Override
-  public void init(FunctionCompilationContext context) {
-    
-    ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getCurrency());
-    _cubeResult = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE, currencyTargetSpec,
+  public void init(final FunctionCompilationContext context) {
+    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getCurrency());
+    _cubeResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, currencyTargetSpec,
         createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_cubeResult);
   }
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Set<ValueRequirement> requirements = Sets.newHashSet(getMarketDataRequirement());
     return new AbstractFunction.AbstractInvokingCompiledFunction() {
-      
+
       @Override
       public ComputationTargetType getTargetType() {
         return ComputationTargetType.PRIMITIVE;
       }
-      
+
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target,
-          Map<ValueSpecification, ValueRequirement> inputs) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         return _results;
       }
-      
+
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return _results;
-      }
-      
-      @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-          ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+          final ValueRequirement desiredValue) {
         return requirements;
       }
-      
+
       @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         return _helper.getCurrency().getUniqueId().equals(target.getUniqueId());
       }
 
       @Override
-      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-          ComputationTarget target, Set<ValueRequirement> desiredValues) {
-        
-        VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
-        Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
-        //TODO this
-        return Sets.newHashSet(new ComputedValue(_cubeResult, smiles.size()));
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+          final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+        final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
+        final VolatilityCubeData normalizedData = new VolatilityCubeData();
+        final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
+        final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
+        final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getStrikes();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<Pair<Tenor, Tenor>, Double>();
+        for (final Map.Entry<VolatilityPoint, Double> entry : volatilityPoints.entrySet()) {
+          final VolatilityPoint oldPoint = entry.getKey();
+          final Tenor swapTenor = oldPoint.getSwapTenor();
+          final Tenor swaptionExpiry = oldPoint.getOptionExpiry();
+          final double relativeStrike = oldPoint.getRelativeStrike();
+          if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
+            final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
+            final double absoluteStrike = atmStrikes.get(tenorPair) / 100 + relativeStrike / 10000;
+            final double vol = entry.getValue() / 100;
+            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
+            normalizedATMStrikes.put(tenorPair, absoluteStrike);
+            normalizedATMVols.put(tenorPair, vol);
+            normalizedVolatilityPoints.put(newPoint, vol); //TODO this normalization should not be performed here
+          }
+        }
+        normalizedData.setDataPoints(normalizedVolatilityPoints);
+        normalizedData.setOtherData(data.getOtherData());
+        normalizedData.setStrikes(normalizedATMStrikes);
+        normalizedData.setATMVolatilities(normalizedATMVols);
+        return Sets.newHashSet(new ComputedValue(_cubeResult, normalizedData));
       }
     };
   }

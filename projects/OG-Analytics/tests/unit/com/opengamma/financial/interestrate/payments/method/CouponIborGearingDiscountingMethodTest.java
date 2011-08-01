@@ -66,7 +66,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 12, 27);
   private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
   private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[0]);
-  private static final CouponIborGearingDiscountingMethod METHOD = new CouponIborGearingDiscountingMethod();
+  private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborGearing COUPON = (CouponIborGearing) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVCSC = PresentValueSensitivityCalculator.getInstance();
@@ -76,14 +76,14 @@ public class CouponIborGearingDiscountingMethodTest {
    * Tests the present value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD.presentValue(COUPON, CURVES_BUNDLE);
-    CouponIborDefinition couponIborDefinition = new CouponIborDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX);
-    Payment couponIbor = couponIborDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
-    CouponFixedDefinition couponFixedDefinition = new CouponFixedDefinition(couponIborDefinition, SPREAD);
-    Payment couponFixed = couponFixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
-    PresentValueCalculator pvc = PresentValueCalculator.getInstance();
-    double pvIbor = pvc.visit(couponIbor, CURVES_BUNDLE);
-    double pvFixed = pvc.visit(couponFixed, CURVES_BUNDLE);
+    final CurrencyAmount pv = METHOD.presentValue(COUPON, CURVES_BUNDLE);
+    final CouponIborDefinition couponIborDefinition = new CouponIborDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX);
+    final Payment couponIbor = couponIborDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final CouponFixedDefinition couponFixedDefinition = new CouponFixedDefinition(couponIborDefinition, SPREAD);
+    final Payment couponFixed = couponFixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final PresentValueCalculator pvc = PresentValueCalculator.getInstance();
+    final double pvIbor = pvc.visit(couponIbor, CURVES_BUNDLE);
+    final double pvFixed = pvc.visit(couponFixed, CURVES_BUNDLE);
     assertEquals("Present value by discounting", pvIbor * FACTOR + pvFixed, pv.getAmount());
   }
 
@@ -92,8 +92,8 @@ public class CouponIborGearingDiscountingMethodTest {
    * Tests the present value in method vs calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD.presentValue(COUPON, CURVES_BUNDLE);
-    double pvCalculator = PVC.visit(COUPON, CURVES_BUNDLE);
+    final CurrencyAmount pvMethod = METHOD.presentValue(COUPON, CURVES_BUNDLE);
+    final double pvCalculator = PVC.visit(COUPON, CURVES_BUNDLE);
     assertEquals("Coupon with gearing and spread - present value: Method vs Calculator", pvMethod.getAmount(), pvCalculator);
   }
 
@@ -102,18 +102,18 @@ public class CouponIborGearingDiscountingMethodTest {
    * Test the present value curves sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
+    final PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
     pvsFuture.clean();
-    double deltaTolerancePrice = 1.0E+2;
+    final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
     // 1. Forward curve sensitivity
-    String bumpedCurveName = "Bumped Curve";
+    final String bumpedCurveName = "Bumped Curve";
     final Payment couponBumpedForward = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAMES[0], bumpedCurveName});
-    double[] nodeTimesForward = new double[] {COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES_BUNDLE, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    final double[] nodeTimesForward = new double[] {COUPON.getFixingPeriodStartTime(), COUPON.getFixingPeriodEndTime()};
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES_BUNDLE, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    List<DoublesPair> sensiPvForward = pvsFuture.getSensitivity().get(CURVES_NAMES[1]);
+    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(CURVES_NAMES[1]);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -121,10 +121,10 @@ public class CouponIborGearingDiscountingMethodTest {
     }
     // 2. Discounting curve sensitivity
     final Payment couponBumpedDisc = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {bumpedCurveName, CURVES_NAMES[1]});
-    double[] nodeTimesDisc = new double[] {COUPON.getPaymentTime()};
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedDisc, CURVES_BUNDLE, CURVES_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    final double[] nodeTimesDisc = new double[] {COUPON.getPaymentTime()};
+    final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedDisc, CURVES_BUNDLE, CURVES_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    List<DoublesPair> sensiPvDisc = pvsFuture.getSensitivity().get(CURVES_NAMES[0]);
+    final List<DoublesPair> sensiPvDisc = pvsFuture.getSensitivities().get(CURVES_NAMES[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -139,7 +139,7 @@ public class CouponIborGearingDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     PresentValueSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(COUPON, CURVES_BUNDLE);
     Map<String, List<DoublesPair>> pvcsCalculator = PVCSC.visit(COUPON, CURVES_BUNDLE);
-    assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivity(), pvcsCalculator);
+    assertEquals("Coupon with gearing and spread - present value curve sensitivity: Method vs Calculator", pvcsMethod.getSensitivities(), pvcsCalculator);
   }
 
 }

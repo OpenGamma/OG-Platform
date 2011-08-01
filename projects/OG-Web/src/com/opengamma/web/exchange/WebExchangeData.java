@@ -98,6 +98,9 @@ public class WebExchangeData extends DirectBean {
   public static WebExchangeData.Meta meta() {
     return WebExchangeData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebExchangeData.Meta.INSTANCE);
+  }
 
   @Override
   public WebExchangeData.Meta metaBean() {
@@ -105,7 +108,7 @@ public class WebExchangeData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -652001691:  // exchangeMaster
         return getExchangeMaster();
@@ -120,11 +123,11 @@ public class WebExchangeData extends DirectBean {
       case -1407102089:  // versioned
         return getVersioned();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -652001691:  // exchangeMaster
         setExchangeMaster((ExchangeMaster) newValue);
@@ -145,7 +148,7 @@ public class WebExchangeData extends DirectBean {
         setVersioned((ExchangeDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

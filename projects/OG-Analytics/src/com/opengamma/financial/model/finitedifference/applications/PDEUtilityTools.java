@@ -133,23 +133,27 @@ public class PDEUtilityTools {
     Validate.isTrue(xSteps > 0, "need xSteps > 0");
     Validate.isTrue(ySteps > 0, "need ySteps > 0");
 
-    System.out.println(name);
+    String result = "";
+    result += name;
+    result += "\n";
+    //System.out.println(name);
     for (int i = 0; i <= ySteps; i++) {
       final double y = yMin + ((yMax - yMin) * i) / ySteps;
-      System.out.print("\t" + y);
+      result += ("\t" + y);
     }
-    System.out.print("\n");
+    result += "\n";
 
     for (int j = 0; j <= xSteps; j++) {
       final double t = xMin + ((xMax - xMin) * j) / xSteps;
-      System.out.print(t);
+      result += t;
       for (int i = 0; i <= ySteps; i++) {
         final double k = yMin + ((yMax - yMin) * i) / ySteps;
-        System.out.print("\t" + surface.getZValue(t, k));
+        result += "\t" + surface.getZValue(t, k);
       }
-      System.out.print("\n");
+      result += "\n";
     }
-    System.out.print("\n");
+    result += "\n";
+    System.out.println(result);
   }
 
   public static void printSurfaceInterpolate(final String name, final PDEFullResults1D res) {

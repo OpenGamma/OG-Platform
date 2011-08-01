@@ -62,39 +62,39 @@ public class ClientResource {
    */
   public static final String HEARTBEAT_PATH = "heartbeat";
   
-  private final ClientsResource _clientsResource;
-  private final String _clientName;
-  private final UsersResourceContext _usersResourceContext;
-  
   private DataPortfoliosResource _portfolioMaster;
   private DataPositionsResource _positionMaster;
   private SecurityMasterResource _securitiesResource;
   private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
   private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
   private MarketDataSnapshotMasterResource _snapshotMaster;
+  private final String _clientName;
+  private final String _userName;
+  private final UserResourceData _data;
 
   /**
    * Contains the timestamp of the last time a resource was requested.
    */
   private volatile long _lastAccessed;
 
-  public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
-    _clientsResource = clientsResource;
-    _clientName = clientName;
-    _usersResourceContext = context;
+  public ClientResource(final String userName, final String clientName, final UserResourceData data) {
     _lastAccessed = System.currentTimeMillis();
+    _clientName = clientName;
+    _userName = userName;
+    _data = data;
   }
 
   public FudgeContext getFudgeContext() {
-    return _usersResourceContext.getFudgeContext();
+    UsersResourceContext context = _data.getContext();
+    return context.getFudgeContext();
   }
-
+  
   /**
    * Gets the URI info.
    * @return the uri info, not null
    */
   public UriInfo getUriInfo() {
-    return getClientsResource().getUriInfo();
+    return _data.getUriInfo();
   }
   
   public String getClientName() {
@@ -102,12 +102,9 @@ public class ClientResource {
   }
 
   public String getUserName() {
-    return getClientsResource().getUserResource().getUserName();
+    return _userName;
   }
 
-  public ClientsResource getClientsResource() {
-    return _clientsResource;
-  }
 
   public long getLastAccessed() {
     return _lastAccessed;
@@ -124,7 +121,8 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_portfolioMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
-      _portfolioMaster = new DataPortfoliosResource(new UserPortfolioMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPortfolioMaster()));
+      UsersResourceContext context = _data.getContext();
+      _portfolioMaster = new DataPortfoliosResource(new UserPortfolioMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPortfolioMaster()));
     }
     return _portfolioMaster;
   }
@@ -134,7 +132,8 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
-      _positionMaster = new DataPositionsResource(new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster()));
+      UsersResourceContext context = _data.getContext();
+      _positionMaster = new DataPositionsResource(new UserPositionMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPositionMaster()));
     }
     return _positionMaster;
   }
@@ -144,7 +143,8 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_securitiesResource == null) {
       s_logger.debug("Creating UserSecurityMaster for {}/{}", getUserName(), getClientName());
-      _securitiesResource = new SecurityMasterResource(new UserSecurityMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getSecurityMaster()),
+      UsersResourceContext context = _data.getContext();
+      _securitiesResource = new SecurityMasterResource(new UserSecurityMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSecurityMaster()),
           getFudgeContext());
     }
     return _securitiesResource;
@@ -155,9 +155,10 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_viewDefinitionsResource == null) {
       s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
+      UsersResourceContext context = _data.getContext();
       _viewDefinitionsResource = new DataManageableViewDefinitionRepositoryResource(
           new UserManageableViewDefinitionRepository(getUserName(), getClientName(),
-              _usersResourceContext.getDataTracker(), _usersResourceContext.getViewDefinitionRepository()));
+              _data.getUserDataTracker(), context.getViewDefinitionRepository()));
     }
     return _viewDefinitionsResource;
   }
@@ -167,8 +168,9 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_interpolatedYieldCurveDefinitionsResource == null) {
       s_logger.debug("Creating UserYieldCurveDefinitionMaster for {}/{}", getUserName(), getClientName());
+      UsersResourceContext context = _data.getContext();
       _interpolatedYieldCurveDefinitionsResource = new InterpolatedYieldCurveDefinitionMasterResource(new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
-          _usersResourceContext.getDataTracker(), _usersResourceContext.getInterpolatedYieldCurveDefinitionMaster()), getFudgeContext());
+          _data.getUserDataTracker(), context.getInterpolatedYieldCurveDefinitionMaster()), getFudgeContext());
     }
     return _interpolatedYieldCurveDefinitionsResource;
   }
@@ -178,8 +180,9 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_snapshotMaster == null) {
       s_logger.debug("Creating UserSnapshotMaster for {}/{}", getUserName(), getClientName());
-      UserSnapshotMaster userMaster = new UserSnapshotMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getSnapshotMaster());
-      _snapshotMaster = new MarketDataSnapshotMasterResource(userMaster, _usersResourceContext.getFudgeContext());
+      UsersResourceContext context = _data.getContext();
+      UserSnapshotMaster userMaster = new UserSnapshotMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSnapshotMaster());
+      _snapshotMaster = new MarketDataSnapshotMasterResource(userMaster, context.getFudgeContext());
     }
     return _snapshotMaster;
   }

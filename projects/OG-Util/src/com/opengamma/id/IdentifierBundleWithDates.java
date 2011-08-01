@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -252,13 +254,28 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
 
   /**
    * Returns the IdentifierBundle without dates.
+   * <p>
+   * This returns all the identifiers ignoring the validity dates.
+   * See {@link #asIdentifierBundle(LocalDate)} for a better choice.
    * 
    * @return the equivalent bundle, without the dates, not null
    */
   public IdentifierBundle asIdentifierBundle() {
+    return asIdentifierBundle(null);
+  }
+
+  /**
+   * Returns the IdentifierBundle without dates as of a specific date.
+   * 
+   * @param validOn  the validity date, null returns all
+   * @return the equivalent bundle, without the dates, not null
+   */
+  public IdentifierBundle asIdentifierBundle(LocalDate validOn) {
     Set<Identifier> ids = new HashSet<Identifier>();
     for (IdentifierWithDates identifier : _identifiers) {
-      ids.add(identifier.asIdentifier());
+      if (identifier.isValidOn(validOn)) {
+        ids.add(identifier.asIdentifier());
+      }
     }
     return IdentifierBundle.of(ids);
   }

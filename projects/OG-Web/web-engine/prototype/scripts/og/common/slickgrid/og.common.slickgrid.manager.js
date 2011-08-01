@@ -59,7 +59,7 @@ $.register_module({
                     var from, to, json_header;
                     if (r.error) {
                         ui.message({
-                            location: '#OG-sr',
+                            location: '.OG-js-search-panel',
                             message: 'oops, something bad happened (' + r.message + ')'
                         });
                         return;
@@ -85,7 +85,7 @@ $.register_module({
                         data[from + i].index = from + i;
                     });
                     on_data_loaded.notify({from: from,to: to});
-                    ui.message({location: '#OG-sr', destroy: true});
+                    ui.message({location: '.OG-js-search-panel', destroy: true});
                     clearTimeout(timer);
                 }
                 /**
@@ -95,7 +95,8 @@ $.register_module({
                     og.api.rest[obj.page_type].get($.extend({
                         handler: handle_data,
                         loading: function () {
-                            ui.message({location: '#OG-sr', message: {0: 'loading...', 3000: 'still loading...'}});
+                            ui.message({location: '.OG-js-search-panel',
+                                message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,
                         page: request_page_number + 1, // 0 and 1 are the same

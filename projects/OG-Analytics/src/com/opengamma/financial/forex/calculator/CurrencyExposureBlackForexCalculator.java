@@ -38,14 +38,14 @@ public class CurrencyExposureBlackForexCalculator extends CurrencyExposureForexC
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(ForexOptionVanilla derivative, YieldCurveBundle data) {
-    ForexOptionVanillaBlackMethod method = new ForexOptionVanillaBlackMethod();
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionSingleBarrier(ForexOptionSingleBarrier derivative, YieldCurveBundle data) {
-    ForexOptionSingleBarrierBlackMethod method = new ForexOptionSingleBarrierBlackMethod();
+  public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
+    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
     return method.currencyExposure(derivative, data);
   }
 

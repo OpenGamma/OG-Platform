@@ -12,10 +12,9 @@ import java.util.NoSuchElementException;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.AbstractFastTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.DateTimeResolution;
@@ -30,7 +29,9 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
  *         Contains methods to make Primitive time series work with the normal
  *         non-primitive time series interface (where possible)
  */
-public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeSeries<Long> implements FastLongDoubleTimeSeries {
+public abstract class AbstractFastLongDoubleTimeSeries
+    extends AbstractFastTimeSeries<Long>
+    implements FastLongDoubleTimeSeries {
 
   private final DateTimeNumericEncoding _encoding;
 
@@ -81,12 +82,12 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
 
   @Override
   public DoubleTimeSeries<Long> subSeries(final Long startTime, final Long endTime) {
-    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, endTime);
+    return subSeriesFast(startTime, endTime);
   }
   
   @Override
   public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean exclusiveEnd) {
-    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd);
+    return subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd);
   }
 
   @Override
@@ -130,10 +131,10 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   }
 
   @Override
-  public TimeSeries<Long, Double> newInstance(final Long[] times, final Double[] values) {
-    return (TimeSeries<Long, Double>) newInstanceFast(ArrayUtils.toPrimitive(times), ArrayUtils.toPrimitive(values));
+  public DoubleTimeSeries<Long> newInstance(final Long[] times, final Double[] values) {
+    return newInstanceFast(ArrayUtils.toPrimitive(times), ArrayUtils.toPrimitive(values));
   }
-  
+
   public FastLongDoubleTimeSeries operate(final UnaryOperator operator) {
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -142,8 +143,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
       results[i] = operator.operate(aValues[i]);
     }
     return newInstanceFast(aTimes, results);
-  }  
-  
+  }
+
   public FastLongDoubleTimeSeries operate(final double other, final BinaryOperator operator) {
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -153,7 +154,7 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     }
     return newInstanceFast(aTimes, results);
   }
-  
+
   public FastLongDoubleTimeSeries operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
@@ -162,7 +163,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
       return operate((FastLongDoubleTimeSeries) fastSeries, operator);
     }
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator) { 
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -199,7 +201,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator) { 
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -241,7 +244,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
@@ -250,7 +254,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
       return unionOperate((FastLongDoubleTimeSeries) fastSeries, operator);
     }
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator) { 
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -309,8 +314,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
-  }  
-  
+  }
+
+  @Override
   public FastLongDoubleTimeSeries unionOperate(final FastLongDoubleTimeSeries other, final BinaryOperator operator) { 
     final long[] aTimes = timesArrayFast();
     final double[] aValues = valuesArrayFast();
@@ -364,8 +370,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
-  }  
-  
+  }
+
+  @Override
   public FastLongDoubleTimeSeries lag(final int days) {
     long[] times = timesArrayFast();
     double[] values = valuesArrayFast();
@@ -385,39 +392,48 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
       return newInstanceFast(times, values);
     }
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final boolean includeStart, final long endTime, final boolean includeEnd) {
     return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
   }
 
+  @Override
   public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries() {
     return new FastListIntDoubleTimeSeries(this);
   }
-  
+
+  @Override
   public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries() {
     return new FastArrayIntDoubleTimeSeries(this);
   }
-  
+
+  @Override
   public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries() {
     return new FastListLongDoubleTimeSeries(this);
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries() {
     return this;
   }
 
+  @Override
   public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastListIntDoubleTimeSeries(encoding, this);
   }
-  
+
+  @Override
   public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastArrayIntDoubleTimeSeries(encoding, this);
   }
-  
+
+  @Override
   public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastListLongDoubleTimeSeries(encoding, this);
   }
-  
+
+  @Override
   public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastArrayLongDoubleTimeSeries(encoding, this);
   }

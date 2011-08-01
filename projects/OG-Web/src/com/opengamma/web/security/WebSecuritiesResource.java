@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -185,7 +186,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     for (IdentifierBundle identifierBundle : requestBundles) {
       UniqueIdentifier uniqueIdentifier = loadedSecurities.get(identifierBundle);
       String objectIdentifier = uniqueIdentifier != null ? uniqueIdentifier.getObjectId().toString() : null;
-      result.put(identifierBundle.getIdentifier(scheme), objectIdentifier);
+      result.put(identifierBundle.getIdentifierValue(scheme), objectIdentifier);
     }
     FlexiBean out = createRootData();
     out.put("requestScheme", scheme);
@@ -196,8 +197,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   private IdentifierBundle buildRequestAsIdentifierBundle(IdentificationScheme scheme, Collection<IdentifierBundle> bundles) {
     List<Identifier> identifiers = new ArrayList<Identifier>();
     for (IdentifierBundle bundle : bundles) {
-      String identifierValue = bundle.getIdentifier(scheme);
-      identifiers.add(Identifier.of(scheme, identifierValue));
+      identifiers.add(bundle.getIdentifier(scheme));
     }
     return IdentifierBundle.of(identifiers);
   }
@@ -256,7 +256,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
     SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
-    out.put("securityTypes", metaData.getSecurityTypes());
+    out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
     return out;
   }
 

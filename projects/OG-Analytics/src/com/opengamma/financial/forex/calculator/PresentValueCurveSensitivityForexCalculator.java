@@ -6,8 +6,10 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.financial.forex.method.ForexDiscountingMethod;
+import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -37,14 +39,20 @@ public class PresentValueCurveSensitivityForexCalculator extends AbstractForexDe
   }
 
   @Override
-  public PresentValueSensitivity visitForex(Forex derivative, YieldCurveBundle data) {
-    ForexDiscountingMethod method = new ForexDiscountingMethod();
+  public PresentValueSensitivity visitForex(final Forex derivative, final YieldCurveBundle data) {
+    final ForexDiscountingMethod method = ForexDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 
   @Override
-  public PresentValueSensitivity visitForexSwap(ForexSwap derivative, YieldCurveBundle data) {
-    ForexSwapDiscountingMethod method = new ForexSwapDiscountingMethod();
+  public PresentValueSensitivity visitForexSwap(final ForexSwap derivative, final YieldCurveBundle data) {
+    final ForexSwapDiscountingMethod method = ForexSwapDiscountingMethod.getInstance();
+    return method.presentValueCurveSensitivity(derivative, data);
+  }
+
+  @Override
+  public PresentValueSensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
+    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
     return method.presentValueCurveSensitivity(derivative, data);
   }
 

@@ -46,6 +46,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
  * RESTful resource for a security.
@@ -145,6 +146,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     out.put("security", doc.getSecurity());
     out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
+    out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
     return out;
   }
 
@@ -167,7 +169,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
+        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_BUID);
         result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
       }
     }

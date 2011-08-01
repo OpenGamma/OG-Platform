@@ -96,6 +96,9 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   public static PortfolioHistoryRequest.Meta meta() {
     return PortfolioHistoryRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PortfolioHistoryRequest.Meta.INSTANCE);
+  }
 
   @Override
   public PortfolioHistoryRequest.Meta metaBean() {
@@ -103,22 +106,22 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 95472323:  // depth
         return getDepth();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 95472323:  // depth
         setDepth((Integer) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

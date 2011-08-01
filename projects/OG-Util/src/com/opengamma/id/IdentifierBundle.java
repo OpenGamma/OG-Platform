@@ -37,6 +37,9 @@ import com.opengamma.util.PublicAPI;
  * For example, the United States might be referred to by an identifier referencing the 2 letter
  * ISO country code {@code US} in one identifier and the 3 letter currency code {@code USD} in another.
  * <p>
+ * Note that this is a <i>list</i> of identifiers, not a <i>map</i>.
+ * For example, this permits multiple tickers that refer to the same conceptual object to be linked.
+ * <p>
  * This class is immutable and thread-safe.
  */
 @PublicAPI
@@ -146,6 +149,43 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Gets the identifier for the specified scheme.
+   * <p>
+   * This returns the first identifier in the internal set that matches.
+   * The set is not sorted, so this method is not consistent.
+   * 
+   * @param scheme  the scheme to query, null returns null
+   * @return the identifier, null if not found
+   */
+  public Identifier getIdentifier(IdentificationScheme scheme) {
+    for (Identifier identifier : _identifiers) {
+      if (ObjectUtils.equals(scheme, identifier.getScheme())) {
+        return identifier;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Gets the standalone identifier value for the specified scheme.
+   * <p>
+   * This returns the first identifier in the internal set that matches.
+   * The set is not sorted, so this method is not consistent.
+   * 
+   * @param scheme  the scheme to query, null returns null
+   * @return the standalone identifier value, null if not found
+   */
+  public String getIdentifierValue(IdentificationScheme scheme) {
+    for (Identifier identifier : _identifiers) {
+      if (ObjectUtils.equals(scheme, identifier.getScheme())) {
+        return identifier.getValue();
+      }
+    }
+    return null;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
    * 
@@ -170,25 +210,6 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
     ids.remove(identifier);
     return new IdentifierBundle(ids);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the standalone identifier for the specified scheme.
-   * <p>
-   * This returns the first identifier in the internal set that matches.
-   * The set is not sorted, so this method is not consistent.
-   * 
-   * @param scheme  the scheme to query, null returns null
-   * @return the standalone identifier, null if not found
-   */
-  public String getIdentifier(IdentificationScheme scheme) {
-    for (Identifier identifier : _identifiers) {
-      if (ObjectUtils.equals(scheme, identifier.getScheme())) {
-        return identifier.getValue();
-      }
-    }
-    return null;
   }
 
   /**

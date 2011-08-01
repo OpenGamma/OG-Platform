@@ -11,6 +11,7 @@
     <@rowin label="Data provider"><input type="text" size="30" maxlength="80" name="dataProvider" value="${searchRequest.dataProvider}" /></@rowin>
     <@rowin label="Data field"><input type="text" size="30" maxlength="80" name="dataField" value="${searchRequest.dataField}" /></@rowin>
     <@rowin label="Observation time"><input type="text" size="30" maxlength="80" name="observationTime" value="${searchRequest.observationTime}" /></@rowin>
+    <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${searchRequest.name}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>
@@ -19,16 +20,16 @@
 <#if searchResult??>
 <@subsection title="Results">
   <@table items=searchResult.documents paging=paging empty="No time series" headers=["Reference","Identifiers","Data source","Data provider","Data field","Observation time","Actions"]; item>
-      <td><a href="${uris.oneTimeSeries(item)}">${item.series.uniqueId.value}</a></td>
+      <td><a href="${uris.oneTimeSeries(item)}">${item.info.uniqueId.value}</a></td>
       <td>
-      <#list item.series.identifiers.iterator() as item>
+      <#list item.info.identifiers.iterator() as item>
     	   ${item}<br>
    	  </#list>
       </td>
-      <td>${item.series.dataSource}</td>
-      <td>${item.series.dataProvider}</td>
-      <td>${item.series.dataField}</td>
-      <td>${item.series.observationTime}</td>
+      <td>${item.info.dataSource}</td>
+      <td>${item.info.dataProvider}</td>
+      <td>${item.info.dataField}</td>
+      <td>${item.info.observationTime}</td>
       <td><a href="${uris.oneTimeSeries(item)}">View</a></td>
   </@table>
 </@subsection>

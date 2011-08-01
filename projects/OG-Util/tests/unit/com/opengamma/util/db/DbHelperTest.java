@@ -98,4 +98,9 @@ public class DbHelperTest {
         _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.of(3, 20)));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_sqlNullDefault() {
+    assertEquals("COALESCE(a, b)", _helper.sqlNullDefault("a", "b"));
+  }
+
 }

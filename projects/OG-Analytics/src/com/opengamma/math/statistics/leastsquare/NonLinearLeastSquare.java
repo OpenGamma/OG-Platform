@@ -36,7 +36,7 @@ public class NonLinearLeastSquare {
     this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
   }
 
-  public NonLinearLeastSquare(Decomposition<?> decomposition, MatrixAlgebra algebra, double eps) {
+  public NonLinearLeastSquare(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
     _decomposition = decomposition;
     _algebra = algebra;
     _eps = eps;
@@ -273,7 +273,7 @@ public class NonLinearLeastSquare {
 
     //If we start at the solution we are done
     if (oldChiSqr == 0.0) {
-      return finish(oldChiSqr, jacobian, theta);
+      return finish(oldChiSqr, jacobian, theta, sigma);
     }
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
@@ -288,7 +288,6 @@ public class NonLinearLeastSquare {
       } catch (final Exception e) {
         throw new MathException(e);
       }
-
       final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
       newError = getError(func, observedValues, sigma, newTheta);
       newChiSqr = getChiSqr(newError);
@@ -296,7 +295,7 @@ public class NonLinearLeastSquare {
       if (Math.abs(newChiSqr - oldChiSqr) / oldChiSqr < _eps) {
         beta = getChiSqrGrad(error, jacobian);
         //System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
-        return finish(newChiSqr, jacobian, newTheta);
+        return finish(newChiSqr, jacobian, newTheta, sigma);
       }
 
       if (newChiSqr < oldChiSqr) {
@@ -308,7 +307,7 @@ public class NonLinearLeastSquare {
 
         // check for convergence
         if (_algebra.getNorm2(beta) < _eps * g0) {
-          return finish(newChiSqr, jacobian, newTheta);
+          return finish(newChiSqr, jacobian, newTheta, sigma);
         }
 
         //        System.err.println("lambda: " + lambda + " Chi^2: " + newChiSqr + " grad: " + _algebra.getNorm2(beta) +
@@ -329,18 +328,30 @@ public class NonLinearLeastSquare {
   }
 
   /**
-   * @param newChiSqr
-   * @param jacobian
-   * @param newTheta
-   * @return
+   * 
+   * the inverse-Jacobian where the i-j entry is the sensitivity of the ith (fitted) parameter (a_i) to the jth data point (y_j).
+   * @param sigma Set of measurement errors
+   * @param func The model as a function of its parameters only
+   * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
+   * @param originalSolution The value of the parameters at a converged solution 
+   * @return inverse-Jacobian
    */
-  private LeastSquareResults finish(double newChiSqr, DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta) {
-    DoubleMatrix2D alpha;
-    DecompositionResult decmp;
-    alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
-    decmp = _decomposition.evaluate(alpha);
+  public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
+    final DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
+    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
+    final DecompositionResult decRes = _decomposition.evaluate(a);
+    return decRes.solve(bT);
+  }
+
+  private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
+    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DecompositionResult decmp = _decomposition.evaluate(alpha);
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
-    return new LeastSquareResults(newChiSqr, newTheta, covariance);
+    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
+    final DoubleMatrix2D inverseJacobian = decmp.solve(bT);
+    return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
@@ -355,16 +366,30 @@ public class NonLinearLeastSquare {
     return new DoubleMatrix1D(res);
   }
 
+  private DoubleMatrix2D getBTranspose(final DoubleMatrix2D jacobian, final DoubleMatrix1D sigma) {
+    final int n = jacobian.getNumberOfRows();
+    final int m = jacobian.getNumberOfColumns();
+
+    final double[][] res = new double[m][n];
+
+    for (int k = 0; k < m; k++) {
+      for (int i = 0; i < n; i++) {
+        res[k][i] = jacobian.getEntry(i, k) / sigma.getEntry(i);
+      }
+    }
+    return new DoubleMatrix2D(res);
+  }
+
   private DoubleMatrix2D getJacobian(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
     final DoubleMatrix2D res = jac.evaluate(theta);
     final double[][] data = res.getData();
-    final int m = res.getNumberOfRows();
-    final int n = res.getNumberOfColumns();
-    Validate.isTrue(theta.getNumberOfElements() == n, "Jacobian is wrong size");
-    Validate.isTrue(sigma.getNumberOfElements() == m, "Jacobian is wrong size");
+    final int n = res.getNumberOfRows();
+    final int m = res.getNumberOfColumns();
+    Validate.isTrue(theta.getNumberOfElements() == m, "Jacobian is wrong size");
+    Validate.isTrue(sigma.getNumberOfElements() == n, "Jacobian is wrong size");
 
-    for (int i = 0; i < m; i++) {
-      for (int j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < m; j++) {
         data[i][j] /= sigma.getEntry(i);
       }
     }

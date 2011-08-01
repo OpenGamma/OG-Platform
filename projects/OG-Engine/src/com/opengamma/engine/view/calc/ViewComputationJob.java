@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,6 +75,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   private volatile boolean _wakeOnMarketDataChanged;
   private volatile boolean _marketDataChanged;
+  private volatile boolean _cycleTriggered;
   
   private enum ViewCycleType { FULL, DELTA, NONE }
   
@@ -224,8 +226,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
     } catch (Exception e) {
-      s_logger.error("Error obtaining compiled view definition for time {}", compilationValuationTime);
-      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compiled view definition for time " + compilationValuationTime, e));
+      String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1}", getViewProcess().getDefinitionName(), compilationValuationTime);
+      s_logger.error(message);
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
       return;
     }
     
@@ -352,6 +355,20 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         _marketDataChanged = false;
       }
     }
+    if (_cycleTriggered) {
+      s_logger.debug("Cycle was manually triggered");
+      if (currentTimeNanos >= _eligibleForFullComputationFromNanos) {
+        // Do (or upgrade to) a full computation because we're eligible for one
+        s_logger.debug("Performing a full computation for the manual request");
+        doFullRecalc = true;
+        _cycleTriggered = false;
+      } else if (currentTimeNanos >= _eligibleForDeltaComputationFromNanos) {
+        // Do a delta computation
+        s_logger.debug("Performing a delta computation for the manual request");
+        doDeltaRecalc = true;
+        _cycleTriggered = false;
+      }
+    }
     
     if (doFullRecalc || doDeltaRecalc) {
       // Set the times for the next computation cycle. These might have passed by the time this cycle completes, in
@@ -455,6 +472,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     terminate();
   }
   
+  public synchronized void triggerCycle() {
+    s_logger.debug("Cycle triggered manually");
+    _cycleTriggered = true;
+    notifyAll();
+  }
+  
   public synchronized void marketDataChanged() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
@@ -494,8 +517,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       compiledViewDefinition = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), compilationServices, valuationTime);
     } catch (Exception e) {
-      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException("Error compiling view definition for time " + valuationTime, e));
-      throw new OpenGammaRuntimeException("Error compiling view definition", e);
+      String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionName(), valuationTime);
+      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
+      throw new OpenGammaRuntimeException(message, e);
     }
     setCachedCompiledViewDefinition(compiledViewDefinition);
     

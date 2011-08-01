@@ -1,46 +1,24 @@
-<div class="OG-portfolio">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span class="og-js-breadcrumb"></span>
-    <span data-og-editable="name">${name}</span>
-  </h1>
-  <div class="og-treeLines">
-    <table class="OG-table-style-01">
-    <thead>
-      <tr>
-        <td><strong>Portfolios</strong></td>
-      </tr>
-    </thead>
-    <tfoot>
-      <tr>
-        <td>
-          <input type="text" value="name" autocomplete="off" class="og-js-create-portfolio-node" />
-          <button class="OG-small-button og-button-secondary">create new portfolio</button>
-        </td>
-      </tr>
-    </tfoot>
-    <tbody class="og-js-portfolios"></tbody>
-  </table>
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1 data-og-editable="name">${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content">
+  <div class="OG-c10 og-grid-last OG-max-width-xl">
+    <section class="OG-mod-1 OG-c4" style="width: 327px">
+      <div>
+        <h3>Portfolios</h3>
+        <div class="og-js-portfolios"></div>
+        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>
+      </div>
+    </section>
+    <section class="OG-mod-1 OG-c6" style="width: 407px">
+      <div>
+        <h3>Positions</h3>
+        <div class="og-js-positions"></div>
+        <a href="#" class="OG-link-add OG-js-add-position">add new position</a>
+      </div>
+    </section>
   </div>
-  <div class="og-treeLines og-treeLinesLast OG-JS-positions">
-    <table class="OG-table-style-01">
-      <thead>
-        <tr>
-          <td><strong>Positions</strong></td>
-          <td>Quantity</td>
-        </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <td colspan="2">
-            <div>
-              <input type="text" value="Identifier" autocomplete="off" class="og-js-add-position" />
-              <button class="OG-small-button og-button-secondary">add position</button>
-            </div>
-          </td>
-        </tr>
-      </tfoot>
-      <tbody class="og-js-positions"></tbody>
-</table>
-  </div>
+</div>
 </div>

@@ -1,45 +1,28 @@
-<div class="OG-form">
-  {{html item_0}}<!-- view definition main fields -->
+<div class="OG-toolbar"></div>
+<header class="OG-header-generic">
+  <h1>View Definition: ${name}</h1>
+</header>
+<div class="OG-details-container">
+<div class="og-details-content OG-config">
+  <div class="OG-c10 og-grid-last OG-max-width-l OG-form">
+  {{html item_0}}<!-- view definition currency and identifier -->
   {{html item_1}}<!-- result model definition -->
   {{html item_2}}<!-- execution parameters -->
-  <section>
+  <section class="OG-mod-0 OG-c10 og-grid-last og-column-sets og-js-colsets">
     <div>
-      <h2>Column Sets</h2>
-      <small>
-        A list of named column sets. These allow the same analytics to be computed using different settings and
-        viewed side by side at the same time
-      </small>
-      {{html item_3}}<!-- tabs -->
+      <h3>Column Sets</h3>
+      <p>
+        A list of named <em>column sets</em>. These allow the same analytics to be computed using different settings and
+        viewed side by side at the same time.
+      </p>
+      {{html item_3}}<!-- column set tabs -->
     </div>
-    <div class="OG-form-column-sets">
-      {{html item_4}}<!-- column set name -->
-      <ul>
-        <li>
-          <a>Column Values</a>
-          {{html item_5}}<!-- column values -->
-        </li>
-        <li>
-          <a>Additional Values</a>
-          {{html item_6}}<!-- spesific requirments fields -->
-          {{html item_7}}<!-- constraints -->
-        </li>
-        <li>
-          <a>Default Constraints</a>
-          <div>{{html item_8}}</div><!-- constraints -->
-        </li>
-        <li>
-          <a>Resolution Rule Transform</a>
-          {{html item_9}}<!-- resolution rule transform fields -->
-          {{html item_10}}<!-- constraints -->
-        </li>
-      </ul>
-    </div>
+    {{html item_4}}<!-- column sets -->
   </section>
-  <div class="og-confirm">
-    <div>
-      <button class="OG-small-button og-button-secondary">Cancel</button>
-      <button class="OG-small-button">Save</button>
-      <button class="OG-small-button">Delete</button>
-    </div>
+  <section class="OG-mod-0">
+    <button type="submit" value="save" class="OG-small-button og-js-submit">Save</button>
+    <button type="submit" value="save_as_new" class="OG-small-button og-js-submit">Save As New</button>
+  </section>
   </div>
+</div>
 </div>
