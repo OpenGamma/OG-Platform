@@ -26,6 +26,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Class describing an zero-coupon inflation coupon. 
  * The start index value is known when the coupon is traded/issued.
+ * The index for a given month is given in the yield curve and in the time series on the first of the month.
  */
 public class CouponInflationZeroCouponDefinition extends CouponDefinition implements FixedIncomeInstrumentWithDataConverter<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
@@ -111,18 +112,17 @@ public class CouponInflationZeroCouponDefinition extends CouponDefinition implem
    */
   public static CouponInflationZeroCouponDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final PriceIndex priceIndex,
       final double indexStartValue, final int monthLag, final boolean startOfMonth) {
+    int nbWeekPublication = 2;
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     if (startOfMonth) {
       referenceStartDate = referenceStartDate.withDayOfMonth(1);
       referenceEndDate = referenceEndDate.withDayOfMonth(1);
     }
-    ZonedDateTime fixingDate = referenceEndDate.minusDays(1).withDayOfMonth(1).plusMonths(2).plusWeeks(2);
+    ZonedDateTime fixingDate = referenceEndDate.minusDays(1).withDayOfMonth(1).plusMonths(2).plusWeeks(nbWeekPublication); // Two weeks in the month after the last reference month.
     return new CouponInflationZeroCouponDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, referenceStartDate, indexStartValue,
         referenceEndDate, fixingDate);
   }
-
-  // TODO: builder with lag.
 
   /**
    * Gets the price index associated to the coupon. 

@@ -16,6 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an zero-coupon inflation coupon. 
  * The start index value is known when the coupon is traded/issued.
+ * The index for a given month is given in the yield curve and in the time series on the first of the month.
  */
 public class CouponInflationZeroCoupon extends Coupon {
 

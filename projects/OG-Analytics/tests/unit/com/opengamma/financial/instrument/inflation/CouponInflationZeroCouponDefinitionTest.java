@@ -33,7 +33,6 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * Tests the zero-coupon inflation constructors.
  */
 public class CouponInflationZeroCouponDefinitionTest {
-
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
@@ -52,7 +51,6 @@ public class CouponInflationZeroCouponDefinitionTest {
   private static final ZonedDateTime FIXING_DATE = REFERENCE_END_DATE.plusMonths(1).withDayOfMonth(1).plusWeeks(2);
   private static final CouponInflationZeroCouponDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL,
       PRICE_INDEX, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, FIXING_DATE);
-
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
   private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME};
@@ -99,6 +97,9 @@ public class CouponInflationZeroCouponDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the class getter.
+   */
   public void getter() {
     assertEquals("Inflation Zero-coupon: getter", CUR, ZERO_COUPON_DEFINITION.getCurrency());
     assertEquals("Inflation Zero-coupon: getter", PAYMENT_DATE, ZERO_COUPON_DEFINITION.getPaymentDate());
@@ -114,6 +115,9 @@ public class CouponInflationZeroCouponDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the equal and hash-code methods.
+   */
   public void equalHash() {
     assertEquals(ZERO_COUPON_DEFINITION, ZERO_COUPON_DEFINITION);
     CouponInflationZeroCouponDefinition couponDuplicate = new CouponInflationZeroCouponDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_DATE,
@@ -151,6 +155,9 @@ public class CouponInflationZeroCouponDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the first builder.
+   */
   public void from1() {
     CouponInflationZeroCouponDefinition constructor = new CouponInflationZeroCouponDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, START_DATE, INDEX_APRIL_2008,
         REFERENCE_END_DATE, FIXING_DATE);
@@ -159,6 +166,9 @@ public class CouponInflationZeroCouponDefinitionTest {
   }
 
   @Test
+  /**
+   * Tests the first based on indexation lag.
+   */
   public void from2() {
     CouponInflationZeroCouponDefinition constructor = new CouponInflationZeroCouponDefinition(CUR, PAYMENT_DATE, START_DATE, PAYMENT_DATE, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_DATE,
         INDEX_APRIL_2008, REFERENCE_END_DATE, FIXING_DATE);

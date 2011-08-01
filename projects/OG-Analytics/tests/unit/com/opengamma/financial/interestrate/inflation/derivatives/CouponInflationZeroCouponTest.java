@@ -28,7 +28,6 @@ import com.opengamma.util.time.DateUtil;
  * Tests the zero-coupon inflation constructors.
  */
 public class CouponInflationZeroCouponTest {
-
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
@@ -40,10 +39,9 @@ public class CouponInflationZeroCouponTest {
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, COUPON_TENOR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
-  private static final double INDEX_APRIL_2008 = 107.55; // 3 m before Aug: May / 1 May index = April index: 107,55
+  private static final double INDEX_APRIL_2008 = 108.23; // 3 m before Aug: May / 1 May index = May index: 108.23
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final ZonedDateTime FIXING_DATE = REFERENCE_END_DATE.plusMonths(1).withDayOfMonth(1).plusWeeks(2);
-
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
@@ -51,7 +49,6 @@ public class CouponInflationZeroCouponTest {
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-
   private static final CouponInflationZeroCoupon ZERO_COUPON = new CouponInflationZeroCoupon(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
       REFERENCE_END_TIME, FIXING_TIME, PRICE_INDEX_CURVE_NAME);
 
@@ -66,6 +63,9 @@ public class CouponInflationZeroCouponTest {
   }
 
   @Test
+  /**
+   * Tests the class getter.
+   */
   public void getter() {
     assertEquals("Inflation Zero-coupon: getter", PRICE_INDEX, ZERO_COUPON.getPriceIndex());
     assertEquals("Inflation Zero-coupon: getter", INDEX_APRIL_2008, ZERO_COUPON.getIndexStartValue());
@@ -75,6 +75,9 @@ public class CouponInflationZeroCouponTest {
   }
 
   @Test
+  /**
+   * Tests the equal and hash-code methods.
+   */
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
     CouponInflationZeroCoupon couponDuplicate = new CouponInflationZeroCoupon(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME,
