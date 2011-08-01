@@ -33,7 +33,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MoneyCalculationUtil;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -78,17 +77,14 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
       
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
+      if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
+        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security + " for " + _markDataSource + "/" + _markDataProvider + "/" + _markDataField);
+      }
+      if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
+        throw new NullPointerException("Could not get mark to market value for security " + security + " for " + _markDataSource + "/" + _markDataProvider + "/" + _markDataField + "/" + tradeDate);
+      }
       
-      if (markToMarketSeries == null) {
-        s_logger.warn("Could not get identifier / mark to market series pair for security {}", security.getIdentifiers());
-        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
-      }
-      LocalDateDoubleTimeSeries ts = markToMarketSeries.getTimeSeries();
-      if (ts == null) {
-        s_logger.warn("Could not get mark to market series for security {}", security.getIdentifiers());
-        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
-      }
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
       
       double costOfCarry = 0.0;
       final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _costOfCarryField,
@@ -99,18 +95,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
           costOfCarry = storedCostOfCarry;
         }
       }
-      
-      Double markToMarket = tradeValue;
-      if (!ts.isEmpty()) {
-        markToMarket = ts.getValue(tradeDate);
-        if (markToMarket == null) {
-          s_logger.warn("Could not get mark to market price for security {} for {}", security.getIdentifiers(), tradeDate);
-          return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
-        }
-      } else {
-        s_logger.warn("Could not get mark to market price for security {} for {}", security.getIdentifiers(), tradeDate);
-        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
-      }
+      Double markToMarket = markToMarketSeries.getTimeSeries().getValue(tradeDate);
       
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 

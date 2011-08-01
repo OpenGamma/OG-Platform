@@ -14,6 +14,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,9 +23,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
@@ -53,16 +53,9 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends ForexVanillaOptionFunction {
   private static final PresentValueForexYieldCurveNodeSensitivityCalculator CALCULATOR = PresentValueForexYieldCurveNodeSensitivityCalculator.getInstance();
-  private InterpolatedYieldCurveDefinitionSource _definitionSource;
 
   public ForexVanillaOptionYieldCurveNodeSensitivitiesFunction(final String putCurveName, final String receiveCurveName, final String surfaceName) {
     super(putCurveName, receiveCurveName, surfaceName, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    super.init(context);
-    _definitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
   }
 
   @Override
@@ -95,6 +88,16 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     if (receiveCouponSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Call curve coupon sensitivities were null");
     }
+    final Object putCurveSpecObject = inputs.getValue(getPutCurveSpecRequirement(putCurrency, getPutCurveName()));
+    if (putCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException("Put curve specification was null");
+    }
+    final Object callCurveSpecObject = inputs.getValue(getCallCurveSpecRequirement(callCurrency, getCallCurveName()));
+    if (callCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException("Call curve specification was null");
+    }
+    final InterpolatedYieldCurveSpecificationWithSecurities putCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) putCurveSpecObject;
+    final InterpolatedYieldCurveSpecificationWithSecurities callCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) callCurveSpecObject;
     final DoubleMatrix2D putJacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(putJacobianObject));
     final DoubleMatrix2D receiveJacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(receiveJacobianObject));
     final YieldAndDiscountCurve putCurve = data.getCurve(putCurveName);
@@ -110,8 +113,8 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     interpolatedCurves.put(callCurveName, receiveCurve);
     final Map<String, List<DoublesPair>> curveSensitivities = ((PresentValueSensitivity) curveSensitivitiesObject).getSensitivities();
     final Map<String, DoubleMatrix1D> result = CALCULATOR.calculate(fx, curveSensitivities, interpolatedCurves, couponSensitivities, jacobians);
-    final DoubleLabelledMatrix1D putResult = getSensitivitiesForCurve(target, getPutCurveName(), putCurveName, data, result.get(putCurveName), putCurrency);
-    final DoubleLabelledMatrix1D receiveResult = getSensitivitiesForCurve(target, getCallCurveName(), callCurveName, data, result.get(callCurveName), callCurrency);
+    final DoubleLabelledMatrix1D putResult = getSensitivitiesForCurve(target, getPutCurveName(), putCurveName, data, result.get(putCurveName), putCurrency, putCurveSpec);
+    final DoubleLabelledMatrix1D receiveResult = getSensitivitiesForCurve(target, getCallCurveName(), callCurveName, data, result.get(callCurveName), callCurrency, callCurveSpec);
     return Sets.newHashSet(new ComputedValue(getPutSpec(target, putCurrency.getCode()), putResult),
                            new ComputedValue(getCallSpec(target, callCurrency.getCode()), receiveResult));
   }
@@ -121,9 +124,9 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
     final String putCurveName = getPutCurveName();
-    final String receiveCurveName = getCallCurveName();
+    final String callCurveName = getCallCurveName();
     final Currency putCurrency = fxOption.getPutCurrency();
-    final Currency receiveCurrency = fxOption.getCallCurrency();
+    final Currency callCurrency = fxOption.getCallCurrency();
     final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, getSurfaceName())
@@ -131,15 +134,17 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putCurveName, putCurveName, putCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveCurveName, receiveCurveName, receiveCurveName,
+    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callCurveName, callCurveName, callCurveName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, putCurveName, putCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(receiveCurrency, receiveCurveName, receiveCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, callCurveName, callCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putCurveName, putCurveName));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(receiveCurrency, receiveCurveName, receiveCurveName));
-    result.add(getCurveSensitivitiesRequirement(target, putCurveName, receiveCurveName));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callCurveName, callCurveName));
+    result.add(getCurveSensitivitiesRequirement(target, putCurveName, callCurveName));
     result.add(spotRequirement);
     result.add(fxVolatilitySurface);
+    result.add(getPutCurveSpecRequirement(putCurrency, putCurveName));
+    result.add(getCallCurveSpecRequirement(callCurrency, callCurveName));
     return result;
   }
 
@@ -154,6 +159,18 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
   private ValueRequirement getCurveSensitivitiesRequirement(final ComputationTarget target, final String putCurveName, final String receiveCurveName) {
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.getSecurity(), ValueProperties.builder().with(ValuePropertyNames.PAY_CURVE, putCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName).get());
+  }
+
+  private ValueRequirement getPutCurveSpecRequirement(final Currency currency, final String putCurveName) {
+    final ValueRequirement putCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, putCurveName).get());
+    return putCurveRequirement;
+  }
+
+  private ValueRequirement getCallCurveSpecRequirement(final Currency currency, final String callCurveName) {
+    final ValueRequirement callCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, callCurveName).get());
+    return callCurveRequirement;
   }
 
   private ValueSpecification getPutSpec(final ComputationTarget target, final String putCurrency) {
@@ -175,12 +192,12 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
   }
 
   private DoubleLabelledMatrix1D getSensitivitiesForCurve(final ComputationTarget target, final String curveDefinitionName, final String curveName,
-      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final Currency currency) {
+      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final Currency currency, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec) {
     final int n = sensitivities.getNumberOfElements();
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = curve.getCurve().getXData();
     final double[] values = new double[n];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(_definitionSource, currency, curveDefinitionName);
+    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec, currency, curveDefinitionName);
     DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
     for (int i = 0; i < n; i++) {
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivities.getEntry(i));

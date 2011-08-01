@@ -11,6 +11,7 @@ import java.util.Queue;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -24,6 +25,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -257,4 +259,41 @@ final class LabelledMatrix1DBuilder {
       return new CurrencyLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
   }
+
+  @FudgeBuilderFor(StringLabelledMatrix1D.class)
+  public static final class StringLabelledMatrix1DBuilder extends AbstractFudgeBuilder<StringLabelledMatrix1D> {
+
+    @Override
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final StringLabelledMatrix1D object) {
+      final MutableFudgeMsg msg = context.newMessage();
+      final String[] keys = object.getKeys();
+      final double[] values = object.getValues();
+      for (int i = 0; i < object.size(); i++) {
+        msg.add(KEY_ORDINAL, keys[i]);
+        msg.add(VALUE_ORDINAL, values[i]);
+      }
+      message.add(MATRIX_FIELD, msg);
+    }
+
+    @Override
+    public StringLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final List<String> keys = new LinkedList<String>();
+      final List<Double> values = new LinkedList<Double>();
+      for (final FudgeField field : msg) {
+        switch (field.getOrdinal()) {
+          case KEY_ORDINAL:
+            keys.add((String) field.getValue());
+            break;
+          case VALUE_ORDINAL:
+            values.add((Double) field.getValue());
+            break;
+        }
+      }
+      String[] keysArray = keys.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+      final double[] valuesArray = Doubles.toArray(values);
+      return new StringLabelledMatrix1D(keysArray, valuesArray);
+    }
+  }
+
 }

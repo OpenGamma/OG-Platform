@@ -5,8 +5,13 @@
  */
 package com.opengamma.master.position.impl;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -16,6 +21,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
@@ -42,6 +48,8 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public class MasterPositionSource implements PositionSource, VersionedSource {
   // TODO: This still needs work re versioning, as it crosses the boundary between two masters
+
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterPositionSource.class);
 
   /**
    * The portfolio master.
@@ -231,41 +239,74 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     return manTrade;
   }
 
-  //-------------------------------------------------------------------------
+  private static int populatePositionSearchRequest(final PositionSearchRequest positionSearch, final ManageablePortfolioNode node) {
+    int count = 0;
+    for (ObjectIdentifier positionIdentifier : node.getPositionIds()) {
+      positionSearch.addPositionId(positionIdentifier);
+      count++;
+    }
+    for (ManageablePortfolioNode child : node.getChildNodes()) {
+      count += populatePositionSearchRequest(positionSearch, child);
+    }
+    return count;
+  }
+
   /**
    * Converts a manageable node to a source node.
    * 
-   * @param manNode  the manageable node, not null
-   * @param sourceNode  the source node, not null
+   * @param manNode the manageable node, not null
+   * @param sourceNode the source node, not null
    */
   protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
-    UniqueIdentifier nodeId = manNode.getUniqueId();
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    final Map<ObjectIdentifier, ManageablePosition> positionCache;
+    final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
+    if (positionCount > 0) {
+      positionCache = Maps.newHashMapWithExpectedSize(positionCount);
+      positionSearch.setVersionCorrection(getVersionCorrection());
+      final PositionSearchResult positions = getPositionMaster().search(positionSearch);
+      for (PositionDocument position : positions.getDocuments()) {
+        positionCache.put(position.getObjectId(), position.getPosition());
+      }
+    } else {
+      positionCache = null;
+    }
+    convertNode(manNode, sourceNode, positionCache);
+  }
+
+  /**
+   * Converts a manageable node to a source node.
+   * 
+   * @param manNode the manageable node, not null
+   * @param sourceNode the source node, not null
+   * @param positionCache the positions, not null
+   */
+  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode, final Map<ObjectIdentifier, ManageablePosition> positionCache) {
+    final UniqueIdentifier nodeId = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
-    
     if (manNode.getPositionIds().size() > 0) {
-      PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.setPositionIds(manNode.getPositionIds());
-      positionSearch.setVersionCorrection(getVersionCorrection());
-      PositionSearchResult positions = getPositionMaster().search(positionSearch);
-      for (PositionDocument posDoc : positions.getDocuments()) {
-        ManageablePosition manPos = posDoc.getPosition();
-        PositionImpl pos = new PositionImpl();
-        convertPosition(nodeId, manPos, pos);
-        sourceNode.addPosition(pos);
+      for (ObjectIdentifier positionIdentifier : manNode.getPositionIds()) {
+        final ManageablePosition foundPosition = positionCache.get(positionIdentifier);
+        if (foundPosition != null) {
+          final PositionImpl position = new PositionImpl();
+          convertPosition(nodeId, foundPosition, position);
+          sourceNode.addPosition(position);
+        } else {
+          s_logger.warn("Position {} not found for portfolio node {}", positionIdentifier, nodeId);
+        }
       }
     }
-    
     for (ManageablePortfolioNode child : manNode.getChildNodes()) {
       PortfolioNodeImpl childNode = new PortfolioNodeImpl();
-      convertNode(child, childNode);
+      convertNode(child, childNode, positionCache);
       sourceNode.addChildNode(childNode);
     }
   }
 
   /**
-   * Converts a manageable node to a source node.
+   * Converts a manageable position to a source position
    * 
    * @param nodeId  the parent node unique identifier, null if root
    * @param manPos  the manageable position, not null
