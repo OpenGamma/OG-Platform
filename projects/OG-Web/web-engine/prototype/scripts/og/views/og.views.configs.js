@@ -48,6 +48,7 @@ $.register_module({
                         'OK': function () {
                             var config_type = ui.dialog({return_field_value: 'config_type'}),
                                 args = $.extend({}, routes.last().args, {config_type: config_type});
+                            $(this).dialog('close');
                             routes.go(routes.hash(module.rules.load_new, args));
                         }
                     }
@@ -58,11 +59,12 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete this configuration?',
                     buttons: {
                         'Delete': function () {
+                            var args = routes.current().args;
                             $(this).dialog('close');
+                            return;
                             api.rest.configs.del({
                                 handler: function (result) {
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    var args = routes.current().args;
                                     delete args.id;
                                     configs.search(args);
                                     routes.go(routes.hash(module.rules.load, args));
@@ -134,9 +136,42 @@ $.register_module({
                     $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
-            details_page = function (args, config_type) {
-                var rest_options, rest_handler = function (result) {
+            details_page = function (args, new_config_type) {
+                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                    if (new_config_type === 'ViewDefinition') result = {
+                        error: false,
+                        message: '',
+                        data: {template_data: {
+                          name: '',
+                          type: 'ViewDefinition',
+                          configJSON: {
+                              "maxFullCalcPeriod": 0,
+                              "0": "com.opengamma.engine.view.ViewDefinition",
+                              "calculationConfiguration": [],
+                              "minFullCalcPeriod": 0,
+                              "resultModelDefinition": {
+                                  "primitiveOutputMode": "TERMINAL_OUTPUTS",
+                                  "securityOutputMode": "TERMINAL_OUTPUTS",
+                                  "positionOutputMode": "TERMINAL_OUTPUTS",
+                                  "tradeOutputMode": "TERMINAL_OUTPUTS",
+                                  "aggregatePositionOutputMode": "TERMINAL_OUTPUTS"
+                              },
+                              "name": "",
+                              "maxDeltaCalcPeriod": 0,
+                              "minDeltaCalcPeriod": 0,
+                              "user": {
+                                  "userName": "",
+                                  "ipAddress": ""
+                              },
+                              "currency": ""
+                          }
+                        }}
+                    };
                     if (result.error) return alert(result.message);
+                    if (is_new) {
+                        if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
+                        result.template_data.configJSON.name = 'Untitled ' + new_config_type;
+                    }
                     var details_json = result.data,
                         config_type = details_json.template_data.type.toLowerCase(),
                         template = module.name + '.' + config_type, text_handler;
@@ -146,7 +181,7 @@ $.register_module({
                         value: routes.current().hash
                     });
                     (form_generators[config_type] || form_generators['default'])({
-                        is_new: !!config_type,
+                        is_new: is_new,
                         data: details_json,
                         loading: function () {
                             ui.message({location: '.OG-js-details-panel', message: 'saving...'});
@@ -169,14 +204,16 @@ $.register_module({
                         },
                         handler: function () {
                             var json = details_json.template_data,
-                                $warning = $('.OG-js-details-panel .og-box-error'),
-                                warning_message = 'This configuration has been deleted';
+                                $warning = $('.OG-js-details-panel .og-box-error');
                             toolbar('active');
                             if (json && json.deleted) {
-                                $warning.html(warning_message).show();
+                                $warning.html('This configuration has been deleted').show();
                                 resize();
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), resize();}
+                            } else {
+                                if (is_new) $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $warning.empty().hide(), resize();
+                            }
                             resize({element: '.OG-details-container', offsetpx: -41});
                             resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
@@ -195,7 +232,7 @@ $.register_module({
                         });
                     }
                 };
-                if (config_type) rest_options.template = config_type; else rest_options.id = args.id;
+                if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
         module.rules = {
@@ -222,7 +259,10 @@ $.register_module({
                         return setTimeout(search_filter, 500);
                     search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [{new_page: configs.load_configs}]});
+                check_state({args: args, conditions: [{new_page: function () {
+                    if (args.id) return configs.load_configs(args);
+                    configs.load(args);
+                }}]});
                 search_filter();
             },
             load_configs: function (args) {

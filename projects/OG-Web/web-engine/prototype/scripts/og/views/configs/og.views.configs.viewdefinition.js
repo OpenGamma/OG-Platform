@@ -69,7 +69,7 @@ $.register_module({
                 {type: 'form:load', handler: function () {
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').attr('value', 'Save');
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
