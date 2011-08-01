@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.NotImplementedException;
 
 /**
@@ -81,7 +83,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
     if (indices.length > 2) {
       throw new IndexOutOfBoundsException("Trying to access a 2D array representation with tuple>2 is forbidden!");
     } else if (indices.length == 2) {
-      return _data[_rowPtr[indices[0]] + indices[2]];
+      return _data[_rowPtr[indices[0]] + indices[1]];
     } else {
       return _data[indices[0]];
     }
@@ -100,7 +102,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
   public double[] getFullColumn(int index) {
     double[] tmp = new double[_rows];
     for (int i = 0; i < _rows; i++) {
-      tmp[i] = _data[_rowPtr[index] + i * _cols];
+      tmp[i] = _data[index + i * _cols];
     }
     return tmp;
   }
@@ -130,4 +132,49 @@ public class FullMatrix implements MatrixPrimitiveInterface {
     }
     return tmp;
   }
+
+  @Override
+  public String toString() {
+    return "FullMatrix:" +
+      "\ndata = " + Arrays.toString(_data) +
+      "\nrows = " + _rows +
+      "\ncols = " + _cols +
+      "\nrowPtr = " + Arrays.toString(_rowPtr);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _cols;
+    result = prime * result + Arrays.hashCode(_data);
+    result = prime * result + Arrays.hashCode(_rowPtr);
+    result = prime * result + _rows;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FullMatrix other = (FullMatrix) obj;
+    if (_cols != other._cols) {
+      return false;
+    }
+    if (_rows != other._rows) {
+      return false;
+    }
+    if (!Arrays.equals(_data, other._data)) {
+      return false;
+    }
+    return true;
+  }
+
 }

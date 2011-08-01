@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
@@ -130,6 +131,32 @@ public void testToArray() {
   assertTrue(Arrays.deepEquals(_tallRectangle,tmp.toArray()));
 }
 
+@Test
+public void testEqualsAndHashCode() {
+  FullMatrix N;
+  FullMatrix M = new FullMatrix(_square);
+  assertTrue(M.equals(M)); // test this = obj
+  assertFalse(M.equals(null)); // test obj != null
+  assertFalse(M.equals(M.getClass())); // test obj class
+
+  // false, cols too long
+  N = new FullMatrix(_tallRectangle);
+  assertFalse(M.equals(N));
+
+  // false, rows too long
+  N = new FullMatrix(_tallRectangle);
+  assertFalse(M.equals(N));
+
+  //
+  double [][] _squareDiff = {{1,1,3},{4,5,6},{7,8,9}};
+  N = new FullMatrix(_squareDiff);
+  assertFalse(M.equals(N));
+
+  // hash
+  N = new FullMatrix(_square);
+  assertTrue(M.equals(N));
+  assertEquals(M.hashCode(), N.hashCode());
+}
 
 
 }
