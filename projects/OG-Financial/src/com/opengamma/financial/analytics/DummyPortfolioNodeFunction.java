@@ -28,8 +28,11 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvoker {
 
   protected static String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE,
-      YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE};
+    return new String[] {ValuePropertyNames.CURRENCY,
+                         ValuePropertyNames.CURVE,
+                         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+                         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+                         ValuePropertyNames.CALCULATION_METHOD};
   }
 
   private final String _valueRequirement;
@@ -44,7 +47,7 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       result.add(new ComputedValue(new ValueSpecification(desiredValue, getUniqueId()), _value));
     }
     return result;
@@ -58,14 +61,14 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context,
       final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.<ValueRequirement>emptySet();
+    return Collections.emptySet();
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     final ValueProperties.Builder props = createValueProperties();
-    for (String prop : getPreservedProperties()) {
+    for (final String prop : getPreservedProperties()) {
       props.withAny(prop);
     }
     results.add(new ValueSpecification(_valueRequirement, target.toSpecification(), props.get()));

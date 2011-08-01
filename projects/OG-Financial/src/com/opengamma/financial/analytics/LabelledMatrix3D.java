@@ -575,7 +575,7 @@ public abstract class LabelledMatrix3D<KX, KY, KZ, TX, TY, TZ, SUBCLASS> {
     return hc;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
