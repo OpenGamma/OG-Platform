@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 /**
@@ -32,6 +34,7 @@ import com.google.common.collect.Sets;
 @Test
 public class IdentifierBundleTest {
 
+  private static final IdentificationScheme SCHEME = IdentificationScheme.of("Scheme");
   private final Identifier _id11 = Identifier.of("D1", "V1");
   private final Identifier _id21 = Identifier.of("D2", "V1");
   private final Identifier _id12 = Identifier.of("D1", "V2");
@@ -39,6 +42,50 @@ public class IdentifierBundleTest {
 
   public void singleton_empty() {
     assertEquals(0, IdentifierBundle.EMPTY.size());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_factory_IdentificationScheme_String() {
+    IdentifierBundle test = IdentifierBundle.of(_id11.getScheme(), _id11.getValue());
+    assertEquals(1, test.size());
+    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_IdentificationScheme_String_nullScheme() {
+    IdentifierBundle.of((IdentificationScheme) null, "value");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_IdentificationScheme_String_nullValue() {
+    IdentifierBundle.of(SCHEME, (String) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_IdentificationScheme_String_emptyValue() {
+    IdentifierBundle.of(SCHEME, "");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_factory_String_String() {
+    IdentifierBundle test = IdentifierBundle.of(_id11.getScheme().getName(), _id11.getValue());
+    assertEquals(1, test.size());
+    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_String_String_nullScheme() {
+    IdentifierBundle.of((String) null, "value");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_String_String_nullValue() {
+    IdentifierBundle.of("Scheme", (String) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_String_String_emptyValue() {
+    IdentifierBundle.of("Scheme", "");
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +169,7 @@ public class IdentifierBundleTest {
   //-------------------------------------------------------------------------
   public void getIdentifier() {
     IdentifierBundle input = IdentifierBundle.of(_id11, _id22);
-    
+
     assertEquals(Identifier.of("D1", "V1"), input.getIdentifier(IdentificationScheme.of("D1")));
     assertEquals(Identifier.of("D2", "V2"), input.getIdentifier(IdentificationScheme.of("D2")));
     assertNull(input.getIdentifier(IdentificationScheme.of("Kirk Wylie")));
@@ -131,13 +178,14 @@ public class IdentifierBundleTest {
 
   public void getIdentifierValue() {
     IdentifierBundle input = IdentifierBundle.of(_id11, _id22);
-    
+
     assertEquals("V1", input.getIdentifierValue(IdentificationScheme.of("D1")));
     assertEquals("V2", input.getIdentifierValue(IdentificationScheme.of("D2")));
     assertNull(input.getIdentifierValue(IdentificationScheme.of("Kirk Wylie")));
     assertNull(input.getIdentifierValue(null));
   }
 
+  //-------------------------------------------------------------------------
   public void withIdentifier() {
     IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
     IdentifierBundle test = base.withIdentifier(Identifier.of("A", "C"));
@@ -147,12 +195,42 @@ public class IdentifierBundleTest {
     assertTrue(test.getIdentifiers().contains(Identifier.of("A", "C")));
   }
 
+  public void withIdentifier_same() {
+    IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withIdentifier(Identifier.of("A", "B"));
+    assertSame(base, test);
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void withIdentifier_null() {
     IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
     base.withIdentifier(null);
   }
 
+  //-------------------------------------------------------------------------
+  public void withIdentifiers() {
+    IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withIdentifiers(ImmutableList.of(Identifier.of("A", "C"), Identifier.of("A", "D")));
+    assertEquals(1, base.size());
+    assertEquals(3, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "C")));
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "D")));
+  }
+
+  public void withIdentifiers_same() {
+    IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withIdentifiers(ImmutableList.of(Identifier.of("A", "B"), Identifier.of("A", "B")));
+    assertSame(base, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void withIdentifiers_null() {
+    IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
+    base.withIdentifiers(null);
+  }
+
+  //-------------------------------------------------------------------------
   public void withoutIdentifier_match() {
     IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
     IdentifierBundle test = base.withoutIdentifier(Identifier.of("A", "B"));
@@ -291,7 +369,7 @@ public class IdentifierBundleTest {
   public void test_compareTo_differentSizes() {
     IdentifierBundle a1 = IdentifierBundle.EMPTY;
     IdentifierBundle a2 = IdentifierBundle.of(Identifier.of("A", "B"));
-    
+
     assertEquals(true, a1.compareTo(a1) == 0);
     assertEquals(true, a1.compareTo(a2) < 0);
     assertEquals(true, a2.compareTo(a1) > 0);
@@ -301,7 +379,7 @@ public class IdentifierBundleTest {
   public void test_compareTo_sameSizes() {
     IdentifierBundle a1 = IdentifierBundle.of(Identifier.of("A", "B"));
     IdentifierBundle a2 = IdentifierBundle.of(Identifier.of("A", "C"));
-    
+
     assertEquals(true, a1.compareTo(a1) == 0);
     assertEquals(true, a1.compareTo(a2) < 0);
     assertEquals(true, a2.compareTo(a1) > 0);
@@ -312,7 +390,7 @@ public class IdentifierBundleTest {
   public void test_equals_same_empty() {
     IdentifierBundle a1 = IdentifierBundle.EMPTY;
     IdentifierBundle a2 = new IdentifierBundle();
-    
+
     assertEquals(true, a1.equals(a1));
     assertEquals(true, a1.equals(a2));
     assertEquals(true, a2.equals(a1));
@@ -322,7 +400,7 @@ public class IdentifierBundleTest {
   public void test_equals_same_nonEmpty() {
     IdentifierBundle a1 = IdentifierBundle.of(_id11, _id12);
     IdentifierBundle a2 = IdentifierBundle.of(_id11, _id12);
-    
+
     assertEquals(true, a1.equals(a1));
     assertEquals(true, a1.equals(a2));
     assertEquals(true, a2.equals(a1));
@@ -332,12 +410,12 @@ public class IdentifierBundleTest {
   public void test_equals_different() {
     IdentifierBundle a = IdentifierBundle.EMPTY;
     IdentifierBundle b = IdentifierBundle.of(_id11, _id12);
-    
+
     assertEquals(true, a.equals(a));
     assertEquals(false, a.equals(b));
     assertEquals(false, b.equals(a));
     assertEquals(true, b.equals(b));
-    
+
     assertEquals(false, b.equals("Rubbish"));
     assertEquals(false, b.equals(null));
   }
@@ -345,7 +423,7 @@ public class IdentifierBundleTest {
   public void test_hashCode() {
     IdentifierBundle a = IdentifierBundle.of(_id11, _id12);
     IdentifierBundle b = IdentifierBundle.of(_id11, _id12);
-    
+
     assertEquals(a.hashCode(), b.hashCode());
   }
 
@@ -364,12 +442,12 @@ public class IdentifierBundleTest {
     IdentifierBundle input = IdentifierBundle.of(
         Identifier.of("id1", "value1"),
         Identifier.of("id2", "value2")
-      );
+        );
     FudgeContext context = new FudgeContext();
     FudgeMsg msg = input.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
-    
+
     IdentifierBundle decoded = IdentifierBundle.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(input, decoded);
   }

@@ -221,7 +221,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (getTradeIds() != null && position.matchesAnyTrade(getTradeIds()) == false) {
       return false;
     }
-    if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityKey()) == false) {
+    if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityLink().getAllIdentifiers()) == false) {
       return false;
     }
     if (getPositionProviderKey() != null && getPositionProviderKey().equals(position.getProviderKey()) == false) {
