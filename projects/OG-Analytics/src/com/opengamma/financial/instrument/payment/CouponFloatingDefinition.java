@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Class describing a generic floating payment coupon.
+ * Class describing a generic floating payment coupon with a unique fixing date.
  */
 public abstract class CouponFloatingDefinition extends CouponDefinition implements FixedIncomeInstrumentWithDataConverter<Payment, DoubleTimeSeries<ZonedDateTime>> {
 

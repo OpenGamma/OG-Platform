@@ -82,7 +82,7 @@ public class BundleParser {
 
   private void validateFile(File baseDir) {
     if (baseDir != null) {
-      ArgumentChecker.isTrue(baseDir.exists(), baseDir + "does not exists");
+      ArgumentChecker.isTrue(baseDir.exists(), baseDir + " does not exist");
     }
   }
 
