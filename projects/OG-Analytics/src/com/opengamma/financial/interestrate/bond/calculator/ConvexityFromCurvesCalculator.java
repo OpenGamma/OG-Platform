@@ -13,14 +13,14 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * Calculate dirty price for bonds.
+ * Calculate convexity for bonds.
  */
-public final class CleanPriceFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ConvexityFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final CleanPriceFromCurvesCalculator s_instance = new CleanPriceFromCurvesCalculator();
+  private static final ConvexityFromCurvesCalculator s_instance = new ConvexityFromCurvesCalculator();
   /**
    * The fixed coupon bond method.
    */
@@ -30,21 +30,21 @@ public final class CleanPriceFromCurvesCalculator extends AbstractInterestRateDe
    * Return the calculator instance.
    * @return The instance.
    */
-  public static CleanPriceFromCurvesCalculator getInstance() {
+  public static ConvexityFromCurvesCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private CleanPriceFromCurvesCalculator() {
+  private ConvexityFromCurvesCalculator() {
   }
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    return METHOD_BOND.cleanPriceFromCurves(bond, curves);
+    return METHOD_BOND.convexityFromCurves(bond, curves);
   }
 
 }
