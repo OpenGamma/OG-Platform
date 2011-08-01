@@ -22,7 +22,7 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
     try {
       return FinancialSecurityUtils.getCurrency(position.getSecurity());
     } catch (UnsupportedOperationException ex) {
-      return null;
+      return "Unknown";
     }
   }
 
