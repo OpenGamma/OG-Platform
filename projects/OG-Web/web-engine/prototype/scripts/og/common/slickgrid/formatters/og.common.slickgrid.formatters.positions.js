@@ -7,7 +7,8 @@ $.register_module({
     dependencies: ['og.common.routes'],
     obj: function () {
         return function (row, cell, value, columnDef, dataContext) {
-            return  dataContext.name;
+            return dataContext.quantity
+                + '<div class="og-button"><div class="OG-icon og-icon-unhook"></div></div>'
         };
     }
 });

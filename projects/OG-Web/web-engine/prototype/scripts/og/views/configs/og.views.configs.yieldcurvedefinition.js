@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.configs.yieldcurvedefinition',
     dependencies: [
         'og.api.rest',
-        'og.common.util.ui.Form',
+        'og.common.util.ui',
         'og.views.forms.Constraints',
         'og.views.forms.Dropdown'
     ],
@@ -15,10 +15,10 @@ $.register_module({
         return function (config) {
             og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
-                loading = config.loading || $.noop, deleted = config.data.template_data.deleted,
+                loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.configJSON.name, submit_type,
                 resource_id = config.data.template_data.object_id,
-                new_handler = config.new_handler, save_handler = config.save_handler,
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON, strips,
                 CONV = 'conventionName', NUMF = 'numFutures',
                 CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName'
@@ -27,7 +27,7 @@ $.register_module({
                     data: master,
                     selector: selector,
                     extras: {
-                        name: master.name, currency: master.currency,
+                        name: master.name, currency: master.currency || (master.currency = 'USD'),
                         region_scheme: master.region.Scheme,
                         interpolator: master[INTR]
                     },
@@ -86,13 +86,15 @@ $.register_module({
                         name: data.name + '_' + data.currency,
                         json: JSON.stringify(data),
                         loading: loading,
-                        handler: as_new ? new_handler : save_handler
+                        handler: as_new ? save_new_handler : save_handler
                     });
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
                     $(form_id + ' [name=currency]').val(master.currency);
-                    if (deleted) $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (deleted || is_new)
+                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: '#' + form.id + ' .og-js-submit', handler: function (e) {
@@ -142,7 +144,7 @@ $.register_module({
                                     var split = region.split('|');
                                     if (!split[3]) return null;
                                     return {value: split[3], text: split[3] + ' - ' + split[1]}
-                                }).filter(Boolean).sort(function (a, b) {
+                                }).filter(Boolean).sort(function (a, b) { // alphabetize
                                     return a.text < b.text ? -1 : a === b ? 0 : 1;
                                 }));
                             }
