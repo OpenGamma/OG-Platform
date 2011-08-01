@@ -118,4 +118,9 @@ public final class ValuePropertyNames {
    * The symbolic name of the calculation method used to produce a curve (par rate or present value)
    */
   public static final String CURVE_CALCULATION_METHOD = "CurveCalculationMethod";
+  
+  /**
+   * A general name for a property describing how a value was calculated
+   */
+  public static final String CALCULATION_METHOD = "CalculationMethod";
 }

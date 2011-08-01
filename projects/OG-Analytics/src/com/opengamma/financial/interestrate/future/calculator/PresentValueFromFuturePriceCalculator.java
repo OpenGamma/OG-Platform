@@ -25,7 +25,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInteres
   /**
    * The method to compute bond future prices.
    */
-  private static final BondFutureTransactionDiscountingMethod METHOD_BOND_FUTURE = new BondFutureTransactionDiscountingMethod();
+  private static final BondFutureTransactionDiscountingMethod METHOD_BOND_FUTURE = BondFutureTransactionDiscountingMethod.getInstance();
   /**
    * The method to compute interest rate future prices.
    */
