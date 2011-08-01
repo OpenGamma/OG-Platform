@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.server;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +41,7 @@ public class RequirementBasedGridStructure {
   private final Map<UniqueIdentifier, Integer> _targetIdMap;
   private final List<WebViewGridColumn> _orderedColumns;
   private final Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> _specificationBasedColumns;
+  private final Map<Integer, Set<Integer>> _unsatisfiedCells;
 
   public RequirementBasedGridStructure(CompiledViewDefinition compiledViewDefinition, EnumSet<ComputationTargetType> targetTypes,
       List<RequirementBasedColumnKey> requirements, List<UniqueIdentifier> targets) {
@@ -88,9 +92,24 @@ public class RequirementBasedGridStructure {
       targets = analysisResult.getTargets();
     }
     _targetIdMap = new LinkedHashMap<UniqueIdentifier, Integer>();
+    _unsatisfiedCells = new HashMap<Integer, Set<Integer>>();
     int nextId = 0;
     for (UniqueIdentifier target : targets) {
-      _targetIdMap.put(target, nextId++);
+      int targetRowId = nextId++;
+      _targetIdMap.put(target, targetRowId);
+      Set<RequirementBasedColumnKey> missingColumnKeys = analysisResult.getUnsatisfiedRequirements(target);
+      if (missingColumnKeys == null) {
+        continue;
+      }
+      IntSet missingColumnIds = new IntArraySet();
+      for (RequirementBasedColumnKey requirementBasedKey : missingColumnKeys) {
+        WebViewGridColumn missingGridColumn = requirementBasedColumns.get(requirementBasedKey);
+        if (missingGridColumn == null) {
+          continue;
+        }
+        missingColumnIds.add(missingGridColumn.getId());
+      }
+      _unsatisfiedCells.put(targetRowId, missingColumnIds);
     }
   }
 
@@ -100,6 +119,7 @@ public class RequirementBasedGridStructure {
     Set<UniqueIdentifier> impliedTargets = targets == null ? new HashSet<UniqueIdentifier>() : null;
     Map<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>> specificationsToRequirementCandidates = new HashMap<RequirementBasedColumnKey, Set<RequirementBasedColumnKey>>();
     Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> specToRequirements = new HashMap<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>>();
+    Map<RequirementBasedColumnKey, Set<UniqueIdentifier>> specToTargets = new HashMap<RequirementBasedColumnKey, Set<UniqueIdentifier>>();
 
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDefinition.getCompiledCalculationConfigurations()) {
       Set<RequirementBasedColumnKey> requirementsMatchedToSpec = new HashSet<RequirementBasedColumnKey>();
@@ -120,6 +140,14 @@ public class RequirementBasedGridStructure {
         String valueName = valueSpec.getValueName();
         ValueProperties valueProperties = valueSpec.getProperties();
         RequirementBasedColumnKey specificationBasedKey = new RequirementBasedColumnKey(calcConfigName, valueName, valueProperties);
+        
+        Set<UniqueIdentifier> targetsForSpec = specToTargets.get(specificationBasedKey);
+        if (targetsForSpec == null) {
+          targetsForSpec = new HashSet<UniqueIdentifier>();
+          specToTargets.put(specificationBasedKey, targetsForSpec);
+        }
+        targetsForSpec.add(valueSpec.getTargetSpecification().getUniqueId());
+        
         if (specToRequirements.containsKey(specificationBasedKey) || specificationsToRequirementCandidates.containsKey(specificationBasedKey)) {
           // Seen this specification before for a different target, so it has been / will be dealt with
           continue;
@@ -151,7 +179,7 @@ public class RequirementBasedGridStructure {
           continue;
         }
         
-        // Specification must be present for all remaining requirements
+        // Specification must be present to satisfy all remaining requirement candidates
         specToRequirements.put(specificationBasedKey, requirementCandidates);
       }
     }
@@ -159,8 +187,27 @@ public class RequirementBasedGridStructure {
     if (targets == null) {
       targets = new ArrayList<UniqueIdentifier>(impliedTargets);
     }
+    
+    Map<UniqueIdentifier, Set<RequirementBasedColumnKey>> missingCellMap = generateCompleteMissingCellMap(targets, requirements);
+    for (Map.Entry<RequirementBasedColumnKey, Set<UniqueIdentifier>> specToTargetsEntry : specToTargets.entrySet()) {
+      RequirementBasedColumnKey spec = specToTargetsEntry.getKey();
+      Collection<RequirementBasedColumnKey> requirementsForSpec = specToRequirements.get(spec);
+      if (requirementsForSpec == null) {
+        // No columns identified for spec
+        continue;
+      }
+      Set<UniqueIdentifier> targetsForSpec = specToTargetsEntry.getValue();
+      for (UniqueIdentifier targetForSpec : targetsForSpec) {
+        Set<RequirementBasedColumnKey> requirementsForTarget = missingCellMap.get(targetForSpec);
+        if (requirementsForTarget == null) {
+          // Target not in grid
+          continue;
+        }
+        requirementsForTarget.removeAll(requirementsForSpec);
+      }
+    }
 
-    return new ValueSpecificationAnalysisResult(specToRequirements, targets);
+    return new ValueSpecificationAnalysisResult(specToRequirements, targets, missingCellMap);
   }
 
   public boolean isEmpty() {
@@ -181,6 +228,10 @@ public class RequirementBasedGridStructure {
 
   public Integer getRowId(UniqueIdentifier target) {
     return _targetIdMap.get(target);
+  }
+  
+  public Set<Integer> getUnsatisfiedCells(int rowId) {
+    return _unsatisfiedCells.get(rowId);
   }
 
   //-------------------------------------------------------------------------
@@ -251,6 +302,14 @@ public class RequirementBasedGridStructure {
     }
     return result;
   }
+  
+  private static Map<UniqueIdentifier, Set<RequirementBasedColumnKey>> generateCompleteMissingCellMap(Collection<UniqueIdentifier> targets, Collection<RequirementBasedColumnKey> requirements) {
+    Map<UniqueIdentifier, Set<RequirementBasedColumnKey>> result = new HashMap<UniqueIdentifier, Set<RequirementBasedColumnKey>>();
+    for (UniqueIdentifier target : targets) {
+      result.put(target, new HashSet<RequirementBasedColumnKey>(requirements));
+    }
+    return result;
+  }
 
   private static Set<RequirementBasedColumnKey> findRequirementsSatisfiedBySpec(Map<Pair<String, String>,
       Set<RequirementBasedColumnKey>> requirementsMap, String calcConfigName, ValueSpecification valueSpec) {
@@ -271,10 +330,14 @@ public class RequirementBasedGridStructure {
 
     private final Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> _specificationToRequirements;
     private final List<UniqueIdentifier> _targets;
+    private final Map<UniqueIdentifier, Set<RequirementBasedColumnKey>> _unsatisfiedRequirementMap;
 
-    public ValueSpecificationAnalysisResult(Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> specificationToRequirements, List<UniqueIdentifier> targets) {
+    public ValueSpecificationAnalysisResult(Map<RequirementBasedColumnKey,
+        Collection<RequirementBasedColumnKey>> specificationToRequirements, List<UniqueIdentifier> targets,
+        Map<UniqueIdentifier, Set<RequirementBasedColumnKey>> unsatisfiedRequirementMap) {
       _specificationToRequirements = specificationToRequirements;
       _targets = targets;
+      _unsatisfiedRequirementMap = unsatisfiedRequirementMap;
     }
 
     public Map<RequirementBasedColumnKey, Collection<RequirementBasedColumnKey>> getSpecificationToRequirements() {
@@ -283,6 +346,10 @@ public class RequirementBasedGridStructure {
 
     public List<UniqueIdentifier> getTargets() {
       return _targets;
+    }
+    
+    public Set<RequirementBasedColumnKey> getUnsatisfiedRequirements(UniqueIdentifier targetId) {
+      return _unsatisfiedRequirementMap.get(targetId);
     }
 
   }
