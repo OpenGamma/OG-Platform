@@ -143,7 +143,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   }
 
   /**
-   * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
+   * Creates a deep copy of the specified position.
    * 
    * @param copyFrom  the instance to copy fields from, not null
    */
@@ -153,7 +153,9 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _parentNodeId = copyFrom.getParentNodeId();
     _quantity = copyFrom.getQuantity();
     _securityLink = copyFrom.getSecurityLink().clone();
-    _trades.addAll(copyFrom.getTrades());
+    for (Trade trade : copyFrom.getTrades()) {
+      _trades.add(new TradeImpl(trade));
+    }
     setAttributes(copyFrom.getAttributes());
   }
 

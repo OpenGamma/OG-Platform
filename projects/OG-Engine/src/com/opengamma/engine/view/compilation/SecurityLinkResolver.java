@@ -175,7 +175,7 @@ public final class SecurityLinkResolver {
           links.add(trade.getSecurityLink());
         }
       }
-    });
+    }).traverse(node);
     resolveSecurities(links);
   }
 

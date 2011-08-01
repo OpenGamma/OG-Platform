@@ -167,7 +167,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   }
 
   /**
-   * Construct a mutable trade copying data from another, possibly immutable, {@link Trade} implementation.
+   * Creates a deep copy of the specified position.
    * 
    * @param copyFrom instance to copy fields from, not null
    */

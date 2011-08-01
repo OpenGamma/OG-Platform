@@ -5,15 +5,13 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -21,10 +19,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -33,7 +28,6 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -83,12 +77,32 @@ public final class PortfolioCompiler {
       
       DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
 
+      // Cache PortfolioNode, Trade and Position entities
+      CachingComputationTargetResolver resolver = compilationContext.getServices().getComputationTargetResolver();
+      resolver.cachePortfolioNodeHierarchy(portfolio.getRootNode());
+      cacheTradesPositionsAndSecurities(resolver, portfolio.getRootNode());
+
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
       PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());
     }
     
     return portfolio;
+  }
+
+  private static void cacheTradesPositionsAndSecurities(final CachingComputationTargetResolver resolver, final PortfolioNode node) {
+    final Collection<Position> positions = node.getPositions();
+    resolver.cachePositions(positions);
+    for (Position position : positions) {
+      resolver.cacheSecurities(Collections.singleton(position.getSecurity()));
+      for (Trade trade : position.getTrades()) {
+        resolver.cacheSecurities(Collections.singleton(trade.getSecurity()));
+      }
+      resolver.cacheTrades(position.getTrades());
+    }
+    for (PortfolioNode child : node.getChildNodes()) {
+      cacheTradesPositionsAndSecurities(resolver, child);
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -109,7 +123,7 @@ public final class PortfolioCompiler {
    * {@link Security} objects for each {@link Position} within the portfolio. Note however that
    * any underlying or related data referenced by a security will not be resolved at this stage. 
    * 
-   * @param compilationContext the compilation context containing the view being compiled
+   * @param compilationContext  the compilation context containing the view being compiled, not null
    */
   private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
     UniqueIdentifier portfolioId = compilationContext.getViewDefinition().getPortfolioId();
@@ -126,39 +140,27 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource + "' used by view definition '"
           + compilationContext.getViewDefinition().getName() + "'");
     }
-
-    Map<IdentifierBundle, Security> securitiesByKey = resolveSecurities(portfolio, compilationContext);
-    return createFullyResolvedPortfolio(portfolio, securitiesByKey);
+    Portfolio cloned = new PortfolioImpl(portfolio);
+    return resolveSecurities(compilationContext, cloned);
   }
 
   /**
-   * Resolves all of the securities for all positions within the portfolio.
+   * Resolves the securities.
    * 
-   * @param portfolio  the portfolio to resolve, not null
-   * @param viewCompilationContext the compilation context containing the view being compiled
+   * @param compilationContext  the compilation context containing the view being compiled, not null
+   * @param portfolio  the portfolio to update, not null
+   * @return the updated portfolio, not null
    */
-  private static Map<IdentifierBundle, Security> resolveSecurities(Portfolio portfolio, ViewCompilationContext viewCompilationContext) {
+  private static Portfolio resolveSecurities(ViewCompilationContext compilationContext, Portfolio portfolio) {
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", portfolio.getName());
-    
-    // find all unresolved security links
-    Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
-    
-    // resolve the links
-    Map<IdentifierBundle, Security> securitiesByKey;
     try {
-      securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, viewCompilationContext);
+      new SecurityLinkResolver(compilationContext).resolveSecurities(portfolio.getRootNode());
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Unable to resolve all securities for portfolio " + portfolio.getName());
     } finally {
       timer.finished();
     }
-    
-    // While we've got the resolved securities to hand, we might as well cache them since they are all computation
-    // targets that will be needed later
-    CachingComputationTargetResolver resolver = viewCompilationContext.getServices().getComputationTargetResolver();
-    resolver.cacheSecurities(securitiesByKey.values());
-
-    return securitiesByKey;
+    return portfolio;
   }
 
   //-------------------------------------------------------------------------
@@ -171,107 +173,9 @@ public final class PortfolioCompiler {
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
-    final Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
-    final Map<IdentifierBundle, Security> securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, executorService, securitySource);
-    return createFullyResolvedPortfolio(portfolio, securitiesByKey);
-  }
-
-  /**
-   * Walks the portfolio structure collecting all of the security identifiers referenced by the position nodes.
-   * 
-   * @param node  the portfolio node to resolve, not null
-   * @return the set of security identifiers for any positions under the given portfolio node 
-   */
-  private static Set<IdentifierBundle> getSecurityKeysForResolution(PortfolioNode node) {
-    Set<IdentifierBundle> result = new TreeSet<IdentifierBundle>();
-    
-    for (Position position : node.getPositions()) {
-      if (position.getSecurity() != null) {
-        // security is pre-resolved
-        s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueId());
-      } else if (position.getSecurityLink().getWeakId().size() > 0) {
-        result.add(position.getSecurityLink().getWeakId());  // TODO: handle SecuityLink properly (objectId)
-      } else {
-        throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueId());
-      }
-      
-      // get trades security identifiers as well
-      for (Trade trade : position.getTrades()) {
-        if (trade.getSecurity() != null) {
-          // security is pre-resolved
-          s_logger.debug("Security pre-resolved by PositionSource for {}", trade.getUniqueId());
-        } else if (trade.getSecurityLink().getWeakId().size() > 0) {
-          result.add(trade.getSecurityLink().getWeakId());  // TODO: handle SecuityLink properly (objectId)
-        } else {
-          throw new IllegalArgumentException("Security or security key must be provided: " + trade.getUniqueId());
-        }
-      }
-    }
-    
-    for (PortfolioNode subNode : node.getChildNodes()) {
-      result.addAll(getSecurityKeysForResolution(subNode));
-    }
-    return result;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Constructs a new {@code Portfolio} containing resolved positions that reference {@code Security} instances.
-   * 
-   * @param portfolio  the unresolved portfolio to copy, not null
-   * @param securitiesByKey  the resolved securities to use, not null
-   */
-  private static Portfolio createFullyResolvedPortfolio(Portfolio portfolio, Map<IdentifierBundle, Security> securitiesByKey) {
-    return new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), createFullyResolvedPortfolioHierarchy(portfolio.getRootNode(), securitiesByKey));
-  }
-
-  /**
-   * Constructs a copy a {@link PortfolioNode}, and the hierarchy underneath it, that contains fully resolved positions.
-   * 
-   * @param rootNode the unresolved portfolio hierarchy node to copy
-   * @param securitiesByKey the resolved securities to use
-   */
-  private static PortfolioNodeImpl createFullyResolvedPortfolioHierarchy(PortfolioNode rootNode, Map<IdentifierBundle, Security> securitiesByKey) {
-    if (rootNode == null) {
-      return null;
-    }
-    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getName());
-    if (rootNode.getUniqueId() != null) {
-      populatedNode.setUniqueId(rootNode.getUniqueId());
-    }
-    // Take copies of any positions directly under this node, adding the resolved security instances. 
-    for (Position position : rootNode.getPositions()) {
-      Security security = position.getSecurity();
-      if (security == null) {
-        security = securitiesByKey.get(position.getSecurityLink().getWeakId());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityLink().getWeakId() + " for position " + position);
-        }
-      }
-      PositionImpl populatedPosition = new PositionImpl(position);
-      populatedPosition.getSecurityLink().setTarget(security);
-      populatedPosition.setParentNodeId(populatedNode.getUniqueId());
-      // set the children trade security as well
-      final Set<Trade> origTrades = populatedPosition.getTrades();
-      if (!origTrades.isEmpty()) {
-        final Set<Trade> newTrades = Sets.newHashSetWithExpectedSize(origTrades.size());
-        for (Trade trade : origTrades) {
-          TradeImpl populatedTrade = new TradeImpl(trade);
-          populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
-          populatedTrade.getSecurityLink().setTarget(security);
-          newTrades.add(populatedTrade);
-        }
-        populatedPosition.setTrades(newTrades);
-      }
-      populatedNode.addPosition(populatedPosition);
-    }
-    // Add resolved copies of any nodes directly underneath this node
-    for (PortfolioNode child : rootNode.getChildNodes()) {
-      final PortfolioNodeImpl childNode = createFullyResolvedPortfolioHierarchy(child, securitiesByKey);
-      childNode.setParentNodeId(populatedNode.getUniqueId());
-      populatedNode.addChildNode(childNode);
-    }
-    return populatedNode;
+    Portfolio cloned = new PortfolioImpl(portfolio);
+    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(portfolio.getRootNode());
+    return cloned;
   }
 
 }
