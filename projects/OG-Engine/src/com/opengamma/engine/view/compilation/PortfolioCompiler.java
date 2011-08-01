@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -83,12 +84,27 @@ public final class PortfolioCompiler {
       
       DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
 
+      // Cache PortfolioNode, Trade and Position entities
+      compilationContext.getServices().getComputationTargetResolver().cachePortfolioNodeHierarchy(portfolio.getRootNode());
+      cacheTradesAndPositions(compilationContext.getServices().getComputationTargetResolver(), portfolio.getRootNode());
+
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
       PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());
     }
     
     return portfolio;
+  }
+
+  private static void cacheTradesAndPositions(final CachingComputationTargetResolver resolver, final PortfolioNode node) {
+    final Collection<Position> positions = node.getPositions();
+    resolver.cachePositions(positions);
+    for (Position position : positions) {
+      resolver.cacheTrades(position.getTrades());
+    }
+    for (PortfolioNode child : node.getChildNodes()) {
+      cacheTradesAndPositions(resolver, child);
+    }
   }
 
   // --------------------------------------------------------------------------

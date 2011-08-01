@@ -34,9 +34,10 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
 
   @Override
   protected Collection<String> getPreservedProperties() {
-    return Collections.singleton(ValuePropertyNames.CURRENCY);
+    return Arrays.asList(ValuePropertyNames.CURRENCY,
+                         ValuePropertyNames.CALCULATION_METHOD);
   }
-  
+
   @Override
   protected Collection<String> getOptionalPreservedProperties() {
     return Arrays.asList(
@@ -82,7 +83,7 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
     final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet().iterator().next()));
     return Collections.singleton(specification);
   }
-  
+
   @Override
   public String getShortName() {
     return "UnitPositionScalingFunction";

@@ -52,6 +52,10 @@ public class SumUtils {
       final CurrencyLabelledMatrix1D previousMatrix = (CurrencyLabelledMatrix1D) currentTotal;
       final CurrencyLabelledMatrix1D currentMatrix = (CurrencyLabelledMatrix1D) value;
       return previousMatrix.addIgnoringLabel(currentMatrix);
+    } else if (value instanceof StringLabelledMatrix1D) {
+      final StringLabelledMatrix1D previousMatrix = (StringLabelledMatrix1D) currentTotal;
+      final StringLabelledMatrix1D currentMatrix = (StringLabelledMatrix1D) value;
+      return previousMatrix.addIgnoringLabel(currentMatrix);
     } else if (valueName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
       @SuppressWarnings("unchecked")
       final Map<String, List<DoublesPair>> previousMap = (Map<String, List<DoublesPair>>) currentTotal;

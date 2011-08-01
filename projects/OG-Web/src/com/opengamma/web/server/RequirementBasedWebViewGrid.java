@@ -86,31 +86,33 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
       for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
         ValueSpecification specification = value.getSpecification();
-        WebViewGridColumn column = getGridStructure().getColumn(calcConfigName, specification);
-        if (column == null) {
+        Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
+        if (columns == null) {
           // Expect a column for every value
           s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
           continue;
         }
         
-        int colId = column.getId();
-        WebGridCell cell = WebGridCell.of(rowId, colId);
-        Object originalValue = value.getValue();
-        ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-        Map<String, Object> cellData = processCellValue(cell, specification, originalValue, resultTimestamp, converter);
-        Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
-        if (depGraph != null) {
-          if (cellData == null) {
-            cellData = new HashMap<String, Object>();
+        Object originalValue = value.getValue();        
+        for (WebViewGridColumn column : columns) {
+          int colId = column.getId();
+          WebGridCell cell = WebGridCell.of(rowId, colId);
+          ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+          Map<String, Object> cellData = processCellValue(cell, specification, originalValue, resultTimestamp, converter);
+          Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
+          if (depGraph != null) {
+            if (cellData == null) {
+              cellData = new HashMap<String, Object>();
+            }
+            cellData.put("dg", depGraph);
           }
-          cellData.put("dg", depGraph);
-        }
-        if (cellData != null) {
-          if (valuesToSend == null) {
-            valuesToSend = new HashMap<String, Object>();
-            valuesToSend.put("rowId", rowId);
+          if (cellData != null) {
+            if (valuesToSend == null) {
+              valuesToSend = new HashMap<String, Object>();
+              valuesToSend.put("rowId", rowId);
+            }
+            valuesToSend.put(Long.toString(colId), cellData);
           }
-          valuesToSend.put(Long.toString(colId), cellData);
         }
       }
     }
@@ -296,15 +298,17 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
             continue;
           }
           ValueSpecification specification = value.getSpecification();
-          WebViewGridColumn column = getGridStructure().getColumn(calcConfigName, specification);
-          if (column == null) {
+          Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
+          if (columns == null) {
             // Expect a column for every value
             s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
             continue;
           }
-          int colId = column.getId();
-          ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-          values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
+          for (WebViewGridColumn column : columns) {
+            int colId = column.getId();
+            ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+            values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
+          }
         }
       }
     }

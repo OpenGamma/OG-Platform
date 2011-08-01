@@ -232,7 +232,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return result;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

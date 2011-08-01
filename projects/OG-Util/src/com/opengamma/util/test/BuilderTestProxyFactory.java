@@ -31,9 +31,7 @@ public class BuilderTestProxyFactory {
   }
 
   public BuilderTestProxy getProxy() {
-    // TODO: the property name below should be changed following the package move, but I didn't want to break the .NET stuff
-    String execPath = System.getProperty("com.opengamma.engine.fudgemsg.BuilderTestProxyFactory.ExecBuilderTestProxy.execPath");
-    //String execPath = System.getProperty("com.opengamma.util.test.BuilderTestProxyFactory.ExecBuilderTestProxy.execPath");
+    String execPath = System.getProperty("com.opengamma.util.test.BuilderTestProxyFactory.ExecBuilderTestProxy.execPath");
     if (execPath!=null)
     {
       return new ExecBuilderTestProxy(execPath);
