@@ -35,13 +35,35 @@
 }
 
 .slick-row .og-uppercase {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 /* Highlight rows on hover */
-.slick-row:hover,
-.slick-row:hover .slick-cell.og-link {
-    background-color: #d7e7f2!important;
+.slick-row:hover {
+  background-color: #d7e7f2!important;
+}
+
+/* contexual button */
+.slick-row:hover .og-button {
+  display: none;
+  height: 25px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 18px;
+}
+
+.slick-row:hover .og-button {
+  display: block!important;
+}
+
+.slick-row .og-button .og-icon-delete {
+  top: -6px;
+  right: -5px;
+}
+
+.slick-row .og-button .og-icon-unhook {
+
 }
 
 /* Fix vertical alignment */
@@ -68,8 +90,8 @@
   position: relative;
   background: #a3ceec;
   height: 29px;
-  margin: 0 -2px 2px -2px;
-  padding: 0 4px 3px 0;
+  margin: 0 -2px;
+  padding: 0 4px 2px 0;
 }
 
 .slick-header input,
@@ -77,7 +99,7 @@
   z-index: 1;
 }
 
-.slick-header:before {
+.slick-header-columns:before {
   -webkit-border-bottom-right-radius: 2px;
   -webkit-border-bottom-left-radius: 2px;
   -moz-border-radius-bottomright: 2px;

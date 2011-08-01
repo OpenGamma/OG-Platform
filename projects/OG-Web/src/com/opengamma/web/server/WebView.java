@@ -311,6 +311,7 @@ public class WebView {
   
   private void processResult(ViewComputationResultModel resultModel) {
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
+    
     for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
       switch (target.getType()) {
         case PRIMITIVE:

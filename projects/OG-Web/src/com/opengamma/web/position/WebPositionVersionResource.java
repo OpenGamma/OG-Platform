@@ -20,9 +20,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionDocument;
 
@@ -56,17 +53,10 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     if (builder != null) {
       return builder.build();
     }
+    data().getVersioned().getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
     FlexiBean out = createRootData();
-    createSecurityData(out, data().getVersioned());
     String json = getFreemarker().build("positions/jsonposition.ftl", out);
     return Response.ok(json).tag(etag).build();
-  }
-
-  private void createSecurityData(FlexiBean out, PositionDocument doc) {
-    IdentifierBundle securityKey = doc.getPosition().getSecurityKey();
-    SecuritySource securitySource = data().getSecuritySource();
-    Security security = securitySource.getSecurity(securityKey);
-    out.put("security", security);
   }
 
   //-------------------------------------------------------------------------
@@ -82,6 +72,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     out.put("latestPosition", latestPositionDoc.getPosition());
     out.put("positionDoc", versionedPosition);
     out.put("position", versionedPosition.getPosition());
+    out.put("security", versionedPosition.getPosition().getSecurity());
     out.put("deleted", !latestPositionDoc.isLatest());
     return out;
   }

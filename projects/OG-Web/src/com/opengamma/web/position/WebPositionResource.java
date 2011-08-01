@@ -24,9 +24,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -147,18 +144,12 @@ public class WebPositionResource extends AbstractWebPositionResource {
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PositionDocument doc = data().getPosition();
-    createSecurityData(out, doc);
+    doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
+    out.put("security", doc.getPosition().getSecurity());
     out.put("deleted", !doc.isLatest());
     return out;
-  }
-
-  private void createSecurityData(FlexiBean out, PositionDocument doc) {
-    IdentifierBundle securityKey = doc.getPosition().getSecurityKey();
-    SecuritySource securitySource = data().getSecuritySource();
-    Security security = securitySource.getSecurity(securityKey);
-    out.put("security", security);
   }
 
   //-------------------------------------------------------------------------

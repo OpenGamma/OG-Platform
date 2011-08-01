@@ -201,31 +201,31 @@ $.register_module({
                 get: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version), version_search = version === '*',
-                        fields = ['name', 'type'], type_search = config.type === '*',
+                        fields = ['name', 'type'], field_search = fields.some(function (val) {return val in config;}),
                         all = fields.concat('id', 'version', 'page_size', 'page'),
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
-                        field_search = !type_search && fields.some(function (val) {return val in config;}),
-                        meta_request = config.meta,
+                        meta_request = config.meta, template = str(config.template),
                         page, page_size;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
                         empties: [
+                            {condition: template, label: 'template request', fields: all.concat('meta')},
                             {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
-                            {condition: type_search, label: 'type search request', fields: ['version', 'id', 'name']},
                             {condition: meta_request, label: 'meta data request', fields: all}
                         ]
                     });
                     // page_size and page might be overwritten in check so set their values after check returns
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
-                    if (meta_request)
-                        method.push('metaData');
-                    else if (!type_search && (field_search || version_search || id_search || !id))
+                    if (meta_request) method.push('metaData');
+                    if (!meta_request && !template && (field_search || version_search || id_search || !id))
                         data = {pageSize: page_size, page: page};
                     if (field_search) fields.forEach(function (val, idx) {
                         if (val = str(config[val])) data[fields[idx]] = val;
                     });
+                    if (data.type === '*') delete data.type; // * is superfluous here
                     if (id_search) data.configId = ids;
+                    if (template) method.push('templates', template);
                     if (id) method = method.concat(version ? [id, 'versions', version_search ? '' : version] : id);
                     return request(method, {data: data, meta: meta});
                 },
@@ -235,7 +235,6 @@ $.register_module({
                         api_fields = ['name', 'configJSON', 'configXML'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{one_of: ['json', 'xml']}, {all_of: ['name']}],
                         empties: [{
                             condition: !!config.json, label: 'json and xml are mutually exclusive', fields: ['xml']
                         }]
