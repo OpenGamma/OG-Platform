@@ -51,6 +51,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
@@ -501,6 +503,26 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption) {
       return "SwaptionBermudaFixedIbor1";
+    }
+
+    @Override
+    public String visitCapFloorCMS(CapFloorCMSDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMS(CapFloorCMSDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon) {
+      return null;
     }
   }
 }
