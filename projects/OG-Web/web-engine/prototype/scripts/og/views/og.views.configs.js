@@ -118,9 +118,7 @@ $.register_module({
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
-                        result.data.types.forEach(function (val, idx) {
-                            config_types.push({name: val, value: val});
-                        });
+                        config_types = result.data.types.map(function (val, idx) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
                     cache_for: 15 * 1000
@@ -138,44 +136,17 @@ $.register_module({
             },
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
-                    if (new_config_type === 'ViewDefinition') result = {
-                        error: false,
-                        message: '',
-                        data: {template_data: {
-                          name: '',
-                          type: 'ViewDefinition',
-                          configJSON: {
-                              "maxFullCalcPeriod": 0,
-                              "0": "com.opengamma.engine.view.ViewDefinition",
-                              "calculationConfiguration": [],
-                              "minFullCalcPeriod": 0,
-                              "resultModelDefinition": {
-                                  "primitiveOutputMode": "TERMINAL_OUTPUTS",
-                                  "securityOutputMode": "TERMINAL_OUTPUTS",
-                                  "positionOutputMode": "TERMINAL_OUTPUTS",
-                                  "tradeOutputMode": "TERMINAL_OUTPUTS",
-                                  "aggregatePositionOutputMode": "TERMINAL_OUTPUTS"
-                              },
-                              "name": "",
-                              "maxDeltaCalcPeriod": 0,
-                              "minDeltaCalcPeriod": 0,
-                              "user": {
-                                  "userName": "",
-                                  "ipAddress": ""
-                              },
-                              "currency": ""
-                          }
-                        }}
-                    };
                     if (result.error) return alert(result.message);
                     if (is_new) {
                         if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
-                        result.template_data.configJSON.name = 'Untitled ' + new_config_type;
+                        if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
+                        result.data.template_data.name = 'UNTITLED';
+                        result.data.template_data.configJSON.name = 'UNTITLED';
                     }
                     var details_json = result.data,
                         config_type = details_json.template_data.type.toLowerCase(),
                         template = module.name + '.' + config_type, text_handler;
-                    history.put({
+                    if (!is_new) history.put({
                         name: details_json.template_data.name,
                         item: 'history.configs.recent',
                         value: routes.current().hash

@@ -461,7 +461,7 @@ $.register_module({
                     new form.Block({ // form item_4
                         module: 'og.views.forms.view-definition-colset-tabs',
                         extras: {
-                            tabs: master[SETS].reduce(function (acc, set, idx) {
+                            tabs: (master[SETS] || (master[SETS] = [])).reduce(function (acc, set, idx) {
                                 return acc + '<li><a class="og-tab og-js-colset-tab' + (idx ? '' : ' og-active') + '"' +
                                     ' href="#"><div class="og-delete og-js-rem-colset"></div>' +
                                     '<span class="og-js-colset-tab-name">' + set.name + '</span></a></li>';
