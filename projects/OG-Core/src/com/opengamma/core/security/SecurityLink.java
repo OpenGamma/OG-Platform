@@ -29,7 +29,7 @@ import com.opengamma.util.PublicSPI;
  * A flexible link between an object and a security.
  * <p>
  * The security link represents a connection from an entity to a security.
- * The connection can be held by {@code UniqueIdentifier}, {@code IdentifierBundle}
+ * The connection can be held by {@code ObjectIdentifier}, {@code IdentifierBundle}
  * or by a resolved reference to the security itself.
  * <p>
  * This class is mutable and not thread-safe.
@@ -45,8 +45,8 @@ public class SecurityLink extends Link<Security> {
 
   /**
    * Obtains an instance from a security, locking by strong object identifier
-   * if possible and the weak if not.
-   * The result will contain the resolved target and either the strong or weak reference.
+   * if possible and the external identifier bundle if not.
+   * The result will contain the resolved target and one type of reference.
    * 
    * @param security  the security to store, not null
    * @return the link with target and object identifier set, not null
@@ -56,19 +56,19 @@ public class SecurityLink extends Link<Security> {
     SecurityLink link = new SecurityLink();
     link.setAndLockTarget(security);
     if (link.getObjectId() == null) {
-      link.setWeakId(security.getIdentifiers());
+      link.setBundleId(security.getIdentifiers());
     }
     return link;
   }
 
   /**
-   * Obtains an instance from a security, locking by weak identifier bundle.
-   * The result will contain the weak identifier bundle and the resolved target.
+   * Obtains an instance from a security, locking by external identifier bundle.
+   * The result will contain the external identifier bundle and the resolved target.
    * 
    * @param security  the security to store, not null
    * @return the link with target and identifier bundle set, not null
    */
-  public static SecurityLink ofWeakId(Security security) {
+  public static SecurityLink ofBundleId(Security security) {
     ArgumentChecker.notNull(security, "security");
     SecurityLink link = new SecurityLink(security.getIdentifiers());
     link.setTarget(security);
@@ -102,7 +102,7 @@ public class SecurityLink extends Link<Security> {
   }
 
   /**
-   * Creates a link from an identifier.
+   * Creates a link from an external identifier.
    * 
    * @param identifier  the identifier, not null
    */
@@ -111,7 +111,7 @@ public class SecurityLink extends Link<Security> {
   }
 
   /**
-   * Creates a link from an identifier bundle.
+   * Creates a link from an external identifier bundle.
    * 
    * @param bundle  the identifier bundle, not null
    */
@@ -128,7 +128,7 @@ public class SecurityLink extends Link<Security> {
   public String getBestName() {
     Security security = getTarget();
     ObjectIdentifier objectId = getObjectId();
-    IdentifierBundle bundle = getWeakId();
+    IdentifierBundle bundle = getBundleId();
     if (security != null) {
       bundle = security.getIdentifiers();
     }
@@ -171,7 +171,7 @@ public class SecurityLink extends Link<Security> {
         return target;
       }
     }
-    IdentifierBundle bundle = getWeakId();
+    IdentifierBundle bundle = getBundleId();
     if (bundle.size() > 0) {
       target = source.getSecurity(bundle);
       if (target != null) {

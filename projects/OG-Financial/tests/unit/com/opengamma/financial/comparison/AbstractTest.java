@@ -64,7 +64,7 @@ import com.opengamma.util.time.Expiry;
     final TradeImpl trade = new TradeImpl();
     trade.setQuantity(new BigDecimal(quantity));
     trade.setUniqueId(createUniqueIdentifier("Trade"));
-    trade.setSecurityLink(SecurityLink.ofWeakId(security));
+    trade.setSecurityLink(SecurityLink.ofBundleId(security));
     if (attr1Value != null) {
       trade.addAttribute("Attr1", attr1Value);
     }

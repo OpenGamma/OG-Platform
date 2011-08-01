@@ -65,7 +65,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(Identifier.of("TICKER", "ORCL"), secKey.getIdentifiers().iterator().next());
   }

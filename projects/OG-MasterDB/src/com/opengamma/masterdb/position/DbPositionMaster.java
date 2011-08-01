@@ -750,7 +750,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             _position.getSecurityLink().setObjectId(oid);
           } else {
             Identifier id = Identifier.of(posIdScheme, posIdValue);
-            _position.getSecurityLink().addWeakId(id);
+            _position.getSecurityLink().addBundleId(id);
           }
         }
         
@@ -773,7 +773,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             _trade.getSecurityLink().setObjectId(oid);
           } else {
             Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
-            _trade.getSecurityLink().addWeakId(id);
+            _trade.getSecurityLink().addBundleId(id);
           }
         }
         

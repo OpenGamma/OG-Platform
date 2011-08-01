@@ -38,8 +38,8 @@ import com.opengamma.util.PublicAPI;
  * A flexible link between two parts of the system.
  * <p>
  * A link represents a connection from one entity to another in the object model.
- * The connection can be held strongly by an {@code ObjectIdentifier}, weakly
- * by a {@code IdentifierBundle} or by a resolved reference to the object itself.
+ * The connection can be held strongly by an OpenGamma {@code ObjectIdentifier},
+ * by an external {@code IdentifierBundle} or by a resolved reference to the object itself.
  * <p>
  * This class is mutable and not thread-safe.
  * 
@@ -59,10 +59,11 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   @PropertyDefinition
   private ObjectIdentifier _objectId;
   /**
-   * The weak identifier bundle that references the target.
+   * The external identifier bundle that references the target.
+   * An empty bundle is used if not referencing a target by external bundle.
    */
   @PropertyDefinition(validate = "notNull")
-  private IdentifierBundle _weakId = IdentifierBundle.EMPTY;
+  private IdentifierBundle _bundleId = IdentifierBundle.EMPTY;
   /**
    * The resolved target.
    */
@@ -97,13 +98,13 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   }
 
   /**
-   * Creates a link from a weak identifier bundle.
+   * Creates a link from an external identifier bundle.
    * 
-   * @param bundle  the identifier bundle, not null
+   * @param externalBundle  the identifier bundle, not null
    */
-  public Link(final IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    setWeakId(bundle);
+  public Link(final IdentifierBundle externalBundle) {
+    ArgumentChecker.notNull(externalBundle, "externalBundle");
+    setBundleId(externalBundle);
   }
 
   /**
@@ -120,7 +121,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   //-------------------------------------------------------------------------
   /**
    * Sets the resolved target, locking it for future resolution by setting the
-   * object identifier and clearing the weak identifier bundle.
+   * object identifier and clearing the external identifier bundle.
    * If the target has no unique identifier, then no change is made to the references.
    * 
    * @param target  the target, not null
@@ -133,8 +134,12 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   /**
    * Locks the resolved target for future resolution by setting the
-   * object identifier and clearing the weak identifier bundle.
+   * object identifier and clearing the external identifier bundle.
    * If the target has no unique identifier, then no change is made to the references.
+   * <p>
+   * The target of a link is effectively treated as transient state.
+   * This method updates the object identifier based on the resolved target so
+   * that true state of the link is up to date.
    */
   public void lockTarget() {
     T target = getTarget();
@@ -144,7 +149,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     UniqueIdentifier uniqueId = target.getUniqueId();
     if (uniqueId != null) {
       setObjectId(uniqueId.getObjectId());
-      setWeakId(IdentifierBundle.EMPTY);
+      setBundleId(IdentifierBundle.EMPTY);
     }
   }
 
@@ -173,50 +178,50 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   public Object getBest() {
     T target = getTarget();
     ObjectIdentifier objectId = getObjectId();
-    IdentifierBundle bundle = getWeakId();
+    IdentifierBundle bundle = getBundleId();
     return Objects.firstNonNull(target, Objects.firstNonNull(objectId, bundle));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the weak reference bundle.
+   * Adds an identifier to the external reference bundle.
    * 
-   * @param idKey  the identifier to add, not null
+   * @param identifier  the identifier to add, not null
    */
-  public void addWeakId(final Identifier idKey) {
-    ArgumentChecker.notNull(idKey, "idKey");
-    setWeakId(getWeakId().withIdentifier(idKey));
+  public void addBundleId(final Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    setBundleId(getBundleId().withIdentifier(identifier));
   }
 
   /**
-   * Adds identifiers to the weak reference bundle.
+   * Adds identifiers to the external reference bundle.
    * 
-   * @param idKeys  the identifiers to add, not null
+   * @param identifiers  the identifiers to add, not null
    */
-  public void addWeakIds(final Iterable<Identifier> idKeys) {
-    ArgumentChecker.notNull(idKeys, "idKeys");
-    setWeakId(getWeakId().withIdentifiers(idKeys));
+  public void addBundleIds(final Iterable<Identifier> identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    setBundleId(getBundleId().withIdentifiers(identifiers));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Iterates over the weak reference identifiers.
+   * Iterates over the external reference identifiers.
    * 
    * @return the iterator, not null
    */
   @Override
   public Iterator<Identifier> iterator() {
-    return getWeakId().iterator();
+    return getBundleId().iterator();
   }
 
   /**
-   * Gets the set of weak reference identifiers.
+   * Gets the set of external reference identifiers.
    * This excludes the strong object identifier.
    * 
    * @return all the identifiers, not null
    */
   public Set<Identifier> getIdentifiers() {
-    return getWeakId().getIdentifiers();
+    return getBundleId().getIdentifiers();
   }
 
   /**
@@ -226,7 +231,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * @return all the identifiers, not null
    */
   public Set<Identifier> getAllIdentifiers() {
-    Set<Identifier> identifiers = getWeakId().getIdentifiers();
+    Set<Identifier> identifiers = getBundleId().getIdentifiers();
     ObjectIdentifier objectId = getObjectId();
     if (objectId != null) {
       Set<Identifier> set = new HashSet<Identifier>(identifiers);
@@ -262,8 +267,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     switch (propertyName.hashCode()) {
       case 90495162:  // objectId
         return getObjectId();
-      case -791827789:  // weakId
-        return getWeakId();
+      case -1294655171:  // bundleId
+        return getBundleId();
       case -880905839:  // target
         return getTarget();
     }
@@ -277,8 +282,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       case 90495162:  // objectId
         setObjectId((ObjectIdentifier) newValue);
         return;
-      case -791827789:  // weakId
-        setWeakId((IdentifierBundle) newValue);
+      case -1294655171:  // bundleId
+        setBundleId((IdentifierBundle) newValue);
         return;
       case -880905839:  // target
         setTarget((T) newValue);
@@ -289,7 +294,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_weakId, "weakId");
+    JodaBeanUtils.notNull(_bundleId, "bundleId");
     super.validate();
   }
 
@@ -301,7 +306,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       Link<?> other = (Link<?>) obj;
       return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getWeakId(), other.getWeakId()) &&
+          JodaBeanUtils.equal(getBundleId(), other.getBundleId()) &&
           JodaBeanUtils.equal(getTarget(), other.getTarget());
     }
     return false;
@@ -311,7 +316,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeakId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
     return hash;
   }
@@ -343,28 +348,31 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the weak identifier bundle that references the target.
+   * Gets the external identifier bundle that references the target.
+   * An empty bundle is used if not referencing a target by external bundle.
    * @return the value of the property, not null
    */
-  public IdentifierBundle getWeakId() {
-    return _weakId;
+  public IdentifierBundle getBundleId() {
+    return _bundleId;
   }
 
   /**
-   * Sets the weak identifier bundle that references the target.
-   * @param weakId  the new value of the property, not null
+   * Sets the external identifier bundle that references the target.
+   * An empty bundle is used if not referencing a target by external bundle.
+   * @param bundleId  the new value of the property, not null
    */
-  public void setWeakId(IdentifierBundle weakId) {
-    JodaBeanUtils.notNull(weakId, "weakId");
-    this._weakId = weakId;
+  public void setBundleId(IdentifierBundle bundleId) {
+    JodaBeanUtils.notNull(bundleId, "bundleId");
+    this._bundleId = bundleId;
   }
 
   /**
-   * Gets the the {@code weakId} property.
+   * Gets the the {@code bundleId} property.
+   * An empty bundle is used if not referencing a target by external bundle.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> weakId() {
-    return metaBean().weakId().createProperty(this);
+  public final Property<IdentifierBundle> bundleId() {
+    return metaBean().bundleId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -409,10 +417,10 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(
         this, "objectId", Link.class, ObjectIdentifier.class);
     /**
-     * The meta-property for the {@code weakId} property.
+     * The meta-property for the {@code bundleId} property.
      */
-    private final MetaProperty<IdentifierBundle> _weakId = DirectMetaProperty.ofReadWrite(
-        this, "weakId", Link.class, IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _bundleId = DirectMetaProperty.ofReadWrite(
+        this, "bundleId", Link.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code target} property.
      */
@@ -425,7 +433,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "objectId",
-        "weakId",
+        "bundleId",
         "target");
 
     /**
@@ -439,8 +447,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       switch (propertyName.hashCode()) {
         case 90495162:  // objectId
           return _objectId;
-        case -791827789:  // weakId
-          return _weakId;
+        case -1294655171:  // bundleId
+          return _bundleId;
         case -880905839:  // target
           return _target;
       }
@@ -473,11 +481,11 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     }
 
     /**
-     * The meta-property for the {@code weakId} property.
+     * The meta-property for the {@code bundleId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> weakId() {
-      return _weakId;
+    public final MetaProperty<IdentifierBundle> bundleId() {
+      return _bundleId;
     }
 
     /**

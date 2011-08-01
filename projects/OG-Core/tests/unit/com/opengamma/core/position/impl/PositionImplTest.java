@@ -5,15 +5,17 @@
  */
 package com.opengamma.core.position.impl;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
+
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
@@ -37,8 +39,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getWeakId().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getBundleId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -57,8 +59,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getWeakId().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getBundleId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -77,8 +79,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getWeakId().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getBundleId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -102,8 +104,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getWeakId().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getBundleId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -129,8 +131,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getWeakId().size());
-    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getWeakId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getBundleId().size());
+    assertEquals(Identifier.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
     assertEquals(true, test.toString().startsWith("Position[B~C, 1"));
   }
 
@@ -201,10 +203,10 @@ public class PositionImplTest {
   public void test_addTrade() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertTrue(testPosition.getTrades().isEmpty());
-    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueId(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueId(), createLink("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     testPosition.addTrade(testTrade1);
     
-    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueId(), Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueId(), createLink("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     testPosition.addTrade(testTrade2);
     
     assertEquals(2, testPosition.getTrades().size());
@@ -221,12 +223,12 @@ public class PositionImplTest {
   public void test_removeTrade() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertTrue(testPosition.getTrades().isEmpty());
-    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueId(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueId(), createLink("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     testPosition.addTrade(testTrade1);
-    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueId(), Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueId(), createLink("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     testPosition.addTrade(testTrade2);
     
-    TradeImpl testTrade3 = new TradeImpl(testPosition.getUniqueId(), Identifier.of("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade3 = new TradeImpl(testPosition.getUniqueId(), createLink("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     
     assertTrue(testPosition.removeTrade(testTrade1));
     assertTrue(testPosition.removeTrade(testTrade2));
@@ -238,7 +240,7 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   public void test_getTrades_readOnly() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    TradeImpl testTrade = new TradeImpl(testPosition.getUniqueId(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl testTrade = new TradeImpl(testPosition.getUniqueId(), createLink("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     int sizeBeforeAddition = testPosition.getTrades().size();
     try {
       testPosition.getTrades().add(testTrade);
@@ -293,6 +295,10 @@ public class PositionImplTest {
     assertEquals(2, testPosition.getAttributes().size());
     testPosition.clearAttributes();
     assertTrue(testPosition.getAttributes().isEmpty());
+  }
+
+  private SecurityLink createLink(String scheme, String value) {
+    return new SecurityLink(Identifier.of(scheme, value));
   }
 
 }

@@ -189,7 +189,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "100"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(100.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "S100")));
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -212,7 +212,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "120"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(120.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "T130")));
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -244,7 +244,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "121"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(2, secKey.size());
     assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
     assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
@@ -276,7 +276,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "122"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(Identifier.of("TICKER", "ORCL"), secKey.getIdentifiers().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -296,7 +296,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "123"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(123.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(2, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("NASDAQ", "ORCL135")));
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("TICKER", "ORCL134")));
@@ -337,7 +337,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "221"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(Identifier.of("TICKER", "IBMC"), secKey.getIdentifiers().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -364,7 +364,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uid, position.getUniqueId());
     assertEquals(Identifier.of("A", "222"), position.getProviderKey());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getWeakId();
+    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
     assertEquals(Identifier.of("TICKER", "IBMC"), secKey.getIdentifiers().iterator().next());
     assertEquals(ObjectIdentifier.of("DbSec", "1234"), position.getSecurityLink().getObjectId());

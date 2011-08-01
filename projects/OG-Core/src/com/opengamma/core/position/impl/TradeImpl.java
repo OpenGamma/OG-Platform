@@ -23,8 +23,6 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -95,42 +93,18 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   }
 
   /**
-   * Creates a trade from a position, counterparty, trade instant, and an amount.
-   * 
-   * @param parentPositionId  the parent position id, not null
-   * @param securityKey  the security identifier, not null
-   * @param quantity  the amount of the trade, not null
-   * @param counterparty  the counterparty, not null
-   * @param tradeDate  the trade date, not null
-   * @param tradeTime  the trade time with offset, may be null
-   */
-  public TradeImpl(UniqueIdentifier parentPositionId, Identifier securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(counterparty, "counterparty");
-    ArgumentChecker.notNull(tradeDate, "tradeDate");
-    _quantity = quantity;
-    _counterparty = counterparty;
-    _tradeDate = tradeDate;
-    _tradeTime = tradeTime;
-    _parentPositionId = parentPositionId;
-    _securityLink = new SecurityLink(securityKey);
-  }
-
-  /**
    * Creates a trade from a positionId, an amount of a security identified by key, counterparty and tradeinstant.
    * 
    * @param parentPositionId  the parent position id, not null
-   * @param securityKey  the security identifier, not null
+   * @param securityLink  the security identifier, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty  the counterparty, not null
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public TradeImpl(UniqueIdentifier parentPositionId, IdentifierBundle securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
+  public TradeImpl(UniqueIdentifier parentPositionId, SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(parentPositionId, "parentPositionId");
-    ArgumentChecker.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityLink, "securityLink");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
     ArgumentChecker.notNull(tradeDate, "tradeDate");
@@ -139,7 +113,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _parentPositionId = parentPositionId;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = securityLink;
   }
 
   /**
