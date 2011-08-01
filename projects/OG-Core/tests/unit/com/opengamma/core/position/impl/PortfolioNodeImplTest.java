@@ -231,7 +231,7 @@ public class PortfolioNodeImplTest {
     assertFalse(position1.equals (root.getPosition(UniqueIdentifier.of("Child", "A"))));
     position1.setParentNodeId(child.getUniqueId ());
     assertEquals(position1, root.getPosition(UniqueIdentifier.of("Child", "A")));
-    assertSame(position2, root.getPosition(UniqueIdentifier.of("Child", "B")));
+    assertEquals(position2, root.getPosition(UniqueIdentifier.of("Child", "B")));
     assertEquals(null, root.getPosition(UniqueIdentifier.of("NotFound", "A")));
   }
 
