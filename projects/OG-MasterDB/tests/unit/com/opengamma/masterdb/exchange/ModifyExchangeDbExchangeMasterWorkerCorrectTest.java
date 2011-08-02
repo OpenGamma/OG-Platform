@@ -33,8 +33,8 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerCorrectTest.class);
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
-  private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
+  private static final IdentifierBundle BUNDLE = IdentifierBundle.of("A", "B");
+  private static final IdentifierBundle REGION = IdentifierBundle.of("C", "D");
 
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {

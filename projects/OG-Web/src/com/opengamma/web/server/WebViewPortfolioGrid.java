@@ -65,7 +65,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   private String getRowName(PortfolioRow row, ComputationTargetType targetType) {
     String rowName;
     if (targetType == ComputationTargetType.POSITION) {
-      Security security = row.getPosition().getSecurity();
+      Security security = row.getPosition().getSecurityLink().getTarget();
       String des = security.getName();
       rowName = des + " (" + row.getPosition().getQuantity().toPlainString() + ")";
     } else {

@@ -317,7 +317,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     sourcePosition.setUniqueId(posId);
     sourcePosition.setParentNodeId(nodeId);
     sourcePosition.setQuantity(manPos.getQuantity());
-    sourcePosition.setSecurityKey(manPos.getSecurityKey());
+    sourcePosition.setSecurityLink(manPos.getSecurityLink());
     for (ManageableTrade manTrade : manPos.getTrades()) {
       convertTrade(nodeId, posId, manTrade);
       sourcePosition.addTrade(manTrade);

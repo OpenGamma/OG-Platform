@@ -15,7 +15,7 @@ $.register_module({
                 id = prefix + id_count++, meta = rest_options && rest_options.meta, classes = config.classes,
                 field_options = {
                     generator: function (handler) {
-                        var options = $.extend({}, rest_options, {
+                        var options = $.extend({}, {
                             cache_for: 30 * 1000,
                             handler: function (result) {
                                 if (result.error) return handler('an error occurred');
@@ -35,7 +35,7 @@ $.register_module({
                                 }
                                 handler($html.html());
                             }
-                        }), $html = $('<p><select/></p>'), $select = $html.find('select');
+                        }, rest_options), $html = $('<p><select/></p>'), $select = $html.find('select');
                         if (name) $select.attr('name', name);
                         if (classes) $select.attr('class', classes);
                         $select.attr('id', id);

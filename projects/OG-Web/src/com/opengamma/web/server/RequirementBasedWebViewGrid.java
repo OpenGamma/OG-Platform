@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -15,6 +16,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -72,7 +75,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   }
   
   //-------------------------------------------------------------------------
-  
+
   public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
     Integer rowId = getGridStructure().getRowId(target.getUniqueId());
     if (rowId == null) {
@@ -80,10 +83,11 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       return;
     }
 
-    Map<String, Object> valuesToSend = null;
+    Map<String, Object> valuesToSend = createDefaultTargetResult(rowId);
     
     // Whether or not the row is in the viewport, we may have to store history
     for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
+      
       for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
         ValueSpecification specification = value.getSpecification();
         Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
@@ -107,11 +111,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
             cellData.put("dg", depGraph);
           }
           if (cellData != null) {
-            if (valuesToSend == null) {
-              valuesToSend = new HashMap<String, Object>();
-              valuesToSend.put("rowId", rowId);
-            }
-            valuesToSend.put(Long.toString(colId), cellData);
+            valuesToSend.put(Integer.toString(colId), cellData);
           }
         }
       }
@@ -119,6 +119,16 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     if (valuesToSend != null) {
       getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
     }
+  }
+  
+  private Map<String, Object> createDefaultTargetResult(Integer rowId) {
+    Map<String, Object> valuesToSend;
+    valuesToSend = new HashMap<String, Object>();
+    valuesToSend.put("rowId", rowId);
+    for (Integer unsatisfiedColId : getGridStructure().getUnsatisfiedCells(rowId)) {
+      valuesToSend.put(Integer.toString(unsatisfiedColId), null);
+    }
+    return valuesToSend;
   }
   
   @SuppressWarnings("unchecked")

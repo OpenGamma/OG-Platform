@@ -40,11 +40,11 @@ $.register_module({
                 },
                 input: {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
                 },
                 'error': {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
                 }
             };
             // Merge default_options.all with the options for each dialog

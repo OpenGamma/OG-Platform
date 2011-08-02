@@ -52,7 +52,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _secMaster.update(doc);
@@ -68,7 +68,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.update(doc);
   }
@@ -76,7 +76,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.update(doc);
   }
@@ -87,7 +87,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     SecurityDocument base = _secMaster.get(uid);
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument updated = _secMaster.update(input);
@@ -122,7 +122,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     };
     final SecurityDocument base = _secMaster.get(UniqueIdentifier.of("DbSec", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     try {
       w.update(input);

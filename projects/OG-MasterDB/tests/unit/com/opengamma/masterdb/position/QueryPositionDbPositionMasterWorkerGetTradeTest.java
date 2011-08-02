@@ -87,7 +87,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "407", "0");
     ManageableTrade test = _posMaster.getTrade(uid);
     
-    IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
+    IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
     expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "0"));
     expected.setUniqueId(uid);
@@ -100,7 +100,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "407", "1");
     ManageableTrade test = _posMaster.getTrade(uid);
     
-    IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
+    IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
     expected.setUniqueId(uid);
@@ -120,7 +120,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "407");
     ManageableTrade test = _posMaster.getTrade(oid);
     
-    IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
+    IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
     expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "1"));
