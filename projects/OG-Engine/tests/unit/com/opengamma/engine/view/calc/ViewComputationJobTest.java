@@ -337,6 +337,11 @@ public class ViewComputationJobTest {
       return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
           || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
     }
+
+    @Override
+    public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+      return Duration.between(fromInstant, toInstant);
+    }
     
   }
   

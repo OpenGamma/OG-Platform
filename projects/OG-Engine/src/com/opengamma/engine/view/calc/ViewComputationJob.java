@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -34,6 +35,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
+import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
 import com.opengamma.engine.view.calc.trigger.RunAsFastAsPossibleTrigger;
 import com.opengamma.engine.view.calc.trigger.SuccessiveDeltaLimitTrigger;
@@ -65,10 +67,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
-  private final ViewCycleTrigger _cycleTrigger;
+  private final ViewCycleTrigger _masterCycleTrigger;
+  private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
   
-  private double _cycleCount;
+  private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
   
   private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
@@ -98,12 +101,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _processContext = processContext;
     _cycleManager = cycleManager;
     
-    _cycleTrigger = createViewCycleTrigger(executionOptions);
+    _compilationExpiryCycleTrigger = new FixedTimeTrigger();
+    _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
   }
 
   private ViewCycleTrigger createViewCycleTrigger(ViewExecutionOptions executionOptions) {
     CombinedViewCycleTrigger trigger = new CombinedViewCycleTrigger();
+    trigger.addTrigger(_compilationExpiryCycleTrigger);
     if (executionOptions.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
       trigger.addTrigger(new RunAsFastAsPossibleTrigger());
     }
@@ -133,8 +138,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return _cycleManager;
   }
   
-  private ViewCycleTrigger getCycleTrigger() {
-    return _cycleTrigger;
+  private ViewCycleTrigger getMasterCycleTrigger() {
+    return _masterCycleTrigger;
+  }
+  
+  public FixedTimeTrigger getCompilationExpiryCycleTrigger() {
+    return _compilationExpiryCycleTrigger;
   }
    
   /**
@@ -155,9 +164,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // Exception handling is important here to ensure that computation jobs do not just die quietly while consumers are
     // potentially blocked, waiting for results.
     
-    ViewCycleType cycleType = waitForNextCycle();
-    if (cycleType == null) {
-      // Will get back to runOneCycle() straight away unless the job has been terminated
+    ViewCycleType cycleType;
+    try {
+      cycleType = waitForNextCycle();
+    } catch (InterruptedException e) {
       return;
     }
     
@@ -326,57 +336,59 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
   
   
-  private synchronized ViewCycleType waitForNextCycle() {
-    long currentTimeNanos = System.nanoTime();
-    ViewCycleTriggerResult triggerResult = getCycleTrigger().query(currentTimeNanos);
-    
-    ViewCycleEligibility cycleEligibility = triggerResult.getCycleEligibility();
-    if (_forceTriggerCycle) {
-      cycleEligibility = ViewCycleEligibility.FORCE;
-      _forceTriggerCycle = false;
-    }
-    if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _marketDataChanged) {
-      _marketDataChanged = false;
-      ViewCycleType cycleType = triggerResult.getCycleType();
-      if (_previousCycleReference == null) {
-        // Cannot do a delta if we have no previous cycle
-        cycleType = ViewCycleType.FULL;
+  private synchronized ViewCycleType waitForNextCycle() throws InterruptedException {
+    while (true) {
+      long currentTimeNanos = System.nanoTime();
+      ViewCycleTriggerResult triggerResult = getMasterCycleTrigger().query(currentTimeNanos);
+      
+      ViewCycleEligibility cycleEligibility = triggerResult.getCycleEligibility();
+      if (_forceTriggerCycle) {
+        cycleEligibility = ViewCycleEligibility.FORCE;
+        _forceTriggerCycle = false;
       }
+      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _marketDataChanged) {
+        _marketDataChanged = false;
+        ViewCycleType cycleType = triggerResult.getCycleType();
+        if (_previousCycleReference == null) {
+          // Cannot do a delta if we have no previous cycle
+          cycleType = ViewCycleType.FULL;
+        }
+        try {
+          getMasterCycleTrigger().cycleTriggered(currentTimeNanos, cycleType);
+        } catch (Exception e) {
+          s_logger.error("Error notifying trigger of intention to execute cycle", e);
+        }
+        s_logger.debug("Eligible for {} cycle", cycleType);
+        return cycleType;
+      }
+      
+      // Going to sleep
+      long wakeUpTime = triggerResult.getNextStateChangeNanos();
+      if (_marketDataChanged) {
+        s_logger.debug("Sleeping until eligible to perform the next computation cycle");
+        // No amount of market data can make us eligible for a computation cycle any sooner.
+        _wakeOnMarketDataChanged = false;
+      } else {
+        s_logger.debug("Sleeping until forced to perform the next computation cycle");
+        _wakeOnMarketDataChanged = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
+      }
+      
+      long sleepTime = wakeUpTime - currentTimeNanos;
+      sleepTime = Math.max(0, sleepTime);
+      sleepTime /= NANOS_PER_MILLISECOND;
+      sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change 
+      s_logger.debug("Waiting for {} ms", sleepTime);
       try {
-        getCycleTrigger().cycleTriggered(currentTimeNanos, cycleType);
-      } catch (Exception e) {
-        s_logger.error("Error notifying trigger of intention to execute cycle", e);
+        // This could wait until end of time. In this case, only marketDataChanged() or triggerCycle() will wake it up
+        wait(sleepTime);
+      } catch (InterruptedException e) {
+        // We support interruption as a signal that we have been terminated. If we're interrupted without having been
+        // terminated, we'll just return to this method and go back to sleep.
+        Thread.interrupted();
+        s_logger.info("Interrupted while delaying. Continuing operation.");
+        throw e;
       }
-      s_logger.debug("Eligible for {} cycle", cycleType);
-      return cycleType;
     }
-    
-    // Going to sleep
-    long wakeUpTime = triggerResult.getNextStateChangeNanos();
-    if (_marketDataChanged) {
-      s_logger.debug("Sleeping until eligible to perform the next computation cycle");
-      // No amount of market data can make us eligible for a computation cycle any sooner.
-      _wakeOnMarketDataChanged = false;
-    } else {
-      s_logger.debug("Sleeping until forced to perform the next computation cycle");
-      _wakeOnMarketDataChanged = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
-    }
-    
-    long sleepTime = wakeUpTime - currentTimeNanos;
-    sleepTime = Math.max(0, sleepTime);
-    sleepTime /= NANOS_PER_MILLISECOND;
-    sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change 
-    s_logger.debug("Waiting for {} ms", sleepTime);
-    try {
-      // This could wait until end of time. In this case, only marketDataChanged() or triggerCycle() will wake it up
-      wait(sleepTime);
-    } catch (InterruptedException e) {
-      // We support interruption as a signal that we have been terminated. If we're interrupted without having been
-      // terminated, we'll just return to this method and go back to sleep.
-      Thread.interrupted();
-      s_logger.info("Interrupted while delaying. Continuing operation.");
-    }
-    return null;
   }
   
   private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference, MarketDataSnapshot marketDataSnapshot) throws Exception {
@@ -405,7 +417,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     long durationNanos = cycleReference.get().getDuration().toNanosLong();
     _totalTimeNanos += durationNanos;
-    _cycleCount += 1.0;
+    _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
     
@@ -478,6 +490,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException(message, e);
     }
     setCachedCompiledViewDefinition(compiledViewDefinition);
+    
+    // [PLAT-984]
+    // Assume that valuation times are increasing in real-time towards the expiry of the view definition, so that we
+    // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
+    // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
+    // straight away.
+    Duration durationToExpiry = getMarketDataProvider().getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
+    long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
+    _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
