@@ -28,4 +28,11 @@ public interface JSONBuilder<T>  {
    * @return the created JSON document
    */
   String toJSON(T object);
+  
+  /**
+   * Get the json template for object builts by builder
+   * 
+   * @return the template, not null;
+   */
+  String getTemplate();
 }

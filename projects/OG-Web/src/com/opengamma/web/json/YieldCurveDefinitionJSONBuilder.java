@@ -40,7 +40,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
 
   /**
    * Restricted constructor 
@@ -108,7 +108,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     return jsonObject.toString();
   }
   
-  private static String getTemplate() {
+  private static String createTemplate() {
     YieldCurveDefinitionJSONBuilder builder = YieldCurveDefinitionJSONBuilder.INSTANCE; 
     String result = null;
     try {
@@ -138,6 +138,11 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, Identifier.of("dummy", "dummy"), "", "");
     dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, ""));
     return dummy;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
 
 }
