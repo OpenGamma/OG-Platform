@@ -20,7 +20,7 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Test CurrencyUnit.
+ * Test Currency.
  */
 @Test
 public class CurrencyTest {
