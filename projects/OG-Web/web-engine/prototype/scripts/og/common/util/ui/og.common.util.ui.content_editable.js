@@ -48,7 +48,7 @@ $.register_module({
                                 if (e.error) return cancel_update('oops something bad happened!');
                                 $('.og-js-msg').html('saved');
                                 ui.message({location: '.OG-details', message: 'saved', css: {'left': '7px'}});
-                                handler();
+                                handler(e);
                                 setTimeout(function () {
                                     $editable_element.html(new_content);
                                     ui.message({location: '.OG-details', destroy: true});

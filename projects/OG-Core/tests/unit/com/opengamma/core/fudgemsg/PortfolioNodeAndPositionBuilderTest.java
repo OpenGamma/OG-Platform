@@ -115,7 +115,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     s_logger.debug("testing position {}", expected.getUniqueId());
     assertEquals(expected.getUniqueId(), actual.getUniqueId());
     assertEquals(expected.getQuantity(), actual.getQuantity());
-    assertEquals(expected.getSecurityKey(), actual.getSecurityKey());
+    assertEquals(expected.getSecurityLink(), actual.getSecurityLink());
     assertEquals(expected.getParentNodeId(), actual.getParentNodeId());
   }
 

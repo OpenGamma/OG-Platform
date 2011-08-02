@@ -57,7 +57,7 @@ $.register_module({
                             {type: 'textarea', name: 'Identifiers', id: 'identifiers'}
                         ],
                         buttons: {
-                            'Ok': function () {
+                            'OK': function () {
                                 $(this).dialog('close');
                                 api.rest.timeseries.put({
                                     handler: function (r) {

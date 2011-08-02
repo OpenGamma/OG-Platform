@@ -21,12 +21,23 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
  * Class with methods related to bond transaction valued by discounting.
  */
 public final class BondTransactionDiscountingMethod {
+
+  /**
+   * The unique instance of the class.
+   */
   private static final BondTransactionDiscountingMethod INSTANCE = new BondTransactionDiscountingMethod();
 
+  /**
+   * Return the class instance.
+   * @return The instance.
+   */
   public static BondTransactionDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor
+   */
   private BondTransactionDiscountingMethod() {
   }
 
@@ -65,8 +76,8 @@ public final class BondTransactionDiscountingMethod {
   public double presentValueFromCleanPrice(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves, final double cleanPrice) {
     Validate.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
     final BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
-    final double dfSettle = curves.getCurve(bondFixed.getBondStandard().getNominal().getDiscountCurve()).getDiscountFactor(bondFixed.getBondTransaction().getSettlementTime());
-    final double pvPriceStandard = (cleanPrice + bondFixed.getBondStandard().getAccruedInterest()) * bondFixed.getNotionalStandard() * dfSettle;
+    final double dfSettle = curves.getCurve(bondFixed.getBondStandard().getRepoCurveName()).getDiscountFactor(bondFixed.getBondTransaction().getSettlementTime());
+    final double pvPriceStandard = (cleanPrice * bondFixed.getNotionalStandard() + bondFixed.getBondStandard().getAccruedInterest()) * dfSettle;
     final double pvNominalStandard = PVC.visit(bond.getBondStandard().getNominal(), curves);
     final double pvCouponStandard = PVC.visit(bond.getBondStandard().getCoupon(), curves);
     final double pvDiscountingStandard = (pvNominalStandard + pvCouponStandard);
