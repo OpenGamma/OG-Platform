@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
+import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -28,13 +29,14 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.interestrate.bond.BondCalculator;
 import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
+public class BondPreviousCloseDirtyPriceFunction extends BondMarketDataFunction {
   private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
   private static final BusinessDayConvention PREVIOUS = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
@@ -42,7 +44,7 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
     super(MarketDataRequirementNames.MARKET_VALUE);
   }
 
-  @Override
+  //@Override
   protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition bondDefinition, final Object value,
       final ZonedDateTime now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
@@ -66,6 +68,11 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   @Override
   public String getShortName() {
     return "BondDirtyPriceFunction";
+  }
+
+  @Override
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final double value, final BondSecurity security) {
+    return Collections.emptySet();
   }
 
 }

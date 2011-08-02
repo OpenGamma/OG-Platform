@@ -503,9 +503,9 @@ public class CurveDefinitionAndSpecifications {
     // FRAs
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] tenorsTickersFRAs = new Object[][] {
-        {THREE_MONTHS, generalPrefix + "FR00C Curncy"}, {SIX_MONTHS, generalPrefix + "FR0CF Curncy"}, {NINE_MONTHS, generalPrefix + "FR0FI Curncy"},
-        {TWELVE_MONTHS, generalPrefix + "FR0I1 Curncy"}, {Tenor.ofMonths(15), generalPrefix + "FR011C Curncy"}, {Tenor.ofMonths(18), generalPrefix + "FR1C1F Curncy"},
-        {Tenor.ofMonths(21), generalPrefix + "FR1F1I Curncy"}, {Tenor.ofMonths(24), generalPrefix + "FR1I2 Curncy"}
+      {THREE_MONTHS, generalPrefix + "FR00C Curncy"}, {SIX_MONTHS, generalPrefix + "FR0CF Curncy"}, {NINE_MONTHS, generalPrefix + "FR0FI Curncy"},
+      {TWELVE_MONTHS, generalPrefix + "FR0I1 Curncy"}, {Tenor.ofMonths(15), generalPrefix + "FR011C Curncy"}, {Tenor.ofMonths(18), generalPrefix + "FR1C1F Curncy"},
+      {Tenor.ofMonths(21), generalPrefix + "FR1F1I Curncy"}, {Tenor.ofMonths(24), generalPrefix + "FR1I2 Curncy"}
     };
     for (final Object[] tenorsTickersFRA : tenorsTickersFRAs) {
       final Tenor tenor = (Tenor) tenorsTickersFRA[0];
@@ -516,12 +516,12 @@ public class CurveDefinitionAndSpecifications {
     // DEPOSIT RATES
     final Map<Tenor, CurveInstrumentProvider> depositCashInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] depositTenorTickers = new Object[][] {
-        {ONE_DAY, generalPrefix + "DR1T Curncy"}, {TWO_DAYS, generalPrefix + "DR2T Curncy"}, {THREE_DAYS, generalPrefix + "DR3T Curncy"},
-        {ONE_WEEK, generalPrefix + "DR7D Curncy"}, {TWO_WEEKS, generalPrefix + "DR2Z Curncy"}, {THREE_WEEKS, generalPrefix + "DR3Z Curncy"},
-        {ONE_MONTH, generalPrefix + "DRA Curncy"}, {TWO_MONTHS, generalPrefix + "DRB Curncy"}, {THREE_MONTHS, generalPrefix + "DRC Curncy"},
-        {FOUR_MONTHS, generalPrefix + "DRD Curncy"}, {FIVE_MONTHS, generalPrefix + "DRE Curncy"}, {SIX_MONTHS, generalPrefix + "DRF Curncy"},
-        {SEVEN_MONTHS, generalPrefix + "DRG Curncy"}, {EIGHT_MONTHS, generalPrefix + "DRH Curncy"}, {NINE_MONTHS, generalPrefix + "DRI Curncy"},
-        {TEN_MONTHS, generalPrefix + "DRJ Curncy"}, {ELEVEN_MONTHS, generalPrefix + "DRK Curncy"}, {TWELVE_MONTHS, generalPrefix + "DRL Curncy"},
+      {ONE_DAY, generalPrefix + "DR1T Curncy"}, {TWO_DAYS, generalPrefix + "DR2T Curncy"}, {THREE_DAYS, generalPrefix + "DR3T Curncy"},
+      {ONE_WEEK, generalPrefix + "DR7D Curncy"}, {TWO_WEEKS, generalPrefix + "DR2Z Curncy"}, {THREE_WEEKS, generalPrefix + "DR3Z Curncy"},
+      {ONE_MONTH, generalPrefix + "DRA Curncy"}, {TWO_MONTHS, generalPrefix + "DRB Curncy"}, {THREE_MONTHS, generalPrefix + "DRC Curncy"},
+      {FOUR_MONTHS, generalPrefix + "DRD Curncy"}, {FIVE_MONTHS, generalPrefix + "DRE Curncy"}, {SIX_MONTHS, generalPrefix + "DRF Curncy"},
+      {SEVEN_MONTHS, generalPrefix + "DRG Curncy"}, {EIGHT_MONTHS, generalPrefix + "DRH Curncy"}, {NINE_MONTHS, generalPrefix + "DRI Curncy"},
+      {TEN_MONTHS, generalPrefix + "DRJ Curncy"}, {ELEVEN_MONTHS, generalPrefix + "DRK Curncy"}, {TWELVE_MONTHS, generalPrefix + "DRL Curncy"},
 
     };
 
@@ -532,8 +532,8 @@ public class CurveDefinitionAndSpecifications {
     }
 
     final Object[][] depositYearTickers = new Object[][] {
-        {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
-        {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
+      {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
+      {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
     };
 
     for (int i = 0; i < maxDepositYears; i++) {
@@ -620,9 +620,9 @@ public class CurveDefinitionAndSpecifications {
 
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] tenorsTickersFRAs = new Object[][] {
-        {THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}, {NINE_MONTHS, "USFR0FI Curncy"},
-        {TWELVE_MONTHS, "USFR0I1 Curncy"}, {Tenor.ofMonths(15), "USFR011C Curncy"}, {Tenor.ofMonths(18), "USFR1C1F Curncy"},
-        {Tenor.ofMonths(21), "USFR1F1I Curncy"}, {Tenor.ofMonths(24), "USFR1I2 Curncy"}
+      {THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}, {NINE_MONTHS, "USFR0FI Curncy"},
+      {TWELVE_MONTHS, "USFR0I1 Curncy"}, {Tenor.ofMonths(15), "USFR011C Curncy"}, {Tenor.ofMonths(18), "USFR1C1F Curncy"},
+      {Tenor.ofMonths(21), "USFR1F1I Curncy"}, {Tenor.ofMonths(24), "USFR1I2 Curncy"}
     };
     for (final Object[] tenorsTickersFRA : tenorsTickersFRAs) {
       final Tenor tenor = (Tenor) tenorsTickersFRA[0];
@@ -632,14 +632,14 @@ public class CurveDefinitionAndSpecifications {
 
     final Map<Tenor, CurveInstrumentProvider> depositCashInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Object[][] tenorsTickers = new Object[][] {
-        {ONE_DAY, "USDR1T Curncy"}, {TWO_DAYS, "USDR2T Curncy"}, {THREE_DAYS, "USDR3T Curncy"},
-        {ONE_WEEK, "USDR7D Curncy"}, {TWO_WEEKS, "USDR2Z Curncy"}, {THREE_WEEKS, "USDR3Z Curncy"},
-        {ONE_MONTH, "USDRA Curncy"}, {TWO_MONTHS, "USDRB Curncy"}, {THREE_MONTHS, "USDRC Curncy"},
-        {FOUR_MONTHS, "USDRD Curncy"}, {FIVE_MONTHS, "USDRE Curncy"}, {SIX_MONTHS, "USDRF Curncy"},
-        {SEVEN_MONTHS, "USDRG Curncy"}, {EIGHT_MONTHS, "USDRH Curncy"}, {NINE_MONTHS, "USDRI Curncy"},
-        {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},
-        {ONE_YEAR, "USDR1 Curncy"}, {TWO_YEARS, "USDR2 Curncy"}, {THREE_YEARS, "USDR3 Curncy"},
-        {FOUR_YEARS, "USDR4 Curncy"}, {FIVE_YEARS, "USDR5 Curncy"}
+      {ONE_DAY, "USDR1T Curncy"}, {TWO_DAYS, "USDR2T Curncy"}, {THREE_DAYS, "USDR3T Curncy"},
+      {ONE_WEEK, "USDR7D Curncy"}, {TWO_WEEKS, "USDR2Z Curncy"}, {THREE_WEEKS, "USDR3Z Curncy"},
+      {ONE_MONTH, "USDRA Curncy"}, {TWO_MONTHS, "USDRB Curncy"}, {THREE_MONTHS, "USDRC Curncy"},
+      {FOUR_MONTHS, "USDRD Curncy"}, {FIVE_MONTHS, "USDRE Curncy"}, {SIX_MONTHS, "USDRF Curncy"},
+      {SEVEN_MONTHS, "USDRG Curncy"}, {EIGHT_MONTHS, "USDRH Curncy"}, {NINE_MONTHS, "USDRI Curncy"},
+      {TEN_MONTHS, "USDRJ Curncy"}, {ELEVEN_MONTHS, "USDRK Curncy"},
+      {ONE_YEAR, "USDR1 Curncy"}, {TWO_YEARS, "USDR2 Curncy"}, {THREE_YEARS, "USDR3 Curncy"},
+      {FOUR_YEARS, "USDR4 Curncy"}, {FIVE_YEARS, "USDR5 Curncy"}
     };
 
     for (final Object[] tenorsTicker : tenorsTickers) {
@@ -701,7 +701,7 @@ public class CurveDefinitionAndSpecifications {
     cashInstrumentProviders.put(Tenor.ofDays(7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("US0001W Curncy")));
 
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    final Object[][] tenorsTickersFRAs = new Object[][] { {THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}};
+    final Object[][] tenorsTickersFRAs = new Object[][] {{THREE_MONTHS, "USFR00C Curncy"}, {SIX_MONTHS, "USFR0CF Curncy"}};
     for (final Object[] tenorsTickersFRA : tenorsTickersFRAs) {
       final Tenor tenor = (Tenor) tenorsTickersFRA[0];
       final String ticker = (String) tenorsTickersFRA[1];
@@ -709,7 +709,7 @@ public class CurveDefinitionAndSpecifications {
     }
 
     final Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    final Object[][] tenorsTickers = new Object[][] { {ONE_DAY, "USDR1T Curncy"}, {TWO_DAYS, "USDR2T Curncy"}};
+    final Object[][] tenorsTickers = new Object[][] {{ONE_DAY, "USDR1T Curncy"}, {TWO_DAYS, "USDR2T Curncy"}};
 
     for (final Object[] tenorsTicker : tenorsTickers) {
       final Tenor tenor = (Tenor) tenorsTicker[0];

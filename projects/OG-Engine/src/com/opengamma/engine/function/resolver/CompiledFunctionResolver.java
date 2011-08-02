@@ -17,26 +17,29 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Returned by a {@link FunctionResolver} to do the actual resolution for a specific timestamp.
+ * Resolver returned by {@link FunctionResolver} to do the actual resolution for a specific timestamp.
  */
 @PublicAPI
 public interface CompiledFunctionResolver {
-  
+
   /**
-   * Returns one or more functions capable of satisfying the requirement. If multiple functions can satisfy, they
-   * should be returned in descending priority.
+   * Resolves the requirement for a node to one or more functions.
+   * <p>
+   * The resolution finds functions that are capable of satisfying the requirement.
+   * If multiple functions can satisfy, they should be returned from highest priority
+   * to lowest priority.
    * 
-   * @param requirement Output requirement to satisfy
-   * @param atNode The node in a dependency graph the function would be assigned to
-   * @return the function(s) found
+   * @param requirement   the output requirement to satisfy, not null
+   * @param atNode  the node in a dependency graph the function would be assigned to, not null
+   * @return one or more matching functions, from highest to lowest priority, not null
    * @throws UnsatisfiableDependencyGraphException if there is a problem
    */
   Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
 
   /**
-   * Returns a full set of resolution rules backing the resolver.
+   * Gets the full set of resolution rules backing the resolver.
    * 
-   * @return the full set of resolution rules, not {@code null}
+   * @return the full set of resolution rules, not null
    */
   Collection<ResolutionRule> getAllResolutionRules();
 

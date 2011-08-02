@@ -148,32 +148,6 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + _underlyingSwap.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final CouponCMSDefinition other = (CouponCMSDefinition) obj;
-    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
@@ -220,6 +194,32 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   @Override
   public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponCMS(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _underlyingSwap.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CouponCMSDefinition other = (CouponCMSDefinition) obj;
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
+      return false;
+    }
+    return true;
   }
 
 }

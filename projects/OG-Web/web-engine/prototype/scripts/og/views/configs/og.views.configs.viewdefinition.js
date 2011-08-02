@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.configs.viewdefinition',
     dependencies: [
         'og.api.rest',
-        'og.common.util.ui.Form',
+        'og.common.util.ui',
         'og.views.forms.Constraints',
         'og.views.forms.Dropdown'
     ],
@@ -28,10 +28,10 @@ $.register_module({
         return function (config) {
             og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
-                loading = config.loading || $.noop, deleted = config.data.template_data.deleted,
+                loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
-                new_handler = config.new_handler, save_handler = config.save_handler,
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 id_count = 0, prefix = 'viewdef_', master = config.data.template_data.configJSON, column_set_tabs,
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
@@ -55,18 +55,21 @@ $.register_module({
                 }),
                 form_id = '#' + form.id,
                 save_resource = function (data, as_new) {
-                    if (as_new && (orig_name === data.name)) return window.alert('Please select a new name.');
+                    if (!deleted && !is_new && as_new && (orig_name === data.name))
+                        return window.alert('Please select a new name.');
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
                         json: JSON.stringify(data),
                         loading: loading,
-                        handler: as_new ? new_handler : save_handler
+                        handler: as_new ? save_new_handler : save_handler
                     });
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
-                    if (deleted) $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (deleted || is_new)
+                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
@@ -352,9 +355,9 @@ $.register_module({
                                 }],
                                 children: [
                                     new forms.Dropdown({
-                                        form: form, resource: 'securities', rest_options: {meta: true},
+                                        form: form, resource: 'securities', value: col[SECU],
+                                        rest_options: {meta: true, cache_for: 300 * 1000},
                                         index: [SETS, set_idx, COLS, col_idx, SECU].join('.'),
-                                        value: col[SECU],
                                         handlers: [{
                                             type: 'change',
                                             selector: '#' + set_id + ' [name="' +
@@ -452,9 +455,13 @@ $.register_module({
                     };
                 form.children.push(
                     new form.Block({ // form item_3
+                        module: 'og.views.forms.view-definition-user',
+                        extras: {user: master.user['userName'], ip: master.user['ipAddress']}
+                    }),
+                    new form.Block({ // form item_4
                         module: 'og.views.forms.view-definition-colset-tabs',
                         extras: {
-                            tabs: master[SETS].reduce(function (acc, set, idx) {
+                            tabs: (master[SETS] || (master[SETS] = [])).reduce(function (acc, set, idx) {
                                 return acc + '<li><a class="og-tab og-js-colset-tab' + (idx ? '' : ' og-active') + '"' +
                                     ' href="#"><div class="og-delete og-js-rem-colset"></div>' +
                                     '<span class="og-js-colset-tab-name">' + set.name + '</span></a></li>';
@@ -511,7 +518,7 @@ $.register_module({
                             }}
                         ]
                     }),
-                    column_sets // form item_4
+                    column_sets // form item_5
                 );
                 Array.prototype.push.apply(column_sets.children, master[SETS].map(new_col_set));
             })();

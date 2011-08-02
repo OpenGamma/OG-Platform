@@ -31,4 +31,7 @@ public class ValuePropertiesBuilderTest extends AbstractBuilderTestCase {
     assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.builder().withAny("Any").with("One", "a").with("Two", "b", "c").withOptional("Three").get());
   }
 
+  public void testOptionalValues() {
+    assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.builder().withOptional("OptAny").withOptional("OptSome").with("OptSome", "a").get());
+  }
 }
