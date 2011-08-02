@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -12,8 +13,22 @@ import com.opengamma.engine.value.ValueRequirement;
  */
 /* package */interface ResolvedValueCallback {
 
-  void resolved(ValueRequirement valueRequirement, ResolvedValue resolvedValue, ResolutionPump pump);
+  /**
+   * Notifies the implementer of a successful resolution.
+   * 
+   * @param context graph building context
+   * @param valueRequirement requirement resolved
+   * @param resolvedValue the resolved specification
+   * @param pump a pump callback for providing the next possible resolution (or a failure)
+   */
+  void resolved(GraphBuildingContext context, ValueRequirement valueRequirement, ResolvedValue resolvedValue, ResolutionPump pump);
 
-  void failed(ValueRequirement value);
+  /**
+   * Notifies the implementer of a failed resolution (or no more successful ones).
+   * 
+   * @param context graph building context
+   * @param value requirement that couldn't be resolved
+   */
+  void failed(GraphBuildingContext context, ValueRequirement value);
 
 }

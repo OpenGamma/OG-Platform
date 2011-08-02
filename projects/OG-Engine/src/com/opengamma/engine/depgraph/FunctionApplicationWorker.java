@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.Cancellable;
@@ -23,9 +23,6 @@ import com.opengamma.util.Cancellable;
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
 
-  private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
-
-  private final int _identifier = s_nextIdentifier.incrementAndGet();
   private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
   private final Map<ValueRequirement, Cancellable> _inputHandles = new HashMap<ValueRequirement, Cancellable>();
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
@@ -38,35 +35,43 @@ import com.opengamma.util.Cancellable;
   }
 
   @Override
-  protected void pumpImpl() {
-    final Collection<ResolutionPump> pumps;
+  protected void pumpImpl(final GraphBuildingContext context) {
+    Collection<ResolutionPump> pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
-      if (_pumps.isEmpty()) {
-        pumps = null;
-        if (_validInputs == 0) {
-          finished = _taskState;
-          _taskState = null;
+      if (_pendingInputs < 1) {
+        if (_pumps.isEmpty()) {
+          if (_validInputs == 0) {
+            s_logger.debug("{} finished (state={})", this, _taskState);
+            finished = _taskState;
+            _taskState = null;
+          } else {
+            s_logger.debug("{} inputs valid and not in pumped state", _validInputs);
+          }
+        } else {
+          pumps = new ArrayList<ResolutionPump>(_pumps);
+          _pumps.clear();
+          _pendingInputs = pumps.size();
         }
       } else {
-        pumps = new ArrayList<ResolutionPump>(_pumps);
-        _pumps.clear();
-        _pendingInputs = pumps.size();
+        s_logger.debug("Ignoring pump while {} input(s) pending", _pendingInputs);
       }
     }
     if (pumps != null) {
       for (ResolutionPump pump : pumps) {
         s_logger.debug("Pumping {} from {}", pump, this);
-        pump.pump();
+        context.pump(pump);
       }
     } else if (finished != null) {
-      s_logger.debug("Calling finished on {} from {}", finished, this);
-      finished.finished();
+      if (finished(context)) {
+        s_logger.debug("Calling finished on {} from {}", finished, this);
+        finished.finished(context);
+      }
     }
   }
 
   @Override
-  public void failed(final ValueRequirement value) {
+  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
     s_logger.debug("Resolution failed at {}", this);
     s_logger.info("Resolution of {} failed", value);
     final FunctionApplicationStep.PumpingState state;
@@ -90,14 +95,14 @@ import com.opengamma.util.Cancellable;
       handle.getValue().cancel(false);
     }
     // Propagate the failure message to anything subscribing to us
-    if (finished()) {
+    if (finished(context)) {
       s_logger.debug("Calling finished on {}", state);
-      state.finished();
+      state.finished(context);
     }
   }
 
   @Override
-  public void resolved(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+  public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.debug("Resolution complete at {}", this);
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue);
     FunctionApplicationStep.PumpingState state = null;
@@ -118,18 +123,18 @@ import com.opengamma.util.Cancellable;
       _pumps.add(pump);
     }
     if (resolvedValues != null) {
-      state.inputsAvailable(resolvedValues);
+      state.inputsAvailable(context, resolvedValues);
     }
   }
 
-  public void addInput(final ValueRequirement valueRequirement, final ResolvedValueProducer inputProducer) {
+  public void addInput(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValueProducer inputProducer) {
     s_logger.debug("Adding input {} to {}", valueRequirement, this);
     synchronized (this) {
       _inputs.put(valueRequirement, null);
       _inputHandles.put(valueRequirement, null);
       _pendingInputs++;
     }
-    final Cancellable handle = inputProducer.addCallback(this);
+    final Cancellable handle = inputProducer.addCallback(context, this);
     synchronized (this) {
       if (handle != null) {
         // Only store the handle if the producer hasn't already failed
@@ -151,9 +156,11 @@ import com.opengamma.util.Cancellable;
     }
   }
 
-  public void start() {
+  public void start(final GraphBuildingContext context) {
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
+    Collection<ResolutionPump> pumps = null;
+    FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
       if (--_pendingInputs == 0) {
         if (_validInputs > 0) {
@@ -164,17 +171,38 @@ import com.opengamma.util.Cancellable;
           }
           state = _taskState;
           s_logger.debug("Full input set available at {}", this);
+        } else {
+          // We've got no valid inputs
+          if (_pumps.isEmpty()) {
+            s_logger.debug("No input set available, finished at {}", this);
+            pumps = null;
+            finished = _taskState;
+            _taskState = null;
+          } else {
+            s_logger.debug("No input set available, pumping at {}", this);
+            pumps = new ArrayList<ResolutionPump>(_pumps);
+            _pumps.clear();
+            _pendingInputs = pumps.size();
+          }
         }
       }
     }
     if (resolvedValues != null) {
-      state.inputsAvailable(resolvedValues);
+      state.inputsAvailable(context, resolvedValues);
+    } else if (pumps != null) {
+      for (ResolutionPump pump : pumps) {
+        s_logger.debug("Pumping {} from {}", pump, this);
+        context.pump(pump);
+      }
+    } else if (finished != null) {
+      s_logger.debug("Calling finished on {} from {}", finished, this);
+      finished.finished(context);
     }
   }
 
   @Override
   public String toString() {
-    return "Worker[" + _identifier + ", " + getValueRequirement() + "]";
+    return "Worker" + getObjectId() + "[" + getValueRequirement() + "]";
   }
 
 }

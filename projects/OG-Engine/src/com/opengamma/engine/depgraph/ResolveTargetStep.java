@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 
 /* package */final class ResolveTargetStep extends ResolveTask.State {
 
@@ -19,24 +20,25 @@ import com.opengamma.engine.ComputationTargetResolver;
     super(task);
   }
 
-  protected void run(final DependencyGraphBuilder builder) {
-    final ComputationTargetResolver targetResolver = builder.getTargetResolver();
+  @Override
+  protected void run(final GraphBuildingContext context) {
+    final ComputationTargetResolver targetResolver = context.getTargetResolver();
     final ComputationTarget target = targetResolver.resolve(getValueRequirement().getTargetSpecification());
     if (target == null) {
       s_logger.warn("Couldn't resolve target for {}", getValueRequirement());
-      builder.postException(new UnsatisfiableDependencyGraphException(getValueRequirement(), "No ComputationTarget").addState("targetResolver ComputationTargetResolver", targetResolver));
-      setTaskStateFinished();
+      context.exception(new UnsatisfiableDependencyGraphException(getValueRequirement(), "No ComputationTarget").addState("targetResolver ComputationTargetResolver", targetResolver));
+      setTaskStateFinished(context);
     } else {
       s_logger.debug("Resolved target {}", getValueRequirement().getTargetSpecification());
       final ResolveTask task = getTask();
       task.setComputationTarget(target);
-      setRunnableTaskState(new GetFunctionsStep(task), builder);
+      setRunnableTaskState(new GetFunctionsStep(task), context);
     }
   }
 
   @Override
   public String toString() {
-    return "RESOLVE";
+    return "RESOLVE" + getObjectId();
   }
 
 }

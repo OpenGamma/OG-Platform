@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.util.Cancellable;
 
 /**
@@ -16,9 +17,10 @@ import com.opengamma.util.Cancellable;
    * Register a callback for notification when the value is produced. If the value has already
    * been produced it may be called immediately.
    * 
+   * @param context graph building context
    * @param callback callback object to receive the notifications, not {@code null}
    * @return a handle for removing the callback, not {@code null}
    */
-  Cancellable addCallback(ResolvedValueCallback callback);
+  Cancellable addCallback(GraphBuildingContext context, ResolvedValueCallback callback);
 
 }

@@ -7,11 +7,13 @@ package com.opengamma.engine.depgraph;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -22,6 +24,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /* package */final class ResolveTask extends AbstractResolvedValueProducer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolveTask.class);
+  private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
   /**
    * State within a task. As the task executes, the execution is delegated to the
@@ -29,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
    */
   protected abstract static class State {
 
+    private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolveTask _task;
 
     protected State(final ResolveTask task) {
@@ -36,26 +40,30 @@ import com.opengamma.engine.value.ValueSpecification;
       _task = task;
     }
 
+    protected int getObjectId() {
+      return _objectId;
+    }
+
     protected ResolveTask getTask() {
       return _task;
     }
 
-    protected void setTaskStateFinished() {
-      getTask().finished();
+    protected void setTaskStateFinished(final GraphBuildingContext context) {
+      getTask().finished(context);
     }
 
     protected void setTaskState(final State nextState) {
       getTask().setState(nextState);
     }
 
-    protected void setRunnableTaskState(final State nextState, final DependencyGraphBuilder builder) {
+    protected void setRunnableTaskState(final State nextState, final GraphBuildingContext context) {
       final ResolveTask task = getTask();
       task.setState(nextState);
-      builder.addToRunQueue(task);
+      context.run(task);
     }
 
-    protected void pushResult(final ResolvedValue resolvedValue) {
-      getTask().pushResult(resolvedValue);
+    protected void pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue) {
+      getTask().pushResult(context, resolvedValue);
     }
 
     protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
@@ -63,9 +71,10 @@ import com.opengamma.engine.value.ValueSpecification;
       return new ResolvedValue(valueSpecification, parameterizedFunction, getComputationTarget(), functionInputs, functionOutputs);
     }
 
-    protected void pushResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
+    protected void pushResult(final GraphBuildingContext context, final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction,
+        final Set<ValueSpecification> functionInputs,
         final Set<ValueSpecification> functionOutputs) {
-      pushResult(createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
+      pushResult(context, createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
     }
 
     protected ValueRequirement getValueRequirement() {
@@ -76,11 +85,11 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getComputationTarget();
     }
 
-    protected void run(final DependencyGraphBuilder builder) {
+    protected void run(final GraphBuildingContext context) {
       throw new UnsupportedOperationException("Not runnable state (" + toString() + ")");
     }
 
-    protected void pump() {
+    protected void pump(final GraphBuildingContext context) {
       throw new UnsupportedOperationException("Not pumpable state (" + toString() + ")");
     }
 
@@ -122,9 +131,9 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  protected boolean finished() {
+  protected boolean finished(final GraphBuildingContext context) {
     _state = null;
-    return super.finished();
+    return super.finished(context);
   }
 
   protected void setComputationTarget(final ComputationTarget target) {
@@ -136,8 +145,8 @@ import com.opengamma.engine.value.ValueSpecification;
     return _target;
   }
 
-  protected void run(final DependencyGraphBuilder builder) {
-    getState().run(builder);
+  protected void run(final GraphBuildingContext context) {
+    getState().run(context);
   }
 
   private ResolveTask getParent() {
@@ -161,6 +170,13 @@ import com.opengamma.engine.value.ValueSpecification;
       return false;
     } else {
       return getParent().hasParent(valueRequirement);
+    }
+  }
+
+  public void printParentTree(final String indent) {
+    System.out.println(indent + toString());
+    if (getParent() != null) {
+      getParent().printParentTree(indent + "  ");
     }
   }
 
@@ -206,14 +222,14 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  protected void pumpImpl() {
+  protected void pumpImpl(final GraphBuildingContext context) {
     s_logger.debug("Pump called on {}", this);
-    getState().pump();
+    getState().pump(context);
   }
 
   @Override
   public String toString() {
-    return "ResolveTask[" + getValueRequirement() + ", " + getState() + "]";
+    return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
   }
 
   // TODO: update javadoc on CompiledFunctionDefinition about nulls; nothing should return null, but doing so is better than an exception for halting graph construction in a controlled manner

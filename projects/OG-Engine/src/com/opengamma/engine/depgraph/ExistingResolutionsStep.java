@@ -10,6 +10,7 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -19,43 +20,42 @@ import com.opengamma.util.tuple.Pair;
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExistingResolutionsStep.class);
 
-  private final DependencyGraphBuilder _builder;
   private ResolutionPump _pump;
 
-  public ExistingResolutionsStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> nextFunctions, final DependencyGraphBuilder builder,
-      final ParameterizedFunction function, final ValueSpecification originalOutput, final ValueSpecification resolvedOutput) {
+  public ExistingResolutionsStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> nextFunctions, final ParameterizedFunction function,
+      final ValueSpecification originalOutput, final ValueSpecification resolvedOutput) {
     super(task, nextFunctions, function, originalOutput, resolvedOutput);
-    _builder = builder;
   }
 
   @Override
-  public void failed(final ValueRequirement value) {
+  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
     _pump = null;
     // All existing resolutions have been completed, so now try the actual application
-    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getFunction(), getOriginalOutput(), getResolvedOutput()), _builder);
+    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getFunction(), getOriginalOutput(), getResolvedOutput()), context);
   }
 
   @Override
-  public void resolved(final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
-    pushResult(value);
+  public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     _pump = pump;
+    pushResult(context, value);
   }
 
   @Override
-  protected void pump() {
+  protected void pump(final GraphBuildingContext context) {
     if (_pump == null) {
       // Either pump called twice for a resolve, called before the first resolve, or after failed
       throw new IllegalStateException();
     } else {
       s_logger.debug("Pumping underlying delegate");
-      _pump.pump();
+      ResolutionPump pump = _pump;
       _pump = null;
+      context.pump(pump);
     }
   }
 
   @Override
   public String toString() {
-    return "EXISTING_RESOLUTIONS";
+    return "EXISTING_RESOLUTIONS" + getObjectId();
   }
 
 }

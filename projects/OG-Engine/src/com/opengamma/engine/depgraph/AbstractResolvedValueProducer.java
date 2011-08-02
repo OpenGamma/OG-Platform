@@ -9,21 +9,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.Cancellable;
 
 /* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractResolvedValueProducer.class);
+  private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
   // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck 
 
   private final class Callback implements ResolutionPump, Cancellable {
 
+    private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolvedValueCallback _callback;
     private ResolvedValue[] _results;
     private int _resultsPushed;
@@ -33,7 +37,7 @@ import com.opengamma.util.Cancellable;
     }
 
     @Override
-    public void pump() {
+    public void pump(final GraphBuildingContext context) {
       s_logger.debug("Pump called on {}", this);
       ResolvedValue nextValue = null;
       boolean finished = false;
@@ -54,6 +58,13 @@ import com.opengamma.util.Cancellable;
                 finished = true;
               } else {
                 needsOuterPump = _pumped.isEmpty();
+                if (s_logger.isDebugEnabled()) {
+                  if (needsOuterPump) {
+                    s_logger.debug("Pumping outer object");
+                  } else {
+                    s_logger.debug("Adding to pump set");
+                  }
+                }
                 _pumped.add(this);
               }
             }
@@ -62,14 +73,14 @@ import com.opengamma.util.Cancellable;
       }
       if (nextValue != null) {
         s_logger.debug("Publishing value {}", nextValue);
-        _callback.resolved(getValueRequirement(), nextValue, this);
+        context.resolved(_callback, getValueRequirement(), nextValue, this);
       } else {
         if (needsOuterPump) {
-          pumpImpl();
+          pumpImpl(context);
         } else {
           if (finished) {
             s_logger.debug("Finished {}", getValueRequirement());
-            _callback.failed(getValueRequirement());
+            context.failed(_callback, getValueRequirement());
           }
         }
       }
@@ -86,13 +97,14 @@ import com.opengamma.util.Cancellable;
 
     @Override
     public String toString() {
-      return "Callback[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
+      return "Callback" + _objectId + "[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
     }
 
   }
 
   private final ValueRequirement _valueRequirement;
   private final Set<Callback> _pumped = new HashSet<Callback>();
+  private final int _objectId = s_nextObjectId.getAndIncrement();
   private ResolvedValue[] _results;
   private boolean _finished;
 
@@ -103,7 +115,7 @@ import com.opengamma.util.Cancellable;
   }
 
   @Override
-  public Cancellable addCallback(final ResolvedValueCallback valueCallback) {
+  public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
@@ -123,15 +135,15 @@ import com.opengamma.util.Cancellable;
     }
     if (firstResult != null) {
       s_logger.debug("Pushing first callback result {}", firstResult);
-      valueCallback.resolved(getValueRequirement(), firstResult, callback);
+      context.resolved(valueCallback, getValueRequirement(), firstResult, callback);
     } else if (finished) {
       s_logger.debug("Pushing failure");
-      valueCallback.failed(getValueRequirement());
+      context.failed(valueCallback, getValueRequirement());
     }
     return callback;
   }
 
-  protected void pushResult(final ResolvedValue value) {
+  protected void pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
     assert !_finished;
     assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
@@ -154,14 +166,14 @@ import com.opengamma.util.Cancellable;
           callback._resultsPushed++;
         }
         s_logger.debug("Pushing result to {}", callback._callback);
-        callback._callback.resolved(getValueRequirement(), value, callback);
+        context.resolved(callback._callback, getValueRequirement(), value, callback);
       }
     }
   }
 
-  protected abstract void pumpImpl();
+  protected abstract void pumpImpl(final GraphBuildingContext context);
 
-  protected boolean finished() {
+  protected boolean finished(final GraphBuildingContext context) {
     s_logger.debug("Finished producing results at {}", this);
     final Collection<Callback> pumped;
     synchronized (this) {
@@ -180,7 +192,7 @@ import com.opengamma.util.Cancellable;
     if (pumped != null) {
       for (Callback callback : pumped) {
         s_logger.debug("Pushing failure to {}", callback._callback);
-        callback._callback.failed(getValueRequirement());
+        context.failed(callback._callback, getValueRequirement());
       }
     } else {
       s_logger.debug("No pumped callbacks");
@@ -190,6 +202,10 @@ import com.opengamma.util.Cancellable;
 
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
+  }
+
+  protected int getObjectId() {
+    return _objectId;
   }
 
 }

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -38,14 +39,14 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public Cancellable addCallback(final ResolvedValueCallback callback) {
+    public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
       final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
-      callback.resolved(_valueRequirement, _resolvedValue, new ResolutionPump() {
+      callback.resolved(context, _valueRequirement, _resolvedValue, new ResolutionPump() {
         @Override
-        public void pump() {
+        public void pump(final GraphBuildingContext context) {
           final ResolvedValueCallback callback = callbackRef.getAndSet(null);
           if (callback != null) {
-            callback.failed(_valueRequirement);
+            callback.failed(context, _valueRequirement);
           }
         }
       });
@@ -60,39 +61,39 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  protected void run(final DependencyGraphBuilder builder) {
-    if (builder.getMarketDataAvailabilityProvider().isAvailable(getValueRequirement())) {
+  protected void run(final GraphBuildingContext context) {
+    if (context.getMarketDataAvailabilityProvider().isAvailable(getValueRequirement())) {
       s_logger.info("Found live data for {}", getValueRequirement());
       final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
       final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
           .singleton(function.getResult()));
-      builder.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
-      pushResult(result);
+      context.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
+      pushResult(context, result);
       if (!getTask().isFinished()) {
         // Wasn't immediately pumped, so declare a finished state 
-        setTaskStateFinished();
+        setTaskStateFinished(context);
       }
     } else {
-      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = builder.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
+      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
       if (itr.hasNext()) {
         s_logger.debug("Found functions for {}", getValueRequirement());
-        setRunnableTaskState(new NextFunctionStep(getTask(), itr), builder);
+        setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
       } else {
         s_logger.info("No functions for {}", getValueRequirement());
-        setTaskStateFinished();
+        setTaskStateFinished(context);
       }
     }
   }
 
   @Override
-  protected void pump() {
+  protected void pump(final GraphBuildingContext context) {
     // Might be pumped while pushing the live data result; this will go straight to the finished state
-    setTaskStateFinished();
+    setTaskStateFinished(context);
   }
 
   @Override
   public String toString() {
-    return "GET_FUNCTIONS";
+    return "GET_FUNCTIONS" + getObjectId();
   }
 
 }

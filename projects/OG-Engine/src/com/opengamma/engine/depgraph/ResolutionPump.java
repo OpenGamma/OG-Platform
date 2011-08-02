@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.depgraph;
 
+import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+
 /**
  * Interface to request the next resolution be "pumped" into the chain of those requesting
  * notification. This allows lazy production of alternative values deep into the resolution
@@ -15,7 +17,9 @@ package com.opengamma.engine.depgraph;
   /**
    * Pass the next result to the associated callback object, or call the {@link ResolvedValueCallback#failed} method
    * if no more results are available.
+   * 
+   * @param context the graph building context
    */
-  void pump();
+  void pump(final GraphBuildingContext context);
 
 }
