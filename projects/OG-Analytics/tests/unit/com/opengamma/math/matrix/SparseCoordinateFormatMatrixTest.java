@@ -99,6 +99,53 @@ public class SparseCoordinateFormatMatrixTest {
    assertTrue(N.equals(tmp.toFullMatrix()));
  }
 
+
+ @Test //test full row getter
+ public void testGetFullRow() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   for(int i = 0; i < data.length; i++) {
+     assertTrue(Arrays.equals(data[i],tmp.getFullRow(i)));
+   }
+ }
+
+ @Test //test full column getter
+ public void testGetFullColumn() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   double[] col = new double[data.length];
+   for(int i = 0; i < data[0].length; i++) {
+     // assemble column
+     for(int j = 0; j < data[0].length; j++) {
+       col[j] = data[j][i];
+     }
+     assertTrue(Arrays.equals(col,tmp.getFullColumn(i)));
+   }
+ }
+
+ @Test //test row element getter
+ public void testGetRowElements() {
+   double[][] compressed = {{1,2},{3,4},{5,6},{7}};
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   for(int i = 0; i < data.length; i++) {
+     assertTrue(Arrays.equals(compressed[i],tmp.getRowElements(i)));
+   }
+ }
+
+ @Test //test column element getter
+ public void testGetColumnElements() {
+   double[][] compressed = {{1,3},{2,5},{4,6,7},{}};
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   for(int i = 0; i < data[0].length; i++) {
+     assertTrue(Arrays.equals(compressed[i],tmp.getColumnElements(i)));
+   }
+ }
+
+ @Test //test getter for non zero element count
+ public void testGetNumberOfNonZeroElements() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   assertTrue(tmp.getNumberOfNonZeroElements() == 7);
+ }
+
+
 //test sanity of equals and hashcode
  @Test
  public void testEqualsAndHashCode() {

@@ -18,7 +18,7 @@ import org.apache.commons.lang.Validate;
  * values: contains the values at coordinate pairings (x,y)
  */
 
-public class SparseCoordinateFormatMatrix implements Matrix<Double> {
+public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   private double[] _values;
   private int[] _x;
   private int[] _y;
@@ -129,6 +129,7 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
    * Converts COO to array of arrays
    * @return tmp, an array of arrays corresponding to the full matrix representation
    */
+  @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
     for (int i = 0; i < _x.length; i++) {
@@ -143,6 +144,63 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
    */
   public DoubleMatrix2D toFullMatrix() {
     return new DoubleMatrix2D(this.toArray());
+  }
+
+  @Override
+  public double[] getFullRow(int index) {
+    double[] tmp = new double[_cols];
+    // brute force
+    for (int i = 0; i < _y.length; i++) {
+      if (_y[i] == index) {
+        tmp[_x[i]] = _values[i];
+      }
+    }
+    return tmp;
+  }
+
+  @Override
+  public double[] getFullColumn(int index) {
+    double[] tmp = new double[_rows];
+    // brute force
+    for (int i = 0; i < _y.length; i++) {
+      if (_x[i] == index) {
+        tmp[_y[i]] = _values[i];
+      }
+    }
+    return tmp;
+  }
+
+  @Override
+  public double[] getRowElements(int index) {
+    double[] tmp = new double[_cols]; //overkill
+    int ptr = 0;
+    // brute force
+    for (int i = 0; i < _y.length; i++) {
+      if (_y[i] == index) {
+        tmp[ptr] = _values[i];
+        ptr++;
+      }
+    }
+    return  Arrays.copyOfRange(tmp, 0, ptr);
+  }
+
+  @Override
+  public double[] getColumnElements(int index) {
+    double[] tmp = new double[_rows]; //overkill
+    int ptr = 0;
+    // brute force
+    for (int i = 0; i < _y.length; i++) {
+      if (_x[i] == index) {
+        tmp[ptr] = _values[i];
+        ptr++;
+      }
+    }
+    return  Arrays.copyOfRange(tmp, 0, ptr);
+  }
+
+  @Override
+  public int getNumberOfNonZeroElements() {
+    return _values.length;
   }
 
 
@@ -212,7 +270,5 @@ public class SparseCoordinateFormatMatrix implements Matrix<Double> {
     }
     return true;
   }
-
-
 
 }

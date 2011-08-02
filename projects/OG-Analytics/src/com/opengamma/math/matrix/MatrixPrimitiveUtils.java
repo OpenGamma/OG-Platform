@@ -69,4 +69,16 @@ public class MatrixPrimitiveUtils {
     return tmp;
   }
 
+  /**
+   * Counts the number of *true* nonzero elements in an array of arrays
+   * @param aMatrix which is the array of arrays being tested
+   * @return tmp the number of nonzero elements
+   */
+  public static int numberOfNonZeroElementsInMatrix(double[][] aMatrix) {
+    int tmp = 0;
+    for (int i = 0; i < aMatrix.length; i++) {
+      tmp += numberOfNonZeroElementsInVector(aMatrix[i]);
+    }
+    return tmp;
+  }
 }

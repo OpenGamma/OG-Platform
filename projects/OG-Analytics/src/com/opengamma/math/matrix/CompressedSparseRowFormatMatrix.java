@@ -24,7 +24,7 @@ import org.apache.commons.lang.Validate;
  *  The final format chosen (CSR or CSC) should reflect the cache optimal access pattern of the calling function data.
  */
 
-public class CompressedSparseRowFormatMatrix implements Matrix<Double> {
+public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
 
   private double[] _values;
   private int[] _colIdx;
@@ -169,6 +169,7 @@ public class CompressedSparseRowFormatMatrix implements Matrix<Double> {
    * Converts matrix to a Full Matrix representation (undoes the sparse compression)
    * @return tmp, an array of arrays
    */
+  @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
     for (int ir = 0; ir < _rows; ir++) {
@@ -246,6 +247,31 @@ public class CompressedSparseRowFormatMatrix implements Matrix<Double> {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public double[] getFullRow(int index) {
+    return null;
+  }
+
+  @Override
+  public double[] getFullColumn(int index) {
+    return null;
+  }
+
+  @Override
+  public double[] getRowElements(int index) {
+    return null;
+  }
+
+  @Override
+  public double[] getColumnElements(int index) {
+    return null;
+  }
+
+  @Override
+  public int getNumberOfNonZeroElements() {
+    return 0;
   }
 
 
