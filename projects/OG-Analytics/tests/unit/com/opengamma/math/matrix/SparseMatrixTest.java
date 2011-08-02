@@ -22,6 +22,16 @@ public void testContructFromArrayOfArraysWithDimension() {
   new SparseMatrix(_sparsedata, 10, 8);
 }
 
+@Test(expectedExceptions = IllegalArgumentException.class) // tests for bad dimension request
+public void testContructFromArrayOfArraysWithBADROWDimension() {
+  new SparseMatrix(_sparsedata, 1, 6);
+}
+
+@Test(expectedExceptions = IllegalArgumentException.class) // tests for bad dimension request
+public void testContructFromArrayOfArraysWithBADCOLDimension() {
+  new SparseMatrix(_sparsedata, 6, 1);
+}
+
 @Test
 public void testContructFromArrayOfArraysNODimension() {
   new SparseMatrix(_sparsedata);
