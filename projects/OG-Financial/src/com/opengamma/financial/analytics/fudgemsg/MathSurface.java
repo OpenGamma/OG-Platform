@@ -76,4 +76,5 @@ final class MathSurface {
       context.addToMessage(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
     }
   }
+
 }

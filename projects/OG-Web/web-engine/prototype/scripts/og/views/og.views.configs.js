@@ -17,7 +17,9 @@ $.register_module({
         'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state',
-        'og.views.configs.viewdefinition'
+        'og.views.configs.viewdefinition',
+        'og.views.configs.yieldcurvedefinition',
+        'og.views.configs.default'
     ],
     obj: function () {
         var api = og.api,
@@ -34,27 +36,20 @@ $.register_module({
             check_state = og.views.common.state.check.partial('/' + page_name),
             configs,
             resize = og.common.layout.resize,
+            config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add configuration',
                     fields: [
-                        {type: 'input', name: 'Name', id: 'name'},
-                        {type: 'textarea', name: 'XML', id: 'xml'}
+                        {type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types}
                     ],
                     buttons: {
-                        'Ok': function () {
-                            api.rest.configs.put({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', html: r.message});
-                                    ui.dialog({type: 'input', action: 'close'});
-                                    routes.go(routes.hash(module.rules.load_new_configs,
-                                            $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                    ));
-                                },
-                                name: ui.dialog({return_field_value: 'name'}),
-                                xml: ui.dialog({return_field_value: 'xml'})
-                            });
+                        'OK': function () {
+                            var config_type = ui.dialog({return_field_value: 'config_type'}),
+                                args = $.extend({}, routes.last().args, {config_type: config_type});
+                            $(this).dialog('close');
+                            routes.go(routes.hash(module.rules.load_new, args));
                         }
                     }
                 })},
@@ -64,14 +59,15 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete this configuration?',
                     buttons: {
                         'Delete': function () {
+                            var args = routes.current().args;
                             $(this).dialog('close');
                             api.rest.configs.del({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    routes.go(routes.hash(module.rules.load_delete,
-                                            $.extend({}, routes.last().args, {deleted: true})
-                                    ));
-                                }, id: routes.last().args.id
+                                handler: function (result) {
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    delete args.id;
+                                    configs.search(args);
+                                    routes.go(routes.hash(module.rules.load, args));
+                                }, id: routes.current().args.id
                             });
                         }
                     }
@@ -110,13 +106,22 @@ $.register_module({
                 }
             },
             form_generators = {
-                viewdefinition: og.views.configs.viewdefinition
+                'default': og.views.configs['default'],
+                viewdefinition: og.views.configs.viewdefinition,
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
             },
-            load_configs_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
-                delete args[field];
-                configs.search(args);
-                routes.go(routes.hash(module.rules.load_configs, args));
+            toolbar = function (type) {
+                ui.toolbar(options.toolbar[type]);
+                if (!config_types.length) // disable new button until we have config_types
+                    $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                api.rest.configs.get({
+                    meta: true,
+                    handler: function (result) {
+                        config_types = result.data.types.map(function (val, idx) {return {name: val, value: val};});
+                        $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                    },
+                    cache_for: 15 * 1000
+                });
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
@@ -124,140 +129,87 @@ $.register_module({
                         name: 'Configs',
                         recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
                     }).appendTo($('.OG-js-details-panel .OG-details').empty());
-                    ui.toolbar(options.toolbar['default']);
+                    toolbar('default');
                     $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
-            details_page = function (args) {
-                api.rest.configs.get({
-                    handler: function (result) {
-                        if (result.error) return alert(result.message);
-                        var details_json = result.data,
-                            config_type = details_json.template_data.type.toLowerCase(),
-                            template = module.name + '.' + config_type, text_handler;
-                        history.put({
-                            name: details_json.template_data.name,
-                            item: 'history.configs.recent',
-                            value: routes.current().hash
-                        });
-                        if (config_type in form_generators) return form_generators[config_type]({
-                            data: details_json,
-                            loading: function () {
-                                ui.message({location: '.OG-details', message: 'saving...'});
-                            },
-                            new_handler: function (result) {
-                                ui.message({location: '.OG-details', destroy: true});
-                                if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                routes.go(routes.hash(module.rules.load_new_configs,
-                                    $.extend({}, routes.last().args, {id: result.meta.id, 'new': true})
-                                ));
-                            },
-                            save_handler: function (result) {
-                                ui.message({location: '.OG-details', destroy: true});
-                                if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                ui.message({location: '.OG-details', message: 'saved'});
-                                setTimeout(function () {
-                                    ui.message({location: '.OG-details', destroy: true});
-                                }, 1500);
-                            },
-                            handler: function () {
-                                var json = details_json.template_data,
-                                    $warning = $('.OG-js-details-panel .og-box-error'),
-                                    warning_message = 'This configuration has been deleted';
-                                ui.toolbar(options.toolbar.active);
-
-                                if (json.template_data && json.template_data.deleted) {
-                                    $warning.html(warning_message).show();
-                                    resize();
-                                    $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                                } else {$warning.empty().hide(), resize();}
-                                if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
-
-                                resize({element: '.OG-details-container', offsetpx: -41});
-                                resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                                resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
+            details_page = function (args, new_config_type) {
+                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                    if (result.error) return alert(result.message);
+                    if (is_new) {
+                        if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
+                        if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
+                        result.data.template_data.name = 'UNTITLED';
+                        result.data.template_data.configJSON.name = 'UNTITLED';
+                    }
+                    var details_json = result.data,
+                        config_type = details_json.template_data.type.toLowerCase(),
+                        template = module.name + '.' + config_type, text_handler;
+                    if (!is_new) history.put({
+                        name: details_json.template_data.name,
+                        item: 'history.configs.recent',
+                        value: routes.current().hash
+                    });
+                    (form_generators[config_type] || form_generators['default'])({
+                        is_new: is_new,
+                        data: details_json,
+                        loading: function () {
+                            ui.message({location: '.OG-js-details-panel', message: 'saving...'});
+                        },
+                        save_new_handler: function (result) {
+                            var args = $.extend({}, routes.last().args, {id: result.meta.id});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            configs.search(args);
+                            routes.go(routes.hash(module.rules.load_configs, args));
+                        },
+                        save_handler: function (result) {
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            ui.message({location: '.OG-js-details-panel', message: 'saved'});
+                            setTimeout(function () {
                                 ui.message({location: '.OG-js-details-panel', destroy: true});
-                            },
-                            selector: '.OG-details'
-                        });
-                        api.text({module: template, handler: text_handler = function (template, error) {
-                            if (error) {
-                                og.dev.warn('using default config template for config type: ' + config_type);
-                                return api.text({module: module.name + '.default', handler: text_handler});
-                            }
+                                routes.handler();
+                            }, 300);
+                        },
+                        handler: function () {
                             var json = details_json.template_data,
-                                $warning, warning_message = 'This configuration has been deleted';
-                            json.configData = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
-                                    : json.configXML ? json.configXML : '';
-                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .og-box-error');
-                            ui.toolbar(options.toolbar.active);
-                            if (json.template_data && json.template_data.deleted) {
-                                $warning.html(warning_message).show();
+                                $warning = $('.OG-js-details-panel .og-box-error');
+                            toolbar('active');
+                            if (json && json.deleted) {
+                                $warning.html('This configuration has been deleted').show();
                                 resize();
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), resize();}
-                            if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
-                            details.favorites();
+                            } else {
+                                if (is_new) $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                $warning.empty().hide(), resize();
+                            }
                             resize({element: '.OG-details-container', offsetpx: -41});
                             resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
                             ui.message({location: '.OG-js-details-panel', destroy: true});
-                            ui.content_editable({
-                                attribute: 'data-og-editable',
-                                handler: function () {
-                                    routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {
-                                        edit: 'true'
-                                    })));
-                                }
-                            });
-                            $('.OG-config .og-js-save-config').click(function () {
-                                var data_obj, data = $('.OG-config [data-og=config-data]').val(),
-                                    rest_obj = {
-                                    handler: function (e) {
-                                        if (e.error) return alert(e.message);
-                                        $('.og-js-msg').html('saved');
-                                        ui.message({location: '.OG-details', message: 'saved'});
-                                        setTimeout(function () {
-                                            ui.message({location: '.OG-details', destroy: true});
-                                            editing = false;
-                                        }, 250);
-                                        routes.go(routes.hash(module.rules.load_edit_configs, $.extend(args, {
-                                            edit: 'true'
-                                        })));
-                                    },
-                                    id: routes.current().args.id,
-                                    loading: function () {
-                                        $('.og-js-msg').html('saving...');
-                                        ui.message({location: '#OG-details', message: 'saving...'});
-                                    },
-                                    name: $('[data-og-editable=name]').html()
-                                };
-                                data_obj = data.charAt(0) === '<' ? {xml: data} : {json: data};
-                                api.rest.configs.put($.extend(rest_obj, data_obj));
-                            });
-                        }});
-                    },
-                    id: args.id,
+                        },
+                        selector: '.OG-details'
+                    });
+                    if (!(config_type in form_generators))
+                        og.dev.warn('using default config template for config type: ' + config_type);
+                };
+                rest_options = {
+                    handler: rest_handler,
                     loading: function () {
                         ui.message({
                             location: '.OG-js-details-panel', message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
-                });
-            },
-            state = {};
+                };
+                if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
+                api.rest.configs.get(rest_options);
+            };
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/name:?/type:?', method: module.name + '.load_delete'},
             load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
-            load_new_configs: {
-                route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
-            },
-            load_edit_configs: {
-                route: '/' + page_name + '/:id/edit:/name:?/type:?', method: module.name + '.load_edit_' + page_name
-            }
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
+            load_new: {route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'}
         };
         return configs = {
             load: function (args) {
@@ -268,37 +220,28 @@ $.register_module({
                         layout('default');
                     }}
                 ]});
-                if (args.id) return;
-                default_details_page();
+                if (!args.id && !args.config_type) default_details_page();
             },
             load_filter: function (args) {
                 var search_filter = function () {
-                        var filter_name = options.slickgrid.columns[0].name;
-                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
+                    var filter_name = options.slickgrid.columns[0].name;
+                    if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                        return setTimeout(search_filter, 500);
+                    search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        configs.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_configs, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
-                ]});
-                delete args['filter'];
+                check_state({args: args, conditions: [{new_page: function () {
+                    if (args.id) return configs.load_configs(args);
+                    configs.load(args);
+                }}]});
                 search_filter();
             },
-            load_delete: function (args) {
-                configs.search(args);
-                routes.go(routes.hash(module.rules.load, {name: args.name}));
-            },
-            load_new_configs: load_configs_without.partial('new'),
-            load_edit_configs: load_configs_without.partial('edit'),
             load_configs: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
                 configs.details(args);
+            },
+            load_new: function (args) {
+                check_state({args: args, conditions: [{new_page: configs.load}]});
+                details_page(args, args.config_type);
             },
             search: function (args) {
                 if (options.slickgrid.columns[0].name === 'loading')
@@ -315,7 +258,8 @@ $.register_module({
                         ].join('');
                         configs.search(args);
                     },
-                    loading: function () {options.slickgrid.columns[0].name = 'loading';}
+                    loading: function () {options.slickgrid.columns[0].name = 'loading';},
+                    cache_for: 15 * 1000
                 });
                 search.load($.extend(options.slickgrid, {url: args}));
             },

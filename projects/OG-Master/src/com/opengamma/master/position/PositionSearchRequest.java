@@ -221,7 +221,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (getTradeIds() != null && position.matchesAnyTrade(getTradeIds()) == false) {
       return false;
     }
-    if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityKey()) == false) {
+    if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityLink().getAllIdentifiers()) == false) {
       return false;
     }
     if (getPositionProviderKey() != null && getPositionProviderKey().equals(position.getProviderKey()) == false) {
@@ -248,6 +248,9 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public static PositionSearchRequest.Meta meta() {
     return PositionSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PositionSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public PositionSearchRequest.Meta metaBean() {
@@ -255,7 +258,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -137459505:  // positionIds
         return getPositionIds();
@@ -274,12 +277,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       case 747293199:  // maxQuantity
         return getMaxQuantity();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -137459505:  // positionIds
         setPositionIds((List<ObjectIdentifier>) newValue);
@@ -306,7 +309,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         setMaxQuantity((BigDecimal) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

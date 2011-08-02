@@ -109,6 +109,9 @@ public class Bundle extends DirectBean implements BundleNode {
   public static Bundle.Meta meta() {
     return Bundle.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(Bundle.Meta.INSTANCE);
+  }
 
   @Override
   public Bundle.Meta metaBean() {
@@ -116,7 +119,7 @@ public class Bundle extends DirectBean implements BundleNode {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3355:  // id
         return getId();
@@ -125,12 +128,12 @@ public class Bundle extends DirectBean implements BundleNode {
       case 1339293429:  // childNodes
         return getChildNodes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3355:  // id
         setId((String) newValue);
@@ -142,7 +145,7 @@ public class Bundle extends DirectBean implements BundleNode {
         setChildNodes((List<BundleNode>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -54,6 +54,9 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
   public static HolidayMetaDataResult.Meta meta() {
     return HolidayMetaDataResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(HolidayMetaDataResult.Meta.INSTANCE);
+  }
 
   @Override
   public HolidayMetaDataResult.Meta metaBean() {
@@ -61,23 +64,23 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 15120129:  // holidayTypes
         return getHolidayTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 15120129:  // holidayTypes
         setHolidayTypes((List<HolidayType>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

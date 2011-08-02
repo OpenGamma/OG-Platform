@@ -16,6 +16,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -53,7 +54,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
     _aggregationPropertyNames = aggregationPropertyNames;
   }
   
-  protected abstract boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties);
+  protected abstract boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties, SecuritySource securities);
 
   //-------------------------------------------------------------------------
   @Override
@@ -119,7 +120,7 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
     
     for (Position position : allPositions) {
       FinancialSecurity security = (FinancialSecurity) position.getSecurity();
-      if (!isIncluded(security, filterConstraints)) {
+      if (!isIncluded(security, filterConstraints, context.getSecuritySource())) {
         continue;
       }      
       ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());

@@ -120,7 +120,12 @@
         for (var columnIdx in columns) {
           var column = columns[columnIdx];
           var latestValue = row[column.colId];
-          if (!latestValue) {
+          if (latestValue === null) {
+            // Null column value means no result expected
+            gridRow[column.colId] = false;
+            continue;
+          }
+          if (latestValue == undefined) {
             continue;
           }
           if (detailComponents && detailComponents[column.colId]) {

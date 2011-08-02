@@ -104,6 +104,9 @@ public class WebSecuritiesData extends DirectBean {
   public static WebSecuritiesData.Meta meta() {
     return WebSecuritiesData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebSecuritiesData.Meta.INSTANCE);
+  }
 
   @Override
   public WebSecuritiesData.Meta metaBean() {
@@ -111,7 +114,7 @@ public class WebSecuritiesData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -887218750:  // securityMaster
         return getSecurityMaster();
@@ -128,11 +131,11 @@ public class WebSecuritiesData extends DirectBean {
       case -1407102089:  // versioned
         return getVersioned();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
@@ -156,7 +159,7 @@ public class WebSecuritiesData extends DirectBean {
         setVersioned((SecurityDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

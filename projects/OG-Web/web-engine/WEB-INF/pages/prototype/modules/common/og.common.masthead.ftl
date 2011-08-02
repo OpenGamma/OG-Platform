@@ -1,6 +1,6 @@
 <section class="OG-tabs OG-masthead">
   <ul>
-    <li><a href="#/" class="og-home">&nbsp;</a></li>
+    <li><a href="#/portfolios/" class="og-home">&nbsp;</a></li>
     <li><a href="#/analytics/" class="og-analytics">analytics</a></li>
     <li><a href="#/portfolios/" class="og-portfolios og-active">portfolios</a></li>
     <li><a href="#/positions/" class="og-positions">positions</a></li>

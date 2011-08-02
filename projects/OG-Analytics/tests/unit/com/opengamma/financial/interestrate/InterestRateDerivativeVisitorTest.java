@@ -37,16 +37,16 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCoupon;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -54,8 +54,9 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -82,7 +83,7 @@ public class InterestRateDerivativeVisitorTest {
   private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
   private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(CUR, 1, -1, CURVE_NAME);
   private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
-  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
+  //  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
   private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
   private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
   private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
@@ -446,16 +447,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponFloating(final CouponFloating payment, final Object data) {
-      return visit(payment, data);
-    }
-
-    @Override
-    public Class<?> visitCouponFloating(final CouponFloating payment) {
-      return visit(payment);
-    }
-
-    @Override
     public Class<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture, final Object data) {
       return visit(bondFuture, data);
     }
@@ -492,6 +483,26 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitCouponIborFixed(CouponIborFixed payment) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCoupon(CouponInflationZeroCoupon coupon, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCoupon(CouponInflationZeroCoupon coupon) {
       return null;
     }
   };
@@ -541,7 +552,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
     assertEquals(SWAPTION_CASH.accept(VISITOR), SwaptionCashFixedIbor.class);
     assertEquals(SWAPTION_PHYS.accept(VISITOR), SwaptionPhysicalFixedIbor.class);
-    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
+    //    assertEquals(FLOATING_COUPON.accept(VISITOR), CouponFloating.class);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -722,16 +733,6 @@ public class InterestRateDerivativeVisitorTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCM2() {
     ABSTRACT_VISITOR.visit(CM);
-  }
-
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCouponFloating1() {
-    ABSTRACT_VISITOR.visit(FLOATING_COUPON, CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void testCouponFloating2() {
-    ABSTRACT_VISITOR.visit(FLOATING_COUPON);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)

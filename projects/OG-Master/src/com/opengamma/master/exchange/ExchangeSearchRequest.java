@@ -190,6 +190,9 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public static ExchangeSearchRequest.Meta meta() {
     return ExchangeSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ExchangeSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public ExchangeSearchRequest.Meta metaBean() {
@@ -197,7 +200,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1755006571:  // exchangeIds
         return getExchangeIds();
@@ -206,12 +209,12 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
       case 3373707:  // name
         return getName();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1755006571:  // exchangeIds
         setExchangeIds((List<ObjectIdentifier>) newValue);
@@ -223,7 +226,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
         setName((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

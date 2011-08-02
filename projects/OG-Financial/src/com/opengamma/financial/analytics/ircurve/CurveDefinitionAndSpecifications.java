@@ -220,7 +220,7 @@ public class CurveDefinitionAndSpecifications {
     if (include2W) {
       results.add(Tenor.ofDays(14));
     }
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 1; i < 12; i++) {
       results.add(Tenor.ofMonths(i));
     }
     return results.toArray(new Tenor[] {});
@@ -341,57 +341,57 @@ public class CurveDefinitionAndSpecifications {
                                                             new int[] {1, 2, 3, 4, 5, 6, 9},
                                                             new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.EUR, buildStandardCurveSpecificationBuilderConfiguration("EU", "ER", "V3", "BS", "", false, false, false, 4, 50,
-                                                                                         new int[] {60}, new int[] {1, 3, 6, 9}, 20, 
-                                                                                         new int[] {25, 30, 25, 40}, 
-                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                         new int[] {60}, new int[] {1, 3, 6, 9}, 20,
+                                                                                         new int[] {25, 30, 25, 40},
+                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.GBP, buildStandardCurveSpecificationBuilderConfiguration("BP", "L ", "", "BS", "", true, false, true, 5, 30,
-                                                                                         new int[] {35, 40, 50, 60}, 
-                                                                                         new int[] {3, 6, 9}, 15, 
-                                                                                         new int[] {20, 25, 30, 40, 50}, 
-                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                         new int[] {35, 40, 50, 60},
+                                                                                         new int[] {3, 6, 9}, 15,
+                                                                                         new int[] {20, 25, 30, 40, 50},
+                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.CHF, buildStandardCurveSpecificationBuilderConfiguration("SF", "ES", "", "BS", "", false, true, true, 1, 30,
-                                                                                         new int[] {40, 50}, 
-                                                                                         new int[0], 15, 
-                                                                                         new int[] {20, 25, 30}, 
+                                                                                         new int[] {40, 50},
+                                                                                         new int[0], 15,
+                                                                                         new int[] {20, 25, 30},
                                                                                          new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.AUD, buildStandardCurveSpecificationBuilderConfiguration("AD", null, "", "BS", "", false, true, true, 1, 12,
-                                                                                         new int[] {15, 20, 25, 30, 40}, 
-                                                                                         new int[0], 15, 
-                                                                                         new int[] {20, 25, 30}, 
+                                                                                         new int[] {15, 20, 25, 30, 40},
+                                                                                         new int[0], 15,
+                                                                                         new int[] {20, 25, 30},
                                                                                          new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.of("SEK"), buildStandardCurveSpecificationBuilderConfiguration("SK", null, "", "BS", "", false, true, true, 1, 30,
-                                                                                               new int[0], 
-                                                                                               new int[0], 15, 
-                                                                                               new int[] {20, 25, 30}, 
-                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                               new int[0],
+                                                                                               new int[0], 15,
+                                                                                               new int[] {20, 25, 30},
+                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                                new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.of("NZD"), buildStandardCurveSpecificationBuilderConfiguration("ND", null, "", "BS", "", false, true, true, 1, 15,
-                                                                                               new int[] {20, 30}, 
-                                                                                               new int[0], 15, 
-                                                                                               new int[] {20}, 
-                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                               new int[] {20, 30},
+                                                                                               new int[0], 15,
+                                                                                               new int[] {20},
+                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                                new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.CAD, buildStandardCurveSpecificationBuilderConfiguration("CD", null, "", "BS", "", true, false, true, 1, 15,
-                                                                                         new int[] {20, 25, 30, 40, 50}, 
-                                                                                         new int[0], 15, 
-                                                                                         new int[] {20, 25, 30}, 
-                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                         new int[] {20, 25, 30, 40, 50},
+                                                                                         new int[0], 15,
+                                                                                         new int[] {20, 25, 30},
+                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.of("DKK"), buildStandardCurveSpecificationBuilderConfiguration("DK", null, "", "BS", "", false, true, true, 1, 15,
-                                                                                               new int[] {20, 25, 30, 40, 50}, 
-                                                                                               new int[0], 15, 
-                                                                                               new int[] {20, 25, 30}, 
-                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                               new int[] {20, 25, 30, 40, 50},
+                                                                                               new int[0], 15,
+                                                                                               new int[] {20, 25, 30},
+                                                                                               new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                                new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     configurations.put(Currency.JPY, buildStandardCurveSpecificationBuilderConfiguration("JY", "EF", "", "BS", "", false, true, true, 1, 30,
-                                                                                         new int[] {35, 40, 50, 60}, 
-                                                                                         new int[0], 15, 
-                                                                                         new int[] {20, 25, 30, 35, 40, 50}, 
-                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9}, 
+                                                                                         new int[] {35, 40, 50, 60},
+                                                                                         new int[0], 15,
+                                                                                         new int[] {20, 25, 30, 35, 40, 50},
+                                                                                         new int[] {1, 2, 3, 4, 5, 6, 9},
                                                                                          new int[] {1, 2, 3, 4, 5, 10, 20, 30}));
     return configurations;
   }

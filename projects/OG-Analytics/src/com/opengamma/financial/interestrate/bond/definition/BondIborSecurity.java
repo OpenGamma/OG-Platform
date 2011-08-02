@@ -8,12 +8,12 @@ package com.opengamma.financial.interestrate.bond.definition;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 
 /**
  * Describes a Ibor floating coupon bond (Floating Rate Note) issue.
  */
-public class BondIborSecurity extends BondSecurity<Payment> {
+public class BondIborSecurity extends BondSecurity<Coupon> {
 
   /**
    * Ibor floating bond constructor from the nominal and the coupons.
@@ -22,7 +22,7 @@ public class BondIborSecurity extends BondSecurity<Payment> {
    * @param settlementTime The time (in years) to settlement date. 
    * @param discountCurveName The name of the curve used for settlement amount discounting.
    */
-  public BondIborSecurity(AnnuityPaymentFixed nominal, GenericAnnuity<Payment> coupon, double settlementTime, String discountCurveName) {
+  public BondIborSecurity(AnnuityPaymentFixed nominal, GenericAnnuity<Coupon> coupon, double settlementTime, String discountCurveName) {
     super(nominal, coupon, settlementTime, discountCurveName);
   }
 

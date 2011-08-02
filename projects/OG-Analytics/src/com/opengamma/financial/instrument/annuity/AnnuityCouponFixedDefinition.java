@@ -209,6 +209,21 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
   }
 
+  /**
+   * Creates a new annuity containing the coupons with start accrual date strictly before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityCouponFixedDefinition trimStart(ZonedDateTime trimDate) {
+    List<CouponFixedDefinition> list = new ArrayList<CouponFixedDefinition>();
+    for (CouponFixedDefinition payment : getPayments()) {
+      if (!payment.getAccrualStartDate().isBefore(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
+  }
+
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<CouponFixed> resultList = new ArrayList<CouponFixed>();

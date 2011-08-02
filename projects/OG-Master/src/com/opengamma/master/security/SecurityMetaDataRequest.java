@@ -50,6 +50,9 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   public static SecurityMetaDataRequest.Meta meta() {
     return SecurityMetaDataRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SecurityMetaDataRequest.Meta.INSTANCE);
+  }
 
   @Override
   public SecurityMetaDataRequest.Meta metaBean() {
@@ -57,22 +60,22 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         return isSecurityTypes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -714180327:  // securityTypes
         setSecurityTypes((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -22,6 +22,7 @@ public class IdentifierTest {
   private static final IdentificationScheme SCHEME = IdentificationScheme.of("Scheme");
   private static final IdentificationScheme OTHER_SCHEME = IdentificationScheme.of("Other");
 
+  //-------------------------------------------------------------------------
   public void test_factory_IdentificationScheme_String() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals("Scheme", test.getScheme().getName());
@@ -44,6 +45,7 @@ public class IdentifierTest {
     Identifier.of(SCHEME, "");
   }
 
+  //-------------------------------------------------------------------------
   public void test_factory_String_String() {
     Identifier test = Identifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme().getName());
@@ -58,12 +60,12 @@ public class IdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_nullValue() {
-    Identifier.of(SCHEME, (String) null);
+    Identifier.of("Scheme", (String) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
-    Identifier.of(SCHEME, "");
+    Identifier.of("Scheme", "");
   }
 
   //-------------------------------------------------------------------------
@@ -125,19 +127,19 @@ public class IdentifierTest {
     Identifier d1a = Identifier.of(SCHEME, "d1");
     Identifier d1b = Identifier.of(SCHEME, "d1");
     Identifier d2 = Identifier.of(SCHEME, "d2");
-    
+
     assertEquals(true, d1a.equals(d1a));
     assertEquals(true, d1a.equals(d1b));
     assertEquals(false, d1a.equals(d2));
-    
+
     assertEquals(true, d1b.equals(d1a));
     assertEquals(true, d1b.equals(d1b));
     assertEquals(false, d1b.equals(d2));
-    
+
     assertEquals(false, d2.equals(d1a));
     assertEquals(false, d2.equals(d1b));
     assertEquals(true, d2.equals(d2));
-    
+
     assertEquals(false, d1b.equals("d1"));
     assertEquals(false, d1b.equals(null));
   }
@@ -145,7 +147,7 @@ public class IdentifierTest {
   public void test_hashCode() {
     Identifier d1a = Identifier.of(SCHEME, "d1");
     Identifier d1b = Identifier.of(SCHEME, "d1");
-    
+
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
@@ -156,7 +158,7 @@ public class IdentifierTest {
     FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
-    
+
     Identifier decoded = Identifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }

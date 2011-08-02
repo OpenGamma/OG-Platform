@@ -14,6 +14,7 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a document.
@@ -62,6 +63,9 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   public static <R extends AbstractDocument> AbstractHistoryResult.Meta<R> meta() {
     return AbstractHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AbstractHistoryResult.Meta.INSTANCE);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -70,13 +74,13 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -22,6 +22,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremium
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
@@ -32,6 +34,7 @@ import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 
@@ -134,6 +137,10 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitCouponCMS(CouponCMSDefinition payment);
 
+  U visitCapFloorCMS(CapFloorCMSDefinition payment, T data);
+
+  U visitCapFloorCMS(CapFloorCMSDefinition payment);
+
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data);
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
@@ -161,4 +168,12 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
 
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
+
+  U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data);
+
+  U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
+
+  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data);
+
+  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon);
 }

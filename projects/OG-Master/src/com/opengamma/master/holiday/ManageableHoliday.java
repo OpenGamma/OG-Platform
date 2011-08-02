@@ -158,6 +158,9 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   public static ManageableHoliday.Meta meta() {
     return ManageableHoliday.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableHoliday.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableHoliday.Meta metaBean() {
@@ -165,7 +168,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -180,12 +183,12 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
       case -367347:  // holidayDates
         return getHolidayDates();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -206,7 +209,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
         setHolidayDates((List<LocalDate>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

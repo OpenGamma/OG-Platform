@@ -223,6 +223,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public static SecuritySearchRequest.Meta meta() {
     return SecuritySearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SecuritySearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public SecuritySearchRequest.Meta metaBean() {
@@ -230,7 +233,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1550081880:  // securityIds
         return getSecurityIds();
@@ -245,12 +248,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       case -1233600576:  // fullDetail
         return isFullDetail();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1550081880:  // securityIds
         setSecurityIds((List<ObjectIdentifier>) newValue);
@@ -271,7 +274,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         setFullDetail((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

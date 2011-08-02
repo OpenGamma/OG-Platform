@@ -16,11 +16,13 @@ import org.json.JSONObject;
 import com.beust.jcommander.internal.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Custom JSON builder to convert YieldCurveDefinition to JSON object and back again
@@ -31,11 +33,19 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   private static final String INTERPOLATOR_NAME_FIELD = "interpolatorName";
   private static final String REGION_FIELD = "region";
   private static final String CURRENCY_FIELD = "currency";
+  /**
+   * Singleton
+   */
+  public static final YieldCurveDefinitionJSONBuilder INSTANCE = new YieldCurveDefinitionJSONBuilder();
+  /**
+   * JSON template
+   */
+  public static final String TEMPLATE = getTemplate();
 
   /**
-   * Creates an instance 
+   * Restricted constructor 
    */
-  public YieldCurveDefinitionJSONBuilder() {
+  private YieldCurveDefinitionJSONBuilder() {
   }
 
   @Override
@@ -59,9 +69,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
           strips.add(convertJsonToObject(FixedIncomeStrip.class, jsonStrips.getJSONObject(i)));
         }
       }
-
       curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
-
       if (message.opt(UNIQUE_ID_FIELD) != null) {
         UniqueIdentifier uid = convertJsonToObject(UniqueIdentifier.class, message.getJSONObject(UNIQUE_ID_FIELD));
         curveDefinition.setUniqueId(uid);
@@ -91,12 +99,45 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       if (!strips.isEmpty()) {
         jsonObject.put(STRIP_FIELD, strips);
       }
-      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(object.getUniqueId()));
-            
+      if (object.getUniqueId() != null) {
+        jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(object.getUniqueId()));
+      }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
     return jsonObject.toString();
+  }
+  
+  private static String getTemplate() {
+    YieldCurveDefinitionJSONBuilder builder = YieldCurveDefinitionJSONBuilder.INSTANCE; 
+    String result = null;
+    try {
+      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyYieldCurveDefinition()));
+      jsonObject.put(CURRENCY_FIELD, "");
+      jsonObject.put(REGION_FIELD, getBlankIdentifier());
+      result = jsonObject.toString();
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from dummy yield curve definition", ex);
+    }
+    return result;
+  }
+
+  private static JSONObject getBlankIdentifier() {
+    JSONObject blankIdentifier = null;
+    try {
+      blankIdentifier = new JSONObject();
+      blankIdentifier.put(Identifier.SCHEME_FUDGE_FIELD_NAME, "");
+      blankIdentifier.put(Identifier.VALUE_FUDGE_FIELD_NAME, "");
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from blank region identifier", ex);
+    }
+    return blankIdentifier;
+  }
+
+  private static YieldCurveDefinition getDummyYieldCurveDefinition() {
+    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, Identifier.of("dummy", "dummy"), "", "");
+    dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, ""));
+    return dummy;
   }
 
 }

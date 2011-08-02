@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
@@ -18,13 +18,13 @@ import com.opengamma.util.money.Currency;
  * Describes a generic single currency bond issue.
  * @param <C> The coupon type.
  */
-public abstract class BondSecurity<C extends Payment> implements InterestRateDerivative {
+public abstract class BondSecurity<C extends Coupon> implements InterestRateDerivative {
   /**
    * The nominal payments. For bullet bond, it is restricted to a single payment.
    */
   private final GenericAnnuity<PaymentFixed> _nominal;
   /**
-   * The bond coupons. The coupons notional should be in line with the bond nominal.
+   * The bond coupons. The coupons notional should be in line with the bond nominal. The discounting curve should be the same for the nominal and the coupons.
    */
   private final GenericAnnuity<C> _coupon;
   /**
@@ -91,6 +91,14 @@ public abstract class BondSecurity<C extends Payment> implements InterestRateDer
    */
   public String getRepoCurveName() {
     return _repoCurveName;
+  }
+
+  /**
+   * Gets the name of the curve used for discounting.
+   * @return The curve name.
+   */
+  public String getDiscountingCurveName() {
+    return getNominal().getDiscountCurve();
   }
 
   @Override

@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.time.Duration;
+import javax.time.Instant;
+
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -26,6 +29,11 @@ public abstract class AbstractMarketDataProvider implements MarketDataProvider {
   @Override
   public void removeListener(MarketDataListener listener) {
     _listeners.remove(listener);
+  }
+  
+  @Override
+  public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+    return Duration.between(fromInstant, toInstant);
   }
 
   //-------------------------------------------------------------------------

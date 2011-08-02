@@ -157,6 +157,18 @@ public class DependencyNode {
     _outputValues.add(outputValue);
   }
 
+  public void replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
+    if (!_outputValues.remove(existingOutputValue)) {
+      throw new IllegalStateException("Existing output value " + existingOutputValue + " not in output set of " + this);
+    }
+    _outputValues.add(newOutputValue);
+    for (DependencyNode outputNode : _dependentNodes) {
+      if (outputNode._inputValues.remove(existingOutputValue)) {
+        outputNode._inputValues.add(newOutputValue);
+      }
+    }
+  }
+
   /* package */void clearOutputValues() {
     _outputValues.clear();
   }

@@ -11,7 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -21,6 +24,10 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +38,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
@@ -39,6 +47,7 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.position.Deal;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -75,6 +84,14 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPos";
+  /**
+   * The deal prefix.
+   */
+  public static final String DEAL_PREFIX = "Deal~";
+  /**
+   * The deal class name key.
+   */
+  public static final String DEAL_CLASSNAME = "Deal~JavaClass";
   /**
    * SQL select.
    */
@@ -414,7 +431,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
     final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
-    for (Identifier id : position.getSecurityKey()) {
+    for (Identifier id : position.getSecurityLink().getAllIdentifiers()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
           .addValue("position_id", positionId)
           .addValue("key_scheme", id.getScheme().getName())
@@ -450,10 +467,21 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addDateNullIgnored("premium_date", trade.getPremiumDate())
           .addTimeNullIgnored("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
           .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
-
       tradeList.add(tradeArgs);
       
-      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+      // trade attributes
+      Map<String, String> attributes = new HashMap<String, String>(trade.getAttributes());
+      if (trade.getDeal() != null) {
+        Deal deal = trade.getDeal();
+        attributes.put(DEAL_CLASSNAME, deal.getClass().getName());
+        for (MetaProperty<Object> mp : deal.metaBean().metaPropertyIterable()) {
+          Object value = mp.get(deal);
+          if (value != null) {
+            attributes.put(DEAL_PREFIX + mp.name(), value.toString());
+          }
+        }
+      }
+      for (Entry<String, String> entry : attributes.entrySet()) {
         final long tradeAttrId = nextId("pos_trade_attr_seq");
         final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
             .addValue("attr_id", tradeAttrId)
@@ -468,7 +496,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
       UniqueIdentifiables.setInto(trade, tradeUid);
       trade.setParentPositionId(positionUid);
-      for (Identifier id : trade.getSecurityKey()) {
+      for (Identifier id : trade.getSecurityLink().getAllIdentifiers()) {
         final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
             .addValue("trade_id", tradeId)
             .addValue("key_scheme", id.getScheme().getName())
@@ -705,18 +733,25 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     @Override
     public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {
+          if (_trade != null) {
+            fixupTrade();
+          }
           _lastPositionId = positionId;
           buildPosition(rs, positionId);
         }
-
+        
         final String posIdScheme = rs.getString("POS_KEY_SCHEME");
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
-          Identifier id = Identifier.of(posIdScheme, posIdValue);
-          _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+          if (posIdScheme.equals(ObjectIdentifier.OID.getName())) {
+            ObjectIdentifier oid = ObjectIdentifier.parse(posIdValue);
+            _position.getSecurityLink().setObjectId(oid);
+          } else {
+            Identifier id = Identifier.of(posIdScheme, posIdValue);
+            _position.getSecurityLink().addBundleId(id);
+          }
         }
         
         final String posAttrKey = rs.getString("POS_ATTR_KEY");
@@ -724,17 +759,22 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         if (posAttrKey != null && posAttrValue != null) {
           _position.addAttribute(posAttrKey, posAttrValue);
         }
-
+        
         final long tradeId = rs.getLong("TRADE_ID");
         if (_lastTradeId != tradeId && tradeId != 0) {
           buildTrade(rs, tradeId);
         }
-
+        
         final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
         final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
         if (tradeIdScheme != null && tradeIdValue != null) {
-          Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
-          _trade.setSecurityKey(_trade.getSecurityKey().withIdentifier(id));
+          if (tradeIdScheme.equals(ObjectIdentifier.OID.getName())) {
+            ObjectIdentifier oid = ObjectIdentifier.parse(tradeIdValue);
+            _trade.getSecurityLink().setObjectId(oid);
+          } else {
+            Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
+            _trade.getSecurityLink().addBundleId(id);
+          }
         }
         
         final String tradeAttrKey = rs.getString("TRADE_ATTR_KEY");
@@ -744,6 +784,34 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         }
       }
       return _documents;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private void fixupTrade() {
+      String dealClass = _trade.getAttributes().remove(DEAL_CLASSNAME);
+      if (dealClass != null) {
+        Class<?> cls;
+        try {
+          cls = DbPositionMaster.class.getClassLoader().loadClass(dealClass);
+        } catch (ClassNotFoundException ex) {
+          throw new OpenGammaRuntimeException("Unable to load deal class", ex);
+        }
+        MetaBean metaBean = JodaBeanUtils.metaBean(cls);
+        Deal deal = (Deal) metaBean.builder().build();
+        for (Iterator<Entry<String, String>> it = _trade.getAttributes().entrySet().iterator(); it.hasNext(); ) {
+          Entry<String, String> entry = it.next();
+          if (entry.getKey().startsWith(DEAL_PREFIX)) {
+            MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(entry.getKey(), DEAL_PREFIX));
+            if (mp.propertyType() == LocalDate.class) {
+              ((MetaProperty) mp).set(deal, LocalDate.parse(entry.getValue()));
+            } else {
+              mp.setString(deal, entry.getValue());
+            }
+            it.remove();
+          }
+        }
+        _trade.setDeal(deal);
+      }
     }
 
     private void buildPosition(final ResultSet rs, final long positionId) throws SQLException {

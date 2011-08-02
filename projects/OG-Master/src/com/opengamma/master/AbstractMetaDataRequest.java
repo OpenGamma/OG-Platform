@@ -15,6 +15,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Request for meta-data about a single master.
@@ -42,6 +43,9 @@ public abstract class AbstractMetaDataRequest extends DirectBean {
   public static AbstractMetaDataRequest.Meta meta() {
     return AbstractMetaDataRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AbstractMetaDataRequest.Meta.INSTANCE);
+  }
 
   @Override
   public AbstractMetaDataRequest.Meta metaBean() {
@@ -49,13 +53,13 @@ public abstract class AbstractMetaDataRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

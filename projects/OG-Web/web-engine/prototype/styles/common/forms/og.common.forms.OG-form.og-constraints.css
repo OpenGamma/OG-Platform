@@ -56,5 +56,9 @@
 }
 
 .OG-form .og-constraints .og-new-link {
-  margin-left: 12px;
+  margin-left: 11px;
+}
+
+.OG-form .og-constraints > div:last-child {
+  margin-bottom: 5px;
 }

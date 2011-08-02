@@ -65,7 +65,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final double STRIKE = 0.9850;
   private static final boolean IS_CALL = true;
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
-  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD = new InterestRateFutureOptionMarginSecuritySABRMethod();
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
 
   final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
   final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();

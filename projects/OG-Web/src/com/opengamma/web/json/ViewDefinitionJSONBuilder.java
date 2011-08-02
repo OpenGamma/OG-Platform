@@ -55,9 +55,19 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   
   /**
-   * Creates an instance
+   * Singleton
    */
-  public ViewDefinitionJSONBuilder() {
+  public static final ViewDefinitionJSONBuilder INSTANCE = new ViewDefinitionJSONBuilder();
+  
+  /**
+   * JSON template
+   */
+  public static final String TEMPLATE = getTemplate();
+  
+  /**
+   * Restricted constructor
+   */
+  private ViewDefinitionJSONBuilder() {
   }
 
   @Override
@@ -213,13 +223,40 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       if (!calConfigJSONList.isEmpty()) {
         jsonObject.put(CALCULATION_CONFIGURATION_FIELD, calConfigJSONList);
       }
-      jsonObject.put(UNIQUE_ID_FIELD, viewDefinition.getUniqueId().toString());
+      if (viewDefinition.getUniqueId() != null) {
+        jsonObject.put(UNIQUE_ID_FIELD, viewDefinition.getUniqueId().toString());
+      }
             
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
     
     return jsonObject.toString();
+  }
+
+  private static String getTemplate() {
+    ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
+    String result = null;
+    try {
+      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyView()));
+      jsonObject.put(CURRENCY_FIELD, "");
+      jsonObject.put(CALCULATION_CONFIGURATION_FIELD, new JSONArray());
+      result = jsonObject.toString();
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from dummy view definition", ex);
+    }
+    return result;
+  }
+
+  private static ViewDefinition getDummyView() {
+    ViewDefinition dummy = new ViewDefinition("", new UserPrincipal("", ""));
+    dummy.setDefaultCurrency(Currency.GBP);
+    dummy.setMaxDeltaCalculationPeriod(0L);
+    dummy.setMaxFullCalculationPeriod(0L);
+    dummy.setMinDeltaCalculationPeriod(0L);
+    dummy.setMinFullCalculationPeriod(0L);
+    dummy.addPortfolioRequirementName("", "", "");
+    return dummy;
   }
   
 }

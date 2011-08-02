@@ -38,12 +38,16 @@ public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalcul
   }
 
   public PresentValueNodeSensitivityCalculator(final AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
-    Validate.notNull(presentValueSensitivityCalculator, "par rate sensitivity calculator");
+    Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     _presentValueSensitivityCalculator = presentValueSensitivityCalculator;
   }
 
   @Override
   public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
+    return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
+  }
+
+  public DoubleMatrix1D calculateSensitivities(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     return calculateSensitivities(ird, _presentValueSensitivityCalculator, fixedCurves, interpolatedCurves);
   }
 

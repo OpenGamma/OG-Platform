@@ -81,6 +81,9 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   public static BondSecuritySearchRequest.Meta meta() {
     return BondSecuritySearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(BondSecuritySearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public BondSecuritySearchRequest.Meta metaBean() {
@@ -88,18 +91,18 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1459772644:  // issuerName
         return getIssuerName();
       case 1459974547:  // issuerType
         return getIssuerType();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1459772644:  // issuerName
         setIssuerName((String) newValue);
@@ -108,7 +111,7 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
         setIssuerType((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

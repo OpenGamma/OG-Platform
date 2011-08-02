@@ -86,7 +86,7 @@ public class DbSecurityMasterTest extends DBTest {
     sec.setName("OpenGamma");
     sec.setGicsCode(GICSCode.getInstance(2));
     sec.setShortName("OG");
-    sec.setIdentifiers(IdentifierBundle.of(Identifier.of("Test", "OG")));
+    sec.setIdentifiers(IdentifierBundle.of("Test", "OG"));
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     

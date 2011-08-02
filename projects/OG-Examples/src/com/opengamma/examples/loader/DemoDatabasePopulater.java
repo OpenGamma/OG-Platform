@@ -13,18 +13,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.master.portfolio.PortfolioSearchRequest;
-import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
-import com.opengamma.util.money.Currency;
 
 /**
  * Example code to create a demo portfolio and view
@@ -35,11 +26,13 @@ import com.opengamma.util.money.Currency;
 public class DemoDatabasePopulater {
 
   /** Logger. */
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DemoDatabasePopulater.class);
 
   /**
    * The context.
    */
+  @SuppressWarnings("unused")
   private LoaderContext _loaderContext;
 
   public void setLoaderContext(LoaderContext loaderContext) {
@@ -71,14 +64,31 @@ public class DemoDatabasePopulater {
       appContext.start();
       
       try {
-        SelfContainedEquityPortfolioAndSecurityLoader loader = (SelfContainedEquityPortfolioAndSecurityLoader) appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader");
+        SelfContainedEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader", SelfContainedEquityPortfolioAndSecurityLoader.class);
         System.out.println("Creating example equity portfolio");
-        loader.createExamplePortfolio();
+        equityLoader.createExamplePortfolio();
         System.out.println("Finished");
         
-        DemoViewsPopulater populator = (DemoViewsPopulater) appContext.getBean("demoViewsPopulater");
+        SelfContainedSwapPortfolioLoader swapLoader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
+        System.out.println("Creating example swap portfolio");
+        swapLoader.createExamplePortfolio();
+        System.out.println("Finished");
+        
+        DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);
         System.out.println("Creating demo view definition");
         populator.persistViewDefinitions();
+        System.out.println("Finished");
+        
+        SimulatedHistoricalDataGenerator historicalDataGenerator = appContext.getBean("simulatedHistoricalDataGenerator", SimulatedHistoricalDataGenerator.class);
+        System.out.println("Creating simulated historical timeseries");
+        historicalDataGenerator.run();
+        System.out.println("Finished");
+        
+        TimeSeriesRatingLoader tsConfigLoader = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
+        System.out.println("Creating Timeseries configuration");
+        tsConfigLoader.saveHistoricalTimeSeriesRatings();
+        
+        
       } finally {
         appContext.close();
       }

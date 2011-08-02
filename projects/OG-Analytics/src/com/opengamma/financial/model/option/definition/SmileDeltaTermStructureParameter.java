@@ -218,6 +218,29 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     return _volatilityTerm[0].getVolatility().length;
   }
 
+  /**
+   * Gets delta (common to all time to expiration).
+   * @return The delta.
+   */
+  public double[] getDelta() {
+    return _volatilityTerm[0].getDelta();
+  }
+
+  /**
+   * Gets put delta absolute value for all strikes. The ATM is 0.50 delta and the x call are transformed in 1-x put.
+   * @return The delta.
+   */
+  public double[] getDeltaFull() {
+    int nbDelta = _volatilityTerm[0].getDelta().length;
+    double[] result = new double[2 * nbDelta + 1];
+    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
+      result[loopdelta] = _volatilityTerm[0].getDelta()[loopdelta];
+      result[nbDelta + 1 + loopdelta] = 1.0 - _volatilityTerm[0].getDelta()[nbDelta - 1 - loopdelta];
+    }
+    result[nbDelta] = 0.50;
+    return result;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -38,14 +38,18 @@ public class FuturePriceCurveDataBuilder implements FudgeBuilder<FuturePriceCurv
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
     for (final Object x : object.getXs()) {
-      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      if (x != null) {
+        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+      }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
       final Object x = entry.getKey();
       final MutableFudgeMsg subMessage = context.newMessage();
-      subMessage.add("x", null, context.objectToFudgeMsg(x));
-      subMessage.add("value", null, entry.getValue());
-      message.add("values", null, subMessage);
+      if (x != null) {
+        subMessage.add("x", null, context.objectToFudgeMsg(x));
+        subMessage.add("value", null, entry.getValue());
+        message.add("values", null, subMessage);
+      }
     }
     return message;
   }

@@ -25,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -197,6 +198,23 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public String getMetaDataJSON() {
     FlexiBean out = createRootData();
     return getFreemarker().build("configs/jsonmetadata.ftl", out);
+  }
+  
+  //-------------------------------------------------------------------------
+  @GET
+  @Path("templates/{configType}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getTemplateJSON(@PathParam("configType") String configType) {
+    BiMap<String, Class<?>> typeMap = data().getTypeMap();
+    Class<?> typeClazz = typeMap.get(configType);
+    String template = null;
+    if (typeClazz != null) {
+      template = data().getTemplateMap().get(typeClazz);
+    } 
+    FlexiBean out = super.createRootData();
+    out.put("template", template);
+    out.put("type", configType);
+    return getFreemarker().build("configs/jsontemplate.ftl", out);
   }
 
   //-------------------------------------------------------------------------

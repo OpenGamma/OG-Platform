@@ -175,18 +175,18 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * This is only called if the specification is of type security.
    * 
    * @param specification  the specification being resolved, not null
-   * @param uid  the unique identifier of the target
+   * @param securityId  the unique identifier of the target
    * @return the resolved security target, not null
    */
-  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueIdentifier securityId) {
     checkSecuritySource(ComputationTargetType.SECURITY);
     
-    final Security security = getSecuritySource().getSecurity(uid);
+    final Security security = getSecuritySource().getSecurity(securityId);
     if (security == null) {
-      s_logger.info("Unable to resolve security UID {}", uid);
+      s_logger.info("Unable to resolve security UID {}", securityId);
       return null;
     }
-    s_logger.info("Resolved security UID {} to security {}", uid, security);
+    s_logger.info("Resolved security UID {} to security {}", securityId, security);
     return new ComputationTarget(ComputationTargetType.SECURITY, security);
   }
 
@@ -195,35 +195,35 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * This is only called if the specification is of type position.
    * 
    * @param specification  the specification being resolved, not null
-   * @param uid  the unique identifier of the target
+   * @param positionId  the unique identifier of the target
    * @return the resolved position target, not null
    */
-  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueIdentifier positionId) {
     checkSecuritySource(ComputationTargetType.POSITION);
     checkPositionSource(ComputationTargetType.POSITION);
     
-    Position position = getPositionSource().getPosition(uid);
+    // resolve position
+    Position position = getPositionSource().getPosition(positionId);
     if (position == null) {
-      s_logger.info("Unable to resolve position UID {}", uid);
+      s_logger.info("Unable to resolve position UID {}", positionId);
       return null;
     }
-    s_logger.info("Resolved position UID {} to position {}", uid, position);
-    if (position.getSecurity() == null) {
-      final Security security = getSecuritySource().getSecurity(position.getSecurityKey());
-      if (security == null) {
-        s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
-      } else {
-        s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
-        final PositionImpl newPosition = new PositionImpl(position);
-        newPosition.setSecurity(security);
-        for (Trade trade : position.getTrades()) {
-          final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
-          final ComputationTarget resolvedTradeTarget = getRecursiveResolver().resolve(tradeSpec);
-          newPosition.addTrade(resolvedTradeTarget.getTrade());
-        }
-        position = newPosition;
-      }
+    s_logger.info("Resolved position UID {} to position {}", positionId, position);
+    
+    // resolve linked security
+    Security security = position.getSecurityLink().resolveQuiet(getSecuritySource());
+    if (security == null) {
+      s_logger.warn("Unable to resolve security {} for position UID {}", position.getSecurityLink(), positionId);
+    } else {
+      s_logger.info("Resolved security link {} to security {}", position.getSecurityLink(), security);
     }
+    final PositionImpl newPosition = new PositionImpl(position);
+    for (Trade trade : position.getTrades()) {
+      final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
+      final ComputationTarget resolvedTradeTarget = getRecursiveResolver().resolve(tradeSpec);
+      newPosition.addTrade(resolvedTradeTarget.getTrade());
+    }
+    position = newPosition;
     return new ComputationTarget(ComputationTargetType.POSITION, position);
   }
 
@@ -232,30 +232,29 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * This is only called if the specification is of type trade.
    * 
    * @param specification  the specification being resolved, not null
-   * @param uid  the unique identifier of the target
+   * @param tradeId  the unique identifier of the target
    * @return the resolved trade target, not null
    */
-  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueIdentifier tradeId) {
     checkSecuritySource(ComputationTargetType.TRADE);
     checkPositionSource(ComputationTargetType.TRADE);
     
-    Trade trade = getPositionSource().getTrade(uid);
+    // resolve trade
+    Trade trade = getPositionSource().getTrade(tradeId);
     if (trade == null) {
-      s_logger.info("Unable to resolve trade UID {}", uid);
+      s_logger.info("Unable to resolve trade UID {}", tradeId);
       return null;
     }
-    s_logger.info("Resolved trade UID {} to trade {}", uid, trade);
-    if (trade.getSecurity() == null) {
-      Security security = getSecuritySource().getSecurity(trade.getSecurityKey());
-      if (security == null) {
-        s_logger.warn("Unable to resolve security ID {} for trade UID {}", trade.getSecurityKey(), uid);
-      } else {
-        s_logger.info("Resolved security ID {} to security {}", trade.getSecurityKey(), security);
-        final TradeImpl newTrade = new TradeImpl(trade);
-        newTrade.setSecurity(security);
-        trade = newTrade;
-      }
+    s_logger.info("Resolved trade UID {} to trade {}", tradeId, trade);
+    
+    // resolve linked security
+    Security security = trade.getSecurityLink().resolveQuiet(getSecuritySource());
+    if (security == null) {
+      s_logger.warn("Unable to resolve security {} for trade UID {}", trade.getSecurityLink(), tradeId);
+    } else {
+      s_logger.info("Resolved security link {} to security {}", trade.getSecurityLink(), security);
     }
+    trade = new TradeImpl(trade);
     return new ComputationTarget(ComputationTargetType.TRADE, trade);
   }
 

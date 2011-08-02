@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a portfolio tree.
@@ -70,6 +71,9 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
   public static PortfolioHistoryResult.Meta meta() {
     return PortfolioHistoryResult.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(PortfolioHistoryResult.Meta.INSTANCE);
+  }
 
   @Override
   public PortfolioHistoryResult.Meta metaBean() {
@@ -77,13 +81,13 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
-    return super.propertyGet(propertyName);
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
-    super.propertySet(propertyName, newValue);
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

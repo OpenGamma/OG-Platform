@@ -25,7 +25,7 @@ public final class PriceCurveSensitivityDiscountingCalculator extends AbstractIn
   /**
    * The method to compute bond future prices.
    */
-  private static final BondFutureSecurityDiscountingMethod METHOD_BOND_FUTURE = new BondFutureSecurityDiscountingMethod();
+  private static final BondFutureSecurityDiscountingMethod METHOD_BOND_FUTURE = BondFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
