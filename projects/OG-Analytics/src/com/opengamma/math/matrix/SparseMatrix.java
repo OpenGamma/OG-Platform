@@ -12,14 +12,12 @@ import org.apache.commons.lang.NotImplementedException;
  */
 public class SparseMatrix implements MatrixPrimitiveInterface {
   private SparseMatrixType _type;
-  /**
-   * constructors, by default will generate a CSR format, option possible to generate COO instead
-   */
 
 /**
- * @param indata is
- * @param m is
- * @param n is
+ * Constructs a sparse matrix from double data
+ * @param indata is an array of arrays containing data to be turned into a sparse matrix representation
+ * @param m is the number of rows in the matrix (use if there are empty rows in indata and a matrix of a specific size is needed for conformance)
+ * @param n is the number of columns in the matrix (use if there are empty columns in indata and a matrix of a specific size is needed for conformance)
  */
   public SparseMatrix(double[][] indata, int m, int n) {
     if (MatrixPrimitiveUtils.isRagged(indata)) {
@@ -45,7 +43,7 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
       }
     }
 
-    // test nnz
+    // test nnz and return something sane?! based on it, 0.6 is a magic number roughly based on memory density estimates
     int nnz = MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(tmp);
     if (nnz < 0.6) {
       _type = new CompressedSparseRowFormatMatrix(tmp);
@@ -53,6 +51,11 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
       _type = new SparseCoordinateFormatMatrix(tmp);
     }
   }
+
+  public SparseMatrix(double[][] indata) {
+    this(indata, indata.length, indata[0].length);
+  }
+
 
   public SparseMatrixType getSparseObject() {
     return _type;
