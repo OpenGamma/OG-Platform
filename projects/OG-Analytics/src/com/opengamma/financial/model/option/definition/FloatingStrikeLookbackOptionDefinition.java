@@ -8,7 +8,7 @@ package com.opengamma.financial.model.option.definition;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
     public double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(data.getSpotTimeSeries());
-      final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
+      final DoubleTimeSeries<?> ts = data.getSpotTimeSeries();
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };

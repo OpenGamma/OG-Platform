@@ -7,6 +7,9 @@ package com.opengamma.engine.marketdata;
 
 import java.util.Set;
 
+import javax.time.Duration;
+import javax.time.Instant;
+
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -109,5 +112,16 @@ public interface MarketDataProvider {
    * @return  the snapshot, not {@code null}
    */
   MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec);
-    
+  
+  /**
+   * Gets the real-time duration between two instants on the market data time-line. If the market data provider is
+   * replaying data at a different rate from normal then this will not correspond to the actual duration between the
+   * two instants.
+   * 
+   * @param fromInstant  the instant from which the duration begins, not {@code null}
+   * @param toInstant  the instant at which the duration ends, not {@code null}
+   * @return the real-time duration, or {@code null} if the market data provider is not able to tell
+   */
+  Duration getRealTimeDuration(Instant fromInstant, Instant toInstant);
+  
 }

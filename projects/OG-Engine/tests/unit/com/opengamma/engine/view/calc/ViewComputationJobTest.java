@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.testng.annotations.Test;
@@ -335,6 +336,11 @@ public class ViewComputationJobTest {
       // Want the market data provider to indicate that data is available even before it's really available
       return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
           || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+    }
+
+    @Override
+    public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+      return Duration.between(fromInstant, toInstant);
     }
     
   }

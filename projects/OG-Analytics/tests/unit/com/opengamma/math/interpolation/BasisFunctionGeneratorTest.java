@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -21,7 +23,7 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
  * 
  */
 public class BasisFunctionGeneratorTest {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(BasisFunctionGeneratorTest.class);
   private static final Boolean PRINT = false;
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final BasisFunctionGenerator GENERATOR = new BasisFunctionGenerator();
@@ -106,7 +108,7 @@ public class BasisFunctionGeneratorTest {
     if (PRINT) {
       for (int i = 0; i < 101; i++) {
         x[0] = 0 + i * 10.0 / 100.0;
-        System.out.print("\t" + x[0]);
+        s_logger.debug("\t" + x[0]);
       }
       System.out.print("\n");
       for (int i = 0; i < 101; i++) {
