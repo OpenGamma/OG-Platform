@@ -30,8 +30,17 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
+import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
+import com.opengamma.engine.view.calc.trigger.RunAsFastAsPossibleTrigger;
+import com.opengamma.engine.view.calc.trigger.SuccessiveDeltaLimitTrigger;
+import com.opengamma.engine.view.calc.trigger.ViewCycleEligibility;
+import com.opengamma.engine.view.calc.trigger.ViewCycleTrigger;
+import com.opengamma.engine.view.calc.trigger.ViewCycleTriggerResult;
+import com.opengamma.engine.view.calc.trigger.ViewCycleType;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
@@ -49,24 +58,18 @@ import com.opengamma.util.monitor.OperationTimer;
 public class ViewComputationJob extends TerminatableJob implements MarketDataListener {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationJob.class);
   
-  private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
   private static final long NANOS_PER_MILLISECOND = 1000000;
+  private static final long MARKET_DATA_TIMEOUT_MILLIS = 10000;
 
   private final ViewProcessImpl _viewProcess;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
+  private final ViewCycleTrigger _cycleTrigger;
   private final boolean _executeCycles;
   
-  private double _numExecutions;
+  private double _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
-  
-  // Nanoseconds - all 0 initially so that a full computation will run 
-  private long _eligibleForDeltaComputationFromNanos;
-  private long _deltaComputationRequiredByNanos; 
-  private long _eligibleForFullComputationFromNanos;
-  private long _fullComputationRequiredByNanos;
-  private int _deltasSinceLastFull;
   
   private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
   private final Set<ValueRequirement> _marketDataSubscriptions = new HashSet<ValueRequirement>();
@@ -74,10 +77,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private CountDownLatch _pendingSubscriptionLatch;
   
   private volatile boolean _wakeOnMarketDataChanged;
-  private volatile boolean _marketDataChanged;
-  private volatile boolean _cycleTriggered;
-  
-  private enum ViewCycleType { FULL, DELTA, NONE }
+  private volatile boolean _marketDataChanged = true;
+  private volatile boolean _forceTriggerCycle;
   
   /**
    * Nanoseconds
@@ -96,8 +97,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-
+    
+    _cycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
+  }
+
+  private ViewCycleTrigger createViewCycleTrigger(ViewExecutionOptions executionOptions) {
+    CombinedViewCycleTrigger trigger = new CombinedViewCycleTrigger();
+    if (executionOptions.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
+      trigger.addTrigger(new RunAsFastAsPossibleTrigger());
+    }
+    if (executionOptions.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED)) {
+      trigger.addTrigger(new RecomputationPeriodTrigger(this));
+    }
+    if (executionOptions.getMaxSuccessiveDeltaCycles() != null) {
+      trigger.addTrigger(new SuccessiveDeltaLimitTrigger(executionOptions.getMaxSuccessiveDeltaCycles()));
+    }
+    return trigger;
   }
 
   //-------------------------------------------------------------------------
@@ -117,27 +133,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return _cycleManager;
   }
   
-  private void updateComputationTimes(long currentNanos, boolean deltaOnly) {
-    // If time-based triggers disabled then always eligible for a cycle (if data changes), but never required
-    boolean timeTriggersEnabled = getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED);
-    
-    _eligibleForDeltaComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinDeltaCalculationPeriod(), 0) : 0;
-    _deltaComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxDeltaCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
-    
-    if (!deltaOnly) {
-      _eligibleForFullComputationFromNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMinFullCalculationPeriod(), 0) : 0;
-      _fullComputationRequiredByNanos = timeTriggersEnabled ? getUpdatedTime(currentNanos, getViewProcess().getDefinition().getMaxFullCalculationPeriod(), Long.MAX_VALUE) : Long.MAX_VALUE;
-    }
+  private ViewCycleTrigger getCycleTrigger() {
+    return _cycleTrigger;
   }
-  
-  private long getUpdatedTime(long currentNanos, Long computationPeriod, long nullEquivalent) {
-    if (computationPeriod == null) {
-      return nullEquivalent;
-    }
-
-    return currentNanos + NANOS_PER_MILLISECOND * computationPeriod;
-  }
-  
+   
   /**
    * Determines whether to run, and runs if required, a single computation cycle using the following rules:
    * 
@@ -157,7 +156,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // potentially blocked, waiting for results.
     
     ViewCycleType cycleType = waitForNextCycle();
-    if (cycleType == ViewCycleType.NONE) {
+    if (cycleType == null) {
       // Will get back to runOneCycle() straight away unless the job has been terminated
       return;
     }
@@ -329,87 +328,47 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   private synchronized ViewCycleType waitForNextCycle() {
     long currentTimeNanos = System.nanoTime();
+    ViewCycleTriggerResult triggerResult = getCycleTrigger().query(currentTimeNanos);
     
-    boolean doFullRecalc = false;
-    boolean doDeltaRecalc = false;
-    
-    if (requireFullCycleNext(currentTimeNanos)) {
-      s_logger.debug("Forcing a full computation");
-      doFullRecalc = true;
-    } else if (requireDeltaCycleNext(currentTimeNanos)) {
-      s_logger.debug("Forcing a delta computation");
-      doDeltaRecalc = true;
+    ViewCycleEligibility cycleEligibility = triggerResult.getCycleEligibility();
+    if (_forceTriggerCycle) {
+      cycleEligibility = ViewCycleEligibility.FORCE;
+      _forceTriggerCycle = false;
     }
-    
-    if (_marketDataChanged) {
-      s_logger.debug("Market data has changed");
-      if (currentTimeNanos >= _eligibleForFullComputationFromNanos) {
-        // Do (or upgrade to) a full computation because we're eligible for one
-        s_logger.debug("Performing a full computation for the market data change");
-        doFullRecalc = true;
-        _marketDataChanged = false;
-      } else if (currentTimeNanos >= _eligibleForDeltaComputationFromNanos) {
-        // Do a delta computation
-        s_logger.debug("Performing a delta computation for the market data change");
-        doDeltaRecalc = true;
-        _marketDataChanged = false;
+    if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _marketDataChanged) {
+      _marketDataChanged = false;
+      ViewCycleType cycleType = triggerResult.getCycleType();
+      if (_previousCycleReference == null) {
+        // Cannot do a delta if we have no previous cycle
+        cycleType = ViewCycleType.FULL;
       }
-    }
-    if (_cycleTriggered) {
-      s_logger.debug("Cycle was manually triggered");
-      if (currentTimeNanos >= _eligibleForFullComputationFromNanos) {
-        // Do (or upgrade to) a full computation because we're eligible for one
-        s_logger.debug("Performing a full computation for the manual request");
-        doFullRecalc = true;
-        _cycleTriggered = false;
-      } else if (currentTimeNanos >= _eligibleForDeltaComputationFromNanos) {
-        // Do a delta computation
-        s_logger.debug("Performing a delta computation for the manual request");
-        doDeltaRecalc = true;
-        _cycleTriggered = false;
+      try {
+        getCycleTrigger().cycleTriggered(currentTimeNanos, cycleType);
+      } catch (Exception e) {
+        s_logger.error("Error notifying trigger of intention to execute cycle", e);
       }
-    }
-    
-    if (doFullRecalc || doDeltaRecalc) {
-      // Set the times for the next computation cycle. These might have passed by the time this cycle completes, in
-      // which case another cycle will run straight away.
-      updateComputationTimes(currentTimeNanos, !doFullRecalc);
-      
-      return doFullRecalc ? ViewCycleType.FULL : ViewCycleType.DELTA;
+      s_logger.debug("Eligible for {} cycle", cycleType);
+      return cycleType;
     }
     
     // Going to sleep
-    long minWakeUpTime = Math.min(_eligibleForDeltaComputationFromNanos, _eligibleForFullComputationFromNanos);
-    long wakeUpTime;
+    long wakeUpTime = triggerResult.getNextStateChangeNanos();
     if (_marketDataChanged) {
       s_logger.debug("Sleeping until eligible to perform the next computation cycle");
-      
-      // Market data has arrived but we decided not to perform a computation cycle; this must be because we're not
-      // eligible for one right now. We'll do one as soon as we are.
-      wakeUpTime = minWakeUpTime;
-      
       // No amount of market data can make us eligible for a computation cycle any sooner.
       _wakeOnMarketDataChanged = false;
     } else {
       s_logger.debug("Sleeping until forced to perform the next computation cycle");
-      
-      // Only *plan* to wake up when we really have to
-      wakeUpTime = Math.min(_deltaComputationRequiredByNanos, _fullComputationRequiredByNanos);
-      
-      // If we're not scheduled to wake up until after we're eligible for a computation cycle, then allow us to be
-      // woken sooner by market data changing. The benefit of this is when min=max, meaning market data will never wake
-      // us up.
-      _wakeOnMarketDataChanged = wakeUpTime > minWakeUpTime;
+      _wakeOnMarketDataChanged = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
     }
     
     long sleepTime = wakeUpTime - currentTimeNanos;
     sleepTime = Math.max(0, sleepTime);
     sleepTime /= NANOS_PER_MILLISECOND;
-    sleepTime += 1; // round up a bit to make sure it'll be enough
+    sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change 
     s_logger.debug("Waiting for {} ms", sleepTime);
     try {
-      // This could wait until end of time if both full and delta maximum recalc periods are null.
-      // In this case, only marketDataChanged() will wake it up
+      // This could wait until end of time. In this case, only marketDataChanged() or triggerCycle() will wake it up
       wait(sleepTime);
     } catch (InterruptedException e) {
       // We support interruption as a signal that we have been terminated. If we're interrupted without having been
@@ -417,19 +376,16 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       Thread.interrupted();
       s_logger.info("Interrupted while delaying. Continuing operation.");
     }
-
-    return ViewCycleType.NONE;
+    return null;
   }
   
   private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference, MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
-      _deltasSinceLastFull = 0;
       deltaCycle = null;
     } else {
       s_logger.info("Performing delta computation");
-      _deltasSinceLastFull++;
       deltaCycle = _previousCycleReference.get();
     }
     
@@ -449,8 +405,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     long durationNanos = cycleReference.get().getDuration().toNanosLong();
     _totalTimeNanos += durationNanos;
-    _numExecutions += 1.0;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
+    _cycleCount += 1.0;
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
     
   @Override
@@ -474,7 +430,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   public synchronized void triggerCycle() {
     s_logger.debug("Cycle triggered manually");
-    _cycleTriggered = true;
+    _forceTriggerCycle = true;
     notifyAll();
   }
   
@@ -559,24 +515,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
   
-  private boolean requireFullCycleNext(long currentTime) {
-    if (currentTime >= _fullComputationRequiredByNanos) {
-      return true;
-    }
-    if (getExecutionOptions().getMaxSuccessiveDeltaCycles() == null) {
-      return false;
-    }
-    return getExecutionOptions().getMaxSuccessiveDeltaCycles() <= _deltasSinceLastFull;
+  /**
+   * Gets the view definition currently in use by the computation job.
+   * 
+   * @return the view definition, not {@code null}
+   */
+  public ViewDefinition getViewDefinition() {
+    return getViewProcess().getDefinition();
   }
   
-  private boolean requireDeltaCycleNext(long currentTime) {
-    if (getExecutionOptions().getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
-      // Run as fast as possible on delta cycles, with full cycles as required by the view definition and execution options
-      return true;
-    }
-    return currentTime >= _deltaComputationRequiredByNanos;
-  }
-
   //-------------------------------------------------------------------------
   private void replaceMarketDataProvider(MarketDataSpecification marketDataSpec) {
     removeMarketDataProvider();
