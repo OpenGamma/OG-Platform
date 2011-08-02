@@ -15,6 +15,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -72,11 +73,11 @@ public interface Region extends UniqueIdentifiable {
   IdentifierBundle getIdentifiers();
 
   /**
-   * Gets the country ISO code.
+   * Gets the country.
    * 
-   * @return the 2 letter country code, null if not applicable
+   * @return the country, null if not applicable
    */
-  String getCountryISO();
+  Country getCountry();
 
   /**
    * Gets the currency.
