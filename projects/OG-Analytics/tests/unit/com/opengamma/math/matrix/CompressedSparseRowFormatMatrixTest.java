@@ -103,6 +103,45 @@ public void testGetEntry() {
 }
 
 @Test
+public void testGetFullRow() {
+  CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
+  for(int i = 0; i < data.length; i++) {
+    assertTrue(Arrays.equals(M.getFullRow(i),data[i]));
+  }
+}
+
+@Test
+public void testGetFullColumn() {
+  CompressedSparseRowFormatMatrix tmp = new CompressedSparseRowFormatMatrix(data);
+  double[] col = new double[data.length];
+  for(int i = 0; i < data[0].length; i++) {
+    // assemble column
+    for(int j = 0; j < data[0].length; j++) {
+      col[j] = data[j][i];
+    }
+    assertTrue(Arrays.equals(col,tmp.getFullColumn(i)));
+  }
+}
+
+@Test
+public void testGetRowElements() {
+  double[][] compressed = {{1,2},{3,4},{5,6},{7}};
+  CompressedSparseRowFormatMatrix tmp = new CompressedSparseRowFormatMatrix(data);
+  for(int i = 0; i < data.length; i++) {
+    assertTrue(Arrays.equals(compressed[i],tmp.getRowElements(i)));
+  }
+}
+
+@Test
+public void testGetColumnElements() {
+  double[][] compressed = {{1,3},{2,5},{4,6,7},{}};
+  CompressedSparseRowFormatMatrix tmp = new CompressedSparseRowFormatMatrix(data);
+  for(int i = 0; i < data[0].length; i++) {
+    assertTrue(Arrays.equals(compressed[i],tmp.getColumnElements(i)));
+  }
+}
+
+@Test
 public void testToArray() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
   assertTrue(Arrays.deepEquals(data,M.toArray()));

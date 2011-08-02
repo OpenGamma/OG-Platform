@@ -186,6 +186,58 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return _els;
   }
 
+
+  @Override
+  public double[] getFullRow(int index) {
+    double[] tmp = new double[_cols];
+    for (int i = _rowPtr[index]; i <= _rowPtr[index + 1] - 1; i++) { // loops through elements of correct row
+      tmp[_colIdx[i]] = _values[i];
+    }
+    return tmp;
+  }
+
+  @Override // column slicing CSR is a nightmare, implemented for completeness, but really not worth actually using unless desperate. Use COO or CSC instead.
+  public double[] getFullColumn(int index) {
+    double[] tmp = new double[_rows];
+    for (int i = 0; i < _rows; i++) {
+      tmp[i] = this.getEntry(i, index);
+    }
+    return tmp;
+  }
+
+  @Override
+  public double[] getRowElements(int index) {
+    double[] tmp = new double[_cols];
+    int ptr = 0;
+    for (int i = _rowPtr[index]; i <= _rowPtr[index + 1] - 1; i++) { // loops through elements of correct row
+      tmp[ptr] = _values[i];
+      ptr++;
+    }
+    return Arrays.copyOfRange(tmp, 0, ptr);
+  }
+
+  @Override // again, column slicing CSR is pants and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
+  public double[] getColumnElements(int index) {
+    double[] tmp = new double[_cols];
+    double val;
+    int ptr = 0;
+    for (int i = 0; i < _cols; i++) {
+      val = this.getEntry(i, index);
+      if (Double.doubleToLongBits(val) != 0) {
+        tmp[ptr] = val;
+        ptr++;
+      }
+
+    }
+    return Arrays.copyOfRange(tmp, 0, ptr);
+  }
+
+  @Override
+  public int getNumberOfNonZeroElements() {
+    return _values.length;
+  }
+
+
   @Override
   public Double getEntry(int... indices) {
     //translate an index and see if it exists, if it doesn't then return 0
@@ -248,33 +300,6 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     }
     return true;
   }
-
-  @Override
-  public double[] getFullRow(int index) {
-    return null;
-  }
-
-  @Override
-  public double[] getFullColumn(int index) {
-    return null;
-  }
-
-  @Override
-  public double[] getRowElements(int index) {
-    return null;
-  }
-
-  @Override
-  public double[] getColumnElements(int index) {
-    return null;
-  }
-
-  @Override
-  public int getNumberOfNonZeroElements() {
-    return 0;
-  }
-
-
 
 }
 
