@@ -154,7 +154,9 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _quantity = copyFrom.getQuantity();
     _securityLink = copyFrom.getSecurityLink().clone();
     for (Trade trade : copyFrom.getTrades()) {
-      _trades.add(new TradeImpl(trade));
+      TradeImpl clonedTrade = new TradeImpl(trade);
+      clonedTrade.setParentPositionId(_uniqueId);
+      _trades.add(clonedTrade);
     }
     setAttributes(copyFrom.getAttributes());
   }
