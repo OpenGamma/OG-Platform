@@ -37,6 +37,7 @@ import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -192,10 +193,11 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   /**
    * Adds a search for a currency by adding the matching bundle.
    * 
-   * @param countryISO  the country ISO code to search for, not null
+   * @param country  the country to search for, not null
    */
-  public void addCountryISO(String countryISO) {
-    addRegionKey(RegionUtils.countryRegionId(countryISO));
+  public void addCountry(Country country) {
+    ArgumentChecker.notNull(country, "country");
+    addRegionKey(RegionUtils.countryRegionId(country));
   }
 
   /**

@@ -101,7 +101,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable {
   /**
    * Checks if this unordered pair equals another unordered pair.
    * <p>
-   * The comparison checks both .
+   * The comparison checks both currencies.
    * 
    * @param obj  the other currency, null returns false
    * @return true if equal

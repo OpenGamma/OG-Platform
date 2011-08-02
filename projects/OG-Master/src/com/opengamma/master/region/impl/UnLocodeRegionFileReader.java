@@ -31,6 +31,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 
 /**
  * Loads a CSV formatted UN/LOCODE file based on the regions in the holiday database.
@@ -171,7 +172,7 @@ class UnLocodeRegionFileReader {
 
   private void addParent(ManageableRegion region, String countryISO) {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addCountryISO(countryISO);
+    request.addCountry(Country.of(countryISO));
     ManageableRegion parent = _regionMaster.search(request).getFirstRegion();
     if (parent == null) {
       throw new OpenGammaRuntimeException("Cannot find parent '" + countryISO + "'  for '" + region.getName() + "'");
