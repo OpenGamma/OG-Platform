@@ -174,7 +174,7 @@ public final class PortfolioCompiler {
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
     Portfolio cloned = new PortfolioImpl(portfolio);
-    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(portfolio.getRootNode());
+    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(cloned.getRootNode());
     return cloned;
   }
 

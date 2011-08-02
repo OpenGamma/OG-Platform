@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionUtils;
+import com.opengamma.util.i18n.Country;
 
 @Test(enabled = false)
 public class RegionTest extends FinancialTestBase {
@@ -20,7 +21,7 @@ public class RegionTest extends FinancialTestBase {
   private final Logger s_logger = LoggerFactory.getLogger(getClass());
 
   private Region getRef() {
-    return getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("GB"));
+    return getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId(Country.GB));
   }
 
   public void testCycle() {

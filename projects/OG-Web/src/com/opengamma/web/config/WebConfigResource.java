@@ -26,14 +26,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
-import com.opengamma.web.json.ViewDefinitionJSONBuilder;
-import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
+import com.opengamma.web.json.JSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
@@ -70,7 +66,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    String jsonConfig = toJSON(doc.getValue());
+    String jsonConfig = toJSON(doc.getValue(), doc.getType());
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
@@ -80,18 +76,14 @@ public class WebConfigResource extends AbstractWebConfigResource {
     String json = getFreemarker().build("configs/jsonconfig.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
-
-  private String toJSON(final Object config) {
-    if (config.getClass().isAssignableFrom(ViewDefinition.class)) {
-      return  ViewDefinitionJSONBuilder.INSTANCE.toJSON((ViewDefinition) config);
+  
+  @SuppressWarnings("unchecked")
+  private <T> String toJSON(Object object, Class<T> configType) {
+    JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
+    if (jsonBuilder != null) {
+      return jsonBuilder.toJSON((T) object);
     }
-    if (config.getClass().isAssignableFrom(YieldCurveDefinition.class)) {
-      return YieldCurveDefinitionJSONBuilder.INSTANCE.toJSON((YieldCurveDefinition) config);
-    }
-    if (config.getClass().isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
-      return CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE.toJSON((CurveSpecificationBuilderConfiguration) config);
-    }
-    return null;
+    throw new OpenGammaRuntimeException("No custom JSON builder for " + configType);
   }
 
   //-------------------------------------------------------------------------

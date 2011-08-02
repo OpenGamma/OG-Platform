@@ -89,7 +89,7 @@ public class PDEDataBundleProvider {
   }
 
   /**
-   * This models the forward process  {@latex.inline $df = \\sigma f^\\beta dW$}  where f(t,T) =  {@latex.inline $\mathbb{E^T}[s_T|\mathcal{F}_t]$} and is a Martingale. 
+   * This models the forward process  {@latex.inline $df = \\sigma f^\\beta dW$}  where f(t,T) =  {@latex.inline $\\mathbb{E^T}[s_T|\\mathcal{F}_t]$} and is a Martingale. 
    * The corresponding PDE for the option price is  {@latex.inline $\\frac{\\partial V}{\\partial \\tau} - \\frac{(\\sigma^*)^2 f^{2\\beta}}{2} \\frac{\\partial^2 V}{\\partial f^2}
    *  + rV = 0$}. The term r is yield to maturity - it can be set to zero and a discount factor applied to the option price instead. 
    * @param vol The volatility
