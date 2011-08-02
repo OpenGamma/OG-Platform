@@ -146,6 +146,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return new DoubleMatrix2D(this.toArray());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getFullRow(int index) {
     double[] tmp = new double[_cols];
@@ -158,6 +161,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getFullColumn(int index) {
     double[] tmp = new double[_rows];
@@ -170,6 +176,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getRowElements(int index) {
     double[] tmp = new double[_cols]; //overkill
@@ -184,6 +193,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return  Arrays.copyOfRange(tmp, 0, ptr);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getColumnElements(int index) {
     double[] tmp = new double[_rows]; //overkill
@@ -198,17 +210,25 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return  Arrays.copyOfRange(tmp, 0, ptr);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfNonZeroElements() {
     return _values.length;
   }
 
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfElements() {
     return _els;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double getEntry(int... indices) {
     Validate.notNull(_x);
@@ -224,6 +244,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return 0.0; // index pairing not found so value must be a zero entry
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
     return "SparseCoordinateFormatMatrix:\n"
@@ -233,6 +256,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
       + "number of nonzero elements=" + _els;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -244,6 +270,9 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

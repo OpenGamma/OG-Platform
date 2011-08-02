@@ -29,7 +29,7 @@ public void testConstructorFromDoubleMatrix2D() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(tmp);
   assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
   assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
-  assertTrue(Arrays.equals(expectedData,M.getNonZeroValues()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
 }
 
 @Test
@@ -38,7 +38,7 @@ public void testConstructorSparseCoordinateFormat() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(tmp);
   assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
   assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
-  assertTrue(Arrays.equals(expectedData,M.getNonZeroValues()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
 }
 
 @Test
@@ -46,7 +46,7 @@ public void testConstructorDoubleArrays() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
   assertTrue(Arrays.equals(expectedRowPtr,M.getRowPtr()));
   assertTrue(Arrays.equals(expectedColIdx,M.getColumnIndex()));
-  assertTrue(Arrays.equals(expectedData,M.getNonZeroValues()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
 }
 
 // Test methods
@@ -65,7 +65,7 @@ public void testGetRowPtr() {
 @Test
 public void testGetNonZeroValues() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
-  assertTrue(Arrays.equals(expectedData,M.getNonZeroValues()));
+  assertTrue(Arrays.equals(expectedData,M.getNonZeroElements()));
 }
 
 @Test

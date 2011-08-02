@@ -129,7 +129,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
    * Gets the non-zero values in the matrix, i.e. the values that are worth storing
    * @return _values, the non-zero values
    */
-  public double[] getNonZeroValues() {
+  public double[] getNonZeroElements() {
     return _values;
   }
 
@@ -216,7 +216,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     return Arrays.copyOfRange(tmp, 0, ptr);
   }
 
-  @Override // again, column slicing CSR is pants and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
+  @Override // again, column slicing CSR is a bad idea and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
   public double[] getColumnElements(int index) {
     double[] tmp = new double[_cols];
     double val;
