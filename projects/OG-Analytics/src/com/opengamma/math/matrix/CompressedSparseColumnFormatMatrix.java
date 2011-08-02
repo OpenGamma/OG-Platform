@@ -10,17 +10,17 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * Converts, or instantiates, a matrix to Compressed Sparse Row format (CSR). CSR is a near optimal method of storing sparse matrix data.
+ * Converts, or instantiates, a matrix to Compressed Sparse Column format (CSC). CSC is a near optimal method of storing sparse matrix data.
  * Only the non-zero components of the matrix are stored (note: there is no tolerance for testing zero to machine precision, zero is solely tested bitwise).
- * The CSR format requires three vectors:
- *  colIdx - contains column indexes of elements
- *  rowPtr - contains the row pointer information used to reassemble the colIdx references in the correct place within the matrix
- *  values - contains the nonzero values of the sparse matrix in row-major order
+ * The CSC format requires three vectors:
+ *  rowIdx - contains row indexes of elements
+ *  colPtr - contains the column pointer information used to reassemble the rowIdx references in the correct place within the matrix
+ *  values - contains the nonzero values of the sparse matrix in column-major order
  *
  *  For an example call and output see the unit test.
  *
- *  A "normal" path to CSR form is via the {@link SparseCoordinateFormatMatrix} this formatting path is taken to allow access to the
- *  Compressed Sparse Column (CSC) format with equal ease.
+ *  A "normal" path to CSC form is via the {@link SparseCoordinateFormatMatrix} this formatting path is taken to allow access to the
+ *  Compressed Sparse Row (CSR) format with equal ease.
  *  The final format chosen (CSR or CSC) should reflect the cache optimal access pattern of the calling function data.
  */
 public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
@@ -124,7 +124,7 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
 
   /**
    * Gets the column pointer (not actually a pointer, but would be in C)
-   * @return _colPtr, the col pointer
+   * @return _colPtr, the column pointer
    */
   public int[] getColumnPtr() {
     return _colPtr;
