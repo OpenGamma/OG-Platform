@@ -28,17 +28,29 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
       throw new NotImplementedException("Construction from a ragged array of arrays is not implemented");
     }
 
-    // size the matrix correctly for the construction
-    double[][] tmp;
+    // test sanity of requested data lengths
+    if (indata.length > m) {
+      throw new IllegalArgumentException("Bad input to constructor, final matrix with " +
+          m + " rows requested but the input data has " + indata.length + " and there is no sane way to truncate.");
+    }
+
+    if (indata[0].length > n) {
+      throw new IllegalArgumentException("Bad input to constructor, final matrix with " +
+          n + " columns requested but the input data has " + indata[0].length + " and there is no sane way to truncate.");
+    }
+
+    // hold final matrix size
     int s1 = indata.length;
     int s2 = indata[0].length;
+
     if (indata.length != m) {
       s1 = m;
       if (indata[0].length != n) {
         s2 = n;
       }
     }
-    tmp = new double[s1][s2];
+    // size the matrix correctly for the construction
+    double[][] tmp = new double[s1][s2];
 
     // unwind
     for (int i = 0; i < indata.length; i++) {
@@ -47,9 +59,11 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
       }
     }
 
-    // test nnz and return something sane?! based on it, 0.6 is a magic number roughly based on memory density estimates
+    // test nnz and return something sane?! 0.6 is a magic number roughly based on memory density estimates
+    // TODO: Come up with a more intelligent estimate of memory density patterns to pick optimal formats. Load testing needed.
     int nnz = MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(tmp);
-    if (nnz < 0.6) {
+    double density = ((double) nnz / (s1 * s2));
+    if (density < 0.6) {
       _type = new CompressedSparseRowFormatMatrix(tmp);
     } else {
       _type = new SparseCoordinateFormatMatrix(tmp);
@@ -189,3 +203,4 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
   }
 
 }
+
