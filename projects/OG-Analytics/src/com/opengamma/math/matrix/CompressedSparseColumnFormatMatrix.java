@@ -177,10 +177,10 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
   @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
-    for (int ir = 0; ir < _rows; ir++) {
+    for (int ir = 0; ir < _cols; ir++) {
         //translate an index and see if it exists, if it doesn't then return 0
-      for (int i = _colPtr[ir]; i <= _colPtr[ir + 1] - 1; i++) { // loops through elements of correct row
-        tmp[ir][_rowIdx[i]] = _values[i];
+      for (int i = _colPtr[ir]; i <= _colPtr[ir + 1] - 1; i++) { // loops through elements of correct column
+        tmp[_rowIdx[i]][ir] = _values[i];
       }
     }
     return tmp;
@@ -193,41 +193,41 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
 
 
   @Override
-  public double[] getFullRow(int index) {
+  public double[] getFullColumn(int index) {
     double[] tmp = new double[_cols];
-    for (int i = _colPtr[index]; i <= _colPtr[index + 1] - 1; i++) { // loops through elements of correct row
+    for (int i = _colPtr[index]; i <= _colPtr[index + 1] - 1; i++) { // loops through elements of correct column
       tmp[_rowIdx[i]] = _values[i];
     }
     return tmp;
   }
 
-  @Override // column slicing CSR is a nightmare, implemented for completeness, but really not worth actually using unless desperate. Use COO or CSC instead.
-  public double[] getFullColumn(int index) {
+  @Override
+  public double[] getFullRow(int index) { // getting rows in CSC form is generally bad
     double[] tmp = new double[_rows];
     for (int i = 0; i < _rows; i++) {
-      tmp[i] = this.getEntry(i, index);
+      tmp[i] = this.getEntry(index, i);
     }
     return tmp;
   }
 
   @Override
-  public double[] getRowElements(int index) {
+  public double[] getColumnElements(int index) {
     double[] tmp = new double[_cols];
     int ptr = 0;
-    for (int i = _colPtr[index]; i <= _colPtr[index + 1] - 1; i++) { // loops through elements of correct row
+    for (int i = _colPtr[index]; i <= _colPtr[index + 1] - 1; i++) { // loops through elements of correct column
       tmp[ptr] = _values[i];
       ptr++;
     }
     return Arrays.copyOfRange(tmp, 0, ptr);
   }
 
-  @Override // again, column slicing CSR is a bad idea and essentially requires multiple brute forces. Store the matrix differently if you are thinking about doing this a lot
-  public double[] getColumnElements(int index) {
+  @Override
+  public double[] getRowElements(int index) { // getting rows in CSC form is generally bad
     double[] tmp = new double[_cols];
     double val;
     int ptr = 0;
     for (int i = 0; i < _cols; i++) {
-      val = this.getEntry(i, index);
+      val = this.getEntry(index, i);
       if (Double.doubleToLongBits(val) != 0) {
         tmp[ptr] = val;
         ptr++;
@@ -246,9 +246,9 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
   @Override
   public Double getEntry(int... indices) {
     //translate an index and see if it exists, if it doesn't then return 0
-    for (int i = _colPtr[indices[0]]; i <= _colPtr[indices[0] + 1] - 1; i++) { // loops through elements of correct row
+    for (int i = _colPtr[indices[1]]; i <= _colPtr[indices[1] + 1] - 1; i++) { // loops through elements of correct column
       // looks for col index
-      if (_rowIdx[i] == indices[1]) {
+      if (_rowIdx[i] == indices[0]) {
         return _values[i];
       }
     }
