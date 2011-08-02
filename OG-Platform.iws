@@ -2,20 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c3a1549-3431-4cad-b0ef-3a2851d396b9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.iml" afterPath="$PROJECT_DIR$/OG-Platform.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.ipr" afterPath="$PROJECT_DIR$/OG-Platform.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" afterPath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" afterPath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" afterPath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" afterPath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" afterPath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" afterPath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" afterPath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" afterPath="$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" afterPath="$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" afterPath="$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" afterPath="$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Web/OG-Web.iml" afterPath="$PROJECT_DIR$/projects/OG-Web/OG-Web.iml" />
     </list>
     <ignored path="OG-Platform.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -89,100 +76,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ExampleServer.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="ExampleServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demoMasters-test.properties" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-test.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demoMasters-example.properties" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-example.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="32" column="0" selection-start="1451" selection-end="1451" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="jetty-logback.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/jetty-logback.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="730" selection-end="730" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="build.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../../../OG-Platform/projects/OG-Examples/build.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="59" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DBTool.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DBTool.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DbConfigWorker.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigWorker.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LiveResultsService.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Web/src/com/opengamma/web/server/LiveResultsService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="69" selection-start="3398" selection-end="3398" vertical-scroll-proportion="0.5004695">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConfigMasterUtils.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Master/src/com/opengamma/master/config/ConfigMasterUtils.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="60" column="0" selection-start="2026" selection-end="2026" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DbConfigMaster.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigMaster.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="149" column="0" selection-start="4875" selection-end="4875" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demoPortfolioLoader.properties" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoPortfolioLoader.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.25324675">
               <folding />
             </state>
           </provider>
@@ -246,8 +143,9 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Favorites" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -280,49 +178,8 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="projects" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Examples" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Platform" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="projects" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OG-Examples" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="config" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -339,13 +196,12 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager" selected="Application.ExampleServer">
     <configuration default="false" name="ExampleServer" type="Application" factoryName="Application" temporary="true">
-      <log_file path="$PROJECT_DIR$/projects/OG-Examples/jetty.log" checked="true" skipped="true" show_all="true" alias="jetty.log" />
       <option name="MAIN_CLASS_NAME" value="com.opengamma.examples.startup.ExampleServer" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -451,17 +307,20 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
+    <configuration default="true" type="XSLT" factoryName="XSLT">
+      <option name="myOutputFile" />
+      <option name="myOpenOutputFile" value="false" />
+      <option name="myOpenInBrowser" value="false" />
+      <option name="mySmartErrorHandling" value="true" />
+      <option name="myRunnerPort" value="34873" />
+      <option name="myVmArguments" />
+      <option name="myWorkingDirectory" />
+      <option name="myModule" />
+      <option name="myJdk" />
+      <parameters />
+      <OutputType value="CONSOLE" save-to-file="false" />
+      <FileType name="XML" />
+      <JdkChoice value="FROM_MODULE" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -501,20 +360,17 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="XSLT" factoryName="XSLT">
-      <option name="myOutputFile" />
-      <option name="myOpenOutputFile" value="false" />
-      <option name="myOpenInBrowser" value="false" />
-      <option name="mySmartErrorHandling" value="true" />
-      <option name="myRunnerPort" value="34873" />
-      <option name="myVmArguments" />
-      <option name="myWorkingDirectory" />
-      <option name="myModule" />
-      <option name="myJdk" />
-      <parameters />
-      <OutputType value="CONSOLE" save-to-file="false" />
-      <FileType name="XML" />
-      <JdkChoice value="FROM_MODULE" />
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -976,7 +832,7 @@
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="StructureViewFactory">
-    <option name="ACTIVE_ACTIONS" value="VISIBILITY_SORTER,ALPHA_COMPARATOR" />
+    <option name="ACTIVE_ACTIONS" value="VISIBILITY_SORTER,SHOW_INHERITED,ALPHA_COMPARATOR,SHOW_INTERFACES,SHOW_FIELDS" />
   </component>
   <component name="SvnConfiguration" maxAnnotateRevisions="500">
     <option name="USER" value="" />
@@ -1005,7 +861,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="214" y="22" width="1604" height="1173" extended-state="0" />
+    <frame x="202" y="22" width="1604" height="1173" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29864255" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1015,17 +871,17 @@
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33122745" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32912534" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3267148" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32851985" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31213874" sideWeight="0.58371043" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2800257" sideWeight="0.43891403" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32982457" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.6805054" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31213874" sideWeight="0.40904978" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2800257" sideWeight="0.5538462" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3267148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32669684" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37262014" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="1921" y="0" width="928" height="876" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3267148" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24819495" sideWeight="0.67087466" order="13" side_tool="false" content_ui="combo" x="199" y="471" width="1415" height="276" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -1096,14 +952,14 @@
       <viewClosedWhenNoErrors value="false" />
       <expanded value="false" />
     </buildFile>
-    <buildFile url="file://$PROJECT_DIR$/../../../OG-Platform/projects/OG-Examples/build.xml">
+    <buildFile url="file://$PROJECT_DIR$/projects/OG-Examples/build.xml">
       <antCommandLine value="" />
       <runInBackground value="true" />
       <targetFilters />
       <treeView value="false" />
       <verbose value="true" />
       <viewClosedWhenNoErrors value="false" />
-      <expanded value="true" />
+      <expanded value="false" />
     </buildFile>
   </component>
   <component name="editorHistoryManager">
@@ -1157,9 +1013,39 @@
         <state line="21" column="0" selection-start="1065" selection-end="1065" vertical-scroll-proportion="0.25324675" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
+    <entry file="file://$PROJECT_DIR$/projects/OG-Web/src/com/opengamma/web/server/LiveResultsService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.0" />
+        <state line="73" column="45" selection-start="3073" selection-end="3073" vertical-scroll-proportion="0.25633803">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.14553991">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DBTool.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.012206573">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/jetty-logback.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="0" selection-start="730" selection-end="730" vertical-scroll-proportion="0.26530612">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-example.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="0" selection-start="1451" selection-end="1451" vertical-scroll-proportion="0.3858998">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-test.properties">
@@ -1167,34 +1053,18 @@
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-example.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="0" selection-start="1451" selection-end="1451" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/jetty-logback.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="730" selection-end="730" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../../OG-Platform/projects/OG-Examples/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="59" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DBTool.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Master/src/com/opengamma/master/config/ConfigMasterUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="0" selection-start="2026" selection-end="2026" vertical-scroll-proportion="0.0" />
+        <state line="60" column="0" selection-start="2026" selection-end="2026" vertical-scroll-proportion="0.6994434">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigMaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="0" selection-start="4875" selection-end="4875" vertical-scroll-proportion="0.0" />
+        <state line="149" column="0" selection-start="4875" selection-end="4875" vertical-scroll-proportion="0.6985158">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoPortfolioLoader.properties">
@@ -1202,16 +1072,9 @@
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigWorker.java">
+    <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Web/src/com/opengamma/web/server/LiveResultsService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="69" selection-start="3398" selection-end="3398" vertical-scroll-proportion="0.5004695">
+        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.25324675">
           <folding />
         </state>
       </provider>
