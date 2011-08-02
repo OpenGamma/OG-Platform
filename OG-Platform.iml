@@ -16,12 +16,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="OG-Security" />
-    <orderEntry type="module" module-name="OG-Analytics" />
-    <orderEntry type="module" module-name="OG-Engine" />
-    <orderEntry type="module" module-name="OG-Financial" />
-    <orderEntry type="module" module-name="OG-LiveData" />
-    <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Platform-default">
         <CLASSES>

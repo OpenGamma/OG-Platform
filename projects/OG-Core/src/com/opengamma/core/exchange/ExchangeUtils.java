@@ -29,7 +29,7 @@ public class ExchangeUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an ISO MIC country code.
+   * Creates an ISO MIC code.
    * <p>
    * Examples might be {@code XLON} or {@code XNYS}.
    * 

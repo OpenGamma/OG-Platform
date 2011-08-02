@@ -22,6 +22,7 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
+import com.opengamma.util.i18n.Country;
 
 /**
  * Test InMemoryExchangeMaster.
@@ -38,7 +39,7 @@ public class InMemoryExchangeMasterTest {
   private static IdentifierBundle BUNDLE_FULL = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_LIFFE_CCID);
   private static IdentifierBundle BUNDLE_PART = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCID);
   private static IdentifierBundle BUNDLE_OTHER = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_OTHER1);
-  private static IdentifierBundle GB = IdentifierBundle.of(RegionUtils.countryRegionId("GB"));
+  private static IdentifierBundle GB = IdentifierBundle.of(RegionUtils.countryRegionId(Country.GB));
 
   private InMemoryExchangeMaster master;
   private ExchangeDocument addedDoc;

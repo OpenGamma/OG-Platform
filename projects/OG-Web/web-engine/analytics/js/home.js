@@ -19,7 +19,7 @@
     _create: function() {
       var self = this,
         select = this.element,
-        selectWidth = select.width() + 15,
+        selectWidth = Math.min(250, select.width() + 15),
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "";
       select.hide();
@@ -213,7 +213,7 @@
       });
     }
         
-    $input.width($snapshotSelect.width() + 15);
+    $input.width(Math.min(250, $snapshotSelect.width() + 15));
     if (!currentValExists) {
       $input.val("Live market data");
     }

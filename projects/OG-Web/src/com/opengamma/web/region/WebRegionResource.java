@@ -32,6 +32,7 @@ import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -159,7 +160,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setName(name);
     region.setFullName(fullName);
     region.setClassification(classification);
-    region.setCountryISO(countryISO);
+    region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
@@ -243,7 +244,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setName(name);
     region.setFullName(fullName);
     region.setClassification(classification);
-    region.setCountryISO(countryISO);
+    region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);

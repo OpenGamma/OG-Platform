@@ -94,6 +94,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     _uniqueId = copyFrom.getUniqueId();
     _name = copyFrom.getName();
     _rootNode = new PortfolioNodeImpl(copyFrom.getRootNode());
+    _rootNode.setParentNodeId(null);
   }
 
   //-------------------------------------------------------------------------

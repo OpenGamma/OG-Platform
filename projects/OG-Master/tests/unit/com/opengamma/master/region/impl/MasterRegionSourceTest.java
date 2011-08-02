@@ -5,15 +5,16 @@
  */
 package com.opengamma.master.region.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
 import javax.time.calendar.TimeZone;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
@@ -27,6 +28,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,7 +37,6 @@ import com.opengamma.util.money.Currency;
 @Test
 public class MasterRegionSourceTest {
 
-  private static final Currency GBP = Currency.GBP;
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
@@ -145,8 +146,8 @@ public class MasterRegionSourceTest {
     ManageableRegion region = new ManageableRegion();
     region.setUniqueId(UID);
     region.setName("United Kingdom");
-    region.setCurrency(GBP);
-    region.setCountryISO("GB");
+    region.setCurrency(Currency.GBP);
+    region.setCountry(Country.GB);
     region.setTimeZone(TimeZone.of("Europe/London"));
     return region;
   }
