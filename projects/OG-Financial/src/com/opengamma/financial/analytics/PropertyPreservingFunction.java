@@ -132,8 +132,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
       } else {
         ValueProperties requiredPropertyComposition = _requiredProperties.compose(input.getProperties());
         if (!requiredPropertyComposition.equals(referenceRequiredProperties)) {
-          throw new IllegalArgumentException("Required property composition " + requiredPropertyComposition +
-              " produced from input " + input + " differs from current required property composition " + referenceRequiredProperties + " implying incompatible property values among the inputs");
+          // Required property composition 'requiredPropertyComposition' produced from input 'input' differs from current required
+          // property composition 'referenceRequiredProperties' implying incompatible property values among the inputs
+          return null;
         }
         // Know that the required properties are preserved correctly, so now compose everything 
         compositeProperties = compositeProperties.compose(input.getProperties());

@@ -94,7 +94,7 @@ import com.opengamma.util.tuple.Pair;
 
   protected static final class PumpingState extends NextFunctionStep {
 
-    private final ValueSpecification _valueSpecification;
+    private ValueSpecification _valueSpecification;
     private final Set<ValueSpecification> _outputs;
     private final ParameterizedFunction _function;
     private final DependencyGraphBuilder _builder;
@@ -103,6 +103,7 @@ import com.opengamma.util.tuple.Pair;
     private PumpingState(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions, final ValueSpecification valueSpecification,
         final Set<ValueSpecification> outputs, final ParameterizedFunction function, final DependencyGraphBuilder builder, final FunctionApplicationWorker worker) {
       super(task, functions);
+      assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;
       _outputs = outputs;
       _function = function;
@@ -112,6 +113,10 @@ import com.opengamma.util.tuple.Pair;
 
     private ValueSpecification getValueSpecification() {
       return _valueSpecification;
+    }
+
+    private void setValueSpecification(final ValueSpecification valueSpecification) {
+      _valueSpecification = valueSpecification;
     }
 
     private Set<ValueSpecification> getOutputs() {
@@ -186,6 +191,7 @@ import com.opengamma.util.tuple.Pair;
         getAdditionalRequirementsAndPushResults(null, inputs, resolvedOutput);
         return;
       }
+      setValueSpecification(resolvedOutput);
       // Has the resolved output now reduced this to something already produced elsewhere
       final Map<ResolveTask, ResolvedValueProducer> reducingTasks = getBuilder().getTasksProducing(resolvedOutput);
       if (reducingTasks.isEmpty()) {

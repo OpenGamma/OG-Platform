@@ -57,7 +57,7 @@ public class DependencyGraphBuilder {
 
   // DON'T CHECK IN WITH =true, !=-1, or =true
   private static final boolean NO_BACKGROUND_THREADS = false;
-  private static final int MAX_ADDITIONAL_THREADS = -1;
+  private static final int MAX_ADDITIONAL_THREADS = 1;
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
 
   private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
