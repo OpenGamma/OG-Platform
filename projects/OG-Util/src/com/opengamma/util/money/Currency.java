@@ -69,6 +69,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   // a selection of other currencies
   /**
+   * The currency 'NZD' - New Zealand Dollar.
+   */
+  public static final Currency NZD = of("NZD");
+  /**
    * The currency 'DKK' - Danish Krone
    */
   public static final Currency DKK = of("DKK");
