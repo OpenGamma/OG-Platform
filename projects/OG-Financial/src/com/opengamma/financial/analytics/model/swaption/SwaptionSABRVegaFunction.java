@@ -21,12 +21,12 @@ import com.opengamma.util.money.Currency;
  */
 public class SwaptionSABRVegaFunction extends SwaptionSABRFunction {
 
-  public SwaptionSABRVegaFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation) {
-    super(currency, definitionName, useSABRExtrapolation);
+  public SwaptionSABRVegaFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+    super(currency, definitionName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
-  public SwaptionSABRVegaFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
-    super(currency, definitionName, useSABRExtrapolation);
+  public SwaptionSABRVegaFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+    super(currency, definitionName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
   @Override
