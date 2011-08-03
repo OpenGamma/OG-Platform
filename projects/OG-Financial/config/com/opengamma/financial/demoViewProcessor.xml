@@ -60,7 +60,7 @@
   </bean>
   
   <!-- User supplied Securities -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="userFinancialDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
@@ -79,7 +79,7 @@
   </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
     <property name="changeManager" ref="snapshotMasterChangeManager" />
