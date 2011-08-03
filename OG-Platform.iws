@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3c3a1549-3431-4cad-b0ef-3a2851d396b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.ipr" afterPath="$PROJECT_DIR$/OG-Platform.ipr" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.iws" afterPath="$PROJECT_DIR$/OG-Platform.iws" />
     </list>
     <ignored path="OG-Platform.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -21,21 +22,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/projects/OG-Engine/tests/unit/com/opengamma/engine/view/calcnode/stats/DbMasterTestUtils.java" line="25" class="com.opengamma.engine.view.calcnode.stats.DbMasterTestUtils" package="com.opengamma.engine.view.calcnode.stats">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -79,7 +65,7 @@
       <file leaf-file-name="ExampleServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.25324675">
+            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.375895">
               <folding />
             </state>
           </provider>
@@ -144,8 +130,6 @@
     </navigator>
     <panes>
       <pane id="Favorites" />
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -180,6 +164,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -278,20 +264,6 @@
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
         <option name="Make" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="ClojureScriptRunConfiguration" factoryName="Clojure Script">
-      <module name="" />
-      <setting name="path" value="" />
-      <setting name="vmparams" value="" />
-      <setting name="params" value="" />
-      <setting name="workDir" value="" />
-      <setting name="repl" value="false" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
@@ -861,27 +833,29 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="202" y="22" width="1604" height="1173" extended-state="0" />
-    <editor active="true" />
+    <frame x="342" y="22" width="1376" height="998" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29864255" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32851985" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18625562" sideWeight="0.6732852" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.279578" sideWeight="0.4465909" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32982457" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.279578" sideWeight="0.5443182" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33122745" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32669684" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32912534" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18625562" sideWeight="0.6732852" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33122745" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32912534" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3267148" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32851985" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2800257" sideWeight="0.43891403" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32982457" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.6805054" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2800257" sideWeight="0.5538462" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32669684" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37262014" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="1921" y="0" width="928" height="876" />
+      <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3267148" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.6805054" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24819495" sideWeight="0.67087466" order="13" side_tool="false" content_ui="combo" x="199" y="471" width="1415" height="276" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -963,26 +937,6 @@
     </buildFile>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/sources/testng-sources-6.0.1.jar!/org/testng/internal/MethodInvocationHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="0" selection-start="2988" selection-end="2988" vertical-scroll-proportion="0.21784037" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Engine/tests/unit/com/opengamma/engine/view/calcnode/stats/DbMasterTestUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1117" selection-end="1117" vertical-scroll-proportion="0.3617811" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/batch/CommandLineBatchResultWriterTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="60" selection-start="3065" selection-end="3065" vertical-scroll-proportion="0.41001856" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-LiveData/tests/unit/com/opengamma/livedata/server/combining/PriorityResolvingCombiningLiveDataServerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="93" selection-start="2113" selection-end="2113" vertical-scroll-proportion="0.42723006" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-LiveData/src/com/opengamma/livedata/server/AbstractLiveDataServer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="363" column="0" selection-start="14108" selection-end="14108" vertical-scroll-proportion="0.2197183" />
@@ -1015,37 +969,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Web/src/com/opengamma/web/server/LiveResultsService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="45" selection-start="3073" selection-end="3073" vertical-scroll-proportion="0.25633803">
-          <folding />
-        </state>
+        <state line="73" column="45" selection-start="3073" selection-end="3073" vertical-scroll-proportion="0.25633803" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigWorker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.14553991">
-          <folding />
-        </state>
+        <state line="306" column="37" selection-start="13056" selection-end="13056" vertical-scroll-proportion="0.14553991" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Util/src/com/opengamma/util/test/DBTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.012206573">
-          <folding />
-        </state>
+        <state line="486" column="5" selection-start="14684" selection-end="14684" vertical-scroll-proportion="0.012206573" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/jetty-logback.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="730" selection-end="730" vertical-scroll-proportion="0.26530612">
-          <folding />
-        </state>
+        <state line="22" column="0" selection-start="730" selection-end="730" vertical-scroll-proportion="0.26530612" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-example.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="0" selection-start="1451" selection-end="1451" vertical-scroll-proportion="0.3858998">
-          <folding />
-        </state>
+        <state line="32" column="0" selection-start="1451" selection-end="1451" vertical-scroll-proportion="0.3858998" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoMasters-test.properties">
@@ -1055,16 +999,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Master/src/com/opengamma/master/config/ConfigMasterUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="0" selection-start="2026" selection-end="2026" vertical-scroll-proportion="0.6994434">
-          <folding />
-        </state>
+        <state line="60" column="0" selection-start="2026" selection-end="2026" vertical-scroll-proportion="0.6994434" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/src/com/opengamma/masterdb/config/DbConfigMaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="0" selection-start="4875" selection-end="4875" vertical-scroll-proportion="0.6985158">
-          <folding />
-        </state>
+        <state line="149" column="0" selection-start="4875" selection-end="4875" vertical-scroll-proportion="0.6985158" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/config/demoPortfolioLoader.properties">
@@ -1074,9 +1014,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.25324675">
-          <folding />
-        </state>
+        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.375895" />
       </provider>
     </entry>
   </component>

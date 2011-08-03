@@ -15,6 +15,9 @@
         </propertiesSettings>
       </configuration>
     </facet>
+    <facet type="Spring" name="Spring">
+      <configuration />
+    </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
@@ -77,7 +80,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-amqp/jars/spring-amqp-1.0.0.M1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.rabbitmq/java-client/jars/rabbitmq-client-2.1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.freemarker/freemarker/jars/freemarker-2.3.16.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/jars/servletapi-2.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/jstl/jars/jstl-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.yahoo.platform.yui/yuicompressor/jars/yuicompressor-2.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/rhino/js/jars/js-1.6R7.jar!/" />
@@ -130,6 +132,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/jars/servletapi-2.5.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
@@ -200,7 +203,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-amqp/sources/spring-rabbit-admin-src-1.0.0.M1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.rabbitmq/java-client/sources/rabbitmq-client-src-2.1.0.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.freemarker/freemarker/sources/freemarker-sources-2.3.16.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/sources/source-2.5.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/jstl/sources/jstl-sources-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.yahoo.platform.yui/yuicompressor/sources/yuicompressor-2.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.time/jsr-310-ri/sources/jsr-310-ri-sources-0.6.3.jar!/" />
@@ -223,6 +225,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/sources/mongo-src-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/sources/joda-convert-sources-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/sources/source-2.5.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>

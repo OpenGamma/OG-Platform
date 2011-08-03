@@ -59,6 +59,7 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="IdProvider" IDEtalkID="ED57AF62700FCB7527A9FA0A9977C2C4" />
   <component name="InspectionProjectProfileManager">
     <profiles>
       <profile version="1.0" is_locked="false">
@@ -252,5 +253,6 @@
     <mapping directory="$PROJECT_DIR$/projects/Fudge-Java" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/projects/Fudge-Proto" vcs="Git" />
   </component>
+  <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
 
