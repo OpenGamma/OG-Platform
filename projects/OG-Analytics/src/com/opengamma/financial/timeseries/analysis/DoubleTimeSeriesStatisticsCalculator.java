@@ -30,7 +30,7 @@ public class DoubleTimeSeriesStatisticsCalculator implements Function<DoubleTime
     final int n = x.length;
     final double[][] arrays = new double[n][];
     for (int i = 0; i < n; i++) {
-      arrays[i] = x[i].toFastLongDoubleTimeSeries().valuesArrayFast();
+      arrays[i] = x[i].valuesArrayFast();
     }
     return _statistic.evaluate(arrays);
   }
