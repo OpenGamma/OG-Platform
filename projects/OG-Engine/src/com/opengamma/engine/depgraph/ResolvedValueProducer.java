@@ -19,7 +19,8 @@ import com.opengamma.util.Cancellable;
    * 
    * @param context graph building context
    * @param callback callback object to receive the notifications, not {@code null}
-   * @return a handle for removing the callback, not {@code null}
+   * @return a handle for removing the callback, or {@code null} if there is nothing to cancel (e.g. a failure call was made
+   *         inline) or a cancellation can't be supported. 
    */
   Cancellable addCallback(GraphBuildingContext context, ResolvedValueCallback callback);
 

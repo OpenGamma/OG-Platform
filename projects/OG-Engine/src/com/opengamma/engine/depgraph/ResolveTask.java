@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Unit of task resolution. A resolve task executes to convert a {@link ValueRequirement} into a dependency node.
  */
-/* package */final class ResolveTask extends AbstractResolvedValueProducer {
+/* package */final class ResolveTask extends AbstractResolvedValueProducer implements ContextRunnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolveTask.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
@@ -62,8 +62,8 @@ import com.opengamma.engine.value.ValueSpecification;
       context.run(task);
     }
 
-    protected void pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue) {
-      getTask().pushResult(context, resolvedValue);
+    protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue) {
+      return getTask().pushResult(context, resolvedValue);
     }
 
     protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
@@ -71,10 +71,10 @@ import com.opengamma.engine.value.ValueSpecification;
       return new ResolvedValue(valueSpecification, parameterizedFunction, getComputationTarget(), functionInputs, functionOutputs);
     }
 
-    protected void pushResult(final GraphBuildingContext context, final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction,
+    protected boolean pushResult(final GraphBuildingContext context, final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction,
         final Set<ValueSpecification> functionInputs,
         final Set<ValueSpecification> functionOutputs) {
-      pushResult(context, createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
+      return pushResult(context, createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
     }
 
     protected ValueRequirement getValueRequirement() {
@@ -145,7 +145,8 @@ import com.opengamma.engine.value.ValueSpecification;
     return _target;
   }
 
-  protected void run(final GraphBuildingContext context) {
+  @Override
+  public void run(final GraphBuildingContext context) {
     getState().run(context);
   }
 

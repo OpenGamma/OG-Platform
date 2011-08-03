@@ -68,7 +68,9 @@ import com.opengamma.util.tuple.Pair;
       final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
           .singleton(function.getResult()));
       context.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
-      pushResult(context, result);
+      if (!pushResult(context, result)) {
+        throw new IllegalStateException(result + " rejected by pushResult");
+      }
       if (!getTask().isFinished()) {
         // Wasn't immediately pumped, so declare a finished state 
         setTaskStateFinished(context);

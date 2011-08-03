@@ -37,7 +37,11 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     _pump = pump;
-    pushResult(context, value);
+    if (!pushResult(context, value)) {
+      assert _pump != null;
+      _pump = null;
+      context.pump(pump);
+    }
   }
 
   @Override

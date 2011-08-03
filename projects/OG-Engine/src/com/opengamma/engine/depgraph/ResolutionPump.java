@@ -22,4 +22,22 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
    */
   void pump(final GraphBuildingContext context);
 
+  /**
+   * {@link ContextRunnable} form of the {@link #pump} method.
+   */
+  class Pump implements ContextRunnable {
+
+    private final ResolutionPump _instance;
+
+    public Pump(final ResolutionPump instance) {
+      _instance = instance;
+    }
+
+    @Override
+    public void run(final GraphBuildingContext context) {
+      _instance.pump(context);
+    }
+
+  }
+
 }

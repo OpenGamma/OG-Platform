@@ -74,7 +74,11 @@ import com.opengamma.util.tuple.Pair;
     public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
       s_logger.debug("Resolved {} to {}", valueRequirement, value);
       _pump = pump;
-      pushResult(context, value);
+      if (!pushResult(context, value)) {
+        assert _pump != null;
+        _pump = null;
+        context.pump(pump);
+      }
     }
 
     @Override
@@ -130,7 +134,7 @@ import com.opengamma.util.tuple.Pair;
       return _worker;
     }
 
-    public void inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
+    public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
       ValueSpecification resolvedOutput = getValueSpecification();
@@ -144,8 +148,7 @@ import com.opengamma.util.tuple.Pair;
         }
       }
       if (strictConstraints) {
-        pushResult(context, getWorker(), inputs, resolvedOutput, getOutputs());
-        return;
+        return pushResult(context, getWorker(), null, inputs, resolvedOutput, getOutputs());
       }
       Set<ValueSpecification> newOutputValues = null;
       try {
@@ -156,13 +159,11 @@ import com.opengamma.util.tuple.Pair;
       }
       if (newOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
-        pump(context);
-        return;
+        return false;
       }
       if (getOutputs().equals(newOutputValues)) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, getOutputs());
-        return;
+        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, getOutputs());
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
@@ -178,19 +179,16 @@ import com.opengamma.util.tuple.Pair;
       }
       if (resolvedOutput == null) {
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
-        pump(context);
-        return;
+        return false;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
         // The resolved output has not changed
-        getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues);
-        return;
+        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues);
       }
       // Has the resolved output now reduced this to something already produced elsewhere
       final Map<ResolveTask, ResolvedValueProducer> reducingTasks = context.getTasksProducing(resolvedOutput);
       if (reducingTasks.isEmpty()) {
-        produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
-        return;
+        return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
       }
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
       for (Map.Entry<ResolveTask, ResolvedValueProducer> reducingTask : reducingTasks.entrySet()) {
@@ -203,20 +201,23 @@ import com.opengamma.util.tuple.Pair;
       final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
         @Override
         public void failedImpl(final GraphBuildingContext context) {
-          produceSubstitute(context, inputs, resolvedOutputCopy, resolvedOutputValues);
+          if (!produceSubstitute(context, inputs, resolvedOutputCopy, resolvedOutputValues)) {
+            pump(context);
+          }
         }
       };
       setTaskState(delegate);
       aggregate.addCallback(context, delegate);
       aggregate.start(context);
+      return true;
     }
 
-    private void produceSubstitute(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
+    private boolean produceSubstitute(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
         final Set<ValueSpecification> resolvedOutputs) {
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = context.declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
-        getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        return getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
       } else {
         // An equivalent task is producing the revised value specification
         final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
@@ -227,6 +228,7 @@ import com.opengamma.util.tuple.Pair;
         };
         setTaskState(delegate);
         producer.addCallback(context, delegate);
+        return true;
       }
     }
 
@@ -239,7 +241,7 @@ import com.opengamma.util.tuple.Pair;
       }
 
       @Override
-      public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+      public final void failed(final GraphBuildingContext context, final ValueRequirement value) {
         // Go back to the original state
         setTaskState(PumpingState.this);
         // Do the required action
@@ -249,13 +251,17 @@ import com.opengamma.util.tuple.Pair;
       protected abstract void failedImpl(final GraphBuildingContext context);
 
       @Override
-      public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+      public final void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
         _pump = pump;
-        pushResult(context, resolvedValue);
+        if (!pushResult(context, resolvedValue)) {
+          assert _pump != null;
+          _pump = null;
+          context.pump(pump);
+        }
       }
 
       @Override
-      public void pump(final GraphBuildingContext context) {
+      public final void pump(final GraphBuildingContext context) {
         if (_pump == null) {
           // Either pump called twice for a resolve, called before the first resolve, or after failed
           throw new IllegalStateException();
@@ -274,7 +280,8 @@ import com.opengamma.util.tuple.Pair;
 
     }
 
-    private void getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
+    private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
+        final Map<ValueSpecification, ValueRequirement> inputs,
         final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs) {
       Set<ValueRequirement> additionalRequirements = null;
       try {
@@ -288,16 +295,10 @@ import com.opengamma.util.tuple.Pair;
         if (substituteWorker != null) {
           substituteWorker.finished(context);
         }
-        pump(context);
-        return;
+        return false;
       }
       if (additionalRequirements.isEmpty()) {
-        pushResult(context, getWorker(), inputs, resolvedOutput, resolvedOutputs);
-        if (substituteWorker != null) {
-          pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs);
-          substituteWorker.finished(context);
-        }
-        return;
+        return pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs);
       }
       s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
       final AtomicInteger lock = new AtomicInteger(1);
@@ -317,10 +318,8 @@ import com.opengamma.util.tuple.Pair;
           inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
           if (lock.decrementAndGet() == 0) {
             s_logger.debug("Additional requirements complete");
-            pushResult(context, getWorker(), inputs, resolvedOutput, resolvedOutputs);
-            if (substituteWorker != null) {
-              pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs);
-              substituteWorker.finished(context);
+            if (!pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs)) {
+              pump(context);
             }
           }
         }
@@ -338,20 +337,24 @@ import com.opengamma.util.tuple.Pair;
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
-        pushResult(context, getWorker(), inputs, resolvedOutput, resolvedOutputs);
-        if (substituteWorker != null) {
-          pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs);
-          substituteWorker.finished(context);
-        }
+        return pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs);
+      } else {
+        return true;
       }
     }
 
-    private void pushResult(final GraphBuildingContext context, final FunctionApplicationWorker worker,
+    private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker mainWorker, final FunctionApplicationWorker substituteWorker,
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs) {
       final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), resolvedOutputs);
       s_logger.info("Result {} for {}", result, getValueRequirement());
-      worker.pushResult(context, result);
-      pushResult(context, result);
+      mainWorker.pushResult(context, result);
+      if (substituteWorker != null) {
+        if (!substituteWorker.pushResult(context, result)) {
+          throw new IllegalStateException(result + " rejected by substitute worker");
+        }
+        substituteWorker.finished(context);
+      }
+      return pushResult(context, result);
     }
 
     public void finished(final GraphBuildingContext context) {
@@ -426,7 +429,10 @@ import com.opengamma.util.tuple.Pair;
       if (inputRequirements.isEmpty()) {
         s_logger.debug("Function {} requires no inputs", functionDefinition);
         worker.setPumpingState(state, 0);
-        state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap());
+        if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap())) {
+          setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+          worker.finished(context);
+        }
       } else {
         s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
         worker.setPumpingState(state, inputRequirements.size());

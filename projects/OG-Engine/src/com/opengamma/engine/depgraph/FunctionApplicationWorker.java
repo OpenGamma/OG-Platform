@@ -75,6 +75,7 @@ import com.opengamma.util.Cancellable;
     s_logger.debug("Resolution failed at {}", this);
     s_logger.info("Resolution of {} failed", value);
     final FunctionApplicationStep.PumpingState state;
+    final Collection<Cancellable> unsubscribes;
     synchronized (this) {
       _inputHandles.remove(value);
       _pendingInputs--;
@@ -84,15 +85,24 @@ import com.opengamma.util.Cancellable;
         s_logger.debug("PendingInputs={}, ValidInputs={}", _pendingInputs, _validInputs);
         return;
       }
+      if (_inputHandles.isEmpty()) {
+        unsubscribes = null;
+      } else {
+        unsubscribes = new ArrayList<Cancellable>(_inputHandles.values());
+      }
       state = _taskState;
       _taskState = null;
     }
     // Not ok; we either couldn't satisfy anything or the pumped enumeration is complete
     s_logger.info("{} complete", this);
     // Unsubscribe from any inputs that are still valid
-    for (Map.Entry<ValueRequirement, Cancellable> handle : _inputHandles.entrySet()) {
-      s_logger.debug("Unsubscribing from {}", handle.getKey());
-      handle.getValue().cancel(false);
+    if (unsubscribes != null) {
+      s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
+      for (Cancellable handle : unsubscribes) {
+        if (handle != null) {
+          handle.cancel(false);
+        }
+      }
     }
     // Propagate the failure message to anything subscribing to us
     if (finished(context)) {
@@ -108,22 +118,28 @@ import com.opengamma.util.Cancellable;
     FunctionApplicationStep.PumpingState state = null;
     Map<ValueSpecification, ValueRequirement> resolvedValues = null;
     synchronized (this) {
-      _inputs.put(valueRequirement, resolvedValue.getValueSpecification());
-      if (--_pendingInputs == 0) {
-        // We've got a full set of inputs; notify the task state
-        resolvedValues = Maps.<ValueSpecification, ValueRequirement>newHashMapWithExpectedSize(_inputs.size());
-        for (Map.Entry<ValueRequirement, ValueSpecification> input : _inputs.entrySet()) {
-          resolvedValues.put(input.getValue(), input.getKey());
+      if (_taskState != null) {
+        _inputs.put(valueRequirement, resolvedValue.getValueSpecification());
+        if (--_pendingInputs == 0) {
+          // We've got a full set of inputs; notify the task state
+          resolvedValues = Maps.<ValueSpecification, ValueRequirement>newHashMapWithExpectedSize(_inputs.size());
+          for (Map.Entry<ValueRequirement, ValueSpecification> input : _inputs.entrySet()) {
+            resolvedValues.put(input.getValue(), input.getKey());
+          }
+          state = _taskState;
+          s_logger.debug("Full input set available");
+        } else {
+          s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
         }
-        state = _taskState;
-        s_logger.debug("Full input set available");
+        _pumps.add(pump);
       } else {
-        s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+        s_logger.debug("Already aborted resolution");
       }
-      _pumps.add(pump);
     }
     if (resolvedValues != null) {
-      state.inputsAvailable(context, resolvedValues);
+      if (!state.inputsAvailable(context, resolvedValues)) {
+        pumpImpl(context);
+      }
     }
   }
 
@@ -142,7 +158,7 @@ import com.opengamma.util.Cancellable;
           _inputHandles.put(valueRequirement, handle);
         }
       } else {
-        // Remove the handle placeholder if the producer called us inline
+        // Remove the handle placeholder if the producer didn't give us a handle 
         _inputHandles.remove(valueRequirement);
       }
     }
@@ -162,33 +178,39 @@ import com.opengamma.util.Cancellable;
     Collection<ResolutionPump> pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
-      if (--_pendingInputs == 0) {
-        if (_validInputs > 0) {
-          // We've got a full set of inputs; notify the task state
-          resolvedValues = Maps.<ValueSpecification, ValueRequirement>newHashMapWithExpectedSize(_inputs.size());
-          for (Map.Entry<ValueRequirement, ValueSpecification> input : _inputs.entrySet()) {
-            resolvedValues.put(input.getValue(), input.getKey());
-          }
-          state = _taskState;
-          s_logger.debug("Full input set available at {}", this);
-        } else {
-          // We've got no valid inputs
-          if (_pumps.isEmpty()) {
-            s_logger.debug("No input set available, finished at {}", this);
-            pumps = null;
-            finished = _taskState;
-            _taskState = null;
+      if (_taskState != null) {
+        if (--_pendingInputs == 0) {
+          if (_validInputs > 0) {
+            // We've got a full set of inputs; notify the task state
+            resolvedValues = Maps.<ValueSpecification, ValueRequirement>newHashMapWithExpectedSize(_inputs.size());
+            for (Map.Entry<ValueRequirement, ValueSpecification> input : _inputs.entrySet()) {
+              resolvedValues.put(input.getValue(), input.getKey());
+            }
+            state = _taskState;
+            s_logger.debug("Full input set available at {}", this);
           } else {
-            s_logger.debug("No input set available, pumping at {}", this);
-            pumps = new ArrayList<ResolutionPump>(_pumps);
-            _pumps.clear();
-            _pendingInputs = pumps.size();
+            // We've got no valid inputs
+            if (_pumps.isEmpty()) {
+              s_logger.debug("No input set available, finished at {}", this);
+              pumps = null;
+              finished = _taskState;
+              _taskState = null;
+            } else {
+              s_logger.debug("No input set available, pumping at {}", this);
+              pumps = new ArrayList<ResolutionPump>(_pumps);
+              _pumps.clear();
+              _pendingInputs = pumps.size();
+            }
           }
         }
+      } else {
+        s_logger.debug("Already aborted resolution");
       }
     }
     if (resolvedValues != null) {
-      state.inputsAvailable(context, resolvedValues);
+      if (!state.inputsAvailable(context, resolvedValues)) {
+        pumpImpl(context);
+      }
     } else if (pumps != null) {
       for (ResolutionPump pump : pumps) {
         s_logger.debug("Pumping {} from {}", pump, this);

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.Cancellable;
 
 /* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer {
@@ -105,6 +106,7 @@ import com.opengamma.util.Cancellable;
   private final ValueRequirement _valueRequirement;
   private final Set<Callback> _pumped = new HashSet<Callback>();
   private final int _objectId = s_nextObjectId.getAndIncrement();
+  private final Set<ValueSpecification> _resolvedValues = new HashSet<ValueSpecification>();
   private ResolvedValue[] _results;
   private boolean _finished;
 
@@ -143,15 +145,20 @@ import com.opengamma.util.Cancellable;
     return callback;
   }
 
-  protected void pushResult(final GraphBuildingContext context, final ResolvedValue value) {
+  protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
     assert !_finished;
     assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
     Collection<Callback> pumped = null;
+    final ResolvedValue[] newResults;
     synchronized (this) {
+      if (!_resolvedValues.add(value.getValueSpecification())) {
+        s_logger.debug("Rejecting {} already available from {}", value, this);
+        return false;
+      }
       final int l = _results.length;
       s_logger.debug("Result {} available from {}", value, this);
-      ResolvedValue[] newResults = new ResolvedValue[l + 1];
+      newResults = new ResolvedValue[l + 1];
       System.arraycopy(_results, 0, newResults, 0, l);
       newResults[l] = value;
       _results = newResults;
@@ -162,13 +169,15 @@ import com.opengamma.util.Cancellable;
     }
     if (pumped != null) {
       for (Callback callback : pumped) {
+        ResolvedValue pumpValue;
         synchronized (callback) {
-          callback._resultsPushed++;
+          pumpValue = newResults[callback._resultsPushed++];
         }
         s_logger.debug("Pushing result to {}", callback._callback);
-        context.resolved(callback._callback, getValueRequirement(), value, callback);
+        context.resolved(callback._callback, getValueRequirement(), pumpValue, callback);
       }
     }
+    return true;
   }
 
   protected abstract void pumpImpl(final GraphBuildingContext context);

@@ -52,19 +52,22 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     s_logger.debug("Received {} for {}", value, valueRequirement);
-    pushResult(context, value);
-    boolean deferredPump;
-    synchronized (this) {
-      _pendingTasks--;
-      _pumps.add(pump);
-      deferredPump = _deferredPump;
-      if (deferredPump) {
-        _deferredPump = false;
+    if (pushResult(context, value)) {
+      boolean deferredPump;
+      synchronized (this) {
+        _pendingTasks--;
+        _pumps.add(pump);
+        deferredPump = _deferredPump;
+        if (deferredPump) {
+          _deferredPump = false;
+        }
       }
-    }
-    if (deferredPump) {
-      s_logger.debug("Running deferred pump");
-      pumpImpl(context);
+      if (deferredPump) {
+        s_logger.debug("Running deferred pump");
+        pumpImpl(context);
+      }
+    } else {
+      context.pump(pump);
     }
   }
 

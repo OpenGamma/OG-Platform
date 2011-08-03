@@ -47,18 +47,24 @@ import com.opengamma.util.Cancellable;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given
- * set of value requirements.
+ * set of value requirements. Although a graph builder may itself use additional threads to
+ * complete the graph it is only safe for a single calling thread to call any of the public
+ * methods at any one time. If multiple threads are to attempt to add targets to the graph
+ * concurrently, it is possible to synchronize on the builder instance.
  */
 public class DependencyGraphBuilder {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
+  private static final Logger s_loggerBuilder = LoggerFactory.getLogger(DependencyGraphBuilder.class);
+  private static final Logger s_loggerResolver = LoggerFactory.getLogger(RequirementResolver.class);
+  private static final Logger s_loggerContext = LoggerFactory.getLogger(GraphBuildingContext.class);
+
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
   private static final AtomicInteger s_nextDebugGraphId = new AtomicInteger();
 
-  // DON'T CHECK IN WITH =true, !=-1, or =true
-  private static final boolean NO_BACKGROUND_THREADS = false;
-  private static final int MAX_ADDITIONAL_THREADS = 1;
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
+  private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
+  private static final int MAX_ADDITIONAL_THREADS = 1; // DON'T CHECK IN WITH !=-1
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
+  private static final int MAX_CALLBACK_DEPTH = Integer.MAX_VALUE; // Disable stack splitting until the normal build actually works 
 
   private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
 
@@ -78,7 +84,7 @@ public class DependencyGraphBuilder {
         @Override
         public void start() {
           super.start();
-          s_logger.info("Starting background thread {}", this);
+          s_loggerBuilder.info("Starting background thread {}", this);
         }
       };
       t.setDaemon(true);
@@ -97,7 +103,7 @@ public class DependencyGraphBuilder {
 
     public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
       super(valueRequirement);
-      s_logger.debug("Created requirement resolver {}/{}", valueRequirement, parentTask);
+      s_loggerResolver.debug("Created requirement resolver {}/{}", valueRequirement, parentTask);
       _parentTask = parentTask;
     }
 
@@ -119,7 +125,7 @@ public class DependencyGraphBuilder {
       if (addFallback) {
         final ResolveTask task = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
         if (_tasks.add(task)) {
-          s_logger.debug("Creating fallback task {}", task);
+          s_loggerResolver.debug("Creating fallback task {}", task);
           task.addCallback(context, this);
           return false;
         } else {
@@ -138,23 +144,42 @@ public class DependencyGraphBuilder {
   }
 
   /**
-   * Algorithm state.
+   * Algorithm state. A context object is used by a single job thread. Objects referenced by the context may be shared with other
+   * contexts however.
    */
-  public class GraphBuildingContext {
+  public final class GraphBuildingContext {
 
     private String _calculationConfigurationName;
     private MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
     private ComputationTargetResolver _targetResolver;
     private CompiledFunctionResolver _functionResolver;
     private FunctionCompilationContext _compilationContext;
-    private final Collection<Throwable> _exceptions = new ConcurrentLinkedQueue<Throwable>();
+    private final Collection<Throwable> _exceptions;
     // Note that the requirements and specifications maps could use "soft" or "weak" references; if data is missing then the work
     // will simply be repeated. This will not be time efficient, but could be useful in low memory situations or for big graphs as
     // the intermediate resolution fragments for securities that have already been processed and are disjoint from other parts of
     // the graph will not be needed again.
-    private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
-    private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>> _specifications =
-        new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>>();
+    private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements;
+    private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>> _specifications;
+    private int _stackDepth;
+
+    private GraphBuildingContext() {
+      s_loggerContext.info("Created new context");
+      _exceptions = new ConcurrentLinkedQueue<Throwable>();
+      _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
+      _specifications = new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>>();
+    }
+
+    private GraphBuildingContext(final GraphBuildingContext copyFrom) {
+      setCalculationConfigurationName(copyFrom.getCalculationConfigurationName());
+      setMarketDataAvailabilityProvider(copyFrom.getMarketDataAvailabilityProvider());
+      setTargetResolver(copyFrom.getTargetResolver());
+      setFunctionResolver(copyFrom.getFunctionResolver());
+      setCompilationContext(copyFrom.getCompilationContext());
+      _exceptions = copyFrom._exceptions;
+      _requirements = copyFrom._requirements;
+      _specifications = copyFrom._specifications;
+    }
 
     public String getCalculationConfigurationName() {
       return _calculationConfigurationName;
@@ -197,22 +222,38 @@ public class DependencyGraphBuilder {
     }
 
     public void run(final ResolveTask runnable) {
-      DependencyGraphBuilder.this.addToRunQueue(runnable);
+      s_loggerContext.debug("Running {}", runnable);
+      addToRunQueue(runnable);
     }
 
     public void pump(final ResolutionPump pump) {
-      // TODO: push onto a queue 
-      pump.pump(this);
+      s_loggerContext.debug("Pumping {}", pump);
+      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+        addToRunQueue(new ResolutionPump.Pump(pump));
+      } else {
+        pump.pump(this);
+      }
+      _stackDepth--;
     }
 
     public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-      // TODO: push onto a queue
-      callback.resolved(this, valueRequirement, resolvedValue, pump);
+      s_loggerContext.info("Resolved {} to {}", valueRequirement, resolvedValue);
+      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+        addToRunQueue(new ResolvedValueCallback.Resolved(callback, valueRequirement, resolvedValue, pump));
+      } else {
+        callback.resolved(this, valueRequirement, resolvedValue, pump);
+      }
+      _stackDepth--;
     }
 
     public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement) {
-      // TODO: push onto a queue
-      callback.failed(this, valueRequirement);
+      s_loggerContext.info("Couldn't resolve {}", valueRequirement);
+      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+        addToRunQueue(new ResolvedValueCallback.Failed(callback, valueRequirement));
+      } else {
+        callback.failed(this, valueRequirement);
+      }
+      _stackDepth--;
     }
 
     /**
@@ -221,13 +262,14 @@ public class DependencyGraphBuilder {
      * @param t exception to store, not {@code null}
      */
     public void exception(final Throwable t) {
+      s_loggerContext.warn("Caught exception", t);
       _exceptions.add(t);
     }
 
     protected ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
-      s_logger.debug("Resolve requirement {}", requirement);
+      s_loggerResolver.debug("Resolve requirement {}", requirement);
       if ((dependent != null) && dependent.hasParent(requirement)) {
-        s_logger.debug("Can't introduce a ValueRequirement loop");
+        s_loggerResolver.debug("Can't introduce a ValueRequirement loop");
         return new ResolvedValueProducer() {
 
           @Override
@@ -258,7 +300,7 @@ public class DependencyGraphBuilder {
         resolver.start(this);
         return resolver;
       } else {
-        s_logger.debug("Using direct resolution {}/{}", requirement, dependent);
+        s_loggerResolver.debug("Using direct resolution {}/{}", requirement, dependent);
         return getOrCreateTaskResolving(requirement, dependent);
       }
     }
@@ -325,7 +367,7 @@ public class DependencyGraphBuilder {
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
-  private final Queue<ResolveTask> _runQueue = new ConcurrentLinkedQueue<ResolveTask>();
+  private final Queue<ContextRunnable> _runQueue = new ConcurrentLinkedQueue<ContextRunnable>();
   private final Set<DependencyNode> _graphNodes = Collections.synchronizedSet(new HashSet<DependencyNode>());
   private final Map<ValueRequirement, ValueSpecification> _terminalOutputs = new ConcurrentHashMap<ValueRequirement, ValueSpecification>();
   private final GraphBuildingContext _context = new GraphBuildingContext();
@@ -353,7 +395,7 @@ public class DependencyGraphBuilder {
     @Override
     public void failed(final GraphBuildingContext context, final ValueRequirement value) {
       // TODO: extract some useful exception state from somewhere?
-      s_logger.error("Couldn't resolve {}", value);
+      s_loggerBuilder.error("Couldn't resolve {}", value);
     }
 
     private List<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final ComputationTarget target) {
@@ -396,8 +438,8 @@ public class DependencyGraphBuilder {
       return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
     }
 
-    private DependencyNode getOrCreateNode(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
-      s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
+    private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
+      s_loggerBuilder.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
       final List<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
       final DependencyNode node;
       synchronized (nodes) {
@@ -406,9 +448,9 @@ public class DependencyGraphBuilder {
         // do we discard if there are multiple functions that can produce them.
         for (DependencyNode existingNode : nodes) {
           if (mismatchUnion(existingNode.getOutputValues(), resolvedValue.getFunctionOutputs())) {
-            s_logger.debug("Can't reuse {} for {}", existingNode, resolvedValue);
+            s_loggerBuilder.debug("Can't reuse {} for {}", existingNode, resolvedValue);
           } else {
-            s_logger.debug("Reusing {} for {}", existingNode, resolvedValue);
+            s_loggerBuilder.debug("Reusing {} for {}", existingNode, resolvedValue);
             useExisting = existingNode;
             break;
           }
@@ -428,36 +470,36 @@ public class DependencyGraphBuilder {
         node.addInputValue(input);
         DependencyNode inputNode = _spec2Node.get(input);
         if (inputNode != null) {
-          s_logger.debug("Found node {} for input {}", inputNode, input);
+          s_loggerBuilder.debug("Found node {} for input {}", inputNode, input);
           node.addInputNode(inputNode);
         } else {
-          s_logger.debug("Finding node productions for {}", input);
-          final Map<ResolveTask, ResolvedValueProducer> resolver = getContext().getTasksProducing(input);
+          s_loggerBuilder.debug("Finding node productions for {}", input);
+          final Map<ResolveTask, ResolvedValueProducer> resolver = context.getTasksProducing(input);
           if (!resolver.isEmpty()) {
             for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
-              resolvedEntry.getValue().addCallback(getContext(), new ResolvedValueCallback() {
+              resolvedEntry.getValue().addCallback(context, new ResolvedValueCallback() {
 
                 @Override
                 public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-                  s_logger.warn("Failed production for {} ({})", input, value);
+                  s_loggerBuilder.warn("Failed production for {} ({})", input, value);
                 }
 
                 @Override
                 public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-                  final DependencyNode inputNode = getOrCreateNode(valueRequirement, resolvedValue);
+                  final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue);
                   node.addInputNode(inputNode);
                 }
 
               });
             }
           } else {
-            s_logger.warn("No registered node production for {}", input);
+            s_loggerBuilder.warn("No registered node production for {}", input);
           }
         }
       }
       final DependencyNode existingNode = _spec2Node.putIfAbsent(resolvedValue.getValueSpecification(), node);
       if (existingNode == null) {
-        s_logger.debug("Adding {} to graph set", node);
+        s_loggerBuilder.debug("Adding {} to graph set", node);
         _graphNodes.add(node);
         return node;
       }
@@ -466,8 +508,8 @@ public class DependencyGraphBuilder {
 
     @Override
     public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-      s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-      getOrCreateNode(valueRequirement, resolvedValue);
+      s_loggerBuilder.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
+      getOrCreateNode(context, valueRequirement, resolvedValue);
       _terminalOutputs.put(valueRequirement, resolvedValue.getValueSpecification());
     }
 
@@ -611,14 +653,14 @@ public class DependencyGraphBuilder {
 
       @Override
       public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-        s_logger.warn("Couldn't resolve {}", value);
+        s_loggerBuilder.warn("Couldn't resolve {}", value);
         exception.set(new UnsatisfiableDependencyGraphException(value));
         latch.countDown();
       }
 
       @Override
       public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-        s_logger.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
+        s_loggerBuilder.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
         exception.set(null);
         latch.countDown();
       }
@@ -626,7 +668,7 @@ public class DependencyGraphBuilder {
     });
     try {
       if (!latch.await(1000, TimeUnit.MILLISECONDS)) {
-        s_logger.warn("Timeout waiting for resolution of {}", requirement);
+        s_loggerBuilder.warn("Timeout waiting for resolution of {}", requirement);
         throw new OpenGammaRuntimeException("Timeout waiting for failure or resolution of " + requirement);
       }
     } catch (InterruptedException e) {
@@ -657,8 +699,8 @@ public class DependencyGraphBuilder {
     startBackgroundConstructionJob();
   }
 
-  protected void addToRunQueue(final ResolveTask runnable) {
-    s_logger.debug("Queuing ({})", runnable);
+  protected void addToRunQueue(final ContextRunnable runnable) {
+    s_loggerBuilder.debug("Queuing {}", runnable);
     final boolean dontSpawn = _runQueue.isEmpty();
     _runQueue.add(runnable);
     if (!dontSpawn) {
@@ -694,25 +736,28 @@ public class DependencyGraphBuilder {
 
     @Override
     public void run() {
-      s_logger.info("Building job started");
+      s_loggerBuilder.info("Building job started");
       boolean jobsLeftToRun;
       do {
+        // Create a new context for each logical block so that an exception from the build won't leave us with
+        // an inconsistent one.
+        final GraphBuildingContext context = new GraphBuildingContext(getContext());
         do {
           try {
-            jobsLeftToRun = buildGraph();
+            jobsLeftToRun = buildGraph(context);
           } catch (Throwable t) {
-            s_logger.warn("Graph builder exception", t);
-            getContext().exception(t);
+            s_loggerBuilder.warn("Graph builder exception", t);
+            _context.exception(t);
             jobsLeftToRun = false;
           }
         } while (!_poison && jobsLeftToRun);
-        s_logger.debug("Building job stopping");
+        s_loggerBuilder.debug("Building job stopping");
         int activeJobs = _activeJobCount.decrementAndGet();
         // Watch for late arrivals in the run queue; they might have seen the old value
         // of activeJobs and not started anything.
         while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
           if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
-            s_logger.debug("Building job resuming");
+            s_loggerBuilder.debug("Building job resuming");
             // Note the log messages may go from "resuming" to stopped if the poison arrives between
             // the check above and the check below. This might look odd, but what the hey - they're
             // only DEBUG level messages.
@@ -725,7 +770,7 @@ public class DependencyGraphBuilder {
       synchronized (_activeJobs) {
         _activeJobs.remove(this);
       }
-      s_logger.info("Building job stopped");
+      s_loggerBuilder.info("Building job stopped");
     }
 
     @Override
@@ -745,14 +790,15 @@ public class DependencyGraphBuilder {
    * getDependencyGraph is called, the calling thread will also join this. There are additional
    * threads that also run in a pool to complete the work of the graph building.
    * 
+   * @param context the calling thread's building context
    * @return true if there is more work still to do, false if all the work is done
    */
-  protected boolean buildGraph() {
-    final ResolveTask task = _runQueue.poll();
+  protected boolean buildGraph(final GraphBuildingContext context) {
+    final ContextRunnable task = _runQueue.poll();
     if (task == null) {
       return false;
     }
-    task.run(_context);
+    task.run(context);
     return true;
   }
 
@@ -813,9 +859,9 @@ public class DependencyGraphBuilder {
    */
   protected void startBackgroundBuild() {
     if (_runQueue.isEmpty()) {
-      s_logger.info("No pending runnable tasks for background building");
+      s_loggerBuilder.info("No pending runnable tasks for background building");
     } else {
-      final Iterator<ResolveTask> itr = _runQueue.iterator();
+      final Iterator<ContextRunnable> itr = _runQueue.iterator();
       while (itr.hasNext() && startBackgroundConstructionJob()) {
         itr.next();
       }
@@ -833,7 +879,7 @@ public class DependencyGraphBuilder {
    */
   public DependencyGraph getDependencyGraph() {
     if (!isGraphBuilt()) {
-      s_logger.info("Building dependency graph");
+      s_loggerBuilder.info("Building dependency graph");
       do {
         final Job job = createConstructionJob();
         synchronized (_activeJobs) {
@@ -853,7 +899,7 @@ public class DependencyGraphBuilder {
           }
         }
         // ... but nothing in the queue for us so take a nap
-        s_logger.info("Waiting for background threads");
+        s_loggerBuilder.info("Waiting for background threads");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -869,7 +915,7 @@ public class DependencyGraphBuilder {
 
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
-    s_logger.debug("Converting internal representation to dependency graph");
+    s_loggerBuilder.debug("Converting internal representation to dependency graph");
     for (DependencyNode node : _graphNodes) {
       graph.addDependencyNode(node);
     }
