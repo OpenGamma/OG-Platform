@@ -62,7 +62,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
   
   /**
    * Restricted constructor
@@ -234,7 +234,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     return jsonObject.toString();
   }
 
-  private static String getTemplate() {
+  private static String createTemplate() {
     ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
     String result = null;
     try {
@@ -257,6 +257,11 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     dummy.setMinFullCalculationPeriod(0L);
     dummy.addPortfolioRequirementName("", "", "");
     return dummy;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
   
 }

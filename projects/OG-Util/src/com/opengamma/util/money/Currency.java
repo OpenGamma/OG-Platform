@@ -69,6 +69,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   // a selection of other currencies
   /**
+   * The currency 'NZD' - New Zealand Dollar.
+   */
+  public static final Currency NZD = of("NZD");
+  /**
    * The currency 'DKK' - Danish Krone
    */
   public static final Currency DKK = of("DKK");
@@ -116,7 +120,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   //-----------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code CurrencyUnit} matching the specified JDK currency.
+   * Obtains an instance of {@code Currency} matching the specified JDK currency.
    * <p>
    * This converts the JDK currency instance to a currency unit using the code.
    *
@@ -129,7 +133,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   }
 
   /**
-   * Obtains an instance of {@code CurrencyUnit} for the specified ISO-4217
+   * Obtains an instance of {@code Currency} for the specified ISO-4217
    * three letter currency code dynamically creating a currency if necessary.
    * <p>
    * A currency is uniquely identified by ISO-4217 three letter code.
@@ -149,7 +153,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   }
 
   /**
-   * Parses a string to obtain a {@code CurrencyUnit}.
+   * Parses a string to obtain a {@code Currency}.
    * <p>
    * The parse is identical to {@link #of(String)} except that it will convert
    * letters to upper case first.
@@ -221,7 +225,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   /**
    * Gets the JDK currency instance equivalent to this currency.
    * <p>
-   * This attempts to convert a {@code CurrencyUnit} to a JDK {@code Currency}.
+   * This attempts to convert a {@code Currency} to a JDK {@code Currency}.
    * 
    * @return the JDK currency instance, not null
    * @throws IllegalArgumentException if no matching currency exists in the JDK

@@ -23,6 +23,7 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -32,7 +33,7 @@ import com.opengamma.util.money.Currency;
 public class InMemoryRegionMasterTest {
 
   private static String NAME = "France";
-  private static Identifier ID_COUNTRY = RegionUtils.countryRegionId("FR");
+  private static Identifier ID_COUNTRY = RegionUtils.countryRegionId(Country.FR);
   private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(Currency.EUR);
   private static Identifier ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
   private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "The French");
@@ -51,7 +52,7 @@ public class InMemoryRegionMasterTest {
     inputRegion.setName(NAME);
     inputRegion.setFullName(NAME);
     inputRegion.setClassification(RegionClassification.INDEPENDENT_STATE);
-    inputRegion.setCountryISO("FR");
+    inputRegion.setCountry(Country.FR);
     inputRegion.setCurrency(Currency.EUR);
     inputRegion.setTimeZone(TimeZone.of("Europe/Paris"));
     RegionDocument inputDoc = new RegionDocument(inputRegion);

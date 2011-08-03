@@ -93,10 +93,14 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _uniqueId = copyFrom.getUniqueId();
     _name = copyFrom.getName();
     for (PortfolioNode child : copyFrom.getChildNodes()) {
-      _childNodes.add(new PortfolioNodeImpl(child));
+      PortfolioNodeImpl clonedNode = new PortfolioNodeImpl(child);
+      clonedNode.setParentNodeId(_uniqueId);
+      _childNodes.add(clonedNode);
     }
     for (Position position : copyFrom.getPositions()) {
-      _positions.add(new PositionImpl(position));
+      PositionImpl clonedPosition = new PositionImpl(position);
+      clonedPosition.setParentNodeId(_uniqueId);
+      _positions.add(clonedPosition);
     }
   }
 

@@ -31,6 +31,7 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -206,7 +207,7 @@ public class RegionFileReader {
         region.setName(name);
         region.setFullName(fullName);
         if (countryISO != null) {
-          region.setCountryISO(countryISO);
+          region.setCountry(Country.of(countryISO));
           region.addIdentifier(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
         }
         if (currencyISO != null) {

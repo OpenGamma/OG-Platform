@@ -8,6 +8,7 @@ package com.opengamma.web.config;
 import java.io.CharArrayReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -29,6 +30,8 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -46,6 +49,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
+import com.opengamma.web.json.JSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
@@ -54,6 +58,11 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractWebResource {
+  
+  /**
+   * Logger.
+   */
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebConfigResource.class);
   
   /**
    * The Fudge context.
@@ -79,9 +88,13 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     for (Class<?> configType : metaData.getConfigTypes()) {
       data().getTypeMap().put(configType.getSimpleName(), configType);
     }
-    // init json templates
-    data().getTemplateMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.TEMPLATE);
-    data().getTemplateMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.TEMPLATE);
+    initializeJSONBuilders();
+  }
+
+  private void initializeJSONBuilders() {
+    data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(CurveSpecificationBuilderConfiguration.class, CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE);
   }
 
   /**
@@ -172,26 +185,27 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     } catch (ClassNotFoundException ex) {
       throw new OpenGammaRuntimeException("Invalid logical class name in json " + json, ex);
     }
-    Object value = null;
-    if (clazz.isAssignableFrom(ViewDefinition.class)) {
-      value = ViewDefinitionJSONBuilder.INSTANCE.fromJSON(json);
-    } else if (clazz.isAssignableFrom(YieldCurveDefinition.class)) {
-      value = YieldCurveDefinitionJSONBuilder.INSTANCE.fromJSON(json);
-    } else if (clazz.isAssignableFrom(CurveSpecificationBuilderConfiguration.class)) {
-      value = CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE.fromJSON(json);
-    } else {
-      throw new OpenGammaRuntimeException("No custom JSON builder for  " + className);
+    return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(createConfig(json, clazz), clazz);
+  }
+
+  private Object createConfig(String json, Class<?> configType) {
+    Map<Class<?>, JSONBuilder<?>> jsonBuilderMap = data().getJsonBuilderMap();
+    JSONBuilder<?> jsonBuilder = jsonBuilderMap.get(configType);
+    if (jsonBuilder != null) {
+      return jsonBuilder.fromJSON(json);
     }
-    return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(value, clazz);
+    throw new OpenGammaRuntimeException("No custom JSON builder for  " + configType);
   }
 
   protected String createXML(ConfigDocument<?> doc) {
     String configXML = null;
     // get xml and pretty print it
     FudgeMsgEnvelope msg = FUDGE_CONTEXT.toFudgeMsg(doc.getValue());
+    s_logger.debug("config doc {} converted to fudge {}", doc.getUniqueId(), msg);
     StringWriter buf = new StringWriter(1024);  
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(FUDGE_CONTEXT, buf));
     writer.writeMessageEnvelope(msg);
+    s_logger.debug("config doc {} converted to xmk {}", doc.getUniqueId(), buf.toString());
     try {
       DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       Document xmlDoc = db.parse(new InputSource(new StringReader(buf.toString())));

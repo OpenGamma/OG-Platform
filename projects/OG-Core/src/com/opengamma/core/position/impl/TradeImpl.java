@@ -182,7 +182,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Gets the parent position unique identifier.
    * 
-   * @return the parent position unique identifier, not null
+   * @return the parent position unique identifier, null if no parent
    */
   @Override
   public UniqueIdentifier getParentPositionId() {
@@ -192,10 +192,9 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Sets the parent position unique identifier.
    * 
-   * @param parentPositionId  the parent position unique identifier, not null
+   * @param parentPositionId  the parent position unique identifier, null if no parent
    */
   public void setParentPositionId(UniqueIdentifier parentPositionId) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
     _parentPositionId = parentPositionId;
   }
 

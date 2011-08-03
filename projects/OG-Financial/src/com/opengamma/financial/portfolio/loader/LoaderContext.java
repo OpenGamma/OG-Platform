@@ -3,8 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.loader;
+package com.opengamma.financial.portfolio.loader;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -13,9 +16,6 @@ import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Represents the context required for populating the platform with data.
- * <p>
- * This bean is primarily intended for use from Spring.
- * It holds that various objects in an easy to access manner.
  */
 public class LoaderContext {
 
@@ -35,29 +35,24 @@ public class LoaderContext {
    * The security loader.
    */
   private SecurityLoader _securityLoader;
-  
- /**
-  * The configuration master.
-  */
+  /**
+   * The config master.
+   */
   private ConfigMaster _configMaster;
-
+  /**
+   * The historical time-series source.
+   */
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+  /**
+   * The convention bundle source.
+   */
+  private ConventionBundleSource _conventionBundleSource;
+  /**
+   * The holiday source.
+   */
+  private HolidaySource _holidaySource;
+  
   //-------------------------------------------------------------------------
-  /**
-   * Gets the config master
-   * @return the master, not null
-   */
-  public ConfigMaster getConfigMaster() {
-    return _configMaster;
-  }
-  
-  /**
-   * Sets the config master
-   * @param configMaster the config master
-   */
-  public void setConfigMaster(ConfigMaster configMaster) {
-    _configMaster = configMaster;
-  }
-  
   /**
    * Gets the portfolio master.
    * @return the master, not null
@@ -120,6 +115,70 @@ public class LoaderContext {
    */
   public void setSecurityLoader(final SecurityLoader securityLoader) {
     _securityLoader = securityLoader;
+  }
+  
+  /**
+   * Gets the config master.
+   * @return the master, not null
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  /**
+   * Sets the config master.
+   * @param configMaster  the master, not null
+   */
+  public void setConfigMaster(final ConfigMaster configMaster) {
+    _configMaster = configMaster;
+  }
+  
+  /**
+   * Gets the historical time-series source
+   * @return the source, not null
+   */
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _historicalTimeSeriesSource;
+  }
+  
+  /**
+   * Sets the historical time-series source.
+   * @param historicalTimeSeriesSource  the source, not null
+   */
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    _historicalTimeSeriesSource = historicalTimeSeriesSource;
+  }
+  
+  /**
+   * Sets the convention bundle source
+   * @param conventionBundleSource the source, not null
+   */
+  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
+    _conventionBundleSource = conventionBundleSource;
+  }
+
+  /**
+   * Gets the convention bundle source
+   * @return the source, not null
+   */
+  public ConventionBundleSource getConventionBundleSource() {
+    return _conventionBundleSource;
+  }
+
+  /**
+   * Sets the holidaySource.
+   * @param holidaySource  the holiday source
+   */
+  public void setHolidaySource(HolidaySource holidaySource) {
+    _holidaySource = holidaySource;
+  }
+
+  /**
+   * Gets the Holiday Source.
+   * @return the holidaySource
+   */
+  public HolidaySource getHolidaySource() {
+    return _holidaySource;
   }
 
 }

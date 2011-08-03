@@ -16,6 +16,7 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -64,15 +65,12 @@ public class RegionUtils {
    * <p>
    * Examples might be {@code GB} or {@code US}.
    * 
-   * @param codeAlpha2  the country code, not null
+   * @param country  the country, not null
    * @return the region identifier, not null
    */
-  public static Identifier countryRegionId(String codeAlpha2) {
-    ArgumentChecker.notNull(codeAlpha2, "codeAlpha2");
-    if (codeAlpha2.matches("[A-Z][A-Z]") == false) {
-      throw new IllegalArgumentException("ISO alpha 2 country code is invalid: " + codeAlpha2);
-    }
-    return Identifier.of(ISO_COUNTRY_ALPHA2, codeAlpha2);
+  public static Identifier countryRegionId(Country country) {
+    ArgumentChecker.notNull(country, "country");
+    return Identifier.of(ISO_COUNTRY_ALPHA2, country.getCode());
   }
 
   /**
