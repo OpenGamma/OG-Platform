@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.listener;
+package com.opengamma.core.change;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -25,21 +25,21 @@ import com.opengamma.util.PublicSPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Manager for receiving and handling events from masters.
+ * Manager for receiving and handling entity change events.
  * <p>
- * Events will be sent when a document in a master is added, updated, removed or corrected.
+ * Events are sent when an entity is added, updated, removed or corrected.
  * <p>
  * This class is mutable and thread-safe using concurrent collections.
  */
 @PublicSPI
-public class JmsMasterChangeManager extends BasicMasterChangeManager implements MessageListener, FudgeMessageReceiver {
+public class JmsChangeManager extends BasicChangeManager implements MessageListener, FudgeMessageReceiver {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(JmsMasterChangeManager.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(JmsChangeManager.class);
   /**
    * The default topic name.
    */
-  private static final String DEFAULT_TOPIC = "MasterChanged";
+  private static final String DEFAULT_TOPIC = "EntityChanged";
 
   /**
    * The JMS template, not null
@@ -57,7 +57,7 @@ public class JmsMasterChangeManager extends BasicMasterChangeManager implements 
   /**
    * Creates a manager.
    */
-  public JmsMasterChangeManager() {
+  public JmsChangeManager() {
     ByteArrayFudgeMessageReceiver bafmr = new ByteArrayFudgeMessageReceiver(this, OpenGammaFudgeContext.getInstance());
     _messageDispatcher = new JmsByteArrayMessageDispatcher(bafmr);
   }
@@ -103,7 +103,7 @@ public class JmsMasterChangeManager extends BasicMasterChangeManager implements 
 
   //-------------------------------------------------------------------------
   /**
-   * Handles an event when the master changes.
+   * Handles an event when an entity changes.
    * <p>
    * This implementation sends the event by JMS to be received by all change
    * managers, including this one.
@@ -111,9 +111,9 @@ public class JmsMasterChangeManager extends BasicMasterChangeManager implements 
    * @param event  the event that occurred, not null
    */
   @Override
-  protected void handleMasterChanged(final MasterChanged event) {
+  protected void handleEntityChanged(final ChangeEvent event) {
     FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(event);
-    s_logger.debug("Master changed: Sending message {}", msg);
+    s_logger.debug("Source changed: Sending message {}", msg);
     byte[] fudgeMsg = OpenGammaFudgeContext.getInstance().toByteArray(msg.getMessage());
     JmsByteArrayMessageSender messageSender = new JmsByteArrayMessageSender(getTopic(), getJmsTemplate());
     messageSender.send(fudgeMsg);
@@ -127,10 +127,10 @@ public class JmsMasterChangeManager extends BasicMasterChangeManager implements 
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg msg = msgEnvelope.getMessage();
-    s_logger.debug("Master changed: Received message {}", msg);
+    s_logger.debug("Source changed: Received message {}", msg);
     FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    MasterChanged event = context.fudgeMsgToObject(MasterChanged.class, msg);
-    fireMasterChanged(event);
+    ChangeEvent event = context.fudgeMsgToObject(ChangeEvent.class, msg);
+    fireEntityChanged(event);
   }
 
   //-------------------------------------------------------------------------

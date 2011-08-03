@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.listener;
+package com.opengamma.core.change;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.List;
 
 import javax.jms.ConnectionFactory;
+import javax.time.Instant;
 
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
@@ -19,10 +19,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.tuple.Pair;
 
@@ -30,13 +28,12 @@ import com.opengamma.util.tuple.Pair;
  * Test JmsMasterChangeManager.
  */
 @Test
-public class JmsMasterChangeManagerTest {
+public class JmsChangeManagerTest {
 
   private static final long WAIT_TIMEOUT = 30000;
   private JmsTemplate _jmsTemplate;
-  private TestMasterChangeClient _testListener;
-  private JmsMasterChangeManager _changeManager;
-  private InMemoryConfigMaster _configMaster;
+  private TestChangeClient _testListener;
+  private JmsChangeManager _changeManager;
   private String _topic;
   private DefaultMessageListenerContainer _container;
 
@@ -51,10 +48,10 @@ public class JmsMasterChangeManagerTest {
     // setup topic
     long currentTimeMillis = System.currentTimeMillis();
     String user = System.getProperty("user.name");
-    _topic = "JmsMasterChange-" + user + "-" + currentTimeMillis;
+    _topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
     
-    _testListener = new TestMasterChangeClient();
-    _changeManager = new JmsMasterChangeManager();
+    _testListener = new TestChangeClient();
+    _changeManager = new JmsChangeManager();
     _changeManager.setJmsTemplate(_jmsTemplate);
     _changeManager.setTopic(_topic);
     
@@ -63,9 +60,6 @@ public class JmsMasterChangeManagerTest {
     _container.setPubSubDomain(true);
     _container.setDestinationName(_topic);
     _container.setMessageListener(_changeManager);
-    
-    // create a config master
-    _configMaster = new InMemoryConfigMaster(_changeManager);
   }
 
   @AfterMethod
@@ -89,70 +83,50 @@ public class JmsMasterChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier addedItem = added.getUniqueId();
-    assertNotNull(addedItem);
-    
+    UniqueIdentifier addedId = generateUniqueId();
+    _changeManager.entityChanged(ChangeType.ADDED, null, addedId, Instant.now());
     _testListener.waitForAddedItem(WAIT_TIMEOUT);
-    assertEquals(addedItem, _testListener.getAddedItem());
+    assertEquals(addedId, _testListener.getAddedItem());
   }
 
   public void testRemoved() throws Exception {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier uniqueId = added.getUniqueId();
-    assertNotNull(uniqueId);
-    
-    _configMaster.remove(uniqueId);
-    UniqueIdentifier removedItem = uniqueId;
+    UniqueIdentifier removedId = generateUniqueId();
+    _changeManager.entityChanged(ChangeType.REMOVED, removedId, null, Instant.now());
     _testListener.waitForRemovedItem(WAIT_TIMEOUT);
-    assertEquals(removedItem, _testListener.getRemovedItem());
+    assertEquals(removedId, _testListener.getRemovedItem());
   }
 
   public void testUpdated() throws Exception {
     _changeManager.addChangeListener(_testListener);
     startContainer();
-    
-    final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier oldItem = added.getUniqueId();
-    assertNotNull(oldItem);
-    
-    ConfigDocument<?> updated = _configMaster.update(added);
-    UniqueIdentifier newItem = updated.getUniqueId();
-    assertNotNull(newItem);
-    
+
+    UniqueIdentifier oldId = generateUniqueId();
+    UniqueIdentifier newId = generateUniqueId();
+    _changeManager.entityChanged(ChangeType.UPDATED, oldId, newId, Instant.now());
     _testListener.waitForUpdatedItem(WAIT_TIMEOUT);
-    assertEquals(Pair.of(oldItem, newItem), _testListener.getUpdatedItem());
+    assertEquals(Pair.of(oldId, newId), _testListener.getUpdatedItem());
   }
 
   public void testMultipleListeners() throws Exception {
-    //setup multiple master change listener
-    List<TestMasterChangeClient> clients = Lists.newArrayList();
+    //setup multiple source change listener
+    List<TestChangeClient> clients = Lists.newArrayList();
     for (int i = 0; i < 2; i++) {
-      TestMasterChangeClient client = new TestMasterChangeClient();
+      TestChangeClient client = new TestChangeClient();
       _changeManager.addChangeListener(client);
       clients.add(client);
     }
     startContainer();
     
-    // add, update and remove doc in config master
-    final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier addedItem = added.getUniqueId();
-    assertNotNull(addedItem);
+    UniqueIdentifier v1Id = generateUniqueId();
+    UniqueIdentifier v2Id = generateUniqueId();
+    _changeManager.entityChanged(ChangeType.ADDED, null, v1Id, Instant.now());
+    _changeManager.entityChanged(ChangeType.UPDATED, v1Id, v2Id, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, v2Id, null, Instant.now());
     
-    ConfigDocument<?> updated = _configMaster.update(added);
-    UniqueIdentifier updatedItem = updated.getUniqueId();
-    
-    UniqueIdentifier removedItem = addedItem;
-    _configMaster.remove(removedItem);
-    
-    for (TestMasterChangeClient client : clients) {
+    for (TestChangeClient client : clients) {
       client.waitForAddedItem(WAIT_TIMEOUT);
       client.waitForRemovedItem(WAIT_TIMEOUT);
       client.waitForUpdatedItem(WAIT_TIMEOUT);
@@ -160,18 +134,15 @@ public class JmsMasterChangeManagerTest {
     
     // assert items
     assertEquals(2, clients.size());
-    for (TestMasterChangeClient client : clients) {
-      assertEquals(addedItem, client.getAddedItem());
-      assertEquals(removedItem, client.getRemovedItem());
-      assertEquals(Pair.of(addedItem, updatedItem), client.getUpdatedItem());
+    for (TestChangeClient client : clients) {
+      assertEquals(v1Id, client.getAddedItem());
+      assertEquals(v2Id, client.getRemovedItem());
+      assertEquals(Pair.of(v1Id, v2Id), client.getUpdatedItem());
     }
   }
 
-  private ConfigDocument<Identifier> createTestDocument() {
-    final ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
-    doc.setName("TEST");
-    doc.setValue(Identifier.of("A", "B"));
-    return doc;
+  private UniqueIdentifier generateUniqueId() {
+    return UniqueIdentifier.of("TestEntitySource", GUIDGenerator.generate().toString());
   }
 
 }

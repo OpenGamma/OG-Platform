@@ -8,6 +8,8 @@ package com.opengamma.masterdb.config;
 import javax.time.TimeSource;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
@@ -19,8 +21,6 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.db.DbSource;
 
@@ -45,7 +45,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   /**
    * The change manager.
    */
-  private MasterChangeManager _changeManager = new BasicMasterChangeManager();
+  private ChangeManager _changeManager = new BasicChangeManager();
   /**
    * The worker.
    */
@@ -85,7 +85,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

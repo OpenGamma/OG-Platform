@@ -3,23 +3,23 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.listener;
+package com.opengamma.core.change;
 
 import com.opengamma.util.PublicSPI;
 
 /**
- * Trait added to those masters that can send events whenever they are changed.
+ * Trait added to entity managers that send events whenever their contents change.
  * <p>
  * This trait allows listeners to be registered for the events.
  */
 @PublicSPI
-public interface NotifyingMaster {
+public interface ChangeProvider {
 
   /**
    * Gets the change manager that handles events.
    * 
    * @return the change manager, not null
    */
-  MasterChangeManager changeManager();
+  ChangeManager changeManager();
 
 }
