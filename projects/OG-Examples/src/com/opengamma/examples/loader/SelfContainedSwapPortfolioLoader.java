@@ -41,6 +41,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;

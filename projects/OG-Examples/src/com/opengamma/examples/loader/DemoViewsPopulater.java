@@ -20,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
