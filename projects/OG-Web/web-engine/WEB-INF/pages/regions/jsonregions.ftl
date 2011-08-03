@@ -11,7 +11,7 @@
 	},
     "data": [<#if searchResult??>
      <#list searchResult.documents as item>
-    	"${item.uniqueId.objectId}|${item.region.name}|${item.versionFromInstant}|${item.region.getCountryISO()}"<#if item_has_next>,</#if>
+    	"${item.uniqueId.objectId}|${item.region.name}|${item.versionFromInstant}|${item.region.getCountry()}"<#if item_has_next>,</#if>
 	   </#list> </#if>]
 }
 </#escape>
