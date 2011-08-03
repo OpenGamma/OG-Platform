@@ -39,6 +39,7 @@ import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -207,11 +208,17 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public String getTemplateJSON(@PathParam("configType") String configType) {
     BiMap<String, Class<?>> typeMap = data().getTypeMap();
     Class<?> typeClazz = typeMap.get(configType);
-    String result = null;
+    String template = null;
     if (typeClazz != null) {
-      result = data().getTemplateMap().get(typeClazz);
+      JSONBuilder<?> jsonBuilder = data().getJsonBuilderMap().get(typeClazz);
+      if (jsonBuilder != null) {
+        template = jsonBuilder.getTemplate();
+      }
     } 
-    return result;
+    FlexiBean out = super.createRootData();
+    out.put("template", template);
+    out.put("type", configType);
+    return getFreemarker().build("configs/jsontemplate.ftl", out);
   }
 
   //-------------------------------------------------------------------------

@@ -22,9 +22,9 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Unit test for InMemoryReferenceRateRepository
+ * Unit test for InMemoryConventionBundleMaster.
  */
-public class InMemoryReferenceRateRepositoryTest {
+public class InMemoryConventionBundleMasterTest {
 
   @Test
   public void testRepository() {
@@ -33,7 +33,7 @@ public class InMemoryReferenceRateRepositoryTest {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-
+    
     final ConventionBundle conventions = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N"));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getName());
     AssertJUnit.assertEquals("US00O/N Index", conventions.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER));
@@ -42,7 +42,7 @@ public class InMemoryReferenceRateRepositoryTest {
     AssertJUnit.assertEquals(actact, conventions.getDayCount());
     AssertJUnit.assertEquals(following, conventions.getBusinessDayConvention());
     AssertJUnit.assertEquals(0, conventions.getSettlementDays());
-
+    
     final ConventionBundle conventions2 = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getName());
     AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER));
@@ -53,4 +53,5 @@ public class InMemoryReferenceRateRepositoryTest {
     AssertJUnit.assertEquals(modified, conventions2.getBusinessDayConvention());
     AssertJUnit.assertEquals(2, conventions2.getSettlementDays());
   }
+
 }

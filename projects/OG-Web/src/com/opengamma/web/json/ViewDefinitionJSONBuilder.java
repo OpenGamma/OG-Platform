@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,7 +62,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
   
   /**
    * Restricted constructor
@@ -235,24 +234,34 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     return jsonObject.toString();
   }
 
-  private static String getTemplate() {
+  private static String createTemplate() {
     ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
-    String json = builder.toJSON(getDummyView());
-    json = StringUtils.replace(json, "\":100", "\": ");
-    json = StringUtils.replace(json, ":\"GBP\"", ":\" \"");
-    json = StringUtils.replace(json, ":\"Dummy\"", ":\" \"");
-    return json.toString();
+    String result = null;
+    try {
+      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyView()));
+      jsonObject.put(CURRENCY_FIELD, "");
+      jsonObject.put(CALCULATION_CONFIGURATION_FIELD, new JSONArray());
+      result = jsonObject.toString();
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from dummy view definition", ex);
+    }
+    return result;
   }
 
   private static ViewDefinition getDummyView() {
-    ViewDefinition dummy = new ViewDefinition("Dummy", new UserPrincipal("Dummy", "Dummy"));
+    ViewDefinition dummy = new ViewDefinition("", new UserPrincipal("", ""));
     dummy.setDefaultCurrency(Currency.GBP);
-    dummy.setMaxDeltaCalculationPeriod(100L);
-    dummy.setMaxFullCalculationPeriod(100L);
-    dummy.setMinDeltaCalculationPeriod(100L);
-    dummy.setMinFullCalculationPeriod(100L);
-    dummy.addPortfolioRequirementName("Dummy", "Dummy", "Dummy");
+    dummy.setMaxDeltaCalculationPeriod(0L);
+    dummy.setMaxFullCalculationPeriod(0L);
+    dummy.setMinDeltaCalculationPeriod(0L);
+    dummy.setMinFullCalculationPeriod(0L);
+    dummy.addPortfolioRequirementName("", "", "");
     return dummy;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
   
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +40,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
 
   /**
    * Restricted constructor 
@@ -70,9 +69,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
           strips.add(convertJsonToObject(FixedIncomeStrip.class, jsonStrips.getJSONObject(i)));
         }
       }
-
       curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
-
       if (message.opt(UNIQUE_ID_FIELD) != null) {
         UniqueIdentifier uid = convertJsonToObject(UniqueIdentifier.class, message.getJSONObject(UNIQUE_ID_FIELD));
         curveDefinition.setUniqueId(uid);
@@ -111,18 +108,41 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     return jsonObject.toString();
   }
   
-  private static String getTemplate() {
+  private static String createTemplate() {
     YieldCurveDefinitionJSONBuilder builder = YieldCurveDefinitionJSONBuilder.INSTANCE; 
-    String json = builder.toJSON(getDummyYieldCurveDefinition());
-    json = StringUtils.replace(json, ":\"GBP\"", ":\" \"");
-    json = StringUtils.replace(json, ":\"Dummy\"", ":\" \"");
-    return json.toString();
+    String result = null;
+    try {
+      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyYieldCurveDefinition()));
+      jsonObject.put(CURRENCY_FIELD, "");
+      jsonObject.put(REGION_FIELD, getBlankIdentifier());
+      result = jsonObject.toString();
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from dummy yield curve definition", ex);
+    }
+    return result;
+  }
+
+  private static JSONObject getBlankIdentifier() {
+    JSONObject blankIdentifier = null;
+    try {
+      blankIdentifier = new JSONObject();
+      blankIdentifier.put(Identifier.SCHEME_FUDGE_FIELD_NAME, "");
+      blankIdentifier.put(Identifier.VALUE_FUDGE_FIELD_NAME, "");
+    } catch (JSONException ex) {
+      throw new OpenGammaRuntimeException("invalid json produced from blank region identifier", ex);
+    }
+    return blankIdentifier;
   }
 
   private static YieldCurveDefinition getDummyYieldCurveDefinition() {
-    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, Identifier.of("Dummy", "Dummy"), "Dummy", "Dummy");
-    dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, "Dummy"));
+    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, Identifier.of("dummy", "dummy"), "", "");
+    dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, ""));
     return dummy;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
 
 }

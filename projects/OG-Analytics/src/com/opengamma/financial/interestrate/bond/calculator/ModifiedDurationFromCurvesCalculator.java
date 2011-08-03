@@ -13,7 +13,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * Calculate dirty price for bonds.
+ * Calculate modified duration for bonds.
  */
 public final class ModifiedDurationFromCurvesCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
@@ -21,6 +21,10 @@ public final class ModifiedDurationFromCurvesCalculator extends AbstractInterest
    * The calculator instance.
    */
   private static final ModifiedDurationFromCurvesCalculator s_instance = new ModifiedDurationFromCurvesCalculator();
+  /**
+   * The fixed coupon bond method.
+   */
+  private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
@@ -40,8 +44,7 @@ public final class ModifiedDurationFromCurvesCalculator extends AbstractInterest
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
-    return method.modifiedDurationFromCurves(bond, curves);
+    return METHOD_BOND.modifiedDurationFromCurves(bond, curves);
   }
 
 }

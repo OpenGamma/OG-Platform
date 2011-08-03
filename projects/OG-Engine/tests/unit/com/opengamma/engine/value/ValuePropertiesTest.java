@@ -276,6 +276,20 @@ public class ValuePropertiesTest {
     assertEquals(ValueProperties.with(",", "=").get(), ValueProperties.parse("\\,=\\="));
   }
   
+
+  public void testWithWithoutIsNone() {
+    final ValueProperties none = ValueProperties.none();
+    final ValueProperties withWithout = ValueProperties.builder().with("A", "B").withoutAny("A").get();
+    assertEquals(none, withWithout);
+    assertEquals(withWithout, none);
+    
+    final ValueProperties withOptionalWithout = ValueProperties.builder().with("A", "B").withOptional("A").withoutAny("A").get();
+    assertEquals(none, withOptionalWithout);
+    assertEquals(withOptionalWithout, none);
+  }
+  
+
+  
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testParseInvalidNoValue() {
     ValueProperties.parse("ValueName=[");

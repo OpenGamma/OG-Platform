@@ -28,11 +28,8 @@ $.register_module({
                 });
                 return;
             }
-            // Add a new selector to the list and then call this on its own
-            if (typeof obj === 'object') {
-                if ($(obj.element).length !== 0) all = defaults, all.push(obj), expand(obj);
-                return;
-            }
+            // Call single
+            if (typeof obj === 'object') {if ($(obj.element).length !== 0) expand(obj); return;}
             // Load all
             if (typeof obj === 'undefined' || 'number' /* Mozilla */) {
                 all.forEach(function (e, i) {

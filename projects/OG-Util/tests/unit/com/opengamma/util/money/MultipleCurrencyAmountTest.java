@@ -22,9 +22,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 
 /**
- * 
+ * Test MultipleCurrencyAmount.
  */
 public class MultipleCurrencyAmountTest {
+
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;
   private static final Currency CCY3 = Currency.CHF;
@@ -45,15 +46,15 @@ public class MultipleCurrencyAmountTest {
   private static final MultipleCurrencyAmount MULTIPLE;
 
   static {
-    CCY_ARRAY = new Currency[] {CCY1, CCY2, CCY3};
-    A_ARRAY = new double[] {A1, A2, A3};
+    CCY_ARRAY = new Currency[] {CCY1, CCY2, CCY3 };
+    A_ARRAY = new double[] {A1, A2, A3 };
     CCY_LIST = Arrays.asList(CCY_ARRAY);
     A_LIST = Arrays.asList(A1, A2, A3);
     CCY_A_MAP = new HashMap<Currency, Double>();
     CCY_A_MAP.put(CCY1, A1);
     CCY_A_MAP.put(CCY2, A2);
     CCY_A_MAP.put(CCY3, A3);
-    CA_ARRAY = new CurrencyAmount[] {CA1, CA2, CA3};
+    CA_ARRAY = new CurrencyAmount[] {CA1, CA2, CA3 };
     CA_LIST = Arrays.asList(CA_ARRAY);
     CA_SET = Sets.newHashSet(CA_ARRAY);
     MULTIPLE = MultipleCurrencyAmount.of(CA_ARRAY);
@@ -71,7 +72,7 @@ public class MultipleCurrencyAmountTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInCurrencyArray() {
-    MultipleCurrencyAmount.of(new Currency[] {CCY1, null, CCY2}, A_ARRAY);
+    MultipleCurrencyAmount.of(new Currency[] {CCY1, null, CCY2 }, A_ARRAY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -81,7 +82,7 @@ public class MultipleCurrencyAmountTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthAmountArray() {
-    MultipleCurrencyAmount.of(CCY_ARRAY, new double[] {A1, A2});
+    MultipleCurrencyAmount.of(CCY_ARRAY, new double[] {A1, A2 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -139,7 +140,7 @@ public class MultipleCurrencyAmountTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInCurrencyAmountArray() {
-    MultipleCurrencyAmount.of(new CurrencyAmount[] {null, CA2, CA3});
+    MultipleCurrencyAmount.of(new CurrencyAmount[] {null, CA2, CA3 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -212,10 +213,10 @@ public class MultipleCurrencyAmountTest {
     assertEquals(MULTIPLE, other);
     assertEquals(MULTIPLE.hashCode(), other.hashCode());
     CurrencyAmount[] array = new CurrencyAmount[] {CurrencyAmount.of(CCY1, A1), CurrencyAmount.of(CCY1, A2),
-        CurrencyAmount.of(CCY1, A3)};
+        CurrencyAmount.of(CCY1, A3) };
     other = MultipleCurrencyAmount.of(array);
     assertFalse(MULTIPLE.equals(other));
-    array = new CurrencyAmount[] {CurrencyAmount.of(CCY1, A1), CurrencyAmount.of(CCY2, A1), CurrencyAmount.of(CCY3, A1)};
+    array = new CurrencyAmount[] {CurrencyAmount.of(CCY1, A1), CurrencyAmount.of(CCY2, A1), CurrencyAmount.of(CCY3, A1) };
     other = MultipleCurrencyAmount.of(array);
     assertFalse(MULTIPLE.equals(other));
   }
@@ -243,11 +244,11 @@ public class MultipleCurrencyAmountTest {
   public void testConstructionRepeatedCurrencies() {
     final CurrencyAmount ca4 = CurrencyAmount.of(CCY1, A1 * 2);
     final CurrencyAmount ca5 = CurrencyAmount.of(CCY2, A2 * 3);
-    final Currency[] ccyArray = new Currency[] {CCY1, CCY2, CCY3, ca4.getCurrency(), ca5.getCurrency()};
-    final double[] aArray = new double[] {A1, A2, A3, ca4.getAmount(), ca5.getAmount()};
+    final Currency[] ccyArray = new Currency[] {CCY1, CCY2, CCY3, ca4.getCurrency(), ca5.getCurrency() };
+    final double[] aArray = new double[] {A1, A2, A3, ca4.getAmount(), ca5.getAmount() };
     final List<Currency> ccyList = Arrays.asList(ccyArray);
     final List<Double> aList = Arrays.asList(A1, A2, A3, A1 * 2, A2 * 3);
-    final CurrencyAmount[] caArray = new CurrencyAmount[] {CA1, CA2, CA3, ca4, ca5};
+    final CurrencyAmount[] caArray = new CurrencyAmount[] {CA1, CA2, CA3, ca4, ca5 };
     final List<CurrencyAmount> caList = Arrays.asList(caArray);
     final HashSet<CurrencyAmount> caSet = Sets.newHashSet(caArray);
     final Set<CurrencyAmount> expected = Sets.newHashSet(CurrencyAmount.of(CCY1, A1 * 3),

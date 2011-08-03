@@ -5,14 +5,15 @@
  */
 package com.opengamma.master.exchange.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
@@ -27,6 +28,7 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.i18n.Country;
 
 /**
  * Test MasterExchangeSource.
@@ -145,7 +147,7 @@ public class MasterExchangeSourceTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UID);
     exchange.setName("NYSE");
-    exchange.setRegionKey(IdentifierBundle.of(RegionUtils.countryRegionId("US")));
+    exchange.setRegionKey(IdentifierBundle.of(RegionUtils.countryRegionId(Country.US)));
     return exchange;
   }
 

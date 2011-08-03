@@ -67,6 +67,30 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   private transient volatile int _hashCode;
 
   /**
+   * Obtains an {@code IdentifierBundle} from a single scheme and value.
+   * This is most useful for testing, as a bundle normally contains more than one identifier.
+   * 
+   * @param scheme  the scheme of the single identifier, not empty, not null
+   * @param value  the value of the single identifier, not empty, not null
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(IdentificationScheme scheme, String value) {
+    return of(Identifier.of(scheme, value));
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from a single scheme and value.
+   * This is most useful for testing, as a bundle normally contains more than one identifier.
+   * 
+   * @param scheme  the scheme of the single identifier, not empty, not null
+   * @param value  the value of the single identifier, not empty, not null
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(String scheme, String value) {
+    return of(Identifier.of(scheme, value));
+  }
+
+  /**
    * Obtains an {@code IdentifierBundle} from an identifier.
    * 
    * @param identifier  the identifier to wrap in a bundle, not null
@@ -195,7 +219,26 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   public IdentifierBundle withIdentifier(Identifier identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
     Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
-    ids.add(identifier);
+    if (ids.add(identifier) == false) {
+      return this;
+    }
+    return new IdentifierBundle(ids);
+  }
+
+  /**
+   * Returns a new bundle with the specified identifier added.
+   * This instance is immutable and unaffected by this method call.
+   * 
+   * @param identifiers  the identifiers to add to the returned bundle, not null
+   * @return the new bundle, not null
+   */
+  public IdentifierBundle withIdentifiers(Iterable<Identifier> identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    Set<Identifier> toAdd = ImmutableSet.copyOf(identifiers);
+    Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
+    if (ids.addAll(toAdd) == false) {
+      return this;
+    }
     return new IdentifierBundle(ids);
   }
 
@@ -208,7 +251,9 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    */
   public IdentifierBundle withoutIdentifier(Identifier identifier) {
     Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
-    ids.remove(identifier);
+    if (ids.remove(identifier) == false) {
+      return this;
+    }
     return new IdentifierBundle(ids);
   }
 
