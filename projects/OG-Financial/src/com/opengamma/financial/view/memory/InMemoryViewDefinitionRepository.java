@@ -10,11 +10,17 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import javax.time.Instant;
+
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,10 +28,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InMemoryViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
+  private static final String UID_SCHEME = "MemViewDef";
+  
   private final ConcurrentMap<String, ViewDefinition> _definitionsByName = new ConcurrentSkipListMap<String, ViewDefinition>();
+  private final ChangeManager _changeManager = new BasicChangeManager();
   
   //-------------------------------------------------------------------------
-  // ViewDefinitionRepository implementation
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     return _definitionsByName.get(definitionName);
@@ -37,7 +45,6 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   }
   
   //-------------------------------------------------------------------------
-  // ManagableViewDefinitionRepository implementation
   @Override
   public boolean isModificationSupported() {
     return true;
@@ -50,6 +57,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
     
     final ViewDefinition viewDefinition = request.getViewDefinition();
     _definitionsByName.put(viewDefinition.getName(), viewDefinition);
+    changeManager().entityChanged(ChangeType.ADDED, null, getUniqueId(request.getViewDefinition().getName()), Instant.now());
   }
   
   @Override
@@ -68,6 +76,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
       removeViewDefinition(originalName);
       addViewDefinition(new AddViewDefinitionRequest(request.getViewDefinition()));
     }
+    changeManager().entityChanged(ChangeType.UPDATED, getUniqueId(originalName), getUniqueId(request.getViewDefinition().getName()), Instant.now());
   }
 
   @Override
@@ -75,6 +84,20 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
     if (_definitionsByName.remove(name) == null) {
       throw new DataNotFoundException("View definition not found: " + name);
     }
+    changeManager().entityChanged(ChangeType.REMOVED, getUniqueId(name), null, Instant.now());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+  
+  //-------------------------------------------------------------------------
+  private UniqueIdentifier getUniqueId(String definitionName) {
+    // NOTE jonathan 2011-08-03 -- at the moment view definitions are identified to the engine by name, so this is an
+    // intermediate solution
+    return UniqueIdentifier.of(UID_SCHEME, definitionName);
   }
 
 }
