@@ -44,7 +44,7 @@ public class CAPMFromRegressionCalculator implements Function<DoubleTimeSeries<?
     testTimeSeriesSize(assetTS, 2);
     testTimeSeriesSize(marketTS, 2);
     testTimeSeriesDates(assetTS, marketTS);
-    final double[] asset = assetTS.toFastLongDoubleTimeSeries().valuesArrayFast();
+    final double[] asset = assetTS.valuesArrayFast();
     final double[][] market = new double[asset.length][1];
     for (int i = 0; i < asset.length; i++) {
       market[i][0] = marketTS.getValueAt(i);

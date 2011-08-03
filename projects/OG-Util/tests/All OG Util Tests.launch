@@ -17,6 +17,7 @@
 <listEntry value="com.opengamma.util"/>
 <listEntry value="com.opengamma.util.db"/>
 <listEntry value="com.opengamma.util.fudgemsg"/>
+<listEntry value="com.opengamma.util.i18n"/>
 <listEntry value="com.opengamma.util.money"/>
 <listEntry value="com.opengamma.util.monitor"/>
 <listEntry value="com.opengamma.util.rest"/>

@@ -24,6 +24,7 @@ import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 
@@ -67,7 +68,11 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   /**
    * Fudge field name.
    */
-  public static final String FIELD_SECURITYKEY = "securityKey";
+  protected static final String FIELD_SECURITYKEY = "securityKey";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_SECURITYID = "securityId";
   /**
    * Fudge field name.
    */
@@ -89,8 +94,11 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
     }
-    if (trade.getSecurityKey() != null) {
-      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityKey());
+    if (trade.getSecurityLink().getBundleId().size() > 0) {
+      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityLink().getBundleId());
+    }
+    if (trade.getSecurityLink().getObjectId() != null) {
+      context.addToMessage(message, FIELD_SECURITYID, null, trade.getSecurityLink().getObjectId());
     }
     if (trade.getCounterparty() != null) {
       context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
@@ -137,7 +145,6 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   }
 
   protected static TradeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
-    
     TradeImpl trade = new TradeImpl();
     if (message.hasField(FIELD_UNIQUE_ID)) {
       FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
@@ -154,7 +161,13 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        trade.setSecurityKey(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+        trade.getSecurityLink().setBundleId(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+      }
+    }
+    if (message.hasField(FIELD_SECURITYID)) {
+      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
+      if (secIdField != null) {
+        trade.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectIdentifier.class, secIdField));
       }
     }
     if (message.hasField(FIELD_COUNTERPARTY)) {

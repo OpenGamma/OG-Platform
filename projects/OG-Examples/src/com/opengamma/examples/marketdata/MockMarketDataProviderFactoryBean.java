@@ -7,6 +7,9 @@ package com.opengamma.examples.marketdata;
 
 import java.util.Set;
 
+import javax.time.Duration;
+import javax.time.Instant;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -84,6 +87,11 @@ public class MockMarketDataProviderFactoryBean extends SingletonFactoryBean<Mark
       @Override
       public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
         return new MockMarketDataSnapshot();
+      }
+
+      @Override
+      public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+        return Duration.between(fromInstant, toInstant);
       }
     };
   }

@@ -40,7 +40,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
   
   /**
    * Restricted constructor
@@ -226,8 +226,13 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
     return message.toString();
   }
 
-  private static String getTemplate() {
+  private static String createTemplate() {
     return null;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
 
 }

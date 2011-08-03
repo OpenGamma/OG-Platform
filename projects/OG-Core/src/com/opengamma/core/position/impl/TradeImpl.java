@@ -8,7 +8,6 @@ package com.opengamma.core.position.impl;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,11 +18,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -46,13 +45,9 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    */
   private UniqueIdentifier _parentPositionId;
   /**
-   * The identifier specifying the security.
+   * The link to the security.
    */
-  private IdentifierBundle _securityKey;
-  /**
-   * The security.
-   */
-  private Security _security;
+  private SecurityLink _securityLink;
   /**
    * The amount of the position.
    */
@@ -88,52 +83,28 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * The trade attributes
    */
-  private Map<String, String> _attributes = new HashMap<String, String>();
+  private Map<String, String> _attributes = Maps.newHashMap();
 
   /**
    * Creates a trade which must be initialized by calling methods.
    */
   public TradeImpl() {
-  }
-
-  /**
-   * Creates a trade from a position, counterparty, trade instant, and an amount.
-   * 
-   * @param parentPositionId  the parent position id, not null
-   * @param securityKey  the security identifier, not null
-   * @param quantity  the amount of the trade, not null
-   * @param counterparty  the counterparty, not null
-   * @param tradeDate  the trade date, not null
-   * @param tradeTime  the trade time with offset, may be null
-   */
-  public TradeImpl(UniqueIdentifier parentPositionId, Identifier securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(counterparty, "counterparty");
-    ArgumentChecker.notNull(tradeDate, "tradeDate");
-    _quantity = quantity;
-    _counterparty = counterparty;
-    _tradeDate = tradeDate;
-    _tradeTime = tradeTime;
-    _parentPositionId = parentPositionId;
-    _securityKey = IdentifierBundle.of(securityKey);
-    _security = null;
+    _securityLink = new SecurityLink();
   }
 
   /**
    * Creates a trade from a positionId, an amount of a security identified by key, counterparty and tradeinstant.
    * 
    * @param parentPositionId  the parent position id, not null
-   * @param securityKey  the security identifier, not null
+   * @param securityLink  the security identifier, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty  the counterparty, not null
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public TradeImpl(UniqueIdentifier parentPositionId, IdentifierBundle securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
+  public TradeImpl(UniqueIdentifier parentPositionId, SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(parentPositionId, "parentPositionId");
-    ArgumentChecker.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityLink, "securityLink");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
     ArgumentChecker.notNull(tradeDate, "tradeDate");
@@ -142,12 +113,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _parentPositionId = parentPositionId;
-    _securityKey = securityKey;
-    _security = null;
+    _securityLink = securityLink;
   }
 
   /**
-   * Creates a trade from a positionId, an amount of a security, counterparty and tradeinstant.
+   * Creates a trade from a positionId, an amount of a security, counterparty and trade instant.
    * 
    * @param parentPositionId  the parent position id, not null
    * @param security  the security, not null
@@ -167,12 +137,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _parentPositionId = parentPositionId;
-    _security = security;
-    _securityKey = security.getIdentifiers();
+    _securityLink = SecurityLink.of(security);
   }
 
   /**
-   * Construct a mutable trade copying data from another, possibly immutable, {@link Trade} implementation.
+   * Creates a deep copy of the specified position.
    * 
    * @param copyFrom instance to copy fields from, not null
    */
@@ -184,8 +153,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = copyFrom.getTradeDate();
     _tradeTime = copyFrom.getTradeTime();
     _parentPositionId = copyFrom.getParentPositionId();
-    _securityKey = copyFrom.getSecurityKey();
-    _security = copyFrom.getSecurity();
+    _securityLink = copyFrom.getSecurityLink().clone();
     setAttributes(copyFrom.getAttributes());
   }
 
@@ -214,7 +182,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Gets the parent position unique identifier.
    * 
-   * @return the parent position unique identifier, not null
+   * @return the parent position unique identifier, null if no parent
    */
   @Override
   public UniqueIdentifier getParentPositionId() {
@@ -224,10 +192,9 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Sets the parent position unique identifier.
    * 
-   * @param parentPositionId  the parent position unique identifier, not null
+   * @param parentPositionId  the parent position unique identifier, null if no parent
    */
   public void setParentPositionId(UniqueIdentifier parentPositionId) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
     _parentPositionId = parentPositionId;
   }
 
@@ -254,60 +221,39 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a key to the security being held.
+   * Gets the link to the security being held.
    * <p>
    * This allows the security to be referenced without actually loading the security itself.
    * 
-   * @return the security key
+   * @return the security link, not null
    */
   @Override
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
+  public SecurityLink getSecurityLink() {
+    return _securityLink;
   }
 
   /**
-   * Sets the key to the security being held.
+   * Sets the link to the security being held.
    * 
-   * @param securityKey  the security key, may be null
+   * @param securityLink  the security link, not null
    */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    _securityKey = securityKey;
-  }
-
-  /**
-   * Adds an identifier to the security key.
-   * 
-   * @param securityKeyIdentifier  the identifier to add, not null
-   */
-  public void addSecurityKey(final Identifier securityKeyIdentifier) {
-    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
-    if (getSecurityKey() != null) {
-      setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
-    } else {
-      setSecurityKey(IdentifierBundle.of(securityKeyIdentifier));
-    }
+  public void setSecurityLink(SecurityLink securityLink) {
+    ArgumentChecker.notNull(securityLink, "securityLink");
+    _securityLink = securityLink;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security being held, returning {@code null} if it has not been loaded.
+   * Gets the target security from the link.
    * <p>
-   * This method is guaranteed to return a security within an analytic function.
+   * This convenience method gets the target security from the link.
+   * This is guaranteed to return a security within an analytic function.
    * 
-   * @return the security
+   * @return the security link, null if target not resolved in the link
    */
   @Override
   public Security getSecurity() {
-    return _security;
-  }
-
-  /**
-   * Sets the security being held.
-   * 
-   * @param security  the security, may be null
-   */
-  public void setSecurity(Security security) {
-    _security = security;
+    return _securityLink.getTarget();
   }
 
   //-------------------------------------------------------------------------
@@ -469,8 +415,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
         .append(getQuantity(), other.getQuantity())
         .append(getCounterparty(), other.getCounterparty())
         .append(getTradeDate(), other.getTradeDate())
-        .append(getSecurityKey(), other.getSecurityKey())
-        .append(getSecurity(), other.getSecurity())
+        .append(getSecurityLink(), other.getSecurityLink())
         .append(getPremium(), other.getPremium())
         .append(getPremiumCurrency(), other.getPremiumCurrency())
         .append(getPremiumDate(), other.getPremiumDate())
@@ -487,8 +432,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
       .append(getQuantity())
       .append(getCounterparty())
       .append(getTradeDate())
-      .append(getSecurityKey())
-      .append(getSecurity())
+      .append(getSecurityLink())
       .append(getPremium())
       .append(getPremiumCurrency())
       .append(getPremiumCurrency())
@@ -506,7 +450,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(getSecurity() != null ? getSecurity() : getSecurityKey())
+        .append(getSecurityLink().getBest())
         .append(" PositionID:")
         .append(getParentPositionId())
         .append(" ")

@@ -86,7 +86,11 @@ public class LiveMarketDataSnapshot implements MarketDataSnapshot {
         }
         if (!unavailableRequirements.isEmpty()) {
           try {
-            awaitingValuesLatch.await(timeout, unit);
+            if (!awaitingValuesLatch.await(timeout, unit)) {
+              s_logger.warn(MessageFormat.format(
+                  "Timed out while waiting {0} {1} for required values to become available: {2}", timeout, unit,
+                  unavailableRequirements));
+            }
           } catch (InterruptedException e) {
             s_logger.warn(MessageFormat.format(
                 "Interrupted while waiting for required values to become available: {0}", unavailableRequirements), e);

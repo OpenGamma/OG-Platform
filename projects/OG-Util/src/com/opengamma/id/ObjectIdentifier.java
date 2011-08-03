@@ -43,6 +43,12 @@ import com.opengamma.util.PublicAPI;
 public final class ObjectIdentifier
     implements Comparable<ObjectIdentifier>, ObjectIdentifiable, Serializable {
 
+  /**
+   * Identification scheme for the OID.
+   * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
+   */
+  public static final IdentificationScheme OID = IdentificationScheme.of("OID");
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
