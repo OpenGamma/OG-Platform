@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import java.util.BitSet;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
@@ -26,6 +22,10 @@ import com.opengamma.math.minimization.TransformParameters;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
+
+import java.util.BitSet;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -115,8 +115,8 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
-    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
-        new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp)
+                                                    : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
     final double[] mp = transforms.inverseTransform(lsRes.getParameters()).toArray();
     if (recoverATMVol) {
       final double beta = mp[1];
