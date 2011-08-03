@@ -45,7 +45,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
    */
   public AnnuityDefinition(final P[] payments) {
     Validate.noNullElements(payments);
-    Validate.isTrue(payments.length > 0);
+    Validate.isTrue(payments.length > 0, "Have no payments in annuity");
     double amount = payments[0].getReferenceAmount();
     final Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {

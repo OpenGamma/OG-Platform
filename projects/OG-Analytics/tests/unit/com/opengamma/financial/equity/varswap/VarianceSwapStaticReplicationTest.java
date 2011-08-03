@@ -23,7 +23,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
@@ -64,8 +63,8 @@ public class VarianceSwapStaticReplicationTest {
   // The pricing method
   final double EPS = 1.0e-12;
   final VarSwapStaticReplication pricer_strike_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.STRIKE);
-  final VarSwapStaticReplication pricer_delta_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.DELTA);
-  final VarSwapStaticReplication pricer_delta_null_cutoff = new VarSwapStaticReplication(EPS, 1 - EPS, new RungeKuttaIntegrator1D(), null, null, null);
+  final VarSwapStaticReplication pricer_putdelta_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.PUTDELTA);
+  final VarSwapStaticReplication pricer_putdelta_null_cutoff = new VarSwapStaticReplication(EPS, 1 - EPS, new RungeKuttaIntegrator1D(), null, null, null);
   final VarSwapStaticReplication pricer_strike_null_cutoff = new VarSwapStaticReplication(EPS, 10, new RungeKuttaIntegrator1D(), null, null, null);
 
   // Market data
@@ -75,33 +74,33 @@ public class VarianceSwapStaticReplicationTest {
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-                                                          1.0, 1.0, 1.0, 1.0,
-                                                          5.0, 5.0, 5.0, 5.0,
-                                                          10.0, 10.0, 10.0, 10.0 };
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5,
+                                                          1.0, 1.0, 1.0, 1.0, 1.0,
+                                                          5.0, 5.0, 5.0, 5.0, 5.0,
+                                                          10.0, 10.0, 10.0, 10.0, 10.0 };
 
-  private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75,
-                                                        0.1, 0.25, 0.5, 0.75,
-                                                        0.1, 0.25, 0.5, 0.75,
-                                                        0.1, 0.25, 0.5, 0.75 };
+  private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75, 0.9,
+                                                        0.1, 0.25, 0.5, 0.75, 0.9,
+                                                        0.1, 0.25, 0.5, 0.75, 0.9,
+                                                        0.1, 0.25, 0.5, 0.75, 0.9 };
 
-  private static final double[] CALLDELTAS = new double[] {0.75, 0.5, 0.25, 0.1,
-                                                          0.75, 0.5, 0.25, 0.1,
-                                                          0.75, 0.5, 0.25, 0.1,
-                                                          0.75, 0.5, 0.25, 0.1 };
+  private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1,
+                                                           0.9, 0.75, 0.5, 0.25, 0.1,
+                                                           0.9, 0.75, 0.5, 0.25, 0.1,
+                                                           0.9, 0.75, 0.5, 0.25, 0.1 };
 
-  private static final double[] STRIKES = new double[] {40, 80, 100, 120,
-                                                        40, 80, 100, 120,
-                                                        40, 80, 100, 120,
-                                                        40, 80, 100, 120 };
+  private static final double[] STRIKES = new double[] {20, 40, 80, 100, 120,
+                                                        20, 40, 80, 100, 120,
+                                                        20, 40, 80, 100, 120,
+                                                        20, 40, 80, 100, 120 };
 
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-                                                     0.25, 0.25, 0.25, 0.25,
-                                                     0.26, 0.24, 0.23, 0.25,
-                                                     0.20, 0.20, 0.20, 0.20 };
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28,
+                                                     0.25, 0.25, 0.25, 0.25, 0.25,
+                                                     0.27, 0.26, 0.24, 0.23, 0.25,
+                                                     0.27, 0.26, 0.25, 0.26, 0.27 };
 
   private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-      Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
   final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -124,7 +123,7 @@ public class VarianceSwapStaticReplicationTest {
 
     final ConstantDoublesSurface constSurf = ConstantDoublesSurface.from(TEST_VOL);
     final BlackVolatilityDeltaSurface constVolSurf = new BlackVolatilityDeltaSurface(constSurf);
-    final double testVar = pricer_delta_null_cutoff.impliedVariance(swap1, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, SPOT, FORWARD));
+    final double testVar = pricer_putdelta_null_cutoff.impliedVariance(swap1, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, SPOT, FORWARD));
     final double targetVar = swap1.getTimeToObsEnd() * TEST_VOL * TEST_VOL;
 
     assertEquals(targetVar, testVar, 1e-9);
@@ -148,14 +147,15 @@ public class VarianceSwapStaticReplicationTest {
   public void testSurfaceWithoutStrikeExtrapolation() {
     final CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> interpOnlyStrike = getInterpolator(Interpolator1DFactory.LINEAR);
     final Interpolator2D interp2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, interpOnlyStrike);
-    @SuppressWarnings("unused")
     final InterpolatedDoublesSurface surface = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, interp2D);
     final BlackVolatilityFixedStrikeSurface volSurface = new BlackVolatilityFixedStrikeSurface(surface);
-    pricer_delta_null_cutoff.impliedVariance(swap1, new VarianceSwapDataBundle(volSurface, DISCOUNT, SPOT, FORWARD));
+    pricer_putdelta_null_cutoff.impliedVariance(swap1, new VarianceSwapDataBundle(volSurface, DISCOUNT, SPOT, FORWARD));
   }
 
   /**
-   * Test of VolatilitySurface type
+   * Test of VolatilitySurface strike parameterisations: Strike vs Delta
+   * As the relation is not linear, and the variance is highly sensitive to interpolation,
+   * the only sensible test is on a flat surface 
    */
   @Test
   public void testFlatSurfaceOnStrikeAndDelta() {
@@ -164,13 +164,62 @@ public class VarianceSwapStaticReplicationTest {
     final double targetVar = swap1.getTimeToObsEnd() * TEST_VOL * TEST_VOL;
     assertEquals(testStrikeVar, targetVar, 1e-9);
 
-    final double testDeltaVar = pricer_delta_default_w_cutoff.impliedVariance(swap1, MARKET_W_PUTDELTASURF);
+    final double testDeltaVar = pricer_putdelta_default_w_cutoff.impliedVariance(swap1, MARKET_W_PUTDELTASURF);
 
     assertEquals(testStrikeVar, testDeltaVar, 1e-9);
 
-    final double testCallDeltaVar = pricer_delta_default_w_cutoff.impliedVariance(swap1, MARKET_W_CALLDELTASURF);
+    final VarSwapStaticReplication pricer_calldelta_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.CALLDELTA);
+    final double testCallDeltaVar = pricer_calldelta_default_w_cutoff.impliedVariance(swap1, MARKET_W_CALLDELTASURF);
 
     assertEquals(testDeltaVar, testCallDeltaVar, 1e-9);
+  }
+
+  /**
+   * Tests of Strike Parameterisation with Smile.
+   * Prices are very sensitive to Vol interpolation.. We ensure variance matches over flat portion of strikes,
+   * and then mark to fixed levels over entire strike space
+   */
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void testDeltaVsStrikeWithSmile() {
+
+    // 'Equivalent' Vol Surfaces
+    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+    final double[] DELTAS = new double[] {0.01, .1, .25, .5, .75, 0.9, .99 };
+    final double[] VOLS = new double[] {.3, 0.27, 0.25, 0.25, 0.25, 0.27, 0.3 };
+    // !!! Note. If you change deltas or vols, you will have to change the corresponding strikes, computed via BlackFormula
+    final double[] STRIKES = new double[] {52.0531766415, 73.3763196717, 87.1645532146, 103.1743407499, 122.1246962968, 146.5899317452, 210.203171890956 };
+
+    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERP1D_STEP = getInterpolator(Interpolator1DFactory.STEP,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    final Interpolator2D INTERP2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERP1D_STEP);
+
+    final BlackVolatilityDeltaSurface volDelta = new BlackVolatilityDeltaSurface(new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, INTERP2D), false);
+    final VarianceSwapDataBundle marketDelta = new VarianceSwapDataBundle(volDelta, DISCOUNT, SPOT, FORWARD);
+
+    final BlackVolatilityFixedStrikeSurface volStrike = new BlackVolatilityFixedStrikeSurface(new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERP2D));
+    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(volStrike, DISCOUNT, SPOT, FORWARD);
+
+    // TEST FLAT SECTION OF VOL SURFACE
+    final VarSwapStaticReplication pricer_delta_flat = new VarSwapStaticReplication(DELTAS[2], DELTAS[4], new RungeKuttaIntegrator1D(), null, null, null);
+    final VarSwapStaticReplication pricer_strike_flat = new VarSwapStaticReplication(STRIKES[2] / FORWARD, STRIKES[4] / FORWARD, new RungeKuttaIntegrator1D(), null, null, null);
+
+    double varFlatDeltaNoCutoff = pricer_delta_flat.impliedVariance(swap1, marketDelta);
+    double varFlatStrikeNoCutoff = pricer_strike_flat.impliedVariance(swap1, marketStrike);
+    assertEquals(varFlatDeltaNoCutoff, varFlatStrikeNoCutoff, 1e-9);
+
+    // TEST ENTIRE SURFACE
+    // 'Equivalent' Pricers. (No messing with shifted lognormal distributions)
+    double small = 1e-20;
+    double big = 50;
+    final VarSwapStaticReplication pricer_delta_nocutoff = new VarSwapStaticReplication(small, 1 - small, new RungeKuttaIntegrator1D(), null, null, null);
+    final VarSwapStaticReplication pricer_strike_nocutoff = new VarSwapStaticReplication(small, big, new RungeKuttaIntegrator1D(), null, null, null);
+
+    double totalVarDelta = pricer_delta_nocutoff.impliedVariance(swap1, marketDelta);
+    assertEquals(0.06681872990093872, totalVarDelta, 1e-9);
+
+    double totalVarStrike = pricer_strike_nocutoff.impliedVariance(swap1, marketStrike);
+    assertEquals(0.06966798235713362, totalVarStrike, 1e-9);
   }
 
   /**
@@ -193,7 +242,7 @@ public class VarianceSwapStaticReplicationTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInterpolatedDoublesSurfaceWithPoorCutoffDescription() {
 
-    final VarSwapStaticReplication pricerBadCutoff = new VarSwapStaticReplication(1e-16, 10, new RungeKuttaIntegrator1D(), StrikeParameterisation.DELTA, null, 0.05);
+    final VarSwapStaticReplication pricerBadCutoff = new VarSwapStaticReplication(1e-16, 10, new RungeKuttaIntegrator1D(), StrikeParameterisation.PUTDELTA, null, 0.05);
     pricerBadCutoff.impliedVariance(swap1, MARKET_W_STRIKESURF);
   }
 
@@ -266,153 +315,81 @@ public class VarianceSwapStaticReplicationTest {
 
     final VarSwapStaticReplication pricer_onego = new VarSwapStaticReplication(1e-4, 5.0, integrator, StrikeParameterisation.STRIKE, 0.25, 0.05);
     final double variance_onego = pricer_onego.impliedVariance(swap5, MARKET_W_STRIKESURF);
-    System.err.println("variance = " + variance_onego);
     assertEquals(variance_total, variance_onego, 1e-9);
   }
 
   @Test
-  public void testVInterpolatedDoublesSurfaceWITHShiftedLN() {
-    final VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(1e-12, 50, new RungeKuttaIntegrator1D(), StrikeParameterisation.STRIKE, 0.25, 0.05);
-    final double varSmiley = pricerCutoff.impliedVariance(swap5, MARKET_W_STRIKESURF);
-    assertEquals(0.061180009731676255, varSmiley, 1e-9);
-  }
-
-  @Test
-  public void testVInterpolatedDoublesSurfaceWITHOUTShiftedLN() {
-
-    final VarSwapStaticReplication pricerNoCutoff = new VarSwapStaticReplication(1e-12, 15, new RungeKuttaIntegrator1D(), null, null, null);
-    final double varNoCut = pricerNoCutoff.impliedVariance(swap5, MARKET_W_STRIKESURF);
-    assertEquals(0.06115666079281433, varNoCut, 1e-9);
-
-    final VarSwapStaticReplication pricerDefault = new VarSwapStaticReplication();
-    final double varDef = pricerDefault.impliedVariance(swap5, MARKET_W_STRIKESURF);
-
-    assertEquals(varDef, varNoCut, 1e-9);
-
-  }
-
-  @Test
-  public void testSmileyDeltaWithCutoff() {
-    final double varSmileyFromPutSurface = pricer_delta_default_w_cutoff.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
-    assertEquals(0.06368727378513109, varSmileyFromPutSurface, 1e-9);
-
-    final double varSmileyFromCallSurface = pricer_delta_default_w_cutoff.impliedVariance(swap5, MARKET_W_CALLDELTASURF);
-    assertEquals(varSmileyFromPutSurface, varSmileyFromCallSurface, 1e-9);
-  }
-
-  @Test
-  public void testSmileySurfaceOnDeltaAndStrike() {
-
-    final double lowerBound = EPS;
-    final double upperBound = 1.0 - EPS;
-
-    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-    final double[] DELTAS = new double[] {0.01, .1, .25, .5, .75, .99 };
-    final boolean strikesAreCallDeltas = false;
-    final double[] STRIKES = {52.05317664154072,
-                              73.37631967171933,
-                              87.16455321461393,
-                              103.17434074991027,
-                              128.06233160404426,
-                              210.73392166917154 };
-    final double[] VOLS = new double[] {.3, 0.27, 0.25, 0.25, 0.3, 0.3 };
-    @SuppressWarnings({"unchecked" })
-    final InterpolatedDoublesSurface surfDelta = new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, INTERPOLATOR_2D);
-    final VarianceSwapDataBundle marketDelta = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(surfDelta, strikesAreCallDeltas), DISCOUNT, SPOT, FORWARD);
-    VarSwapStaticReplication pricerDelta = new VarSwapStaticReplication(0.1, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.DELTA, 0.1, 0.15);
-    final double varianceDelta = pricerDelta.impliedVariance(swap1, marketDelta);
-    @SuppressWarnings({"unchecked" })
-    final InterpolatedDoublesSurface surfStrike = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D);
-    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(new BlackVolatilityFixedStrikeSurface(surfStrike), DISCOUNT, SPOT, FORWARD);
-    VarSwapStaticReplication pricerStrike = new VarSwapStaticReplication(0.7337631967171933, 8.63095675657578, new RungeKuttaIntegrator1D(), StrikeParameterisation.STRIKE, 0.7337631967171933,
-        (0.8716455321461393 - 0.7337631967171933));
-    final double varianceStrike = pricerStrike.impliedVariance(swap1, marketStrike);
-    System.err.println(varianceStrike + " = varianceStrike");
-    assertEquals(varianceStrike, varianceDelta, 1e-9);
+  public void testCallDeltaConstruction() {
+    @SuppressWarnings("unused")
+    final VarSwapStaticReplication pricer_putdelta_default_w_cutoff = new VarSwapStaticReplication(StrikeParameterisation.CALLDELTA);
   }
 
   /**
-   * Instead of matching slope and level at the cutoff, try choosing a level at zero strike, then filling in with shifted lognormal distribution
+   * Tests that equivalent vol surfaces parameterised as either call or put deltas match
+   * For convenience, and that only, the setup here requires a symmetrical vol surface 
    */
   @Test
-  public void testAlternativeUseOfShiftedLognormal() {
+  public void testSmileyDeltaCallAndPutWithCutoff() {
+    final double varSmileyFromPutSurface = pricer_putdelta_default_w_cutoff.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(0.06652123567708423, varSmileyFromPutSurface, 1e-9);
 
-    final double lowerBound = EPS;
-    final double upperBound = 1.0 - EPS;
-
-    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-    final double[] DELTAS = new double[] {0, .1, .25, .5, .75, 1.00 };
-    final boolean strikesAreCallDeltas = false;
-    final double[] VOLS = new double[] {.4, 0.27, 0.25, 0.25, 0.3, 0.3 };
-
-    @SuppressWarnings({"unchecked" })
-    final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, INTERPOLATOR_2D);
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(SURFACE, strikesAreCallDeltas), DISCOUNT, SPOT, FORWARD);
-    VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.DELTA, 0.1, 0.15); // Hit 10 and 25 Put delta (90 and 75 call)
-
-    final double variance = pricerCutoff.impliedVariance(swap1, market);
-    assertEquals(variance, 0.07048720344258558, 1e-9);
+    final VarSwapStaticReplication pricer_calldelta_default = new VarSwapStaticReplication(StrikeParameterisation.CALLDELTA);
+    final double varSmileyFromCallSurface = pricer_calldelta_default.impliedVariance(swap5, MARKET_W_CALLDELTASURF);
+    assertEquals(varSmileyFromPutSurface, varSmileyFromCallSurface, 1e-9);
   }
 
+  /**
+   * Tests that equivalent vol surfaces parameterised as either call or put deltas match
+   * For convenience, and that only, the setup here requires a symmetrical vol surface 
+   */
   @Test
-  public void testAlternativeUseOfShiftedLognormal_Calls() {
+  public void testSmileyDeltaCallAndPutWithNoCutoff() {
 
-    final double lowerBound = EPS;
-    final double upperBound = 1.0 - EPS;
+    final VarSwapStaticReplication pricer__noshift = new VarSwapStaticReplication(EPS, 1 - EPS, new RungeKuttaIntegrator1D(), null, null, null);
 
-    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                                            5.0, 5.0, 5.0, 5.0, 5.0, 5.0 };
-    final double[] DELTAS = new double[] {1.0, .75, .5, .25, .1, 0,
-                                          1.0, .75, .5, .25, .1, 0 };
-    final boolean strikesAreCallDeltas = true;
-    final double[] VOLS = new double[] {.4, 0.3, 0.25, 0.25, 0.3, 0.3,
-                                        .4, 0.3, 0.25, 0.25, 0.3, 0.3 };
+    final double varSmileyFromPutSurface = pricer__noshift.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(0.0657060830502365, varSmileyFromPutSurface, 1e-9);
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    //final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, new GridInterpolator2D(new LinearInterpolator1D(), INTERPOLATOR_1D));
-    final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, INTERPOLATOR_2D);
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(SURFACE, strikesAreCallDeltas), DISCOUNT, SPOT, FORWARD);
-    VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.DELTA, 0.75, .15); // Hit 10 and 25. Check shape in between. Use this value to extrapolate left
-
-    final double variance = pricerCutoff.impliedVariance(swap1, market);
-    assertEquals(variance, 0.07048720344258558, 1e-9);
+    final double varSmileyFromCallSurface = pricer__noshift.impliedVariance(swap5, MARKET_W_CALLDELTASURF);
+    assertEquals(varSmileyFromPutSurface, varSmileyFromCallSurface, 1e-9);
   }
 
+  /**
+   * Test that DELTA parameterisations are robust to lowerBounds
+   */
   @Test
-  public void testAlternativeUseOfShiftedLognormal_Strike() {
+  public void testDeltaNearZero() {
 
-    final double lowerBound = EPS;
-    final double upperBound = 10;
+    // NoCutoff
+    double small = 1e-12;
+    final VarSwapStaticReplication pricer_small = new VarSwapStaticReplication(small, 1 - small, new RungeKuttaIntegrator1D(), null, null, null);
+    final double varSmall = pricer_small.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(0.0657060830502365, varSmall, 1e-9);
 
-    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                                            5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0 };
+    double smaller = 1e-16;
+    final VarSwapStaticReplication pricer_smaller = new VarSwapStaticReplication(smaller, 1 - smaller, new RungeKuttaIntegrator1D(), null, null, null);
+    final double varSmaller = pricer_smaller.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(varSmall, varSmaller, 1e-9);
 
-    final double[] STRIKES = new double[] {0, 25, 71.21508872954146, 71.38726266683607, 75, 100, 125, 150,
-                                           0, 25, 71.21508872954146, 71.38726266683607, 75, 100, 125, 150 };
+    // Cutoff
+    final VarSwapStaticReplication pricer_small_shift = new VarSwapStaticReplication(small, 1 - small, new RungeKuttaIntegrator1D(), StrikeParameterisation.PUTDELTA, 0.01, 0.001);
+    final double varSmallShift = pricer_small_shift.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(0.06571851926626246, varSmallShift, 1e-9);
 
-    final double[] VOLS = new double[] {.4, 0.3, 0.3, 0.2992711544444444, 0.25, 0.25, 0.3, 0.3,
-                                        .4, 0.3, 0.3, 0.2992711544444444, 0.25, 0.25, 0.3, 0.3 };
+    final VarSwapStaticReplication pricer_smaller_shift = new VarSwapStaticReplication(smaller, 1 - smaller, new RungeKuttaIntegrator1D(), StrikeParameterisation.PUTDELTA, 0.01, 0.001);
+    final double varSmallerShift = pricer_smaller_shift.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(varSmallShift, varSmallerShift, 1e-9);
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(new LinearInterpolator1D(), INTERPOLATOR_1D));
-
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(new BlackVolatilityFixedStrikeSurface(SURFACE), DISCOUNT, SPOT, FORWARD);
-    VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.STRIKE,
-        .7121508872954146, (0.7138726266683607 - 0.7121508872954146)); // Hit 75 and 25. Check shape in between. Use this value to extrapolate left
-
-    final double variance = pricerCutoff.impliedVariance(swap1, market);
-    assertEquals(0.07048720344258558, variance, 1e-9);
+    double smallest = 1e-20;
+    final VarSwapStaticReplication pricer_smallest_shift = new VarSwapStaticReplication(smallest, 1 - smallest, new RungeKuttaIntegrator1D(), StrikeParameterisation.PUTDELTA, 0.01, 0.001);
+    final double varSmallestShift = pricer_smallest_shift.impliedVariance(swap5, MARKET_W_PUTDELTASURF);
+    assertEquals(varSmallShift, varSmallestShift, 1e-9);
 
   }
 
+  /**
+   * Test that an expired swap returns 0 variance
+   */
   @Test
   public void testExpiredSwap() {
 
@@ -423,6 +400,67 @@ public class VarianceSwapStaticReplicationTest {
 
     final double varInExpiredSwap = pricerCutoff.impliedVariance(swap0, MARKET_W_STRIKESURF);
     assertEquals(0.0, varInExpiredSwap, 1e-9);
+  }
+
+  /**
+   * Test RIGHT TAIL behaviour. Note that price is sensitive to cutoff in strike space if implied vol is increasing
+   */
+  @Test
+  public void testVInterpolatedDoublesSurfaceWITHShiftedLN() {
+    final VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(1e-12, 50, new RungeKuttaIntegrator1D(), StrikeParameterisation.STRIKE, 0.25, 0.05);
+    final double varSmiley = pricerCutoff.impliedVariance(swap5, MARKET_W_STRIKESURF);
+    assertEquals(0.1481446155127914, varSmiley, 1e-9);
+  }
+
+  /**
+   * Test RIGHT TAIL behaviour. Note that price is sensitive to cutoff in strike space if implied vol is increasing
+   */
+  @Test
+  public void testVInterpolatedDoublesSurfaceWITHOUTShiftedLN() {
+
+    final VarSwapStaticReplication pricerNoCutoff = new VarSwapStaticReplication(1e-20, 100, new RungeKuttaIntegrator1D(), null, null, null);
+    final double varNoCut = pricerNoCutoff.impliedVariance(swap5, MARKET_W_STRIKESURF);
+    assertEquals(0.1521212665693416, varNoCut, 1e-9);
+
+    final VarSwapStaticReplication pricerDefault = new VarSwapStaticReplication();
+    final double varDef = pricerDefault.impliedVariance(swap5, MARKET_W_STRIKESURF);
+    assertEquals(0.1361216093313216, varDef, 1e-9);
+
+  }
+
+  /**
+   * Instead of matching slope and level at the cutoff, try choosing a level at zero strike, then filling in with shifted lognormal distribution
+   */
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAlternativeUseOfShiftedLognormal() {
+
+    final double lowerBound = EPS;
+    final double upperBound = 1.0 - EPS;
+
+    final double[] EXPIRIES = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+    final double[] PUTDELTAS = new double[] {0, .1, .25, .5, .75, 1.00 };
+    boolean strikesAreCallDeltas = false;
+    final double[] VOLS = new double[] {.4, 0.27, 0.25, 0.25, 0.3, 0.3 };
+
+    InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, PUTDELTAS, VOLS, INTERPOLATOR_2D);
+    VarianceSwapDataBundle market = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(SURFACE, strikesAreCallDeltas), DISCOUNT, SPOT, FORWARD);
+    VarSwapStaticReplication pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.PUTDELTA, 0.1, 0.15); // Hit 10 and 25 Put delta (90 and 75 call)
+
+    final double variancePutDeltas = pricerCutoff.impliedVariance(swap1, market);
+    assertEquals(0.06728073703202365, variancePutDeltas, 1e-9);
+
+    // Try with Call Deltas too
+    final double[] CALLDELTAS = new double[] {1.0, 0.90, 0.75, 0.50, 0.25, 0.00 };
+    strikesAreCallDeltas = true;
+
+    SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAS, VOLS, INTERPOLATOR_2D);
+    market = new VarianceSwapDataBundle(new BlackVolatilityDeltaSurface(SURFACE, strikesAreCallDeltas), DISCOUNT, SPOT, FORWARD);
+    pricerCutoff = new VarSwapStaticReplication(lowerBound, upperBound, new RungeKuttaIntegrator1D(), StrikeParameterisation.CALLDELTA, 0.9, -.15); // Hit 90 and 75 call delta (10 and 25 put).
+
+    final double varianceCallDeltas = pricerCutoff.impliedVariance(swap1, market);
+    assertEquals(variancePutDeltas, varianceCallDeltas, 1e-9);
+
   }
 
   // impliedVolatility Tests ------------------------------------------
@@ -438,4 +476,7 @@ public class VarianceSwapStaticReplicationTest {
     assertEquals(sigmaSquared, sigma * sigma, 1e-9);
 
   }
+
+  // Failing Tests ------------------------------------------
+
 }

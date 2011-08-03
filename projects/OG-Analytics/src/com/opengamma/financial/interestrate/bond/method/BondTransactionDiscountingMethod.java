@@ -20,7 +20,15 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
 /**
  * Class with methods related to bond transaction valued by discounting.
  */
-public class BondTransactionDiscountingMethod {
+public final class BondTransactionDiscountingMethod {
+  private static final BondTransactionDiscountingMethod INSTANCE = new BondTransactionDiscountingMethod();
+
+  public static BondTransactionDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondTransactionDiscountingMethod() {
+  }
 
   /**
    * The present value calculator (for the different parts of the bond transaction).
@@ -38,12 +46,12 @@ public class BondTransactionDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public double presentValue(BondTransaction<? extends BondSecurity<? extends Payment>> bond, YieldCurveBundle curves) {
-    double pvNominal = PVC.visit(bond.getBondTransaction().getNominal(), curves);
-    double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
-    PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
+  public double presentValue(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves) {
+    final double pvNominal = PVC.visit(bond.getBondTransaction().getNominal(), curves);
+    final double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
         .getRepoCurveName());
-    double pvSettlement = PVC.visit(settlement, curves);
+    final double pvSettlement = PVC.visit(settlement, curves);
     return (pvNominal + pvCoupon) * bond.getQuantity() + pvSettlement;
   }
 
@@ -54,17 +62,17 @@ public class BondTransactionDiscountingMethod {
    * @param cleanPrice The bond clean price.
    * @return The present value.
    */
-  public double presentValueFromCleanPrice(BondTransaction<? extends BondSecurity<? extends Payment>> bond, YieldCurveBundle curves, double cleanPrice) {
+  public double presentValueFromCleanPrice(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves, final double cleanPrice) {
     Validate.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
-    BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
-    double dfSettle = curves.getCurve(bondFixed.getBondStandard().getNominal().getDiscountCurve()).getDiscountFactor(bondFixed.getBondTransaction().getSettlementTime());
-    double pvPriceStandard = (cleanPrice + bondFixed.getBondStandard().getAccruedInterest()) * bondFixed.getNotionalStandard() * dfSettle;
-    double pvNominalStandard = PVC.visit(bond.getBondStandard().getNominal(), curves);
-    double pvCouponStandard = PVC.visit(bond.getBondStandard().getCoupon(), curves);
-    double pvDiscountingStandard = (pvNominalStandard + pvCouponStandard);
-    double pvNominalTransaction = PVC.visit(bond.getBondTransaction().getNominal(), curves);
-    double pvCouponTransaction = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
-    double pvDiscountingTransaction = (pvNominalTransaction + pvCouponTransaction);
+    final BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
+    final double dfSettle = curves.getCurve(bondFixed.getBondStandard().getNominal().getDiscountCurve()).getDiscountFactor(bondFixed.getBondTransaction().getSettlementTime());
+    final double pvPriceStandard = (cleanPrice + bondFixed.getBondStandard().getAccruedInterest()) * bondFixed.getNotionalStandard() * dfSettle;
+    final double pvNominalStandard = PVC.visit(bond.getBondStandard().getNominal(), curves);
+    final double pvCouponStandard = PVC.visit(bond.getBondStandard().getCoupon(), curves);
+    final double pvDiscountingStandard = (pvNominalStandard + pvCouponStandard);
+    final double pvNominalTransaction = PVC.visit(bond.getBondTransaction().getNominal(), curves);
+    final double pvCouponTransaction = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
+    final double pvDiscountingTransaction = (pvNominalTransaction + pvCouponTransaction);
     return (pvDiscountingTransaction - pvDiscountingStandard) * bond.getQuantity() + pvPriceStandard;
   }
 
@@ -74,12 +82,12 @@ public class BondTransactionDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(BondTransaction<? extends BondSecurity<? extends Payment>> bond, YieldCurveBundle curves) {
-    PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getNominal(), curves));
-    PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getCoupon(), curves));
-    PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
+  public PresentValueSensitivity presentValueSensitivity(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves) {
+    final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getNominal(), curves));
+    final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getCoupon(), curves));
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
         .getRepoCurveName());
-    PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(settlement, curves));
+    final PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(settlement, curves));
     return pvsNominal.add(pvsCoupon).multiply(bond.getQuantity()).add(pvsSettlement);
   }
 }

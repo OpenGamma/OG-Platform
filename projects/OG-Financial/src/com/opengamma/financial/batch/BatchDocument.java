@@ -154,6 +154,9 @@ public class BatchDocument extends DirectBean {
   public static BatchDocument.Meta meta() {
     return BatchDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(BatchDocument.Meta.INSTANCE);
+  }
 
   @Override
   public BatchDocument.Meta metaBean() {
@@ -161,7 +164,7 @@ public class BatchDocument extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -190,12 +193,12 @@ public class BatchDocument extends DirectBean {
       case -1294635157:  // errors
         return getErrors();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -237,7 +240,7 @@ public class BatchDocument extends DirectBean {
         setErrors((List<BatchError>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

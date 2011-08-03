@@ -45,6 +45,10 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private final VolatilityFunctionProvider<SABRFormulaData> _formula;
   private final SABRATMVolatilityCalculator _atmCalculator;
 
+  public static NonLinearLeastSquare getSolver() {
+    return SOLVER;
+  }
+
   public SABRNonLinearLeastSquareFitter(final VolatilityFunctionProvider<SABRFormulaData> formula) {
     Validate.notNull(formula, "SABR formula");
     _formula = formula;
@@ -123,6 +127,6 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       final double value = _atmCalculator.calculate(sabrFormulaData, option, atmVol);
       mp[0] = value;
     }
-    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]), lsRes.getInverseJacobian());
   }
 }

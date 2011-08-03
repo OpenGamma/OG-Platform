@@ -15,8 +15,8 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaldata.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -39,30 +39,30 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _dataSourceName;
+  private final String _resolutionKey;
   private final String _fieldName;
   private final LocalDate _startDate;
   private final Schedule _scheduleCalculator;
   private final TimeSeriesSamplingFunction _samplingFunction;
 
-  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), null, null);
+  public SecurityPriceSeriesFunction(final String resolutionKey, final String fieldName, final String startDate) {
+    this(resolutionKey, fieldName, LocalDate.parse(startDate), null, null);
   }
 
-  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String scheduleName, final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
+  public SecurityPriceSeriesFunction(final String resolutionKey, final String fieldName, final String startDate, final String scheduleName, final String samplingFunctionName) {
+    this(resolutionKey, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
   }
 
-  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate) {
-    this(dataSourceName, fieldName, startDate, null, null);
+  public SecurityPriceSeriesFunction(final String resolutionKey, final String fieldName, final LocalDate startDate) {
+    this(resolutionKey, fieldName, startDate, null, null);
   }
 
-  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate, final Schedule scheduleCalculator,
+  public SecurityPriceSeriesFunction(final String resolutionKey, final String fieldName, final LocalDate startDate, final Schedule scheduleCalculator,
       final TimeSeriesSamplingFunction samplingFunction) {
-    Validate.notNull(dataSourceName, "data source name");
+    Validate.notNull(resolutionKey, "resolution key");
     Validate.notNull(fieldName, "field name");
     Validate.notNull(startDate, "start date");
-    _dataSourceName = dataSourceName;
+    _resolutionKey = resolutionKey;
     _fieldName = fieldName;
     _startDate = startDate;
     _scheduleCalculator = scheduleCalculator;
@@ -76,10 +76,10 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
-    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSourceName, null, _fieldName,
-        _startDate, true, now, false);
+    
+    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(_fieldName, security.getIdentifiers(), _resolutionKey, _startDate, true, now, false);
     if (tsPair == null) {
-      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
+      throw new NullPointerException("Could not get identifier / price series pair for security " + security + " for " + _resolutionKey + "/" + _fieldName);
     }
     final DoubleTimeSeries<?> ts = tsPair.getTimeSeries();
     if (ts == null) {

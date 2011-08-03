@@ -41,7 +41,7 @@ public abstract class AbstractSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
-  /** 
+  /**
    * The version-correction locator to search at, not null.
    */
   @PropertyDefinition(set = "manual")
@@ -81,6 +81,9 @@ public abstract class AbstractSearchRequest extends DirectBean {
   public static AbstractSearchRequest.Meta meta() {
     return AbstractSearchRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AbstractSearchRequest.Meta.INSTANCE);
+  }
 
   @Override
   public AbstractSearchRequest.Meta metaBean() {
@@ -88,18 +91,18 @@ public abstract class AbstractSearchRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
       case -2031293866:  // versionCorrection
         return getVersionCorrection();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
@@ -108,7 +111,7 @@ public abstract class AbstractSearchRequest extends DirectBean {
         setVersionCorrection((VersionCorrection) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

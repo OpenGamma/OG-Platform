@@ -15,6 +15,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
+import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
@@ -149,7 +150,7 @@ public class DepGraphTestHelper {
     _liveDataAvailabilityProvider.addRequirement(_req2);
   }
 
-  public DependencyGraphBuilder getBuilder(final DefaultFunctionResolver.FunctionPriority prioritizer) {
+  public DependencyGraphBuilder getBuilder(final FunctionPriority prioritizer) {
     if (_builder == null) {
       _builder = new DependencyGraphBuilder();
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);

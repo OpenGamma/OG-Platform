@@ -30,10 +30,10 @@ public class ShiftedLognormalVolModel {
 
   private static final double DEF_TOL = 1.0E-6;
   private static final int DEF_STEPS = 10000;
-
   private static final double DEF_GUESS_VOL = 0.20;
   private static final double DEF_GUESS_SHIFT = 0.1; // Fraction of forward
   private static final VectorRootFinder DEF_SOLVER = new BroydenVectorRootFinder(DEF_TOL, DEF_TOL, DEF_STEPS);
+  private static final ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // This is used to remove sigma > 0 constraint in search
 
   /**
    * Build a Shifted Lognormal Volatility model directly from model inputs 
@@ -87,9 +87,6 @@ public class ShiftedLognormalVolModel {
     return new ShiftedLognormalVolModel(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
-  //TODO Clean up transform stuff if it works; remove if it doesn't
-  private static final ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // !!! This is used to remove sigma > 0 constraint in search
-
   private DoubleMatrix1D fitShiftedLnParams(
       final double strikeTarget1, final double volTarget1,
       final double strikeTarget2, final double volTarget2,
@@ -119,7 +116,6 @@ public class ShiftedLognormalVolModel {
 
         diffs[0] = (target1Price - new BlackFormula(_forward + shift, strikeTarget1 + shift, _expiry, vol, null, strikeTarget1 > _forward).computePrice()) * 1.0E+6;
         diffs[1] = (target2Price - new BlackFormula(_forward + shift, strikeTarget2 + shift, _expiry, vol, null, strikeTarget2 > _forward).computePrice()) * 1.0E+6;
-        System.err.println("vol = " + vol + ",shift = " + shift + ",diffs[0] = " + diffs[0] + ",diffs[1] = " + diffs[1]);
         return new DoubleMatrix1D(diffs);
       }
     };
@@ -129,21 +125,22 @@ public class ShiftedLognormalVolModel {
     } catch (final Exception e) {
       try {
         System.err.println("Failed on first solver attempt. Doing a second");
-        throw new OpenGammaRuntimeException(e.getMessage()); // FIXME
-        //volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {TRANSFORM.transform(volTarget2), 0.0 }));
+        volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {TRANSFORM.transform(volTarget2), 0.0 }));
       } catch (final Exception e2) {
         System.err.println("Failed to find roots to fit a Shifted Lognormal Distribution to your targets. Increase maxSteps, change guess, or change secondTarget.");
-        // TODO Remove println's
         System.err.println("K1 = " + strikeTarget1 + ",vol1 = " + volTarget1 + ",price1 = " + target1Price);
         System.err.println("K2 = " + strikeTarget2 + ",vol2 = " + volTarget2 + ",price2 = " + target2Price);
         throw new OpenGammaRuntimeException(e.getMessage());
       }
     }
+    /* TODO REMOVE ********************************************
     System.err.println("Success");
     System.err.println("K1 = " + strikeTarget1 + ",vol1 = " + volTarget1 + ",price1 = " + target1Price);
     System.err.println("K2 = " + strikeTarget2 + ",vol2 = " + volTarget2 + ",price2 = " + target2Price);
     System.err.println("Fitted Params: vol = " + TRANSFORM.inverseTransform(volShiftParams.getEntry(0))
                           + ",shift = " + volShiftParams.getEntry(1));
+    // ******************************************************** */
+
     return new DoubleMatrix1D(new double[] {TRANSFORM.inverseTransform(volShiftParams.getEntry(0)), volShiftParams.getEntry(1) });
   }
 

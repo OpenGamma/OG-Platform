@@ -189,7 +189,7 @@ public class ShiftedLognormalVolModelTest {
         prices[i] = shiftedBlack.priceFromFixedStrike(strikes[i]);
         vols[i] = new BlackFormula(forward, strikes[i], expiry5, null, prices[i], strikes[i] > forward).computeImpliedVolatility();
 
-        System.err.println(lnVols[j] + "," + shifts[j] + "," + strikes[i] + "," + vols[i]);
+        // System.err.println(lnVols[j] + "," + shifts[j] + "," + strikes[i] + "," + vols[i]);
       }
     }
   }

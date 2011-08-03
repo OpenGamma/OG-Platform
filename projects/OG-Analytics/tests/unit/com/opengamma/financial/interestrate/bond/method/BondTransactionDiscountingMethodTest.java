@@ -131,10 +131,10 @@ public class BondTransactionDiscountingMethodTest {
   // Calculators
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
 
   @Test
   public void testPVFixedBondSettlePast() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_1, CURVES);
     final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_1, CURVES);
     final double pvCoupon = PVC.visit(COUPON_TR_FIXED_1, CURVES);
@@ -143,7 +143,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVFixedBondSettleToday() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_2, CURVES);
     final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_2, CURVES);
     final double pvCoupon = PVC.visit(COUPON_TR_FIXED_2, CURVES);
@@ -153,7 +152,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVFixedBondSettleFuture() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_3, CURVES);
     final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_3, CURVES);
     final double pvCoupon = PVC.visit(COUPON_TR_FIXED_3, CURVES);
@@ -163,7 +161,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVSFixedBond() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final PresentValueSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
     final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
     final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
@@ -174,7 +171,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testFixedBondMethodCalculator() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final double pvMethod = method.presentValue(BOND_TRANSACTION_FIXED_3, CURVES);
     final double pvCalculator = PVC.visit(BOND_TRANSACTION_FIXED_3, CURVES);
     assertEquals("Fixed bond present value: Method vs Calculator", pvMethod, pvCalculator);
@@ -185,7 +181,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVIborBond() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final double pv = method.presentValue(BOND_TRANSACTION_FRN, CURVES);
     final double pvNominal = PVC.visit(NOMINAL_TR_1_FRN, CURVES);
     final double pvCoupon = PVC.visit(COUPON_TR_1_FRN, CURVES);
@@ -195,7 +190,6 @@ public class BondTransactionDiscountingMethodTest {
 
   @Test
   public void testPVSIborBond() {
-    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     final PresentValueSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FRN, CURVES);
     final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
     final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));

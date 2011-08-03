@@ -301,6 +301,9 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   public static ResultModelDefinition.Meta meta() {
     return ResultModelDefinition.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ResultModelDefinition.Meta.INSTANCE);
+  }
 
   @Override
   public ResultModelDefinition.Meta metaBean() {
@@ -308,7 +311,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1633131628:  // aggregatePositionOutputMode
         return getAggregatePositionOutputMode();
@@ -321,11 +324,11 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
       case 545428107:  // primitiveOutputMode
         return getPrimitiveOutputMode();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1633131628:  // aggregatePositionOutputMode
         setAggregatePositionOutputMode((ResultOutputMode) newValue);
@@ -343,7 +346,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
         setPrimitiveOutputMode((ResultOutputMode) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

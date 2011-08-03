@@ -87,6 +87,9 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   public static VolatilityCubeDefinition.Meta meta() {
     return VolatilityCubeDefinition.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(VolatilityCubeDefinition.Meta.INSTANCE);
+  }
 
   @Override
   public VolatilityCubeDefinition.Meta metaBean() {
@@ -94,7 +97,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -105,12 +108,12 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
       case -1711425899:  // relativeStrikes
         return getRelativeStrikes();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -125,7 +128,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
         setRelativeStrikes((List<Double>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

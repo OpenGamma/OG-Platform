@@ -197,11 +197,16 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
     _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument correct(final SecurityDocument document) {
+    return update(document);
   }
 
   //-------------------------------------------------------------------------
@@ -217,11 +222,6 @@ public class InMemorySecurityMaster implements SecurityMaster {
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
-  }
-
-  @Override
-  public SecurityDocument correct(final SecurityDocument document) {
-    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
   }
 
   //-------------------------------------------------------------------------

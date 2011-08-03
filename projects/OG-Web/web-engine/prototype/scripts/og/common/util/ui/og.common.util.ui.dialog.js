@@ -60,7 +60,7 @@ $.register_module({
                 // if the html isnt already in the dom, add it
                 if ($(css_class).length === 0) $('body').append(default_options.error.html);
                 $obj = $(css_class);
-                $obj.attr('title', obj.title || 'Opps, something seem to have gone wrong');
+                $obj.attr('title', obj.title || 'Oops, something seem to have gone wrong');
                 $obj.html(obj.message);
                 $obj.dialog($.extend(true, default_options.error.jquery, obj));
             }

@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.historicaldata.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
 /**
  * Mock time-series loader to get the example engine server running.

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -51,6 +52,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final MarketDataPermissionProvider _permissionProvider;
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
+  private final Set<ValueRequirement> _failedRequirements = new CopyOnWriteArraySet<ValueRequirement>();
 
   public LiveMarketDataProvider(LiveDataClient liveDataClient, SecuritySource securitySource, MarketDataAvailabilityProvider availabilityProvider) {
     this(liveDataClient, securitySource, availabilityProvider, new FudgeContext());
@@ -103,6 +105,10 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   
   @Override
   public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    for (ValueRequirement valueRequirement : valueRequirements) {
+      _failedRequirements.remove(valueRequirement); //Put these back to a waiting state so that we can try again
+    }
+    
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
       LiveDataSpecification liveDataSpec = requirement.getTargetSpecification().getRequiredLiveData(getSecuritySource());
@@ -156,7 +162,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    return getUnderlyingProvider().snapshot(marketDataSpec);
+    return new LiveMarketDataSnapshot(getUnderlyingProvider().snapshot(marketDataSpec), this);
   }
   
   //-------------------------------------------------------------------------
@@ -170,14 +176,24 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
       _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      _failedRequirements.removeAll(valueRequirements); //We expect a valueUpdate call for this later
       s_logger.info("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+      
       super.subscriptionSucceeded(valueRequirements);
     } else {
+      _failedRequirements.addAll(valueRequirements);
+      //TODO: could be more precise here, only those which weren't in _failedRequirements
+      valuesChanged(valueRequirements); //PLAT-1429: wake up the init call
+      
       s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
       super.subscriptionFailed(valueRequirements, subscriptionResult.getUserMessage());
     }
   }
 
+  public boolean isFailed(ValueRequirement requirement) {
+    return _failedRequirements.contains(requirement);
+  }
+  
   @Override
   public void subscriptionStopped(
       LiveDataSpecification fullyQualifiedSpecification) {

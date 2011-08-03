@@ -5,7 +5,6 @@ package com.opengamma.financial.security.equity;
 public class EquityVarianceSwapSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           
         public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-        @Override
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
   private static final long serialVersionUID = 5052668084358189075l;
   private com.opengamma.id.Identifier _spotUnderlyingIdentifier;
@@ -28,7 +27,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
   private com.opengamma.id.Identifier _region;
   public static final String REGION_KEY = "region";
-  private com.opengamma.financial.convention.frequency.  _observationFrequency;
+  private com.opengamma.financial.convention.frequency.Frequency _observationFrequency;
   public static final String OBSERVATION_FREQUENCY_KEY = "observationFrequency";
   public static final String SECURITY_TYPE = "EQUITY VARIANCE SWAP";
   public EquityVarianceSwapSecurity (com.opengamma.id.Identifier spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
@@ -215,18 +214,15 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     }
     _observationFrequency = source._observationFrequency;
   }
-  @Override
   public EquityVarianceSwapSecurity clone () {
     return new EquityVarianceSwapSecurity (this);
   }
-  @Override
   public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  @Override
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_spotUnderlyingIdentifier != null)  {
@@ -356,7 +352,6 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     if (observationFrequency == null) throw new NullPointerException ("observationFrequency' cannot be null");
     _observationFrequency = observationFrequency;
   }
-  @Override
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof EquityVarianceSwapSecurity)) return false;
@@ -416,7 +411,6 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     else if (msg._observationFrequency != null) return false;
     return super.equals (msg);
   }
-  @Override
   public int hashCode () {
     int hc = super.hashCode ();
     hc *= 31;
@@ -440,7 +434,6 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     if (_observationFrequency != null) hc += _observationFrequency.hashCode ();
     return hc;
   }
-  @Override
   public String toString () {
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }

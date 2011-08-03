@@ -48,6 +48,9 @@ public class RemoveValueRequest extends DirectBean {
   public static RemoveValueRequest.Meta meta() {
     return RemoveValueRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(RemoveValueRequest.Meta.INSTANCE);
+  }
 
   @Override
   public RemoveValueRequest.Meta metaBean() {
@@ -55,7 +58,7 @@ public class RemoveValueRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         return getValueRequirement();
@@ -64,11 +67,11 @@ public class RemoveValueRequest extends DirectBean {
       case -765894756:  // valueName
         return getValueName();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         setValueRequirement((ValueRequirement) newValue);
@@ -80,7 +83,7 @@ public class RemoveValueRequest extends DirectBean {
         setValueName((String) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -32,7 +32,7 @@ public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBa
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public DateTimeDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
@@ -46,7 +46,7 @@ public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBa
     }
 
     @Override
-    public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
+    public DateTimeDoubleTimeSeries newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 

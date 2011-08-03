@@ -7,10 +7,7 @@ $.register_module({
     dependencies: ['og.common.routes'],
     obj: function () {
         return function (row, cell, value, columnDef, dataContext) {
-            var routes = og.common.routes,
-                rule = og.views.positions.rules['load_positions'],
-                href = routes.hash(rule, {id: dataContext.id});
-            return  '<a href="#' + href + '">' + dataContext.name + '</a>';
+            return  dataContext.name;
         };
     }
 });

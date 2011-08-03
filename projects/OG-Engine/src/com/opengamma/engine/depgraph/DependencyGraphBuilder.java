@@ -14,13 +14,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -170,6 +170,7 @@ public class DependencyGraphBuilder {
     s_logger.info("Resolving target requirement for {} on {}", requirement, target);
     // Find existing nodes in the graph
     final Collection<Pair<DependencyNode, ValueSpecification>> existingNodes = _graph.getNodesSatisfying(requirement);
+    final Map<ParameterizedFunction, Pair<DependencyNode, ValueSpecification>> existingNodesByFunction;
     final ResolutionState resolutionState;
     if (existingNodes != null) {
       s_logger.debug("{} existing nodes found", existingNodes.size());
@@ -183,6 +184,10 @@ public class DependencyGraphBuilder {
         resolutionState.addExistingNodes(existingNodes);
         return resolutionState;
       }
+      existingNodesByFunction = Maps.newHashMapWithExpectedSize(existingNodes.size());
+      for (Pair<DependencyNode, ValueSpecification> existingNode : existingNodes) {
+        existingNodesByFunction.put(existingNode.getFirst().getFunction(), existingNode);
+      }
     } else {
       // Find market data
       if (getMarketDataAvailabilityProvider().isAvailable(requirement)) {
@@ -191,6 +196,7 @@ public class DependencyGraphBuilder {
         return new ResolutionState(requirement, function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), createDependencyNode(target, dependent));
       }
       resolutionState = new ResolutionState(requirement);
+      existingNodesByFunction = Collections.emptyMap();
     }
     // Find functions that can do this
     final DependencyNode node = createDependencyNode(target, dependent);
@@ -204,11 +210,26 @@ public class DependencyGraphBuilder {
         while (itr.hasNext()) {
           final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
           //s_logger.debug("Considering {} for {}", resolvedFunction, requirement);
+          final Pair<DependencyNode, ValueSpecification> existingNode = existingNodesByFunction.get(resolvedFunction.getFirst());
+          if (existingNode != null) {
+            final ValueSpecification resolvedOutput = existingNode.getSecond().compose(requirement);
+            if (!existingNode.getSecond().equals(resolvedOutput)) {
+              s_logger.debug("Reducing existing specification {} to {}", existingNode, resolvedOutput);
+              _graph.removeDependencyNode(existingNode.getFirst());
+              existingNode.getFirst().replaceOutputValue(existingNode.getSecond(), resolvedOutput);
+              _graph.addDependencyNode(existingNode.getFirst());
+            }
+            resolutionState.addExistingNode(existingNode.getFirst(), resolvedOutput);
+            return true;
+          }
           final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
           // TODO: can we move this down to where it's needed to avoid the getResults call for nodes already in the graph?
           final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
           final ValueSpecification originalOutput = resolvedFunction.getSecond();
           final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+          // The next fragment is redundent; any nodes producing the resolvedoutput should have satisfied the requirement and hence been caught above.
+          // It's commented out in case this reasoning is wrong.
+          /*
           final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
           if (existingNode != null) {
             // Resolved function output already in the graph
@@ -216,6 +237,7 @@ public class DependencyGraphBuilder {
             resolutionState.addExistingNode(existingNode, resolvedOutput);
             return true;
           }
+          */
           if (_node == null) {
             _node = createDependencyNode(target, dependent);
           }

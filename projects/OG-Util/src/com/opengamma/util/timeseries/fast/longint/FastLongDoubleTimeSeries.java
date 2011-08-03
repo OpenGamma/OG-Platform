@@ -60,8 +60,6 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long>, Iterable
 
   FastLongDoubleTimeSeries tailFast(int items);
 
-  double[] valuesArrayFast();
-
   long[] timesArrayFast();
 
   FastLongDoubleTimeSeries newInstanceFast(long[] times, double[] values);

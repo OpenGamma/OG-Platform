@@ -24,14 +24,20 @@ public class BlackVolatilityDeltaSurface extends BlackVolatilitySurface {
 
   /**
    * @param surface Surface<Expiry, Delta, LognormalVol>
-   */
+  */
   public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface) {
     this(surface, true);
   }
 
   public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final boolean strikeAxisRepresentsCalls) {
-    super(surface, StrikeParameterisation.DELTA);
+    super(surface, strikeAxisRepresentsCalls ? StrikeParameterisation.CALLDELTA : StrikeParameterisation.PUTDELTA);
     _strikeAxisRepresentsCalls = strikeAxisRepresentsCalls;
+
+  }
+
+  public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final StrikeParameterisation strikeType) {
+    super(surface, strikeType);
+    _strikeAxisRepresentsCalls = strikeType == StrikeParameterisation.CALLDELTA;
 
   }
 

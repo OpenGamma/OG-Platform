@@ -11,7 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -21,6 +24,10 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -31,6 +38,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
@@ -39,6 +47,7 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.position.Deal;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -75,6 +84,14 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPos";
+  /**
+   * The deal prefix.
+   */
+  public static final String DEAL_PREFIX = "Deal~";
+  /**
+   * The deal class name key.
+   */
+  public static final String DEAL_CLASSNAME = "Deal~JavaClass";
   /**
    * SQL select.
    */
@@ -450,10 +467,21 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addDateNullIgnored("premium_date", trade.getPremiumDate())
           .addTimeNullIgnored("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
           .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
-
       tradeList.add(tradeArgs);
       
-      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+      // trade attributes
+      Map<String, String> attributes = new HashMap<String, String>(trade.getAttributes());
+      if (trade.getDeal() != null) {
+        Deal deal = trade.getDeal();
+        attributes.put(DEAL_CLASSNAME, deal.getClass().getName());
+        for (MetaProperty<Object> mp : deal.metaBean().metaPropertyIterable()) {
+          Object value = mp.get(deal);
+          if (value != null) {
+            attributes.put(DEAL_PREFIX + mp.name(), value.toString());
+          }
+        }
+      }
+      for (Entry<String, String> entry : attributes.entrySet()) {
         final long tradeAttrId = nextId("pos_trade_attr_seq");
         final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
             .addValue("attr_id", tradeAttrId)
@@ -467,7 +495,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       // set the trade uniqueId
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
       UniqueIdentifiables.setInto(trade, tradeUid);
-      trade.setPositionId(positionUid);
+      trade.setParentPositionId(positionUid);
       for (Identifier id : trade.getSecurityKey()) {
         final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
             .addValue("trade_id", tradeId)
@@ -708,6 +736,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
 
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {
+          if (_trade != null) {
+            fixupTrade();
+          }
           _lastPositionId = positionId;
           buildPosition(rs, positionId);
         }
@@ -744,6 +775,34 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         }
       }
       return _documents;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private void fixupTrade() {
+      String dealClass = _trade.getAttributes().remove(DEAL_CLASSNAME);
+      if (dealClass != null) {
+        Class<?> cls;
+        try {
+          cls = DbPositionMaster.class.getClassLoader().loadClass(dealClass);
+        } catch (ClassNotFoundException ex) {
+          throw new OpenGammaRuntimeException("Unable to load deal class", ex);
+        }
+        MetaBean metaBean = JodaBeanUtils.metaBean(cls);
+        Deal deal = (Deal) metaBean.builder().build();
+        for (Iterator<Entry<String, String>> it = _trade.getAttributes().entrySet().iterator(); it.hasNext(); ) {
+          Entry<String, String> entry = it.next();
+          if (entry.getKey().startsWith(DEAL_PREFIX)) {
+            MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(entry.getKey(), DEAL_PREFIX));
+            if (mp.propertyType() == LocalDate.class) {
+              ((MetaProperty) mp).set(deal, LocalDate.parse(entry.getValue()));
+            } else {
+              mp.setString(deal, entry.getValue());
+            }
+            it.remove();
+          }
+        }
+        _trade.setDeal(deal);
+      }
     }
 
     private void buildPosition(final ResultSet rs, final long positionId) throws SQLException {
@@ -813,7 +872,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         _trade.setPremiumTime(OffsetTime.of(premiumTime, ZoneOffset.ofTotalSeconds(premiumZoneOffset)));
       }
 
-      _trade.setPositionId(_position.getUniqueId());
+      _trade.setParentPositionId(_position.getUniqueId());
       _position.getTrades().add(_trade);
     }
   }

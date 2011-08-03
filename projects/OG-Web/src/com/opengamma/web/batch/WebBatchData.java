@@ -89,6 +89,9 @@ public class WebBatchData extends DirectBean {
   public static WebBatchData.Meta meta() {
     return WebBatchData.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(WebBatchData.Meta.INSTANCE);
+  }
 
   @Override
   public WebBatchData.Meta metaBean() {
@@ -96,7 +99,7 @@ public class WebBatchData extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -252634564:  // batchMaster
         return getBatchMaster();
@@ -107,11 +110,11 @@ public class WebBatchData extends DirectBean {
       case 93509434:  // batch
         return getBatch();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -252634564:  // batchMaster
         setBatchMaster((BatchMaster) newValue);
@@ -126,7 +129,7 @@ public class WebBatchData extends DirectBean {
         setBatch((BatchDocument) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -14,6 +14,7 @@ import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication;
 import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
 import com.opengamma.financial.equity.varswap.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -70,6 +71,29 @@ public class VarianceSwapRatesSensitivityTest {
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatShort));
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatLong));
     assertEquals(deltaFlatLong, deltaFlatShort, TOLERATED);
+    assertEquals(0.0, deltaFlatShort, TOLERATED);
+  }
+
+  /**
+   * If the smile/skew translates with the forward, we always expect zero forward sensitivity.
+   */
+  @Test
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  public void testForwardSensitivityForDeltaStrikeParameterisation() {
+
+    final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
+    final BlackVolatilityDeltaSurface DELTA_VOL_SURFACE = new BlackVolatilityDeltaSurface(DELTA_SURFACE, true);
+    final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, SPOT, FORWARD);
+
+    double fwd = DELTA_MARKET.getForwardUnderlying();
+    double relShift = 0.01;
+
+    double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, DELTA_MARKET, relShift * fwd);
+    double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, DELTA_MARKET, relShift * fwd);
+    double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, DELTA_MARKET, relShift * fwd);
+
+    assertEquals(0.0, deltaSkew, TOLERATED);
+    assertEquals(0.0, deltaFlatLong, TOLERATED);
     assertEquals(0.0, deltaFlatShort, TOLERATED);
   }
 
@@ -154,13 +178,7 @@ public class VarianceSwapRatesSensitivityTest {
     double sumVegaBuckets = 0.0;
     for (int i = 0; i < vegaSurface.size(); i++) {
       sumVegaBuckets += vegaBuckets[i];
-
-      // While we're here, let's ensure we don't see sensitivity to other expiries
       System.err.println("vega[" + i + "] " + vegaBuckets[i] + ",T[" + i + "] " + T[i] + ",K[" + i + "] " + K[i]);
-      if (T[i] != swapStartsNow.getTimeToSettlement()) {
-        //assertEquals(0.0, vegaBuckets[i], TOLERATED);
-      }
-
     }
     System.err.println("sum of vega buckets = " + sumVegaBuckets);
 
@@ -169,7 +187,39 @@ public class VarianceSwapRatesSensitivityTest {
     System.err.println("parallelVega = " + parallelVega);
 
     assertEquals(parallelVega, sumVegaBuckets, 0.01);
+  }
 
+  /**
+   * Test BlackVolatilityDeltaSurface
+   * sum of vega buckets = 4583.92106434809
+  parallelVega = 4583.95175875458
+   */
+  @Test
+  public void testBlackVegaForDeltaSurface() {
+
+    @SuppressWarnings({"rawtypes", "unchecked" })
+    final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
+    final BlackVolatilityDeltaSurface DELTA_VOL_SURFACE = new BlackVolatilityDeltaSurface(DELTA_SURFACE, true);
+    final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, SPOT, FORWARD);
+
+    // Compute the surface 
+    NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
+    // Sum up each constituent
+    double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
+    double[] T = vegaSurface.getXDataAsPrimitive();
+    double[] K = vegaSurface.getYDataAsPrimitive();
+    double sumVegaBuckets = 0.0;
+    for (int i = 0; i < vegaSurface.size(); i++) {
+      sumVegaBuckets += vegaBuckets[i];
+      System.err.println("vega[" + i + "] " + vegaBuckets[i] + ",T[" + i + "] " + T[i] + ",K[" + i + "] " + K[i]);
+    }
+    System.err.println("sum of vega buckets = " + sumVegaBuckets);
+
+    // Compute parallel vega, ie to a true parallel shift
+    final Double parallelVega = deltaCalculator.calcBlackVegaParallel(swapStartsNow, DELTA_MARKET);
+    System.err.println("parallelVega = " + parallelVega);
+
+    assertEquals(parallelVega, sumVegaBuckets, 0.033);
   }
 
   // Setup ------------------------------------------
@@ -190,6 +240,11 @@ public class VarianceSwapRatesSensitivityTest {
                                                         40, 80, 100, 120,
                                                         40, 80, 100, 120,
                                                         40, 80, 100, 120 };
+  private static final double[] CALLDELTAs = new double[] {0.9, 0.75, 0.5, 0.25,
+                                                            0.9, 0.75, 0.5, 0.25,
+                                                            0.9, 0.75, 0.5, 0.25,
+                                                            0.9, 0.75, 0.5, 0.25 };
+
   private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
                                                      0.25, 0.25, 0.25, 0.25,
                                                      0.26, 0.24, 0.23, 0.25,

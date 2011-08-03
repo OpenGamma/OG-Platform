@@ -57,8 +57,6 @@ public interface FastIntDoubleTimeSeries extends FastTimeSeries<Integer> {
 
   FastIntDoubleTimeSeries tailFast(int items);
 
-  double[] valuesArrayFast();
-
   int[] timesArrayFast();
 
   FastIntDoubleTimeSeries newInstanceFast(int[] times, double[] values);

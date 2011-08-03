@@ -11,48 +11,176 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
-
 /**
+ * A time-series, which represents the changes in a value over time.
+ * <p>
+ * This interface is similar to both a {@code SortedMap} of value keyed by date-time
+ * and a {@code List} of date-time to value pairs.
+ * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <DATE_TYPE> The type of the dates
- * @param <T> The type of the data
+ * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <V> the value being viewed over time, such as {@code Double}
  */
-public interface ObjectTimeSeries<DATE_TYPE, T> extends TimeSeries<DATE_TYPE, T> {
+public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
 
-  // Self-explanatory
-  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(ObjectTimeSeries<?, T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(ObjectTimeSeries<?, T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other);
-  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other);
+  @Override
+  ObjectTimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
 
-  ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, boolean inclusiveStart, DATE_TYPE endTime, boolean exclusiveEnd);
-  ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);
-  ObjectTimeSeries<DATE_TYPE, T> head(int numItems);
-  ObjectTimeSeries<DATE_TYPE, T> tail(int numItems);
- 
-  ObjectTimeSeries<DATE_TYPE, T> lag(final int days);
-  
-  // conversions
-  FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries();
-  
-  FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries();
-  
-  FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries();
-  
-  FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries();
+  @Override
+  ObjectTimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);
 
-  FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding);
-  
-  FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding);
-  
-  FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding);
-  
-  FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding);
-  
+  @Override
+  ObjectTimeSeries<T, V> head(int numItems);
+
+  @Override
+  ObjectTimeSeries<T, V> tail(int numItems);
+
+  @Override
+  ObjectTimeSeries<T, V> lag(final int lagCount);
+
+  @Override
+  ObjectTimeSeries<T, V> newInstance(T[] dateTimes, V[] values);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from this series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionFirstValue(ObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from this series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionFirstValue(FastBackedObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from this series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionFirstValue(FastIntObjectTimeSeries<V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from this series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionFirstValue(FastLongObjectTimeSeries<V> other);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from the other series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionSecondValue(ObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from the other series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionSecondValue(FastBackedObjectTimeSeries<?, V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from the other series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionSecondValue(FastIntObjectTimeSeries<V> other);
+
+  /**
+   * Creates a new time-series with the intersection of the date-times from
+   * this time-series and another time-series, with the values from the other series.
+   * 
+   * @param other  the other series to intersect with, not null
+   * @return the new time-series, not null
+   */
+  ObjectTimeSeries<T, V> intersectionSecondValue(FastLongObjectTimeSeries<V> other);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this time-series to a {@code FastIntObjectTimeSeries}.
+   * 
+   * @return the time-series, not null
+   */
+  FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries();
+
+  /**
+   * Converts this time-series to a {@code FastMutableIntObjectTimeSeries}.
+   * 
+   * @return the time-series, not null
+   */
+  FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries();
+
+  /**
+   * Converts this time-series to a {@code FastLongObjectTimeSeries}.
+   * 
+   * @return the time-series, not null
+   */
+  FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries();
+
+  /**
+   * Converts this time-series to a {@code FastMutableLongObjectTimeSeries}.
+   * 
+   * @return the time-series, not null
+   */
+  FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this time-series to a {@code FastIntObjectTimeSeries} using
+   * a specific date-time encoding.
+   * 
+   * @param encoding  the date-time encoding, not null
+   * @return the time-series, not null
+   */
+  FastIntObjectTimeSeries<V> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding);
+
+  /**
+   * Converts this time-series to a {@code FastMutableIntObjectTimeSeries} using
+   * a specific date-time encoding.
+   * 
+   * @param encoding  the date-time encoding, not null
+   * @return the time-series, not null
+   */
+  FastMutableIntObjectTimeSeries<V> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding);
+
+  /**
+   * Converts this time-series to a {@code FastLongObjectTimeSeries} using
+   * a specific date-time encoding.
+   * 
+   * @param encoding  the date-time encoding, not null
+   * @return the time-series, not null
+   */
+  FastLongObjectTimeSeries<V> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding);
+
+  /**
+   * Converts this time-series to a {@code FastMutableLongObjectTimeSeries} using
+   * a specific date-time encoding.
+   * 
+   * @param encoding  the date-time encoding, not null
+   * @return the time-series, not null
+   */
+  FastMutableLongObjectTimeSeries<V> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding);
+
 //  public abstract MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries();
 //  
 //  public abstract MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone timeZone);
@@ -100,6 +228,4 @@ public interface ObjectTimeSeries<DATE_TYPE, T> extends TimeSeries<DATE_TYPE, T>
 //  public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
 //  
 //  public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate);
-
-  // CSON: Self-explainatory
 }

@@ -40,7 +40,7 @@ public final class CleanPriceFromCurvesCalculator extends AbstractInterestRateDe
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.cleanPriceFromCurves(bond, curves);
   }
 

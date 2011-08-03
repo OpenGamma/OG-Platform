@@ -16,7 +16,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.historicaldata.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -56,7 +56,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _dataSourceName;
+  private final String _resolutionKey;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
   private final Set<String> _valueGreekRequirementNames;
@@ -65,16 +65,16 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
   private final TimeSeriesSamplingFunction _samplingCalculator;
   private static final SensitivityPnLCalculator PNL_CALCULATOR = new SensitivityPnLCalculator();
 
-  public PositionValueGreekSensitivityPnLFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
+  public PositionValueGreekSensitivityPnLFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String valueGreekRequirementNames) {
-    this(dataSourceName, startDate, returnCalculatorName, scheduleName, samplingFunctionName, new String[] {valueGreekRequirementNames});
+    this(resolutionKey, startDate, returnCalculatorName, scheduleName, samplingFunctionName, new String[] {valueGreekRequirementNames});
   }
 
-  public PositionValueGreekSensitivityPnLFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
+  public PositionValueGreekSensitivityPnLFunction(final String resolutionKey, final String startDate, final String returnCalculatorName,
       final String scheduleName, final String samplingFunctionName, final String... valueGreekRequirementNames) {
-    Validate.notNull(dataSourceName, "data source name");
+    Validate.notNull(resolutionKey, "resolution key");
     Validate.notNull(startDate, "start date");
-    _dataSourceName = dataSourceName;
+    _resolutionKey = resolutionKey;
     _startDate = LocalDate.parse(startDate);
     _valueGreeks = new HashSet<ValueGreek>();
     _valueGreekRequirementNames = new HashSet<String>();
@@ -105,7 +105,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
         final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
         final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-          final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _dataSourceName, null, securitySource, underlyingType,
+          final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalSource, _resolutionKey, securitySource, underlyingType,
               position.getSecurity());
           final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
           final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);

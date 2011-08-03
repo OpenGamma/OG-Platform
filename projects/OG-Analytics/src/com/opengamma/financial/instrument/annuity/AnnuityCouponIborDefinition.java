@@ -17,7 +17,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -25,6 +25,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * A wrapper class for a AnnuityDefinition containing CouponIborDefinition.
  */
 public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDefinition> {
+  /** Empty array for array conversion of list */
+  protected static final Coupon[] EMPTY_ARRAY_COUPON = new Coupon[0];
 
   /**
    * Constructor from a list of Ibor-like coupons.
@@ -131,17 +133,44 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     return new AnnuityCouponIborDefinition(coupons);
   }
 
+  /**
+   * Creates a new annuity containing the coupons with start accrual date strictly before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityCouponIborDefinition trimStart(ZonedDateTime trimDate) {
+    List<CouponIborDefinition> list = new ArrayList<CouponIborDefinition>();
+    for (CouponIborDefinition payment : getPayments()) {
+      if (!payment.getAccrualStartDate().isBefore(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponIborDefinition(list.toArray(new CouponIborDefinition[0]));
+  }
+
   @Override
-  public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final List<Payment> resultList = new ArrayList<Payment>();
+    final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponIborDefinition[] payments = getPayments();
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
       if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
         resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+    return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
+  }
+
+  @Override
+  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final List<Coupon> resultList = new ArrayList<Coupon>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getPayments()[loopcoupon].getPaymentDate())) {
+        resultList.add(getPayments()[loopcoupon].toDerivative(date, yieldCurveNames));
+      }
+    }
+    return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
   }
 
 }

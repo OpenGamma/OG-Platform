@@ -94,6 +94,9 @@ public class MasterChanged extends DirectBean implements Serializable {
   public static MasterChanged.Meta meta() {
     return MasterChanged.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MasterChanged.Meta.INSTANCE);
+  }
 
   @Override
   public MasterChanged.Meta metaBean() {
@@ -101,7 +104,7 @@ public class MasterChanged extends DirectBean implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         return getType();
@@ -112,11 +115,11 @@ public class MasterChanged extends DirectBean implements Serializable {
       case 2084044265:  // versionInstant
         return getVersionInstant();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         setType((MasterChangedType) newValue);
@@ -131,7 +134,7 @@ public class MasterChanged extends DirectBean implements Serializable {
         setVersionInstant((Instant) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -208,7 +208,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       Identifier bbgIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatLeg.getFloatingReferenceRateIdentifier().getValue());
       indexConvention = _conventionSource.getConventionBundle(bbgIdentifier);
       if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
+        throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency + " using " + floatLeg.getFloatingReferenceRateIdentifier());
       }
     }
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,

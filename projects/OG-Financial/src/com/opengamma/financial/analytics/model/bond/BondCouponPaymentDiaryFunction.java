@@ -9,8 +9,6 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -25,19 +23,27 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
-import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
+import com.opengamma.financial.analytics.bond.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
  */
 public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
+  private BondSecurityConverter _visitor;
 
-  public BondCouponPaymentDiaryFunction() {
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    _visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
   }
 
   @Override
@@ -70,24 +76,18 @@ public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final BondSecurity security = (BondSecurity) target.getSecurity();
-    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext
-        .getConventionBundleSource(executionContext);
-    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    BondDefinition bond = (BondDefinition) security.accept(visitor);
-    final double[] coupons = bond.getCoupons();
-    final double notional = security.getRedemptionValue();
-    final int n = bond.getCoupons().length;
-    final LocalDate[] couponPaymentDates = (LocalDate[]) ArrayUtils.subarray(bond.getSettlementDates(), 1, n + 1);
-    final Object[] labels = new Object[n];
+    final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) security.accept(_visitor);
+    final AnnuityCouponFixedDefinition coupons = bond.getCoupon();
+    final int n = coupons.getNumberOfPayments();
+    final LocalDate[] dates = new LocalDate[n];
     final double[] payments = new double[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = coupons[i] * notional;
-      labels[i] = couponPaymentDates[i].toString();
+      final CouponFixedDefinition coupon = coupons.getNthPayment(i);
+      dates[i] = coupon.getPaymentDate().toLocalDate();
+      payments[i] = coupon.getAmount() * coupon.getNotional();
     }
-    payments[n - 1] += notional;
-    final LocalDateLabelledMatrix1D matrix = new LocalDateLabelledMatrix1D(couponPaymentDates, labels, payments);
+    payments[n - 1] += coupons.getNthPayment(n - 1).getNotional();
+    final LocalDateLabelledMatrix1D matrix = new LocalDateLabelledMatrix1D(dates, payments);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES, security), getUniqueId()), matrix));
   }
 

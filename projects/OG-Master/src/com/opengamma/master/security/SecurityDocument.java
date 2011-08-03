@@ -81,6 +81,9 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   public static SecurityDocument.Meta meta() {
     return SecurityDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(SecurityDocument.Meta.INSTANCE);
+  }
 
   @Override
   public SecurityDocument.Meta metaBean() {
@@ -88,18 +91,18 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
       case 949122880:  // security
         return getSecurity();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -108,7 +111,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
         setSecurity((ManageableSecurity) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
