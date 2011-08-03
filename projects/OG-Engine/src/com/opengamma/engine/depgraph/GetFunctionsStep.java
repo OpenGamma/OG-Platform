@@ -71,10 +71,7 @@ import com.opengamma.util.tuple.Pair;
       if (!pushResult(context, result)) {
         throw new IllegalStateException(result + " rejected by pushResult");
       }
-      if (!getTask().isFinished()) {
-        // Wasn't immediately pumped, so declare a finished state 
-        setTaskStateFinished(context);
-      }
+      // Leave in current state; will go to finished after being pumped
     } else {
       final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
       if (itr.hasNext()) {
@@ -89,7 +86,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected void pump(final GraphBuildingContext context) {
-    // Might be pumped while pushing the live data result; this will go straight to the finished state
+    // Only had one market data result so go to finished state
     setTaskStateFinished(context);
   }
 

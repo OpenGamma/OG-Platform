@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -62,9 +63,9 @@ public class DependencyGraphBuilder {
   private static final AtomicInteger s_nextDebugGraphId = new AtomicInteger();
 
   private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
-  private static final int MAX_ADDITIONAL_THREADS = 1; // DON'T CHECK IN WITH !=-1
+  private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
-  private static final int MAX_CALLBACK_DEPTH = Integer.MAX_VALUE; // Disable stack splitting until the normal build actually works 
+  private static final int MAX_CALLBACK_DEPTH = 16;
 
   private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
 
@@ -237,22 +238,18 @@ public class DependencyGraphBuilder {
     }
 
     public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-      s_loggerContext.info("Resolved {} to {}", valueRequirement, resolvedValue);
-      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-        addToRunQueue(new ResolvedValueCallback.Resolved(callback, valueRequirement, resolvedValue, pump));
-      } else {
-        callback.resolved(this, valueRequirement, resolvedValue, pump);
-      }
+      s_loggerContext.debug("Resolved {} to {}", valueRequirement, resolvedValue);
+      _stackDepth++;
+      // Note that NextFunctionStep does the finished transaction too early if we schedule resolved messages arbitrarily 
+      callback.resolved(this, valueRequirement, resolvedValue, pump);
       _stackDepth--;
     }
 
     public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement) {
-      s_loggerContext.info("Couldn't resolve {}", valueRequirement);
-      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-        addToRunQueue(new ResolvedValueCallback.Failed(callback, valueRequirement));
-      } else {
-        callback.failed(this, valueRequirement);
-      }
+      s_loggerContext.debug("Couldn't resolve {}", valueRequirement);
+      _stackDepth++;
+      // Note that NextFunctionStep does the finished transaction too early if we schedule resolved messages arbitrarily 
+      callback.failed(this, valueRequirement);
       _stackDepth--;
     }
 
@@ -371,6 +368,8 @@ public class DependencyGraphBuilder {
   private final Set<DependencyNode> _graphNodes = Collections.synchronizedSet(new HashSet<DependencyNode>());
   private final Map<ValueRequirement, ValueSpecification> _terminalOutputs = new ConcurrentHashMap<ValueRequirement, ValueSpecification>();
   private final GraphBuildingContext _context = new GraphBuildingContext();
+  private final AtomicLong _completedSteps = new AtomicLong();
+  private final AtomicLong _scheduledSteps = new AtomicLong();
 
   // TODO: we could have different run queues for the different states. When the PENDING one is considered, a bulk lookup operation can then be done
 
@@ -667,8 +666,23 @@ public class DependencyGraphBuilder {
 
     });
     try {
-      if (!latch.await(1000, TimeUnit.MILLISECONDS)) {
-        s_loggerBuilder.warn("Timeout waiting for resolution of {}", requirement);
+      boolean failed = true;
+      for (int clock = 0; clock < 60; clock++) {
+        if (latch.await(250, TimeUnit.MILLISECONDS)) {
+          failed = false;
+          break;
+        }
+        if (isGraphBuilt()) {
+          if (!latch.await(0, TimeUnit.MILLISECONDS)) {
+            s_loggerBuilder.warn("Graph construction stopped without failure or resolution of {}", requirement);
+            throw new OpenGammaRuntimeException("Graph construction stopped without failure or resolution of " + requirement);
+          }
+          failed = false;
+          break;
+        }
+      }
+      if (failed) {
+        s_loggerBuilder.warn("Timeout waiting for failure or resolution of {}", requirement);
         throw new OpenGammaRuntimeException("Timeout waiting for failure or resolution of " + requirement);
       }
     } catch (InterruptedException e) {
@@ -706,6 +720,7 @@ public class DependencyGraphBuilder {
     if (!dontSpawn) {
       startBackgroundConstructionJob();
     }
+    _scheduledSteps.incrementAndGet();
   }
 
   protected boolean startBackgroundConstructionJob() {
@@ -738,13 +753,15 @@ public class DependencyGraphBuilder {
     public void run() {
       s_loggerBuilder.info("Building job started");
       boolean jobsLeftToRun;
+      int completed = 0;
       do {
         // Create a new context for each logical block so that an exception from the build won't leave us with
-        // an inconsistent one.
+        // an inconsistent context.
         final GraphBuildingContext context = new GraphBuildingContext(getContext());
         do {
           try {
             jobsLeftToRun = buildGraph(context);
+            completed++;
           } catch (Throwable t) {
             s_loggerBuilder.warn("Graph builder exception", t);
             _context.exception(t);
@@ -770,7 +787,7 @@ public class DependencyGraphBuilder {
       synchronized (_activeJobs) {
         _activeJobs.remove(this);
       }
-      s_loggerBuilder.info("Building job stopped");
+      s_loggerBuilder.info("Building job stopped after {} operations", completed);
     }
 
     @Override
@@ -799,6 +816,7 @@ public class DependencyGraphBuilder {
       return false;
     }
     task.run(context);
+    _completedSteps.incrementAndGet();
     return true;
   }
 
@@ -866,6 +884,25 @@ public class DependencyGraphBuilder {
         itr.next();
       }
     }
+  }
+
+  /**
+   * Estimate the completion of the build, from 0 (nothing completed) to 1 (all done). The completion is based on
+   * the number of completed steps versus the currently known number of steps.
+   * 
+   * @return the completion estimate
+   */
+  public double estimateBuildFraction() {
+    // Note that this will break for big jobs that are > 2^63 steps. Is this a limit that can be reasonably hit?
+    // Loose synchronization okay; this is only a guesstimate
+    final long completed = _completedSteps.get();
+    final long scheduled = _scheduledSteps.get();
+    if (scheduled <= 0) {
+      return 100;
+    }
+    // TODO: need a better metric here; need to somehow predict/project the eventual number of "scheduled" steps
+    s_loggerBuilder.info("Completed {} of {} scheduled steps", completed, scheduled);
+    return (double) completed / (double) scheduled;
   }
 
   /**

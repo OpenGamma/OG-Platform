@@ -38,14 +38,20 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-    boolean lastTask = false;
+    boolean deferredPump;
     synchronized (this) {
-      if (--_pendingTasks < 1) {
-        lastTask = true;
+      _pendingTasks--;
+      deferredPump = _deferredPump;
+      if (deferredPump) {
+        _deferredPump = false;
+      } else {
+        // If finished; do a deferred pump to complete
+        deferredPump = _pumps.isEmpty();
       }
     }
-    if (lastTask) {
-      finished(context);
+    if (deferredPump) {
+      s_logger.debug("Running deferred pump");
+      pumpImpl(context);
     }
   }
 

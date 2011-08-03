@@ -156,6 +156,10 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     // Just ensure mutual compatibility across aggregation properties
     ValueProperties resultProperties = inputs.isEmpty() ? getResultProperties() : getResultProperties(inputs.keySet());
+    if (resultProperties == null) {
+      // Propagate failure from getResultProperties
+      return null;
+    }
     ValueSpecification resultSpec = getResultSpec(target, resultProperties);
     return Collections.singleton(resultSpec);
   }

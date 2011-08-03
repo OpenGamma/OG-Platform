@@ -204,15 +204,15 @@ import com.opengamma.engine.value.ValueSpecification;
     if (other.getParent() == null) {
       return getParent() == null;
     }
-    final Set<ResolveTask> set = new HashSet<ResolveTask>();
+    final Set<ValueRequirement> set = new HashSet<ValueRequirement>();
     ResolveTask parent = getParent();
     while (parent != null) {
-      set.add(parent);
+      set.add(parent.getValueRequirement());
       parent = parent.getParent();
     }
     parent = other.getParent();
     while (parent != null) {
-      if (!set.remove(parent)) {
+      if (!set.remove(parent.getValueRequirement())) {
         // Other has a parent we don't have
         return false;
       }

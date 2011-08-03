@@ -72,8 +72,7 @@ import com.opengamma.util.Cancellable;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-    s_logger.debug("Resolution failed at {}", this);
-    s_logger.info("Resolution of {} failed", value);
+    s_logger.debug("Resolution of {} failed at {}", value, this);
     final FunctionApplicationStep.PumpingState state;
     final Collection<Cancellable> unsubscribes;
     synchronized (this) {
@@ -84,6 +83,8 @@ import com.opengamma.util.Cancellable;
         // Ok; we've already had some values for this requirement and there are others pending or still valid
         s_logger.debug("PendingInputs={}, ValidInputs={}", _pendingInputs, _validInputs);
         return;
+      } else {
+        s_logger.info("Resolution of {} failed", value);
       }
       if (_inputHandles.isEmpty()) {
         unsubscribes = null;

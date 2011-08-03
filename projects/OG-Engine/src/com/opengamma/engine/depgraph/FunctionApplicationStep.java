@@ -202,7 +202,7 @@ import com.opengamma.util.tuple.Pair;
         @Override
         public void failedImpl(final GraphBuildingContext context) {
           if (!produceSubstitute(context, inputs, resolvedOutputCopy, resolvedOutputValues)) {
-            pump(context);
+            getWorker().pumpImpl(context);
           }
         }
       };
