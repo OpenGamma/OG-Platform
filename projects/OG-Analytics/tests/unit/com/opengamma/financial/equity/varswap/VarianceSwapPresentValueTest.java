@@ -7,6 +7,11 @@ package com.opengamma.financial.equity.varswap;
 
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
@@ -29,10 +34,6 @@ import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 /**
  * 
  */
@@ -47,30 +48,22 @@ public class VarianceSwapPresentValueTest {
   // Market data
   private static final double SPOT = 80;
   private static final double FORWARD = 100;
+  @SuppressWarnings("unused")
   private static final double TEST_VOL = 0.25;
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-                                                          1.0, 1.0, 1.0, 1.0,
-                                                          5.0, 5.0, 5.0, 5.0,
-                                                          10.0, 10.0, 10.0, 10.0 };
-  private static final double[] STRIKES = new double[] {40, 80, 100, 120,
-                                                        40, 80, 100, 120,
-                                                        40, 80, 100, 120,
-                                                        40, 80, 100, 120 };
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-                                                     0.25, 0.25, 0.25, 0.25,
-                                                     0.26, 0.24, 0.23, 0.25,
-                                                     0.20, 0.20, 0.20, 0.20 };
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0};
+  private static final double[] STRIKES = new double[] {40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120};
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.26, 0.24, 0.23, 0.25, 0.20, 0.20, 0.20, 0.20};
 
   private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE));
   private static final BlackVolatilityFixedStrikeSurface VOL_SURFACE = new BlackVolatilityFixedStrikeSurface(SURFACE);
   private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, DISCOUNT, SPOT, FORWARD);
@@ -90,15 +83,13 @@ public class VarianceSwapPresentValueTest {
   final double[] noObservations = {};
   final double[] noObsWeights = {};
 
-  double[] singleObsSoNoReturn = {80 };
+  double[] singleObsSoNoReturn = {80};
   final VarianceSwap swapStartsNow = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
 
   final ZonedDateTime today = ZonedDateTime.now();
   final ZonedDateTime tomorrow = today.plusDays(1);
   final double tPlusOne = TimeCalculator.getTimeBetween(today, tomorrow);
-  final VarianceSwap swapStartsTomorrow = new VarianceSwap(tPlusOne, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected,
-      noObsDisrupted, noObservations,
-      noObsWeights);
+  final VarianceSwap swapStartsTomorrow = new VarianceSwap(tPlusOne, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, noObservations, noObsWeights);
 
   // Tests ------------------------------------------
 
@@ -112,9 +103,9 @@ public class VarianceSwapPresentValueTest {
    */
   public void onFirstObsDateWithOneObs() {
 
-    double pv = pricer_default_w_cutoff.presentValue(swapStartsNow, MARKET);
-    double variance = pricer_default_w_cutoff.impliedVariance(swapStartsNow, MARKET);
-    double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(expiry5);
+    final double pv = pricer_default_w_cutoff.presentValue(swapStartsNow, MARKET);
+    final double variance = pricer_default_w_cutoff.impliedVariance(swapStartsNow, MARKET);
+    final double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(expiry5);
     assertEquals(pv, pvOfHedge, TOLERATED);
   }
 
@@ -125,8 +116,8 @@ public class VarianceSwapPresentValueTest {
   **/
   public void swapStartsTomorrow() {
 
-    double pvStartsObsTomorrow = pricer_default_w_cutoff.presentValue(swapStartsTomorrow, MARKET);
-    double pvStartsObsToday = pricer_default_w_cutoff.presentValue(swapStartsNow, MARKET);
+    final double pvStartsObsTomorrow = pricer_default_w_cutoff.presentValue(swapStartsTomorrow, MARKET);
+    final double pvStartsObsToday = pricer_default_w_cutoff.presentValue(swapStartsNow, MARKET);
 
     assertEquals(pvStartsObsTomorrow, pvStartsObsToday, TOLERATED);
   }
@@ -138,27 +129,22 @@ public class VarianceSwapPresentValueTest {
   public void swapForwardStarting() {
 
     // First, create a swap which starts in 1 year and observes for a further four
-    final VarianceSwap swapForwardStarting1to5 = new VarianceSwap(expiry1, expiry5, expiry5,
-        varStrike, varNotional, Currency.EUR, annualization,
-        nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
+    final VarianceSwap swapForwardStarting1to5 = new VarianceSwap(expiry1, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, singleObsSoNoReturn,
+        noObsWeights);
 
-    double pvFowardStart = pricer_default_w_cutoff.presentValue(swapForwardStarting1to5, MARKET);
+    final double pvFowardStart = pricer_default_w_cutoff.presentValue(swapForwardStarting1to5, MARKET);
 
     // Second, create two spot starting swaps. One that expires at the end of observations, one expiring at the beginnning
-    final VarianceSwap swapSpotStarting1 = new VarianceSwap(now, expiry1, expiry5,
-        varStrike, varNotional, Currency.EUR, annualization,
-        nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
-    final VarianceSwap swapSpotStarting5 = new VarianceSwap(now, expiry5, expiry5,
-        varStrike, varNotional, Currency.EUR, annualization,
-        nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
+    final VarianceSwap swapSpotStarting1 = new VarianceSwap(now, expiry1, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
+    final VarianceSwap swapSpotStarting5 = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
 
-    double pvSpot1 = pricer_default_w_cutoff.presentValue(swapSpotStarting1, MARKET);
-    double pvSpot5 = pricer_default_w_cutoff.presentValue(swapSpotStarting5, MARKET);
+    final double pvSpot1 = pricer_default_w_cutoff.presentValue(swapSpotStarting1, MARKET);
+    final double pvSpot5 = pricer_default_w_cutoff.presentValue(swapSpotStarting5, MARKET);
 
     System.err.println("pvSpot1 = " + pvSpot1);
     System.err.println("pvSpot5 = " + pvSpot5);
     System.err.println("pvFowardStart = " + pvFowardStart);
-    double pvDiffOfTwoSpotStarts = (5.0 * pvSpot5 - 1.0 * pvSpot1) / 4.0;
+    final double pvDiffOfTwoSpotStarts = (5.0 * pvSpot5 - 1.0 * pvSpot1) / 4.0;
     System.err.println("pvSpot5 - pvSpot1 = " + pvDiffOfTwoSpotStarts);
 
     assertEquals(pvFowardStart, pvDiffOfTwoSpotStarts, TOLERATED);
@@ -168,8 +154,9 @@ public class VarianceSwapPresentValueTest {
   public void onFirstObsWithoutObs() {
 
     final VarianceSwap swapOnFirstObsWithoutObs = new VarianceSwap(now, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, noObservations,
-            noObsWeights);
-    double pv = pricer_default_w_cutoff.presentValue(swapOnFirstObsWithoutObs, MARKET);
+        noObsWeights);
+    @SuppressWarnings("unused")
+    final double pv = pricer_default_w_cutoff.presentValue(swapOnFirstObsWithoutObs, MARKET);
   }
 
   final static double volAnnual = 0.28;
@@ -179,7 +166,7 @@ public class VarianceSwapPresentValueTest {
   final static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, stdDevDaily, new MersenneTwister64(99));
 
   final static int nObs = 252 * 5;
-  final static double[] obsWeight = {1.0 };
+  final static double[] obsWeight = {1.0};
   static double avgReturn = 0;
   static double avgSquareReturn = 0;
   static double[] obs = new double[nObs];
@@ -202,9 +189,9 @@ public class VarianceSwapPresentValueTest {
    * will return the standard deviation used to generate the random observations
    */
   public void testAvgSquareReturn() {
-    double sampleDailyVariance = avgSquareReturn - FunctionUtils.square(avgReturn);
-    double sampleAnnualVariance = sampleDailyVariance * annualization;
-    double annualVolatilityEstimate = Math.sqrt(sampleAnnualVariance);
+    final double sampleDailyVariance = avgSquareReturn - FunctionUtils.square(avgReturn);
+    final double sampleAnnualVariance = sampleDailyVariance * annualization;
+    final double annualVolatilityEstimate = Math.sqrt(sampleAnnualVariance);
     assertEquals(volAnnual, annualVolatilityEstimate, 0.01);
     assertEquals(0.27710025417636447, annualVolatilityEstimate, TOLERATED);
   }
@@ -217,9 +204,9 @@ public class VarianceSwapPresentValueTest {
 
     final VarianceSwap swapPaysTomorrow = new VarianceSwap(-1., -tPlusOne, tPlusOne, varStrike, varNotional, Currency.EUR, annualization, nObs - 1, 0, obs, obsWeight);
 
-    double pv = pricer_default_w_cutoff.presentValue(swapPaysTomorrow, MARKET);
-    double variance = new RealizedVariance().evaluate(swapPaysTomorrow);
-    double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(tPlusOne);
+    final double pv = pricer_default_w_cutoff.presentValue(swapPaysTomorrow, MARKET);
+    final double variance = new RealizedVariance().evaluate(swapPaysTomorrow);
+    final double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(tPlusOne);
     assertEquals(pvOfHedge, pv, 0.01);
 
   }
@@ -230,7 +217,7 @@ public class VarianceSwapPresentValueTest {
    */
   public void swapAfterSettlement() {
     final VarianceSwap swapEnded = new VarianceSwap(-1.0, -1.0 / 365, -1.0 / 365, varStrike, varNotional, Currency.EUR, annualization, nObs, 0, obs, obsWeight);
-    double pv = pricer_default_w_cutoff.presentValue(swapEnded, MARKET);
+    final double pv = pricer_default_w_cutoff.presentValue(swapEnded, MARKET);
     assertEquals(0.0, pv, TOLERATED);
   }
 
@@ -243,9 +230,9 @@ public class VarianceSwapPresentValueTest {
   public void successFittingLeftTailAsExpiryApproaches() {
 
     final VarianceSwap swapEndsTomorrow = new VarianceSwap(-4.996, tPlusOne, tPlusOne, varStrike, varNotional, Currency.EUR, annualization, nObs, 0, obs, obsWeight);
-    double pvExtrapFlat = pricer_without_cutoff.presentValue(swapEndsTomorrow, MARKET);
+    final double pvExtrapFlat = pricer_without_cutoff.presentValue(swapEndsTomorrow, MARKET);
     System.err.println("pvExtrapFlat = " + pvExtrapFlat);
-    double pvFitShiftedLn = pricer_default_w_cutoff.presentValue(swapEndsTomorrow, MARKET);
+    final double pvFitShiftedLn = pricer_default_w_cutoff.presentValue(swapEndsTomorrow, MARKET);
     assertEquals(pvExtrapFlat, pvFitShiftedLn, 0.01);
   }
 }
