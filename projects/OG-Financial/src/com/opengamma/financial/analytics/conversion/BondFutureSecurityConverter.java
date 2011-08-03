@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.bond;
+package com.opengamma.financial.analytics.conversion;
 
 import java.util.List;
 
@@ -12,7 +12,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.interestratefuture.AbstractFutureSecurityVisitor;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;

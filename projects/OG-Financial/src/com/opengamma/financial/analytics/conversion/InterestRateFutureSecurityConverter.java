@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.interestratefuture;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -14,7 +14,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.analytics.fixedincome.CalendarUtil;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -27,7 +26,6 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-//TODO rename me
 public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;

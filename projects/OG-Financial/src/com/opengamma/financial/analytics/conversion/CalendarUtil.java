@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.fixedincome;
+package com.opengamma.financial.analytics.conversion;
 
 import java.util.HashSet;
 import java.util.Set;

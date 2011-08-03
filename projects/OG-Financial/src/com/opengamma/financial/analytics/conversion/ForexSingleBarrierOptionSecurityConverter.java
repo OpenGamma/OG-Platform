@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.forex;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -30,32 +30,33 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptionSecurityVisitor<ForexConverter<?>> {
-  
-  public ForexSingleBarrierOptionSecurityConverter(SecuritySource securitySource, FinancialSecurityVisitorAdapter<ForexConverter<?>> visitor) {
+
+  public ForexSingleBarrierOptionSecurityConverter(final SecuritySource securitySource, final FinancialSecurityVisitorAdapter<ForexConverter<?>> visitor) {
     Validate.notNull(visitor, "visitor");
   }
-  
-  public ForexConverter<?> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity barrierOptionSecurity) {
+
+  @Override
+  public ForexConverter<?> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity barrierOptionSecurity) {
     Validate.notNull(barrierOptionSecurity, "fx barrier option security");
     Validate.isTrue(barrierOptionSecurity.getBarrierType() != BarrierType.DOUBLE, "Can only handle single barrier options");
     Validate.isTrue(barrierOptionSecurity.getMonitoringType() == MonitoringType.CONTINUOUS, "Can only handle continuously-monitored barrier options");
-    double level = 0; //barrierOptionSecurity.getLevel(); //TODO
+    final double level = 0; //barrierOptionSecurity.getLevel(); //TODO
     final Currency putCurrency = barrierOptionSecurity.getPutCurrency();
     final Currency callCurrency = barrierOptionSecurity.getCallCurrency();
     final double putAmount = barrierOptionSecurity.getPutAmount();
     final double callAmount = barrierOptionSecurity.getCallAmount();
     final double fxRate = -putAmount / callAmount;
     final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
-    Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()),
+    final Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()),
                                   getBarrierType(barrierOptionSecurity.getBarrierType()),
                                   getObservationType(barrierOptionSecurity.getMonitoringType()), level);
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    boolean isLong = barrierOptionSecurity.getIsLong();
+    final boolean isLong = barrierOptionSecurity.getIsLong();
     return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);
   }
 
-  private KnockType getKnockType(BarrierDirection direction) {
+  private KnockType getKnockType(final BarrierDirection direction) {
     switch (direction) {
       case KNOCK_IN:
         return KnockType.IN;
@@ -65,8 +66,8 @@ public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptio
         throw new OpenGammaRuntimeException("Should never happen");
     }
   }
-  
-  private com.opengamma.financial.model.option.definition.Barrier.BarrierType getBarrierType(BarrierType type) {
+
+  private com.opengamma.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
     switch (type) {
       case UP:
         return com.opengamma.financial.model.option.definition.Barrier.BarrierType.UP;
@@ -76,8 +77,8 @@ public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptio
         throw new OpenGammaRuntimeException("Should never happen");
     }
   }
-  
-  private ObservationType getObservationType(MonitoringType type) {
+
+  private ObservationType getObservationType(final MonitoringType type) {
     switch (type) {
       case CONTINUOUS:
         return ObservationType.CONTINUOUS;

@@ -3,14 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.bond;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.Trade;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -26,7 +26,7 @@ public class BondFutureTradeConverter {
     _securityConverter = securityConverter;
   }
 
-  public BondFutureTransactionDefinition convert(final TradeImpl trade) {
+  public BondFutureTransactionDefinition convert(final Trade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof BondFutureSecurity, "Can only handle trades with security type BondFutureSecurity");
     final BondFutureSecurityDefinition underlyingFuture = (BondFutureSecurityDefinition) ((BondFutureSecurity) trade.getSecurity()).accept(_securityConverter);

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.swaption;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.ZonedDateTime;
 

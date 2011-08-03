@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.interestratefuture;
+package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.NotImplementedException;
 

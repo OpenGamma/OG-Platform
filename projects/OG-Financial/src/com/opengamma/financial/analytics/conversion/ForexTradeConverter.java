@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.forex;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.analytics.fixedincome.CalendarUtil;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.definition.ForexDefinition;

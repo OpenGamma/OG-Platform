@@ -3,12 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.equity;
+package com.opengamma.financial.analytics.conversion;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.financial.analytics.interestratefuture.AbstractFutureSecurityVisitor;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;

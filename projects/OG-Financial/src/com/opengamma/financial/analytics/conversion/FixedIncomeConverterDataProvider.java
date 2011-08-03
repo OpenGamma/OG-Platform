@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.fixedincome;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
@@ -17,6 +17,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
@@ -114,7 +115,7 @@ public class FixedIncomeConverterDataProvider {
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, IdentifierBundle.of(id), null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+      throw new OpenGammaRuntimeException("Could not get price time series for " + id);
     }
     FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
     //TODO this normalization should not be done here

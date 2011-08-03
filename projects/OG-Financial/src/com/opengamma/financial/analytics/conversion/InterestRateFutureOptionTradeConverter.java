@@ -3,18 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.interestratefuture;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.core.position.Trade;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
@@ -27,13 +24,12 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 public class InterestRateFutureOptionTradeConverter {
   private final InterestRateFutureOptionSecurityConverter _securityConverter;
 
-  public InterestRateFutureOptionTradeConverter(final HolidaySource holidaySource,
-      final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource) {
-    _securityConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
+  public InterestRateFutureOptionTradeConverter(final InterestRateFutureOptionSecurityConverter securityConverter) {
+    Validate.notNull(securityConverter, "security converter");
+    _securityConverter = securityConverter;
   }
 
-  public Object convert(final TradeImpl trade) {
+  public FixedIncomeInstrumentConverter<?> convert(final Trade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity,
         "Can only handle trades with security type IRFutureOptionSecurity");

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.fixedincome;
+package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -14,6 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -205,7 +206,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
 
     ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateIdentifier());
     if (indexConvention == null) {
-      Identifier bbgIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatLeg.getFloatingReferenceRateIdentifier().getValue());
+      final Identifier bbgIdentifier = Identifier.of(SecurityUtils.BLOOMBERG_TICKER, floatLeg.getFloatingReferenceRateIdentifier().getValue());
       indexConvention = _conventionSource.getConventionBundle(bbgIdentifier);
       if (indexConvention == null) {
         throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency + " using " + floatLeg.getFloatingReferenceRateIdentifier());
