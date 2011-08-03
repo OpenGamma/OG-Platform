@@ -47,6 +47,10 @@ public void testContructFromDoubleMatrix2DNODimension() {
   new SparseMatrix(new DoubleMatrix2D(_sparsedata));
 }
 
+public void testContructFromArrayOfArraysWithDimensionAndType() {
+  new SparseMatrix(_sparsedata, 10, 8, SparseMatrix.majorness.column);
+}
+
 @Test
 public void testGetSparseObject() {
   SparseMatrix tmp;

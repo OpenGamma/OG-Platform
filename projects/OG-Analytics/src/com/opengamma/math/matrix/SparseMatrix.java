@@ -12,6 +12,12 @@ import org.apache.commons.lang.NotImplementedException;
  */
 public class SparseMatrix implements MatrixPrimitiveInterface {
   private SparseMatrixType _type;
+/**
+ * majorness is an enumerated type that is used to specify the anticipated access pattern of the sparse data.
+ * The column type is used to indicate column major access (ideal for the RHS of Matrix * Matrix)
+ * The row type is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
+ */
+  public enum majorness { column, row };
 
 /**
  *  Constructors
@@ -22,8 +28,9 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
    * @param indata is an array of arrays containing data to be turned into a sparse matrix representation
    * @param m is the number of rows in the matrix (use if there are empty rows in indata and a matrix of a specific size is needed for conformance)
    * @param n is the number of columns in the matrix (use if there are empty columns in indata and a matrix of a specific size is needed for conformance)
+   * @param t is an enumerated of type majorness, takes values "column" and "row" depending on anticipated access pattern.
    */
-  public SparseMatrix(double[][] indata, int m, int n) {
+  public SparseMatrix(double[][] indata, int m, int n, majorness t) {
     if (MatrixPrimitiveUtils.isRagged(indata)) {
       throw new NotImplementedException("Construction from a ragged array of arrays is not implemented");
     }
@@ -59,12 +66,17 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
       }
     }
 
+
     // test nnz and return something sane?! 0.6 is a magic number roughly based on memory density estimates
     // TODO: Come up with a more intelligent estimate of memory density patterns to pick optimal formats. Load testing needed.
     int nnz = MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(tmp);
     double density = ((double) nnz / (s1 * s2));
     if (density < 0.6) {
-      _type = new CompressedSparseRowFormatMatrix(tmp);
+      if (t.equals(majorness.row)) {
+        _type = new CompressedSparseRowFormatMatrix(tmp);
+      } else {
+        _type = new CompressedSparseColumnFormatMatrix(tmp);
+      }
     } else {
       _type = new SparseCoordinateFormatMatrix(tmp);
     }
@@ -100,6 +112,56 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
   public SparseMatrix(DoubleMatrix2D indata) {
     this(indata.toArray(), indata.getNumberOfRows(), indata.getNumberOfColumns());
   }
+
+  /**
+   * Constructs a sparse matrix from double array of arrays data
+   * @param indata is an array of arrays containing data to be turned into a sparse matrix representation
+   * @param m is the number of rows in the matrix (use if there are empty rows in indata and a matrix of a specific size is needed for conformance)
+   * @param n is the number of columns in the matrix (use if there are empty columns in indata and a matrix of a specific size is needed for conformance)
+   */
+  public SparseMatrix(double[][] indata, int m, int n) {
+    this(indata, m, n, majorness.row); // default constructor to row major
+  }
+
+  /**
+   * constructor duplicates with additional flag  for "expert" users to indicate that the data should be stored, if possible, as CRC
+   */
+
+  /**
+   * Constructs a sparse matrix from double array of arrays data
+   * @param indata is an array of arrays containing data to be turned into a sparse matrix representation
+   * @param t is an enumerated of type majorness, takes values "column" and "row" depending on anticipated access pattern.
+   * The constructor assumes that the matrix dimensions can be derived from the dimensions of the arrays of arrays passed in (i.e. no empty rows and columns)
+   * If for reasons of conformability a matrix of a specific dimension is needed then use the alternative constructor that allows this feature.
+   */
+  public SparseMatrix(double[][] indata, majorness t) {
+    this(indata, indata.length, indata[0].length, t);
+  }
+
+  /**
+   * Constructs a sparse matrix from the DoubleMatrix2D type
+   * @param indata is a DoubleMatrix2D containing data to be turned into a sparse matrix representation
+   * @param m is the number of rows in the matrix (use if there are empty rows in indata and a matrix of a specific size is needed for conformance)
+   * @param n is the number of columns in the matrix (use if there are empty columns in indata and a matrix of a specific size is needed for conformance)
+   * @param t is an enumerated of type majorness, takes values "column" and "row" depending on anticipated access pattern.
+   */
+  public SparseMatrix(DoubleMatrix2D indata, int m, int n, majorness t) {
+    this(indata.toArray(), m, n, t);
+  }
+
+
+  /**
+   * Constructs a sparse matrix from the DoubleMatrix2D type
+   * @param indata is a DoubleMatrix2D containing data to be turned into a sparse matrix representation
+   * The constructor assumes that the matrix dimensions can be derived from the dimensions of the DoubleMatrix2D passed in (i.e. no empty rows and columns)
+   * If for reasons of conformability a matrix of a specific dimension is needed then use the alternative constructor that allows this feature.
+   * @param t is an enumerated of type majorness, takes values "column" and "row" depending on anticipated access pattern.
+   */
+  public SparseMatrix(DoubleMatrix2D indata, majorness t) {
+    this(indata.toArray(), indata.getNumberOfRows(), indata.getNumberOfColumns(), t);
+  }
+
+
 
 
   /**
