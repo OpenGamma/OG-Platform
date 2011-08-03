@@ -27,15 +27,15 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PV01;
 
-  public InterestRateInstrumentPV01Function() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentPV01Function(String forwardCurveName, String fundingCurveName) {
+    super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
+      FinancialSecurity security) {
     Map<String, Double> pv01 = CALCULATOR.visit(derivative, bundle);
-    String[] relevantCurves = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
+    String[] relevantCurves = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, getFundingCurveName(), getForwardCurveName());
     if (relevantCurves.length < pv01.size()) {
       throw new OpenGammaRuntimeException("Have more curves in calculation result than in the list of relevant curves: should never happen");
     }
@@ -43,7 +43,7 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
     for (String relevantCurve : relevantCurves) {
       final ValueSpecification specification = new ValueSpecification(new ValueRequirement(VALUE_REQUIREMENT, security),
           FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
-              security, fundingCurveName, forwardCurveName, createValueProperties()));
+              security, getFundingCurveName(), getForwardCurveName(), createValueProperties()));
       result.add(new ComputedValue(specification, pv01.get(relevantCurve)));
     }
     return result;
