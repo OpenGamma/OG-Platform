@@ -37,7 +37,8 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCoupon;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -497,12 +498,22 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponInflationZeroCoupon(CouponInflationZeroCoupon coupon, Object data) {
+    public Class<?> visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon, Object data) {
       return null;
     }
 
     @Override
-    public Class<?> visitCouponInflationZeroCoupon(CouponInflationZeroCoupon coupon) {
+    public Class<?> visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon) {
       return null;
     }
   };

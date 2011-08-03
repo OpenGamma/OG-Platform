@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.inflation.derivatives;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -18,7 +20,7 @@ import com.opengamma.util.money.Currency;
  * The start index value is known when the coupon is traded/issued.
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  */
-public class CouponInflationZeroCoupon extends Coupon {
+public class CouponInflationZeroCouponInterpolation extends Coupon {
 
   /**
    * The price index associated to the coupon.
@@ -29,19 +31,20 @@ public class CouponInflationZeroCoupon extends Coupon {
    */
   private final double _indexStartValue;
   /**
-   * The reference time for the index at the coupon end. There is usually a difference of two or three month between the reference date and the payment date.
+   * The reference times for the index at the coupon end.  Two months are required for the interpolation. 
+   * There is usually a difference of two or three month between the reference date and the payment date.
    * The time can be negative (when the price index for the current and last month is not yet published).
    */
-  private final double _referenceEndTime;
+  private final double[] _referenceEndTime;
+  /**
+   * The weight on the first month index in the interpolation.
+   */
+  private final double _weight;
   /**
    * The time on which the end index is expected to be known. The index is usually known two week after the end of the reference month. 
    * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
    */
   private final double _fixingEndTime;
-  /**
-   * The price index curve name.
-   */
-  private final String _priceIndexCurveName;
 
   /**
    * Inflation zero-coupon constructor.
@@ -53,19 +56,18 @@ public class CouponInflationZeroCoupon extends Coupon {
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
+   * @param weight TODO
    * @param fixingEndTime The time on which the end index is expected to be known.
-   * @param priceIndexCurveName The price index curve name.
    */
-  public CouponInflationZeroCoupon(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex, double indexStartValue,
-      double referenceEndTime, double fixingEndTime, final String priceIndexCurveName) {
+  public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
+      double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
-    Validate.notNull(priceIndexCurveName, "Price index curve name");
     this._priceIndex = priceIndex;
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
-    _priceIndexCurveName = priceIndexCurveName;
+    _weight = weight;
   }
 
   /**
@@ -88,7 +90,7 @@ public class CouponInflationZeroCoupon extends Coupon {
    * Gets the reference time for the index at the coupon end.
    * @return The reference time.
    */
-  public double getReferenceEndTime() {
+  public double[] getReferenceEndTime() {
     return _referenceEndTime;
   }
 
@@ -101,26 +103,26 @@ public class CouponInflationZeroCoupon extends Coupon {
   }
 
   /**
-   * Gets the price index curve name.
-   * @return The price index curve name.
+   * Gets the weight on the first month index in the interpolation.
+   * @return The weight.
    */
-  public String getPriceIndexCurveName() {
-    return _priceIndexCurveName;
+  public double getWeight() {
+    return _weight;
   }
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitCouponInflationZeroCoupon(this, data);
+    return visitor.visitCouponInflationZeroCouponInterpolation(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCouponInflationZeroCoupon(this);
+    return visitor.visitCouponInflationZeroCouponInterpolation(this);
   }
 
   @Override
   public String toString() {
-    return super.toString() + ", price index=" + _priceIndex.toString() + ", reference=" + _referenceEndTime + ", fixing=" + _fixingEndTime;
+    return super.toString() + ", price index=" + _priceIndex.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
   }
 
   @Override
@@ -133,9 +135,7 @@ public class CouponInflationZeroCoupon extends Coupon {
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _priceIndex.hashCode();
-    result = prime * result + _priceIndexCurveName.hashCode();
-    temp = Double.doubleToLongBits(_referenceEndTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_referenceEndTime);
     return result;
   }
 
@@ -150,7 +150,7 @@ public class CouponInflationZeroCoupon extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCoupon other = (CouponInflationZeroCoupon) obj;
+    CouponInflationZeroCouponInterpolation other = (CouponInflationZeroCouponInterpolation) obj;
     if (Double.doubleToLongBits(_fixingEndTime) != Double.doubleToLongBits(other._fixingEndTime)) {
       return false;
     }
@@ -160,10 +160,7 @@ public class CouponInflationZeroCoupon extends Coupon {
     if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }
-    if (!ObjectUtils.equals(_priceIndexCurveName, other._priceIndexCurveName)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime)) {
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
       return false;
     }
     return true;

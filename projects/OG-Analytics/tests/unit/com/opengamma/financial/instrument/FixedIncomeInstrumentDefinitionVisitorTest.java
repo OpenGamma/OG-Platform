@@ -51,7 +51,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponFirstOfMonthDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -516,12 +517,22 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonthDefinition coupon, T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonthDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon) {
       return null;
     }
   }

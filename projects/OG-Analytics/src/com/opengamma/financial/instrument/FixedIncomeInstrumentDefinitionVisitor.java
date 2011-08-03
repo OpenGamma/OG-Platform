@@ -22,7 +22,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremium
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponFirstOfMonthDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -173,7 +174,11 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
 
-  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data);
+  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonthDefinition coupon, T data);
 
-  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon);
+  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonthDefinition coupon);
+
+  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data);
+
+  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon);
 }
