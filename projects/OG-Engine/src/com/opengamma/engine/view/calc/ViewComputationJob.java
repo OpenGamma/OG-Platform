@@ -496,9 +496,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
-    Duration durationToExpiry = getMarketDataProvider().getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
-    long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
-    _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
+    if (compiledViewDefinition.getValidTo() != null) {
+      Duration durationToExpiry = getMarketDataProvider().getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
+      long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
+      _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
+    } else {
+      _compilationExpiryCycleTrigger.reset();
+    }
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 

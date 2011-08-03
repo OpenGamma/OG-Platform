@@ -25,6 +25,8 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
@@ -37,6 +39,8 @@ import com.opengamma.web.json.JSONBuilder;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(WebConfigResource.class);
   
   /**
    * Creates the resource.
@@ -80,10 +84,13 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @SuppressWarnings("unchecked")
   private <T> String toJSON(Object object, Class<T> configType) {
     JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
+    String result = null;
     if (jsonBuilder != null) {
-      return jsonBuilder.toJSON((T) object);
+      result = jsonBuilder.toJSON((T) object);
+    } else {
+      s_logger.warn("No custom JSON builder for " + configType);
     }
-    throw new OpenGammaRuntimeException("No custom JSON builder for " + configType);
+    return result;
   }
 
   //-------------------------------------------------------------------------

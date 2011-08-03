@@ -73,10 +73,6 @@
                 select.val("");
                 return false;
               }
-            } else {
-              if (self.options.change) {
-                self.options.change(ui.item.option);
-              }
             }
           }
         })
