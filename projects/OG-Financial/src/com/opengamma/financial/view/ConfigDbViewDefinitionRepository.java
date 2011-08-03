@@ -7,6 +7,15 @@ package com.opengamma.financial.view;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
@@ -15,26 +24,24 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeListener;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChanged;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * An in-memory view definition repository which sources its {@link ViewDefinition}s from a {@link ConfigMaster} and
  * is kept up-to-date from this master.
  */
-public class NotifyingConfigDbViewDefinitionRepository implements ViewDefinitionRepository, MasterChangeListener, NotifyingMaster {
+public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepository, ChangeProvider {
 
-  private static final String VIEW_DEFINITION_SCHEME = "ViewDefinition";
+  private static final Logger s_logger = LoggerFactory.getLogger(ConfigDbViewDefinitionRepository.class);
+  
+  private static final String VIEW_DEFINITION_SCHEME = "ConfigDbViewDef";
   
   private final InMemoryViewDefinitionRepository _underlyingRepository;
   private final ConfigMaster _configMaster;
-  private final MasterChangeManager _changeManager = new BasicMasterChangeManager();
+  private final ChangeManager _changeManager = new BasicChangeManager();
+  private final ChangeListener _changeListener;
   
-  public NotifyingConfigDbViewDefinitionRepository(ConfigMaster configMaster) {
+  public ConfigDbViewDefinitionRepository(ConfigMaster configMaster) {
     _configMaster = configMaster;
     _underlyingRepository = new InMemoryViewDefinitionRepository();
     
@@ -43,7 +50,15 @@ public class NotifyingConfigDbViewDefinitionRepository implements ViewDefinition
     for (ConfigDocument<ViewDefinition> configDocument : searchResult.getDocuments()) {
       _underlyingRepository.addViewDefinition(new AddViewDefinitionRequest(configDocument.getValue()));
     }
-    _configMaster.changeManager().addChangeListener(this);
+    _changeListener = new ChangeListener() {
+
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        ConfigDbViewDefinitionRepository.this.entityChanged(event);
+      }
+      
+    };
+    _configMaster.changeManager().addChangeListener(_changeListener);
   }
   
   @Override
@@ -58,22 +73,35 @@ public class NotifyingConfigDbViewDefinitionRepository implements ViewDefinition
   
   //-------------------------------------------------------------------------
   @Override
-  public void masterChanged(MasterChanged event) {
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+  
+  //-------------------------------------------------------------------------
+  private void entityChanged(ChangeEvent event) {
     ArgumentChecker.notNull(event, "event");
     UniqueIdentifier beforeId = null;
     UniqueIdentifier afterId = null;
     switch (event.getType()) {
       case ADDED:
-      case CORRECTED:
       case UPDATED:
+      case CORRECTED:
+        if (event.beforeId() != null) {
+          ConfigDocument<?> oldDocument = getConfigMaster().get(event.getBeforeId());
+          if (!(oldDocument.getValue() instanceof ViewDefinition)) {
+            return;
+          }
+          ViewDefinition oldDefinition = (ViewDefinition) oldDocument.getValue();
+          beforeId = getUniqueId(oldDefinition.getName());
+        }
         ConfigDocument<?> newDocument = getConfigMaster().get(event.getAfterId());
         if (!(newDocument.getValue() instanceof ViewDefinition)) {
           return;
         }
-        // REVIEW jonathan 2011-08-02 -- assumes name of view definition won't change
+        // NOTE jonathan 2011-08-02 -- assumes name of view definition won't change
         ViewDefinition newDefinition = (ViewDefinition) newDocument.getValue();
         getUnderlyingRepository().addViewDefinition(new AddViewDefinitionRequest(newDefinition));
-        afterId = UniqueIdentifier.of(VIEW_DEFINITION_SCHEME, newDefinition.getName());
+        afterId = getUniqueId(newDefinition.getName());
         break;
       case REMOVED:
         ConfigDocument<?> removedDocument = getConfigMaster().get(event.getBeforeId());
@@ -81,30 +109,31 @@ public class NotifyingConfigDbViewDefinitionRepository implements ViewDefinition
           return;
         }
         ViewDefinition removedDefinition = (ViewDefinition) removedDocument.getValue();
-        getUnderlyingRepository().removeViewDefinition(removedDefinition.getName());
-        beforeId = UniqueIdentifier.of(VIEW_DEFINITION_SCHEME, removedDefinition.getName());
+        try {
+          getUnderlyingRepository().removeViewDefinition(removedDefinition.getName());
+        } catch (DataNotFoundException e) {
+          s_logger.warn("Attempted to remove view definition '" + removedDefinition.getName() + "' in response to change notification, but it was not found", e);
+        }
+        beforeId = getUniqueId(removedDefinition.getName());
         break;
     }
-    
+    changeManager().entityChanged(event.getType(), beforeId, afterId, event.getVersionInstant());
+  }
+
+  private UniqueIdentifier getUniqueId(String definitionName) {
     // REVIEW jonathan 2011-08-02 -- as an intermediate step to get change notifications to the engine, but without
     // having to change view definition names to unique identifiers everywhere, we cram the definition name into a
     // unique identifier for listeners to extract. Long-term, the actual master change event should be passed to the
     // engine.
-    changeManager().masterChanged(event.getType(), beforeId, afterId, event.getVersionInstant());
+    return UniqueIdentifier.of(VIEW_DEFINITION_SCHEME, definitionName);
   }
   
-  //-------------------------------------------------------------------------  
   private ConfigMaster getConfigMaster() {
     return _configMaster;
   }
   
   private InMemoryViewDefinitionRepository getUnderlyingRepository() {
     return _underlyingRepository;
-  }
-
-  @Override
-  public MasterChangeManager changeManager() {
-    return _changeManager;
   }
 
 }

@@ -6,7 +6,7 @@
 package com.opengamma.web.spring;
 
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.financial.view.NotifyingConfigDbViewDefinitionRepository;
+import com.opengamma.financial.view.ConfigDbViewDefinitionRepository;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -31,7 +31,7 @@ public class ConfigDbViewDefinitionRepositoryFactoryBean extends SingletonFactor
   @Override
   protected ViewDefinitionRepository createObject() {
     ArgumentChecker.notNullInjected(getConfigMaster(), "configMaster");
-    return new NotifyingConfigDbViewDefinitionRepository(getConfigMaster());
+    return new ConfigDbViewDefinitionRepository(getConfigMaster());
   }
 
 }
