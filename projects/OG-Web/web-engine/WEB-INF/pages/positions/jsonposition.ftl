@@ -18,12 +18,10 @@
         "quantity": "${position.quantity}"
     },
     "securities": [
-        <#if position.securityLink.weakId??>
-          <#list position.securityLink.weakId.identifiers as item>{
-              "scheme": "${item.scheme.name}",
-              "value": "${item.value}"
-          }<#if item_has_next>,</#if></#list>
-        </#if>
+        <#list position.securityLink.bundleId.identifiers as item>{
+            "scheme": "${item.scheme.name}",
+            "value": "${item.value}"
+        }<#if item_has_next>,</#if></#list>
     ],
     "trades": [
         <#list position.trades as item>{
