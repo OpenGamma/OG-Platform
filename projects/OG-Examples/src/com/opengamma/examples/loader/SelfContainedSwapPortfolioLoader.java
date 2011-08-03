@@ -5,6 +5,9 @@
  */
 package com.opengamma.examples.loader;
 
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +44,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -295,21 +299,6 @@ public class SelfContainedSwapPortfolioLoader {
         terminationDate.toString(OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     
     return swap;
-  }
-  
-  public static void normaliseHeaders(String[] headers) {
-    for (int i = 0; i < headers.length; i++) {
-      headers[i] = headers[i].toLowerCase();
-    }
-  }
-  
-  public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
-    String result = fieldValueMap.get(fieldName);
-    if (result == null) {
-      System.err.println(fieldValueMap);
-      throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
-    }
-    return result;
   }
   
   //-------------------------------------------------------------------------
