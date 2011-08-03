@@ -84,7 +84,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   }
 
   /**
-   * Creates a portfolio as a copy of another, possibly immutable, {@link PortfolioNode} implementation.
+   * Creates a deep copy of the specified portfolio node.
    * 
    * @param copyFrom  the instance to copy fields from, not null
    */
@@ -92,8 +92,16 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     ArgumentChecker.notNull(copyFrom, "copyFrom");
     _uniqueId = copyFrom.getUniqueId();
     _name = copyFrom.getName();
-    _childNodes.addAll(copyFrom.getChildNodes());
-    _positions.addAll(copyFrom.getPositions());
+    for (PortfolioNode child : copyFrom.getChildNodes()) {
+      PortfolioNodeImpl clonedNode = new PortfolioNodeImpl(child);
+      clonedNode.setParentNodeId(_uniqueId);
+      _childNodes.add(clonedNode);
+    }
+    for (Position position : copyFrom.getPositions()) {
+      PositionImpl clonedPosition = new PositionImpl(position);
+      clonedPosition.setParentNodeId(_uniqueId);
+      _positions.add(clonedPosition);
+    }
   }
 
   //-------------------------------------------------------------------------

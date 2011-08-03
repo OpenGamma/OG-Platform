@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
@@ -45,7 +44,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
-  private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of(Identifier.of("A", "B"));
+  private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of("A", "B");
   
   private HistoricalTimeSeriesMaster _mockMaster;
   private HistoricalTimeSeriesResolver _mockResolver;

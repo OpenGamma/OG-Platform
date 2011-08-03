@@ -84,6 +84,19 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     _rootNode = rootNode;
   }
 
+  /**
+   * Creates a deep copy of the specified portfolio.
+   * 
+   * @param copyFrom  the portfolio to copy from, not null
+   */
+  public PortfolioImpl(Portfolio copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "portfolio");
+    _uniqueId = copyFrom.getUniqueId();
+    _name = copyFrom.getName();
+    _rootNode = new PortfolioNodeImpl(copyFrom.getRootNode());
+    _rootNode.setParentNodeId(null);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the portfolio.

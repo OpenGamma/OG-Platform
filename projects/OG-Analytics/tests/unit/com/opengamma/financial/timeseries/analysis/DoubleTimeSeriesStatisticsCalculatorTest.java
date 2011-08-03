@@ -6,7 +6,9 @@
 package com.opengamma.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
@@ -45,6 +47,6 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
 
   @Test
   public void test() {
-    assertEquals(CALC.evaluate(TS), MEAN.evaluate(TS.toFastLongDoubleTimeSeries().valuesArrayFast()), 1e-15);
+    assertEquals(CALC.evaluate(TS), MEAN.evaluate(TS.valuesArrayFast()), 1e-15);
   }
 }

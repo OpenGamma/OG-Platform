@@ -46,6 +46,38 @@ public class BlackFormulaTest {
   }
 
   @Test
+  public void testAtmPrices() {
+    final BlackFormula call = new BlackFormula(FORWARD, FORWARD, T, SIGMA, null, true);
+    final BlackFormula put = new BlackFormula(FORWARD, FORWARD, T, SIGMA, null, false);
+
+    assertEquals(call.computePrice(), put.computePrice(), EPS);
+    // System.err.println("atm put price = " + put.computePrice());
+  }
+
+  @Test
+  public void testAtmForwardDeltas() {
+    final double deltaneutralstrike = FORWARD * Math.exp(0.5 * SIGMA * SIGMA * T);
+    final BlackFormula deltaneutralcall = new BlackFormula(FORWARD, deltaneutralstrike, T, SIGMA, null, true);
+    final BlackFormula deltaneutralput = new BlackFormula(FORWARD, deltaneutralstrike, T, SIGMA, null, false);
+
+    assertEquals(0.0, deltaneutralcall.computeForwardDelta() + deltaneutralput.computeForwardDelta(), EPS);
+
+    final BlackFormula atmcall = new BlackFormula(FORWARD, FORWARD, T, SIGMA, null, true);
+    final BlackFormula atmput = new BlackFormula(FORWARD, FORWARD, T, SIGMA, null, false);
+
+    assertEquals(atmcall.computeForwardDelta() - 0.5, atmput.computeForwardDelta() + 0.5, EPS);
+
+    /* System.err.println("deltaneutralstrike = " + deltaneutralstrike);
+    System.err.println("delta neutral put = " + deltaneutralput.computeForwardDelta());
+    System.err.println("delta neutral call = " + deltaneutralcall.computeForwardDelta());
+    System.err.println("delta of atmcall = " + atmcall.computeForwardDelta());
+    System.err.println("delta of atmput = " + atmput.computeForwardDelta());
+    System.err.println("atmcall - 0.5 = " + (atmcall.computeForwardDelta()-0.5));
+    System.err.println("atmput - 0.5 = " + (0.5 + atmput.computeForwardDelta()));
+    */
+  }
+
+  @Test
   public void testStrikeImpliedFromFwdDelta() {
 
     double strike50Call = FORMULA.computeStrikeImpliedByForwardDelta(0.5, true);

@@ -12,17 +12,10 @@
   </bean>
 
   <!-- Exports: dbPositionMaster, sharedSecuritySource -->
-  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
-
+  <import resource="classpath:com/opengamma/financial/portfolio/loader/loaderContext.xml" />
 
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
-  </bean>
-  <bean id="loaderContext" class="com.opengamma.examples.loader.LoaderContext">
-    <property name="portfolioMaster" ref="dbPortfolioMaster" />
-    <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="configMaster" ref="sharedConfigMaster" />
   </bean>
   <!--
   <bean id="demoEquityOptionPortfolioLoader" class="com.opengamma.integration.server.DemoEquityOptionPortfolioLoader">

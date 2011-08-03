@@ -1,11 +1,12 @@
 <div class="OG-toolbar"></div>
 <header class="OG-header-generic">
-  <h1 data-og-editable="name">${name}</h1>
+  <h1 class="og-js-name">${name}</h1>
 </header>
+<div class="OG-details-container">
 <div class="og-details-content OG-config">
   <div class="OG-c10 og-grid-last OG-max-width-l">
-    <div class="OG-field-box"></div>
     <div class="og-treeLines">
+      <form action=".">
       <table class="OG-table-style-01">
       <thead>
         <tr>
@@ -13,14 +14,26 @@
         </tr>
       </thead>
       <tfoot>
-        <tr><td><button class="OG-small-button og-button-secondary og-js-save-config">save</button></td></tr>
+        <tr>
+          <td>
+            <button type="submit" value="save" class="OG-small-button og-js-submit">Save</button>
+            <button type="submit" value="save_as_new" class="OG-small-button og-js-submit">Save As New</button>
+          </td>
+        </tr>
       </tfoot>
       <tbody>
         <tr>
-          <td><textarea data-og="config-data" style="width: 99%; min-height: 100px;">${configData}</textarea></td><!-- TEMP -->
+          <td>
+            <label>Name <input type="text" name="name" value="${name}" /></label>
+          </td>
+        </tr>
+        <tr>
+          <td><textarea data-og="config-data" style="width: 99%; min-height: 100px;">${config_data}</textarea></td>
         </tr>
       </tbody>
     </table>
+    </form>
     </div>
   </div>
+</div>
 </div>

@@ -52,7 +52,7 @@ $.register_module({
                         {type: 'input', name: 'Identifier', id: 'identifier'}
                     ],
                     buttons: {
-                        'Ok': function () {
+                        'OK': function () {
                             api.rest.positions.put({
                                 handler: function (r) {
                                     if (r.error) return ui.dialog({type: 'error', message: r.message});
