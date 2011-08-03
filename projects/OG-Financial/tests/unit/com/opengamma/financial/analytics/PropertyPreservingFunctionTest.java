@@ -1,12 +1,12 @@
 package com.opengamma.financial.analytics;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
@@ -99,7 +99,7 @@ public class PropertyPreservingFunctionTest {
     }
     
     //Check repeats, since there are 2 code branches
-    List<ValueSpecification> doubled = new ArrayList<ValueSpecification>(inputs.length + inputs.length);
+    List<ValueSpecification> doubled = new ArrayList<ValueSpecification>(inputs.length * 2);
     doubled.addAll(specses);
     doubled.addAll(specses);
     assertEqualOrdered(expected, func, doubled);
@@ -109,7 +109,7 @@ public class PropertyPreservingFunctionTest {
   private void assertEqualOrdered(ValueProperties expected, MockPropertyPreservingFunction func, Collection<ValueSpecification> specses) {
     ValueProperties resultProperties = func.getResultProperties(specses);
     ValueProperties filteredResult = resultProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).get();
-    Assert.assertEquals(expected, filteredResult);
+    assertEquals(expected, filteredResult);
   }
 
   private List<ValueSpecification> getSpecs(ValueProperties... props) {
