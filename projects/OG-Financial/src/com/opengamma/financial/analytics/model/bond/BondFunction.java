@@ -22,7 +22,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.bond.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
