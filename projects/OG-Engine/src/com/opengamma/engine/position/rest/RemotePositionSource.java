@@ -42,6 +42,9 @@ public class RemotePositionSource implements PositionSource {
   }
   
   public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget, ChangeManager changeManager) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(restTarget, "restTarget");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _client = RestClient.getInstance(fudgeContext, null);
     _target = restTarget;
     _changeManager = changeManager;

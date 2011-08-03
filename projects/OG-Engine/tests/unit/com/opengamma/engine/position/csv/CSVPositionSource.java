@@ -70,10 +70,6 @@ public class CSVPositionSource implements PositionSource {
    * The trades by identifier.
    */
   private final Map<UniqueIdentifier, Trade> _trades = new TreeMap<UniqueIdentifier, Trade>();
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager = new DummyChangeManager();
   
   /**
    * Creates an empty CSV position source.
@@ -177,7 +173,7 @@ public class CSVPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
+    return DummyChangeManager.INSTANCE;
   }
   
   //-------------------------------------------------------------------------

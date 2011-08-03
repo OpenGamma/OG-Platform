@@ -12,8 +12,19 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Implementation of {@link ChangeManager} to use when change notifications are not supported or never needed.
  */
-public class DummyChangeManager implements ChangeManager {
+public final class DummyChangeManager implements ChangeManager {
 
+  /**
+   * Singleton instance
+   */
+  public static final DummyChangeManager INSTANCE = new DummyChangeManager();
+  
+  /**
+   * Hidden constructor.
+   */
+  private DummyChangeManager() {
+  }
+  
   @Override
   public void addChangeListener(ChangeListener listener) {
   }

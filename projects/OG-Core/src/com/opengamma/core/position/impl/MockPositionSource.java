@@ -50,10 +50,6 @@ public class MockPositionSource implements PositionSource {
    * The suppler of unique identifiers.
    */
   private final UniqueIdentifierSupplier _uidSupplier;
-  /**
-   * The change manager
-   */
-  private final ChangeManager _changeManager = new DummyChangeManager();
 
   /**
    * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
@@ -116,7 +112,7 @@ public class MockPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return _changeManager;
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
