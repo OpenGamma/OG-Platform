@@ -135,8 +135,8 @@
   
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
-  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
-  	<constructor-arg ref="sharedConfigMaster"/>
+  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
+  	<property name="configMaster" ref="sharedConfigMaster" />
   </bean>
   
   <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
