@@ -26,11 +26,16 @@ import com.opengamma.engine.value.ValueSpecification;
 
 public class PropertyPreservingFunctionTest {
 
-  @SuppressWarnings("unchecked")
+
+  private MockPropertyPreservingFunction getFunction() {
+    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop", "A", "B", "C", "D", "E", "F"), new ArrayList<String>());
+    return func;
+  }
+  
   @Test
   public void EmptyProperties()
   {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop"), Collections.EMPTY_LIST);
+    MockPropertyPreservingFunction func = getFunction();
     
     ValueProperties props = ValueProperties.none();
     
@@ -39,39 +44,41 @@ public class PropertyPreservingFunctionTest {
     assertEqual(expected, func, props);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void SingleMatchingProperty()
   {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop"), Collections.EMPTY_LIST);
+    MockPropertyPreservingFunction func = getFunction();
     
     assertEqual(ValueProperties.builder().with("A", "V").get(), func, ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "V").get());
   }
   
-  @SuppressWarnings("unchecked")
-  @Test
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void SingleNonMatchingProperty()
   {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop"), Collections.EMPTY_LIST);
-    
-    assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "X").get());
+    MockPropertyPreservingFunction func = getFunction();
+    List<ValueSpecification> specses = getSpecs(ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "X").get());
+    func.getResultProperties(specses);
   }
   
   
-  @SuppressWarnings("unchecked")
   @Test
-  public void SingleNonMatchingPropertyWithExtra()
+  public void SingleNonMatchingOtherProperty()
   {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop"), Collections.EMPTY_LIST);
-    
-    assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("A", "V").with("B", "V").withOptional("C").withAny("C").get(), ValueProperties.builder().with("A", "X").get());
+    MockPropertyPreservingFunction func = getFunction();
+    assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "B").get());
   }
   
-  @SuppressWarnings("unchecked")
+  @Test
+  public void SingleMatchingOtherProperty()
+  {
+    MockPropertyPreservingFunction func = getFunction();
+    assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "A").get());
+  }
+  
   @Test
   public void OptionalProperty()
   {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop"), Collections.EMPTY_LIST);
+    MockPropertyPreservingFunction func = getFunction();
     
     ValueProperties p = ValueProperties.builder().withOptional("C").withAny("C").with("D", "X").withOptional("D").get();
     assertEqual(p, func, p, p);
@@ -102,11 +109,6 @@ public class PropertyPreservingFunctionTest {
   private void assertEqualOrdered(ValueProperties expected, MockPropertyPreservingFunction func, Collection<ValueSpecification> specses) {
     ValueProperties resultProperties = func.getResultProperties(specses);
     ValueProperties filteredResult = resultProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).get();
-    ValueProperties emptyIsh = ValueProperties.builder().withOptional("X").withoutAny("X").get();
-    if (expected.equals(ValueProperties.none()) && filteredResult.equals(emptyIsh)) {
-      //{} != EMPTY
-      return;
-    }  
     Assert.assertEquals(expected, filteredResult);
   }
 
