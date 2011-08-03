@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 /**
  * Checks the wiring of the EquityFuturesPresentValueCalculator
+ * FIXME Case - presentValue needs discounting.. 
  */
 public class EquityFuturesPresentValueCalculatorTest {
 

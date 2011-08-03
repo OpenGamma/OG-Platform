@@ -61,8 +61,8 @@ public class VarianceSwapDefinitionTest {
     varSwapDefn.toDerivative(now, emptyTimeSeries);
   }
 
-  @Test
-  // (expectedExceptions = IllegalArgumentException.class) // Failing on purpose so that we don't forget to extend
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  // FIXME Failing on purpose so that we don't forget to extend
   public void weeklyObservations() {
     final PeriodFrequency freqWeek = PeriodFrequency.WEEKLY;
     new VarianceSwapDefinition(tPlus2, plus5y, plus5y, freqWeek, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
