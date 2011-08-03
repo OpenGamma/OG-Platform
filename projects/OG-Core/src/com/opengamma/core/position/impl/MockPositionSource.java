@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -48,6 +50,10 @@ public class MockPositionSource implements PositionSource {
    * The suppler of unique identifiers.
    */
   private final UniqueIdentifierSupplier _uidSupplier;
+  /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager = new DummyChangeManager();
 
   /**
    * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
@@ -105,6 +111,12 @@ public class MockPositionSource implements PositionSource {
   @Override
   public Trade getTrade(UniqueIdentifier uid) {
     return uid == null ? null : _trades.get(uid);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

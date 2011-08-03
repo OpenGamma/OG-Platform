@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -68,6 +70,11 @@ public class CSVPositionSource implements PositionSource {
    * The trades by identifier.
    */
   private final Map<UniqueIdentifier, Trade> _trades = new TreeMap<UniqueIdentifier, Trade>();
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager = new DummyChangeManager();
+  
   /**
    * Creates an empty CSV position source.
    */
@@ -168,6 +175,12 @@ public class CSVPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+  
+  //-------------------------------------------------------------------------
   private Portfolio loadPortfolio(UniqueIdentifier portfolioId, File file) {
     FileInputStream fis = null;
     try {
@@ -228,4 +241,5 @@ public class CSVPositionSource implements PositionSource {
     
     return new PositionImpl(positionId, quantity, securityKey);
   }
+
 }

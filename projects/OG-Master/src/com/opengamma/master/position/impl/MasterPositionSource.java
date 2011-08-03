@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -349,6 +350,14 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
         nodeId.getScheme() + '-' + positionOrTradeId.getScheme(),
         nodeId.getValue() + '-' + positionOrTradeId.getValue(),
         StringUtils.defaultString(nodeId.getVersion()) + '-' + StringUtils.defaultString(positionOrTradeId.getVersion()));
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    // NOTE jonathan 2011-08-03 -- PortfolioMaster does not currently implement ChangeProvider so currently return the
+    // PositionMaster's ChangeManager.
+    return getPositionMaster().changeManager();
   }
 
   //-------------------------------------------------------------------------
