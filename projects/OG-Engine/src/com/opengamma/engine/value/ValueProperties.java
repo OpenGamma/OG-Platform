@@ -186,6 +186,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       _properties.remove(propertyName);
       if (_optional != null) {
         _optional.remove(propertyName);
+        if (_optional.isEmpty()) {
+          _optional = null;
+        }
       }
       return this;
     }
