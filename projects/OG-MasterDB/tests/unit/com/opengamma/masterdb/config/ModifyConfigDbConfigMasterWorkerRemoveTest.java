@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -40,19 +40,19 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeConfig_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
-    _cfgMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
+    _cfgMaster.remove(uniqueId);
   }
 
   @Test
   public void test_remove_removed() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    _cfgMaster.remove(uid);
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
+    UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
+    _cfgMaster.remove(uniqueId);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uniqueId, Identifier.class);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());

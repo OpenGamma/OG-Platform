@@ -23,7 +23,7 @@ import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
@@ -62,26 +62,26 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   //-------------------------------------------------------------------------
-  private UniqueIdentifier putSecurity(final ManageableSecurity security) {
+  private UniqueId putSecurity(final ManageableSecurity security) {
     s_logger.debug("putting security = {}", security);
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
     document = _secMaster.add(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getUniqueId();
-    s_logger.debug("Security {} stored with identifier {}", security.getClass(), uid);
-    return uid;
+    final UniqueId uniqueId = document.getUniqueId();
+    s_logger.debug("Security {} stored with identifier {}", security.getClass(), uniqueId);
+    return uniqueId;
   }
 
-  private UniqueIdentifier updateSecurity(final ManageableSecurity security) {
+  private UniqueId updateSecurity(final ManageableSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
     document.setUniqueId(security.getUniqueId());
     document = _secMaster.update(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getUniqueId();
-    s_logger.debug("Security {} updated; new identifier {}", security.getClass(), uid);
-    return uid;
+    final UniqueId uniqueId = document.getUniqueId();
+    s_logger.debug("Security {} updated; new identifier {}", security.getClass(), uniqueId);
+    return uniqueId;
   }
 
   private Security getSecurity(final Iterable<Identifier> identifiers) {
@@ -100,7 +100,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     return security;
   }
 
-  private Security getSecurity(final UniqueIdentifier uniqueId) {
+  private Security getSecurity(final UniqueId uniqueId) {
     s_logger.debug("Search for security with identifier {}", uniqueId);
     final SecurityDocument document = _secMaster.get(uniqueId);
     assertNotNull(document);
@@ -135,12 +135,12 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   protected <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security) {
     normalizeSecurity (security);
     s_logger.debug("Testing {} instance {}", securityClass, security.hashCode());
-    final UniqueIdentifier uid = putSecurity(security);
-    assertNotNull(uid);
-    s_logger.debug("UID = {}", uid);
+    final UniqueId uniqueId = putSecurity(security);
+    assertNotNull(uniqueId);
+    s_logger.debug("UID = {}", uniqueId);
     Security sec;
     // retrieve by unique identifier
-    sec = getSecurity(uid);
+    sec = getSecurity(uniqueId);
     normalizeSecurity(sec);
     assertEquals(security, sec);
     IdentifierBundle bundle = null;
@@ -165,20 +165,20 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     final String originalName = security.getName ();
     final String newName = "UPDATED " + originalName;
     security.setName(newName);
-    final UniqueIdentifier newuid = updateSecurity (security);
-    assertNotNull(newuid);
-    s_logger.debug("New UID = {}", newuid);
-    assertEquals(false, uid.equals(newuid));
-    // retrieve with original uid - gets original
-    sec = getSecurity(uid);
+    final UniqueId newUniqueId = updateSecurity (security);
+    assertNotNull(newUniqueId);
+    s_logger.debug("New UID = {}", newUniqueId);
+    assertEquals(false, uniqueId.equals(newUniqueId));
+    // retrieve with original uniqueId - gets original
+    sec = getSecurity(uniqueId);
     assertNotNull(sec);
     assertEquals(originalName, sec.getName());
-    // retrieve with new uid - gets updated
-    sec = getSecurity(newuid);
+    // retrieve with new uniqueId - gets updated
+    sec = getSecurity(newUniqueId);
     assertNotNull(sec);
     assertEquals(newName, sec.getName());
-    // retrieve with a "latest" uid - gets updated
-    sec = getSecurity(uid.toLatest());
+    // retrieve with a "latest" uniqueId - gets updated
+    sec = getSecurity(uniqueId.toLatest());
     assertNotNull(sec);
     assertEquals(newName, sec.getName());
     // retrieving by the earlier bundle - gets updated

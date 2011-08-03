@@ -9,18 +9,18 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
- * Defines a {@code UniqueIdentifier} as a Fudge type using a String.
+ * Defines a {@code UniqueId} as a Fudge type using a String.
  * <p>
- * A {@code UniqueIdentifier} is typically encoded as a sub-message in Fudge with three separate strings.
+ * A {@code UniqueId} is typically encoded as a sub-message in Fudge with three separate strings.
  * This class allows the objects to be sent as a single formatted string using
- * {@link UniqueIdentifier#toString()} and {@link UniqueIdentifier#parse(String)}.
+ * {@link UniqueId#toString()} and {@link UniqueId#parse(String)}.
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class UniqueIdentifierSecondaryType extends SecondaryFieldType<UniqueIdentifier, String> {
+public final class UniqueIdSecondaryType extends SecondaryFieldType<UniqueId, String> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -29,24 +29,24 @@ public final class UniqueIdentifierSecondaryType extends SecondaryFieldType<Uniq
    * Singleton instance of the type.
    */
   @FudgeSecondaryType
-  public static final UniqueIdentifierSecondaryType INSTANCE = new UniqueIdentifierSecondaryType();
+  public static final UniqueIdSecondaryType INSTANCE = new UniqueIdSecondaryType();
 
   /**
    * Creates an instance.
    */
-  private UniqueIdentifierSecondaryType() {
-    super(FudgeWireType.STRING, UniqueIdentifier.class);
+  private UniqueIdSecondaryType() {
+    super(FudgeWireType.STRING, UniqueId.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public String secondaryToPrimary(final UniqueIdentifier uniqueId) {
+  public String secondaryToPrimary(final UniqueId uniqueId) {
     return uniqueId.toString();
   }
 
   @Override
-  public UniqueIdentifier primaryToSecondary(final String string) {
-    return UniqueIdentifier.parse(string);
+  public UniqueId primaryToSecondary(final String string) {
+    return UniqueId.parse(string);
   }
 
 }

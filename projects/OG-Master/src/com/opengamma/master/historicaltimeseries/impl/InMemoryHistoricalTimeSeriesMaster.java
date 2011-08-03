@@ -23,9 +23,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
@@ -53,22 +53,22 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesMaster {
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
+   * The default scheme used for each {@link UniqueId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemHts";
 
   /**
    * A cache of time-series info by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, HistoricalTimeSeriesInfoDocument> _storeInfo = new ConcurrentHashMap<ObjectIdentifier, HistoricalTimeSeriesInfoDocument>();
+  private final ConcurrentMap<ObjectId, HistoricalTimeSeriesInfoDocument> _storeInfo = new ConcurrentHashMap<ObjectId, HistoricalTimeSeriesInfoDocument>();
   /**
    * A cache of time-series points by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, LocalDateDoubleTimeSeries> _storePoints = new ConcurrentHashMap<ObjectIdentifier, LocalDateDoubleTimeSeries>();
+  private final ConcurrentMap<ObjectId, LocalDateDoubleTimeSeries> _storePoints = new ConcurrentHashMap<ObjectId, LocalDateDoubleTimeSeries>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  private final Supplier<ObjectId> _objectIdSupplier;
   /**
    * The change manager.
    */
@@ -78,7 +78,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * Creates an instance.
    */
   public InMemoryHistoricalTimeSeriesMaster() {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
@@ -87,7 +87,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * @param changeManager  the change manager, not null
    */
   public InMemoryHistoricalTimeSeriesMaster(final MasterChangeManager changeManager) {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME), changeManager);
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -95,7 +95,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicMasterChangeManager());
   }
 
@@ -105,7 +105,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
+  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectId> objectIdSupplier, final MasterChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -166,7 +166,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeriesInfoDocument get(final UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeriesInfoDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
@@ -175,7 +175,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   public HistoricalTimeSeriesInfoDocument get(final ObjectIdentifiable objectKey, VersionCorrection versionCorrection) {
     validateId(objectKey);
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final ObjectIdentifier objectId = objectKey.getObjectId();
+    final ObjectId objectId = objectKey.getObjectId();
     final HistoricalTimeSeriesInfoDocument document = _storeInfo.get(objectId);
     if (document == null) {
       throw new DataNotFoundException("Historical time-series not found: " + objectId);
@@ -188,8 +188,8 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   public HistoricalTimeSeriesInfoDocument add(final HistoricalTimeSeriesInfoDocument document) {
     validateDocument(document);
     
-    final ObjectIdentifier objectId = _objectIdSupplier.get();
-    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final ObjectId objectId = _objectIdSupplier.get();
+    final UniqueId uniqueId = objectId.atVersion("");
     final HistoricalTimeSeriesInfoDocument cloned = JodaBeanUtils.clone(document);
     final ManageableHistoricalTimeSeriesInfo info = cloned.getInfo();
     info.setUniqueId(uniqueId);
@@ -208,7 +208,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     validateDocument(document);
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final HistoricalTimeSeriesInfoDocument storedDocument = _storeInfo.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -227,7 +227,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     validateId(uniqueId);
     if (_storeInfo.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Historical time-series not found: " + uniqueId);
@@ -258,7 +258,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableHistoricalTimeSeries getTimeSeries(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+  public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
     return getTimeSeries(uniqueId.getObjectId(), VersionCorrection.LATEST, fromDateInclusive, toDateInclusive);
   }
 
@@ -269,7 +269,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
     toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
     ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
-    final ObjectIdentifier objectId = objectKey.getObjectId();
+    final ObjectId objectId = objectKey.getObjectId();
     
     final Instant now = Instant.now();
     LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
@@ -292,10 +292,10 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier updateTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDateDoubleTimeSeries series) {
+  public UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDateDoubleTimeSeries series) {
     ArgumentChecker.notNull(objectKey, "objectKey");
     ArgumentChecker.notNull(series, "series");
-    final ObjectIdentifier objectId = objectKey.getObjectId();
+    final ObjectId objectId = objectKey.getObjectId();
     
     final LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
     if (existingSeries != null) {
@@ -312,17 +312,17 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
       }
     }
     final Instant now = Instant.now();
-    final UniqueIdentifier uniqueId = objectId.atLatestVersion();
+    final UniqueId uniqueId = objectId.atLatestVersion();
     changeManager().masterChanged(MasterChangedType.UPDATED, uniqueId, uniqueId, now);
     return uniqueId;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier correctTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDateDoubleTimeSeries series) {
+  public UniqueId correctTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDateDoubleTimeSeries series) {
     ArgumentChecker.notNull(objectKey, "objectKey");
     ArgumentChecker.notNull(series, "series");
-    final ObjectIdentifier objectId = objectKey.getObjectId();
+    final ObjectId objectId = objectKey.getObjectId();
     
     LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
     if (existingSeries != null) {
@@ -336,19 +336,19 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
       }
     }
     final Instant now = Instant.now();
-    final UniqueIdentifier uniqueId = objectId.atLatestVersion();
+    final UniqueId uniqueId = objectId.atLatestVersion();
     changeManager().masterChanged(MasterChangedType.CORRECTED, uniqueId, uniqueId, now);
     return uniqueId;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier removeTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
+  public UniqueId removeTimeSeriesDataPoints(ObjectIdentifiable objectKey, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
     ArgumentChecker.notNull(objectKey, "objectKey");
     fromDateInclusive = Objects.firstNonNull(fromDateInclusive, LocalDate.of(1000, 1, 1));  // TODO: JSR-310 min/max date
     toDateInclusive = Objects.firstNonNull(toDateInclusive, LocalDate.of(9999, 1, 1));
     ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
-    final ObjectIdentifier objectId = objectKey.getObjectId();
+    final ObjectId objectId = objectKey.getObjectId();
     
     LocalDateDoubleTimeSeries existingSeries = _storePoints.get(objectId);
     if (existingSeries == null) {

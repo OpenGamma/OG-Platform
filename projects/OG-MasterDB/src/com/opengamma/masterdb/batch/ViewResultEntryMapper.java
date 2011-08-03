@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Hibernate helper.
@@ -51,7 +51,7 @@ public class ViewResultEntryMapper {
       
       ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("comp_target_type"));
       
-      UniqueIdentifier targetIdentifier = UniqueIdentifier.of(
+      UniqueId targetIdentifier = UniqueId.of(
           rs.getString("comp_target_id_scheme"), 
           rs.getString("comp_target_id_value"),
           rs.getString("comp_target_id_version"));

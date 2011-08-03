@@ -26,8 +26,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -60,7 +60,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbExg";
   /**
@@ -140,7 +140,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     }
     if (request.getExchangeIds() != null) {
       StringBuilder buf = new StringBuilder(request.getExchangeIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getExchangeIds()) {
+      for (ObjectId objectId : request.getExchangeIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -264,7 +264,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final UniqueIdentifier uniqueId) {
+  public ExchangeDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new ExchangeDocumentExtractor(), "Exchange");
   }
 
@@ -296,7 +296,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final long docId = nextId("exg_exchange_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     // the arguments for inserting into the exchange table
@@ -418,7 +418,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       ManageableExchange exchange = FUDGE_CONTEXT.readObject(ManageableExchange.class, new ByteArrayInputStream(bytes));
       
       ExchangeDocument doc = new ExchangeDocument();
-      doc.setUniqueId(createUniqueIdentifier(docOid, docId));
+      doc.setUniqueId(createUniqueId(docOid, docId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

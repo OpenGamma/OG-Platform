@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -128,9 +128,9 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
 
   //-------------------------------------------------------------------------
   protected void assert101(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
+    UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
@@ -140,9 +140,9 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
   }
 
   protected void assert102(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "102", "0");
+    UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1bInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1bInstant, test.getCorrectionFromInstant());
@@ -152,9 +152,9 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
   }
 
   protected void assert201(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1cInstant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1cInstant, test.getCorrectionFromInstant());
@@ -164,9 +164,9 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
   }
 
   protected void assert202(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
+    UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());

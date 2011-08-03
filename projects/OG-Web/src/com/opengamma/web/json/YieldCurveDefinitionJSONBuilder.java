@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -71,8 +71,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       }
       curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
       if (message.opt(UNIQUE_ID_FIELD) != null) {
-        UniqueIdentifier uid = convertJsonToObject(UniqueIdentifier.class, message.getJSONObject(UNIQUE_ID_FIELD));
-        curveDefinition.setUniqueId(uid);
+        UniqueId uniqueId = convertJsonToObject(UniqueId.class, message.getJSONObject(UNIQUE_ID_FIELD));
+        curveDefinition.setUniqueId(uniqueId);
       }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create YieldCurveDefinition", ex);

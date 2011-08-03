@@ -16,7 +16,7 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -80,7 +80,7 @@ public class ComputationTarget implements Serializable {
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     final Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
       return ((UniqueIdentifiable) value).getUniqueId();

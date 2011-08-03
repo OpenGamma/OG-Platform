@@ -24,7 +24,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -39,11 +39,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * The unique identifier of the trade.
    */
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The unique identifier of the parent position.
    */
-  private UniqueIdentifier _parentPositionId;
+  private UniqueId _parentPositionId;
   /**
    * The link to the security.
    */
@@ -102,7 +102,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public TradeImpl(UniqueIdentifier parentPositionId, SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
+  public TradeImpl(UniqueId parentPositionId, SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(parentPositionId, "parentPositionId");
     ArgumentChecker.notNull(securityLink, "securityLink");
     ArgumentChecker.notNull(quantity, "quantity");
@@ -126,7 +126,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public TradeImpl(UniqueIdentifier parentPositionId, Security security, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
+  public TradeImpl(UniqueId parentPositionId, Security security, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(parentPositionId, "parentPositionId");
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(quantity, "quantity");
@@ -164,7 +164,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @return the identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -173,7 +173,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * 
    * @param identifier  the new identifier, not null
    */
-  public void setUniqueId(UniqueIdentifier identifier) {
+  public void setUniqueId(UniqueId identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
     _uniqueId = identifier;
   }
@@ -185,7 +185,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @return the parent position unique identifier, null if no parent
    */
   @Override
-  public UniqueIdentifier getParentPositionId() {
+  public UniqueId getParentPositionId() {
     return _parentPositionId;
   }
 
@@ -194,7 +194,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * 
    * @param parentPositionId  the parent position unique identifier, null if no parent
    */
-  public void setParentPositionId(UniqueIdentifier parentPositionId) {
+  public void setParentPositionId(UniqueId parentPositionId) {
     _parentPositionId = parentPositionId;
   }
 

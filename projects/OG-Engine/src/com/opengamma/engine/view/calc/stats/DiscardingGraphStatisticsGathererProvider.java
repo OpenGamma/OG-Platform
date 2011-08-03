@@ -6,7 +6,7 @@
 
 package com.opengamma.engine.view.calc.stats;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Discards any statistics.
@@ -30,7 +30,7 @@ public class DiscardingGraphStatisticsGathererProvider implements GraphExecutorS
 
   };
 
-  public GraphExecutorStatisticsGatherer getStatisticsGatherer(final UniqueIdentifier viewProcessId) {
+  public GraphExecutorStatisticsGatherer getStatisticsGatherer(final UniqueId viewProcessId) {
     return GATHERER_INSTANCE;
   }
 

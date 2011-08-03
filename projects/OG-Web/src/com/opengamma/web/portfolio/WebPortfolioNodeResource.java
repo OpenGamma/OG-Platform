@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -232,7 +232,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
    * @param overrideNodeId  the override node id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPortfoliosData data, final UniqueIdentifier overrideNodeId) {
+  public static URI uri(final WebPortfoliosData data, final UniqueId overrideNodeId) {
     String portfolioId = data.getBestPortfolioUriId(null);
     String nodeId = data.getBestNodeUriId(overrideNodeId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioNodeResource.class).build(portfolioId, nodeId);

@@ -14,7 +14,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -54,7 +54,7 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableHoliday getHoliday(UniqueIdentifier uniqueId) {
+  public ManageableHoliday getHoliday(UniqueId uniqueId) {
     HolidayDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getHoliday() : null);
   }

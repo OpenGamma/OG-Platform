@@ -28,7 +28,7 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
@@ -56,7 +56,7 @@ public class ViewProcessorManager implements Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
   private final ExecutorService _executor = Executors.newCachedThreadPool();
-  private final Set<UniqueIdentifier> _watchSet = new HashSet<UniqueIdentifier>();
+  private final Set<UniqueId> _watchSet = new HashSet<UniqueId>();
   private final Set<WatchSetProvider> _watchSetProviders = new HashSet<WatchSetProvider>();
   private boolean _isRunning;
 
@@ -154,7 +154,7 @@ public class ViewProcessorManager implements Lifecycle {
         }
         s_logger.info("Initializing functions");
         for (CompiledFunctionService function : _functions) {
-          final Set<UniqueIdentifier> watch = function.initialize();
+          final Set<UniqueId> watch = function.initialize();
           _watchSet.addAll(watch);
           addAlternateWatchSet(watch);
         }
@@ -191,7 +191,7 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void onMasterChanged(final Instant latchInstant, final VersionedSource source, final UniqueIdentifier uniqueIdentifier) {
+  private void onMasterChanged(final Instant latchInstant, final VersionedSource source, final UniqueId uniqueIdentifier) {
     s_logger.debug("Change timestamp {} for {} - change from {}", new Object[] {latchInstant, source, uniqueIdentifier});
     _changeLock.lock();
     try {
@@ -252,7 +252,7 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        final Set<UniqueIdentifier> watch = functions.reinitialize();
+        final Set<UniqueId> watch = functions.reinitialize();
         _watchSet.addAll(watch);
         addAlternateWatchSet(watch);
       }
@@ -267,9 +267,9 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void addAlternateWatchSet(final Set<UniqueIdentifier> watchSet) {
+  private void addAlternateWatchSet(final Set<UniqueId> watchSet) {
     for (WatchSetProvider provider : _watchSetProviders) {
-      final Set<UniqueIdentifier> additional = provider.getAdditionalWatchSet(watchSet);
+      final Set<UniqueId> additional = provider.getAdditionalWatchSet(watchSet);
       if (additional != null) {
         _watchSet.addAll(additional);
       }

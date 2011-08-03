@@ -25,7 +25,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -49,7 +49,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _exchangeIds;
+  private List<ObjectId> _exchangeIds;
   /**
    * The exchange keys to match, null to not match on exchange keys.
    */
@@ -94,7 +94,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExchangeId(ObjectIdentifiable exchangeId) {
     ArgumentChecker.notNull(exchangeId, "exchangeId");
     if (_exchangeIds == null) {
-      _exchangeIds = new ArrayList<ObjectIdentifier>();
+      _exchangeIds = new ArrayList<ObjectId>();
     }
     _exchangeIds.add(exchangeId.getObjectId());
   }
@@ -109,7 +109,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     if (exchangeIds == null) {
       _exchangeIds = null;
     } else {
-      _exchangeIds = new ArrayList<ObjectIdentifier>();
+      _exchangeIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable exchangeId : exchangeIds) {
         _exchangeIds.add(exchangeId.getObjectId());
       }
@@ -217,7 +217,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -1755006571:  // exchangeIds
-        setExchangeIds((List<ObjectIdentifier>) newValue);
+        setExchangeIds((List<ObjectId>) newValue);
         return;
       case 1429431991:  // exchangeKeys
         setExchangeKeys((IdentifierSearch) newValue);
@@ -259,7 +259,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getExchangeIds() {
+  public List<ObjectId> getExchangeIds() {
     return _exchangeIds;
   }
 
@@ -268,7 +268,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> exchangeIds() {
+  public final Property<List<ObjectId>> exchangeIds() {
     return metaBean().exchangeIds().createProperty(this);
   }
 
@@ -336,7 +336,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _exchangeIds = DirectMetaProperty.ofReadWrite(
         this, "exchangeIds", ExchangeSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code exchangeKeys} property.
@@ -396,7 +396,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> exchangeIds() {
+    public final MetaProperty<List<ObjectId>> exchangeIds() {
       return _exchangeIds;
     }
 

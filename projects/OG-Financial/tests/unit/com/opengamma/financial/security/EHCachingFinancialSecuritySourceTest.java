@@ -22,7 +22,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -57,10 +57,10 @@ public class EHCachingFinancialSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void getSecurity_UniqueIdentifier() {
+  public void getSecurity_UniqueId() {
     addSecuritiesToMock(_security1, _security2);
     
-    UniqueIdentifier uid1 = _security1.getUniqueId();
+    UniqueId uid1 = _security1.getUniqueId();
     Security underlyingSec = _underlyingSecuritySource.getSecurity(uid1);
     Security cachedSec = _cachingSecuritySource.getSecurity(uid1);
     assertNotNull(underlyingSec);
@@ -82,12 +82,12 @@ public class EHCachingFinancialSecuritySourceTest {
   }
 
   @Test
-  public void getSecurity_UniqueIdentifier_empty() {
+  public void getSecurity_UniqueId_empty() {
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     
-    UniqueIdentifier uid = UniqueIdentifier.of("Mock", "99");
+    UniqueId uid = UniqueId.of("Mock", "99");
     Security cachedSec = _cachingSecuritySource.getSecurity(uid);
     assertNull(cachedSec);
     assertEquals(0, singleSecCache.getSize());
@@ -197,7 +197,7 @@ public class EHCachingFinancialSecuritySourceTest {
   @Test
   public void refreshGetSecurity_UniqueIdentity() {
     addSecuritiesToMock(_security1, _security2);
-    UniqueIdentifier uid1 = _security1.getUniqueId();
+    UniqueId uid1 = _security1.getUniqueId();
     _cachingSecuritySource.getSecurity(uid1);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());

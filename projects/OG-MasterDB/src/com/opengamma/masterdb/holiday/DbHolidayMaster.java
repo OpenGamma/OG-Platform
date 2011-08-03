@@ -25,8 +25,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -61,7 +61,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbHol";
   /**
@@ -195,7 +195,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
     if (request.getHolidayIds() != null) {
       StringBuilder buf = new StringBuilder(request.getHolidayIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getHolidayIds()) {
+      for (ObjectId objectId : request.getHolidayIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -228,7 +228,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayDocument get(final UniqueIdentifier uniqueId) {
+  public HolidayDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new HolidayDocumentExtractor(), "Holiday");
   }
 
@@ -287,7 +287,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     getJdbcTemplate().update(sqlInsertHoliday(), holidayArgs);
     getJdbcTemplate().batchUpdate(sqlInsertDate(), dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
     // set the uniqueId
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     return document;
@@ -371,7 +371,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final String exchangeScheme = rs.getString("EXCHANGE_SCHEME");
       final String exchangeValue = rs.getString("EXCHANGE_VALUE");
       final String currencyISO = rs.getString("CURRENCY_ISO");
-      UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
       ManageableHoliday holiday = new ManageableHoliday();
       holiday.setUniqueId(uniqueId);
       holiday.setType(HolidayType.valueOf(type));

@@ -36,7 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -149,18 +149,18 @@ public class YieldCurveFunctionHelper {
 
   public Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
     final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
-    Map<UniqueIdentifier, Double> dataPoints = marketDataBundle.getDataPoints();
+    Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
     
     HashMap<Identifier, Double> ret = new HashMap<Identifier, Double>();
-    for (Entry<UniqueIdentifier, Double> entry : dataPoints.entrySet()) {
-      UniqueIdentifier uid = entry.getKey();
+    for (Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
+      UniqueId uid = entry.getKey();
       Identifier identifier = getIdentifier(uid);
       ret.put(identifier, entry.getValue());
     }
     return ret;
   }
 
-  private Identifier getIdentifier(UniqueIdentifier uid) {
+  private Identifier getIdentifier(UniqueId uid) {
     Identifier identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
     return identifier;
   }

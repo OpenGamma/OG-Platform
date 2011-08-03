@@ -9,7 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -29,7 +29,7 @@ public interface HolidaySource {
    * @return the holiday, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Holiday getHoliday(UniqueIdentifier uniqueId);
+  Holiday getHoliday(UniqueId uniqueId);
 
   /**
    * Checks if a date is a holiday for a CURRENCY type.

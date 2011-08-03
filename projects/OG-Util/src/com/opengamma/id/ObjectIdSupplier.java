@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is thread-safe and not externally mutable.
  */
-public class ObjectIdentifierSupplier implements Supplier<ObjectIdentifier> {
+public class ObjectIdSupplier implements Supplier<ObjectId> {
 
   /**
    * The scheme.
@@ -35,7 +35,7 @@ public class ObjectIdentifierSupplier implements Supplier<ObjectIdentifier> {
    * 
    * @param scheme  the scheme, not empty
    */
-  public ObjectIdentifierSupplier(final String scheme) {
+  public ObjectIdSupplier(final String scheme) {
     ArgumentChecker.notEmpty(scheme, "scheme");
     _scheme = scheme;
   }
@@ -46,9 +46,9 @@ public class ObjectIdentifierSupplier implements Supplier<ObjectIdentifier> {
    * 
    * @return the next unique identifier, not null
    */
-  public ObjectIdentifier get() {
+  public ObjectId get() {
     final long id = _idCount.incrementAndGet();
-    return ObjectIdentifier.of(_scheme, Long.toString(id));
+    return ObjectId.of(_scheme, Long.toString(id));
   }
 
   /**
@@ -57,15 +57,15 @@ public class ObjectIdentifierSupplier implements Supplier<ObjectIdentifier> {
    * @param valuePrefix  the prefix for the value, not null
    * @return the next unique identifier, not null
    */
-  public ObjectIdentifier getWithValuePrefix(final String valuePrefix) {
+  public ObjectId getWithValuePrefix(final String valuePrefix) {
     final long id = _idCount.incrementAndGet();
-    return ObjectIdentifier.of(_scheme, valuePrefix + Long.toString(id));
+    return ObjectId.of(_scheme, valuePrefix + Long.toString(id));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "ObjectIdentifierSupplier[" + _scheme + "]";
+    return "ObjectIdSupplier[" + _scheme + "]";
   }
 
 }

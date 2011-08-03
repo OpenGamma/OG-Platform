@@ -6,7 +6,7 @@
 package com.opengamma.master.position;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
@@ -51,6 +51,6 @@ public interface PositionMaster extends AbstractMaster<PositionDocument>, Notify
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no trade with that unique identifier
    */
-  ManageableTrade getTrade(UniqueIdentifier tradeId);
+  ManageableTrade getTrade(UniqueId tradeId);
 
 }

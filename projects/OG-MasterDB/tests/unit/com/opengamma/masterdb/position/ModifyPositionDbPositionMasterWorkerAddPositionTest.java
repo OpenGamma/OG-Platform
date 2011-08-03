@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -67,19 +67,19 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _posMaster.add(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbPos", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbPos", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueId());
+    assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
@@ -100,19 +100,19 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument test = _posMaster.add(doc);
     
     Instant now = Instant.now(_posMaster.getTimeSource());
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbPos", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbPos", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueId());
+    assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
@@ -148,19 +148,19 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument test = _posMaster.add(doc);
     
     Instant now = Instant.now(_posMaster.getTimeSource());
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbPos", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbPos", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueId());
+    assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
@@ -219,19 +219,19 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _posMaster.add(doc);
     
-    UniqueIdentifier positionUid = test.getUniqueId();
-    assertNotNull(positionUid);
-    assertEquals("DbPos", positionUid.getScheme());
-    assertTrue(positionUid.isVersioned());
-    assertTrue(Long.parseLong(positionUid.getValue()) >= 1000);
-    assertEquals("0", positionUid.getVersion());
+    UniqueId portfolioId = test.getUniqueId();
+    assertNotNull(portfolioId);
+    assertEquals("DbPos", portfolioId.getScheme());
+    assertTrue(portfolioId.isVersioned());
+    assertTrue(Long.parseLong(portfolioId.getValue()) >= 1000);
+    assertEquals("0", portfolioId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(positionUid, testPosition.getUniqueId());
+    assertEquals(portfolioId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
@@ -241,13 +241,13 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertTrue(testPosition.getTrades().size() == 2);
     for (ManageableTrade testTrade : testPosition.getTrades()) {
       assertNotNull(testTrade);
-      UniqueIdentifier tradeUid = testTrade.getUniqueId();
-      assertNotNull(tradeUid);
-      assertEquals("DbPos", positionUid.getScheme());
-      assertTrue(positionUid.isVersioned());
-      assertTrue(Long.parseLong(positionUid.getValue()) >= 1000);
-      assertEquals("0", positionUid.getVersion());
-      assertEquals(positionUid, testTrade.getParentPositionId());
+      UniqueId tradeId = testTrade.getUniqueId();
+      assertNotNull(tradeId);
+      assertEquals("DbPos", portfolioId.getScheme());
+      assertTrue(portfolioId.isVersioned());
+      assertTrue(Long.parseLong(portfolioId.getValue()) >= 1000);
+      assertEquals("0", portfolioId.getVersion());
+      assertEquals(portfolioId, testTrade.getParentPositionId());
     }
   }
 

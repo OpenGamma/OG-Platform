@@ -30,8 +30,8 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -60,7 +60,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _regionIds;
+  private List<ObjectId> _regionIds;
   /**
    * The region keys to match, null to not match on region keys.
    */
@@ -87,7 +87,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Only the immediate children of the identifier will be matched.
    */
   @PropertyDefinition
-  private UniqueIdentifier _childrenOfId;
+  private UniqueId _childrenOfId;
 
   /**
    * Creates an instance.
@@ -122,7 +122,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public void addRegionId(ObjectIdentifiable regionId) {
     ArgumentChecker.notNull(regionId, "regionId");
     if (_regionIds == null) {
-      _regionIds = new ArrayList<ObjectIdentifier>();
+      _regionIds = new ArrayList<ObjectId>();
     }
     _regionIds.add(regionId.getObjectId());
   }
@@ -137,7 +137,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     if (regionIds == null) {
       _regionIds = null;
     } else {
-      _regionIds = new ArrayList<ObjectIdentifier>();
+      _regionIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable regionId : regionIds) {
         _regionIds.add(regionId.getObjectId());
       }
@@ -291,7 +291,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 74326820:  // regionIds
-        setRegionIds((List<ObjectIdentifier>) newValue);
+        setRegionIds((List<ObjectId>) newValue);
         return;
       case -1990775032:  // regionKeys
         setRegionKeys((IdentifierSearch) newValue);
@@ -306,7 +306,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
         setProviderKey((Identifier) newValue);
         return;
       case 178436081:  // childrenOfId
-        setChildrenOfId((UniqueIdentifier) newValue);
+        setChildrenOfId((UniqueId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -348,7 +348,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getRegionIds() {
+  public List<ObjectId> getRegionIds() {
     return _regionIds;
   }
 
@@ -357,7 +357,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> regionIds() {
+  public final Property<List<ObjectId>> regionIds() {
     return metaBean().regionIds().createProperty(this);
   }
 
@@ -470,7 +470,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Only the immediate children of the identifier will be matched.
    * @return the value of the property
    */
-  public UniqueIdentifier getChildrenOfId() {
+  public UniqueId getChildrenOfId() {
     return _childrenOfId;
   }
 
@@ -479,7 +479,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Only the immediate children of the identifier will be matched.
    * @param childrenOfId  the new value of the property
    */
-  public void setChildrenOfId(UniqueIdentifier childrenOfId) {
+  public void setChildrenOfId(UniqueId childrenOfId) {
     this._childrenOfId = childrenOfId;
   }
 
@@ -488,7 +488,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Only the immediate children of the identifier will be matched.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> childrenOfId() {
+  public final Property<UniqueId> childrenOfId() {
     return metaBean().childrenOfId().createProperty(this);
   }
 
@@ -506,7 +506,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _regionIds = DirectMetaProperty.ofReadWrite(
         this, "regionIds", RegionSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code regionKeys} property.
@@ -531,8 +531,8 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     /**
      * The meta-property for the {@code childrenOfId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _childrenOfId = DirectMetaProperty.ofReadWrite(
-        this, "childrenOfId", RegionSearchRequest.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _childrenOfId = DirectMetaProperty.ofReadWrite(
+        this, "childrenOfId", RegionSearchRequest.class, UniqueId.class);
     /**
      * The meta-properties.
      */
@@ -590,7 +590,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> regionIds() {
+    public final MetaProperty<List<ObjectId>> regionIds() {
       return _regionIds;
     }
 
@@ -630,7 +630,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code childrenOfId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> childrenOfId() {
+    public final MetaProperty<UniqueId> childrenOfId() {
       return _childrenOfId;
     }
 

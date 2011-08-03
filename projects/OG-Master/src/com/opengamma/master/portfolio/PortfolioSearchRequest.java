@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -44,14 +44,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _portfolioIds;
+  private List<ObjectId> _portfolioIds;
   /**
    * The set of node object identifiers, null to not limit by node object identifiers.
    * Each returned portfolio will contain at least one of these nodes.
    * Note that an empty list will return no portfolio.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _nodeIds;
+  private List<ObjectId> _nodeIds;
   /**
    * The portfolio name, wildcards allowed, null to not match on name.
    */
@@ -81,7 +81,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public void addPortfolioId(ObjectIdentifiable portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     if (_portfolioIds == null) {
-      _portfolioIds = new ArrayList<ObjectIdentifier>();
+      _portfolioIds = new ArrayList<ObjectId>();
     }
     _portfolioIds.add(portfolioId.getObjectId());
   }
@@ -96,7 +96,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     if (portfolioIds == null) {
       _portfolioIds = null;
     } else {
-      _portfolioIds = new ArrayList<ObjectIdentifier>();
+      _portfolioIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable portfolioId : portfolioIds) {
         _portfolioIds.add(portfolioId.getObjectId());
       }
@@ -111,7 +111,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public void addNodeId(ObjectIdentifiable nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
     if (_nodeIds == null) {
-      _nodeIds = new ArrayList<ObjectIdentifier>();
+      _nodeIds = new ArrayList<ObjectId>();
     }
     _nodeIds.add(nodeId.getObjectId());
   }
@@ -127,7 +127,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     if (nodeIds == null) {
       _nodeIds = null;
     } else {
-      _nodeIds = new ArrayList<ObjectIdentifier>();
+      _nodeIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable nodeId : nodeIds) {
         _nodeIds.add(nodeId.getObjectId());
       }
@@ -192,10 +192,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -160779184:  // portfolioIds
-        setPortfolioIds((List<ObjectIdentifier>) newValue);
+        setPortfolioIds((List<ObjectId>) newValue);
         return;
       case 2114427222:  // nodeIds
-        setNodeIds((List<ObjectIdentifier>) newValue);
+        setNodeIds((List<ObjectId>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -239,7 +239,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getPortfolioIds() {
+  public List<ObjectId> getPortfolioIds() {
     return _portfolioIds;
   }
 
@@ -248,7 +248,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> portfolioIds() {
+  public final Property<List<ObjectId>> portfolioIds() {
     return metaBean().portfolioIds().createProperty(this);
   }
 
@@ -259,7 +259,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no portfolio.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getNodeIds() {
+  public List<ObjectId> getNodeIds() {
     return _nodeIds;
   }
 
@@ -269,7 +269,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no portfolio.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> nodeIds() {
+  public final Property<List<ObjectId>> nodeIds() {
     return metaBean().nodeIds().createProperty(this);
   }
 
@@ -346,13 +346,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _portfolioIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _portfolioIds = DirectMetaProperty.ofReadWrite(
         this, "portfolioIds", PortfolioSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code nodeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _nodeIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _nodeIds = DirectMetaProperty.ofReadWrite(
         this, "nodeIds", PortfolioSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
@@ -415,7 +415,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> portfolioIds() {
+    public final MetaProperty<List<ObjectId>> portfolioIds() {
       return _portfolioIds;
     }
 
@@ -423,7 +423,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code nodeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> nodeIds() {
+    public final MetaProperty<List<ObjectId>> nodeIds() {
       return _nodeIds;
     }
 

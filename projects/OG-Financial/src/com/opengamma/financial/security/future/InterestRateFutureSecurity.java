@@ -26,7 +26,7 @@ public class InterestRateFutureSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a InterestRateFutureSecurity - field 'underlyingIdentifier' is not Identifier message", e);
     }
   }
-  public InterestRateFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
+  public InterestRateFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {

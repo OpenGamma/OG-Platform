@@ -20,7 +20,7 @@ import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -36,7 +36,7 @@ import com.opengamma.util.i18n.Country;
 @Test
 public class MasterExchangeSourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
   private static final Instant NOW = Instant.now();

@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -34,9 +34,9 @@ public interface HistoricalTimeSeriesLoader {
    * @param dataField  the data field, not null
    * @param startDate  the start date of time-series, null should default to a sensible value
    * @param endDate  the end date of time-series, null should default to a sensible value
-   * @return the map of Identifier to UniqueIdentifier of loaded time-series, not null
+   * @return the map of Identifier to UniqueId of loaded time-series, not null
    */
-  Map<Identifier, UniqueIdentifier> addTimeSeries(
+  Map<Identifier, UniqueId> addTimeSeries(
       Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate);
 
   /**
@@ -47,6 +47,6 @@ public interface HistoricalTimeSeriesLoader {
    * @param uniqueId  the unique identifier, not null
    * @return true if the operation is successful otherwise false 
    */
-  boolean updateTimeSeries(UniqueIdentifier uniqueId);
+  boolean updateTimeSeries(UniqueId uniqueId);
 
 }

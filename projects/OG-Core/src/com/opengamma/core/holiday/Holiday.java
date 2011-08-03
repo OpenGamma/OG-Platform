@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -30,7 +30,7 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this holiday entry, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * The type of the holiday.

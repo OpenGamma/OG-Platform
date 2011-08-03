@@ -42,7 +42,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -114,7 +114,7 @@ public class HistoricalTimeSeriesSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueId.class);
     context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
@@ -123,7 +123,7 @@ public class HistoricalTimeSeriesSourceResource {
   @GET
   @Path("uid/{uid}")
   public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
-    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueIdentifier.parse(uid)));
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueId.parse(uid)));
   }
 
   @GET
@@ -134,7 +134,7 @@ public class HistoricalTimeSeriesSourceResource {
       @PathParam("end") String end,
       @PathParam("excludeEnd") String excludeEnd) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
-        UniqueIdentifier.parse(uid), 
+        UniqueId.parse(uid), 
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),

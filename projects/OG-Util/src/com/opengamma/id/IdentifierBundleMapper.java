@@ -14,7 +14,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * A class to manage Identifier, IdentifierBundle and UniqueIdentifier references to generic objects.
+ * A class to manage {@code Identifier}, {@code IdentifierBundle} and {@code UniqueId}
+ * references to generic objects.
  * <p>
  * This is an optimized data structure for storing multiple different references to the same object.
  * The mapper also creates the unique identifier using the specified scheme.
@@ -27,9 +28,9 @@ public class IdentifierBundleMapper<T> {
 
   private final Multimap<Identifier, T> _toMap = HashMultimap.create();
   private final Multimap<T, Identifier> _fromMap = HashMultimap.create();
-  private final BiMap<UniqueIdentifier, T> _uniqueIdMap = HashBiMap.create();
+  private final BiMap<UniqueId, T> _uniqueIdMap = HashBiMap.create();
   private final String _uniqueIdScheme;
-  private final UniqueIdentifierSupplier _idSupplier;
+  private final UniqueIdSupplier _idSupplier;
 
   /**
    * Constructor taking the name of the scheme to use for the unique identifiers that this class generates.
@@ -38,7 +39,7 @@ public class IdentifierBundleMapper<T> {
    */
   public IdentifierBundleMapper(String uniqueIdScheme) {
     _uniqueIdScheme = uniqueIdScheme;
-    _idSupplier = new UniqueIdentifierSupplier(_uniqueIdScheme);
+    _idSupplier = new UniqueIdSupplier(_uniqueIdScheme);
   }
 
   //-------------------------------------------------------------------------
@@ -49,7 +50,7 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object being referred to, not null
    * @return the created unique identifier, not null
    */
-  public synchronized UniqueIdentifier add(IdentifierBundle bundle, T obj) {
+  public synchronized UniqueId add(IdentifierBundle bundle, T obj) {
     _fromMap.putAll(obj, bundle.getIdentifiers());
     for (Identifier identifier : bundle.getIdentifiers()) {
       _toMap.put(identifier, obj);
@@ -57,7 +58,7 @@ public class IdentifierBundleMapper<T> {
     if (_uniqueIdMap.inverse().containsKey(obj)) {
       return _uniqueIdMap.inverse().get(obj);
     } else {
-      UniqueIdentifier uniqueId = _idSupplier.get();
+      UniqueId uniqueId = _idSupplier.get();
       _uniqueIdMap.put(uniqueId, obj);
       return uniqueId;
     }
@@ -96,11 +97,11 @@ public class IdentifierBundleMapper<T> {
   /**
    * Gets those objects which match the specified unique identifier.
    * 
-   * @param uid  the unique identifier to search for, not null
+   * @param uniqueId  the unique identifier to search for, not null
    * @return the matching objects, not null
    */
-  public T get(UniqueIdentifier uid) {
-    return _uniqueIdMap.get(uid);
+  public T get(UniqueId uniqueId) {
+    return _uniqueIdMap.get(uniqueId);
   }
 
   //-------------------------------------------------------------------------
@@ -120,7 +121,7 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object to search for, not null
    * @return the matching unique identifier, not null
    */
-  public UniqueIdentifier getUniqueId(T obj) {
+  public UniqueId getUniqueId(T obj) {
     return _uniqueIdMap.inverse().get(obj);
   }
 

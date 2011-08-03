@@ -9,7 +9,7 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,7 +26,7 @@ public interface Exchange extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this exchange entry, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the bundle of identifiers that define the exchange.

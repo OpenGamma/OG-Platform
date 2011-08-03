@@ -7,7 +7,7 @@ package com.opengamma.core.region;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,7 +26,7 @@ public interface RegionSource {
    * @return the region, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Region getRegion(UniqueIdentifier uniqueId);
+  Region getRegion(UniqueId uniqueId);
 
   /**
    * Get the region with a matching identifier that is highest up the

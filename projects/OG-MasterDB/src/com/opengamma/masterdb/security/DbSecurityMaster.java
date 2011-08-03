@@ -24,8 +24,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
@@ -61,7 +61,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
   /**
@@ -197,7 +197,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
     if (request.getSecurityIds() != null) {
       StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getSecurityIds()) {
+      for (ObjectId objectId : request.getSecurityIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -344,7 +344,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityDocument get(final UniqueIdentifier uniqueId) {
+  public SecurityDocument get(final UniqueId uniqueId) {
     SecurityDocument doc = doGet(uniqueId, new SecurityDocumentExtractor(), "Security");
     loadDetail(Collections.singletonList(doc));
     return doc;
@@ -438,7 +438,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uniqueId
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     document.getSecurity().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     // store the detail
@@ -558,7 +558,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = rs.getString("NAME");
       final String type = rs.getString("SEC_TYPE");
-      UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
       String detailType = rs.getString("DETAIL_TYPE");
       if (detailType.equalsIgnoreCase("R")) {
         LobHandler lob = getDbHelper().getLobHandler();

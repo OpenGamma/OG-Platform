@@ -35,7 +35,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -46,7 +46,7 @@ import com.opengamma.util.time.Expiry;
 public class RESTMethodTest {
 
   private final SecuritySourceService _securitySourceService = new SecuritySourceService(OpenGammaFudgeContext.getInstance());
-  private UniqueIdentifier _uid1;
+  private UniqueId _uid1;
 
   protected SecuritySourceService getSecuritySourceService() {
     return _securitySourceService;

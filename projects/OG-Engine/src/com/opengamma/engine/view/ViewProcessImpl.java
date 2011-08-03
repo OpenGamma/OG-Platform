@@ -32,8 +32,8 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -45,11 +45,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
   
-  private final UniqueIdentifier _viewProcessId;
+  private final UniqueId _viewProcessId;
   private final ViewDefinition _definition;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
-  private final ObjectIdentifier _cycleObjectId;
+  private final ObjectId _cycleObjectId;
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   
   private final AtomicLong _cycleVersion = new AtomicLong();
@@ -82,9 +82,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param cycleManager  the view cycle manager, not null
    * @param cycleObjectId  the object identifier of cycles, not null
    */
-  public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
+  public ViewProcessImpl(UniqueId viewProcessId, ViewDefinition definition,
       ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext,
-      EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectIdentifier cycleObjectId) {
+      EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -102,7 +102,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _viewProcessId;
   }
   
@@ -197,9 +197,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   //-------------------------------------------------------------------------
-  public UniqueIdentifier generateCycleId() {
+  public UniqueId generateCycleId() {
     String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
-    return UniqueIdentifier.of(_cycleObjectId, cycleVersion);
+    return UniqueId.of(_cycleObjectId, cycleVersion);
   }
   
   public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, MarketDataPermissionProvider permissionProvider) {

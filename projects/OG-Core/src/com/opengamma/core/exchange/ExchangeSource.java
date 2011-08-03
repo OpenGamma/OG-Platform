@@ -7,7 +7,7 @@ package com.opengamma.core.exchange;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,7 +26,7 @@ public interface ExchangeSource {
    * @return the exchange, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Exchange getExchange(UniqueIdentifier uniqueId);
+  Exchange getExchange(UniqueId uniqueId);
 
   /**
    * Finds a specific exchange by identifier.

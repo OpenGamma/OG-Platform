@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -55,9 +55,9 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
+    UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
-    doc.setUniqueId(uid);
+    doc.setUniqueId(uniqueId);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
     _cfgMaster.correct(doc);
@@ -67,10 +67,10 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
   public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> base = _cfgMaster.get(uid, Identifier.class);
+    UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
+    ConfigDocument<Identifier> base = _cfgMaster.get(uniqueId, Identifier.class);
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>(Identifier.class);
-    input.setUniqueId(uid);
+    input.setUniqueId(uniqueId);
     input.setName("NewName");
     input.setValue(Identifier.of("A", "B"));
     
@@ -83,7 +83,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     assertEquals("NewName", corrected.getName());
     assertEquals(Identifier.of("A", "B"), corrected.getValue());
     
-    ConfigDocument<Identifier> old = _cfgMaster.get(uid, Identifier.class);
+    ConfigDocument<Identifier> old = _cfgMaster.get(uniqueId, Identifier.class);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
@@ -102,10 +102,10 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
   public void test_correct_nameChangeNullValue() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> base = _cfgMaster.get(uid, Identifier.class);
+    UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
+    ConfigDocument<Identifier> base = _cfgMaster.get(uniqueId, Identifier.class);
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>(Identifier.class);
-    input.setUniqueId(uid);
+    input.setUniqueId(uniqueId);
     input.setName("NewName");
     input.setValue(null);  // name change only
     
@@ -114,7 +114,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     assertEquals("NewName", corrected.getName());  // name changed
     assertEquals(base.getValue(), corrected.getValue());  // value unchanged
     
-    ConfigDocument<Identifier> old = _cfgMaster.get(uid, Identifier.class);
+    ConfigDocument<Identifier> old = _cfgMaster.get(uniqueId, Identifier.class);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());

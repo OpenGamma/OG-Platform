@@ -13,7 +13,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
@@ -32,7 +32,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this region entry, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the classification of the region.
@@ -47,7 +47,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the parent unique identifiers, null if this is the root entry
    */
-  Set<UniqueIdentifier> getParentRegionIds();
+  Set<UniqueId> getParentRegionIds();
 
   /**
    * Gets the short descriptive name of the region.

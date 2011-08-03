@@ -66,7 +66,7 @@ import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.financial.conversion.ResultConverterCache;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
@@ -92,7 +92,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
   /**
@@ -395,7 +395,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
   }
 
   //-------------------------------------------------------------------------
-  /*package*/ RiskRun getRiskRunFromDb(final UniqueIdentifier uniqueId) {
+  /*package*/ RiskRun getRiskRunFromDb(final UniqueId uniqueId) {
     LocalDate date = LocalDate.parse(uniqueId.getValue().substring(0, 10));
     String timeKey = uniqueId.getValue().substring(11);
     return getRiskRunFromDb(date, timeKey);
@@ -903,7 +903,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       for (RiskRun riskRun : runs) {
         BatchDocument doc = new BatchDocument();
         parseRiskRun(riskRun, doc);
-        doc.setUniqueId(createUniqueIdentifier(doc));
+        doc.setUniqueId(createUniqueId(doc));
         result.getDocuments().add(doc);
       }
       
@@ -921,13 +921,13 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
    * @param doc  the document, not null
    * @return the unique identifier,not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(BatchDocument doc) {
-    return UniqueIdentifier.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
+  protected UniqueId createUniqueId(BatchDocument doc) {
+    return UniqueId.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public BatchDocument get(UniqueIdentifier uniqueId) {
+  public BatchDocument get(UniqueId uniqueId) {
     return get(new BatchGetRequest(uniqueId));
   }
 
@@ -994,7 +994,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
 
   //-------------------------------------------------------------------------
   @Override
-  public void delete(UniqueIdentifier uniqueId) {
+  public void delete(UniqueId uniqueId) {
     s_logger.info("Deleting batch {}", uniqueId);
     try {
       getSessionFactory().getCurrentSession().beginTransaction();

@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.util.tuple.Pair;
 
@@ -174,7 +174,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
    * @param overrideHolidayId  the override holiday id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebHolidayData data, final UniqueIdentifier overrideHolidayId) {
+  public static URI uri(final WebHolidayData data, final UniqueId overrideHolidayId) {
     String holidayId = data.getBestHolidayUriId(overrideHolidayId);
     return data.getUriInfo().getBaseUriBuilder().path(WebHolidayResource.class).build(holidayId);
   }

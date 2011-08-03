@@ -11,7 +11,7 @@ public class EquityIndexDividendFutureSecurity extends com.opengamma.financial.s
   protected EquityIndexDividendFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
   }
-  public EquityIndexDividendFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
+  public EquityIndexDividendFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount, settlementDate, underlyingIdentifier);
   }
   protected EquityIndexDividendFutureSecurity (final EquityIndexDividendFutureSecurity source) {

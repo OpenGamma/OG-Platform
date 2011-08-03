@@ -25,7 +25,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -97,7 +97,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
   public void test() throws Exception {
     List<IdentifierBundleWithDates> identifiers = addAndTestTimeSeries();
     for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
-      UniqueIdentifier uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), null, CONFIG_DOC_NAME);
+      UniqueId uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), null, CONFIG_DOC_NAME);
       assertNotNull(uniqueId);
       HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(uniqueId);
       assertEquals(DEFAULT_DATA_SOURCE, doc.getInfo().getDataSource());

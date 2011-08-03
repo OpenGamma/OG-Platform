@@ -31,8 +31,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -108,10 +108,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       searchRequest.setMaxQuantity(NumberUtils.createBigDecimal(maxQuantityStr));
     }
     for (String positionIdStr : positionIdStrs) {
-      searchRequest.addPositionId(ObjectIdentifier.parse(positionIdStr));
+      searchRequest.addPositionId(ObjectId.parse(positionIdStr));
     }
     for (String tradeIdStr : tradeIdStrs) {
-      searchRequest.addPositionId(ObjectIdentifier.parse(tradeIdStr));
+      searchRequest.addPositionId(ObjectId.parse(tradeIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -153,8 +153,8 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       return Response.ok(html).build();
     }
     IdentifierBundle id = IdentifierBundle.of(Identifier.of(idScheme, idValue));
-    Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueIdentifier secUid = loaded.get(id);
+    Map<IdentifierBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+    UniqueId secUid = loaded.get(id);
     if (secUid == null) {
       FlexiBean out = createRootData();
       out.put("err_idvalueNotFound", true);
@@ -183,8 +183,8 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     }
     
     IdentifierBundle id = IdentifierBundle.of(Identifier.of(idScheme, idValue));
-    Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueIdentifier secUid = loaded.get(id);
+    Map<IdentifierBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+    UniqueId secUid = loaded.get(id);
     if (secUid == null) {
       throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
     }
@@ -192,7 +192,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     return Response.created(uri).build();
   }
 
-  private URI addPosition(BigDecimal quantity, UniqueIdentifier secUid) {
+  private URI addPosition(BigDecimal quantity, UniqueId secUid) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
     ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getIdentifiers());
     PositionDocument doc = new PositionDocument(position);
@@ -205,7 +205,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       PositionDocument doc = data().getPositionMaster().get(oid);
       data().setPosition(doc);

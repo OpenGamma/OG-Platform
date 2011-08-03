@@ -22,7 +22,7 @@ import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
@@ -40,7 +40,7 @@ public class MasterHolidaySourceTest {
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
   private static final Currency GBP = Currency.GBP;
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
   private static final Instant NOW = Instant.now();

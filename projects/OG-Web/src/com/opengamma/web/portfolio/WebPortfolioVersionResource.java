@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -107,7 +107,7 @@ public class WebPortfolioVersionResource extends AbstractWebPortfolioResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPortfoliosData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebPortfoliosData data, final UniqueId overrideVersionId) {
     String portfolioId = data.getBestPortfolioUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioVersionResource.class).build(portfolioId, versionId);

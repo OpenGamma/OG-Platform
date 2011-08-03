@@ -26,7 +26,7 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -36,15 +36,15 @@ import com.opengamma.util.time.Expiry;
  */
 /* package */class AbstractTest {
 
-  private final AtomicInteger _nextIdentifier = new AtomicInteger();
+  private final AtomicInteger _nextId = new AtomicInteger();
   private final Random _rnd = new Random(0);
 
-  protected UniqueIdentifier createUniqueIdentifier(final String scheme) {
-    return UniqueIdentifier.of(scheme, Integer.toString(_nextIdentifier.incrementAndGet()));
+  protected UniqueId createUniqueId(final String scheme) {
+    return UniqueId.of(scheme, Integer.toString(_nextId.incrementAndGet()));
   }
 
   protected Identifier createIdentifier(final String scheme) {
-    return Identifier.of(scheme, Integer.toString(_nextIdentifier.incrementAndGet()));
+    return Identifier.of(scheme, Integer.toString(_nextId.incrementAndGet()));
   }
 
   protected IdentifierBundle createIdentifierBundle() {
@@ -63,7 +63,7 @@ import com.opengamma.util.time.Expiry;
   protected Trade createTrade(final int quantity, final Security security, final String attr1Value, final String attr2Value) {
     final TradeImpl trade = new TradeImpl();
     trade.setQuantity(new BigDecimal(quantity));
-    trade.setUniqueId(createUniqueIdentifier("Trade"));
+    trade.setUniqueId(createUniqueId("Trade"));
     trade.setSecurityLink(SecurityLink.ofBundleId(security));
     if (attr1Value != null) {
       trade.addAttribute("Attr1", attr1Value);
@@ -76,7 +76,7 @@ import com.opengamma.util.time.Expiry;
 
   protected Position createPosition(final String uid, final int quantity, final Security security, final String attr1Value, final String attr2Value, final Trade trade1, final Trade trade2) {
     final PositionImpl position = new PositionImpl(new BigDecimal(quantity), security.getIdentifiers());
-    position.setParentNodeId(createUniqueIdentifier("Node"));
+    position.setParentNodeId(createUniqueId("Node"));
     position.getSecurityLink().setTarget(security);
     if (attr1Value != null) {
       position.addAttribute("Attr1", attr1Value);
@@ -90,7 +90,7 @@ import com.opengamma.util.time.Expiry;
     if (trade2 != null) {
       position.addTrade(trade2);
     }
-    position.setUniqueId(UniqueIdentifier.of("Position", uid));
+    position.setUniqueId(UniqueId.of("Position", uid));
     return position;
   }
 
@@ -100,7 +100,7 @@ import com.opengamma.util.time.Expiry;
     final RawSecurity security = new RawSecurity("WOSSNAME", baos.toByteArray());
     security.setIdentifiers(createIdentifierBundle());
     security.setName(name);
-    security.setUniqueId(createUniqueIdentifier("Security"));
+    security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
@@ -109,7 +109,7 @@ import com.opengamma.util.time.Expiry;
         10, 12, 0, 0, 0, TimeZone.UTC)), 0d, "EXCH");
     security.setIdentifiers(createIdentifierBundle());
     security.setName(name);
-    security.setUniqueId(createUniqueIdentifier("Security"));
+    security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
@@ -117,7 +117,7 @@ import com.opengamma.util.time.Expiry;
     final SwaptionSecurity security = new SwaptionSecurity(isPayer, underlying, false, new Expiry(ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC)), false, currency);
     security.setIdentifiers(createIdentifierBundle());
     security.setName(name);
-    security.setUniqueId(createUniqueIdentifier("Security"));
+    security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
@@ -126,7 +126,7 @@ import com.opengamma.util.time.Expiry;
         TimeZone.UTC), rate, 0d, underlying);
     security.setIdentifiers(createIdentifierBundle());
     security.setName(name);
-    security.setUniqueId(createUniqueIdentifier("Security"));
+    security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 

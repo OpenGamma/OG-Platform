@@ -16,7 +16,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
@@ -55,12 +55,12 @@ public class InMemoryExchangeMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
-    master.get(UniqueIdentifier.of("A", "B"));
+    master.get(UniqueId.of("A", "B"));
   }
 
   public void test_get_match() {
     ExchangeDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(UniqueIdentifier.of("MemExg", "1"), result.getUniqueId());
+    assertEquals(UniqueId.of("MemExg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 

@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -54,7 +54,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     }
 
     @Override
-    public Holiday getHoliday(final UniqueIdentifier uid) {
+    public Holiday getHoliday(final UniqueId uid) {
       return null;
     }
   }
@@ -67,8 +67,8 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     private static final Exchange EXCHANGE = new Exchange() {
 
       @Override
-      public UniqueIdentifier getUniqueId() {
-        return UniqueIdentifier.of("SOMETHING", "SOMETHING ELSE");
+      public UniqueId getUniqueId() {
+        return UniqueId.of("SOMETHING", "SOMETHING ELSE");
       }
 
       @Override
@@ -94,7 +94,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     };
 
     @Override
-    public Exchange getExchange(final UniqueIdentifier uid) {
+    public Exchange getExchange(final UniqueId uid) {
       return EXCHANGE;
     }
 

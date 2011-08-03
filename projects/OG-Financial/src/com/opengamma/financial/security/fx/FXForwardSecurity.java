@@ -56,7 +56,7 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
       throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'region' is not Identifier message", e);
     }
   }
-  public FXForwardSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, com.opengamma.id.Identifier region) {
+  public FXForwardSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, com.opengamma.id.Identifier region) {
     super (uniqueId, name, securityType, identifiers);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {

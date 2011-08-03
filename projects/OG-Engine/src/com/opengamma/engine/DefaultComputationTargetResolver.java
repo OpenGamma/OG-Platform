@@ -20,7 +20,7 @@ import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -141,7 +141,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    final UniqueIdentifier uid = specification.getUniqueId();
+    final UniqueId uid = specification.getUniqueId();
     switch (specification.getType()) {
       case PRIMITIVE:
         return resolvePrimitive(specification, uid);
@@ -166,7 +166,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param uid  the unique identifier of the target
    * @return the resolved primitive target, not null
    */
-  protected ComputationTarget resolvePrimitive(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolvePrimitive(final ComputationTargetSpecification specification, final UniqueId uid) {
     return new ComputationTarget(specification.getType(), uid);
   }
 
@@ -178,7 +178,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param securityId  the unique identifier of the target
    * @return the resolved security target, not null
    */
-  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueIdentifier securityId) {
+  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueId securityId) {
     checkSecuritySource(ComputationTargetType.SECURITY);
     
     final Security security = getSecuritySource().getSecurity(securityId);
@@ -198,7 +198,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param positionId  the unique identifier of the target
    * @return the resolved position target, not null
    */
-  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueIdentifier positionId) {
+  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueId positionId) {
     checkSecuritySource(ComputationTargetType.POSITION);
     checkPositionSource(ComputationTargetType.POSITION);
     
@@ -235,7 +235,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param tradeId  the unique identifier of the target
    * @return the resolved trade target, not null
    */
-  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueIdentifier tradeId) {
+  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueId tradeId) {
     checkSecuritySource(ComputationTargetType.TRADE);
     checkPositionSource(ComputationTargetType.TRADE);
     
@@ -266,7 +266,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param uid  the unique identifier of the target
    * @return the resolved node target, not null
    */
-  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueId uid) {
     checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);
     
     PortfolioNode node = getPositionSource().getPortfolioNode(uid);
@@ -291,7 +291,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param node  the node
    * @return the resolved node, not null
    */
-  private PortfolioNodeImpl resolveNodeTree(final UniqueIdentifier uid, final PortfolioNode node) {
+  private PortfolioNodeImpl resolveNodeTree(final UniqueId uid, final PortfolioNode node) {
     final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueId(), node.getName());
     newNode.setParentNodeId(node.getParentNodeId());
     for (PortfolioNode child : node.getChildNodes()) {

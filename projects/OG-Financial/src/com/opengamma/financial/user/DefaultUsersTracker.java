@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.user.rest.UsersResourceContext;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,7 +32,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
 
   private final ConcurrentMap<String, Set<String>> _username2clients = new ConcurrentHashMap<String, Set<String>>();
   private final ConcurrentMap<Identifier, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<Identifier, Set<String>>();
-  private final ConcurrentMap<Identifier, Set<UniqueIdentifier>> _marketDataSnapShots = new ConcurrentHashMap<Identifier, Set<UniqueIdentifier>>();
+  private final ConcurrentMap<Identifier, Set<UniqueId>> _marketDataSnapShots = new ConcurrentHashMap<Identifier, Set<UniqueId>>();
   private final UsersResourceContext _context;
  
   public DefaultUsersTracker(UsersResourceContext context) {
@@ -49,7 +49,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   }
 
   @Override
-  public void created(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
+  public void created(String userName, String clientName, UserDataType type, UniqueId identifier) {
     switch (type) {
       case VIEW_DEFINITION:
         trackCreatedViewDefinition(userName, clientName, identifier);
@@ -68,9 +68,9 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     }
   }
 
-  private void trackCreatedMarketDataSnapshot(String userName, String clientName, UniqueIdentifier identifier) {
-    ConcurrentSkipListSet<UniqueIdentifier> freshIds = new ConcurrentSkipListSet<UniqueIdentifier>();
-    Set<UniqueIdentifier> marketDataSnapshotIds = _marketDataSnapShots.putIfAbsent(Identifier.of(userName, clientName), freshIds);
+  private void trackCreatedMarketDataSnapshot(String userName, String clientName, UniqueId identifier) {
+    ConcurrentSkipListSet<UniqueId> freshIds = new ConcurrentSkipListSet<UniqueId>();
+    Set<UniqueId> marketDataSnapshotIds = _marketDataSnapShots.putIfAbsent(Identifier.of(userName, clientName), freshIds);
     if (marketDataSnapshotIds == null) {
       marketDataSnapshotIds = freshIds;
     }
@@ -78,7 +78,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     s_logger.debug("{} marketdatasnapshot created by {}", identifier, userName);
   }
 
-  private void trackCreatedViewDefinition(String userName, String clientName, UniqueIdentifier identifier) {
+  private void trackCreatedViewDefinition(String userName, String clientName, UniqueId identifier) {
     ConcurrentSkipListSet<String> freshDefinitions = new ConcurrentSkipListSet<String>();
     Set<String> viewDefinitions = _viewDefinitionNames.putIfAbsent(Identifier.of(userName, clientName), freshDefinitions);
     if (viewDefinitions == null) {
@@ -89,7 +89,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   }
 
   @Override
-  public void deleted(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
+  public void deleted(String userName, String clientName, UserDataType type, UniqueId identifier) {
     Set<String> clients = _username2clients.get(userName);
     if (clients != null) {
       if (clients.contains(clientName)) {
@@ -128,8 +128,8 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
       if (marketDataSnapshotMaster != null) {
-        Set<UniqueIdentifier> snapshotIds = _marketDataSnapShots.remove(Identifier.of(userName, clientName));
-        for (UniqueIdentifier uid : snapshotIds) {
+        Set<UniqueId> snapshotIds = _marketDataSnapShots.remove(Identifier.of(userName, clientName));
+        for (UniqueId uid : snapshotIds) {
           marketDataSnapshotMaster.remove(uid);
           s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, clientName});
         }
@@ -141,13 +141,13 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
       if (marketDataSnapshotMaster != null) {
-        Iterator<Entry<Identifier, Set<UniqueIdentifier>>> iterator = _marketDataSnapShots.entrySet().iterator();
+        Iterator<Entry<Identifier, Set<UniqueId>>> iterator = _marketDataSnapShots.entrySet().iterator();
         while (iterator.hasNext()) {
-          Entry<Identifier, Set<UniqueIdentifier>> entry = iterator.next();
+          Entry<Identifier, Set<UniqueId>> entry = iterator.next();
           Identifier identifier = entry.getKey();
           if (identifier.getScheme().getName().equals(userName)) {
-            Set<UniqueIdentifier> uids = entry.getValue();
-            for (UniqueIdentifier uid : uids) {
+            Set<UniqueId> uids = entry.getValue();
+            for (UniqueId uid : uids) {
               marketDataSnapshotMaster.remove(uid);
               s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, identifier.getValue()});
             }

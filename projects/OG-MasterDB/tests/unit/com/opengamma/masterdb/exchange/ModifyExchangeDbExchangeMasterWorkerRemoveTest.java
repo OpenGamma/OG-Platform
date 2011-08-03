@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DBTest;
@@ -42,26 +42,26 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeExchange_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
-    _exgMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "0", "0");
+    _exgMaster.remove(uniqueId);
   }
 
   @Test
   public void test_remove_removed() {
     Instant now = Instant.now(_exgMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
-    _exgMaster.remove(uid);
-    ExchangeDocument test = _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
+    _exgMaster.remove(uniqueId);
+    ExchangeDocument test = _exgMaster.get(uniqueId);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueId());
+    assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());

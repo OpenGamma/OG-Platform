@@ -20,7 +20,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
@@ -37,7 +37,7 @@ import com.opengamma.util.money.Currency;
 @Test
 public class MasterRegionSourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
   private static final Instant NOW = Instant.now();

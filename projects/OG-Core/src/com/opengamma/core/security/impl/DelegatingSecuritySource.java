@@ -11,8 +11,8 @@ import java.util.Map;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<SecuritySource> implements SecuritySource {
+public class DelegatingSecuritySource extends UniqueIdSchemeDelegator<SecuritySource> implements SecuritySource {
 
   /**
    * Creates an instance specifying the default delegate.
@@ -44,9 +44,9 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    return chooseDelegate(uid).getSecurity(uid);
+  public Security getSecurity(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    return chooseDelegate(uniqueId).getSecurity(uniqueId);
   }
 
   @Override

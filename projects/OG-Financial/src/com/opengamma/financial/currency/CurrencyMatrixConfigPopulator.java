@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -39,7 +39,7 @@ public class CurrencyMatrixConfigPopulator {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.USD;
     for (String currency : currencies) {
-      matrix.setLiveData(commonCross, Currency.of(currency), UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+      matrix.setLiveData(commonCross, Currency.of(currency), UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
     }
     for (String currency : currencies) {
       final Currency target = Currency.of(currency);

@@ -87,7 +87,7 @@ public class SwaptionSecurity extends com.opengamma.financial.security.Financial
       throw new IllegalArgumentException ("Fudge message is not a SwaptionSecurity - field 'currency' is not Currency typedef", e);
     }
   }
-  public SwaptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, boolean isPayer, com.opengamma.id.Identifier underlyingIdentifier, boolean isLong, com.opengamma.util.time.Expiry expiry, boolean isCashSettled, com.opengamma.util.money.Currency currency) {
+  public SwaptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, boolean isPayer, com.opengamma.id.Identifier underlyingIdentifier, boolean isLong, com.opengamma.util.time.Expiry expiry, boolean isCashSettled, com.opengamma.util.money.Currency currency) {
     super (uniqueId, name, securityType, identifiers);
     _isPayer = isPayer;
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");

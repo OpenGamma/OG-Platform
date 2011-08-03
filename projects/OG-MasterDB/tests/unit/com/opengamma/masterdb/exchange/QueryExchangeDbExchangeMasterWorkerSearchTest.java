@@ -19,7 +19,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
@@ -143,7 +143,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_exchangeIds_none() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExchangeIds(new ArrayList<ObjectIdentifier>());
+    request.setExchangeIds(new ArrayList<ObjectId>());
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -152,9 +152,9 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_exchangeIds() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addExchangeId(ObjectIdentifier.of("DbExg", "101"));
-    request.addExchangeId(ObjectIdentifier.of("DbExg", "201"));
-    request.addExchangeId(ObjectIdentifier.of("DbExg", "9999"));
+    request.addExchangeId(ObjectId.of("DbExg", "101"));
+    request.addExchangeId(ObjectId.of("DbExg", "201"));
+    request.addExchangeId(ObjectId.of("DbExg", "9999"));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -165,7 +165,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_exchangeIds_badSchemeValidOid() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addExchangeId(ObjectIdentifier.of("Rubbish", "120"));
+    request.addExchangeId(ObjectId.of("Rubbish", "120"));
     _exgMaster.search(request);
   }
 

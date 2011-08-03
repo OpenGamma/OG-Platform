@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -31,7 +31,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPositionResourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "PosA");
+  private static final UniqueId UID = UniqueId.of("Test", "PosA");
   private PositionMaster _underlying;
   private DataPositionResource _resource;
 

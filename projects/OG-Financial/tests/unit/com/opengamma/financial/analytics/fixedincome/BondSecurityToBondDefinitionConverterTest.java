@@ -32,7 +32,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
@@ -128,7 +128,7 @@ public class BondSecurityToBondDefinitionConverterTest {
     }
 
     @Override
-    public Holiday getHoliday(final UniqueIdentifier uid) {
+    public Holiday getHoliday(final UniqueId uid) {
       return null;
     }
 

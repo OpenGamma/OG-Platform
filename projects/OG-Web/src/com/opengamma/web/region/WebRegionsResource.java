@@ -27,8 +27,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
@@ -95,7 +95,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       searchRequest.addRegionKey(id);
     }
     for (String regionIdStr : regionIdStrs) {
-      searchRequest.addRegionId(ObjectIdentifier.parse(regionIdStr));
+      searchRequest.addRegionId(ObjectId.parse(regionIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -111,7 +111,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
   @Path("{regionId}")
   public WebRegionResource findRegion(@PathParam("regionId") String idStr) {
     data().setUriRegionId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       RegionDocument doc = data().getRegionMaster().get(oid);
       data().setRegion(doc);

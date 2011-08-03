@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DBTest;
@@ -62,19 +62,19 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument test = _exgMaster.add(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbExg", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbExg", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange testExchange = test.getExchange();
     assertNotNull(testExchange);
-    assertEquals(uid, testExchange.getUniqueId());
+    assertEquals(uniqueId, testExchange.getUniqueId());
     assertEquals("Test", test.getName());
     assertEquals(BUNDLE, testExchange.getIdentifiers());
     assertEquals(REGION, testExchange.getRegionKey());

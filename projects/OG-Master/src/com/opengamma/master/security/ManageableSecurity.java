@@ -10,7 +10,7 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
          * @return a default display name
          */
         protected String buildDefaultDisplayName() {
-          final com.opengamma.id.UniqueIdentifier identifier = getUniqueId(); // assign for thread-safety
+          final com.opengamma.id.UniqueId identifier = getUniqueId(); // assign for thread-safety
           if (identifier != null) {
             return identifier.toString();
           }
@@ -25,8 +25,8 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
         public void addIdentifier (final com.opengamma.id.Identifier identifier) {
           setIdentifiers (getIdentifiers ().withIdentifier (identifier));
         }
-  private static final long serialVersionUID = -9015019191424048905l;
-  private com.opengamma.id.UniqueIdentifier _uniqueId;
+  private static final long serialVersionUID = -9060937763900388887l;
+  private com.opengamma.id.UniqueId _uniqueId;
   public static final String UNIQUE_ID_KEY = "uniqueId";
   private String _name;
   public static final String NAME_KEY = "name";
@@ -71,16 +71,16 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
     fudgeField = fudgeMsg.getByName (UNIQUE_ID_KEY);
     if (fudgeField != null)  {
       try {
-        final com.opengamma.id.UniqueIdentifier fudge1;
-        fudge1 = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+        final com.opengamma.id.UniqueId fudge1;
+        fudge1 = com.opengamma.id.UniqueId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
         setUniqueId (fudge1);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'uniqueId' is not UniqueIdentifier message", e);
+        throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'uniqueId' is not UniqueId message", e);
       }
     }
   }
-  public ManageableSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers) {
+  public ManageableSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers) {
     if (uniqueId == null) _uniqueId = null;
     else {
       _uniqueId = uniqueId;
@@ -118,7 +118,7 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_uniqueId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _uniqueId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _uniqueId.getClass (), com.opengamma.id.UniqueId.class);
       _uniqueId.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNIQUE_ID_KEY, null, fudge1);
     }
@@ -148,10 +148,10 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
     }
     return new ManageableSecurity (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getUniqueId () {
+  public com.opengamma.id.UniqueId getUniqueId () {
     return _uniqueId;
   }
-  public void setUniqueId (com.opengamma.id.UniqueIdentifier uniqueId) {
+  public void setUniqueId (com.opengamma.id.UniqueId uniqueId) {
     if (uniqueId == null) _uniqueId = null;
     else {
       _uniqueId = uniqueId;

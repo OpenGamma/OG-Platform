@@ -147,7 +147,7 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
       throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'isIbor' is not boolean", e);
     }
   }
-  public CapFloorSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
+  public CapFloorSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
     super (uniqueId, name, securityType, identifiers);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {

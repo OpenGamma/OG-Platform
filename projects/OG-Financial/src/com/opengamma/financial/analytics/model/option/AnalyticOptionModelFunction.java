@@ -30,7 +30,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -87,16 +87,16 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return ComputationTargetType.SECURITY;
   }
 
-  protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
+  protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueId uid) {
     // TODO 2010-10-28 Andrew -- We're assuming the underlying is in the same currency as the PUT/CALL price. Detect if it's different and act accordingly.
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueIdentifier uid) {
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueId uid) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 
-  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueIdentifier uid) {
+  protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueId uid) {
     return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
   }
 

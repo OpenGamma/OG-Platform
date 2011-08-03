@@ -20,8 +20,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Link;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -29,7 +29,7 @@ import com.opengamma.util.PublicSPI;
  * A flexible link between an object and a security.
  * <p>
  * The security link represents a connection from an entity to a security.
- * The connection can be held by {@code ObjectIdentifier}, {@code IdentifierBundle}
+ * The connection can be held by {@code ObjectId}, {@code IdentifierBundle}
  * or by a resolved reference to the security itself.
  * <p>
  * This class is mutable and not thread-safe.
@@ -88,7 +88,7 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param objectId  the object identifier, not null
    */
-  public SecurityLink(final ObjectIdentifier objectId) {
+  public SecurityLink(final ObjectId objectId) {
     super(objectId);
   }
 
@@ -97,7 +97,7 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param uniqueId  the unique identifier, not null
    */
-  public SecurityLink(final UniqueIdentifier uniqueId) {
+  public SecurityLink(final UniqueId uniqueId) {
     super(uniqueId);
   }
 
@@ -127,7 +127,7 @@ public class SecurityLink extends Link<Security> {
    */
   public String getBestName() {
     Security security = getTarget();
-    ObjectIdentifier objectId = getObjectId();
+    ObjectId objectId = getObjectId();
     IdentifierBundle bundle = getBundleId();
     if (security != null) {
       bundle = security.getIdentifiers();
@@ -163,7 +163,7 @@ public class SecurityLink extends Link<Security> {
     if (target != null) {
       return target;
     }
-    ObjectIdentifier objectId = getObjectId();
+    ObjectId objectId = getObjectId();
     if (objectId != null) {
       target = source.getSecurity(objectId.atLatestVersion());
       if (target != null) {

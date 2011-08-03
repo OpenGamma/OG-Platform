@@ -16,7 +16,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.db.PagingRequest;
@@ -47,7 +47,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -56,7 +56,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assert201(test.getDocuments().get(1));
   }
 
-  private ConfigHistoryRequest<Identifier> createRequest(ObjectIdentifier oid) {
+  private ConfigHistoryRequest<Identifier> createRequest(ObjectId oid) {
     ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>(oid, Identifier.class);
     return request;
   }
@@ -64,7 +64,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -80,7 +80,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setPagingRequest(PagingRequest.of(1, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -95,7 +95,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setPagingRequest(PagingRequest.of(2, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -114,7 +114,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -128,7 +128,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -140,7 +140,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -152,7 +152,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -164,7 +164,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -175,7 +175,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
+    ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);

@@ -28,7 +28,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -52,7 +52,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * Note that an empty set will return no time-series.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _infoIds;
+  private List<ObjectId> _infoIds;
   /**
    * The time-series keys to match, null to not match on time-series keys.
    */
@@ -132,7 +132,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public void addInfoId(ObjectIdentifiable infoId) {
     ArgumentChecker.notNull(infoId, "infoId");
     if (_infoIds == null) {
-      _infoIds = new ArrayList<ObjectIdentifier>();
+      _infoIds = new ArrayList<ObjectId>();
     }
     _infoIds.add(infoId.getObjectId());
   }
@@ -147,7 +147,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     if (infoIds == null) {
       _infoIds = null;
     } else {
-      _infoIds = new ArrayList<ObjectIdentifier>();
+      _infoIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable exchangeId : infoIds) {
         _infoIds.add(exchangeId.getObjectId());
       }
@@ -291,7 +291,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1945391914:  // infoIds
-        setInfoIds((List<ObjectIdentifier>) newValue);
+        setInfoIds((List<ObjectId>) newValue);
         return;
       case 482595389:  // identifierKeys
         setIdentifierKeys((IdentifierSearch) newValue);
@@ -363,7 +363,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * Note that an empty set will return no time-series.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getInfoIds() {
+  public List<ObjectId> getInfoIds() {
     return _infoIds;
   }
 
@@ -372,7 +372,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * Note that an empty set will return no time-series.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> infoIds() {
+  public final Property<List<ObjectId>> infoIds() {
     return metaBean().infoIds().createProperty(this);
   }
 
@@ -605,7 +605,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
      * The meta-property for the {@code infoIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _infoIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _infoIds = DirectMetaProperty.ofReadWrite(
         this, "infoIds", HistoricalTimeSeriesInfoSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code identifierKeys} property.
@@ -713,7 +713,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
      * The meta-property for the {@code infoIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> infoIds() {
+    public final MetaProperty<List<ObjectId>> infoIds() {
       return _infoIds;
     }
 

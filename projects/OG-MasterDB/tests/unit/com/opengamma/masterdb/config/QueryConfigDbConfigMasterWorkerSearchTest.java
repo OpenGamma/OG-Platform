@@ -16,7 +16,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -161,7 +161,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Test
   public void test_search_configIds_none() {
     ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    request.setConfigIds(new ArrayList<ObjectIdentifier>());
+    request.setConfigIds(new ArrayList<ObjectId>());
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -170,9 +170,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Test
   public void test_search_configIds() {
     ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    request.addConfigId(ObjectIdentifier.of("DbCfg", "101"));
-    request.addConfigId(ObjectIdentifier.of("DbCfg", "201"));
-    request.addConfigId(ObjectIdentifier.of("DbCfg", "9999"));
+    request.addConfigId(ObjectId.of("DbCfg", "101"));
+    request.addConfigId(ObjectId.of("DbCfg", "201"));
+    request.addConfigId(ObjectId.of("DbCfg", "9999"));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -183,7 +183,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_configIds_badSchemeValidOid() {
     ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    request.addConfigId(ObjectIdentifier.of("Rubbish", "102"));
+    request.addConfigId(ObjectId.of("Rubbish", "102"));
     _cfgMaster.search(request);
   }
 

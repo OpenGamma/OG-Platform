@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * An implementation of ReferenceRate for use by the InMemoryReferenceRateRepository.  Note it is NOT immutable, because the repository needs to be able to assign 
@@ -23,7 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ConventionBundleImpl implements ConventionBundle {
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   private IdentifierBundle _bundle;
   private final String _name;
   private DayCount _dayCount;
@@ -278,11 +278,11 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
-  public void setUniqueId(final UniqueIdentifier uniqueId) {
+  public void setUniqueId(final UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 

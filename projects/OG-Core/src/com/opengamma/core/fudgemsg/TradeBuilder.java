@@ -24,8 +24,8 @@ import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -147,9 +147,9 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   protected static TradeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     TradeImpl trade = new TradeImpl();
     if (message.hasField(FIELD_UNIQUE_ID)) {
-      FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
-      if (uidField != null) {
-        trade.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uidField));
+      FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
+      if (uniqueIdField != null) {
+        trade.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueIdField));
       }      
     }
     if (message.hasField(FIELD_QUANTITY)) {
@@ -167,7 +167,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_SECURITYID)) {
       FudgeField secIdField = message.getByName(FIELD_SECURITYID);
       if (secIdField != null) {
-        trade.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectIdentifier.class, secIdField));
+        trade.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectId.class, secIdField));
       }
     }
     if (message.hasField(FIELD_COUNTERPARTY)) {
@@ -227,7 +227,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     final TradeImpl trade = buildObjectImpl(context, message);
     FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);
     if (positionField != null) {
-      trade.setParentPositionId(context.fieldValueToObject(UniqueIdentifier.class, positionField));
+      trade.setParentPositionId(context.fieldValueToObject(UniqueId.class, positionField));
     }
     return trade;
   }

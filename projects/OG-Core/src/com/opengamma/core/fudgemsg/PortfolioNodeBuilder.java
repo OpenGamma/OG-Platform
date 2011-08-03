@@ -19,7 +19,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Fudge message builder for {@code PortfolioNode}. This is tightly coupled with the behavior of {@link PositionBuilder} so
@@ -114,7 +114,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
   private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     final FudgeField idField = message.getByName(FIELD_IDENTIFIER);
-    final UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
+    final UniqueId id = idField != null ? context.fieldValueToObject(UniqueId.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
     final PortfolioNodeImpl node = new PortfolioNodeImpl(name);
     if (id != null) {
@@ -129,7 +129,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     final PortfolioNodeImpl node = buildObjectImpl(context, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
-    final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
+    final UniqueId parentId = (parentField != null) ? context.fieldValueToObject(UniqueId.class, parentField) : null;
     if (parentId != null) {
       node.setParentNodeId(parentId);
     }

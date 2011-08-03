@@ -101,7 +101,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
@@ -221,10 +221,10 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       }
     });
     s_dataProviders.put(Double.TYPE, provider);
-    s_dataProviders.put(UniqueIdentifier.class, new TestDataProvider<UniqueIdentifier>() {
+    s_dataProviders.put(UniqueId.class, new TestDataProvider<UniqueId>() {
       @Override
-      public void getValues(final Collection<UniqueIdentifier> values) {
-        values.add(UniqueIdentifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
+      public void getValues(final Collection<UniqueId> values) {
+        values.add(UniqueId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
     s_dataProviders.put(Identifier.class, new TestDataProvider<Identifier>() {

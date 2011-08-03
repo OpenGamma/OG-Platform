@@ -75,7 +75,7 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
       throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'unitAmount' is not double", e);
     }
   }
-  public FutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
+  public FutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
     super (uniqueId, name, securityType, identifiers);
     if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
     else {

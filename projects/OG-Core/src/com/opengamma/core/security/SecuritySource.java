@@ -8,7 +8,7 @@ package com.opengamma.core.security;
 import java.util.Collection;
 
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -29,7 +29,7 @@ public interface SecuritySource {
    * @return the security, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Security getSecurity(UniqueIdentifier uniqueId);
+  Security getSecurity(UniqueId uniqueId);
 
   /**
    * Finds all securities that match the specified bundle of keys.

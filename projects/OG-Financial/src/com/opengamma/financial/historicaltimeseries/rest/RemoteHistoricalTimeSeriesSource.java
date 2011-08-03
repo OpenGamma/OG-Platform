@@ -41,7 +41,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -104,14 +104,14 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       throw new IllegalArgumentException(HISTORICALTIMESERIESSOURCE_TIMESERIES + " not present in message");
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    UniqueIdentifier uniqueId = context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField);
+    UniqueId uniqueId = context.fieldValueToObject(UniqueId.class, uniqueIdField);
     LocalDateDoubleTimeSeries ts = context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
     return new HistoricalTimeSeriesImpl(uniqueId, ts);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uniqueId.toString());
     return decodeMessage(getRestClient().getMsg(target));
@@ -119,7 +119,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");

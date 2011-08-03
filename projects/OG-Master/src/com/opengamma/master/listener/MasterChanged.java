@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -48,13 +48,13 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was added.
    */
   @PropertyDefinition
-  private UniqueIdentifier _beforeId;
+  private UniqueId _beforeId;
   /**
    * The unique identifier of the object after the change.
    * It will be null when a document was removed.
    */
   @PropertyDefinition
-  private UniqueIdentifier _afterId;
+  private UniqueId _afterId;
   /**
    * The instant at which the change is recorded as happening, not null.
    */
@@ -75,7 +75,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * @param afterId  the reference assigned to the listener, may be null
    * @param versionInstant  the reference assigned to the listener, may be null
    */
-  public MasterChanged(final MasterChangedType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant) {
+  public MasterChanged(final MasterChangedType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.isTrue(beforeId != null || afterId != null, "At least one id must be specified");
     ArgumentChecker.notNull(versionInstant, "versionInstant");
@@ -125,10 +125,10 @@ public class MasterChanged extends DirectBean implements Serializable {
         setType((MasterChangedType) newValue);
         return;
       case 1466459386:  // beforeId
-        setBeforeId((UniqueIdentifier) newValue);
+        setBeforeId((UniqueId) newValue);
         return;
       case -1076033513:  // afterId
-        setAfterId((UniqueIdentifier) newValue);
+        setAfterId((UniqueId) newValue);
         return;
       case 2084044265:  // versionInstant
         setVersionInstant((Instant) newValue);
@@ -193,7 +193,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was added.
    * @return the value of the property
    */
-  public UniqueIdentifier getBeforeId() {
+  public UniqueId getBeforeId() {
     return _beforeId;
   }
 
@@ -202,7 +202,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was added.
    * @param beforeId  the new value of the property
    */
-  public void setBeforeId(UniqueIdentifier beforeId) {
+  public void setBeforeId(UniqueId beforeId) {
     this._beforeId = beforeId;
   }
 
@@ -211,7 +211,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was added.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> beforeId() {
+  public final Property<UniqueId> beforeId() {
     return metaBean().beforeId().createProperty(this);
   }
 
@@ -221,7 +221,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was removed.
    * @return the value of the property
    */
-  public UniqueIdentifier getAfterId() {
+  public UniqueId getAfterId() {
     return _afterId;
   }
 
@@ -230,7 +230,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was removed.
    * @param afterId  the new value of the property
    */
-  public void setAfterId(UniqueIdentifier afterId) {
+  public void setAfterId(UniqueId afterId) {
     this._afterId = afterId;
   }
 
@@ -239,7 +239,7 @@ public class MasterChanged extends DirectBean implements Serializable {
    * It will be null when a document was removed.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> afterId() {
+  public final Property<UniqueId> afterId() {
     return metaBean().afterId().createProperty(this);
   }
 
@@ -286,13 +286,13 @@ public class MasterChanged extends DirectBean implements Serializable {
     /**
      * The meta-property for the {@code beforeId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _beforeId = DirectMetaProperty.ofReadWrite(
-        this, "beforeId", MasterChanged.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _beforeId = DirectMetaProperty.ofReadWrite(
+        this, "beforeId", MasterChanged.class, UniqueId.class);
     /**
      * The meta-property for the {@code afterId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _afterId = DirectMetaProperty.ofReadWrite(
-        this, "afterId", MasterChanged.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _afterId = DirectMetaProperty.ofReadWrite(
+        this, "afterId", MasterChanged.class, UniqueId.class);
     /**
      * The meta-property for the {@code versionInstant} property.
      */
@@ -357,7 +357,7 @@ public class MasterChanged extends DirectBean implements Serializable {
      * The meta-property for the {@code beforeId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> beforeId() {
+    public final MetaProperty<UniqueId> beforeId() {
       return _beforeId;
     }
 
@@ -365,7 +365,7 @@ public class MasterChanged extends DirectBean implements Serializable {
      * The meta-property for the {@code afterId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> afterId() {
+    public final MetaProperty<UniqueId> afterId() {
       return _afterId;
     }
 

@@ -21,7 +21,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -67,14 +67,14 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noHistoricalTimeSeries() {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    doc.setUniqueId(UniqueId.of("DbHts", "101", "0"));
     _htsMaster.correct(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "0", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "0", "0"));
     info.setName("Corrected");
     info.setDataField("DF");
     info.setDataSource("DS");
@@ -91,9 +91,9 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
   public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_htsMaster.getTimeSource());
     
-    HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "101", "0"));
     info.setName("Corrected");
     info.setDataField("DF");
     info.setDataSource("DS");
@@ -112,7 +112,7 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTest extends AbstractDbHis
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getInfo(), corrected.getInfo());
     
-    HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());

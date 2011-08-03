@@ -36,7 +36,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -54,7 +54,7 @@ public class WebView {
   private final Client _remote;
   private final ViewClient _client;
   private final String _viewDefinitionName;
-  private final UniqueIdentifier _snapshotId;
+  private final UniqueId _snapshotId;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
   
@@ -73,7 +73,7 @@ public class WebView {
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
-      final UniqueIdentifier snapshotId, final UserPrincipal user, final ExecutorService executorService,
+      final UniqueId snapshotId, final UserPrincipal user, final ExecutorService executorService,
       final ResultConverterCache resultConverterCache) {    
     _local = local;
     _remote = remote;
@@ -188,11 +188,11 @@ public class WebView {
     return _viewDefinitionName;
   }
   
-  public UniqueIdentifier getSnapshotId() {
+  public UniqueId getSnapshotId() {
     return _snapshotId;
   }
   
-  public boolean matches(String viewDefinitionName, UniqueIdentifier snapshotId) {
+  public boolean matches(String viewDefinitionName, UniqueId snapshotId) {
     return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getSnapshotId(), snapshotId);
   }
   

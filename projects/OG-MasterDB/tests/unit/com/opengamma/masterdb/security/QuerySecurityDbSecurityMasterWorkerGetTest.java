@@ -15,7 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -42,54 +42,54 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_versioned_notFoundId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "0", "0");
+    _secMaster.get(uniqueId);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_versioned_notFoundVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "1");
-    _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "1");
+    _secMaster.get(uniqueId);
   }
 
   @Test
   public void test_getSecurity_versioned_oneSecurityKey() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    SecurityDocument test = _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
+    SecurityDocument test = _secMaster.get(uniqueId);
     assert101(test);
   }
 
   @Test
   public void test_getSecurity_versioned_twoSecurityKeys() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "102", "0");
-    SecurityDocument test = _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "102", "0");
+    SecurityDocument test = _secMaster.get(uniqueId);
     assert102(test);
   }
 
   @Test
   public void test_getSecurity_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
-    SecurityDocument test = _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "201", "0");
+    SecurityDocument test = _secMaster.get(uniqueId);
     assert201(test);
   }
 
   @Test
   public void test_getSecurity_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
-    SecurityDocument test = _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "201", "1");
+    SecurityDocument test = _secMaster.get(uniqueId);
     assert202(test);
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_unversioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0");
-    _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "0");
+    _secMaster.get(uniqueId);
   }
 
   @Test
   public void test_getSecurity_unversioned() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
+    UniqueId oid = UniqueId.of("DbSec", "201");
     SecurityDocument test = _secMaster.get(oid);
     assert202(test);
   }

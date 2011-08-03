@@ -115,7 +115,7 @@ public class EquityIndexOptionSecurity extends com.opengamma.financial.security.
       throw new IllegalArgumentException ("Fudge message is not a EquityIndexOptionSecurity - field 'exchange' is not string", e);
     }
   }
-  public EquityIndexOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
+  public EquityIndexOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
     super (uniqueId, name, securityType, identifiers);
     if (optionType == null) throw new NullPointerException ("optionType' cannot be null");
     _optionType = optionType;

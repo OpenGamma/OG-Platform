@@ -20,9 +20,9 @@ import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMetaDataRequest;
@@ -36,7 +36,7 @@ import com.opengamma.master.config.ConfigSearchResult;
 @Test
 public class InMemoryConfigMasterTest {
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
   private static final Identifier VAL1 = Identifier.of ("Test", "sec1");
   private static final Identifier VAL2 = Identifier.of ("Test", "sec2");
   private static final IdentifierBundle VAL3 = IdentifierBundle.of(VAL1);
@@ -51,8 +51,8 @@ public class InMemoryConfigMasterTest {
 
   @BeforeMethod
   public void setUp() {
-    _testEmpty = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
-    _testPopulated = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
+    _testEmpty = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
+    _testPopulated = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
     _doc1 = new ConfigDocument<Identifier>(Identifier.class);
     _doc1.setName("ONE");
     _doc1.setValue(VAL1);
@@ -74,7 +74,7 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemoryConfigMaster((Supplier<ObjectIdentifier>) null);
+    new InMemoryConfigMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
@@ -87,7 +87,7 @@ public class InMemoryConfigMasterTest {
   }
 
   public void test_alternateSupplier() {
-    InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Hello"));
+    InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdSupplier("Hello"));
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("ONE");
     doc.setValue(VAL1);
@@ -98,7 +98,7 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_oneId_noMatch() {
     ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
-    request.addConfigId(ObjectIdentifier.of("A", "UNREAL"));
+    request.addConfigId(ObjectId.of("A", "UNREAL"));
     ConfigSearchResult<Identifier> result = _testPopulated.search(request);
     assertEquals(0, result.getDocuments().size());
   }

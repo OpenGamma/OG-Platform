@@ -125,7 +125,7 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
       throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'optionType' is not OptionType enum", e);
     }
   }
-  public IRFutureOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.Identifier underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
+  public IRFutureOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.Identifier underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
     super (uniqueId, name, securityType, identifiers);
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
     _exchange = exchange;

@@ -25,7 +25,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -49,7 +49,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _securityIds;
+  private List<ObjectId> _securityIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -117,7 +117,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public void addSecurityId(ObjectIdentifiable securityId) {
     ArgumentChecker.notNull(securityId, "securityId");
     if (_securityIds == null) {
-      _securityIds = new ArrayList<ObjectIdentifier>();
+      _securityIds = new ArrayList<ObjectId>();
     }
     _securityIds.add(securityId.getObjectId());
   }
@@ -132,7 +132,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (securityIds == null) {
       _securityIds = null;
     } else {
-      _securityIds = new ArrayList<ObjectIdentifier>();
+      _securityIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable securityId : securityIds) {
         _securityIds.add(securityId.getObjectId());
       }
@@ -256,7 +256,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1550081880:  // securityIds
-        setSecurityIds((List<ObjectIdentifier>) newValue);
+        setSecurityIds((List<ObjectId>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -313,7 +313,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getSecurityIds() {
+  public List<ObjectId> getSecurityIds() {
     return _securityIds;
   }
 
@@ -322,7 +322,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> securityIds() {
+  public final Property<List<ObjectId>> securityIds() {
     return metaBean().securityIds().createProperty(this);
   }
 
@@ -489,7 +489,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _securityIds = DirectMetaProperty.ofReadWrite(
         this, "securityIds", SecuritySearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
@@ -573,7 +573,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> securityIds() {
+    public final MetaProperty<List<ObjectId>> securityIds() {
       return _securityIds;
     }
 

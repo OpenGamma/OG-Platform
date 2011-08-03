@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -52,58 +52,58 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getTrade_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
-    _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "0", "0");
+    _posMaster.get(uniqueId);
   }
 
   @Test
   public void test_getTradePosition_versioned_404() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "404", "0");
-    ManageableTrade test = _posMaster.getTrade(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "404", "0");
+    ManageableTrade test = _posMaster.getTrade(uniqueId);
     
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("NASDAQ", "ORCL135"), Identifier.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), Identifier.of("CPARTY", "C104"));
-    expected.setParentPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
-    expected.setUniqueId(uid);
+    expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
+    expected.setUniqueId(uniqueId);
     expected.setProviderKey(Identifier.of("B", "404"));
     assertEquals(expected, test);
   }
 
   @Test
   public void test_getTradePosition_versioned_405() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "405", "0");
-    ManageableTrade test = _posMaster.getTrade(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "405", "0");
+    ManageableTrade test = _posMaster.getTrade(uniqueId);
     
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("NASDAQ", "ORCL135"), Identifier.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), Identifier.of("CPARTY", "C105"));
-    expected.setParentPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
-    expected.setUniqueId(uid);
+    expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
+    expected.setUniqueId(uniqueId);
     expected.setProviderKey(Identifier.of("B", "405"));
     assertEquals(expected, test);
   }
 
   @Test
   public void test_getTradePosition_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "407", "0");
-    ManageableTrade test = _posMaster.getTrade(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "407", "0");
+    ManageableTrade test = _posMaster.getTrade(uniqueId);
     
     IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
-    expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "0"));
-    expected.setUniqueId(uid);
+    expected.setParentPositionId(UniqueId.of("DbPos", "221", "0"));
+    expected.setUniqueId(uniqueId);
     expected.setProviderKey(Identifier.of("B", "407"));
     assertEquals(expected, test);
   }
 
   @Test
   public void test_getTradePosition_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "407", "1");
-    ManageableTrade test = _posMaster.getTrade(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "407", "1");
+    ManageableTrade test = _posMaster.getTrade(uniqueId);
     
     IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
-    expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
-    expected.setUniqueId(uid);
+    expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
+    expected.setUniqueId(uniqueId);
     expected.setProviderKey(Identifier.of("B", "408"));
     assertEquals(expected, test);
   }
@@ -111,19 +111,19 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getTradePosition_unversioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0");
-    _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "0");
+    _posMaster.get(uniqueId);
   }
 
   @Test
   public void test_getTradePosition_unversioned() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "407");
+    UniqueId oid = UniqueId.of("DbPos", "407");
     ManageableTrade test = _posMaster.getTrade(oid);
     
     IdentifierBundle secKey = IdentifierBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
-    expected.setParentPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
-    expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "1"));
+    expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
+    expected.setUniqueId(UniqueId.of("DbPos", "407", "1"));
     expected.setProviderKey(Identifier.of("B", "408"));
     assertEquals(expected, test);
   }

@@ -17,9 +17,9 @@ import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -33,13 +33,13 @@ public class InMemorySecurityMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
   private static final Identifier ID1 = Identifier.of("A", "B");
   private static final Identifier ID2 = Identifier.of("A", "C");
   private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
   private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
-  private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
-  private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
+  private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueId.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueId.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
   private InMemorySecurityMaster testEmpty;
   private InMemorySecurityMaster testPopulated;
@@ -48,8 +48,8 @@ public class InMemorySecurityMasterTest {
 
   @BeforeMethod
   public void setUp() {
-    testEmpty = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
-    testPopulated = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
+    testEmpty = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
+    testPopulated = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
     doc1 = new SecurityDocument();
     doc1.setSecurity(SEC1);
     doc1 = testPopulated.add(doc1);
@@ -61,7 +61,7 @@ public class InMemorySecurityMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemorySecurityMaster((Supplier<ObjectIdentifier>) null);
+    new InMemorySecurityMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
@@ -73,7 +73,7 @@ public class InMemorySecurityMasterTest {
   }
 
   public void test_alternateSupplier() {
-    InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Hello"));
+    InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdSupplier("Hello"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);

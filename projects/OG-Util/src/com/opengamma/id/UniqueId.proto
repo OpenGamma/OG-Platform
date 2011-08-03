@@ -6,6 +6,6 @@
 
 namespace com.opengamma.id {
 
-  message ObjectIdentifier;
+  message UniqueId;
   
 }

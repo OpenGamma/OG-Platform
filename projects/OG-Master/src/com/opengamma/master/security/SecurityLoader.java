@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -27,7 +27,7 @@ public interface SecurityLoader {
    * @param identifiers  a collection of identifiers to load, not null
    * @return a map of input bundle to created unique identifier from the master, not null
    */
-  Map<IdentifierBundle, UniqueIdentifier> loadSecurity(Collection<IdentifierBundle> identifiers);
+  Map<IdentifierBundle, UniqueId> loadSecurity(Collection<IdentifierBundle> identifiers);
 
   /**
    * Gets the associated master.

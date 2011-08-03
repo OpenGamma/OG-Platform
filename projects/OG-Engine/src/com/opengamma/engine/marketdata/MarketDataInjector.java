@@ -25,7 +25,7 @@ public interface MarketDataInjector {
 
   /**
    * Injects a live data value by {@link Identifier}. This identifier is resolved automatically into the
-   * {@link UniqueIdentifier} to use in a {@link ValueRequirement}.
+   * {@link UniqueId} to use in a {@link ValueRequirement}.
    * 
    * @param identifier  an identifier of the target, not {@code null}
    * @param valueName  the name of the value being added, not {@code null}

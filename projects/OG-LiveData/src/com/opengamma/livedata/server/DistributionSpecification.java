@@ -22,16 +22,16 @@ import com.opengamma.util.ArgumentChecker;
  * </ul>
  */
 public class DistributionSpecification {
-  
+
   /** What market data is being distributed (e.g., AAPL stock) */
   private final Identifier _marketDataUniqueId;
-  
+
   /** Topic it's published to */
   private final String _jmsTopic;
-  
+
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
-  
+
   public DistributionSpecification(Identifier marketDataUniqueId, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
@@ -42,8 +42,8 @@ public class DistributionSpecification {
     _normalizationRuleSet = normalizationRuleSet;
     _jmsTopic = jmsTopic;
   }
-  
-  public Identifier getMarketDataUniqueIdentifier() {
+
+  public Identifier getMarketDataId() {
     return _marketDataUniqueId;
   }
 

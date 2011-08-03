@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -90,7 +90,7 @@ public class BasicMasterChangeManager implements MasterChangeManager {
    * @param versionInstant  the reference assigned to the listener, may be null
    */
   @Override
-  public void masterChanged(final MasterChangedType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant) {
+  public void masterChanged(final MasterChangedType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant) {
     MasterChanged event = new MasterChanged(type, beforeId, afterId, versionInstant);
     handleMasterChanged(event);
   }

@@ -9,19 +9,19 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Hibernate bean for storing UniqueIdentifier.
+ * Hibernate bean for storing UniqueId.
  */
-public class UniqueIdentifierBean {
+public class UniqueIdBean {
   // Note: the reason that this doesn't have an id is that it's a hibernate
   // component of other beans so it doesn't need one
   // Note: misleadingly, this only stores the scheme and value, not the version
   private String _identifier;
   private String _scheme;
   
-  public UniqueIdentifierBean() {
+  public UniqueIdBean() {
   }
 
-  public UniqueIdentifierBean(String scheme, String identifier) {
+  public UniqueIdBean(String scheme, String identifier) {
     _scheme = scheme;
     _identifier = identifier;
   }
@@ -59,10 +59,10 @@ public class UniqueIdentifierBean {
     if (other == this) { 
       return true;
     }
-    if (!(other instanceof UniqueIdentifierBean)) {
+    if (!(other instanceof UniqueIdBean)) {
       return false;
     }
-    UniqueIdentifierBean otherBean = (UniqueIdentifierBean) other;
+    UniqueIdBean otherBean = (UniqueIdBean) other;
     return ObjectUtils.equals(otherBean.getScheme(), getScheme())
         && ObjectUtils.equals(otherBean.getIdentifier(), getIdentifier());
   }

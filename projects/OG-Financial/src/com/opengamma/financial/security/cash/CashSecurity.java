@@ -76,7 +76,7 @@ public class CashSecurity extends com.opengamma.financial.security.FinancialSecu
       throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'amount' is not double", e);
     }
   }
-  public CashSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime maturity, double rate, double amount) {
+  public CashSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime maturity, double rate, double amount) {
     super (uniqueId, name, securityType, identifiers);
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;

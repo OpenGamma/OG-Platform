@@ -9,7 +9,7 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -40,18 +40,18 @@ public final class CurrencySecondaryType extends SecondaryFieldType<Currency, St
   }
 
   @Override
-  public Currency primaryToSecondary(final String isoCodeOrUniqueIdentifier) {
-    if (isoCodeOrUniqueIdentifier.length() == 3) {
+  public Currency primaryToSecondary(final String isoCodeOrUniqueId) {
+    if (isoCodeOrUniqueId.length() == 3) {
       // 3 letters means ISO code
-      return Currency.of(isoCodeOrUniqueIdentifier);
+      return Currency.of(isoCodeOrUniqueId);
     } else {
       // Otherwise, try as a UID
-      final UniqueIdentifier uid = UniqueIdentifier.parse(isoCodeOrUniqueIdentifier);
-      if (Currency.OBJECT_IDENTIFIER_SCHEME.equals(uid.getScheme())) {
-        return Currency.of(uid.getValue());
+      final UniqueId uniqueId = UniqueId.parse(isoCodeOrUniqueId);
+      if (Currency.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
+        return Currency.of(uniqueId.getValue());
       } else {
         throw new IllegalArgumentException("Not a unique identifier or currency ISO code - '"
-            + isoCodeOrUniqueIdentifier + "'");
+            + isoCodeOrUniqueId + "'");
       }
     }
   }

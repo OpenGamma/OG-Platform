@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.util.test.ActiveMQTestUtil;
@@ -91,7 +91,7 @@ public class JmsMasterChangeManagerTest {
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier addedItem = added.getUniqueId();
+    UniqueId addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
     _testListener.waitForAddedItem(WAIT_TIMEOUT);
@@ -104,11 +104,11 @@ public class JmsMasterChangeManagerTest {
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier uniqueId = added.getUniqueId();
+    UniqueId uniqueId = added.getUniqueId();
     assertNotNull(uniqueId);
     
     _configMaster.remove(uniqueId);
-    UniqueIdentifier removedItem = uniqueId;
+    UniqueId removedItem = uniqueId;
     _testListener.waitForRemovedItem(WAIT_TIMEOUT);
     assertEquals(removedItem, _testListener.getRemovedItem());
   }
@@ -119,11 +119,11 @@ public class JmsMasterChangeManagerTest {
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier oldItem = added.getUniqueId();
+    UniqueId oldItem = added.getUniqueId();
     assertNotNull(oldItem);
     
     ConfigDocument<?> updated = _configMaster.update(added);
-    UniqueIdentifier newItem = updated.getUniqueId();
+    UniqueId newItem = updated.getUniqueId();
     assertNotNull(newItem);
     
     _testListener.waitForUpdatedItem(WAIT_TIMEOUT);
@@ -143,13 +143,13 @@ public class JmsMasterChangeManagerTest {
     // add, update and remove doc in config master
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
-    UniqueIdentifier addedItem = added.getUniqueId();
+    UniqueId addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
     ConfigDocument<?> updated = _configMaster.update(added);
-    UniqueIdentifier updatedItem = updated.getUniqueId();
+    UniqueId updatedItem = updated.getUniqueId();
     
-    UniqueIdentifier removedItem = addedItem;
+    UniqueId removedItem = addedItem;
     _configMaster.remove(removedItem);
     
     for (TestMasterChangeClient client : clients) {

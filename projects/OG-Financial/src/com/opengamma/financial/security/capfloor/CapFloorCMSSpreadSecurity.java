@@ -150,7 +150,7 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
       throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isCap' is not boolean", e);
     }
   }
-  public CapFloorCMSSpreadSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier longIdentifier, com.opengamma.id.Identifier shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
+  public CapFloorCMSSpreadSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier longIdentifier, com.opengamma.id.Identifier shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
     super (uniqueId, name, securityType, identifiers);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {

@@ -40,7 +40,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
@@ -210,7 +210,7 @@ public class ViewProcessorTest {
     client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    UniqueIdentifier viewProcessId = viewProcess.getUniqueId();
+    UniqueId viewProcessId = viewProcess.getUniqueId();
     
     client.waitForCompletion();
     client.shutdown();
@@ -218,7 +218,7 @@ public class ViewProcessorTest {
     assertEquals(10, references.size());
     assertEquals(10, vp.getViewCycleManager().getResourceCount());
     
-    Set<UniqueIdentifier> cycleIds = new HashSet<UniqueIdentifier>();
+    Set<UniqueId> cycleIds = new HashSet<UniqueId>();
     for (EngineResourceReference<? extends ViewCycle> reference : references) {
       assertEquals(viewProcessId, reference.get().getViewProcessId());
       cycleIds.add(reference.get().getUniqueId());

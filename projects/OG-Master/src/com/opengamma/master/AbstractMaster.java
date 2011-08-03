@@ -7,7 +7,7 @@ package com.opengamma.master;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -35,7 +35,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  D get(UniqueIdentifier uniqueId);
+  D get(UniqueId uniqueId);
 
   /**
    * Gets a document by object identifier and version-correction locator.
@@ -92,7 +92,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void remove(final UniqueIdentifier uniqueId);
+  void remove(final UniqueId uniqueId);
 
   /**
    * Corrects a document in the data store.

@@ -27,8 +27,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -109,7 +109,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       }
     }
     for (String holidayIdStr : holidayIdStrs) {
-      searchRequest.addHolidayId(ObjectIdentifier.parse(holidayIdStr));
+      searchRequest.addHolidayId(ObjectId.parse(holidayIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -177,7 +177,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   @Path("{holidayId}")
   public WebHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
     data().setUriHolidayId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       HolidayDocument doc = data().getHolidayMaster().get(oid);
       data().setHoliday(doc);

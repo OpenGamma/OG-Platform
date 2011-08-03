@@ -11,8 +11,8 @@ import java.util.Map;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * If no scheme-specific handler has been registered, a default is used.
  */
 public class DelegatingFinancialSecuritySource
-    extends UniqueIdentifierSchemeDelegator<FinancialSecuritySource>
+    extends UniqueIdSchemeDelegator<FinancialSecuritySource>
     implements FinancialSecuritySource {
 
   /**
@@ -46,7 +46,7 @@ public class DelegatingFinancialSecuritySource
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getSecurity(uid);
   }

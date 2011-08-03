@@ -10,8 +10,8 @@ import java.util.Map;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
 
 /**
  * A source of snapshots that uses the scheme of the unique identifier to determine which
@@ -19,7 +19,7 @@ import com.opengamma.id.UniqueIdentifierSchemeDelegator;
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingSnapshotSource extends UniqueIdentifierSchemeDelegator<MarketDataSnapshotSource> implements MarketDataSnapshotSource {
+public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketDataSnapshotSource> implements MarketDataSnapshotSource {
 
   /**
    * Creates an instance specifying the default delegate.
@@ -39,20 +39,20 @@ public class DelegatingSnapshotSource extends UniqueIdentifierSchemeDelegator<Ma
   public DelegatingSnapshotSource(MarketDataSnapshotSource defaultSource, Map<String, MarketDataSnapshotSource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
   }
-  
+
   @Override
-  public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
-    return chooseDelegate(uid).getSnapshot(uid);
+  public StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId) {
+    return chooseDelegate(uniqueId).getSnapshot(uniqueId);
   }
 
   @Override
-  public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-    chooseDelegate(uid).addChangeListener(uid, listener);
+  public void addChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
+    chooseDelegate(uniqueId).addChangeListener(uniqueId, listener);
   }
 
   @Override
-  public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
-    chooseDelegate(uid).removeChangeListener(uid, listener);
+  public void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
+    chooseDelegate(uniqueId).removeChangeListener(uniqueId, listener);
   }
 
 }

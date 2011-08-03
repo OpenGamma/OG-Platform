@@ -70,7 +70,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -173,8 +173,8 @@ public class CancelExecutionTest {
     cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
     cycleOptions.setMarketDataSpecification(new MarketDataSpecification());
     final SingleComputationCycle cycle = new SingleComputationCycle(
-        UniqueIdentifier.of("Test", "Cycle1"),
-        UniqueIdentifier.of("Test", "ViewProcess1"),
+        UniqueId.of("Test", "Cycle1"),
+        UniqueId.of("Test", "ViewProcess1"),
         vpc, 
         viewEvaluationModel, 
         cycleOptions);

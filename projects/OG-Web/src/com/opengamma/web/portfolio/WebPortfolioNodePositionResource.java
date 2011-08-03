@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.sleepycat.je.DatabaseNotFoundException;
@@ -37,7 +37,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   @DELETE
   @Produces(MediaType.TEXT_HTML)
   public Response deleteHTML() {
-    ObjectIdentifier positionId = ObjectIdentifier.parse(data().getUriPositionId());
+    ObjectId positionId = ObjectId.parse(data().getUriPositionId());
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest()) {
       ManageablePortfolioNode node = data().getNode();
@@ -52,7 +52,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
-    ObjectIdentifier positionId = ObjectIdentifier.parse(data().getUriPositionId());
+    ObjectId positionId = ObjectId.parse(data().getUriPositionId());
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest()) {
       ManageablePortfolioNode node = data().getNode();

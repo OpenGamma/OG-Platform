@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -26,7 +26,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 @Test
 public class MasterSnapshotSourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {

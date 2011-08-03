@@ -7,7 +7,7 @@ package com.opengamma.web.batch;
 
 import java.net.URI;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * URIs for web-based batch management.
@@ -49,7 +49,7 @@ public class WebBatchUris {
    * @param batchId  the override batch id, not null
    * @return the URI
    */
-  public URI batch(final UniqueIdentifier batchId) {
+  public URI batch(final UniqueId batchId) {
     return WebBatchResource.uri(_data, batchId);
   }
 

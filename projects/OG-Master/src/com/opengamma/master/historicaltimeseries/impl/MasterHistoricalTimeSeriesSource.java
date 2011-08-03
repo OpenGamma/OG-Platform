@@ -21,8 +21,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -89,12 +89,12 @@ public class MasterHistoricalTimeSeriesSource
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     return doGetHistoricalTimeSeries(uniqueId, null, null);
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     if (start != null && !inclusiveStart) {
       start = start.plusDays(1);
     }
@@ -104,7 +104,7 @@ public class MasterHistoricalTimeSeriesSource
     return doGetHistoricalTimeSeries(uniqueId, start, end);
   }
 
-  private HistoricalTimeSeries doGetHistoricalTimeSeries(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
+  private HistoricalTimeSeries doGetHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     try {
@@ -183,7 +183,7 @@ public class MasterHistoricalTimeSeriesSource
     return doGetHistoricalTimeSeries(doc.getInfo().getTimeSeriesObjectId(), start, end);
   }
 
-  private HistoricalTimeSeries doGetHistoricalTimeSeries(ObjectIdentifier objectId, LocalDate start, LocalDate end) {
+  private HistoricalTimeSeries doGetHistoricalTimeSeries(ObjectId objectId, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(objectId, "objectId");
     VersionCorrection vc = getVersionCorrection();  // lock against change
     vc = Objects.firstNonNull(vc, VersionCorrection.LATEST);
@@ -241,7 +241,7 @@ public class MasterHistoricalTimeSeriesSource
     if (StringUtils.isBlank(resolutionKey)) {
       resolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     }
-    UniqueIdentifier uniqueId = getResolver().resolve(dataField, identifierBundle, identifierValidityDate, resolutionKey);
+    UniqueId uniqueId = getResolver().resolve(dataField, identifierBundle, identifierValidityDate, resolutionKey);
     if (uniqueId == null) {
       return null;
     }

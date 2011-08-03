@@ -27,7 +27,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 
@@ -201,7 +201,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
    * @param overrideExchangeId  the override exchange id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideExchangeId) {
+  public static URI uri(final WebExchangeData data, final UniqueId overrideExchangeId) {
     String exchangeId = data.getBestExchangeUriId(overrideExchangeId);
     return data.getUriInfo().getBaseUriBuilder().path(WebExchangeResource.class).build(exchangeId);
   }

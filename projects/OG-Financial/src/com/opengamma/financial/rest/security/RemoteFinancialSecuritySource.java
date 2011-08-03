@@ -19,7 +19,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -74,7 +74,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = _targetBase.resolveBase("security").resolve(uid.toString());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);

@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -88,7 +88,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_seriesIds_none() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setInfoIds(new ArrayList<ObjectIdentifier>());
+    request.setInfoIds(new ArrayList<ObjectId>());
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -97,9 +97,9 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_seriesIds() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.addInfoId(ObjectIdentifier.of("DbHts", "101"));
-    request.addInfoId(ObjectIdentifier.of("DbHts", "201"));
-    request.addInfoId(ObjectIdentifier.of("DbHts", "9999"));
+    request.addInfoId(ObjectId.of("DbHts", "101"));
+    request.addInfoId(ObjectId.of("DbHts", "201"));
+    request.addInfoId(ObjectId.of("DbHts", "9999"));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -110,7 +110,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_seriesIds_badSchemeValidOid() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.addInfoId(ObjectIdentifier.of("Rubbish", "101"));
+    request.addInfoId(ObjectId.of("Rubbish", "101"));
     _htsMaster.search(request);
   }
 

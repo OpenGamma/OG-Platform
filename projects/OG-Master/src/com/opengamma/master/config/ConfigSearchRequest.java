@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -46,7 +46,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    * Note that an empty set will return no configurations.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _configIds;
+  private List<ObjectId> _configIds;
   /**
    * The name, wildcards allowed, null to not match on name.
    */
@@ -83,7 +83,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   public void addConfigId(ObjectIdentifiable configId) {
     ArgumentChecker.notNull(configId, "configId");
     if (_configIds == null) {
-      _configIds = new ArrayList<ObjectIdentifier>();
+      _configIds = new ArrayList<ObjectId>();
     }
     _configIds.add(configId.getObjectId());
   }
@@ -98,7 +98,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     if (configIds == null) {
       _configIds = null;
     } else {
-      _configIds = new ArrayList<ObjectIdentifier>();
+      _configIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable configId : configIds) {
         _configIds.add(configId.getObjectId());
       }
@@ -163,7 +163,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -804471786:  // configIds
-        setConfigIds((List<ObjectIdentifier>) newValue);
+        setConfigIds((List<ObjectId>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -205,7 +205,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    * Note that an empty set will return no configurations.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getConfigIds() {
+  public List<ObjectId> getConfigIds() {
     return _configIds;
   }
 
@@ -214,7 +214,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    * Note that an empty set will return no configurations.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> configIds() {
+  public final Property<List<ObjectId>> configIds() {
     return metaBean().configIds().createProperty(this);
   }
 
@@ -283,7 +283,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-property for the {@code configIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _configIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _configIds = DirectMetaProperty.ofReadWrite(
         this, "configIds", ConfigSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
@@ -345,7 +345,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-property for the {@code configIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> configIds() {
+    public final MetaProperty<List<ObjectId>> configIds() {
       return _configIds;
     }
 

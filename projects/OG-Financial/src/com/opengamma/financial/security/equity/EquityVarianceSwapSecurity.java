@@ -153,7 +153,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not Frequency typedef", e);
     }
   }
-  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
+  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
     super (uniqueId, name, securityType, identifiers);
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {

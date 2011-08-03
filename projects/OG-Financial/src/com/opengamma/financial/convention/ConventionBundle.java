@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A complete defined set of conventions, such as for LIBOR, EURIBOR and STIBOR.
@@ -26,7 +26,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return the unique identifier for these conventions, not null
    */
   @Override
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Get the identifier bundle for this reference rate.

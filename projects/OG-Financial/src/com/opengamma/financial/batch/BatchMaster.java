@@ -6,7 +6,7 @@
 package com.opengamma.financial.batch;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A master for storing and managing batch job runs.
@@ -34,7 +34,7 @@ public interface BatchMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  BatchDocument get(UniqueIdentifier uniqueId);
+  BatchDocument get(UniqueId uniqueId);
 
   /**
    * Gets a batch document controlling paging of the risk and error data.
@@ -55,6 +55,6 @@ public interface BatchMaster {
    * @param uniqueId  the unique identifier, not null
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void delete(UniqueIdentifier uniqueId);
+  void delete(UniqueId uniqueId);
 
 }

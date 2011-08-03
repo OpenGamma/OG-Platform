@@ -26,7 +26,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -151,7 +151,7 @@ public class DataViewClientResource {
   @POST
   @Consumes(FudgeRest.MEDIA)
   @Path(PATH_ATTACH_DIRECT)
-  public Response attachToViewProcess(UniqueIdentifier viewProcessId) {
+  public Response attachToViewProcess(UniqueId viewProcessId) {
     updateLastAccessed();
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     getViewClient().attachToViewProcess(viewProcessId);
@@ -313,7 +313,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_CREATE_CYCLE_REFERENCE)
   @Consumes(FudgeRest.MEDIA)
-  public Response createCycleReference(UniqueIdentifier cycleId) {
+  public Response createCycleReference(UniqueId cycleId) {
     updateLastAccessed();
     EngineResourceReference<? extends ViewCycle> reference = getViewClient().createCycleReference(cycleId);
     return getReferenceResponse(reference);

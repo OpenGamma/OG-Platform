@@ -17,10 +17,10 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -47,18 +47,18 @@ import com.opengamma.util.db.Paging;
 public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
-   * The default scheme used for each {@link ObjectIdentifier}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
  
   /**
    * A cache of securities by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, ConfigDocument<?>> _store = new ConcurrentHashMap<ObjectIdentifier, ConfigDocument<?>>();
+  private final ConcurrentMap<ObjectId, ConfigDocument<?>> _store = new ConcurrentHashMap<ObjectId, ConfigDocument<?>>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  private final Supplier<ObjectId> _objectIdSupplier;
   /**
    * The change manager.
    */
@@ -68,7 +68,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * Creates an instance.
    */
   public InMemoryConfigMaster() {
-    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME));
+    this(new ObjectIdSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME));
   }
 
   /**
@@ -77,7 +77,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * @param changeManager  the change manager, not null
    */
   public InMemoryConfigMaster(final MasterChangeManager changeManager) {
-    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
+    this(new ObjectIdSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -85,7 +85,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+  public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicMasterChangeManager());
   }
 
@@ -96,7 +96,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
+  public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier, final MasterChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -105,7 +105,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
+  public ConfigDocument<?> get(UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
@@ -130,10 +130,10 @@ public class InMemoryConfigMaster implements ConfigMaster {
     ArgumentChecker.notNull(document.getValue(), "document.value");
     
     final Object value = document.getValue();
-    final ObjectIdentifier objectId = _objectIdSupplier.get();
-    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final ObjectId objectId = _objectIdSupplier.get();
+    final UniqueId uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
-    UniqueIdentifiables.setInto(value, uniqueId);
+    IdUtils.setInto(value, uniqueId);
     final ConfigDocument<Object> doc = new ConfigDocument<Object>(document.getType());
     doc.setName(document.getName());
     doc.setValue(value);
@@ -151,7 +151,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getValue(), "document.value");
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final ConfigDocument<?> storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -170,7 +170,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Config not found: " + uniqueId);
@@ -193,7 +193,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   //------------------------------------------------------------------------- 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ConfigDocument<T> get(UniqueIdentifier uniqueId, Class<T> clazz) {
+  public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
     ArgumentChecker.notNull(clazz, "clazz");
     ConfigDocument<?> document = get(uniqueId);
     if (!clazz.isInstance(document.getValue())) {

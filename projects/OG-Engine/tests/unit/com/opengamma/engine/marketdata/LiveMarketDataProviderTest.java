@@ -21,7 +21,7 @@ import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityP
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -39,7 +39,7 @@ public class LiveMarketDataProviderTest {
   UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
   
   protected ValueRequirement constructRequirement(String ticker) {
-    return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("testdomain", ticker));
+    return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", ticker));
   }
   
   public void snapshotting() {

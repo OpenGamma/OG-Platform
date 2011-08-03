@@ -8,7 +8,7 @@ package com.opengamma.financial.convention;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Default implementation of ReferenceRateSource that uses an underlying ReferenceRateMaster as a data source. 
@@ -49,7 +49,7 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getConventionBundle(UniqueIdentifier identifier) {
+  public ConventionBundle getConventionBundle(UniqueId identifier) {
     ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
     if (doc != null) {
       return doc.getValue();

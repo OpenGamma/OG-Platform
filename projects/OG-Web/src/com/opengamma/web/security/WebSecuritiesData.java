@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -88,7 +88,7 @@ public class WebSecuritiesData extends DirectBean {
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */
-  public String getBestSecurityUriId(final UniqueIdentifier overrideId) {
+  public String getBestSecurityUriId(final UniqueId overrideId) {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }

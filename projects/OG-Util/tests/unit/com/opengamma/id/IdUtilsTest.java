@@ -13,40 +13,40 @@ import java.lang.reflect.Modifier;
 import org.testng.annotations.Test;
 
 /**
- * Test UniqueIdentifiables. 
+ * Test IdUtils. 
  */
 @Test
-public class UniqueIdentifiablesTest {
+public class IdUtilsTest {
 
   @SuppressWarnings("unchecked")
   public void test_constructor() throws Exception {
-    Constructor<?>[] cons = UniqueIdentifiables.class.getDeclaredConstructors();
+    Constructor<?>[] cons = IdUtils.class.getDeclaredConstructors();
     assertEquals(1, cons.length);
     assertEquals(0, cons[0].getParameterTypes().length);
     assertEquals(true, Modifier.isPrivate(cons[0].getModifiers()));
-    Constructor<UniqueIdentifiables> con = (Constructor<UniqueIdentifiables>) cons[0];
+    Constructor<IdUtils> con = (Constructor<IdUtils>) cons[0];
     con.setAccessible(true);
     con.newInstance();
   }
 
   public void test_set_success() {
-    UniqueIdentifier uid = UniqueIdentifier.of("A", "B");
+    UniqueId uniqueId = UniqueId.of("A", "B");
     MockMutable mock = new MockMutable();
-    UniqueIdentifiables.setInto(mock, uid);
-    assertEquals(uid, mock.uid);
+    IdUtils.setInto(mock, uniqueId);
+    assertEquals(uniqueId, mock.uniqueId);
   }
 
   public void test_set_notMutableUniqueIdentifiable() {
-    UniqueIdentifier uid = UniqueIdentifier.of("A", "B");
-    UniqueIdentifiables.setInto(new Object(), uid);
+    UniqueId uniqueId = UniqueId.of("A", "B");
+    IdUtils.setInto(new Object(), uniqueId);
     // no error
   }
 
   static class MockMutable implements MutableUniqueIdentifiable {
-    UniqueIdentifier uid;
+    UniqueId uniqueId;
     @Override
-    public void setUniqueId(UniqueIdentifier uid) {
-      this.uid = uid;
+    public void setUniqueId(UniqueId uniqueId) {
+      this.uniqueId = uniqueId;
     }
   }
 

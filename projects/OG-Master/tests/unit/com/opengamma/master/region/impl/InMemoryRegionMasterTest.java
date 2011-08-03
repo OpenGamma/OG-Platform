@@ -18,7 +18,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
@@ -62,12 +62,12 @@ public class InMemoryRegionMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
-    master.get(UniqueIdentifier.of("A", "B"));
+    master.get(UniqueId.of("A", "B"));
   }
 
   public void test_get_match() {
     RegionDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(UniqueIdentifier.of("MemReg", "1"), result.getUniqueId());
+    assertEquals(UniqueId.of("MemReg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 

@@ -14,7 +14,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -109,7 +109,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueIdentifier identifier) {
+  public Portfolio getPortfolio(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolio(identifier);
     }
@@ -126,7 +126,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
+  public PortfolioNode getPortfolioNode(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolioNode(identifier);
     }
@@ -143,7 +143,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public Position getPosition(UniqueIdentifier identifier) {
+  public Position getPosition(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPosition(identifier);
     }
@@ -160,7 +160,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier identifier) {
+  public Trade getTrade(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getTrade(identifier);
     }

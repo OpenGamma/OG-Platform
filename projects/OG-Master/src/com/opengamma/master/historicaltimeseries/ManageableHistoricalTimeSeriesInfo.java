@@ -22,9 +22,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -48,7 +48,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The identifier keys with valid dates if available.
    * The key of the specific series, such as the equity identifiers.
@@ -90,7 +90,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This must be separately looked up using the master.
    */
   @PropertyDefinition
-  private ObjectIdentifier _timeSeriesObjectId;
+  private ObjectId _timeSeriesObjectId;
 
   /**
    * Creates an instance.
@@ -143,7 +143,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundleWithDates) newValue);
@@ -164,7 +164,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
         setObservationTime((String) newValue);
         return;
       case 2129430654:  // timeSeriesObjectId
-        setTimeSeriesObjectId((ObjectIdentifier) newValue);
+        setTimeSeriesObjectId((ObjectId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -209,7 +209,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -218,7 +218,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -227,7 +227,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -405,7 +405,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This must be separately looked up using the master.
    * @return the value of the property
    */
-  public ObjectIdentifier getTimeSeriesObjectId() {
+  public ObjectId getTimeSeriesObjectId() {
     return _timeSeriesObjectId;
   }
 
@@ -414,7 +414,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This must be separately looked up using the master.
    * @param timeSeriesObjectId  the new value of the property
    */
-  public void setTimeSeriesObjectId(ObjectIdentifier timeSeriesObjectId) {
+  public void setTimeSeriesObjectId(ObjectId timeSeriesObjectId) {
     this._timeSeriesObjectId = timeSeriesObjectId;
   }
 
@@ -423,7 +423,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
    * This must be separately looked up using the master.
    * @return the property, not null
    */
-  public final Property<ObjectIdentifier> timeSeriesObjectId() {
+  public final Property<ObjectId> timeSeriesObjectId() {
     return metaBean().timeSeriesObjectId().createProperty(this);
   }
 
@@ -440,8 +440,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableHistoricalTimeSeriesInfo.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableHistoricalTimeSeriesInfo.class, UniqueId.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
@@ -475,8 +475,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     /**
      * The meta-property for the {@code timeSeriesObjectId} property.
      */
-    private final MetaProperty<ObjectIdentifier> _timeSeriesObjectId = DirectMetaProperty.ofReadWrite(
-        this, "timeSeriesObjectId", ManageableHistoricalTimeSeriesInfo.class, ObjectIdentifier.class);
+    private final MetaProperty<ObjectId> _timeSeriesObjectId = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesObjectId", ManageableHistoricalTimeSeriesInfo.class, ObjectId.class);
     /**
      * The meta-properties.
      */
@@ -540,7 +540,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
@@ -596,7 +596,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
      * The meta-property for the {@code timeSeriesObjectId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ObjectIdentifier> timeSeriesObjectId() {
+    public final MetaProperty<ObjectId> timeSeriesObjectId() {
       return _timeSeriesObjectId;
     }
 

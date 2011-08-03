@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,7 +26,7 @@ public interface MarketDataSnapshotSource {
    * @return the snapshot, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uniqueId);
+  StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId);
 
   /**
   * Adds a listener to the source.
@@ -40,16 +40,16 @@ public interface MarketDataSnapshotSource {
   * @param listener  the listener to add, not null
   * @param uniqueId the identifier to register interest in
   * */
-  void addChangeListener(UniqueIdentifier uniqueId, MarketDataSnapshotChangeListener listener);
+  void addChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener);
 
   /**
    * Removes a listener from the source.
    * <p>
-   * The listener will cease receiving events for this {@link UniqueIdentifier} on the source
+   * The listener will cease receiving events for this {@link UniqueId} on the source
    * 
    * @param listener  the listener to remove, not null
    * @param uniqueId the identifier to unregister interest in
    * */
-  void removeChangeListener(UniqueIdentifier uniqueId, MarketDataSnapshotChangeListener listener);
+  void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener);
 
 }

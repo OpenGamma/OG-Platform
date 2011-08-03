@@ -10,7 +10,7 @@ import java.util.Collection;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.security.ManageableSecurity;
@@ -51,7 +51,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableSecurity getSecurity(UniqueIdentifier uniqueId) {
+  public ManageableSecurity getSecurity(UniqueId uniqueId) {
     SecurityDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getSecurity() : null);
   }

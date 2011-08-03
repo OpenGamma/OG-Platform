@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -147,7 +147,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
 
-    final HashMap<UniqueIdentifier, Double> otherData = new HashMap<UniqueIdentifier, Double>();
+    final HashMap<UniqueId, Double> otherData = new HashMap<UniqueId, Double>();
 
     for (final ComputedValue value : inputs.getAllValues()) {
       if (!(value.getValue() instanceof Double)) {

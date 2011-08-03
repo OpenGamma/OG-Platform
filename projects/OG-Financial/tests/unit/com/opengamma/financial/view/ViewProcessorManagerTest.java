@@ -34,7 +34,7 @@ import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
@@ -64,7 +64,7 @@ public class ViewProcessorManagerTest {
 
         @Override
         public void init(final FunctionCompilationContext context) {
-          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), UniqueIdentifier.of("Test", "Watched"));
+          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), UniqueId.of("Test", "Watched"));
         }
 
       });
@@ -117,7 +117,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public UniqueIdentifier getUniqueId() {
+    public UniqueId getUniqueId() {
       return null;
     }
 
@@ -132,7 +132,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewProcess getViewProcess(UniqueIdentifier viewProcessId) {
+    public ViewProcess getViewProcess(UniqueId viewProcessId) {
       return null;
     }
     
@@ -147,7 +147,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewClient getViewClient(UniqueIdentifier clientId) {
+    public ViewClient getViewClient(UniqueId clientId) {
       return null;
     }
 
@@ -189,15 +189,15 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public void masterChanged(MasterChangedType type, UniqueIdentifier beforeId, UniqueIdentifier afterId, Instant versionInstant) {
+    public void masterChanged(MasterChangedType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
     }
 
     public void notifyListenerUnwatchedIdentifier() {
-      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Unwatched"), UniqueIdentifier.of("Test", "UnwatchedNew"), Instant.now()));
+      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueId.of("Test", "Unwatched"), UniqueId.of("Test", "UnwatchedNew"), Instant.now()));
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Watched"), UniqueIdentifier.of("Test", "WatchedNew"), Instant.now()));
+      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueId.of("Test", "Watched"), UniqueId.of("Test", "WatchedNew"), Instant.now()));
     }
   }
 

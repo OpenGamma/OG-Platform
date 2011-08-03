@@ -15,23 +15,24 @@ import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable object identifier for an item within the OpenGamma instance.
  * <p>
  * This identifier is used as a handle within the system to refer to an item uniquely over time.
  * All versions of the same object share an object identifier.
- * A {@link UniqueIdentifier} refers to a single version of an object identifier.
+ * A {@link UniqueId} refers to a single version of an object identifier.
  * <p>
  * Many external identifiers, represented by {@link Identifier}, are not truly unique.
- * This {@code ObjectIdentifier} and {@code UniqueIdentifier} are unique within the OpenGamma instance.
+ * This {@code ObjectId} and {@code UniqueId} are unique within the OpenGamma instance.
  * <p>
  * The object identifier is formed from two parts, the scheme and value.
  * The scheme defines a single way of identifying items, while the value is an identifier
  * within that scheme. A value from one scheme may refer to a completely different
  * real-world item than the same value from a different scheme.
  * <p>
- * Real-world examples of {@code ObjectIdentifier} include instances of:
+ * Real-world examples of {@code ObjectId} include instances of:
  * <ul>
  * <li>Database key - DbSec~123456</li>
  * <li>In memory key - MemSec~123456</li>
@@ -40,14 +41,17 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class ObjectIdentifier
-    implements Comparable<ObjectIdentifier>, ObjectIdentifiable, Serializable {
+public final class ObjectId
+    implements Comparable<ObjectId>, ObjectIdentifiable, Serializable {
+  static {
+    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.ObjectIdentifier", ObjectId.class);
+  }
 
   /**
    * Identification scheme for the OID.
    * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
    */
-  public static final IdentificationScheme OID = IdentificationScheme.of("OID");
+  public static final IdentificationScheme EXTERNAL_SCHEME = IdentificationScheme.of("OID");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -82,8 +86,8 @@ public final class ObjectIdentifier
    * @param value  the value of the object identifier, not empty, not null
    * @return the object identifier, not null
    */
-  public static ObjectIdentifier of(String scheme, String value) {
-    return new ObjectIdentifier(scheme, value);
+  public static ObjectId of(String scheme, String value) {
+    return new ObjectId(scheme, value);
   }
 
   /**
@@ -92,19 +96,19 @@ public final class ObjectIdentifier
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>~<VALUE>}.
    * 
-   * @param oidStr  the object identifier to parse, not null
+   * @param objectIdStr  the object identifier to parse, not null
    * @return the object identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static ObjectIdentifier parse(String oidStr) {
-    ArgumentChecker.notEmpty(oidStr, "uidStr");
-    oidStr = StringUtils.replace(oidStr, "::", "~");  // leniently parse old data
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(oidStr, "~");
+  public static ObjectId parse(String objectIdStr) {
+    ArgumentChecker.notEmpty(objectIdStr, "objectIdStr");
+    objectIdStr = StringUtils.replace(objectIdStr, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(objectIdStr, "~");
     switch (split.length) {
       case 2:
-        return ObjectIdentifier.of(split[0], split[1]);
+        return ObjectId.of(split[0], split[1]);
     }
-    throw new IllegalArgumentException("Invalid identifier format: " + oidStr);
+    throw new IllegalArgumentException("Invalid identifier format: " + objectIdStr);
   }
 
   /**
@@ -113,7 +117,7 @@ public final class ObjectIdentifier
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    */
-  private ObjectIdentifier(String scheme, String reference) {
+  private ObjectId(String scheme, String reference) {
     ArgumentChecker.notEmpty(scheme, "scheme");
     ArgumentChecker.notEmpty(reference, "reference");
     _scheme = scheme;
@@ -146,20 +150,20 @@ public final class ObjectIdentifier
    * Returns a copy of this identifier with the specified scheme.
    * 
    * @param scheme  the new scheme of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, not null
+   * @return an {@link ObjectId} based on this identifier with the specified scheme, not null
    */
-  public ObjectIdentifier withScheme(final String scheme) {
-    return ObjectIdentifier.of(scheme, _value);
+  public ObjectId withScheme(final String scheme) {
+    return ObjectId.of(scheme, _value);
   }
 
   /**
    * Returns a copy of this identifier with the specified value.
    * 
    * @param value  the new value of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, not null
+   * @return an {@link ObjectId} based on this identifier with the specified value, not null
    */
-  public ObjectIdentifier withValue(final String value) {
-    return ObjectIdentifier.of(_scheme, value);
+  public ObjectId withValue(final String value) {
+    return ObjectId.of(_scheme, value);
   }
 
   //-------------------------------------------------------------------------
@@ -169,10 +173,10 @@ public final class ObjectIdentifier
    * This creates a new unique identifier based on this object identifier marked
    * to retrieve the latest version.
    * 
-   * @return a {@link UniqueIdentifier} based on this identifier at the latest version, not null
+   * @return a {@link UniqueId} based on this identifier at the latest version, not null
    */
-  public UniqueIdentifier atLatestVersion() {
-    return UniqueIdentifier.of(_scheme, _value, null);
+  public UniqueId atLatestVersion() {
+    return UniqueId.of(_scheme, _value, null);
   }
 
   /**
@@ -182,10 +186,10 @@ public final class ObjectIdentifier
    * the specified version.
    * 
    * @param version  the new version of the identifier, empty treated as null, null treated as latest version
-   * @return a {@link UniqueIdentifier} based on this identifier at the specified version, not null
+   * @return a {@link UniqueId} based on this identifier at the specified version, not null
    */
-  public UniqueIdentifier atVersion(final String version) {
-    return UniqueIdentifier.of(_scheme, _value, version);
+  public UniqueId atVersion(final String version) {
+    return UniqueId.of(_scheme, _value, version);
   }
 
   //-------------------------------------------------------------------------
@@ -197,7 +201,7 @@ public final class ObjectIdentifier
    * @return {@code this}, not null
    */
   @Override
-  public ObjectIdentifier getObjectId() {
+  public ObjectId getObjectId() {
     return this;
   }
 
@@ -209,7 +213,7 @@ public final class ObjectIdentifier
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(ObjectIdentifier other) {
+  public int compareTo(ObjectId other) {
     int cmp = _scheme.compareTo(other._scheme);
     if (cmp != 0) {
       return cmp;
@@ -222,8 +226,8 @@ public final class ObjectIdentifier
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ObjectIdentifier) {
-      ObjectIdentifier other = (ObjectIdentifier) obj;
+    if (obj instanceof ObjectId) {
+      ObjectId other = (ObjectId) obj;
       return _scheme.equals(other._scheme) &&
               _value.equals(other._value);
     }
@@ -283,10 +287,10 @@ public final class ObjectIdentifier
    * @param msg  the Fudge message, not null
    * @return the object identifier, not null
    */
-  public static ObjectIdentifier fromFudgeMsg(FudgeMsg msg) {
+  public static ObjectId fromFudgeMsg(FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
-    return ObjectIdentifier.of(scheme, value);
+    return ObjectId.of(scheme, value);
   }
 
 }

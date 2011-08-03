@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -94,7 +94,7 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   }
 
   @Override
-  public MarketDataSnapshotDocument get(final UniqueIdentifier uniqueId) {
+  public MarketDataSnapshotDocument get(final UniqueId uniqueId) {
     try {
       // [PLAT-1316] Note the document returned is incomplete
       final FudgeMsg response = getRestClient().getMsg(getTargetBase().resolveBase("snapshots").resolve(uniqueId.toString()));
@@ -116,7 +116,7 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   }
 
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     throw new UnsupportedOperationException();
   }
 

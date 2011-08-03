@@ -18,16 +18,17 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable unique identifier for an item within the OpenGamma installation.
  * <p>
  * This identifier is used as a handle within the system to refer to an item uniquely.
- * All versions of the same object share an {@link ObjectIdentifier} with the
- * {@code UniqueIdentifier} referring to a single version.
+ * All versions of the same object share an {@link ObjectId} with the
+ * {@code UniqueId} referring to a single version.
  * <p>
  * Many external identifiers, represented by {@link Identifier}, are not truly unique.
- * This {@code ObjectIdentifier} and {@code UniqueIdentifier} are unique within the OpenGamma instance.
+ * This {@code ObjectId} and {@code UniqueId} are unique within the OpenGamma instance.
  * <p>
  * The unique identifier is formed from three parts, the scheme, value and version.
  * The scheme defines a single way of identifying items, while the value is an identifier
@@ -37,7 +38,7 @@ import com.opengamma.util.PublicAPI;
  * If the version is null then the identifier refers to the latest version of the object.
  * Note that some data providers may not support versioning.
  * <p>
- * Real-world examples of {@code UniqueIdentifier} include instances of:
+ * Real-world examples of {@code UniqueId} include instances of:
  * <ul>
  * <li>Database key - DbSec~123456~1</li>
  * <li>In memory key - MemSec~123456~234</li>
@@ -46,14 +47,17 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class UniqueIdentifier
-    implements Comparable<UniqueIdentifier>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
+public final class UniqueId
+    implements Comparable<UniqueId>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
+  static {
+    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.UniqueIdentifier", UniqueId.class);
+  }
 
   /**
    * Identification scheme for the UID.
    * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
    */
-  public static final IdentificationScheme UID = IdentificationScheme.of("UID");
+  public static final IdentificationScheme EXTERNAL_SCHEME = IdentificationScheme.of("UID");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -92,7 +96,7 @@ public final class UniqueIdentifier
    * @param value  the value of the identifier, not empty, not null
    * @return the unique identifier, not null
    */
-  public static UniqueIdentifier of(String scheme, String value) {
+  public static UniqueId of(String scheme, String value) {
     return of(scheme, value, null);
   }
 
@@ -104,32 +108,36 @@ public final class UniqueIdentifier
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
    * @return the unique identifier, not null
    */
-  public static UniqueIdentifier of(String scheme, String value, String version) {
-    return new UniqueIdentifier(scheme, value, version);
+  public static UniqueId of(String scheme, String value, String version) {
+    return new UniqueId(scheme, value, version);
   }
 
   /**
-   * Obtains a unique identifier from an {@code ObjectIdentifier} and a version.
+   * Obtains a unique identifier from an {@code ObjectId} and a version.
    * 
    * @param objectId  the object identifier, not null
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
    * @return the unique identifier, not null
    */
-  public static UniqueIdentifier of(ObjectIdentifier objectId, String version) {
-    return new UniqueIdentifier(objectId.getScheme(), objectId.getValue(), version);
+  public static UniqueId of(ObjectId objectId, String version) {
+    return new UniqueId(objectId.getScheme(), objectId.getValue(), version);
   }
 
   /**
-   * Obtains a unique identifier from a weak {@code Identifier}.
+   * Obtains a unique identifier from an external identifier.
+   * <p>
+   * This allows a unique identifier that was previously packaged as an external
+   * identifier to be converted back. See {@link #toIdentifier()}.
+   * In general, this approach should be avoided.
    * 
-   * @param weakKey  the weak identifier key, not null
+   * @param externalId  the external identifier key, not null
    * @return the unique identifier, not null
    */
-  public static UniqueIdentifier of(Identifier weakKey) {
-    if (weakKey.isNotScheme(UID)) {
-      throw new IllegalArgumentException("Identifier is not a valid UniqueIdentifier");
+  public static UniqueId of(Identifier externalId) {
+    if (externalId.isNotScheme(EXTERNAL_SCHEME)) {
+      throw new IllegalArgumentException("ExternalId is not a valid UniqueId");
     }
-    return parse(weakKey.getValue());
+    return parse(externalId.getValue());
   }
 
   /**
@@ -138,21 +146,21 @@ public final class UniqueIdentifier
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>~<VALUE>~<VERSION>}.
    * 
-   * @param uidStr  the identifier to parse, not null
+   * @param uniqueIdStr  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static UniqueIdentifier parse(String uidStr) {
-    ArgumentChecker.notEmpty(uidStr, "uidStr");
-    uidStr = StringUtils.replace(uidStr, "::", "~");  // leniently parse old data
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uidStr, "~");
+  public static UniqueId parse(String uniqueIdStr) {
+    ArgumentChecker.notEmpty(uniqueIdStr, "uniqueIdStr");
+    uniqueIdStr = StringUtils.replace(uniqueIdStr, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uniqueIdStr, "~");
     switch (split.length) {
       case 2:
-        return UniqueIdentifier.of(split[0], split[1], null);
+        return UniqueId.of(split[0], split[1], null);
       case 3:
-        return UniqueIdentifier.of(split[0], split[1], split[2]);
+        return UniqueId.of(split[0], split[1], split[2]);
     }
-    throw new IllegalArgumentException("Invalid identifier format: " + uidStr);
+    throw new IllegalArgumentException("Invalid identifier format: " + uniqueIdStr);
   }
 
   /**
@@ -162,7 +170,7 @@ public final class UniqueIdentifier
    * @param value  the value of the identifier, not empty, not null
    * @param version  the version of the identifier, null if latest version
    */
-  private UniqueIdentifier(String scheme, String reference, String version) {
+  private UniqueId(String scheme, String reference, String version) {
     ArgumentChecker.notEmpty(scheme, "scheme");
     ArgumentChecker.notEmpty(reference, "reference");
     _scheme = scheme;
@@ -208,20 +216,20 @@ public final class UniqueIdentifier
    * Returns a copy of this identifier with the specified scheme.
    * 
    * @param scheme  the new scheme of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, not null
+   * @return an {@link ObjectId} based on this identifier with the specified scheme, not null
    */
-  public UniqueIdentifier withScheme(final String scheme) {
-    return UniqueIdentifier.of(scheme, _value, _version);
+  public UniqueId withScheme(final String scheme) {
+    return UniqueId.of(scheme, _value, _version);
   }
 
   /**
    * Returns a copy of this identifier with the specified value.
    * 
    * @param value  the new value of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, not null
+   * @return an {@link ObjectId} based on this identifier with the specified value, not null
    */
-  public UniqueIdentifier withValue(final String value) {
-    return UniqueIdentifier.of(_scheme, value, _version);
+  public UniqueId withValue(final String value) {
+    return UniqueId.of(_scheme, value, _version);
   }
 
   /**
@@ -230,11 +238,11 @@ public final class UniqueIdentifier
    * @param version  the new version of the identifier, empty treated as null, null treated as latest version
    * @return the created identifier with the specified version, not null
    */
-  public UniqueIdentifier withVersion(final String version) {
+  public UniqueId withVersion(final String version) {
     if (ObjectUtils.equals(version, _version)) {
       return this;
     }
-    return new UniqueIdentifier(_scheme, _value, version);
+    return new UniqueId(_scheme, _value, version);
   }
 
   //-------------------------------------------------------------------------
@@ -246,8 +254,8 @@ public final class UniqueIdentifier
    * @return the scheme, not empty, not null
    */
   @Override
-  public ObjectIdentifier getObjectId() {
-    return ObjectIdentifier.of(_scheme, _value);
+  public ObjectId getObjectId() {
+    return ObjectId.of(_scheme, _value);
   }
 
   /**
@@ -258,7 +266,7 @@ public final class UniqueIdentifier
    * @return {@code this}, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return this;
   }
 
@@ -292,21 +300,25 @@ public final class UniqueIdentifier
    * 
    * @return an identifier representing the latest version of the item, not null
    */
-  public UniqueIdentifier toLatest() {
+  public UniqueId toLatest() {
     if (isVersioned()) {
-      return new UniqueIdentifier(_scheme, _value, null);
+      return new UniqueId(_scheme, _value, null);
     } else {
       return this;
     }
   }
 
   /**
-   * Converts this unique identifier to a weak identifier key.
+   * Converts this unique identifier to an external identifier.
+   * <p>
+   * This allows a unique identifier to be packaged and passed around
+   * in the form of an external identifier. See {@link #of(Identifier)}.
+   * In general, this approach should be avoided.
    * 
-   * @return the weak identifier key, not null
+   * @return the external identifier, not null
    */
   public Identifier toIdentifier() {
-    return Identifier.of(UID, toString());
+    return Identifier.of(EXTERNAL_SCHEME, toString());
   }
 
   //-------------------------------------------------------------------------
@@ -318,11 +330,11 @@ public final class UniqueIdentifier
    * @param other  the other identifier, null returns false
    * @return true if the object identifier are equal, ignoring the version
    */
-  public boolean equalObjectIdentifier(ObjectIdentifiable other) {
+  public boolean equalObjectId(ObjectIdentifiable other) {
     if (other == null) {
       return false;
     }
-    ObjectIdentifier objectId = other.getObjectId();
+    ObjectId objectId = other.getObjectId();
     return _scheme.equals(objectId.getScheme()) &&
             _value.equals(objectId.getValue());
   }
@@ -335,7 +347,7 @@ public final class UniqueIdentifier
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(UniqueIdentifier other) {
+  public int compareTo(UniqueId other) {
     if (_scheme.compareTo(other._scheme) != 0) {
       return _scheme.compareTo(other._scheme);
     }
@@ -350,8 +362,8 @@ public final class UniqueIdentifier
     if (this == obj) {
       return true;
     }
-    if (obj instanceof UniqueIdentifier) {
-      UniqueIdentifier other = (UniqueIdentifier) obj;
+    if (obj instanceof UniqueId) {
+      UniqueId other = (UniqueId) obj;
       return _scheme.equals(other._scheme) &&
               _value.equals(other._value) &&
               ObjectUtils.equals(_version, other._version);
@@ -423,11 +435,11 @@ public final class UniqueIdentifier
    * @param msg  the Fudge message, not null
    * @return the unique identifier
    */
-  public static UniqueIdentifier fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static UniqueId fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     String version = msg.getString(VERSION_FUDGE_FIELD_NAME);
-    return UniqueIdentifier.of(scheme, value, version);
+    return UniqueId.of(scheme, value, version);
   }
 
 }

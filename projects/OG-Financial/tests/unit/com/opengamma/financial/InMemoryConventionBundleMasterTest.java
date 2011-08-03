@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Unit test for InMemoryConventionBundleMaster.
@@ -38,7 +38,7 @@ public class InMemoryConventionBundleMasterTest {
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getName());
     AssertJUnit.assertEquals("US00O/N Index", conventions.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getIdentifiers().getIdentifierValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
-    AssertJUnit.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "1"), conventions.getUniqueId());
+    AssertJUnit.assertEquals(UniqueId.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "1"), conventions.getUniqueId());
     AssertJUnit.assertEquals(actact, conventions.getDayCount());
     AssertJUnit.assertEquals(following, conventions.getBusinessDayConvention());
     AssertJUnit.assertEquals(0, conventions.getSettlementDays());
@@ -48,7 +48,7 @@ public class InMemoryConventionBundleMasterTest {
     AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getIdentifiers().getIdentifierValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
     AssertJUnit.assertEquals("USDLIBORP3M", conventions2.getIdentifiers().getIdentifierValue(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER));
-    AssertJUnit.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "7"), conventions2.getUniqueId());
+    AssertJUnit.assertEquals(UniqueId.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "7"), conventions2.getUniqueId());
     AssertJUnit.assertEquals(actact, conventions2.getDayCount());
     AssertJUnit.assertEquals(modified, conventions2.getBusinessDayConvention());
     AssertJUnit.assertEquals(2, conventions2.getSettlementDays());

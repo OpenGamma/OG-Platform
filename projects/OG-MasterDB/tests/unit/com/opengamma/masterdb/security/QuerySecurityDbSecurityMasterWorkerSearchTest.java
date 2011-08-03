@@ -19,8 +19,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -201,16 +201,16 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "201", "1"), doc2.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_search_securityIds_none() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setSecurityIds(new ArrayList<ObjectIdentifier>());
+    request.setSecurityIds(new ArrayList<ObjectId>());
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -219,9 +219,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_securityIds() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityId(ObjectIdentifier.of("DbSec", "101"));
-    request.addSecurityId(ObjectIdentifier.of("DbSec", "201"));
-    request.addSecurityId(ObjectIdentifier.of("DbSec", "9999"));
+    request.addSecurityId(ObjectId.of("DbSec", "101"));
+    request.addSecurityId(ObjectId.of("DbSec", "201"));
+    request.addSecurityId(ObjectId.of("DbSec", "9999"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -232,7 +232,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_securityIds_badSchemeValidOid() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityId(ObjectIdentifier.of("Rubbish", "120"));
+    request.addSecurityId(ObjectId.of("Rubbish", "120"));
     _secMaster.search(request);
   }
 
@@ -568,9 +568,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "0"), doc2.getUniqueId());  // old version
+    assertEquals(UniqueId.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "201", "0"), doc2.getUniqueId());  // old version
   }
 
   @Test
@@ -583,9 +583,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getUniqueId());  // new version
+    assertEquals(UniqueId.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueId.of("DbSec", "201", "1"), doc2.getUniqueId());  // new version
   }
 
   //-------------------------------------------------------------------------

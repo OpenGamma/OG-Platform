@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
@@ -62,7 +62,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
 
-    for (UniqueIdentifier parentId : data().getRegion().getRegion().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -107,7 +107,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebRegionData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebRegionData data, final UniqueId overrideVersionId) {
     String regionId = data.getBestRegionUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebRegionVersionResource.class).build(regionId, versionId);

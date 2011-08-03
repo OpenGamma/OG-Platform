@@ -29,7 +29,7 @@ import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test DefaultComputationTargetResolver.
@@ -37,10 +37,10 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class DefaultComputationTargetResolverTest {
 
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
-  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
+  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
+  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueId.of("A", "B"), "Name");
+  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
 
   //-------------------------------------------------------------------------
   public void test_constructor() {
@@ -65,7 +65,7 @@ public class DefaultComputationTargetResolverTest {
   public void test_resolve_portfolioNode() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
-    PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
+    PortfolioImpl p = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
     p.getRootNode().addChildNode(NODE);
     posSource.addPortfolio(p);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
@@ -77,7 +77,7 @@ public class DefaultComputationTargetResolverTest {
   public void test_resolve_position() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
-    PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
+    PortfolioImpl p = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
     p.getRootNode().addPosition(POSITION);
     posSource.addPortfolio(p);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
@@ -90,10 +90,10 @@ public class DefaultComputationTargetResolverTest {
     OffsetDateTime now = OffsetDateTime.now();
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
-    PortfolioImpl portfolio = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
-    PositionImpl position = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+    PortfolioImpl portfolio = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
+    PositionImpl position = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
     TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(), new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
-    trade.setUniqueId(UniqueIdentifier.of("TradeScheme", "1"));
+    trade.setUniqueId(UniqueId.of("TradeScheme", "1"));
     position.addTrade(trade);
     portfolio.getRootNode().addPosition(position);
     posSource.addPortfolio(portfolio);
@@ -117,7 +117,7 @@ public class DefaultComputationTargetResolverTest {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
-    ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueId) null);
     ComputationTarget expected = new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
     assertEquals(expected, test.resolve(spec));
   }

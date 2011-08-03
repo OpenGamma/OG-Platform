@@ -18,7 +18,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -78,7 +78,7 @@ public class CurrencyInversionFunction extends AbstractFunction.NonCompiledInvok
     final int underscore = target.getUniqueId().getValue().indexOf('_');
     final String numerator = target.getUniqueId().getValue().substring(0, underscore);
     final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
-    return Collections.singleton(new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator)));
+    return Collections.singleton(new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator)));
   }
 
   private ValueSpecification createResultValueSpecification(final ComputationTarget target) {

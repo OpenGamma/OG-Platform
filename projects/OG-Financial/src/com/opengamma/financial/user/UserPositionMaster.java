@@ -6,7 +6,7 @@
 package com.opengamma.financial.user;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.position.ManageableTrade;
@@ -50,7 +50,7 @@ public class UserPositionMaster implements PositionMaster {
   }
 
   @Override
-  public PositionDocument get(UniqueIdentifier uniqueId) {
+  public PositionDocument get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
   }
 
@@ -74,7 +74,7 @@ public class UserPositionMaster implements PositionMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
     _tracker.deleted(_userName, _clientName, UserDataType.POSITION, uniqueId);
   }
@@ -90,7 +90,7 @@ public class UserPositionMaster implements PositionMaster {
   }
 
   @Override
-  public ManageableTrade getTrade(UniqueIdentifier uniqueId) {
+  public ManageableTrade getTrade(UniqueId uniqueId) {
     return _underlying.getTrade(uniqueId);
   }
 

@@ -16,7 +16,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
@@ -36,7 +36,7 @@ public final class ComputationTargetSpecification implements Serializable {
   /**
    * The identifier of the target.
    */
-  private final UniqueIdentifier _uniqueId;
+  private final UniqueId _uniqueId;
 
   /**
    * Construct a specification that refers to the specified object.
@@ -58,10 +58,10 @@ public final class ComputationTargetSpecification implements Serializable {
           _uniqueId = ((UniqueIdentifiable) target).getUniqueId();
         } else if (target instanceof Identifiable) {
           final Identifier id = ((Identifiable) target).getIdentityKey();
-          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
+          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else if (target instanceof Identifier) {
           final Identifier id = (Identifier) target;
-          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
+          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else {
           _uniqueId = null;
         }
@@ -77,7 +77,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * @param targetType the type of the target, not null
    * @param uid  the target identifier, may be null
    */
-  public ComputationTargetSpecification(final ComputationTargetType targetType, final UniqueIdentifier uid) {
+  public ComputationTargetSpecification(final ComputationTargetType targetType, final UniqueId uid) {
     ArgumentChecker.notNull(targetType, "target type");
     if (targetType != ComputationTargetType.PRIMITIVE) {
       ArgumentChecker.notNull(uid, "identifier");
@@ -110,7 +110,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 

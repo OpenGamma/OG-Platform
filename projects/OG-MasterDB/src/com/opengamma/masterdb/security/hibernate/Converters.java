@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -50,15 +50,15 @@ public final class Converters {
   }
 
   //-------------------------------------------------------------------------
-  public static UniqueIdentifier uniqueIdentifierBeanToUniqueIdentifier(UniqueIdentifierBean hibernateBean) {
+  public static UniqueId uniqueIdBeanToUniqueId(UniqueIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
-    return UniqueIdentifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
+    return UniqueId.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
   }
 
-  public static UniqueIdentifierBean uniqueIdentifierToUniqueIdentifierBean(final UniqueIdentifier identifier) {
-    return new UniqueIdentifierBean(identifier.getScheme(), identifier.getValue());
+  public static UniqueIdBean uniqueIdToUniqueIdBean(final UniqueId identifier) {
+    return new UniqueIdBean(identifier.getScheme(), identifier.getValue());
   }
 
   //-------------------------------------------------------------------------

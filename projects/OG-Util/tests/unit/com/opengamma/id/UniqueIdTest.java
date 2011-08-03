@@ -15,13 +15,13 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 /**
- * Test UniqueIdentifier. 
+ * Test UniqueId. 
  */
 @Test
-public class UniqueIdentifierTest {
+public class UniqueIdTest {
 
   public void test_factory_String_String() {
-    UniqueIdentifier test = UniqueIdentifier.of("Scheme", "value");
+    UniqueId test = UniqueId.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
@@ -30,27 +30,27 @@ public class UniqueIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_nullScheme() {
-    UniqueIdentifier.of((String) null, "value");
+    UniqueId.of((String) null, "value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyScheme() {
-    UniqueIdentifier.of("", "value");
+    UniqueId.of("", "value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_nullValue() {
-    UniqueIdentifier.of("Scheme", (String) null);
+    UniqueId.of("Scheme", (String) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
-    UniqueIdentifier.of("Scheme", "");
+    UniqueId.of("Scheme", "");
   }
 
   //-------------------------------------------------------------------------
   public void test_factory_String_String_String() {
-    UniqueIdentifier test = UniqueIdentifier.of("Scheme", "value", "version");
+    UniqueId test = UniqueId.of("Scheme", "value", "version");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals("version", test.getVersion());
@@ -59,26 +59,26 @@ public class UniqueIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_String_nullScheme() {
-    UniqueIdentifier.of((String) null, "value", "version");
+    UniqueId.of((String) null, "value", "version");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_String_emptyScheme() {
-    UniqueIdentifier.of("", "value", "version");
+    UniqueId.of("", "value", "version");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_String_nullValue() {
-    UniqueIdentifier.of("Scheme", (String) null, "version");
+    UniqueId.of("Scheme", (String) null, "version");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_String_emptyValue() {
-    UniqueIdentifier.of("Scheme", "", "version");
+    UniqueId.of("Scheme", "", "version");
   }
 
   public void test_factory_String_String_String_nullVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("Scheme", "value", null);
+    UniqueId test = UniqueId.of("Scheme", "value", null);
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
@@ -86,7 +86,7 @@ public class UniqueIdentifierTest {
   }
 
   public void test_factory_String_String_String_emptyVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("Scheme", "value", "");
+    UniqueId test = UniqueId.of("Scheme", "value", "");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
@@ -95,7 +95,7 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   public void test_parse_version() {
-    UniqueIdentifier test = UniqueIdentifier.parse("Scheme~value~version");
+    UniqueId test = UniqueId.parse("Scheme~value~version");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals("version", test.getVersion());
@@ -103,7 +103,7 @@ public class UniqueIdentifierTest {
   }
 
   public void test_parse_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.parse("Scheme~value");
+    UniqueId test = UniqueId.parse("Scheme~value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals("Scheme~value", test.toString());
@@ -111,126 +111,126 @@ public class UniqueIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat1() {
-    UniqueIdentifier.parse("Scheme");
+    UniqueId.parse("Scheme");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat2() {
-    UniqueIdentifier.parse("Scheme:value");
+    UniqueId.parse("Scheme:value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat3() {
-    UniqueIdentifier.parse("Scheme~value~version~other");
+    UniqueId.parse("Scheme~value~version~other");
   }
 
   //-------------------------------------------------------------------------
   public void test_withVersion_added() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(UniqueIdentifier.of("id1", "value1", "32"), test.withVersion("32"));
+    UniqueId test = UniqueId.of("id1", "value1");
+    assertEquals(UniqueId.of("id1", "value1", "32"), test.withVersion("32"));
   }
 
   public void test_withVersion_replaced() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "12");
-    assertEquals(UniqueIdentifier.of("id1", "value1", "32"), test.withVersion("32"));
+    UniqueId test = UniqueId.of("id1", "value1", "12");
+    assertEquals(UniqueId.of("id1", "value1", "32"), test.withVersion("32"));
   }
 
   public void test_withVersion_replacedToNull() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "32");
-    assertEquals(UniqueIdentifier.of("id1", "value1"), test.withVersion(null));
+    UniqueId test = UniqueId.of("id1", "value1", "32");
+    assertEquals(UniqueId.of("id1", "value1"), test.withVersion(null));
   }
 
   public void test_withVersion_replacedToSame() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "32");
+    UniqueId test = UniqueId.of("id1", "value1", "32");
     assertSame(test, test.withVersion("32"));
   }
 
   //-------------------------------------------------------------------------
   public void test_getObjectId() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "version");
-    assertEquals(ObjectIdentifier.of("id1", "value1"), test.getObjectId());
+    UniqueId test = UniqueId.of("id1", "value1", "version");
+    assertEquals(ObjectId.of("id1", "value1"), test.getObjectId());
   }
 
   //-------------------------------------------------------------------------
   public void test_getUniqueId() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    UniqueId test = UniqueId.of("id1", "value1");
     assertSame(test, test.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
   public void test_isLatest_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    UniqueId test = UniqueId.of("id1", "value1");
     assertEquals(true, test.isLatest());
   }
 
   public void test_isLatest_version() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
+    UniqueId test = UniqueId.of("id1", "value1", "1");
     assertEquals(false, test.isLatest());
   }
 
   public void test_isVersioned_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    UniqueId test = UniqueId.of("id1", "value1");
     assertEquals(false, test.isVersioned());
   }
 
   public void test_isVersioned_version() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
+    UniqueId test = UniqueId.of("id1", "value1", "1");
     assertEquals(true, test.isVersioned());
   }
 
   public void test_toLatest_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(UniqueIdentifier.of("id1", "value1"), test.toLatest());
+    UniqueId test = UniqueId.of("id1", "value1");
+    assertEquals(UniqueId.of("id1", "value1"), test.toLatest());
   }
 
   public void test_toLatest_version() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
-    assertEquals(UniqueIdentifier.of("id1", "value1"), test.toLatest());
+    UniqueId test = UniqueId.of("id1", "value1", "1");
+    assertEquals(UniqueId.of("id1", "value1"), test.toLatest());
   }
 
   //-------------------------------------------------------------------------
   public void test_toIdentifier() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(Identifier.of(UniqueIdentifier.UID, "id1~value1"), test.toIdentifier());
+    UniqueId test = UniqueId.of("id1", "value1");
+    assertEquals(Identifier.of(UniqueId.EXTERNAL_SCHEME, "id1~value1"), test.toIdentifier());
   }
 
   //-------------------------------------------------------------------------
-  public void test_equalObjectIdentifier_noVersion() {
-    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1");
-    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
-    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2");
+  public void test_equalObjectId_noVersion() {
+    UniqueId d1a = UniqueId.of("Scheme", "d1");
+    UniqueId d1b = UniqueId.of("Scheme", "d1");
+    UniqueId d2 = UniqueId.of("Scheme", "d2");
     
-    assertEquals(true, d1a.equalObjectIdentifier(d1a));
-    assertEquals(true, d1a.equalObjectIdentifier(d1b));
-    assertEquals(false, d1a.equalObjectIdentifier(d2));
+    assertEquals(true, d1a.equalObjectId(d1a));
+    assertEquals(true, d1a.equalObjectId(d1b));
+    assertEquals(false, d1a.equalObjectId(d2));
     
-    assertEquals(true, d1b.equalObjectIdentifier(d1a));
-    assertEquals(true, d1b.equalObjectIdentifier(d1b));
-    assertEquals(false, d1b.equalObjectIdentifier(d2));
+    assertEquals(true, d1b.equalObjectId(d1a));
+    assertEquals(true, d1b.equalObjectId(d1b));
+    assertEquals(false, d1b.equalObjectId(d2));
     
-    assertEquals(false, d2.equalObjectIdentifier(d1a));
-    assertEquals(false, d2.equalObjectIdentifier(d1b));
-    assertEquals(true, d2.equalObjectIdentifier(d2));
+    assertEquals(false, d2.equalObjectId(d1a));
+    assertEquals(false, d2.equalObjectId(d1b));
+    assertEquals(true, d2.equalObjectId(d2));
   }
 
-  public void test_equalObjectIdentifier_version() {
-    UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
-    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d1", "2");
+  public void test_equalObjectId_version() {
+    UniqueId d1 = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d2 = UniqueId.of("Scheme", "d1", "2");
     
-    assertEquals(true, d1.equalObjectIdentifier(d2));
+    assertEquals(true, d1.equalObjectId(d2));
   }
 
-  public void test_equalObjectIdentifier_null() {
-    UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
+  public void test_equalObjectId_null() {
+    UniqueId d1 = UniqueId.of("Scheme", "d1", "1");
     
-    assertEquals(false, d1.equalObjectIdentifier(null));
+    assertEquals(false, d1.equalObjectId(null));
   }
 
   //-------------------------------------------------------------------------
   public void test_compareTo_noVersion() {
-    UniqueIdentifier a = UniqueIdentifier.of("A", "1");
-    UniqueIdentifier b = UniqueIdentifier.of("A", "2");
-    UniqueIdentifier c = UniqueIdentifier.of("B", "2");
+    UniqueId a = UniqueId.of("A", "1");
+    UniqueId b = UniqueId.of("A", "2");
+    UniqueId c = UniqueId.of("B", "2");
     
     assertEquals(true, a.compareTo(a) == 0);
     assertEquals(true, a.compareTo(b) < 0);
@@ -246,9 +246,9 @@ public class UniqueIdentifierTest {
   }
 
   public void test_compareTo_versionOnly() {
-    UniqueIdentifier a = UniqueIdentifier.of("A", "1", null);
-    UniqueIdentifier b = UniqueIdentifier.of("A", "1", "4");
-    UniqueIdentifier c = UniqueIdentifier.of("A", "1", "5");
+    UniqueId a = UniqueId.of("A", "1", null);
+    UniqueId b = UniqueId.of("A", "1", "4");
+    UniqueId c = UniqueId.of("A", "1", "5");
     
     assertEquals(true, a.compareTo(a) == 0);
     assertEquals(true, a.compareTo(b) < 0);
@@ -264,8 +264,8 @@ public class UniqueIdentifierTest {
   }
 
   public void test_compareTo_valueBeatsVersion() {
-    UniqueIdentifier a = UniqueIdentifier.of("A", "1", "5");
-    UniqueIdentifier b = UniqueIdentifier.of("A", "2", "4");
+    UniqueId a = UniqueId.of("A", "1", "5");
+    UniqueId b = UniqueId.of("A", "2", "4");
     
     assertEquals(true, a.compareTo(a) == 0);
     assertEquals(true, a.compareTo(b) < 0);
@@ -274,8 +274,8 @@ public class UniqueIdentifierTest {
   }
 
   public void test_compareTo_schemeBeatsValue() {
-    UniqueIdentifier a = UniqueIdentifier.of("A", "2", "1");
-    UniqueIdentifier b = UniqueIdentifier.of("B", "1", "1");
+    UniqueId a = UniqueId.of("A", "2", "1");
+    UniqueId b = UniqueId.of("B", "1", "1");
     
     assertEquals(true, a.compareTo(a) == 0);
     assertEquals(true, a.compareTo(b) < 0);
@@ -285,15 +285,15 @@ public class UniqueIdentifierTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void test_compareTo_null() {
-    UniqueIdentifier test = UniqueIdentifier.of("A", "1");
+    UniqueId test = UniqueId.of("A", "1");
     test.compareTo(null);
   }
 
   //-------------------------------------------------------------------------
   public void test_equals_noVersion() {
-    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1");
-    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
-    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2");
+    UniqueId d1a = UniqueId.of("Scheme", "d1");
+    UniqueId d1b = UniqueId.of("Scheme", "d1");
+    UniqueId d2 = UniqueId.of("Scheme", "d2");
     
     assertEquals(true, d1a.equals(d1a));
     assertEquals(true, d1a.equals(d1b));
@@ -312,9 +312,9 @@ public class UniqueIdentifierTest {
   }
 
   public void test_equals_version() {
-    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1", "1");
-    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1", "1");
-    UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2", null);
+    UniqueId d1a = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d1b = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d2 = UniqueId.of("Scheme", "d2", null);
     
     assertEquals(true, d1a.equals(d1a));
     assertEquals(true, d1a.equals(d1b));
@@ -333,39 +333,39 @@ public class UniqueIdentifierTest {
   }
 
   public void test_hashCode_noVersion() {
-    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1");
-    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
+    UniqueId d1a = UniqueId.of("Scheme", "d1");
+    UniqueId d1b = UniqueId.of("Scheme", "d1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
   public void test_hashCode_version() {
-    UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1", "1");
-    UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1", "1");
+    UniqueId d1a = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d1b = UniqueId.of("Scheme", "d1", "1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    UniqueId test = UniqueId.of("id1", "value1");
     FudgeContext context = new FudgeContext();
     FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
 
   public void test_fudgeEncoding_version() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
+    UniqueId test = UniqueId.of("id1", "value1", "1");
     FudgeContext context = new FudgeContext();
     FudgeMsg msg = test.toFudgeMsg(context);
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
     assertEquals(test, decoded);
   }
 

@@ -49,7 +49,7 @@ import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
@@ -467,7 +467,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (!compiledViewDefinition.isValidFor(executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
-    UniqueIdentifier cycleId = getViewProcess().generateCycleId();
+    UniqueId cycleId = getViewProcess().generateCycleId();
     SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions);
     return getCycleManager().manage(cycle);
   }

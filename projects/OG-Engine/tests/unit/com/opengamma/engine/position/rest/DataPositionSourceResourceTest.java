@@ -33,7 +33,7 @@ import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -42,8 +42,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @Test
 public class DataPositionSourceResourceTest {
 
-  private static final UniqueIdentifier UID1 = UniqueIdentifier.of("Test", "A");
-  private static final UniqueIdentifier UID2 = UniqueIdentifier.of("Test", "B");
+  private static final UniqueId UID1 = UniqueId.of("Test", "A");
+  private static final UniqueId UID2 = UniqueId.of("Test", "B");
   private PositionSource _underlying;
   private DataPositionSourceResource _resource;
 

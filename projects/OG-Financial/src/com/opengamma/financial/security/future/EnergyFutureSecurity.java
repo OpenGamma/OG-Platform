@@ -25,7 +25,7 @@ public class EnergyFutureSecurity extends com.opengamma.financial.security.futur
       }
     }
   }
-  public EnergyFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType, Double unitNumber, String unitName, com.opengamma.id.Identifier underlyingIdentifier) {
+  public EnergyFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType, Double unitNumber, String unitName, com.opengamma.id.Identifier underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount, commodityType, unitNumber, unitName);
     if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {

@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -79,7 +79,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     LobHandler lobHandler = new DefaultLobHandler();
     final SimpleJdbcTemplate template = _exgMaster.getDbSource().getJdbcTemplate();
     ManageableExchange exchange = new ManageableExchange();
-    exchange.setUniqueId(UniqueIdentifier.of("DbExg", "101", "0"));
+    exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")));
     exchange.setName("TestExchange101");
     exchange.setTimeZone(TimeZone.of("Europe/London"));
@@ -87,7 +87,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange101", "Europe/London", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    exchange.setUniqueId(UniqueIdentifier.of("DbExg", "102", "0"));
+    exchange.setUniqueId(UniqueId.of("DbExg", "102", "0"));
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")));
     exchange.setName("TestExchange102");
     exchange.setTimeZone(TimeZone.of("Europe/Paris"));
@@ -95,7 +95,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange102", "Europe/Paris", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    exchange.setUniqueId(UniqueIdentifier.of("DbExg", "201", "0"));
+    exchange.setUniqueId(UniqueId.of("DbExg", "201", "0"));
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
     exchange.setName("TestExchange201");
     exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
@@ -103,7 +103,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange201", "Asia/Tokyo", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    exchange.setUniqueId(UniqueIdentifier.of("DbExg", "201", "1"));
+    exchange.setUniqueId(UniqueId.of("DbExg", "201", "1"));
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
     exchange.setName("TestExchange202");
     exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
@@ -155,64 +155,64 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
 
   //-------------------------------------------------------------------------
   protected void assert101(final ExchangeDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
+    UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueId());
+    assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
   }
 
   protected void assert102(final ExchangeDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "102", "0");
+    UniqueId uniqueId = UniqueId.of("DbExg", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueId());
+    assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange102", test.getName());
     assertEquals(TimeZone.of("Europe/Paris"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")), exchange.getIdentifiers());
   }
 
   protected void assert201(final ExchangeDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbExg", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueId());
+    assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange201", test.getName());
     assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
   }
 
   protected void assert202(final ExchangeDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "1");
+    UniqueId uniqueId = UniqueId.of("DbExg", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueId());
+    assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange202", test.getName());
     assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());

@@ -74,7 +74,7 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
       throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not Identifier message", e);
     }
   }
-  public FXSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.Identifier region) {
+  public FXSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.Identifier region) {
     super (uniqueId, name, securityType, identifiers);
     if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
     _payCurrency = payCurrency;

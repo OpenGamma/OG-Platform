@@ -37,8 +37,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -108,7 +108,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
     for (String securityIdStr : securityIdStrs) {
-      searchRequest.addSecurityId(ObjectIdentifier.parse(securityIdStr));
+      searchRequest.addSecurityId(ObjectId.parse(securityIdStr));
     }
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
@@ -150,7 +150,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, UniqueIdentifier> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<IdentifierBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(bundles);
     
     URI uri = null;
     if (bundles.size() == 1 && loadedSecurities.size() == 1) {
@@ -176,15 +176,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> requestBundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, UniqueIdentifier> loadedSecurities = securityLoader.loadSecurity(requestBundles);
+    Map<IdentifierBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(requestBundles);
     FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
     return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
   }
 
-  private FlexiBean createPostJSONOutput(Map<IdentifierBundle, UniqueIdentifier> loadedSecurities, Collection<IdentifierBundle> requestBundles, IdentificationScheme scheme) {
+  private FlexiBean createPostJSONOutput(Map<IdentifierBundle, UniqueId> loadedSecurities, Collection<IdentifierBundle> requestBundles, IdentificationScheme scheme) {
     Map<String, String> result = new HashMap<String, String>();
     for (IdentifierBundle identifierBundle : requestBundles) {
-      UniqueIdentifier uniqueIdentifier = loadedSecurities.get(identifierBundle);
+      UniqueId uniqueIdentifier = loadedSecurities.get(identifierBundle);
       String objectIdentifier = uniqueIdentifier != null ? uniqueIdentifier.getObjectId().toString() : null;
       result.put(identifierBundle.getIdentifierValue(scheme), objectIdentifier);
     }
@@ -230,7 +230,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @Path("{securityId}")
   public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       SecurityDocument doc = data().getSecurityMaster().get(oid);
       data().setSecurity(doc);

@@ -79,7 +79,7 @@ public class BondFutureSecurity extends com.opengamma.financial.security.future.
       throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not ZonedDateTime typedef", e);
     }
   }
-  public BondFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
+  public BondFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (basket == null) throw new NullPointerException ("'basket' cannot be null");
     else {

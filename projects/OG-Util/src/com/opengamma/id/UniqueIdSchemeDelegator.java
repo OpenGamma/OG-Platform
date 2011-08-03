@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @param <T>  the type of the delegate
  */
-public class UniqueIdentifierSchemeDelegator<T> {
+public class UniqueIdSchemeDelegator<T> {
 
   /**
    * The default delegate.
@@ -39,7 +39,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
    * 
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    */
-  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate) {
+  protected UniqueIdSchemeDelegator(final T defaultDelegate) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     _defaultDelegate = defaultDelegate;
   }
@@ -50,7 +50,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    * @param schemePrefixToDelegateMap  the map of delegates by scheme to switch on, not null
    */
-  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate, final Map<String, T> schemePrefixToDelegateMap) {
+  protected UniqueIdSchemeDelegator(final T defaultDelegate, final Map<String, T> schemePrefixToDelegateMap) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
     ArgumentChecker.notNull(schemePrefixToDelegateMap, "schemePrefixToDelegateMap");
     _defaultDelegate = defaultDelegate;
@@ -82,11 +82,11 @@ public class UniqueIdentifierSchemeDelegator<T> {
   /**
    * Chooses the delegate for a specific unique identifier.
    * 
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the delegate, not null
    */
-  protected T chooseDelegate(final UniqueIdentifier uid) {
-    String[] schemeParts = StringUtils.split(uid.getScheme(), "-", 2);
+  protected T chooseDelegate(final UniqueId uniqueId) {
+    String[] schemeParts = StringUtils.split(uniqueId.getScheme(), "-", 2);
     String schemePrefix = schemeParts[0];
     final T delegate = _schemeToDelegateMap.get(schemePrefix);
     return (delegate != null) ? delegate : _defaultDelegate;

@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.financial.batch.BatchError;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Hibernate helper.
@@ -51,7 +51,7 @@ public class BatchErrorMapper {
       
       ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("comp_target_type"));
       
-      UniqueIdentifier targetIdentifier = UniqueIdentifier.of(
+      UniqueId targetIdentifier = UniqueId.of(
           rs.getString("comp_target_id_scheme"), 
           rs.getString("comp_target_id_value"),
           rs.getString("comp_target_id_version"));

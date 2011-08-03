@@ -15,7 +15,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -55,7 +55,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the
@@ -121,7 +121,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @param processId  the unique identifier of the view process, not null
    */
-  void attachToViewProcess(UniqueIdentifier processId);
+  void attachToViewProcess(UniqueId processId);
   
   /**
    * Detaches the client from the view process, if any, to which it is currently attached.
@@ -286,7 +286,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param cycleId  the unique identifier of the view cycle, not null
    * @return a reference to the view cycle, or {@code null} if not found
    */
-  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId);
+  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId);
 
   //-------------------------------------------------------------------------
   /**

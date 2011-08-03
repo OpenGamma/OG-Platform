@@ -7,7 +7,7 @@ package com.opengamma.financial.convention;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Simple to use interface to a ReferenceRateMaster
@@ -15,5 +15,5 @@ import com.opengamma.id.UniqueIdentifier;
 public interface ConventionBundleSource {
   ConventionBundle getConventionBundle(Identifier identifier);
   ConventionBundle getConventionBundle(IdentifierBundle identifiers);
-  ConventionBundle getConventionBundle(UniqueIdentifier identifier);
+  ConventionBundle getConventionBundle(UniqueId identifier);
 }

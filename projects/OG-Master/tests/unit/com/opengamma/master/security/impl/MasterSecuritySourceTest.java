@@ -20,7 +20,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -34,7 +34,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 @Test
 public class MasterSecuritySourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
   private static final Identifier ID1 = Identifier.of("C", "D");
   private static final Identifier ID2 = Identifier.of("E", "F");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID1, ID2);

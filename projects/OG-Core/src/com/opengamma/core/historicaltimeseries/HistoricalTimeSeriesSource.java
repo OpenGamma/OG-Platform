@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -36,7 +36,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the time-series, null if not found
    * @throws IllegalArgumentException if the unique identifier is invalid
    */
-  HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId);
+  HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId);
 
   /**
    * Finds a specific time-series by unique identifier.
@@ -52,7 +52,7 @@ public interface HistoricalTimeSeriesSource {
    * @throws IllegalArgumentException if the unique identifier is invalid
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   //-------------------------------------------------------------------------
   /**

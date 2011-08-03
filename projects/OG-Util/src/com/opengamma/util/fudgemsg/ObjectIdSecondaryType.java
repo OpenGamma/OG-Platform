@@ -9,18 +9,18 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 
 /**
- * Defines a {@code ObjectIdentifier} as a Fudge type using a String.
+ * Defines a {@code ObjectId} as a Fudge type using a String.
  * <p>
- * A {@code ObjectIdentifier} is typically encoded as a sub-message in Fudge with two separate strings.
+ * A {@code ObjectId} is typically encoded as a sub-message in Fudge with two separate strings.
  * This class allows the objects to be sent as a single formatted string using
- * {@link ObjectIdentifier#toString()} and {@link ObjectIdentifier#parse(String)}.
+ * {@link ObjectId#toString()} and {@link ObjectId#parse(String)}.
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class ObjectIdentifierSecondaryType extends SecondaryFieldType<ObjectIdentifier, String> {
+public final class ObjectIdSecondaryType extends SecondaryFieldType<ObjectId, String> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -29,24 +29,24 @@ public final class ObjectIdentifierSecondaryType extends SecondaryFieldType<Obje
    * Singleton instance of the type.
    */
   @FudgeSecondaryType
-  public static final ObjectIdentifierSecondaryType INSTANCE = new ObjectIdentifierSecondaryType();
+  public static final ObjectIdSecondaryType INSTANCE = new ObjectIdSecondaryType();
 
   /**
    * Creates an instance.
    */
-  private ObjectIdentifierSecondaryType() {
-    super(FudgeWireType.STRING, ObjectIdentifier.class);
+  private ObjectIdSecondaryType() {
+    super(FudgeWireType.STRING, ObjectId.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public String secondaryToPrimary(final ObjectIdentifier objectId) {
+  public String secondaryToPrimary(final ObjectId objectId) {
     return objectId.toString();
   }
 
   @Override
-  public ObjectIdentifier primaryToSecondary(final String string) {
-    return ObjectIdentifier.parse(string);
+  public ObjectId primaryToSecondary(final String string) {
+    return ObjectId.parse(string);
   }
 
 }

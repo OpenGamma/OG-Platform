@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.management;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 
 /**
@@ -14,7 +14,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public interface GraphExecutionStatisticsMBean {
 
-  UniqueIdentifier getViewProcessId();
+  UniqueId getViewProcessId();
   
   String getViewDefinitionName();
 

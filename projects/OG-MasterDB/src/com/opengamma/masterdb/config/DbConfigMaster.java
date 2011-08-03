@@ -9,7 +9,7 @@ import javax.time.TimeSource;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -38,7 +38,7 @@ import com.opengamma.util.db.DbSource;
 public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbCfg";
 
@@ -90,7 +90,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   }
 
   @Override
-  public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
+  public ConfigDocument<?> get(UniqueId uniqueId) {
     return _worker.get(uniqueId);
   }
 
@@ -101,7 +101,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ConfigDocument<T> get(UniqueIdentifier uniqueId, Class<T> clazz) {
+  public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
     ConfigDocument<?> document = _worker.get(uniqueId);
     if (!clazz.isInstance(document.getValue())) {
       throw new DataNotFoundException("Config not found: " + uniqueId.getObjectId());
@@ -156,7 +156,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     _worker.remove(uniqueId);
   }
 

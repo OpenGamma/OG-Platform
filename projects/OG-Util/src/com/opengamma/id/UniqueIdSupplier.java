@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is thread-safe and not externally mutable.
  */
-public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
+public class UniqueIdSupplier implements Supplier<UniqueId> {
 
   /**
    * The scheme.
@@ -36,7 +36,7 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
    * 
    * @param scheme  the scheme, not empty
    */
-  public UniqueIdentifierSupplier(final String scheme) {
+  public UniqueIdSupplier(final String scheme) {
     ArgumentChecker.notEmpty(scheme, "scheme");
     _scheme = scheme;
   }
@@ -47,9 +47,9 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
    * 
    * @return the next unique identifier, not null
    */
-  public UniqueIdentifier get() {
+  public UniqueId get() {
     final long id = _idCount.incrementAndGet();
-    return UniqueIdentifier.of(_scheme, Long.toString(id));
+    return UniqueId.of(_scheme, Long.toString(id));
   }
 
   /**
@@ -58,15 +58,15 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
    * @param valuePrefix  the prefix for the value, not null
    * @return the next unique identifier, not null
    */
-  public UniqueIdentifier getWithValuePrefix(final String valuePrefix) {
+  public UniqueId getWithValuePrefix(final String valuePrefix) {
     final long id = _idCount.incrementAndGet();
-    return UniqueIdentifier.of(_scheme, valuePrefix + Long.toString(id));
+    return UniqueId.of(_scheme, valuePrefix + Long.toString(id));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "UniqueIdentifierSupplier[" + _scheme + "]";
+    return "UniqueIdSupplier[" + _scheme + "]";
   }
 
 }

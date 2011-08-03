@@ -24,8 +24,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -90,10 +90,10 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
     for (String portfolioIdStr : portfolioIdStrs) {
-      searchRequest.addPortfolioId(ObjectIdentifier.parse(portfolioIdStr));
+      searchRequest.addPortfolioId(ObjectId.parse(portfolioIdStr));
     }
     for (String nodeIdStr : nodeIdStrs) {
-      searchRequest.addNodeId(ObjectIdentifier.parse(nodeIdStr));
+      searchRequest.addNodeId(ObjectId.parse(nodeIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -142,7 +142,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   @Path("{portfolioId}")
   public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
     data().setUriPortfolioId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       PortfolioDocument doc = data().getPortfolioMaster().get(oid);
       data().setPortfolio(doc);

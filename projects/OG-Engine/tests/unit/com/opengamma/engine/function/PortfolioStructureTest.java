@@ -20,7 +20,7 @@ import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.UniqueIdSupplier;
 
 /**
  * Tests for the {@link PortfolioStructure} class. 
@@ -39,7 +39,7 @@ public class PortfolioStructureTest {
   
   @BeforeMethod
   public void createPortfolio() {
-    final UniqueIdentifierSupplier uid = new UniqueIdentifierSupplier("Test");
+    final UniqueIdSupplier uid = new UniqueIdSupplier("Test");
     final MockPositionSource positionSource = new MockPositionSource();
     final PortfolioStructure resolver = new PortfolioStructure(positionSource);
     final PortfolioImpl portfolio = new PortfolioImpl(uid.get(), "Test");

@@ -31,8 +31,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -96,7 +96,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       searchRequest.addExchangeKey(id);
     }
     for (String exchangeIdStr : exchangeIdStrs) {
-      searchRequest.addExchangeId(ObjectIdentifier.parse(exchangeIdStr));
+      searchRequest.addExchangeId(ObjectId.parse(exchangeIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -182,7 +182,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @Path("{exchangeId}")
   public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       ExchangeDocument doc = data().getExchangeMaster().get(oid);
       data().setExchange(doc);

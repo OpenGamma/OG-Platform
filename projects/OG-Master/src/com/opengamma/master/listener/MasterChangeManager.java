@@ -7,7 +7,7 @@ package com.opengamma.master.listener;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -48,6 +48,6 @@ public interface MasterChangeManager {
    * @param afterId  the reference assigned to the listener, may be null
    * @param versionInstant  the reference assigned to the listener, may be null
    */
-  void masterChanged(final MasterChangedType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant);
+  void masterChanged(final MasterChangedType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant);
 
 }

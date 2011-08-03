@@ -16,11 +16,11 @@ import org.testng.annotations.Test;
  */
 @Test
 public class GUIDGeneratorTest {
-  
+
   public void generatorAlwaysGeneratesSomething() {
     UUID uuid = GUIDGenerator.generate();
     assertNotNull(uuid);
     System.out.println("Generated UUID " + uuid);
   }
-  
+
 }

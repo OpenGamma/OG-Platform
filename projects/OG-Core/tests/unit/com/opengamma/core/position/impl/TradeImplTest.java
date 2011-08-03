@@ -25,7 +25,7 @@ import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,12 +35,12 @@ import com.opengamma.util.money.Currency;
 public class TradeImplTest {
 
   private static final Counterparty COUNTERPARTY = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
-  private static final UniqueIdentifier POSITION_UID = UniqueIdentifier.of("P", "A");
+  private static final UniqueId POSITION_UID = UniqueId.of("P", "A");
   private static final Position POSITION = new PositionImpl(POSITION_UID, BigDecimal.ONE, Identifier.of("A", "B"));
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
   private static final IdentifierBundle BUNDLE = POSITION.getSecurityLink().getBundleId();
 
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {
     TradeImpl test = new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
@@ -54,31 +54,31 @@ public class TradeImplTest {
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullUniqueIdentifier() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullUniqueId() {
     new TradeImpl(null, new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLink() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLink() {
     new TradeImpl(POSITION.getUniqueId(), (SecurityLink) null, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullBigDecimal() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullBigDecimal() {
     new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), null, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullCounterparty() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullCounterparty() {
     new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, null, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLocalDate() {
+  public void test_construction_UniqueId_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLocalDate() {
     new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, null, TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
-  public void test_construction_UniqueIdentifier_Security_BigDecimal_Counterparty_Instant() {
+  public void test_construction_UniqueId_Security_BigDecimal_Counterparty_Instant() {
     IdentifierBundle securityKey = IdentifierBundle.of(Identifier.of("A", "B"));
     MockSecurity security = new MockSecurity("A");
     security.setIdentifiers(securityKey);

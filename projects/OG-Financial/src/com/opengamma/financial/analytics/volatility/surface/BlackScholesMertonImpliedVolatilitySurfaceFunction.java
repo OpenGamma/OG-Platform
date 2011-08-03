@@ -39,7 +39,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -150,11 +150,11 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
+  private ValueRequirement getPriceRequirement(final UniqueId uid) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueId uid) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 }

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
@@ -243,7 +243,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Set<Identifier> identifiers = buildSecurityRequest(scheme, idValue);
     HistoricalTimeSeriesLoader loader = data().getHistoricalTimeSeriesLoader();
-    Map<Identifier, UniqueIdentifier> added = Maps.newHashMap();
+    Map<Identifier, UniqueId> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
       added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
@@ -252,9 +252,9 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (!identifiers.isEmpty()) {
       if (identifiers.size() == 1) {
         Identifier requestIdentifier = identifiers.iterator().next();
-        UniqueIdentifier uid = added.get(requestIdentifier);
-        if (uid != null) {
-          result = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+        UniqueId uniqueId = added.get(requestIdentifier);
+        if (uniqueId != null) {
+          result = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
         } else {
           s_logger.warn("No time-series added for {} ", requestIdentifier);
           result = uri(data());
@@ -285,7 +285,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   @Path("{timeseriesId}")
   public WebHistoricalTimeSeriesResource findSeries(@PathParam("timeseriesId") String idStr) {
     data().setUriHistoricalTimeSeriesId(idStr);
-    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
+    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueId.parse(idStr));
     data().setInfo(info);
     ManageableHistoricalTimeSeries series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
         info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, null, null);

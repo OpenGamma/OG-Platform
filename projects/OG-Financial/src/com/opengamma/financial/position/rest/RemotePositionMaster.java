@@ -8,7 +8,7 @@ package com.opengamma.financial.position.rest;
 import java.net.URI;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.BasicMasterChangeManager;
 import com.opengamma.master.listener.MasterChangeManager;
@@ -78,7 +78,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(final UniqueIdentifier uniqueId) {
+  public PositionDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
@@ -121,7 +121,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataPositionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
@@ -152,7 +152,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableTrade getTrade(final UniqueIdentifier tradeId) {
+  public ManageableTrade getTrade(final UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     
     URI uri = DataPositionResource.uriTrade(_baseUri, tradeId);

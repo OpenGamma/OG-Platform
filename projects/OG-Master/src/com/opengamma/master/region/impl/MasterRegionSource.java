@@ -8,7 +8,7 @@ package com.opengamma.master.region.impl;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.region.ManageableRegion;
@@ -48,7 +48,7 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableRegion getRegion(UniqueIdentifier uniqueId) {
+  public ManageableRegion getRegion(UniqueId uniqueId) {
     RegionDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getRegion() : null);
   }

@@ -33,7 +33,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
 import com.opengamma.util.money.Currency;
@@ -170,7 +170,7 @@ public class BatchJobTest {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
       @Override
-      public Holiday getHoliday(UniqueIdentifier uid) {
+      public Holiday getHoliday(UniqueId uid) {
         throw new UnsupportedOperationException();
       }
     };
@@ -236,10 +236,10 @@ public class BatchJobTest {
 
   @Test
   public void initViewProcessor() throws Exception {
-    UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
+    UniqueId portfolioId = UniqueId.of("foo", "bar");
     
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
-    cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));
+    cfgDocument.setUniqueId(UniqueId.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");

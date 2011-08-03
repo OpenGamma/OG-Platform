@@ -24,7 +24,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -93,7 +93,7 @@ public class SecuritySourceResource {
   @GET
   @Path("security/{uid}")
   public FudgeMsgEnvelope getSecurity(@PathParam("uid") String uidStr) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
+    final UniqueId uid = UniqueId.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg msg = context.newMessage();
     context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);

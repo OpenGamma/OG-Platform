@@ -43,7 +43,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
@@ -264,7 +264,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * @param overrideSecurityId  the override security id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideSecurityId) {
+  public static URI uri(final WebSecuritiesData data, final UniqueId overrideSecurityId) {
     String securityId = data.getBestSecurityUriId(overrideSecurityId);
     return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(securityId);
   }

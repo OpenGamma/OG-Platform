@@ -12,7 +12,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Mock Security.
@@ -22,7 +22,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   private String _securityType;
   private String _name;
   private IdentifierBundle _identifiers;
@@ -37,11 +37,11 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _identifiers = IdentifierBundle.EMPTY;
   }
 
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 

@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.web.json.JSONBuilder;
 
@@ -217,7 +217,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
    * @param overrideConfigId  the override config id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData data, final UniqueIdentifier overrideConfigId) {
+  public static URI uri(final WebConfigData data, final UniqueId overrideConfigId) {
     String configId = data.getBestConfigUriId(overrideConfigId);
     return data.getUriInfo().getBaseUriBuilder().path(WebConfigResource.class).build(configId);
   }

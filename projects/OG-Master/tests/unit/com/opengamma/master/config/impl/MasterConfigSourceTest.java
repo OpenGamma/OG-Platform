@@ -15,7 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import java.util.List;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 
@@ -74,7 +74,7 @@ public class MasterConfigSourceTest {
   }
 
   public void accessInvalidDocument() throws Exception {
-    UniqueIdentifier uniqueIdentifier = _configSource.get(UniqueIdentifier.class, UniqueIdentifier.of("U", "1"));
+    UniqueId uniqueIdentifier = _configSource.get(UniqueId.class, UniqueId.of("U", "1"));
     assertNull(uniqueIdentifier);
   }
 

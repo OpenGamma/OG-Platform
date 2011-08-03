@@ -41,7 +41,7 @@ import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -64,7 +64,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   // Cell-based state
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
   
-  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<UniqueIdentifier> targets,
+  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<UniqueId> targets,
       EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue) {
     super(name, viewClient, resultConverterCache, local, remote);
     
@@ -155,9 +155,9 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
-    for (Map.Entry<UniqueIdentifier, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
+    for (Map.Entry<UniqueId, Integer> targetEntry : getGridStructure().getTargets().entrySet()) {
       Map<String, Object> rowDetails = new HashMap<String, Object>();
-      UniqueIdentifier target = targetEntry.getKey();
+      UniqueId target = targetEntry.getKey();
       int rowId = targetEntry.getValue();
       rowDetails.put("rowId", rowId);
       addRowDetails(target, rowId, rowDetails);
@@ -196,7 +196,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     return detailsToSend;
   }
   
-  protected abstract void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details);
+  protected abstract void addRowDetails(UniqueId target, int rowId, Map<String, Object> details);
   
   //-------------------------------------------------------------------------
   

@@ -6,7 +6,7 @@
 package com.opengamma.core.position;
 
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -25,7 +25,7 @@ public interface PositionSource {
    * @return the portfolio, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Portfolio getPortfolio(UniqueIdentifier uniqueId);
+  Portfolio getPortfolio(UniqueId uniqueId);
 
   /**
    * Finds a specific node from any portfolio by unique identifier.
@@ -34,7 +34,7 @@ public interface PositionSource {
    * @return the node, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  PortfolioNode getPortfolioNode(UniqueIdentifier uniqueId);
+  PortfolioNode getPortfolioNode(UniqueId uniqueId);
 
   /**
    * Finds a specific position from any portfolio by unique identifier.
@@ -43,7 +43,7 @@ public interface PositionSource {
    * @return the position, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Position getPosition(UniqueIdentifier uniqueId);
+  Position getPosition(UniqueId uniqueId);
 
   /**
    * Finds a specific trade from any portfolio by unique identifier.
@@ -52,6 +52,6 @@ public interface PositionSource {
    * @return the trade, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Trade getTrade(UniqueIdentifier uniqueId);
+  Trade getTrade(UniqueId uniqueId);
 
 }

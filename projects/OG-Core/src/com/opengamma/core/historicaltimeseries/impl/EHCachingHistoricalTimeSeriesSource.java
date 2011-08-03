@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -116,7 +116,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeries hts = getFromCache(uniqueId);
     if (hts == null) {
@@ -131,7 +131,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
   }
@@ -264,12 +264,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   private HistoricalTimeSeries getFromCache(HistoricalTimeSeriesKey key) {
     Element element = _cache.get(key);
-    if (element == null || element.getValue() instanceof UniqueIdentifier == false) {
+    if (element == null || element.getValue() instanceof UniqueId == false) {
       s_logger.debug("Cache miss on {}", key.getIdentifiers());
       return null;
     }
     s_logger.debug("Cache hit on {}", key.getIdentifiers());
-    return getFromCache((UniqueIdentifier) element.getValue());
+    return getFromCache((UniqueId) element.getValue());
   }
 
   /**
@@ -278,7 +278,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * @param uniqueId  the unique identifier, not null
    * @return the time-series, null if no match
    */
-  private HistoricalTimeSeries getFromCache(UniqueIdentifier uniqueId) {
+  private HistoricalTimeSeries getFromCache(UniqueId uniqueId) {
     Element element = _cache.get(uniqueId);
     if (element == null || element.getValue() instanceof HistoricalTimeSeries == false) {
       s_logger.debug("Cache miss on {}", uniqueId);

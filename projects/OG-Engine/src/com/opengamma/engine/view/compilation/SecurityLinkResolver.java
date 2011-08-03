@@ -29,8 +29,8 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -205,7 +205,7 @@ public final class SecurityLinkResolver {
    */
   static class CachedSecuritySource implements SecuritySource {
     private final SecuritySource _underlying;
-    private final ConcurrentMap<ObjectIdentifier, Security> _objectIdCache = new ConcurrentHashMap<ObjectIdentifier, Security>();
+    private final ConcurrentMap<ObjectId, Security> _objectIdCache = new ConcurrentHashMap<ObjectId, Security>();
     private final ConcurrentMap<IdentifierBundle, Security> _weakIdCache = new ConcurrentHashMap<IdentifierBundle, Security>();
 
     CachedSecuritySource(SecuritySource underlying) {
@@ -219,7 +219,7 @@ public final class SecurityLinkResolver {
     }
 
     @Override
-    public Security getSecurity(UniqueIdentifier uniqueId) {
+    public Security getSecurity(UniqueId uniqueId) {
       Security security = _objectIdCache.get(uniqueId.getObjectId());
       if (security == null) {
         security = _underlying.getSecurity(uniqueId);

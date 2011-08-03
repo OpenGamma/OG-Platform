@@ -15,9 +15,9 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 
@@ -32,22 +32,22 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   /**
    * The securities keyed by identifier.
    */
-  private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
+  private final Map<UniqueId, Security> _securities = new HashMap<UniqueId, Security>();
   /**
    * The suppler of unique identifiers.
    */
-  private final UniqueIdentifierSupplier _uidSupplier;
+  private final UniqueIdSupplier _uidSupplier;
 
   /**
    * Creates the security master.
    */
   public MockFinancialSecuritySource() {
-    _uidSupplier = new UniqueIdentifierSupplier("Mock");
+    _uidSupplier = new UniqueIdSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier identifier) {
+  public Security getSecurity(UniqueId identifier) {
     return identifier == null ? null : _securities.get(identifier);
   }
 
@@ -96,7 +96,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
    */
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
-    UniqueIdentifiables.setInto(security, _uidSupplier.get());
+    IdUtils.setInto(security, _uidSupplier.get());
     _securities.put(security.getUniqueId(), security);
   }
 

@@ -7,7 +7,7 @@
 package com.opengamma.engine.view.calc.stats;
 
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Provides {@link GraphExecutorStatisticsGatherer} implementations for a given view. This is to allow
@@ -23,6 +23,6 @@ public interface GraphExecutorStatisticsGathererProvider {
    * @param viewId the unique identifier of the view for which graphs are being executed
    * @return The statistics gatherer, never {@code null}.
    */
-  GraphExecutorStatisticsGatherer getStatisticsGatherer(UniqueIdentifier viewId);
+  GraphExecutorStatisticsGatherer getStatisticsGatherer(UniqueId viewId);
 
 }

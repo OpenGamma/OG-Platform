@@ -35,7 +35,7 @@
         <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="pay_notionaltype" not-null="true" />
         <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="pay_notionalcurrency_id" />
         <property name="amount" type="double" column="pay_notionalamount" />
-        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
           <property name="scheme" type="string" column="pay_notionalscheme" />
           <property name="identifier" type="string" column="pay_notionalid" />
         </component>
@@ -61,7 +61,7 @@
         <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="receive_notionaltype" not-null="true" />
         <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="receive_notionalcurrency_id" />
         <property name="amount" type="double" column="receive_notionalamount" />
-        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
           <property name="scheme" type="string" column="receive_notionalscheme" />
           <property name="identifier" type="string" column="receive_notionalid" />
         </component>

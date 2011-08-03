@@ -27,7 +27,7 @@ import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -46,7 +46,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The bundle of identifiers that define the exchange.
    * This field must not be null for the object to be valid.
@@ -186,7 +186,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundle) newValue);
@@ -242,7 +242,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -251,7 +251,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -260,7 +260,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -409,8 +409,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableExchange.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableExchange.class, UniqueId.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
@@ -494,7 +494,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

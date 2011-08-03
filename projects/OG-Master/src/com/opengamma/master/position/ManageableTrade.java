@@ -34,7 +34,7 @@ import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -59,13 +59,13 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The parent position unique identifier.
    * This field is managed by the master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentPositionId;
+  private UniqueId _parentPositionId;
   /**
    * The quantity.
    * This field must not be null for the object to be valid.
@@ -289,10 +289,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case -108882834:  // parentPositionId
-        setParentPositionId((UniqueIdentifier) newValue);
+        setParentPositionId((UniqueId) newValue);
         return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
@@ -391,7 +391,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -400,7 +400,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -409,7 +409,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -419,7 +419,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentPositionId() {
+  public UniqueId getParentPositionId() {
     return _parentPositionId;
   }
 
@@ -428,7 +428,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @param parentPositionId  the new value of the property
    */
-  public void setParentPositionId(UniqueIdentifier parentPositionId) {
+  public void setParentPositionId(UniqueId parentPositionId) {
     this._parentPositionId = parentPositionId;
   }
 
@@ -437,7 +437,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentPositionId() {
+  public final Property<UniqueId> parentPositionId() {
     return metaBean().parentPositionId().createProperty(this);
   }
 
@@ -780,13 +780,13 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableTrade.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableTrade.class, UniqueId.class);
     /**
      * The meta-property for the {@code parentPositionId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentPositionId = DirectMetaProperty.ofReadWrite(
-        this, "parentPositionId", ManageableTrade.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _parentPositionId = DirectMetaProperty.ofReadWrite(
+        this, "parentPositionId", ManageableTrade.class, UniqueId.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
@@ -929,7 +929,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
@@ -937,7 +937,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
      * The meta-property for the {@code parentPositionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentPositionId() {
+    public final MetaProperty<UniqueId> parentPositionId() {
       return _parentPositionId;
     }
 

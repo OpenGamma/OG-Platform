@@ -24,8 +24,8 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
@@ -36,15 +36,15 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeAndPositionBuilderTest.class);
 
-  private UniqueIdentifierSupplier _uidSupplier;
+  private UniqueIdSupplier _uniqueIdSupplier;
 
   @BeforeMethod
   public void init() {
-    _uidSupplier = new UniqueIdentifierSupplier("PortfolioNodeBuilderTest");
+    _uniqueIdSupplier = new UniqueIdSupplier("PortfolioNodeBuilderTest");
   }
 
-  private UniqueIdentifier nextIdentifier() {
-    return _uidSupplier.get();
+  private UniqueId nextIdentifier() {
+    return _uniqueIdSupplier.get();
   }
 
   private void linkNodes(final PortfolioNodeImpl parent, final PortfolioNodeImpl child) {

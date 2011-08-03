@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.masterdb.security.hibernate.bond.CouponTypeBean;
 import com.opengamma.masterdb.security.hibernate.bond.GuaranteeTypeBean;
@@ -672,11 +672,11 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
    */
-  protected long extractRowId(final UniqueIdentifier id) {
+  protected long extractRowId(final UniqueId id) {
     try {
       return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this security master: " + id, ex);
+      throw new IllegalArgumentException("UniqueId is not from this security master: " + id, ex);
     }
   }
 

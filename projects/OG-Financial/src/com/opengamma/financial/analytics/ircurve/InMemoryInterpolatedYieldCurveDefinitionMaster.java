@@ -14,8 +14,8 @@ import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.BasicMasterChangeManager;
@@ -128,7 +128,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     Instant now = Instant.now();
     value.put(now, document.getYieldCurveDefinition());
     _definitions.put(key, value);
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
     document.setUniqueId(uid);
     changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
     return document;
@@ -142,7 +142,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final String name = document.getYieldCurveDefinition().getName();
     final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
     Instant now = Instant.now();
     if (value != null) {
       if (_sourceVersionCorrection.getVersionAsOf() != null) {
@@ -173,7 +173,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   @Override
-  public synchronized YieldCurveDefinitionDocument get(UniqueIdentifier uid) {
+  public synchronized YieldCurveDefinitionDocument get(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     if (!uid.isLatest()) {
       throw new IllegalArgumentException("Only latest version supported by '" + getIdentifierScheme() + "'");
@@ -207,7 +207,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   @Override
   public synchronized YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectIdable, "objectIdable");
-    ObjectIdentifier objectId = objectIdable.getObjectId();
+    ObjectId objectId = objectIdable.getObjectId();
     if (!getIdentifierScheme().equals(objectId.getScheme())) {
       throw new DataNotFoundException("Scheme '" + objectId.getScheme() + "' not valid for '" + getIdentifierScheme() + "'");
     }
@@ -235,7 +235,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   @Override
-  public synchronized void remove(UniqueIdentifier uid) {
+  public synchronized void remove(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     if (!uid.isLatest()) {
       throw new IllegalArgumentException("Only latest version supported by '" + getIdentifierScheme() + "'");
@@ -282,7 +282,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
     final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
     if (!uid.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Invalid unique identifier");
     }

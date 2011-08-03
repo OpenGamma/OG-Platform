@@ -104,7 +104,7 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
       throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'underlyingIdentifier' is not Identifier message", e);
     }
   }
-  public FRASecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.Identifier underlyingIdentifier) {
+  public FRASecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.Identifier underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers);
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;

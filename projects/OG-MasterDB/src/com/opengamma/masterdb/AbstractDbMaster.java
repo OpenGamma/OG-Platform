@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.DbSource;
@@ -160,7 +160,7 @@ public abstract class AbstractDbMaster {
    */
   protected void checkScheme(final ObjectIdentifiable objectId) {
     if (getIdentifierScheme().equals(objectId.getObjectId().getScheme()) == false) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + toString() + "): " + objectId);
+      throw new IllegalArgumentException("UniqueId is not from this master (" + toString() + "): " + objectId);
     }
   }
 
@@ -171,11 +171,11 @@ public abstract class AbstractDbMaster {
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
    */
-  protected long extractRowId(final UniqueIdentifier id) {
+  protected long extractRowId(final UniqueId id) {
     try {
       return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric row id): " + id, ex);
+      throw new IllegalArgumentException("UniqueId is not from this master (non-numeric row id): " + id, ex);
     }
   }
 
@@ -189,7 +189,7 @@ public abstract class AbstractDbMaster {
     try {
       return Long.parseLong(objectId.getObjectId().getValue());
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric object id): " + objectId, ex);
+      throw new IllegalArgumentException("UniqueId is not from this master (non-numeric object id): " + objectId, ex);
     }
   }
 
@@ -200,8 +200,8 @@ public abstract class AbstractDbMaster {
    * @param oid  the object identifier
    * @return the unique identifier, not null
    */
-  public UniqueIdentifier createObjectIdentifier(final long oid) {
-    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
+  public UniqueId createObjectId(final long oid) {
+    return UniqueId.of(getIdentifierScheme(), Long.toString(oid));
   }
 
   /**
@@ -211,8 +211,8 @@ public abstract class AbstractDbMaster {
    * @param rowId  the node unique row identifier, null if object identifier
    * @return the unique identifier, not null
    */
-  public UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
-    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
+  public UniqueId createUniqueId(final long oid, final long rowId) {
+    return UniqueId.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 
   //-------------------------------------------------------------------------

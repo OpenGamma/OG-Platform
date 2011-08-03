@@ -8,7 +8,7 @@ package com.opengamma.master.exchange.impl;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -48,7 +48,7 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableExchange getExchange(UniqueIdentifier uniqueId) {
+  public ManageableExchange getExchange(UniqueId uniqueId) {
     ExchangeDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getExchange() : null);
   }
