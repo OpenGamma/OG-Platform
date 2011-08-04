@@ -42,7 +42,7 @@ public class HestonSpeedTest {
 
   private static final double ALPHA = -0.5;
 
-  private static final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
+  private static final MartingaleCharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D(1e-8, 20);
   private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(INTEGRATOR);
   private static final FFTPricer FFT_PRICER = new FFTPricer();

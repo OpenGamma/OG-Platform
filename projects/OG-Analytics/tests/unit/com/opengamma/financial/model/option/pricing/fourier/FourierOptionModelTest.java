@@ -39,7 +39,7 @@ public class FourierOptionModelTest {
   private static final EuropeanVanillaOptionDefinition OTM_CALL = new EuropeanVanillaOptionDefinition(101, EXPIRY, true);
   private static final EuropeanVanillaOptionDefinition ITM_PUT = new EuropeanVanillaOptionDefinition(101, EXPIRY, false);
   private static final EuropeanVanillaOptionDefinition OTM_PUT = new EuropeanVanillaOptionDefinition(99, EXPIRY, false);
-  private static final CharacteristicExponent GAUSSIAN = new GaussianCharacteristicExponent(BLACK_VOL * BLACK_VOL / 2, BLACK_VOL);
+  private static final MartingaleCharacteristicExponent GAUSSIAN = new GaussianMartingaleCharacteristicExponent(BLACK_VOL);
   private static final StandardOptionDataBundle BSM_DATA = new StandardOptionDataBundle(YIELD_CURVE, R, VOLATILITY_SURFACE, Math.exp(-R * T) * FORWARD, DATE);
   private static final BlackOptionDataBundle BLACK_DATA = new BlackOptionDataBundle(FORWARD, YIELD_CURVE, VOLATILITY_SURFACE, DATE);
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D();

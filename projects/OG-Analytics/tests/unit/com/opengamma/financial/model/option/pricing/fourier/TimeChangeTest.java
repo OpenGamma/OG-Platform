@@ -28,9 +28,9 @@ public class TimeChangeTest {
   private static double ALPHA = -0.5;
   private static final double MAX_LOG_MONEYNESS = 0.1;
   private static final double EPS = 1e-6;
-  private static final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
-  private static final CharacteristicExponent CIR = new IntegratedCIRTimeChangeCharacteristicExponent(KAPPA, THETA / VOL0, OMEGA / Math.sqrt(VOL0));
-  private static final CharacteristicExponent NORMAL = new GaussianCharacteristicExponent(-VOL0 / 2, Math.sqrt(VOL0));
+  private static final MartingaleCharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
+  private static final StocasticClockCharcteristicExponent CIR = new IntegratedCIRTimeChangeCharacteristicExponent(KAPPA, THETA / VOL0, OMEGA / Math.sqrt(VOL0));
+  private static final MartingaleCharacteristicExponent NORMAL = new GaussianMartingaleCharacteristicExponent(Math.sqrt(VOL0));
   private static final CharacteristicExponent NORMAL_CIR = new TimeChangedCharacteristicExponent(NORMAL, CIR);
   private static final FFTPricer FFT_PRICER = new FFTPricer();
 

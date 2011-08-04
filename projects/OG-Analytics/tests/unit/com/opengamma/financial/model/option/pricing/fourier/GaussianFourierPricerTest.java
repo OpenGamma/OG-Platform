@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
+import static com.opengamma.math.number.ComplexNumber.MINUS_I;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -29,17 +31,18 @@ public class GaussianFourierPricerTest {
   private static final double T = 2.0;
   private static final double DF = 0.93;
   private static final double SIGMA = 0.2;
-  private static final double MU = -0.5 * SIGMA * SIGMA;
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(MU, SIGMA);
+  private static final MartingaleCharacteristicExponent CEF = new GaussianMartingaleCharacteristicExponent(SIGMA);
+
 
   @Test
   public void test() {
     boolean isCall;
     final FourierPricer pricer = new FourierPricer();
-    final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
-    for (int i = 0; i < 21; i++) {
-      final double k = 0.2 + 3 * i / 20.0;
+
+    final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, SIGMA);
+    for (int i = 0; i < 201; i++) {
+      final double k = 0.2 + 3 * i / 200.0;
       isCall = k > 1.0 ? true : false;
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k * FORWARD, T, isCall);
       final double price = pricer.price(data, option, CEF, -1.3, 1e-11);
@@ -53,8 +56,17 @@ public class GaussianFourierPricerTest {
     final double mu = 0.05;
     final double sigma = 0.2;
     final CharacteristicExponent ce = new GaussianCharacteristicExponent(mu, sigma);
-    final ComplexNumber res = ce.getFunction(1).evaluate(new ComplexNumber(0, -1));
+    final ComplexNumber res = ce.getValue(MINUS_I,1.0);
     assertEquals(mu + 0.5 * sigma * sigma, res.getReal(), 1e-12);
+    assertEquals(0.0, res.getImaginary(), 1e-12);
+  }
+  
+  @Test
+  public void testMeanCorrectedExpectation() {
+    final double sigma = 0.2;
+    final MartingaleCharacteristicExponent ce = new GaussianMartingaleCharacteristicExponent(sigma);
+    final ComplexNumber res = ce.getFunction(1.0).evaluate(new ComplexNumber(0, -1));
+    assertEquals(0.0, res.getReal(), 1e-12);
     assertEquals(0.0, res.getImaginary(), 1e-12);
   }
 

@@ -78,9 +78,15 @@ public class TrigonometricFunctionUtils {
     return 0.5 * Math.log((1 + x) / (1 - x));
   }
 
+  //TODO R White 21/07/2011 not sure why this was used over the equivalent below 
+//  public static ComplexNumber atanh(final ComplexNumber z) {
+//    Validate.notNull(z, "z");
+//    return ComplexMathUtils.log(ComplexMathUtils.divide(ComplexMathUtils.sqrt(ComplexMathUtils.subtract(1, ComplexMathUtils.multiply(z, z))), ComplexMathUtils.subtract(1, z)));
+//  }
+
   public static ComplexNumber atanh(final ComplexNumber z) {
     Validate.notNull(z, "z");
-    return ComplexMathUtils.log(ComplexMathUtils.divide(ComplexMathUtils.sqrt(ComplexMathUtils.subtract(1, ComplexMathUtils.multiply(z, z))), ComplexMathUtils.subtract(1, z)));
+    return ComplexMathUtils.multiply(0.5, ComplexMathUtils.log(ComplexMathUtils.divide(ComplexMathUtils.add(1, z), ComplexMathUtils.subtract(1, z))));
   }
 
   public static double cos(final double x) {

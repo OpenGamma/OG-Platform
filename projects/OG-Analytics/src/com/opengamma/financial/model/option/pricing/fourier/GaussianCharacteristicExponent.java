@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import static com.opengamma.math.ComplexMathUtils.add;
 import static com.opengamma.math.ComplexMathUtils.multiply;
+import static com.opengamma.math.ComplexMathUtils.square;
 
 import org.apache.commons.lang.Validate;
 
@@ -48,19 +49,40 @@ public class GaussianCharacteristicExponent implements CharacteristicExponent {
 
   @Override
   public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
-    Validate.isTrue(t > 0.0, "t > 0");
     return new Function1D<ComplexNumber, ComplexNumber>() {
-
-      @SuppressWarnings("synthetic-access")
       @Override
-      public ComplexNumber evaluate(final ComplexNumber u) {
-        Validate.notNull(u, "u");
-        final ComplexNumber temp = multiply(_sigma, u);
-        final ComplexNumber res = add(multiply(u, new ComplexNumber(0, _mu)), multiply(-0.5, multiply(temp, temp)));
-        return multiply(t, res);
+      public ComplexNumber evaluate(ComplexNumber x) {
+        return getValue(x, t);
       }
-
     };
+  }
+
+  @Override
+  public ComplexNumber getValue(ComplexNumber u, double t) {
+    Validate.isTrue(t > 0.0, "t > 0");
+    Validate.notNull(u, "u");
+    final ComplexNumber temp = multiply(_sigma, u);
+    final ComplexNumber res = add(multiply(u, new ComplexNumber(0, _mu)), multiply(-0.5, multiply(temp, temp)));
+    return multiply(t, res);
+  }
+
+  @Override
+  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(final double t) {
+    return new Function1D<ComplexNumber, ComplexNumber[]>() {
+      @Override
+      public ComplexNumber[] evaluate(ComplexNumber x) {
+        return getCharacteristicExponentAjoint(x, t);
+      }
+    };
+  }
+
+  @Override
+  public ComplexNumber[] getCharacteristicExponentAjoint(final ComplexNumber u, final double t) {
+    final ComplexNumber[] res = new ComplexNumber[3];
+    res[0] = getValue(u, t);
+    res[1] = multiply(u, new ComplexNumber(0.0, t));
+    res[2] = multiply(-_sigma * t, square(u));
+    return res;
   }
 
   /**
