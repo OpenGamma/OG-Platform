@@ -7,10 +7,21 @@ package com.opengamma.financial.model.interestrate.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.time.DateUtil;
 
 public class PriceIndexCurveTest {
 
@@ -18,6 +29,10 @@ public class PriceIndexCurveTest {
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 2.0 + 9.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(TIME_VALUE, INDEX_VALUE, new LinearInterpolator1D());
   private static final PriceIndexCurve PRICE_INDEX_CURVE = new PriceIndexCurve(CURVE);
+
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
@@ -40,5 +55,33 @@ public class PriceIndexCurveTest {
     assertEquals(INDEX_VALUE[0], PRICE_INDEX_CURVE.getPriceIndex(TIME_VALUE[0]), 1.0E-10);
     assertEquals(INDEX_VALUE[2], PRICE_INDEX_CURVE.getPriceIndex(TIME_VALUE[2]), 1.0E-10);
     assertEquals((INDEX_VALUE[2] + INDEX_VALUE[3]) / 2.0, PRICE_INDEX_CURVE.getPriceIndex((TIME_VALUE[2] + TIME_VALUE[3]) / 2.0), 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests price index builder from zero-coupon swap rates with start of the month convention.
+   */
+  public void fromStartOfMonth() {
+    ZonedDateTime constructionDate = DateUtil.getUTCDate(2011, 8, 18);
+    ZonedDateTime[] indexKnownDate = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)};
+    double[] nodeTimeKnown = new double[indexKnownDate.length];
+    for (int loopmonth = 0; loopmonth < indexKnownDate.length; loopmonth++) {
+      nodeTimeKnown[loopmonth] = -ACT_ACT.getDayCountFraction(indexKnownDate[loopmonth], constructionDate);
+    }
+    int[] swapTenor = new int[] {1, 2, 3, 4, 5, 7, 10, 15, 20, 30};
+    double[] swapRate = new double[] {0.02, 0.021, 0.02, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025};
+    double[] indexKnown = new double[] {113.11, 113.10}; // May / June 2011.
+    int monthLag = 3;
+    double[] nodeTimeOther = new double[swapTenor.length];
+    ZonedDateTime[] referenceDate = new ZonedDateTime[swapTenor.length];
+    for (int loopswap = 0; loopswap < swapTenor.length; loopswap++) {
+      ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(constructionDate, BUSINESS_DAY, CALENDAR, Period.ofYears(swapTenor[loopswap]));
+      referenceDate[loopswap] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
+      nodeTimeOther[loopswap] = ACT_ACT.getDayCountFraction(constructionDate, referenceDate[loopswap]);
+    }
+    PriceIndexCurve priceIndexCurve = PriceIndexCurve.fromStartOfMonth(nodeTimeKnown, indexKnown, nodeTimeOther, swapRate);
+    for (int loopswap = 0; loopswap < swapTenor.length; loopswap++) {
+      assertEquals("Simple price curve", indexKnown[0] * Math.pow(1 + swapRate[loopswap], swapTenor[loopswap]), priceIndexCurve.getPriceIndex(nodeTimeOther[loopswap]));
+    }
   }
 }

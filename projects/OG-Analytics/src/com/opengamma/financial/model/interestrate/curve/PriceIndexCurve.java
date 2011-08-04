@@ -9,6 +9,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
  * A curve containing the (estimated) price index at different maturities. The maturities can be (slightly) negative as the price index are known only with a certain lag.
@@ -28,6 +30,31 @@ public class PriceIndexCurve {
   public PriceIndexCurve(final Curve<Double, Double> curve) {
     Validate.notNull(curve, "curve");
     _curve = curve;
+  }
+
+  /**
+   * Build a simple price index curve from known index and annual zero-coupon swap rates. The inflation coupon reference is a month are not interpolated. 
+   * No seasonality is used. The price index are interpolated linearly.
+   * @param nodeTimeKnown The time to the known price index. Those time will typically be negative (the price index are published after month end).
+   * @param indexKnown The value of the known index. The first one in the list is the one used in the swaps used for curve construction.
+   * @param nodeTimeOther The time to the price index reference for the swaps.
+   * @param rate The zero-coupon swaps rates.
+   * @return The price index curve.
+   */
+  public static PriceIndexCurve fromStartOfMonth(final double[] nodeTimeKnown, final double[] indexKnown, final double[] nodeTimeOther, final double[] rate) {
+    int nbNode = nodeTimeKnown.length + nodeTimeOther.length;
+    double[] nodeTime = new double[nbNode];
+    System.arraycopy(nodeTimeKnown, 0, nodeTime, 0, nodeTimeKnown.length);
+    System.arraycopy(nodeTimeOther, 0, nodeTime, nodeTimeKnown.length, nodeTimeOther.length);
+    double[] indexValue = new double[nbNode];
+    System.arraycopy(indexKnown, 0, indexValue, 0, nodeTimeKnown.length);
+    double[] nbYear = new double[nodeTimeOther.length];
+    for (int loopperiod = 0; loopperiod < nodeTimeOther.length; loopperiod++) {
+      nbYear[loopperiod] = Math.round(nodeTimeOther[loopperiod] - nodeTimeKnown[0]);
+      indexValue[nodeTimeKnown.length + loopperiod] = indexKnown[0] * Math.pow(1 + rate[loopperiod], nbYear[loopperiod]);
+    }
+    final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(nodeTime, indexValue, new LinearInterpolator1D());
+    return new PriceIndexCurve(curve);
   }
 
   /**
