@@ -14,6 +14,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.util.CompareUtils;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -105,7 +106,12 @@ public class ShiftedLognormalVolModel {
     final double target2Price = new BlackFormula(_forward, strikeTarget2, _expiry,
         volTarget2, null, strikeTarget2 > _forward).computePrice();
 
-    // Function
+    // Handle trivial case 1: Same Vol ==> 0.0 shift
+    if (CompareUtils.closeEquals(volTarget1, volTarget2, DEF_TOL)) {
+      return new DoubleMatrix1D(new double[] {volTarget1, 0.0 });
+    }
+
+    // Objective function - hit the two vol targets
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> priceDiffs = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
@@ -122,9 +128,8 @@ public class ShiftedLognormalVolModel {
 
     try {
       volShiftParams = solver.getRoot(priceDiffs, guess);
-    } catch (final Exception e) {
+    } catch (final Exception e) { // Failed on first solver attempt. Doing a second
       try {
-        System.err.println("Failed on first solver attempt. Doing a second");
         volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {TRANSFORM.transform(volTarget2), 0.0 }));
       } catch (final Exception e2) {
         System.err.println("Failed to find roots to fit a Shifted Lognormal Distribution to your targets. Increase maxSteps, change guess, or change secondTarget.");
@@ -133,14 +138,6 @@ public class ShiftedLognormalVolModel {
         throw new OpenGammaRuntimeException(e.getMessage());
       }
     }
-    /* TODO REMOVE ********************************************
-    System.err.println("Success");
-    System.err.println("K1 = " + strikeTarget1 + ",vol1 = " + volTarget1 + ",price1 = " + target1Price);
-    System.err.println("K2 = " + strikeTarget2 + ",vol2 = " + volTarget2 + ",price2 = " + target2Price);
-    System.err.println("Fitted Params: vol = " + TRANSFORM.inverseTransform(volShiftParams.getEntry(0))
-                          + ",shift = " + volShiftParams.getEntry(1));
-    // ******************************************************** */
-
     return new DoubleMatrix1D(new double[] {TRANSFORM.inverseTransform(volShiftParams.getEntry(0)), volShiftParams.getEntry(1) });
   }
 

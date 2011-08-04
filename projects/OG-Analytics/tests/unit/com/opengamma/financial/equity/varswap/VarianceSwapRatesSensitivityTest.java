@@ -136,11 +136,7 @@ public class VarianceSwapRatesSensitivityTest {
   public void testBucketedDeltaVsPV01() {
 
     double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
-    double pv01 = deltaCalculator.calcPV01(swapStartsNow, MARKET);
-    System.err.println("pv01 = " + pv01);
     DoubleMatrix1D deltaBuckets = deltaCalculator.calcDeltaBucketed(swapStartsNow, MARKET);
-    System.err.println("deltaBuckets = " + deltaBuckets);
-
     int nDeltas = deltaBuckets.getNumberOfElements();
     int nYieldNodes = MARKET.getDiscountCurve().getCurve().size();
     assertEquals(nDeltas, nYieldNodes, TOLERATED);
@@ -173,18 +169,13 @@ public class VarianceSwapRatesSensitivityTest {
     NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, MARKET);
     // Sum up each constituent
     double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
-    double[] T = vegaSurface.getXDataAsPrimitive();
-    double[] K = vegaSurface.getYDataAsPrimitive();
     double sumVegaBuckets = 0.0;
     for (int i = 0; i < vegaSurface.size(); i++) {
       sumVegaBuckets += vegaBuckets[i];
-      System.err.println("vega[" + i + "] " + vegaBuckets[i] + ",T[" + i + "] " + T[i] + ",K[" + i + "] " + K[i]);
     }
-    System.err.println("sum of vega buckets = " + sumVegaBuckets);
 
     // Compute parallel vega, ie to a true parallel shift
     final Double parallelVega = deltaCalculator.calcBlackVegaParallel(swapStartsNow, MARKET);
-    System.err.println("parallelVega = " + parallelVega);
 
     assertEquals(parallelVega, sumVegaBuckets, 0.01);
   }
@@ -206,18 +197,13 @@ public class VarianceSwapRatesSensitivityTest {
     NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
     // Sum up each constituent
     double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
-    double[] T = vegaSurface.getXDataAsPrimitive();
-    double[] K = vegaSurface.getYDataAsPrimitive();
     double sumVegaBuckets = 0.0;
     for (int i = 0; i < vegaSurface.size(); i++) {
       sumVegaBuckets += vegaBuckets[i];
-      System.err.println("vega[" + i + "] " + vegaBuckets[i] + ",T[" + i + "] " + T[i] + ",K[" + i + "] " + K[i]);
     }
-    System.err.println("sum of vega buckets = " + sumVegaBuckets);
 
     // Compute parallel vega, ie to a true parallel shift
     final Double parallelVega = deltaCalculator.calcBlackVegaParallel(swapStartsNow, DELTA_MARKET);
-    System.err.println("parallelVega = " + parallelVega);
 
     assertEquals(parallelVega, sumVegaBuckets, 0.033);
   }
