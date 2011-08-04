@@ -74,6 +74,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
   
+  private ViewDefinition _viewDefinition;
   private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
   private final Set<ValueRequirement> _marketDataSubscriptions = new HashSet<ValueRequirement>();
   private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
@@ -82,6 +83,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private volatile boolean _wakeOnMarketDataChanged;
   private volatile boolean _marketDataChanged = true;
   private volatile boolean _forceTriggerCycle;
+  private volatile boolean _recompileRequired;
   
   /**
    * Nanoseconds
@@ -440,6 +442,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     terminate();
   }
   
+  public synchronized void recompileRequired() {
+    s_logger.debug("Recompile required");
+  }
+  
   public synchronized void triggerCycle() {
     s_logger.debug("Cycle triggered manually");
     _forceTriggerCycle = true;
@@ -474,7 +480,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCachedCompiledViewDefinition();
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    if (_recompileRequired) {
+      _recompileRequired = false;
+      invalidateCachedCompiledViewDefinition();
+      compiledViewDefinition = null;
+    } else {
+      compiledViewDefinition = getCachedCompiledViewDefinition();
+    }
     if (compiledViewDefinition != null && compiledViewDefinition.isValidFor(valuationTime) && functionInitId == compiledViewDefinition.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing valuation times)
       return compiledViewDefinition;
@@ -483,7 +496,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
-      compiledViewDefinition = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), compilationServices, valuationTime);
+      _viewDefinition = getViewProcess().getLatestViewDefinition();
+      compiledViewDefinition = ViewDefinitionCompiler.compile(_viewDefinition, compilationServices, valuationTime);
     } catch (Exception e) {
       String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionName(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
@@ -546,7 +560,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * @return the view definition, not {@code null}
    */
   public ViewDefinition getViewDefinition() {
-    return getViewProcess().getDefinition();
+    return _viewDefinition;
   }
   
   //-------------------------------------------------------------------------
@@ -594,7 +608,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    getMarketDataProvider().subscribe(getViewProcess().getDefinition().getMarketDataUser(), requiredSubscriptions);
+    getMarketDataProvider().subscribe(getViewDefinition().getMarketDataUser(), requiredSubscriptions);
     _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
@@ -626,7 +640,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void removeMarketDataSubscriptions(final Set<ValueRequirement> unusedSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
-    getMarketDataProvider().unsubscribe(getViewProcess().getDefinition().getMarketDataUser(), _marketDataSubscriptions);
+    getMarketDataProvider().unsubscribe(getViewDefinition().getMarketDataUser(), _marketDataSubscriptions);
     _marketDataSubscriptions.removeAll(unusedSubscriptions);
     timer.finished();
   }

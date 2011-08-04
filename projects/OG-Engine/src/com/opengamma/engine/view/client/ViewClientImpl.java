@@ -264,8 +264,8 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public ViewDefinition getViewDefinition() {
-    return getViewProcessor().getViewDefinition(getUniqueId());
+  public ViewDefinition getLatestViewDefinition() {
+    return getViewProcessor().getLatestViewDefinition(getUniqueId());
   }
   
   //-------------------------------------------------------------------------
