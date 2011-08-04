@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -72,7 +71,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
   private final boolean _executeCycles;
-  private final ChangeListener _viewDefinitionChangeListener;
   
   private int _cycleCount;
   private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
@@ -83,10 +81,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
   
+  private ChangeListener _viewDefinitionChangeListener;
+  
   private volatile boolean _wakeOnMarketDataChanged;
   private volatile boolean _marketDataChanged = true;
   private volatile boolean _forceTriggerCycle;
-  private volatile boolean _viewDefinitionDirty;
+  private volatile boolean _viewDefinitionDirty = true;
+  private volatile boolean _compilationDirty;
   
   /**
    * Nanoseconds
@@ -110,23 +111,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
     
-    _viewDefinitionChangeListener = new ChangeListener() {
-      
-      @Override
-      public void entityChanged(ChangeEvent event) {
-        if (event.getAfterId() == null) {
-          // View definition could have been deleted - do we want to stop the process?
-          return;
-        }
-        if (event.getBeforeId().getValue().equals(getViewProcess().getDefinitionName())) {
-          dirtyViewDefinition();
-        }
-      }
-      
-    }; 
-    
+    updateViewDefinitionIfRequired();
     subscribeToViewDefinition();
-    updateViewDefinition();
   }
 
   private ViewCycleTrigger createViewCycleTrigger(ViewExecutionOptions executionOptions) {
@@ -464,9 +450,22 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     terminate();
   }
   
-  private void dirtyViewDefinition() {
-    s_logger.warn("Marking view definition as dirty for view process {}", getViewProcess());
+  /**
+   * Indicates that the view definition itself has changed. It is not necessary to call {@link #dirtyCompilation()}
+   * as well.
+   */
+  public void dirtyViewDefinition() {
+    s_logger.info("Marking view definition as dirty for view process {}", getViewProcess());
     _viewDefinitionDirty = true;
+  }
+  
+  /**
+   * Indicates that changes have occurred which may affect the compilation, and the view definition should be
+   * recompiled at the earliest opportunity.
+   */
+  public void dirtyCompilation() {
+    s_logger.info("Marking compilation as dirty for view process {}", getViewProcess());
+    _compilationDirty = true;
   }
   
   public synchronized void triggerCycle() {
@@ -504,10 +503,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
-    if (_viewDefinitionDirty) {
-      _viewDefinitionDirty = false;
+    updateViewDefinitionIfRequired();
+    if (_compilationDirty) {
+      _compilationDirty = false;
       invalidateCachedCompiledViewDefinition();
-      updateViewDefinition();
       compiledViewDefinition = null;
     } else {
       compiledViewDefinition = getCachedCompiledViewDefinition();
@@ -586,16 +585,28 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return _viewDefinition;
   }
   
-  private void updateViewDefinition() {
-    _viewDefinition = getViewProcess().getLatestViewDefinition();
+  private void updateViewDefinitionIfRequired() {
+    if (_viewDefinitionDirty) {
+      _viewDefinitionDirty = false;
+      _viewDefinition = getViewProcess().getLatestViewDefinition();
+      invalidateCachedCompiledViewDefinition();
+    }
   }
   
   private void subscribeToViewDefinition() {
+    if (_viewDefinitionChangeListener != null) {
+      return;
+    } 
+    _viewDefinitionChangeListener = new ViewDefinitionChangeListener(this, getViewProcess().getDefinitionName());
     getProcessContext().getViewDefinitionRepository().changeManager().addChangeListener(_viewDefinitionChangeListener);
   }
   
   private void unsubscribeFromViewDefinition() {
+    if (_viewDefinitionChangeListener == null) {
+      return;
+    }
     getProcessContext().getViewDefinitionRepository().changeManager().removeChangeListener(_viewDefinitionChangeListener);
+    _viewDefinitionChangeListener = null;
   }
   
   //-------------------------------------------------------------------------
