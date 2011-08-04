@@ -129,13 +129,15 @@ public class VarSwapStaticReplication {
   }
 
   /**
-   * TODO WRITE THIS UP
-   * @param lowerBound
-   * @param upperBound
-   * @param integrator
-   * @param cutoffType
-   * @param cutoffLevel
-   * @param cutoffSpread
+   * Construct a model independent method to price variance as infinite sum of call and put option prices on the underlying.
+   * When the cutoff parameters are provided, a shifted lognormal is fit to the two target vols, and used to extrapolate to low strikes.
+   * 
+   * @param lowerBound Lowest strike / delta in integral. Near zero.
+   * @param upperBound Highest strike / delta in integral. Big => just shy of 1.0 in  delta space, multiples of the forward in fixed strike space. 
+   * @param integrator Integration method
+   * @param cutoffType Whether the cutoff is parameterised as STRIKE, CALLDELTA or PUTDELTA
+   * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices 
+   * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value 
    */
   public VarSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator,
         final StrikeParameterisation cutoffType, final Double cutoffLevel, final Double cutoffSpread) {

@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.financial.analytics.fixedincome.CalendarUtil;
+import com.opengamma.financial.analytics.conversion.CalendarUtil;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.varswap.definition.VarianceSwapDefinition;

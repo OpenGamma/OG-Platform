@@ -34,8 +34,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.interestratefuture.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
@@ -82,8 +83,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverter(holidaySource, conventionSource, regionSource, securitySource);
-    //    _dataConverter = new FixedIncomeConverterDataProvider("BLOOMBERG", "PX_LAST", conventionSource);
+    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 

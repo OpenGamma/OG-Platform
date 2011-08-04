@@ -5,18 +5,18 @@
  */
 package com.opengamma.financial.equity.varswap;
 
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.varswap.definition.VarianceSwapDefinition;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * 
@@ -25,6 +25,7 @@ public class VarianceSwapDefinitionTest {
 
   private final ZonedDateTime now = ZonedDateTime.now();
   private final ZonedDateTime tPlus2 = now.plusDays(2);
+  @SuppressWarnings("unused")
   private final ZonedDateTime plus1y = now.plusYears(1);
   private final ZonedDateTime plus5y = now.plusYears(5);
   private final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
@@ -61,8 +62,8 @@ public class VarianceSwapDefinitionTest {
     varSwapDefn.toDerivative(now, emptyTimeSeries);
   }
 
-  @Test
-  // (expectedExceptions = IllegalArgumentException.class) // Failing on purpose so that we don't forget to extend
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  // FIXME Failing on purpose so that we don't forget to extend
   public void weeklyObservations() {
     final PeriodFrequency freqWeek = PeriodFrequency.WEEKLY;
     new VarianceSwapDefinition(tPlus2, plus5y, plus5y, freqWeek, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);

@@ -16,13 +16,12 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class BlackVolatilitySurface extends VolatilitySurface {
 
-  @SuppressWarnings("unused")
   private final StrikeParameterisation _strikeParameterisation;
 
   /**
    * @param surface The time to maturity should be the first coordinate and the strike the second 
    */
-  public BlackVolatilitySurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface) {
     super(surface);
     _strikeParameterisation = StrikeParameterisation.STRIKE;
   }
@@ -31,7 +30,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
    * @param surface The time to maturity should be the first coordinate and the strike the second 
    * @param strikeType StrikeParameterisation defines how to interpret the strike axis
    */
-  public BlackVolatilitySurface(Surface<Double, Double, Double> surface, StrikeParameterisation strikeType) {
+  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterisation strikeType) {
     super(surface);
     _strikeParameterisation = strikeType;
   }
@@ -44,7 +43,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
    * @return The Black (implied) volatility 
    */
   public double getVolatility(final double t, final double k) {
-    DoublesPair temp = new DoublesPair(t, k);
+    final DoublesPair temp = new DoublesPair(t, k);
     return getVolatility(temp);
   }
 
@@ -56,7 +55,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
    * @param isCall true if one desires a call price, false for a put
    * @return Forward price implied by the volatility and forward. Forward Price is today's value divided by the terminal zero bond, i.e. V(0,T) * exp(+rT)
    */
-  public double getForwardPrice(final double t, final double k, final double forward, boolean isCall) {
+  public double getForwardPrice(final double t, final double k, final double forward, final boolean isCall) {
     return new BlackFormula(forward, k, t, getVolatility(t, k), null, isCall).computePrice();
   }
 

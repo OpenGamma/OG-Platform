@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
+import static  com.opengamma.math.number.ComplexNumber.ZERO;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.ComplexMathUtils;
@@ -37,7 +39,7 @@ public class FFTPricer {
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final double lowestStrike,
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final MartingaleCharacteristicExponent ce, final double lowestStrike,
       final double highestStrike, final int minStrikesDisplayed, final double limitSigma, final double alpha, final double tol) {
 
     Validate.notNull(ce, "characteristic exponent");
@@ -81,7 +83,7 @@ public class FFTPricer {
     final int nLowStrikes = (int) Math.ceil(Math.log(forward / lowestStrike) / deltaK);
     final int nHighStrikes = (int) Math.ceil(Math.log(highestStrike / forward) / deltaK);
 
-    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, limitSigma, alpha, delta, n, m);
+    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
   }
 
   /**
@@ -99,7 +101,8 @@ public class FFTPricer {
    * @param tol Tolerance - smaller values give higher accuracy 
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final int nStrikes, final double maxDeltaMoneyness,
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final MartingaleCharacteristicExponent ce, final int nStrikes, 
+      final double maxDeltaMoneyness,
       final double limitSigma, final double alpha,
       final double tol) {
 
@@ -143,7 +146,7 @@ public class FFTPricer {
       nLowStrikes = nStrikes / 2;
       nHighStrikes = nLowStrikes - 1;
     }
-    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, limitSigma, alpha, delta, n, m);
+    return price(forward, discountFactor, t, isCall, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
 
   }
 
@@ -158,15 +161,13 @@ public class FFTPricer {
    * @param nStrikesBelowATM maximum number of strikes below ATM to be returned 
    * @param nStrikesAboveATM maximum number of strikes above ATM to be returned 
    * @param alpha Regularization factor. Values of 0 or -1 are not allowed. -0.5 is recommended  
-   * @param limitSigma An estimate of the implied vol used to calculate limits in the numerical routines 
    * @param delta The spacing for sampling the function 
    * @param n The (zero padded) array of sample values. <b>Use a power of 2</b>
    * @param m The actual number of samples. Need n >= 2m-1
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final CharacteristicExponent ce, final int nStrikesBelowATM,
-      final int nStrikesAboveATM,
-      final double limitSigma, final double alpha, final double delta, final int n, final int m) {
+  public double[][] price(final double forward, final double discountFactor, final double t, final boolean isCall, final MartingaleCharacteristicExponent ce, final int nStrikesBelowATM,
+      final int nStrikesAboveATM, final double alpha, final double delta, final int n, final int m) {
 
     Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(nStrikesBelowATM >= 0, "nStrikesBelowATM >= 0");
@@ -206,11 +207,11 @@ public class FFTPricer {
     final int upperPadOutSize = n - halfN + 1 - m;
 
     for (int i = 0; i < lowerPadOutSize; i++) {
-      z[i] = new ComplexNumber(0.0);
+      z[i] = ZERO;
     }
 
     for (int i = n - upperPadOutSize; i < n; i++) {
-      z[i] = new ComplexNumber(0.0);
+      z[i] = ZERO;
     }
 
     ComplexNumber u = new ComplexNumber(0.0, -(1 + alpha));
@@ -221,7 +222,7 @@ public class FFTPricer {
       u = new ComplexNumber(i * delta, -(1 + alpha));
       final ComplexNumber f = func.evaluate(u);
       z[offset + i] = f;
-      z[offset - i] = ComplexMathUtils.conjugate(f);
+      z[offset - i] = ComplexMathUtils.conjugate(f); //TODO the FFT should take care of this
     }
     return z;
   }
