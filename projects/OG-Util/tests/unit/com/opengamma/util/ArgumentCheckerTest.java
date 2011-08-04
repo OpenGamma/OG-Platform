@@ -14,9 +14,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test ArgumentChecker.
@@ -549,4 +553,35 @@ public class ArgumentCheckerTest {
       throw ex;
     }
   }
+
+  //-------------------------------------------------------------------------
+  public void test_inOrderOrEqual_true() {
+    LocalDate a = LocalDate.of(2011, 7, 2);
+    LocalDate b = LocalDate.of(2011, 7, 3);
+    ArgumentChecker.inOrderOrEqual(a, b, "a", "b");
+    ArgumentChecker.inOrderOrEqual(a, a, "a", "b");
+    ArgumentChecker.inOrderOrEqual(b, b, "a", "b");
+  }
+
+  public void test_inOrderOrEqual_generics() {
+    Pair<String, String> a = ObjectsPair.of("c", "d");
+    Pair<String, String> b = ObjectsPair.of("e", "f");
+    ArgumentChecker.inOrderOrEqual(a, b, "a", "b");
+    ArgumentChecker.inOrderOrEqual(a, a, "a", "b");
+    ArgumentChecker.inOrderOrEqual(b, b, "a", "b");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_inOrderOrEqual_false() {
+    LocalDate a = LocalDate.of(2011, 7, 3);
+    LocalDate b = LocalDate.of(2011, 7, 2);
+    try {
+      ArgumentChecker.inOrderOrEqual(a, b, "a", "b");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'a'"), true);
+      assertEquals(ex.getMessage().contains("'b'"), true);
+      throw ex;
+    }
+  }
+
 }

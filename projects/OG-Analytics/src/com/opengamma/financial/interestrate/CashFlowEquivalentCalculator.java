@@ -62,8 +62,10 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public AnnuityPaymentFixed visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle curves) {
-    return visitFixedPayment(payment, curves);
+  public AnnuityPaymentFixed visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(coupon);
+    return new AnnuityPaymentFixed(new PaymentFixed[] {coupon.toPaymentFixed()});
   }
 
   @Override

@@ -9,7 +9,9 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
-<listEntry value="com.opengamma.core.historicaldata"/>
+<listEntry value="com.opengamma.core.fudgemsg"/>
+<listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
+<listEntry value="com.opengamma.core.marketdatasnapshot"/>
 <listEntry value="com.opengamma.core.position.impl"/>
 <listEntry value="com.opengamma.core.security"/>
 </listAttribute>

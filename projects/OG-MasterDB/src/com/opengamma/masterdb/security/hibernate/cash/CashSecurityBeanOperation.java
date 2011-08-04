@@ -31,7 +31,7 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   public static final CashSecurityBeanOperation INSTANCE = new CashSecurityBeanOperation();
 
   private CashSecurityBeanOperation() {
-    super("CASH", CashSecurity.class, CashSecurityBean.class);
+    super(CashSecurity.SECURITY_TYPE, CashSecurity.class, CashSecurityBean.class);
   }
 
   @Override

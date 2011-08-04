@@ -20,6 +20,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -99,12 +100,12 @@ public class MasterPositionSourceTest {
     
     ManageableTrade manTrade = new ManageableTrade();
     manTrade.setQuantity(BigDecimal.valueOf(1234));
-    manTrade.setSecurityKey(IdentifierBundle.of(Identifier.of("CC", "DD")));
+    manTrade.setSecurityLink(new SecurityLink(Identifier.of("CC", "DD")));
     manTrade.setUniqueId(UID5);
-    manTrade.setPositionId(UID4);
+    manTrade.setParentPositionId(UID4);
     ManageablePosition manPos = new ManageablePosition();
     manPos.setQuantity(BigDecimal.valueOf(1235));
-    manPos.setSecurityKey(IdentifierBundle.of(Identifier.of("AA", "BB")));
+    manPos.setSecurityLink(new SecurityLink(Identifier.of("AA", "BB")));
     manPos.setUniqueId(UID4);
     manPos.addTrade(manTrade);
     PositionDocument posDoc = new PositionDocument(manPos);
@@ -138,13 +139,13 @@ public class MasterPositionSourceTest {
     UniqueIdentifier combinedUid5 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID5.getScheme(), UID3.getValue() + "-" + UID5.getValue(), "-");
     assertEquals(combinedUid4, pos.getUniqueId());
     assertEquals(BigDecimal.valueOf(1235), pos.getQuantity());
-    assertEquals(IdentifierBundle.of(Identifier.of("AA", "BB")), pos.getSecurityKey());
+    assertEquals(IdentifierBundle.of("AA", "BB"), pos.getSecurityLink().getBundleId());
     assertEquals(1, pos.getTrades().size());
     Trade trade = pos.getTrades().iterator().next();
     assertEquals(combinedUid5, trade.getUniqueId());
     assertEquals(combinedUid4, trade.getParentPositionId());
     assertEquals(BigDecimal.valueOf(1234), trade.getQuantity());
-    assertEquals(IdentifierBundle.of(Identifier.of("CC", "DD")), trade.getSecurityKey());
+    assertEquals(IdentifierBundle.of("CC", "DD"), trade.getSecurityLink().getBundleId());
   }
 
   //-------------------------------------------------------------------------

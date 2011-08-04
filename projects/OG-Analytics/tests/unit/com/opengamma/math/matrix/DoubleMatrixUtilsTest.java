@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**
@@ -46,7 +47,10 @@ public class DoubleMatrixUtilsTest {
 
   @Test
   public void testTransposeMatrix() {
-    final DoubleMatrix2D m = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+    DoubleMatrix2D m = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
     assertEquals(DoubleMatrixUtils.getTranspose(m), new DoubleMatrix2D(new double[][] {new double[] {1, 4, 7}, new double[] {2, 5, 8}, new double[] {3, 6, 9}}));
+    m = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3, 4, 5, 6}, new double[] {7, 8, 9, 10, 11, 12}, new double[] {13, 14, 15, 16, 17, 18}});
+    assertEquals(DoubleMatrixUtils.getTranspose(m), new DoubleMatrix2D(new double[][] {new double[] {1, 7, 13}, new double[] {2, 8, 14}, new double[] {3, 9, 15}, new double[] {4, 10, 16},
+        new double[] {5, 11, 17}, new double[] {6, 12, 18}}));
   }
 }

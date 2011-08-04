@@ -16,7 +16,7 @@ public class CashSecurity extends com.opengamma.financial.security.FinancialSecu
   public static final String RATE_KEY = "rate";
   private double _amount;
   public static final String AMOUNT_KEY = "amount";
-  public static final String SECURITY_TYPE = "Cash";
+  public static final String SECURITY_TYPE = "CASH";
   public CashSecurity (com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime maturity, double rate, double amount) {
     super (SECURITY_TYPE);
     if (currency == null) throw new NullPointerException ("currency' cannot be null");

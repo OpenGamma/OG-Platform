@@ -87,6 +87,9 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   public static RegionDocument.Meta meta() {
     return RegionDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(RegionDocument.Meta.INSTANCE);
+  }
 
   @Override
   public RegionDocument.Meta metaBean() {
@@ -94,7 +97,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -103,11 +106,11 @@ public class RegionDocument extends AbstractDocument implements Serializable {
       case -934795532:  // region
         return getRegion();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -119,7 +122,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
         setRegion((ManageableRegion) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

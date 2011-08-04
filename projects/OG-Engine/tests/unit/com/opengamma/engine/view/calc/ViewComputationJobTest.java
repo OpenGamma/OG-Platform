@@ -8,17 +8,22 @@ package com.opengamma.engine.view.calc;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.LiveMarketDataProvider;
+import com.opengamma.engine.marketdata.LiveMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -29,6 +34,7 @@ import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
@@ -44,7 +50,11 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.livedata.LiveDataListener;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.Timeout;
 
@@ -53,7 +63,7 @@ import com.opengamma.util.test.Timeout;
  */
 public class ViewComputationJobTest {
 
-  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
+  private static final long TIMEOUT = 5L * Timeout.standardTimeoutMillis();
   
   private static final String SOURCE_1_NAME = "source1";
   private static final String SOURCE_2_NAME = "source2";
@@ -211,6 +221,54 @@ public class ViewComputationJobTest {
 
     private final String _sourceName;
     private final InMemoryLKVMarketDataProvider _underlyingProvider;
+    private final LiveDataClient _dummyLiveDataClient = new LiveDataClient() {
+
+      @Override
+      public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
+        return null;
+      }
+
+      @Override
+      public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+        return false;
+      }
+
+      @Override
+      public void unsubscribe(UserPrincipal user, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener) {
+      }
+
+      @Override
+      public void unsubscribe(UserPrincipal user, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
+      }
+
+      @Override
+      public void subscribe(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications, LiveDataListener listener) {
+      }
+
+      @Override
+      public void subscribe(UserPrincipal user, LiveDataSpecification requestedSpecification, LiveDataListener listener) {
+      }
+
+      @Override
+      public Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications, long timeout) {
+        return null;
+      }
+
+      @Override
+      public LiveDataSubscriptionResponse snapshot(UserPrincipal user, LiveDataSpecification requestedSpecification, long timeout) {
+        return null;
+      }
+
+      @Override
+      public String getDefaultNormalizationRuleSetId() {
+        return null;
+      }
+
+      @Override
+      public void close() {
+      }
+
+    };
     
     public TestLiveMarketDataProvider(String sourceName, InMemoryLKVMarketDataProvider underlyingProvider) {
       ArgumentChecker.notNull(sourceName, "sourceName");
@@ -269,7 +327,8 @@ public class ViewComputationJobTest {
 
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-      return _underlyingProvider.snapshot(marketDataSpec);
+      final SecuritySource dummySecuritySource = new MockSecuritySource();
+      return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec), new LiveMarketDataProvider(_dummyLiveDataClient, dummySecuritySource, getAvailabilityProvider()));
     }
 
     @Override
@@ -277,6 +336,11 @@ public class ViewComputationJobTest {
       // Want the market data provider to indicate that data is available even before it's really available
       return requirement.equals(ViewProcessorTestEnvironment.getPrimitive1())
           || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2());
+    }
+
+    @Override
+    public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+      return Duration.between(fromInstant, toInstant);
     }
     
   }

@@ -12,17 +12,10 @@
   </bean>
 
   <!-- Exports: dbPositionMaster, sharedSecuritySource -->
-  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
-
+  <import resource="classpath:com/opengamma/financial/portfolio/loader/loaderContext.xml" />
 
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
-  </bean>
-  <bean id="loaderContext" class="com.opengamma.examples.loader.LoaderContext">
-    <property name="portfolioMaster" ref="dbPortfolioMaster" />
-    <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="configMaster" ref="sharedConfigMaster" />
   </bean>
   <!--
   <bean id="demoEquityOptionPortfolioLoader" class="com.opengamma.integration.server.DemoEquityOptionPortfolioLoader">
@@ -33,6 +26,9 @@
     <property name="loaderContext" ref="loaderContext" />
   </bean-->
   <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  <bean id="selfContainedSwapPortfolioLoader" class="com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   <bean id="demoViewsPopulater" class="com.opengamma.examples.loader.DemoViewsPopulater">
@@ -52,4 +48,16 @@
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   -->
+  
+  <!-- save timeseries configuration document -->
+  <bean id="timeSeriesRatingLoader" class="com.opengamma.examples.loader.TimeSeriesRatingLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  
+  <!-- run historical data generator -->
+  <bean id="simulatedHistoricalDataGenerator" class="com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg value="${opengamma.example.marketdata.historical}" />
+  </bean>
+  
 </beans>

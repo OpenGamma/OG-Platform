@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics;
 
 import java.util.Collections;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -39,7 +40,7 @@ public class PV01SummingFunction extends FilteringSummingFunction implements Fin
   }
   
   @Override
-  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties) {
+  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties, SecuritySource securities) {
     return security.accept(this);
   }
   

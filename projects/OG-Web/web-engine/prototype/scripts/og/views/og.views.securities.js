@@ -52,7 +52,7 @@ $.register_module({
                         {type: 'textarea', name: 'Identifiers', id: 'identifiers'}
                     ],
                     buttons: {
-                        'Ok': function () {
+                        'OK': function () {
                             $(this).dialog('close');
                             api.rest.securities.put({
                                 handler: function (r) {
@@ -147,18 +147,23 @@ $.register_module({
                 api.rest.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data;
+                        var json = result.data, text_handler,
+                            security_type = json.template_data.securityType.toLowerCase(),
+                            template = module.name + '.' + security_type;
                         history.put({
                             name: json.template_data.name,
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({
-                            module: module.name + '.' + json.template_data.securityType, handler: function (template) {
+                        api.text({module: template, handler: text_handler = function (template, error) {
+                            if (error) {
+                                og.dev.warn('using default security template for security type: ' + security_type);
+                                return api.text({module: module.name + '.default', handler: text_handler});
+                            }
                             var $warning, warning_message = 'This security has been deleted',
                                 html = [], id, json_id = json.identifiers;
                             $.tmpl(template, json.template_data)
-                                    .appendTo($('.OG-js-details-panel .OG-details').empty());
+                                .appendTo($('.OG-js-details-panel .OG-details').empty());
                             $warning = $('.OG-js-details-panel .og-box-error');
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {

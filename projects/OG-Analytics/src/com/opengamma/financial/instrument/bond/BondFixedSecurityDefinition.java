@@ -100,7 +100,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
 
   /**
    * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
-   * The default notional 1 and default ex-coupon daya 0 are used.
+   * The default notional 1 and default ex-coupon days 0 are used.
    * @param currency The currency.
    * @param maturityDate The maturity date.
    * @param firstAccrualDate The first accrual date (bond start date).

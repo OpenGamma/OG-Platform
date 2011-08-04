@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
@@ -54,9 +55,10 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected Collection<String> getPreservedProperties() {
-    return Collections.singleton(ValuePropertyNames.CURRENCY);
+    return Sets.newHashSet(ValuePropertyNames.CURRENCY,
+                           ValuePropertyNames.CALCULATION_METHOD);
   }
-  
+
   @Override
   protected Collection<String> getOptionalPreservedProperties() {
     return Arrays.asList(
@@ -64,7 +66,8 @@ public class SummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CURVE,
         ValuePropertyNames.CURVE_CURRENCY,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+        ValuePropertyNames.CURVE_CALCULATION_METHOD);
   }
 
   @Override

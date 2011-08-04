@@ -11,17 +11,14 @@ $.register_module({
             var name = config.index, resource = config.resource, form = config.form, placeholder = config.placeholder,
                 fields = config.fields || [0], values = fields[0], rest_options = config.rest_options || null,
                 texts = typeof fields[1] !== 'undefined' ? fields[1] : values, value = config.value,
-                id = prefix + id_count++, meta = rest_options && rest_options.meta, test,
+                data_generator = config.data_generator,
+                id = prefix + id_count++, meta = rest_options && rest_options.meta, classes = config.classes,
                 field_options = {
                     generator: function (handler) {
-                        var options = $.extend({}, rest_options, {
+                        var options = $.extend({}, {
                             cache_for: 30 * 1000,
                             handler: function (result) {
                                 if (result.error) return handler('an error occurred');
-                                var $html = $('<p><select/></p>'), $select = $html.find('select');
-                                if (name) $select.attr('name', name);
-                                $select.attr('id', id);
-                                if (placeholder) $select.append($('<option/>').html(placeholder));
                                 if (meta) {
                                     result.data.types.forEach(function (datum) {
                                         var $option = $('<option/>').attr('value', datum).html(datum);
@@ -38,11 +35,24 @@ $.register_module({
                                 }
                                 handler($html.html());
                             }
+                        }, rest_options), $html = $('<p><select/></p>'), $select = $html.find('select');
+                        if (name) $select.attr('name', name);
+                        if (classes) $select.attr('class', classes);
+                        $select.attr('id', id);
+                        if (placeholder) $select.append($('<option/>').html(placeholder));;
+                        if (!data_generator) return og.api.rest[resource].get(options);
+                        data_generator(function (data) {
+                            data.forEach(function (datum) {
+                                var $option = $('<option/>').attr('value', datum.value).html(datum.text);
+                                if (value === datum.value) $option[0].setAttribute('selected', 'selected');
+                                $select.append($option);
+                            });
+                            return handler($html.html());
                         });
-                        test = og.api.rest[resource].get(options);
-                    }
+                    },
+                    handlers: config.handlers || []
                 };
-            if (config.processor) field_options.processor = config.processor.partial('select#' + id);
+            if (config.processor) field_options.processor = config.processor.partial('#' + id);
             return new form.Field(field_options);
         };
     }

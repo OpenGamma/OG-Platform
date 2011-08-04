@@ -116,6 +116,16 @@ public class DbDateUtilsTest {
     DbDateUtils.toSqlDate(null);
   }
 
+  public void test_toSqlDateNullFarFuture() {
+    assertEquals(new Date(2005 - 1900, 11 - 1, 12), DbDateUtils.toSqlDateNullFarFuture(LocalDate.of(2005, 11, 12)));
+    assertEquals(DbDateUtils.MAX_SQL_DATE, DbDateUtils.toSqlDateNullFarFuture(null));
+  }
+
+  public void test_toSqlDateNullFarPast() {
+    assertEquals(new Date(2005 - 1900, 11 - 1, 12), DbDateUtils.toSqlDateNullFarPast(LocalDate.of(2005, 11, 12)));
+    assertEquals(DbDateUtils.MIN_SQL_DATE, DbDateUtils.toSqlDateNullFarPast(null));
+  }
+
   public void test_fromSqlDate() {
     assertEquals(LocalDate.of(2005, 11, 12), DbDateUtils.fromSqlDate(new Date(2005 - 1900, 11 - 1, 12)));
   }

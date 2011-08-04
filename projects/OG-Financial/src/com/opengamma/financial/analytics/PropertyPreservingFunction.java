@@ -7,13 +7,17 @@ package com.opengamma.financial.analytics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A base class for functions which need to preserve a set of properties from their inputs to their outputs, and
@@ -120,11 +124,14 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    * @return the composed properties
    */
   protected ValueProperties getResultProperties(final Collection<ValueSpecification> inputs) {
+    //NOTE: this function must be invariant under inputs ordering
+    
+    ArgumentChecker.notEmpty(inputs, "inputs");
     ValueProperties compositeProperties = null;
     ValueProperties referenceRequiredProperties = null;
     for (ValueSpecification input : inputs) {
       if (compositeProperties == null) {
-        compositeProperties = input.getProperties().compose(getInputConstraints());
+        compositeProperties = composeStrict(getInputConstraints(), input.getProperties());
         referenceRequiredProperties = _requiredProperties.compose(input.getProperties());
       } else {
         ValueProperties requiredPropertyComposition = _requiredProperties.compose(input.getProperties());
@@ -133,10 +140,42 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
               " produced from input " + input + " differs from current required property composition " + referenceRequiredProperties + " implying incompatible property values among the inputs");
         }
         // Know that the required properties are preserved correctly, so now compose everything 
-        compositeProperties = compositeProperties.compose(input.getProperties());
+        compositeProperties = composeStrict(compositeProperties, input.getProperties());
       }
     }
     return getResultProperties(compositeProperties);
+  }
+
+  /**
+   * Creates the intersection of two valueProperties.
+   * Note: this behaves as ValueProperties.compose except for the clause 
+   *  "Any properties defined in this set but not in the other remain untouched."
+   * @param a some properties
+   * @param b some properties
+   * @return the intersection of a and b
+   */
+  private ValueProperties composeStrict(ValueProperties a, ValueProperties b) {
+    ValueProperties none = ValueProperties.none();
+    if (none.equals(a) || none.equals(b)) {
+      //NOTE: none has null properties
+      return none;
+    }
+    //NOTE: infinite properties behave as empty
+    
+    ValueProperties compose = a.compose(b);
+    Set<String> mismatchedProperties = Sets.symmetricDifference(a.getProperties(), b.getProperties());
+    return without(compose, mismatchedProperties);
+  }
+
+  private ValueProperties without(ValueProperties compose, Collection<String> symmetricDiff) {
+    if (symmetricDiff.isEmpty()) {
+      return compose;
+    }
+    Builder filtered = compose.copy();
+    for (String propertyName : symmetricDiff) {
+      filtered.withoutAny(propertyName);
+    }
+    return filtered.get();
   }
 
   protected ValueProperties getResultPropertiesFromInputs(final Collection<ComputedValue> inputs) {

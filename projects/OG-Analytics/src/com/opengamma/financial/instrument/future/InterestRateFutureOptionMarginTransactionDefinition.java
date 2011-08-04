@@ -33,7 +33,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Fixe
    */
   private final ZonedDateTime _tradeDate;
   /**
-   * The transaction price. The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
+   * The transaction price. The price is in relative number and not in percent. This is the quoted price of the option.
    */
   private final double _tradePrice;
 

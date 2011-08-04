@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -50,7 +51,9 @@ public enum InterestRateInstrumentType {
   /** Interest rate future */
   IR_FUTURE,
   /** Coupon bond */
-  COUPON_BOND;
+  COUPON_BOND,
+  /** Bond future */
+  BOND_FUTURE;
 
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
@@ -95,6 +98,9 @@ public enum InterestRateInstrumentType {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
       }
+      //      if (security instanceof BondFutureSecurity) {
+      //        return BOND_FUTURE;
+      //      }
       throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
     }
 

@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
 import com.opengamma.math.ParallelArrayBinarySort;
 
 /**
@@ -25,28 +26,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
   private final double[][] _values;
 
   public LabelledMatrix2D(final S[] xKeys, final T[] yKeys, final double[][] values) {
-    Validate.notNull(xKeys, "x keys");
-    final int m = xKeys.length;
-    Validate.notNull(yKeys, "y keys");
-    final int n = yKeys.length;
-    Validate.notNull(values, "values");
-    Validate.isTrue(values.length == n, "number of rows of data and y keys must be the same length");
-    _xKeys = Arrays.copyOf(xKeys, m);
-    _yKeys = Arrays.copyOf(yKeys, n);
-    _xLabels = new Object[m];
-    _yLabels = new Object[n];
-    _values = new double[n][m];
-    for (int i = 0; i < n; i++) {
-      Validate.isTrue(values[i].length == m, "number of columns of data and x keys must be the same length");
-      _yLabels[i] = yKeys[i].toString();
-      for (int j = 0; j < m; j++) {
-        if (i == 0) {
-          _xLabels[j] = xKeys[j].toString();
-        }
-        _values[i][j] = values[i][j];
-      }
-    }
-    sort(_xKeys, _xLabels, _yKeys, _yLabels, _values);
+    this(xKeys, LabelledMatrix1D.toString(xKeys), yKeys, LabelledMatrix1D.toString(yKeys), values);
   }
 
   public LabelledMatrix2D(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {
@@ -75,7 +55,8 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
         _values[i][j] = values[i][j];
       }
     }
-    sort(_xKeys, _xLabels, _yKeys, _yLabels, _values);
+    quickSortX();
+    quickSortY();
   }
 
   public S[] getXKeys() {
@@ -200,85 +181,43 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return -(low + 1);
   }
 
-  protected void sort(final S[] xKeys, final Object[] xLabels, final T[] yKeys, final Object[] yLabels, final double[][] values) {
-    final int n = yKeys.length;
-    final int m = xKeys.length;
-    tripleArrayQuickSortInX(xKeys, xLabels, values, 0, m - 1, n);
-    tripleArrayQuickSortInY(yKeys, yLabels, values, 0, n - 1, m);
-  }
+  private void quickSortX() {
+    (new ArrayQuickSorter<S>(_xKeys) {
 
-  private void tripleArrayQuickSortInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int n) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partitionInX(keys, labels, values, left, right, pivot, n);
-      tripleArrayQuickSortInX(keys, labels, values, left, pivotNewIndex - 1, n);
-      tripleArrayQuickSortInX(keys, labels, values, pivotNewIndex + 1, right, n);
-    }
-  }
-
-  private void tripleArrayQuickSortInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int m) {
-    if (right > left) {
-      final int pivot = (left + right) >> 1;
-      final int pivotNewIndex = partitionInY(keys, labels, values, left, right, pivot, m);
-      tripleArrayQuickSortInY(keys, labels, values, left, pivotNewIndex - 1, m);
-      tripleArrayQuickSortInY(keys, labels, values, pivotNewIndex + 1, right, m);
-    }
-  }
-
-  private int partitionInX(final S[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, final int n) {
-    final S pivotValue = keys[pivot];
-    swapInX(keys, labels, values, pivot, right, n);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i].compareTo(pivotValue) < 0) {
-        swapInX(keys, labels, values, i, storeIndex, n);
-        storeIndex++;
+      @Override
+      protected int compare(final S first, final S second) {
+        return first.compareTo(second);
       }
-    }
-    swapInX(keys, labels, values, storeIndex, right, n);
-    return storeIndex;
-  }
 
-  private int partitionInY(final T[] keys, final Object[] labels, final double[][] values, final int left, final int right, final int pivot, final int m) {
-    final T pivotValue = keys[pivot];
-    swapInY(keys, labels, values, pivot, right, m);
-    int storeIndex = left;
-    for (int i = left; i < right; i++) {
-      if (keys[i].compareTo(pivotValue) < 0) {
-        swapInY(keys, labels, values, i, storeIndex, m);
-        storeIndex++;
+      @Override
+      protected void swap(final int first, final int second) {
+        super.swap(first, second);
+        swap(_xLabels, first, second);
+        final int y = _yKeys.length;
+        for (int iy = 0; iy < y; iy++) {
+          swap(_values[iy], first, second);
+        }
       }
-    }
-    swapInY(keys, labels, values, storeIndex, right, m);
-    return storeIndex;
+
+    }).sort();
   }
 
-  private void swapInX(final S[] keys, final Object[] labels, final double[][] values, final int first, final int second, final int n) {
-    final S x = keys[first];
-    keys[first] = keys[second];
-    keys[second] = x;
-    final Object y = labels[first];
-    labels[first] = labels[second];
-    labels[second] = y;
-    for (int i = 0; i < n; i++) {
-      final double z = values[i][first];
-      values[i][first] = values[i][second];
-      values[i][second] = z;
-    }
-  }
+  private void quickSortY() {
+    (new ArrayQuickSorter<T>(_yKeys) {
 
-  private void swapInY(final T[] keys, final Object[] labels, final double[][] values, final int first, final int second, final int m) {
-    final T x = keys[first];
-    keys[first] = keys[second];
-    keys[second] = x;
-    final Object y = labels[first];
-    labels[first] = labels[second];
-    labels[second] = y;
-    for (int i = 0; i < m; i++) {
-      final double z = values[first][i];
-      values[first][i] = values[second][i];
-      values[second][i] = z;
-    }
+      @Override
+      protected int compare(final T first, final T second) {
+        return first.compareTo(second);
+      }
+
+      @Override
+      protected void swap(final int first, final int second) {
+        super.swap(first, second);
+        swap(_yLabels, first, second);
+        swap(_values, first, second);
+      }
+
+    }).sort();
   }
 
   @Override
@@ -293,6 +232,7 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     return result;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -301,7 +241,6 @@ public abstract class LabelledMatrix2D<S extends Comparable<S>, T extends Compar
     if (!(obj instanceof LabelledMatrix2D)) {
       return false;
     }
-    @SuppressWarnings("rawtypes")
     final LabelledMatrix2D other = (LabelledMatrix2D) obj;
     final double[][] otherValues = other._values;
     for (int i = 0; i < _values.length; i++) {

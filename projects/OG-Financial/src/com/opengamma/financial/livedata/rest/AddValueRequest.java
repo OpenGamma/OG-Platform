@@ -51,6 +51,9 @@ public class AddValueRequest extends DirectBean {
   public static AddValueRequest.Meta meta() {
     return AddValueRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(AddValueRequest.Meta.INSTANCE);
+  }
 
   @Override
   public AddValueRequest.Meta metaBean() {
@@ -58,7 +61,7 @@ public class AddValueRequest extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         return getValueRequirement();
@@ -69,11 +72,11 @@ public class AddValueRequest extends DirectBean {
       case 111972721:  // value
         return getValue();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -755281390:  // valueRequirement
         setValueRequirement((ValueRequirement) newValue);
@@ -88,7 +91,7 @@ public class AddValueRequest extends DirectBean {
         setValue((Object) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

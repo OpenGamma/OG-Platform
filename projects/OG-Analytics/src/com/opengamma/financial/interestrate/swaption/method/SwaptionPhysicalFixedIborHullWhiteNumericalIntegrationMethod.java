@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.math.function.Function1D;
@@ -59,8 +59,8 @@ public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implem
     // Integration
     final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlow, alpha);
     final double limit = 10.0;
-    final double absoluteTolerance = 1.0E-1 / Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
-    final double relativeTolerance = 1.0E-5;
+    final double absoluteTolerance = 1.0E-2;
+    final double relativeTolerance = 1.0E-6;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
     double pv = 0.0;
     try {

@@ -5,9 +5,18 @@
  */
 package com.opengamma.examples.loader;
 
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
@@ -17,10 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import au.com.bytecode.opencsv.CSVReader;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.Identifier;
@@ -49,10 +61,24 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SelfContainedEquityPortfolioAndSecurityLoader.class);
 
+  private static final Map<String, String> SECTORS = new HashMap<String, String>();
+  static {
+    SECTORS.put("10", "10 Energy");
+    SECTORS.put("15", "15 Materials");
+    SECTORS.put("20", "20 Industrials");
+    SECTORS.put("25", "25 Consumer discretionary");
+    SECTORS.put("30", "30 Consumer staples");
+    SECTORS.put("35", "35 Health care");
+    SECTORS.put("40", "40 Financials");
+    SECTORS.put("45", "45 Information technology");
+    SECTORS.put("50", "50 Telecommunication");
+    SECTORS.put("55", "55 Utilities");
+  }
+  
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
 
   /**
    * The context.
@@ -94,12 +120,48 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
     
     // add each security to the portfolio
     for (EquitySecurity security : securities) {
+      
+      GICSCode gics = security.getGicsCode();
+      if (gics == null) {
+        continue;
+      }
+      String sector = SECTORS.get(Integer.toString(gics.getSectorCode()));
+      String industryGroup = Integer.toString(gics.getIndustryGroupCode());
+      String industry = Integer.toString(gics.getIndustryCode());
+      String subIndustry = Integer.toString(gics.getSubIndustryCode());
+      
+      // create portfolio structure
+      ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
+      if (sectorNode == null) {
+        s_logger.warn("Creating node for sector {}", sector);
+        sectorNode = new ManageablePortfolioNode(sector);
+        rootNode.addChildNode(sectorNode);
+      }
+      ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
+      if (groupNode == null) {
+        s_logger.warn("Creating node for industry group {}", industryGroup);
+        groupNode = new ManageablePortfolioNode("Group " + industryGroup);
+        sectorNode.addChildNode(groupNode);
+      }
+      ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
+      if (industryNode == null) {
+        s_logger.warn("Creating node for industry {}", industry);
+        industryNode = new ManageablePortfolioNode("Industry " + industry);
+        groupNode.addChildNode(industryNode);
+      }
+      ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
+      if (subIndustryNode == null) {
+        s_logger.warn("Creating node for sub industry {}", subIndustry);
+        subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
+        industryNode.addChildNode(subIndustryNode);
+      }
+      
       // create the position and add it to the master
       final ManageablePosition position = createPositionAndTrade(security);
       final PositionDocument addedPosition = addPosition(position);
       
       // add the position reference (the unique identifier) to portfolio
-      rootNode.addPosition(addedPosition.getUniqueId());
+      subIndustryNode.addPosition(addedPosition.getUniqueId());
     }
     
     // adds the complete tree structure to the master
@@ -120,27 +182,73 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
    */
   protected Collection<EquitySecurity> createAndPersistEquitySecurities() {
     SecurityMaster secMaster = _loaderContext.getSecurityMaster();
-    Collection<EquitySecurity> securities = new ArrayList<EquitySecurity>();
-    securities.add(createEquitySecurity("Apple Inc", Currency.USD, "Nasdaq NGS", "XNGS", 45202010, 
-                                        Identifier.of(SecurityUtils.ISIN, "US0378331005"), 
-                                        Identifier.of(SecurityUtils.CUSIP, "037833100"), 
-                                        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, "AAPL")));
-    securities.add(createEquitySecurity("Microsoft Corp", Currency.USD, "Nasdaq NGS", "XNGS", 45103020, 
-                                        Identifier.of(SecurityUtils.ISIN, "US594918104"), 
-                                        Identifier.of(SecurityUtils.CUSIP, "594918104"), 
-                                        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, "MSFT")));
-    securities.add(createEquitySecurity("Google Inc", Currency.USD, "Nasdaq NGS", "XNGS", 45101010, 
-                                        Identifier.of(SecurityUtils.ISIN, "US38259P5089"), 
-                                        Identifier.of(SecurityUtils.CUSIP, "38259P508"), 
-                                        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GOOG")));
-    securities.add(createEquitySecurity("ARM Holdings", Currency.GBP, "London Stock Exchange", "XLON", 45301020, 
-                                        Identifier.of(SecurityUtils.ISIN, "GB0000595859"), 
-                                        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, "ARM")));
+    Collection<EquitySecurity> securities = loadEquitySecurities();
     for (EquitySecurity security : securities) {
       SecurityDocument doc = new SecurityDocument(security);
       secMaster.add(doc);
     }
     return securities;
+  }
+
+  private Collection<EquitySecurity> loadEquitySecurities() {
+    Collection<EquitySecurity> equities = new ArrayList<EquitySecurity>();
+    InputStream inputStream = SelfContainedEquityPortfolioAndSecurityLoader.class.getResourceAsStream("demo-equity.csv");  
+    try {
+      if (inputStream != null) {
+        CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        String[] headers = csvReader.readNext();
+        normaliseHeaders(headers);
+        
+        String[] line;
+        int rowIndex = 1;
+        while ((line = csvReader.readNext()) != null) {
+          Map<String, String> equityDetails = new HashMap<String, String>();
+          for (int i = 0; i < headers.length; i++) {
+            if (i >= line.length) {
+              // Run out of headers for this line
+              break;
+            }
+            equityDetails.put(headers[i], line[i]);
+          }
+          try {
+            equities.add(parseEquity(equityDetails));
+          } catch (Exception e) {
+            s_logger.warn("Skipped row " + rowIndex + " because of an error", e);
+          }
+          rowIndex++;
+        }
+      }
+    } catch (FileNotFoundException ex) {
+      throw new OpenGammaRuntimeException("File '" + inputStream + "' could not be found");
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("An error occurred while reading file '" + inputStream + "'");
+    }
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append("Parsed ").append(equities.size()).append(" equities:\n");
+    for (EquitySecurity equity : equities) {
+      sb.append("\t").append(equity.getName()).append("\n");
+    }
+    s_logger.info(sb.toString());
+    
+    return equities;
+  }
+
+  private EquitySecurity parseEquity(Map<String, String> equityDetails) {
+    String companyName = getWithException(equityDetails, "companyname");
+    String currency = getWithException(equityDetails, "currency");
+    String exchange = getWithException(equityDetails, "exchange");
+    String exchangeCode = getWithException(equityDetails, "exchangecode");
+    String gisCode = getWithException(equityDetails, "giscode");
+    String isin = getWithException(equityDetails, "isin");
+    String cusip = getWithException(equityDetails, "cusip");
+    String ticker = getWithException(equityDetails, "ticker");
+    
+    return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, Integer.parseInt(gisCode), 
+        Identifier.of(SecurityUtils.ISIN, isin), 
+        Identifier.of(SecurityUtils.CUSIP, cusip), 
+        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
   }
 
   /**
@@ -213,7 +321,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "demoEquityPortfolioLoader".
+   * under the name "selfContainedEquityPortfolioAndSecurityLoader".
    * 
    * @param args  the arguments, unused
    */

@@ -179,18 +179,8 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   }
 
   @Override
-  public Iterator<Double> valuesIterator() {
-    return getFastSeries().valuesIterator();
-  }
-
-  @Override
   public List<DATE_TYPE> times() {
     return _converter.convertFromInt(getFastSeries().timesFast());
-  }
-
-  @Override
-  public List<Double> values() {
-    return getFastSeries().valuesFast();
   }
 
   @Override
@@ -198,11 +188,6 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     return _converter.convertFromInt(getFastSeries().timesArrayFast());
   }
 
-  @Override
-  public Double[] valuesArray() {
-    return ArrayUtils.toObject(getFastSeries().valuesArrayFast());
-  }
-  
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final UnaryOperator operator) {
     FastTimeSeries<Integer> fastResult = getFastSeries().operate(operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);

@@ -7,24 +7,28 @@ package com.opengamma.financial.interestrate.swaption.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
  */
-public final class SwaptionPhysicalFixedIborSABRMethod {
+public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod {
 
   /**
    * The par rate sensitivity calculator.
@@ -49,7 +53,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
    * @param sabrData The SABR data.
    * @return The present value.
    */
-  public double presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -67,7 +71,14 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return price;
+    return CurrencyAmount.of(swaption.getCurrency(), price);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    return presentValue((SwaptionPhysicalFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   /**

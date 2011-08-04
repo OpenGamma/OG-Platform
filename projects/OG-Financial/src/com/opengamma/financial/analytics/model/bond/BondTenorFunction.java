@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -24,9 +24,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.time.DateUtil;
 
@@ -57,9 +57,10 @@ public class BondTenorFunction extends NonCompiledInvoker {
         .getConventionBundleSource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    BondDefinition bond = (BondDefinition) security.accept(visitor);
-    final LocalDate[] nominalDates = bond.getNominalDates();
-    final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;
+    final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) security.accept(visitor);
+    final ZonedDateTime firstCouponDate = bond.getCoupon().getNthPayment(0).getAccrualStartDate();
+    final ZonedDateTime lastCouponDate = bond.getCoupon().getNthPayment(bond.getCoupon().getNumberOfPayments() - 1).getPaymentDate();
+    final double t = DateUtil.getDaysBetween(firstCouponDate, lastCouponDate) / 365;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, t));
   }
@@ -71,10 +72,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getSecurity()), getUniqueId()));
-    }
-    return null;
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getSecurity()), getUniqueId()));
   }
 
 }

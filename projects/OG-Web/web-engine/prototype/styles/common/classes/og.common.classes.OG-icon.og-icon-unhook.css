@@ -1,0 +1,18 @@
+.OG-icon.og-icon-unhook:after {
+  background-position: -31px -60px;
+  background-color: transparent;
+  height: 14px;
+  width: 14px;
+  z-index: 2;
+  position: absolute;
+  top: -10px;
+}
+
+.OG-icon.og-icon-unhook:hover:after {
+  background-position: -16px -60px;
+  background-color: transparent;
+  z-index: 2;
+  position: absolute;
+  margin-top: 0;
+  margin-left: 0;
+}

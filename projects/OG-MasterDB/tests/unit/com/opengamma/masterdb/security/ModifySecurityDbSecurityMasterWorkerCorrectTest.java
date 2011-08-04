@@ -50,7 +50,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _secMaster.correct(doc);
@@ -66,7 +66,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.correct(doc);
   }
@@ -85,7 +85,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     SecurityDocument base = _secMaster.get(uid);
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument corrected = _secMaster.correct(input);

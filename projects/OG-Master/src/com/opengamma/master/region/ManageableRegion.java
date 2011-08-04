@@ -33,6 +33,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -126,23 +127,23 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the country ISO code.
-   * This is the 2 letter country code.
+   * Gets the country.
    * @return the value of the property
    */
-  public String getCountryISO() {
-    return _identifiers.getIdentifierValue(RegionUtils.ISO_COUNTRY_ALPHA2);
+  public Country getCountry() {
+    String code = _identifiers.getIdentifierValue(RegionUtils.ISO_COUNTRY_ALPHA2);
+    return (code != null ? Country.of(code) : null);
   }
 
   /**
    * Sets the country, stored in the identifier set.
    * 
-   * @param countryISO  the country to set, null to remove any defined country ISO
+   * @param country  the country to set, null to remove any defined country
    */
-  public void setCountryISO(String countryISO) {
-    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
-    if (countryISO != null) {
-      addIdentifier(RegionUtils.countryRegionId(countryISO));
+  public void setCountry(Country country) {
+    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_CURRENCY_ALPHA3));
+    if (country != null) {
+      addIdentifier(RegionUtils.countryRegionId(country));
     }
   }
 
@@ -201,6 +202,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   public static ManageableRegion.Meta meta() {
     return ManageableRegion.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableRegion.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableRegion.Meta metaBean() {
@@ -208,7 +212,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -225,12 +229,12 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
       case 3076010:  // data
         return getData();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -254,7 +258,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
         setData((FlexiBean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -8,7 +8,6 @@ package com.opengamma.core.position.impl;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,10 +16,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -48,28 +49,23 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    */
   private BigDecimal _quantity;
   /**
-   * The identifier specifying the security.
+   * The link to the security.
    */
-  private IdentifierBundle _securityKey;
-  /**
-   * The security.
-   */
-  private Security _security;
+  private SecurityLink _securityLink;
   /**
    * The sets of trades that make up the position.
    */
   private final Set<Trade> _trades = Sets.newHashSet();
-  
   /**
    * The trade attributes
    */
-  private Map<String, String> _attributes = new HashMap<String, String>();
-
+  private Map<String, String> _attributes = Maps.newHashMap();
 
   /**
    * Construct an empty instance that must be populated via setters.
    */
   public PositionImpl() {
+    _securityLink = new SecurityLink();
   }
 
   /**
@@ -82,8 +78,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
-    _securityKey = IdentifierBundle.of(securityKey);
-    _security = null;
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
@@ -96,8 +91,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
-    _securityKey = securityKey;
-    _security = null;
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
@@ -113,8 +107,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(securityKey, "securityKey");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityKey = IdentifierBundle.of(securityKey);
-    _security = null;
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
@@ -130,8 +123,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(securityKey, "securityKey");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityKey = securityKey;
-    _security = null;
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
@@ -147,31 +139,11 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(security, "security");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityKey = security.getIdentifiers();
-    _security = security;
+    _securityLink = SecurityLink.of(security);
   }
 
   /**
-   * Creates a position from an amount of a security.
-   * 
-   * @param uniqueId  the unique identifier, not null
-   * @param quantity  the amount of the position, not null
-   * @param securityKey  the security identifier, not null
-   * @param security  the security, not null
-   */
-  public PositionImpl(UniqueIdentifier uniqueId, BigDecimal quantity, IdentifierBundle securityKey, Security security) {
-    ArgumentChecker.notNull(uniqueId, "identifier");
-    ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    ArgumentChecker.notNull(security, "security");
-    _uniqueId = uniqueId;
-    _quantity = quantity;
-    _securityKey = securityKey;
-    _security = security;
-  }
-
-  /**
-   * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
+   * Creates a deep copy of the specified position.
    * 
    * @param copyFrom  the instance to copy fields from, not null
    */
@@ -180,9 +152,12 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _uniqueId = copyFrom.getUniqueId();
     _parentNodeId = copyFrom.getParentNodeId();
     _quantity = copyFrom.getQuantity();
-    _securityKey = copyFrom.getSecurityKey();
-    _security = copyFrom.getSecurity();
-    _trades.addAll(copyFrom.getTrades());
+    _securityLink = copyFrom.getSecurityLink().clone();
+    for (Trade trade : copyFrom.getTrades()) {
+      TradeImpl clonedTrade = new TradeImpl(trade);
+      clonedTrade.setParentPositionId(_uniqueId);
+      _trades.add(clonedTrade);
+    }
     setAttributes(copyFrom.getAttributes());
   }
 
@@ -250,46 +225,39 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a key to the security being held.
+   * Gets the link to the security being held.
    * <p>
    * This allows the security to be referenced without actually loading the security itself.
    * 
-   * @return the security key
+   * @return the security link, not null
    */
   @Override
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
+  public SecurityLink getSecurityLink() {
+    return _securityLink;
   }
 
   /**
-   * Sets the key to the security being held.
+   * Sets the link to the security being held.
    * 
-   * @param securityKey  the security key, may be null
+   * @param securityLink  the security link, not null
    */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    _securityKey = securityKey;
+  public void setSecurityLink(SecurityLink securityLink) {
+    ArgumentChecker.notNull(securityLink, "securityLink");
+    _securityLink = securityLink;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security being held, returning {@code null} if it has not been loaded.
+   * Gets the target security from the link.
    * <p>
-   * This method is guaranteed to return a security within an analytic function.
+   * This convenience method gets the target security from the link.
+   * This is guaranteed to return a security within an analytic function.
    * 
-   * @return the security
+   * @return the security link, null if target not resolved in the link
    */
   @Override
   public Security getSecurity() {
-    return _security;
-  }
-
-  /**
-   * Sets the security being held.
-   * 
-   * @param security  the security, may be null
-   */
-  public void setSecurity(Security security) {
-    _security = security;
+    return _securityLink.getTarget();
   }
 
   //-------------------------------------------------------------------------
@@ -391,8 +359,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
       return new EqualsBuilder().append(getQuantity(), other.getQuantity())
-          .append(getSecurityKey(), other.getSecurityKey())
-          .append(getSecurity(), other.getSecurity())
+          .append(getSecurityLink(), other.getSecurityLink())
           .append(getTrades(), other.getTrades())
           .append(getParentNodeId(), other.getParentNodeId())
           .append(getAttributes(), other.getAttributes())
@@ -405,8 +372,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public int hashCode() {
     return new HashCodeBuilder()
         .append(getQuantity())
-        .append(getSecurityKey())
-        .append(getSecurity())
+        .append(getSecurityLink())
         .append(getTrades())
         .append(getParentNodeId())
         .append(getAttributes())
@@ -421,11 +387,9 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(getSecurity() != null ? getSecurity() : getSecurityKey())
+        .append(getSecurityLink().getBest())
         .append(']')
         .toString();
   }
-
-  
 
 }

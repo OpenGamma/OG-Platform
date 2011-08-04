@@ -19,6 +19,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -54,7 +55,7 @@ public class CashFlowEquivalentCalculatorTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final FixedCouponSwap<Payment> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final FixedCouponSwap<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculator
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -114,7 +115,7 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a Ibor leg.
    */
   public void iborLeg() {
-    GenericAnnuity<Payment> leg = SWAP.getSecondLeg();
+    GenericAnnuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
     AnnuityPaymentFixed cfe = CFEC.visit(leg, CURVES);
     assertEquals("Ibor leg: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());
@@ -145,7 +146,7 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a fixe-Ibor swap.
    */
   public void swapFixedIbor() {
-    GenericAnnuity<Payment> leg = SWAP.getSecondLeg();
+    GenericAnnuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
     AnnuityPaymentFixed cfe = CFEC.visit(SWAP, CURVES);
     assertEquals("Swap: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());

@@ -38,21 +38,20 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final DecimalFormat FORMATTER = new DecimalFormat("##.#"); 
+  private static final DecimalFormat FORMATTER = new DecimalFormat("##.#");
 
-  public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName) {
-    this(Currency.of(currency), definitionName);
+  public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+    this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
 
-  public SwaptionSABRPresentValueSABRFunction(final Currency currency, final String definitionName) {
-    super(currency, definitionName, false);
+  public SwaptionSABRPresentValueSABRFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+    super(currency, definitionName, false, forwardCurveName, fundingCurveName);
   }
 
   @Override
@@ -61,25 +60,17 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
-    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
-    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
+    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, getForwardCurveName(), getFundingCurveName());
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(swaption, data);
-    final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), createValueProperties()
+    final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
-    final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
-    final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get());
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
+        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
+    final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), resultProperties);
+    final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), resultProperties);
+    final ValueSpecification rhoSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), resultProperties);
     final Map<DoublesPair, Double> alpha = presentValue.getAlpha();
     final Map<DoublesPair, Double> nu = presentValue.getNu();
     final Map<DoublesPair, Double> rho = presentValue.getRho();
@@ -95,13 +86,6 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     return getResults(target.toSpecification(), resultProperties);
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-    final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
-    return getResults(target.toSpecification(), resultProperties);
-  }
-  
   private Set<ValueSpecification> getResults(final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, resultProperties);
@@ -109,16 +93,16 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     return Sets.newHashSet(alphaSpec, nuSpec, rhoSpec);
   }
 
-  private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, SwaptionSecurity security, ZonedDateTime now) {
+  private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, final SwaptionSecurity security, final ZonedDateTime now) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
-    ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
-    SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
-    ZonedDateTime swapMaturity = underlying.getMaturityDate();
-    double swaptionExpiryYears = DateUtil.getDifferenceInYears(now, swaptionExpiry);
-    double swapMaturityYears = DateUtil.getDifferenceInYears(now, swapMaturity);    
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[]{FORMATTER.format(swaptionExpiryYears)}, 
-                                      new Double[] {entry.getKey().second}, new Object[]{FORMATTER.format(swapMaturityYears)}, 
+    final ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
+    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+    final ZonedDateTime swapMaturity = underlying.getMaturityDate();
+    final double swaptionExpiryYears = DateUtil.getDifferenceInYears(now, swaptionExpiry);
+    final double swapMaturityYears = DateUtil.getDifferenceInYears(now, swapMaturity);
+    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[] {FORMATTER.format(swaptionExpiryYears)},
+                                      new Double[] {entry.getKey().second}, new Object[] {FORMATTER.format(swapMaturityYears)},
                                       new double[][] {new double[] {entry.getValue()}});
   }
-  
+
 }

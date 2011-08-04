@@ -38,7 +38,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
-import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
+import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;

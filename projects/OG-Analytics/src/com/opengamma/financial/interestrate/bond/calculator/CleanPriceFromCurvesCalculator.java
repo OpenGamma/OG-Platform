@@ -21,6 +21,10 @@ public final class CleanPriceFromCurvesCalculator extends AbstractInterestRateDe
    * The calculator instance.
    */
   private static final CleanPriceFromCurvesCalculator s_instance = new CleanPriceFromCurvesCalculator();
+  /**
+   * The fixed coupon bond method.
+   */
+  private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
@@ -40,8 +44,7 @@ public final class CleanPriceFromCurvesCalculator extends AbstractInterestRateDe
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    final BondSecurityDiscountingMethod method = new BondSecurityDiscountingMethod();
-    return method.cleanPriceFromCurves(bond, curves);
+    return METHOD_BOND.cleanPriceFromCurves(bond, curves);
   }
 
 }

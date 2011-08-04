@@ -40,11 +40,11 @@ $.register_module({
                 },
                 input: {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
                 },
                 'error': {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'Ok': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
                 }
             };
             // Merge default_options.all with the options for each dialog
@@ -60,7 +60,7 @@ $.register_module({
                 // if the html isnt already in the dom, add it
                 if ($(css_class).length === 0) $('body').append(default_options.error.html);
                 $obj = $(css_class);
-                $obj.attr('title', obj.title || 'Opps, something seem to have gone wrong');
+                $obj.attr('title', obj.title || 'Oops, something seem to have gone wrong');
                 $obj.html(obj.message);
                 $obj.dialog($.extend(true, default_options.error.jquery, obj));
             }

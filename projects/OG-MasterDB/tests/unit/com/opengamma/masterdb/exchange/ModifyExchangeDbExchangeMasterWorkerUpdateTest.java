@@ -35,8 +35,8 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerUpdateTest.class);
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
-  private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
+  private static final IdentifierBundle BUNDLE = IdentifierBundle.of("A", "B");
+  private static final IdentifierBundle REGION = IdentifierBundle.of("C", "D");
 
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {

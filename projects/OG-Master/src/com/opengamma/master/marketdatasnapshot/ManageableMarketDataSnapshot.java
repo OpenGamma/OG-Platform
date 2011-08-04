@@ -115,6 +115,9 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   public static ManageableMarketDataSnapshot.Meta meta() {
     return ManageableMarketDataSnapshot.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableMarketDataSnapshot.Meta.INSTANCE);
+  }
 
   @Override
   public ManageableMarketDataSnapshot.Meta metaBean() {
@@ -122,7 +125,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
@@ -139,12 +142,12 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
       case -1329840981:  // volatilitySurfaces
         return getVolatilitySurfaces();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -168,7 +171,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

@@ -6,6 +6,8 @@
 package com.opengamma.financial.model.volatility.smile.function;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -16,6 +18,12 @@ import com.opengamma.util.CompareUtils;
  * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  */
 public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
+
+  /**
+   * Logger.
+   */
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganVolatilityFunction.class);
+
   private static final double CUTOFF_MONEYNESS = 1e-6;
   private static final double EPS = 1e-15;
 
@@ -104,8 +112,16 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     if (Math.abs(forward - strike) < 1E-7) {
       rzxz = 1 - rho * z / 2; // order 1
     } else {
-      xz = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) / (1 - rho));
-      rzxz = z / xz;
+      if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        if (z >= 1.0) {
+          rzxz = 0.0;
+        } else {
+          rzxz = -z / Math.log(1 - z);
+        }
+      } else {
+        xz = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) / (1 - rho));
+        rzxz = z / xz;
+      }
     }
     final double sf1 = sfK * (1 + (1 - beta) * (1 - beta) / 24 * (lnrfK * lnrfK) + Math.pow(1 - beta, 4) / 1920 * Math.pow(lnrfK, 4));
     final double sf2 = (1 + (Math.pow((1 - beta) * alpha / sfK, 2) / 24 + (rho * beta * nu * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
@@ -121,8 +137,16 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     if (Math.abs(forward - strike) < 1E-7) {
       zBar = -rho / 2 * rzxzBar;
     } else {
-      xzBar = -z / (xz * xz) * rzxzBar;
-      zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
+      if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        if (z >= 1.0) {
+          zBar = 0.0;
+        } else {
+          zBar = -1.0 / Math.log(1 - z) * (1 + z / Math.log(1 - z) / (1 - z)) * rzxzBar;
+        }
+      } else {
+        xzBar = -z / (xz * xz) * rzxzBar;
+        zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
+      }
     }
     final double lnrfKBar = sfK * ((1 - beta) * (1 - beta) / 12 * lnrfK + Math.pow(1 - beta, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar + nu / alpha * sfK * zBar;
     //TODO R white 28/07/2011 This could be written as 
@@ -137,7 +161,13 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     if (Math.abs(forward - strike) < 1E-7) {
       rhoBar = -z / 2 * rzxzBar;
     } else {
-      rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / (1 - rho)) * xzBar;
+      if (CompareUtils.closeEquals(1.0 - rho, 0.0, 1e-8)) {
+        s_logger.error("SABR derivatives are not correct in the degenerate case were rho=1.0.");
+        //FIXME: Complete the derivatives in the degenerate case.
+        rhoBar = 0.0;
+      } else {
+        rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / (1 - rho)) * xzBar;
+      }
     }
     rhoBar += ((beta * nu * alpha) / (4 * sfK) - rho * nu * nu / 4) * timeToExpiry * sf2Bar;
 

@@ -64,7 +64,7 @@ public class VariableCoefficientWaveEquationTest {
     UPPER = new DirichletBoundaryCondition(0,2*Math.PI);
   }
   
-  @Test
+  @Test(enabled=false)
   public void test() {
     
     int spaceSteps = 100;//7;

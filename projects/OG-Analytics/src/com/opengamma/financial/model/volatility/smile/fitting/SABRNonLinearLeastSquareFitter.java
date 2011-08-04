@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import java.util.BitSet;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
@@ -27,6 +23,10 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
+import java.util.BitSet;
+
+import org.apache.commons.lang.Validate;
+
 /**
  * 
  */
@@ -44,6 +44,10 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   }
   private final VolatilityFunctionProvider<SABRFormulaData> _formula;
   private final SABRATMVolatilityCalculator _atmCalculator;
+
+  public static NonLinearLeastSquare getSolver() {
+    return SOLVER;
+  }
 
   public SABRNonLinearLeastSquareFitter(final VolatilityFunctionProvider<SABRFormulaData> formula) {
     Validate.notNull(formula, "SABR formula");
@@ -111,8 +115,8 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
-    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
-        new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp)
+                                                    : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
     final double[] mp = transforms.inverseTransform(lsRes.getParameters()).toArray();
     if (recoverATMVol) {
       final double beta = mp[1];
@@ -123,6 +127,6 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
       final double value = _atmCalculator.calculate(sabrFormulaData, option, atmVol);
       mp[0] = value;
     }
-    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]), lsRes.getInverseJacobian());
   }
 }

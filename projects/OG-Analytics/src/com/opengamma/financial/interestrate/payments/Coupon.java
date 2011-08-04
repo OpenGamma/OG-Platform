@@ -97,14 +97,4 @@ public abstract class Coupon extends Payment {
     return true;
   }
 
-  //  @Override
-  //  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-  //    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
-  //  }
-  //
-  //  @Override
-  //  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-  //    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
-  //  }
-
 }

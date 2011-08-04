@@ -137,6 +137,10 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
         }
         String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
         String instrumentType = valueRequirement.getConstraint("InstrumentType");
+        if (valueRequirement.getConstraints().getProperties() != null && valueRequirement.getConstraints().getProperties().size() > 2) {
+          //Don't satisfy random constraints, perhaps this is a derived surface
+          return null;
+        }
         return new VolatilitySurfaceKey(target, name, instrumentType);
       }
       
@@ -236,11 +240,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       }
       return buildVolatilityCubeData(volCubeSnapshot);
     } else if (marketDataKey instanceof VolatilitySurfaceKey) {
-      VolatilitySurfaceSnapshot snapshot = getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
-      if (snapshot == null) {
-        return null;
-      }
-      return buildVolatilitySurfaceData(snapshot, (VolatilitySurfaceKey) marketDataKey);
+      return getVolSurfaceSnapshot((VolatilitySurfaceKey) marketDataKey);
     } else {
       throw new IllegalArgumentException(MessageFormat.format("Don''t know what {0} means.", marketDataKey));
     }
@@ -278,10 +278,14 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     }
   }
   
-  private VolatilitySurfaceSnapshot getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
+  private VolatilitySurfaceData<Object, Object> getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
     if (volSurfaceKey.getName() != null && volSurfaceKey.getInstrumentType() != null)
     {
-      return getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
+      VolatilitySurfaceSnapshot volatilitySurfaceSnapshot = getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
+      if (volatilitySurfaceSnapshot == null) {
+        return null;
+      }
+      return buildVolatilitySurfaceData(volatilitySurfaceSnapshot, (VolatilitySurfaceKey) volSurfaceKey);
     }
     
     //Match with wildcards
@@ -289,9 +293,9 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
       //This could return any old surface, but hey, that's what they asked for right?
       VolatilitySurfaceKey key = entry.getKey();
       if (key.getTarget().equals(volSurfaceKey.getTarget())
-          && (key.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
-          && (key.getName() == null || key.getName() == volSurfaceKey.getName())) {
-        return entry.getValue();
+          && (volSurfaceKey.getInstrumentType() == null || key.getInstrumentType() == volSurfaceKey.getInstrumentType())
+          && (volSurfaceKey.getName() == null || key.getName() == volSurfaceKey.getName())) {
+        return buildVolatilitySurfaceData(entry.getValue(), entry.getKey());
       }
     }
     return null;

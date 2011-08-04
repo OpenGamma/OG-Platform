@@ -33,14 +33,14 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
    * Tests the currency pair and map getters.
    */
   public void getter() {
-    Map<DoublesPair, Double> vega = new HashMap<DoublesPair, Double>();
-    double exp = 1.0;
-    double strike = 0.05;
-    double value = 10000;
-    DoublesPair point = new DoublesPair(exp, strike);
+    final Map<DoublesPair, Double> vega = new HashMap<DoublesPair, Double>();
+    final double exp = 1.0;
+    final double strike = 0.05;
+    final double value = 10000;
+    final DoublesPair point = new DoublesPair(exp, strike);
     vega.put(point, value);
     final PresentValueVolatilitySensitivityDataBundle sensi = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);
-    Pair<Currency, Currency> pair = ObjectsPair.of(CUR_1, CUR_2);
+    final Pair<Currency, Currency> pair = ObjectsPair.of(CUR_1, CUR_2);
     assertEquals("Currency pair", pair, sensi.getCurrencyPair());
     assertEquals("Vega", vega, sensi.getVega());
   }
@@ -50,29 +50,30 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
    * Tests the equal and hash-code methods.
    */
   public void equalHash() {
-    double exp = 1.0;
-    double strike = 0.05;
-    double value = 10000;
-    DoublesPair point = new DoublesPair(exp, strike);
+    final double exp = 1.0;
+    final double strike = 0.05;
+    final double value = 10000;
+    final DoublesPair point = new DoublesPair(exp, strike);
     Map<DoublesPair, Double> vega = new HashMap<DoublesPair, Double>();
     vega.put(point, value);
     final PresentValueVolatilitySensitivityDataBundle sensitivities = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);
-    Map<DoublesPair, Double> copy = new HashMap<DoublesPair, Double>();
-    for(Map.Entry<DoublesPair, Double> entry : vega.entrySet()) {
+    final Map<DoublesPair, Double> copy = new HashMap<DoublesPair, Double>();
+    for (final Map.Entry<DoublesPair, Double> entry : vega.entrySet()) {
       copy.put(entry.getKey(), entry.getValue());
     }
     assertTrue(sensitivities.equals(new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, copy)));
-    vega = new HashMap<DoublesPair, Double>();    
-    PresentValueVolatilitySensitivityDataBundle other = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, new HashMap<DoublesPair, Double>());
-    other = other.add(point, value / 2.0);
+    vega = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> newVega = new HashMap<DoublesPair, Double>();
+    newVega.put(point, value / 2.0);
+    PresentValueVolatilitySensitivityDataBundle other = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, newVega);
     other = other.add(point, value / 2.0);
     assertTrue(other.equals(sensitivities));
     assertEquals(other.hashCode(), sensitivities.hashCode());
     PresentValueVolatilitySensitivityDataBundle modified;
-    modified = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_3, vega);
+    modified = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_3, newVega);
     assertFalse(modified.equals(sensitivities));
     vega.put(point, value + 1);
-    modified = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);
+    modified = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, newVega);
     assertFalse(modified.equals(sensitivities));
     assertFalse(modified.equals(CUR_1));
     assertFalse(modified.equals(null));
@@ -84,15 +85,15 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
    */
   public void addSamePoint() {
     Map<DoublesPair, Double> vega = new HashMap<DoublesPair, Double>();
-    double exp = 1.0;
-    double strike = 0.05;
-    double value = 10000;
-    DoublesPair point = new DoublesPair(exp, strike);
+    final double exp = 1.0;
+    final double strike = 0.05;
+    final double value = 10000;
+    final DoublesPair point = new DoublesPair(exp, strike);
     vega.put(point, 2 * value);
-    final PresentValueVolatilitySensitivityDataBundle first = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);    
+    final PresentValueVolatilitySensitivityDataBundle first = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);
     vega = new HashMap<DoublesPair, Double>();
+    vega.put(point, value);
     PresentValueVolatilitySensitivityDataBundle second = new PresentValueVolatilitySensitivityDataBundle(CUR_1, CUR_2, vega);
-    second = second.add(point, value);
     second = second.add(point, value);
     assertEquals(first, second);
     //assertEquals("Vega", vega, sensi.getVega());

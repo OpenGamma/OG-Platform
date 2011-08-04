@@ -1,45 +1,26 @@
-<div class="OG-grid-box">
-  <div class="og-title">Constraints</div>
-  <div class="OG-gradient-02 og-container">
-  <table id="${widget}" style="width: 100%;">
-    <tfoot>
-      <tr>
-        <td colspan="6">
-          <span class="og-labeled">optional</span><span class="og-remove">del</span><span class="og-add">add</span>
-        </td>
-      </tr>
-    </tfoot>
-    <tbody class="OG-constraints">
-    <tr id="${row_with}" class="og-js-with">
-      <td><label><input class="og-js-radio" value="with" type="radio">With</label></td>
-      <td><label><input class="og-js-radio" value="without" type="radio">Without</label></td>
-      <td class="og-with">
-        <input type="text" class="og-js-key" placeholder="type" /><span>=</span>
+<div id="${container}" class="og-constraints OG-clearFix ${classes}">
+  <div>Constraints:</div>
+  <ul id="${widget}" class="og-awesome-list">
+    <li id="${row_with}" class="og-js-with og-js-row">
+      <div class="og-del og-js-rem"></div>
+      <div class="og-with">
+        <label><input class="og-js-radio" value="with" type="radio" />with</label>
+        <label><input class="og-js-radio" value="without" type="radio" />without</label>
+        <input type="text" class="og-js-key" placeholder="type" />
+        <span>=</span>
         <input type="text" class="og-js-value" placeholder="allow all" />
-      </td>
-      <td class="og-labeled"><input type="checkbox" title="make this constraint optional" /></td>
-      <td class="og-remove">
-        <span class="OG-icon og-icon-remove og-js-remove" title="delete this constraint"></span>
-      </td>
-      <td class="og-add"><span class="OG-icon og-icon-add og-js-add" title="add a new constraint"></span></td>
-    </tr>
-    <tr id="${row_without}" class="og-js-without">
-      <td><label><input class="og-js-radio" value="with" type="radio">With</label></td>
-      <td><label><input class="og-js-radio" value="without" type="radio">Without</label></td>
-      <td class="og-without og-js-without-field"><input type="text" class="og-js-key" placeholder="all" /></td>
-      <td class="og-labeled">&nbsp;</td>
-      <td class="og-remove">
-        <span class="OG-icon og-icon-remove og-js-remove" title="delete this constraint"></span>
-      </td>
-      <td class="og-add"><span class="OG-icon og-icon-add og-js-add" title="add a new constraint"></span></td>
-    </tr>
-    <tr id="${row_add}">
-      <td class="og-add">
-        <span class="OG-icon og-icon-add og-js-add" title="add a new constraint">Add constraint</span>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-    </tr>
-    </tbody>
-  </table>
-  </div>
+        <label><input type="checkbox" title="make this constraint optional" />optional</label>
+      </div>
+    </li>
+    <li id="${row_without}" class="og-js-without og-js-row">
+      <div class="og-del"></div>
+      <div class="og-without">
+        <label><input class="og-js-radio" value="with" type="radio" />with</label>
+        <label><input class="og-js-radio" value="without" type="radio" />without</label>
+        <input type="text" class="og-js-without-field og-js-key" placeholder="all" />
+        <label><input type="checkbox" disabled="disabled" title="make this constraint optional" />optional</label>
+      </div>
+    </li>
+  </ul>
+  <div><span class="og-new-link og-js-add">add constraint</span></div>
 </div>

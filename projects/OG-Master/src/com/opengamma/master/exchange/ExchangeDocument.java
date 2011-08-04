@@ -81,6 +81,9 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   public static ExchangeDocument.Meta meta() {
     return ExchangeDocument.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ExchangeDocument.Meta.INSTANCE);
+  }
 
   @Override
   public ExchangeDocument.Meta metaBean() {
@@ -88,18 +91,18 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
       case 1989774883:  // exchange
         return getExchange();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
@@ -108,7 +111,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
         setExchange((ManageableExchange) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

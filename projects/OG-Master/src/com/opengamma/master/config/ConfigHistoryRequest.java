@@ -101,6 +101,9 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   public static <R> ConfigHistoryRequest.Meta<R> meta() {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(ConfigHistoryRequest.Meta.INSTANCE);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -109,23 +112,23 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         return getType();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3575610:  // type
         setType((Class<T>) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

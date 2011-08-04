@@ -5,19 +5,23 @@
  */
 package com.opengamma.master.position.impl;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
@@ -44,6 +48,8 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public class MasterPositionSource implements PositionSource, VersionedSource {
   // TODO: This still needs work re versioning, as it crosses the boundary between two masters
+
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterPositionSource.class);
 
   /**
    * The portfolio master.
@@ -229,61 +235,92 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
         return null;
       }
     }
-    TradeImpl node = new TradeImpl();
-    convertTrade(nodeId, convertId(manTrade.getPositionId(), nodeId), manTrade, node);
-    return node;
+    convertTrade(nodeId, convertId(manTrade.getParentPositionId(), nodeId), manTrade);
+    return manTrade;
   }
 
-  //-------------------------------------------------------------------------
+  private static int populatePositionSearchRequest(final PositionSearchRequest positionSearch, final ManageablePortfolioNode node) {
+    int count = 0;
+    for (ObjectIdentifier positionIdentifier : node.getPositionIds()) {
+      positionSearch.addPositionId(positionIdentifier);
+      count++;
+    }
+    for (ManageablePortfolioNode child : node.getChildNodes()) {
+      count += populatePositionSearchRequest(positionSearch, child);
+    }
+    return count;
+  }
+
   /**
    * Converts a manageable node to a source node.
    * 
-   * @param manNode  the manageable node, not null
-   * @param sourceNode  the source node, not null
+   * @param manNode the manageable node, not null
+   * @param sourceNode the source node, not null
    */
   protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
-    UniqueIdentifier nodeId = manNode.getUniqueId();
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    final Map<ObjectIdentifier, ManageablePosition> positionCache;
+    final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
+    if (positionCount > 0) {
+      positionCache = Maps.newHashMapWithExpectedSize(positionCount);
+      positionSearch.setVersionCorrection(getVersionCorrection());
+      final PositionSearchResult positions = getPositionMaster().search(positionSearch);
+      for (PositionDocument position : positions.getDocuments()) {
+        positionCache.put(position.getObjectId(), position.getPosition());
+      }
+    } else {
+      positionCache = null;
+    }
+    convertNode(manNode, sourceNode, positionCache);
+  }
+
+  /**
+   * Converts a manageable node to a source node.
+   * 
+   * @param manNode the manageable node, not null
+   * @param sourceNode the source node, not null
+   * @param positionCache the positions, not null
+   */
+  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode, final Map<ObjectIdentifier, ManageablePosition> positionCache) {
+    final UniqueIdentifier nodeId = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
-    
     if (manNode.getPositionIds().size() > 0) {
-      PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.setPositionIds(manNode.getPositionIds());
-      positionSearch.setVersionCorrection(getVersionCorrection());
-      PositionSearchResult positions = getPositionMaster().search(positionSearch);
-      for (PositionDocument posDoc : positions.getDocuments()) {
-        ManageablePosition manPos = posDoc.getPosition();
-        PositionImpl pos = new PositionImpl();
-        convertPosition(nodeId, manPos, pos);
-        sourceNode.addPosition(pos);
+      for (ObjectIdentifier positionIdentifier : manNode.getPositionIds()) {
+        final ManageablePosition foundPosition = positionCache.get(positionIdentifier);
+        if (foundPosition != null) {
+          final PositionImpl position = new PositionImpl();
+          convertPosition(nodeId, foundPosition, position);
+          sourceNode.addPosition(position);
+        } else {
+          s_logger.warn("Position {} not found for portfolio node {}", positionIdentifier, nodeId);
+        }
       }
     }
-    
     for (ManageablePortfolioNode child : manNode.getChildNodes()) {
       PortfolioNodeImpl childNode = new PortfolioNodeImpl();
-      convertNode(child, childNode);
+      convertNode(child, childNode, positionCache);
       sourceNode.addChildNode(childNode);
     }
   }
 
   /**
-   * Converts a manageable node to a source node.
+   * Converts a manageable position to a source position
    * 
    * @param nodeId  the parent node unique identifier, null if root
    * @param manPos  the manageable position, not null
    * @param sourcePosition  the source position, not null
    */
   protected void convertPosition(final UniqueIdentifier nodeId, final ManageablePosition manPos, final PositionImpl sourcePosition) {
-    UniqueIdentifier posUid = convertId(manPos.getUniqueId(), nodeId);
-    sourcePosition.setUniqueId(posUid);
+    UniqueIdentifier posId = convertId(manPos.getUniqueId(), nodeId);
+    sourcePosition.setUniqueId(posId);
     sourcePosition.setParentNodeId(nodeId);
     sourcePosition.setQuantity(manPos.getQuantity());
-    sourcePosition.setSecurityKey(manPos.getSecurityKey());
+    sourcePosition.setSecurityLink(manPos.getSecurityLink());
     for (ManageableTrade manTrade : manPos.getTrades()) {
-      TradeImpl sourceTrade = new TradeImpl();
-      convertTrade(nodeId, posUid, manTrade, sourceTrade);
-      sourcePosition.addTrade(sourceTrade);
+      convertTrade(nodeId, posId, manTrade);
+      sourcePosition.addTrade(manTrade);
     }
     sourcePosition.setAttributes(manPos.getAttributes());
   }
@@ -294,26 +331,10 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param nodeId  the parent node unique identifier, null if root
    * @param posId  the converted position unique identifier, not null
    * @param manTrade  the manageable trade, not null
-   * @param sourceTrade  the source trade, not null
    */
-  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
-    sourceTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
-    sourceTrade.setParentPositionId(posId);
-    sourceTrade.setQuantity(manTrade.getQuantity());
-    sourceTrade.setSecurityKey(manTrade.getSecurityKey());
-    if (manTrade.getCounterpartyKey() != null) {
-      sourceTrade.setCounterparty(new CounterpartyImpl(manTrade.getCounterpartyKey()));
-    }
-    sourceTrade.setTradeDate(manTrade.getTradeDate());
-    sourceTrade.setTradeTime(manTrade.getTradeTime());
-    
-    //set premium
-    sourceTrade.setPremium(manTrade.getPremium());
-    sourceTrade.setPremiumCurrency(manTrade.getPremiumCurrency());
-    sourceTrade.setPremiumDate(manTrade.getPremiumDate());
-    sourceTrade.setPremiumTime(manTrade.getPremiumTime());
-    
-    sourceTrade.setAttributes(manTrade.getAttributes());
+  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade) {
+    manTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
+    manTrade.setParentPositionId(posId);
   }
 
   /**

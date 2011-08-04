@@ -1,91 +1,72 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
+import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
+ * @param <T> The type of data that the calculator needs
  */
-public abstract class BondFunction extends NonCompiledInvoker {
-  private final String _bondCurveName = "BondCurve";
-  private final String _requirementName;
+public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoker {
+  /** String indicating that the calculator used curves */
+  public static final String FROM_CURVES_METHOD = "FromCurves";
+  /** String indicating that the calculator used the clean price */
+  public static final String FROM_CLEAN_PRICE_METHOD = "FromCleanPrice";
+  /** String indicating that the calculator used the dirty price */
+  public static final String FROM_DIRTY_PRICE_METHOD = "FromDirtyPrice";
+  /** String indicating that the calculator used the yield */
+  public static final String FROM_YIELD_METHOD = "FromYield";
+  private final String _creditCurveName;
+  private final String _riskFreeCurveName;
+  private BondSecurityConverter _visitor;
 
-  public BondFunction(final String requirementName) {
-    Validate.notNull(requirementName, "requirementName");
-    _requirementName = requirementName;
-  }
-
-  public String getRequirementName() {
-    return _requirementName;
+  public BondFunction(final String creditCurveName, final String riskFreeCurveName) {
+    Validate.notNull(creditCurveName, "credit curve name");
+    Validate.notNull(creditCurveName, "risk-free curve name");
+    _creditCurveName = creditCurveName;
+    _riskFreeCurveName = riskFreeCurveName;
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    _visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
     final BondSecurity security = (BondSecurity) target.getSecurity();
-    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext
-        .getConventionBundleSource(executionContext);
-    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY,
-        security.getUniqueId());
-    final Object value = inputs.getValue(requirement);
-    if (value == null) {
-      throw new NullPointerException("Could not get " + requirement);
-    }
-    final BondDefinition bond = (BondDefinition) security.accept(visitor);
-    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now,
-        _bondCurveName);
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context,
-      final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target) && _requirementName != null) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target
-          .getSecurity().getUniqueId()));
-    }
-    return null;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY) {
-      final Security security = target.getSecurity();
-      return security instanceof BondSecurity;
-    }
-    return false;
+    final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) security.accept(_visitor);
+    final BondFixedSecurity bond = definition.toDerivative(date, _creditCurveName, _riskFreeCurveName);
+    return calculate(bond, getData(inputs, target), target);
   }
 
   @Override
@@ -93,12 +74,23 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return ComputationTargetType.SECURITY;
   }
 
-  protected Currency getCurrencyForTarget(final ComputationTarget target) {
-    final BondSecurity bond = (BondSecurity) target.getSecurity();
-    return bond.getCurrency();
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    return target.getSecurity() instanceof BondSecurity;
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency,
-      Security security, BondDefinition bond, Object value, ZonedDateTime now, String yieldCurveName);
+  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, T data, ComputationTarget target);
 
+  protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
+
+  protected String getCreditCurveName() {
+    return _creditCurveName;
+  }
+
+  protected String getRiskFreeCurveName() {
+    return _riskFreeCurveName;
+  }
 }

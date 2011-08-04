@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics;
 
 import java.util.Collections;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -38,7 +39,7 @@ public class FXSummingFunction extends FilteringSummingFunction implements Finan
   }
   
   @Override
-  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties) {
+  protected boolean isIncluded(FinancialSecurity security, ValueProperties filterProperties, SecuritySource securities) {
     return security.accept(this);
   }
   

@@ -95,6 +95,9 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   public static MarketDataSnapshotHistoryRequest.Meta meta() {
     return MarketDataSnapshotHistoryRequest.Meta.INSTANCE;
   }
+  static {
+    JodaBeanUtils.registerMetaBean(MarketDataSnapshotHistoryRequest.Meta.INSTANCE);
+  }
 
   @Override
   public MarketDataSnapshotHistoryRequest.Meta metaBean() {
@@ -102,22 +105,22 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   }
 
   @Override
-  protected Object propertyGet(String propertyName) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 274670706:  // includeData
         return isIncludeData();
     }
-    return super.propertyGet(propertyName);
+    return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 274670706:  // includeData
         setIncludeData((Boolean) newValue);
         return;
     }
-    super.propertySet(propertyName, newValue);
+    super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override

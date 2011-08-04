@@ -28,10 +28,10 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.forex.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.forex.calculator.ForexConverter;
-import com.opengamma.financial.forex.calculator.ForexDerivative;
+import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -74,42 +74,28 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final ForexConverter<?> definition = _visitor.visitFXForwardSecurity(security);
     final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fx, true);
-
-    //TODO the marked off area should be done in init()
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
     final String payCurveName = _payCurveName + "_" + payCurrency.getCode();
     final String receiveCurveName = _receiveCurveName + "_" + receiveCurrency.getCode();
     final String[] curveNames = new String[] {payCurveName, receiveCurveName};
-    final Object putCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payCurveName, _payCurveName, _payCurveName));
-    if (putCurveObject == null) {
+    final Object payCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payCurveName, _payCurveName, _payCurveName));
+    if (payCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + payCurveName + " curve");
     }
-    final YieldAndDiscountCurve putCurve = (YieldAndDiscountCurve) putCurveObject;
-    final Object callCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, _receiveCurveName, _receiveCurveName, _receiveCurveName));
-    if (callCurveObject == null) {
+    final YieldAndDiscountCurve putCurve = (YieldAndDiscountCurve) payCurveObject;
+    final Object receiveCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, _receiveCurveName, _receiveCurveName, _receiveCurveName));
+    if (receiveCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + receiveCurveName + " curve");
     }
-    final YieldAndDiscountCurve callCurve = (YieldAndDiscountCurve) putCurveObject;
-    final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {putCurve, callCurve};
-    final ForexDerivative fxOption = definition.toDerivative(now, curveNames);
+    final YieldAndDiscountCurve receiveCurve = (YieldAndDiscountCurve) receiveCurveObject;
+    final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {putCurve, receiveCurve};
+    final Forex fxForward = (Forex) definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
-    //    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    //    final Object spotObject = inputs.getValue(spotRequirement);
-    //    if (spotObject == null) {
-    //      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
-    //    }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @SuppressWarnings("unchecked")
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, _payCurveName)
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName).get();
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, getResult(fxOption, yieldCurves)));
+    return getResult(fxForward, yieldCurves, inputs, target);
   }
 
-  protected abstract Object getResult(ForexDerivative fxForward, YieldCurveBundle data);
+  protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -141,5 +127,21 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName).get();
     return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(),
         properties));
+  }
+
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  protected String getPayCurveName() {
+    return _payCurveName;
+  }
+
+  protected String getReceiveCurveName() {
+    return _receiveCurveName;
+  }
+
+  protected String getValueRequirementName() {
+    return _valueRequirementName;
   }
 }

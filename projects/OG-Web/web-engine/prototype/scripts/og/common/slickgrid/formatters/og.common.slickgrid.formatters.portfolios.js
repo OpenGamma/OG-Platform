@@ -7,10 +7,8 @@ $.register_module({
     dependencies: ['og.common.routes'],
     obj: function () {
         return function (row, cell, value, columnDef, dataContext) {
-            var routes = og.common.routes,
-                rule = og.views.portfolios.rules['load_portfolios'],
-                href = routes.hash(rule, {id: routes.current().args.id, node: dataContext.id});
-            return  '<a href="#' + href + '">' + dataContext.name + '</a>';
+            return dataContext.name
+                + '<div class="og-button"><div class="OG-icon og-icon-delete"></div></div>'
         };
     }
 });

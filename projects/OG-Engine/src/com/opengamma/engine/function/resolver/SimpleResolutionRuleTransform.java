@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.collections.Lists;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionParameters;
@@ -22,12 +23,105 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
- * Basic resolution rule transformations that match on a function's short name.
+ * Resolution rule transform that matches on the short name of the function.
  */
 public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleResolutionRuleTransform.class);
 
+  /**
+   * The function transformations.
+   */
+  private final Map<String, Action> _functionTransformations = new HashMap<String, Action>();
+
+  /**
+   * Gets the map of registered transformations.
+   * <p>
+   * The map is keyed by short function name, with the value being the the action to be applied.
+   * If multiple actions are applied, the function will be advertised by multiple new rules in
+   * place of the original. If a function is omitted from the set, the original rule is preserved.
+   * 
+   * @return the set of transformations, not null
+   */
+  @SuppressWarnings("unchecked")
+  public Map<String, Action> getFunctionTransformations() {
+    return Collections.unmodifiableMap(_functionTransformations);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Suppress any rules using the given function name.
+   * 
+   * @param shortFunctionName  the function to suppress, not null
+   */
+  public void suppressRule(final String shortFunctionName) {
+    registerAction(shortFunctionName, DontUse.INSTANCE);
+  }
+
+  /**
+   * Adjust the rules using the given function name.
+   * 
+   * @param shortFunctionName  the function to adjust, not null
+   * @param parameters  the function parameters, or null to use the original rule default
+   * @param priorityAdjustment  the priority shift, or null to use the original rule default
+   * @param computationTargetFilter  the computation target filter, or null to use the original rule default
+   */
+  public void adjustRule(final String shortFunctionName, final FunctionParameters parameters, final ComputationTargetFilter computationTargetFilter, final Integer priorityAdjustment) {
+    registerAction(shortFunctionName, new Adjust(parameters, computationTargetFilter, priorityAdjustment));
+  }
+
+  private void registerAction(final String shortFunctionName, final Action action) {
+    final Action existing = _functionTransformations.get(shortFunctionName);
+    if (existing == null) {
+      _functionTransformations.put(shortFunctionName, action);
+    } else {
+      _functionTransformations.put(shortFunctionName, existing.with(action));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
+    final Collection<ResolutionRule> result = Lists.newArrayList(rules.size());
+    for (ResolutionRule rule : rules) {
+      final String function = rule.getFunction().getFunction().getFunctionDefinition().getShortName();
+      final Action action = _functionTransformations.get(function);
+      if (action == null) {
+        s_logger.debug("Function {} has no transformation rules", function);
+        result.add(rule);
+      } else {
+        s_logger.debug("Applying transformation rules for function {}", function);
+        action.apply(rule, result);
+      }
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof SimpleResolutionRuleTransform) {
+      final SimpleResolutionRuleTransform other = (SimpleResolutionRuleTransform) obj;
+      return _functionTransformations.equals(other._functionTransformations);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return 0;  // not intended to be hashed
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + _functionTransformations;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Describes an action as part of a rule's transformation. 
    */
@@ -36,9 +130,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
     protected abstract Action with(Action other);
 
     protected abstract void apply(final ResolutionRule originalRule, final Collection<ResolutionRule> output);
-
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Describes a rule that should be suppressed.
    */
@@ -74,9 +168,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
     public String toString() {
       return "Don't use";
     }
-
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Describes a rule that should be adjusted.
    */
@@ -174,9 +268,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
       }
       return sb.append(']').toString();
     }
-
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Describes a set of adjustments for a single rule.
    */
@@ -239,92 +333,6 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
     public String toString() {
       return "Multiple" + _adjusts;
     }
-
-  }
-
-  private final Map<String, Action> _functionTransformations = new HashMap<String, Action>();
-
-  /**
-   * Returns the set of transformations as a map from short function names to the action(s) applied to
-   * matching resolution rules. If multiple actions are applied, the function will be advertised by
-   * multiple new rules in place of the original. If a function is omitted from the set, the original
-   * rule is preserved.
-   * 
-   * @return the set of transformations
-   */
-  @SuppressWarnings("unchecked")
-  public Map<String, Action> getFunctionTransformations() {
-    return Collections.unmodifiableMap(_functionTransformations);
-  }
-
-  private void registerAction(final String shortFunctionName, final Action action) {
-    final Action existing = _functionTransformations.get(shortFunctionName);
-    if (existing == null) {
-      _functionTransformations.put(shortFunctionName, action);
-    } else {
-      _functionTransformations.put(shortFunctionName, existing.with(action));
-    }
-  }
-
-  /**
-   * Suppress any rules using the given function name.
-   * 
-   * @param shortFunctionName function to suppress, not {@code null}
-   */
-  public void suppressRule(final String shortFunctionName) {
-    registerAction(shortFunctionName, DontUse.INSTANCE);
-  }
-
-  /**
-   * Adjust the rules using the given function name.
-   * 
-   * @param shortFunctionName function to adjust, not {@code null}
-   * @param parameters function parameters, or {@code null} to use the original rule default
-   * @param priorityAdjustment priority shift, or {@code null} to use the original rule default
-   * @param computationTargetFilter computation target filter, or {@code null} to use the original rule default
-   */
-  public void adjustRule(final String shortFunctionName, final FunctionParameters parameters, final ComputationTargetFilter computationTargetFilter, final Integer priorityAdjustment) {
-    registerAction(shortFunctionName, new Adjust(parameters, computationTargetFilter, priorityAdjustment));
-  }
-
-  @Override
-  public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
-    final Collection<ResolutionRule> result = new ArrayList<ResolutionRule>(rules.size());
-    for (ResolutionRule rule : rules) {
-      final String function = rule.getFunction().getFunction().getFunctionDefinition().getShortName();
-      final Action action = _functionTransformations.get(function);
-      if (action == null) {
-        s_logger.debug("Function {} has no transformation rules", function);
-        result.add(rule);
-      } else {
-        s_logger.debug("Applying transformation rules for function {}", function);
-        action.apply(rule, result);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof SimpleResolutionRuleTransform)) {
-      return false;
-    }
-    final SimpleResolutionRuleTransform other = (SimpleResolutionRuleTransform) o;
-    return _functionTransformations.equals(other._functionTransformations);
-  }
-
-  @Override
-  public int hashCode() {
-    // Not intended to be hashed
-    return 0;
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + _functionTransformations;
   }
 
 }
