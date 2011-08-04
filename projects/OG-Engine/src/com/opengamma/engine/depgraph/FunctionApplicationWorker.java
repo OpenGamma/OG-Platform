@@ -106,9 +106,11 @@ import com.opengamma.util.Cancellable;
       }
     }
     // Propagate the failure message to anything subscribing to us
-    if (finished(context)) {
-      s_logger.debug("Calling finished on {}", state);
-      state.finished(context);
+    if (state != null) {
+      if (finished(context)) {
+        s_logger.debug("Calling finished on {}", state);
+        state.finished(context);
+      }
     }
   }
 

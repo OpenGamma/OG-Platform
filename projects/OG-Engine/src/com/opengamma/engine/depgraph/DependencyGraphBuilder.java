@@ -8,13 +8,11 @@ package com.opengamma.engine.depgraph;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -35,10 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -370,6 +366,7 @@ public class DependencyGraphBuilder {
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
+  private final ResolvedValueCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs);
 
   // TODO: we could have different run queues for the different states. When the PENDING one is considered, a bulk lookup operation can then be done
 
@@ -384,140 +381,6 @@ public class DependencyGraphBuilder {
    * Incrementing identifier for background thread identifiers. Users must hold the _activeJobs monitor.
    */
   private int _nextJobThreadId;
-
-  private final ResolvedValueCallback _getTerminalValuesCallback = new ResolvedValueCallback() {
-
-    private final ConcurrentMap<ValueSpecification, DependencyNode> _spec2Node = new ConcurrentHashMap<ValueSpecification, DependencyNode>();
-    private final ConcurrentMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>> _func2target2nodes =
-        new ConcurrentHashMap<ParameterizedFunction, ConcurrentMap<ComputationTarget, List<DependencyNode>>>();
-
-    @Override
-    public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-      // TODO: extract some useful exception state from somewhere?
-      s_loggerBuilder.error("Couldn't resolve {}", value);
-    }
-
-    private List<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final ComputationTarget target) {
-      ConcurrentMap<ComputationTarget, List<DependencyNode>> target2nodes = _func2target2nodes.get(function);
-      if (target2nodes == null) {
-        target2nodes = new ConcurrentHashMap<ComputationTarget, List<DependencyNode>>();
-        final ConcurrentMap<ComputationTarget, List<DependencyNode>> existing = _func2target2nodes.putIfAbsent(function, target2nodes);
-        if (existing != null) {
-          target2nodes = existing;
-        }
-      }
-      List<DependencyNode> nodes = target2nodes.get(target);
-      if (nodes == null) {
-        nodes = new ArrayList<DependencyNode>();
-        final List<DependencyNode> existing = target2nodes.putIfAbsent(target, nodes);
-        if (existing != null) {
-          nodes = existing;
-        }
-      }
-      return nodes;
-    }
-
-    private boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-      for (ValueSpecification a : as) {
-        if (bs.contains(a)) {
-          // Exact match
-          continue;
-        }
-        for (ValueSpecification b : bs) {
-          if (a.getValueName() == b.getValueName()) {
-            // Match the name, but other data wasn't exact so reject
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-
-    private boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-      return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
-    }
-
-    private DependencyNode getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
-      s_loggerBuilder.debug("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-      final List<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
-      final DependencyNode node;
-      synchronized (nodes) {
-        DependencyNode useExisting = null;
-        // [PLAT-346] Here is a good spot to tackle PLAT-346; what do we merge into a single node, and which outputs
-        // do we discard if there are multiple functions that can produce them.
-        for (DependencyNode existingNode : nodes) {
-          if (mismatchUnion(existingNode.getOutputValues(), resolvedValue.getFunctionOutputs())) {
-            s_loggerBuilder.debug("Can't reuse {} for {}", existingNode, resolvedValue);
-          } else {
-            s_loggerBuilder.debug("Reusing {} for {}", existingNode, resolvedValue);
-            useExisting = existingNode;
-            break;
-          }
-        }
-        if (useExisting != null) {
-          node = useExisting;
-        } else {
-          node = new DependencyNode(resolvedValue.getComputationTarget());
-          node.setFunction(resolvedValue.getFunction());
-          nodes.add(node);
-        }
-      }
-      for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
-        node.addOutputValue(output);
-      }
-      for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
-        node.addInputValue(input);
-        DependencyNode inputNode = _spec2Node.get(input);
-        if (inputNode != null) {
-          s_loggerBuilder.debug("Found node {} for input {}", inputNode, input);
-          node.addInputNode(inputNode);
-        } else {
-          s_loggerBuilder.debug("Finding node productions for {}", input);
-          final Map<ResolveTask, ResolvedValueProducer> resolver = context.getTasksProducing(input);
-          if (!resolver.isEmpty()) {
-            for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
-              resolvedEntry.getValue().addCallback(context, new ResolvedValueCallback() {
-
-                @Override
-                public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-                  s_loggerBuilder.warn("Failed production for {} ({})", input, value);
-                }
-
-                @Override
-                public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-                  final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue);
-                  node.addInputNode(inputNode);
-                }
-
-              });
-            }
-          } else {
-            s_loggerBuilder.warn("No registered node production for {}", input);
-          }
-        }
-      }
-      final DependencyNode existingNode = _spec2Node.putIfAbsent(resolvedValue.getValueSpecification(), node);
-      if (existingNode == null) {
-        s_loggerBuilder.debug("Adding {} to graph set", node);
-        _graphNodes.add(node);
-        return node;
-      }
-      return existingNode;
-    }
-
-    @Override
-    public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-      s_loggerBuilder.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-      getOrCreateNode(context, valueRequirement, resolvedValue);
-      _terminalOutputs.put(valueRequirement, resolvedValue.getValueSpecification());
-    }
-
-    @Override
-    public String toString() {
-      return "TerminalValueCallback";
-    }
-
-  };
 
   protected GraphBuildingContext getContext() {
     return _context;
@@ -635,6 +498,25 @@ public class DependencyGraphBuilder {
   }
 
   /**
+   * Adds target requirements to the graph. The requirements are queued and the call returns; construction
+   * of the graph will happen on a background thread (if additional threads is non-zero), or when the
+   * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements
+   * that must be checked after graph construction is complete.
+   * 
+   * @param requirements requirements to add, not {@code null} and not containing {@code null}s.
+   */
+  public void addTarget(Set<ValueRequirement> requirements) {
+    ArgumentChecker.noNulls(requirements, "requirements");
+    checkInjectedInputs();
+    for (ValueRequirement requirement : requirements) {
+      final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
+      resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
+    }
+    // If the run-queue was empty, we may not have started enough threads, so double check 
+    startBackgroundConstructionJob();
+  }
+
+  /**
    * For compatibility with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. When
    * branch is merged with the master, remove this.
    * 
@@ -662,6 +544,11 @@ public class DependencyGraphBuilder {
         s_loggerBuilder.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
         exception.set(null);
         latch.countDown();
+      }
+
+      @Override
+      public String toString() {
+        return "AddTargetImpl[" + requirement + "]";
       }
 
     });
@@ -692,25 +579,6 @@ public class DependencyGraphBuilder {
     if (ex != null) {
       throw ex;
     }
-  }
-
-  /**
-   * Adds target requirements to the graph. The requirements are queued and the call returns; construction
-   * of the graph will happen on a background thread (if additional threads is non-zero), or when the
-   * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements
-   * that must be checked after graph construction is complete.
-   * 
-   * @param requirements requirements to add, not {@code null} and not containing {@code null}s.
-   */
-  public void addTarget(Set<ValueRequirement> requirements) {
-    ArgumentChecker.noNulls(requirements, "requirements");
-    checkInjectedInputs();
-    for (ValueRequirement requirement : requirements) {
-      final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
-      resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
-    }
-    // If the run-queue was empty, we may not have started enough threads, so double check 
-    startBackgroundConstructionJob();
   }
 
   protected void addToRunQueue(final ContextRunnable runnable) {
