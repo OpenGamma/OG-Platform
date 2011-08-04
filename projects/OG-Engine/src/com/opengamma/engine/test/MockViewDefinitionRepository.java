@@ -11,8 +11,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;
@@ -25,6 +25,7 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
   private static final long serialVersionUID = 1L;
   
   private final ConcurrentMap<String, ViewDefinition> _definitionsByName = new ConcurrentSkipListMap<String, ViewDefinition>();
+  private final ChangeManager _changeManager = new BasicChangeManager();
 
   @Override
   public ViewDefinition getDefinition(String definitionName) {
@@ -43,7 +44,7 @@ public class MockViewDefinitionRepository implements ViewDefinitionRepository, S
 
   @Override
   public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
+    return _changeManager;
   }
 
 }

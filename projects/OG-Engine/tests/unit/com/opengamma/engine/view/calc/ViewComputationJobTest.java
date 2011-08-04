@@ -20,6 +20,7 @@ import javax.time.Instant;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.LiveMarketDataProvider;
@@ -50,6 +51,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -205,6 +207,64 @@ public class ViewComputationJobTest {
     // Change of market data provider should cause a further compilation
     resultListener.assertCycleCompleted(TIMEOUT);
     resultListener.assertProcessCompleted(TIMEOUT);
+  }
+  
+  @Test
+  public void testTriggerCycle() {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
+    ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
+    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    
+    ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    computationJob.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+    
+    client.shutdown();
+  }
+
+  
+  @Test
+  public void testUpdateViewDefinitionCausesRecompile() {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
+    ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
+    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    
+    ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
+    
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    computationJob.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+    UniqueIdentifier viewDefinitionId = UniqueIdentifier.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
+    env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
+    computationJob.triggerCycle();
+    resultListener.assertViewDefinitionCompiled(TIMEOUT);
+    resultListener.assertCycleCompleted(TIMEOUT);
+    computationJob.triggerCycle();
+    resultListener.assertCycleCompleted(TIMEOUT);
+    
+    client.shutdown();
   }
   
   private void assertThreadReachesState(Thread recalcThread, Thread.State state) throws InterruptedException {
