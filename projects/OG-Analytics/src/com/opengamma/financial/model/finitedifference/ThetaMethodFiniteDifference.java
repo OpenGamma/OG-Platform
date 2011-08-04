@@ -9,6 +9,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import cern.jet.random.engine.DRand;
+
+import com.opengamma.math.linearalgebra.Decomposition;
+import com.opengamma.math.linearalgebra.DecompositionResult;
+import com.opengamma.math.linearalgebra.LUDecompositionCommons;
+import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.surface.Surface;
 
 /**
@@ -16,7 +23,7 @@ import com.opengamma.math.surface.Surface;
  * This uses the exponentially fitted scheme of duffy 
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
-  // private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   private final double _theta;
   private final boolean _showFullResults;
 
@@ -163,7 +170,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         setA(i, _pdeData.getA(0, x));
         setB(i, _pdeData.getB(0, x));
         setC(i, _pdeData.getC(0, x));
-        setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
+       //debug
+        setRho(i,getA(i));
+        // setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
       }
       setT1(0.0);
     }
@@ -244,8 +253,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     private void solveMatrixSystem() {
       final double omega = 1.0;
-      @SuppressWarnings("unused") //NOTE get this working again with dynamic omega
-      final int count = solveBySOR(omega);
+      @SuppressWarnings("unused")
+      //NOTE get this working again with dynamic omega
+     final int count = solveBySOR(omega);
+   //   solveByLU();
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
       //          omega = Math.max(1.0, omega * 0.9);
@@ -259,6 +270,14 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
+    private void solveByLU() {
+      DoubleMatrix2D temp = new DoubleMatrix2D(_m);
+      DecompositionResult res = DCOMP.evaluate(temp);
+      double[] f = res.solve(_q);
+      for (int i = 0; i < f.length; i++) {
+        _f[i] = f[i];
+      }
+    }
 
     private int solveBySOR(final double omega) {
 

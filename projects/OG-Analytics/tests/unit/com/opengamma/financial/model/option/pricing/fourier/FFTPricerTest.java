@@ -28,10 +28,9 @@ public class FFTPricerTest {
   private static final double T = 1 / 52.0;
   private static final double DF = 0.96;
   private static final double SIGMA = 0.2;
-  private static final double MU = -0.5 * SIGMA * SIGMA;
   private static final BlackFunctionData DATA = new BlackFunctionData(FORWARD, DF, SIGMA);
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(MU, SIGMA);
+  private static final MartingaleCharacteristicExponent CEF = new GaussianMartingaleCharacteristicExponent(SIGMA);
   private static final FFTPricer PRICER = new FFTPricer();
   private static final double ALPHA = -0.5;
   private static final double TOL = 1e-8;
@@ -98,37 +97,37 @@ public class FFTPricerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent3() {
-    PRICER.price(FORWARD, DF, T, true, null, 10, 10, SIGMA, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, null, 10, 10, ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha3() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, 0, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, 0.0, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesAboveATM() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, SIGMA, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10,  ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesBelowATM() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, SIGMA, ALPHA, 0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, -10, ALPHA, 0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDelta() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, -0.5, 64, 20);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10,  ALPHA, -0.5, 64, 20);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeM() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, 0.5, 64, -10);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, ALPHA, 0.5, 64, -10);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongN() {
-    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, SIGMA, ALPHA, 0.5, 64, 128);
+    PRICER.price(FORWARD, DF, T, true, CEF, 10, 10, ALPHA, 0.5, 64, 128);
   }
 
   @Test
@@ -141,7 +140,7 @@ public class FFTPricerTest {
     final int nH = 600;
     final double alpha = -0.5;
 
-    final double[][] temp = PRICER.price(FORWARD, DF, T, isCall, CEF, nL, nH, SIGMA, alpha, delta, n, m);
+    final double[][] temp = PRICER.price(FORWARD, DF, T, isCall, CEF, nL, nH, alpha, delta, n, m);
     assertEquals(n + 1, temp.length);
   }
 
@@ -203,7 +202,7 @@ public class FFTPricerTest {
     final double rho = -0.7;
     final double t = 2.0;
 
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final MartingaleCharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
     final double[][] strikeNPrice = PRICER.price(FORWARD, DF, t, isCall, heston, 0.7 * FORWARD, 1.5 * FORWARD, nStrikes, 0.3, -0.5, 1e-10);
 
     final int n = strikeNPrice.length;

@@ -8,7 +8,9 @@ package com.opengamma.financial.model.option.pricing.fourier;
 import static com.opengamma.math.ComplexMathUtils.add;
 import static com.opengamma.math.ComplexMathUtils.divide;
 import static com.opengamma.math.ComplexMathUtils.exp;
+import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.number.ComplexNumber.MINUS_I;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -22,13 +24,13 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class EuropeanPriceIntegrand {
-  private final CharacteristicExponent _ce;
+  private final MartingaleCharacteristicExponent _ce;
   private final double _alpha;
   private final boolean _useVarianceReduction;
 
-  public EuropeanPriceIntegrand(final CharacteristicExponent ce, final double alpha, final boolean useVarianceReduction) {
+  public EuropeanPriceIntegrand(final MartingaleCharacteristicExponent ce, final double alpha, final boolean useVarianceReduction) {
     Validate.notNull(ce, "characteristic exponent");
-    _ce = new MeanCorrectedCharacteristicExponent(ce);
+    _ce = ce;
     _alpha = alpha;
     _useVarianceReduction = useVarianceReduction;
   }
@@ -57,12 +59,12 @@ public class EuropeanPriceIntegrand {
     final ComplexNumber z = new ComplexNumber(x, -1 - _alpha);
     final ComplexNumber num1 = exp(add(new ComplexNumber(0, -x * k), ce.evaluate(z)));
     final ComplexNumber num2 = gaussian == null ? new ComplexNumber(0.0) : exp(add(new ComplexNumber(0, -x * k), gaussian.evaluate(z)));
-    final ComplexNumber denom = new ComplexNumber(_alpha * (1 + _alpha) - x * x, (2 * _alpha + 1) * x);
+    final ComplexNumber denom = multiply(z, subtract(MINUS_I, z));
     final ComplexNumber res = divide(subtract(num1, num2), denom);
     return res;
   }
 
-  public CharacteristicExponent getCharacteristicExponent() {
+  public MartingaleCharacteristicExponent getCharacteristicExponent() {
     return _ce;
   }
 
