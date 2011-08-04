@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.model.swaption;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -22,9 +24,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.swaption.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -41,7 +43,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -51,20 +52,28 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
       .getCalculator(VolatilityFunctionFactory.HAGAN);
   private static final double CUT_OFF = 0.1;
-  private static final double MU = 5;
+  private static final double MU = 5;  
 
   private final boolean _useSABRExtrapolation;
-  private SwaptionSecurityConverter _swaptionVisitor;
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
   private final VolatilityCubeFunctionHelper _helper;
+  private SwaptionSecurityConverter _swaptionVisitor;
   private SecuritySource _securitySource;
 
-  public SwaptionSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation) {
-    this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation));
+  public SwaptionSABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+    this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
   }
 
-  public SwaptionSABRFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation) {
+  public SwaptionSABRFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+    Validate.notNull(currency, "currency");
+    Validate.notNull(definitionName, "cube definition name");
+    Validate.notNull(forwardCurveName, "forward curve name");
+    Validate.notNull(fundingCurveName, "funding curve name");
     _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
     _useSABRExtrapolation = useSABRExtrapolation;
+    _forwardCurveName = forwardCurveName;
+    _fundingCurveName = fundingCurveName;
   }
 
   @Override
@@ -84,17 +93,17 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(context, desiredValue);
-    final String forwardCurveName = curveNames.getFirst();
-    final String fundingCurveName = curveNames.getSecond();
+//    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(context, desiredValue);
+//    final String forwardCurveName = curveNames.getFirst();
+//    final String fundingCurveName = curveNames.getSecond();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getCubeRequirement(target));
-    if (forwardCurveName.equals(fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+    if (_forwardCurveName.equals(_fundingCurveName)) {
+      requirements.add(getCurveRequirement(target, _forwardCurveName, null, null));
       return requirements;
     }
-    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
-    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
+    requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
     return requirements;
   }
 
@@ -128,16 +137,24 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   protected SecuritySource getSecuritySource() {
     return _securitySource;
   }
+  
+  protected String getForwardCurveName() {
+    return _forwardCurveName;
+  }
 
-  protected YieldCurveBundle getYieldCurves(final String forwardCurveName, final String fundingCurveName, final ComputationTarget target, final FunctionInputs inputs) {
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
+  protected String getFundingCurveName() {
+    return _fundingCurveName;    
+  }
+  
+  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
-    if (!forwardCurveName.equals(fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
+    if (!_forwardCurveName.equals(_fundingCurveName)) {
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName,  _forwardCurveName, _fundingCurveName);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
@@ -146,7 +163,7 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {forwardCurveName, fundingCurveName},
+    return new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName},
         new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
   }
 
@@ -173,16 +190,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
   protected ValueProperties getResultProperties(final FinancialSecurity security) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
-  }
-
-  protected ValueProperties getResultProperties(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
         .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
   }
 

@@ -14,6 +14,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 

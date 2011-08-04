@@ -5,8 +5,8 @@
  */
 package com.opengamma.examples.loader;
 
-import static com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader.getWithException;
-import static com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader.normaliseHeaders;
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,6 +32,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.Identifier;

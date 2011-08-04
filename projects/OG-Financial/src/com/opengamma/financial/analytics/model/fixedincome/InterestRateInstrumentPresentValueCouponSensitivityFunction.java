@@ -26,17 +26,17 @@ public class InterestRateInstrumentPresentValueCouponSensitivityFunction extends
       .getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY;
 
-  public InterestRateInstrumentPresentValueCouponSensitivityFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentPresentValueCouponSensitivityFunction(String forwardCurveName, String fundingCurveName) {
+    super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
+      FinancialSecurity security) {
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-            fundingCurveName, forwardCurveName, createValueProperties()));
+            getFundingCurveName(), getForwardCurveName(), createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 
