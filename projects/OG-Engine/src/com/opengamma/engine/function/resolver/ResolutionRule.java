@@ -128,12 +128,7 @@ public class ResolutionRule {
       return null;
     }
     // return the maximal set of results the function can produce for the target
-    try {
-      return function.getResults(context, target);
-    } catch (Throwable t) {
-      s_logger.warn("Exception thrown by getResults", t);
-    }
-    return null;
+    return function.getResults(context, target);
   }
 
   /**

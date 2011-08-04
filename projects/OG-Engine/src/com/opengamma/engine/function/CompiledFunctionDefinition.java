@@ -89,7 +89,8 @@ public interface CompiledFunctionDefinition {
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
-   * @return All results <b>possible</b> to be computed by this function for this target.
+   * @return All results <b>possible</b> to be computed by this function for this target, {@code null} or the empty set
+   *         if no values are possible.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 

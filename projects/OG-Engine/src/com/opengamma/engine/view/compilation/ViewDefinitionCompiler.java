@@ -47,7 +47,7 @@ public final class ViewDefinitionCompiler {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionCompiler.class);
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
-  private static final boolean OUTPUT_FAILURE_REPORT = true;
+  private static final boolean OUTPUT_FAILURE_REPORTS = true;
 
   private ViewDefinitionCompiler() {
   }
@@ -83,7 +83,7 @@ public final class ViewDefinitionCompiler {
     if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
       outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
     }
-    if (OUTPUT_FAILURE_REPORT) {
+    if (OUTPUT_FAILURE_REPORTS) {
       outputFailureReports(viewCompilationContext.getBuilders());
     }
     return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());

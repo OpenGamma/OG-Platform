@@ -189,7 +189,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         int rulesFound = 0;
         for (ResolutionRule rule : rules) {
           final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
-          if (results != null) {
+          if ((results != null) && !results.isEmpty()) {
             applicableRules.add(Pair.of(rule, results));
             rulesFound++;
           }
