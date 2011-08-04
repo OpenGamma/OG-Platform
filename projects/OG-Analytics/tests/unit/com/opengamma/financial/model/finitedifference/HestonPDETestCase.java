@@ -9,9 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.math.cube.Cube;
 import com.opengamma.math.cube.FunctionalDoublesCube;
 import com.opengamma.math.function.Function;
@@ -186,7 +186,7 @@ public class HestonPDETestCase {
 
     // System.out.print("\n");
     FFTPricer pricer = new FFTPricer();
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, V0, OMEGA, RHO);
+    final MartingaleCharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, V0, OMEGA, RHO);
 
     final int n = 51;
     final double alpha = -0.5;

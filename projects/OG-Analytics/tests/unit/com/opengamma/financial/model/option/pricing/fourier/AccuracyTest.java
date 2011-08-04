@@ -19,7 +19,6 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 public class AccuracyTest {
   private static final double FORWARD = 0.04;
   private static final double DF = 0.96;
-  private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
   private static final int N_STRIKES = 21;
   private static final double ALPHA = -0.5;
@@ -53,7 +52,7 @@ public class AccuracyTest {
   }
 
   private void assertAccuracy(final double t, final double integralTol, final double fftTol) {
-    final CharacteristicExponent ce = new GaussianCharacteristicExponent(MU, SIGMA);
+    final MartingaleCharacteristicExponent ce = new GaussianMartingaleCharacteristicExponent(SIGMA);
 
     final double maxLogMoneyness = 6.0 / N_STRIKES * SIGMA * Math.sqrt(t);
     final FourierPricer integralPricer = new FourierPricer();

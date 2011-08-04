@@ -40,7 +40,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       Client local, Client remote) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "undefined"); 
+        remote, "Loading..."); 
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());

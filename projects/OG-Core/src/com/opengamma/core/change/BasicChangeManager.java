@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.listener;
+package com.opengamma.core.change;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,38 +16,38 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Manager for receiving and handling events from masters.
+ * Manager for receiving and handling entity change events.
  * <p>
- * Events will be sent when a document in a master is added, updated, removed or corrected.
+ * Events are sent when an entity is added, updated, removed or corrected.
  * <p>
  * This class is mutable and thread-safe using concurrent collections.
  */
 @PublicSPI
-public class BasicMasterChangeManager implements MasterChangeManager {
+public class BasicChangeManager implements ChangeManager {
 
   /**
    * The listeners.
    */
-  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
+  private final CopyOnWriteArraySet<ChangeListener> _listeners = new CopyOnWriteArraySet<ChangeListener>();
 
   /**
    * Creates a manager.
    */
-  public BasicMasterChangeManager() {
+  public BasicChangeManager() {
   }
 
   //-------------------------------------------------------------------------
   /**
    * Adds a listener to the manager.
    * <p>
-   * The listener will receive all events for the master.
+   * The listener will receive all events.
    * <p>
    * This method is not intended to be overridden.
    * 
    * @param listener  the listener to add, not null
    */
   @Override
-  public void addChangeListener(MasterChangeListener listener) {
+  public void addChangeListener(ChangeListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
@@ -55,14 +55,14 @@ public class BasicMasterChangeManager implements MasterChangeManager {
   /**
    * Removed a listener from the manager.
    * <p>
-   * The listener will cease receiving events for the master.
+   * The listener will cease receiving events.
    * <p>
    * This method is not intended to be overridden.
    * 
    * @param listener  the listener to remove, not null
    */
   @Override
-  public void removeChangeListener(MasterChangeListener listener) {
+  public void removeChangeListener(ChangeListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.remove(listener);
   }
@@ -74,50 +74,50 @@ public class BasicMasterChangeManager implements MasterChangeManager {
    * 
    * @return the list of listeners, not null
    */
-  protected List<MasterChangeListener> getListeners() {
-    return new ArrayList<MasterChangeListener>(_listeners);
+  protected List<ChangeListener> getListeners() {
+    return new ArrayList<ChangeListener>(_listeners);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Handles an event when the master changes.
+   * Handles an event when an entity changes.
    * <p>
-   * This method should only be called by a master.
+   * This method should only be called by the owner of the change manager.
    * 
    * @param type  the type of change, not null
-   * @param beforeId  the unique identifier of the object after the change, may be null
-   * @param afterId  the reference assigned to the listener, may be null
-   * @param versionInstant  the reference assigned to the listener, may be null
+   * @param beforeId  the unique identifier of the entity before the change, may be null
+   * @param afterId  the unique identifier of the entity after the change, may be null
+   * @param versionInstant  the instant at which the change is recorded as happening, not null
    */
   @Override
-  public void masterChanged(final MasterChangedType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant) {
-    MasterChanged event = new MasterChanged(type, beforeId, afterId, versionInstant);
-    handleMasterChanged(event);
+  public void entityChanged(final ChangeType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant) {
+    ChangeEvent event = new ChangeEvent(type, beforeId, afterId, versionInstant);
+    handleEntityChanged(event);
   }
 
   /**
-   * Handles an event when the master changes.
+   * Handles an event when an entity changes.
    * <p>
-   * This implementation calls {@link #fireMasterChanged(MasterChanged)} directly.
+   * This implementation calls {@link #fireEntityChanged(ChangeEvent)} directly.
    * An overriding method may use a more advanced mechanism to handle the event.
    * 
    * @param event  the event that occurred, not null
    */
-  protected void handleMasterChanged(final MasterChanged event) {
-    fireMasterChanged(event);
+  protected void handleEntityChanged(final ChangeEvent event) {
+    fireEntityChanged(event);
   }
 
   /**
-   * Fires an event to the local listeners when the master changes.
+   * Fires an event to the local listeners when an entity changes.
    * <p>
    * This implementation loops around the stored listeners and calls them in
    * serial on the calling thread.
    * 
    * @param event  the event that occurred, not null
    */
-  protected void fireMasterChanged(final MasterChanged event) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.masterChanged(event);
+  protected void fireEntityChanged(final ChangeEvent event) {
+    for (ChangeListener listener : _listeners) {
+      listener.entityChanged(event);
     }
   }
 

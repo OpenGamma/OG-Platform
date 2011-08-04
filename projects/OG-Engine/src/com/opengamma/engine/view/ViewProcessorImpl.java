@@ -302,15 +302,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _processLock.lock();
     try {
-      ViewDefinition definition = getViewDefinitionRepository().getDefinition(viewDefinitionName);
-      if (definition == null) {
-        throw new OpenGammaRuntimeException("No view definition with the name '" + viewDefinitionName + "' exists");
-      }
       String idValue = generateIdValue(_processIdSource);
       UniqueIdentifier viewProcessId = UniqueIdentifier.of(PROCESS_SCHEME, idValue);
       ObjectIdentifier cycleObjectId = ObjectIdentifier.of(CYCLE_SCHEME, idValue);
       ViewProcessContext viewProcessContext = createViewProcessContext();
-      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definition, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
+      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, viewDefinitionName, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
       
       // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
@@ -371,8 +367,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the view definition, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public ViewDefinition getViewDefinition(UniqueIdentifier clientId) {
-    return getClientViewProcess(clientId).getDefinition();
+  public ViewDefinition getLatestViewDefinition(UniqueIdentifier clientId) {
+    return getClientViewProcess(clientId).getLatestViewDefinition();
   }
   
   /**
@@ -484,6 +480,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
+        _viewDefinitionRepository,
         _viewPermissionProvider,
         _marketDataProviderFactoryResolver,
         _functionCompilationService,

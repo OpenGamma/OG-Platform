@@ -3,30 +3,30 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.listener;
+package com.opengamma.core.change;
 
 import com.opengamma.util.PublicSPI;
 
 /**
- * The type of change that occurred to a master.
+ * The type of change that occurred.
  */
 @PublicSPI
-public enum MasterChangedType {
+public enum ChangeType {
 
   /**
-   * An object was added.
+   * An entity was added.
    */
   ADDED,
   /**
-   * An object was updated.
+   * An entity was updated.
    */
   UPDATED,
   /**
-   * An object was removed.
+   * An entity was removed.
    */
   REMOVED,
   /**
-   * An object was corrected.
+   * An entity was corrected.
    */
   CORRECTED,
 

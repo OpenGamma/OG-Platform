@@ -27,7 +27,7 @@ public class IntegrandDecayTest {
 
   private static final double ALPHA = -0.5;
 
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA);
+  private static final MartingaleCharacteristicExponent CEF = new GaussianMartingaleCharacteristicExponent(SIGMA);
   private static final EuropeanCallFourierTransform PSI = new EuropeanCallFourierTransform(CEF);
 
   @Test
@@ -49,7 +49,7 @@ public class IntegrandDecayTest {
 
   @Test
   public void testHeston() {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
+    final MartingaleCharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
     final EuropeanCallFourierTransform psi = new EuropeanCallFourierTransform(heston);
     final Function1D<ComplexNumber, ComplexNumber> f = psi.getFunction(T);
     ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));

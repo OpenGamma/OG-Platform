@@ -241,6 +241,11 @@
       snapshotId = null;
     }
     
+    prepareChangeView();    
+    _liveResultsClient.changeView(view, snapshotId);
+  }
+  
+  function prepareChangeView() {
     document.body.style.cursor = "wait";
     if (_resultsViewer) {
       _resultsViewer.destroy();
@@ -258,17 +263,18 @@
       });
       $resultsViewerContainer.append($loadingDots);
     }
-    
     setStatusTitle('Loading');
-    setResultTitle('initializing ' + view);
+    setResultTitle('initializing view');
     updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
-    
-    _liveResultsClient.changeView(view, snapshotId);
   }
   
   function onViewInitialized(gridStructures) {
+    if (_isRunning) {
+      // Unsolicited re-initialization
+      prepareChangeView();
+    }
     _resultsViewer = new TabbedViewResultsViewer($('#resultsViewer'), gridStructures, _liveResultsClient, _userConfig);
     
     // Ask the client to start

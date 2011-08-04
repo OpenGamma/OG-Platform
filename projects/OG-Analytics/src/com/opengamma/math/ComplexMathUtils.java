@@ -19,6 +19,18 @@ public class ComplexMathUtils {
     return new ComplexNumber(z1.getReal() + z2.getReal(), z1.getImaginary() + z2.getImaginary());
   }
 
+  public static ComplexNumber add(final ComplexNumber... z) {
+    ArgumentChecker.notNull(z, "z");
+    int n = z.length;
+    double res = 0.0;
+    double img = 0.0;
+    for (int i = 0; i < n; i++) {
+      res += z[i].getReal();
+      img += z[i].getImaginary();
+    }
+    return new ComplexNumber(res, img);
+  }
+
   public static ComplexNumber add(final ComplexNumber z, final double x) {
     ArgumentChecker.notNull(z, "z");
     return new ComplexNumber(z.getReal() + x, z.getImaginary());
@@ -86,6 +98,13 @@ public class ComplexMathUtils {
   public static double mod(final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
     return Math.hypot(z.getReal(), z.getImaginary());
+  }
+
+  public static ComplexNumber square(final ComplexNumber z) {
+    ArgumentChecker.notNull(z, "z");
+    final double a = z.getReal();
+    final double b = z.getImaginary();
+    return new ComplexNumber(a * a - b * b, 2 * a * b);
   }
 
   public static ComplexNumber multiply(final ComplexNumber z1, final ComplexNumber z2) {
