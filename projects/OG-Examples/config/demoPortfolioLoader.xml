@@ -31,6 +31,11 @@
   <bean id="selfContainedSwapPortfolioLoader" class="com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
+  
+  <bean id="multiCurrencySwapPortfolioLoader" class="com.opengamma.examples.loader.DemoMultiCurrencySwapPortfolioLoader">
+    <property name="loaderContext" ref="loaderContext" />
+  </bean>
+  
   <bean id="demoViewsPopulater" class="com.opengamma.examples.loader.DemoViewsPopulater">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
