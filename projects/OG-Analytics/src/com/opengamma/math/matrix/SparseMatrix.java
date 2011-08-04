@@ -8,14 +8,19 @@ package com.opengamma.math.matrix;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- *
+ * SparseMatrix is a class to wrap the underlying sparse storage types.
+ * The class attempts to pick the most suitable representation for a sparse matrix based on the data given and encapsulates an object of that type.
+ * Currently supported encapsulations include:
+ * {@link CompressedSparseColumnFormatMatrix}
+ * {@link CompressedSparseRowFormatMatrix}
+ * {@link SparseCoordinateFormatMatrix}
  */
 public class SparseMatrix implements MatrixPrimitiveInterface {
   private SparseMatrixType _type;
 /**
  * majorness is an enumerated type that is used to specify the anticipated access pattern of the sparse data.
- * The column type is used to indicate column major access (ideal for the RHS of Matrix * Matrix)
- * The row type is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
+ * The column enumeration is used to indicate column major access (ideal for the RHS of Matrix * Matrix)
+ * The row enumeration is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
  */
   public enum majorness { column, row };
 
@@ -24,7 +29,7 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
  */
 
   /**
-   * Constructs a sparse matrix from double array of arrays data
+   * Constructs a sparse matrix from double array of arrays data.
    * @param indata is an array of arrays containing data to be turned into a sparse matrix representation
    * @param m is the number of rows in the matrix (use if there are empty rows in indata and a matrix of a specific size is needed for conformance)
    * @param n is the number of columns in the matrix (use if there are empty columns in indata and a matrix of a specific size is needed for conformance)

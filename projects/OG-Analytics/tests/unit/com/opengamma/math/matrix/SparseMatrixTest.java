@@ -47,8 +47,16 @@ public void testContructFromDoubleMatrix2DNODimension() {
   new SparseMatrix(new DoubleMatrix2D(_sparsedata));
 }
 
+@Test
 public void testContructFromArrayOfArraysWithDimensionAndType() {
-  new SparseMatrix(_sparsedata, 10, 8, SparseMatrix.majorness.column);
+  SparseMatrix tmp = new SparseMatrix(_sparsedata, 10, 8, SparseMatrix.majorness.column);
+  assertTrue(tmp.getSparseObject() instanceof CompressedSparseColumnFormatMatrix);
+}
+
+@Test
+public void testContructFromArrayOfArraysNODimensionAndType() {
+  SparseMatrix tmp = new SparseMatrix(_sparsedata, SparseMatrix.majorness.column);
+  assertTrue(tmp.getSparseObject() instanceof CompressedSparseColumnFormatMatrix);
 }
 
 @Test
@@ -63,5 +71,4 @@ public void testGetSparseObject() {
 }
 
 // everything else is inherited and tested already
-
 }

@@ -81,4 +81,38 @@ public class MatrixPrimitiveUtils {
     }
     return tmp;
   }
+
+  /**
+   * Test a vector to see if there is a block of contiguous nonzero values present.
+   * @param aVector the vector to be tested
+   * @return true if a contiguous block exists, false otherwise. If a vector is entirely composed of zeros it returns true as the data is contiguous but not present!
+   */
+  public static boolean arrayHasContiguousRowEntries(double[] aVector) {
+    int nnz = numberOfNonZeroElementsInVector(aVector);
+    if (nnz == 0) {
+      return true;
+    }
+    if (nnz == 1) {
+      return true;
+    }
+    int dataStartsAt = 0;
+    for (int i = 0; i < aVector.length; i++) {
+      if (Double.doubleToLongBits(aVector[i]) != 0L) {
+        dataStartsAt = i;
+        break;
+      }
+    }
+    int dataEndsAt = aVector.length - 1;
+    for (int i = aVector.length - 1; i > 0; i--) {
+      if (Double.doubleToLongBits(aVector[i]) != 0L) {
+        dataEndsAt = i;
+        break;
+      }
+    }
+    if (dataEndsAt - dataStartsAt + 1 == nnz) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

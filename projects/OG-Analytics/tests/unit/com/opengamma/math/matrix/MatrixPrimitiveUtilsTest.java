@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.matrix;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -41,6 +44,20 @@ public void testGetNumberOfElementsInArray() {
 @Test
 public void testNumberOfNonZeroElementsInVector() {
   AssertJUnit.assertEquals(6,MatrixPrimitiveUtils.numberOfNonZeroElementsInVector(_vectorwithzeros));
+}
+
+@Test
+public void testArrayHasContiguousNonZeros() {
+  double[] data1 = {0,1,1,1,0};
+  double[] data2 = {0,1,0,0,0};
+  double[] data3 = {1,0,0,0,0};
+  double[] data4 = {1,0,0,0,1};
+  double[] data5 = {0,0,1,1,1,0,0,1};
+  assertTrue(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data1));
+  assertTrue(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data2));
+  assertTrue(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data3));
+  assertFalse(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data4));
+  assertFalse(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data5));
 }
 
 }
