@@ -125,8 +125,11 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
       zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
     }
     final double lnrfKBar = sfK * ((1 - beta) * (1 - beta) / 12 * lnrfK + Math.pow(1 - beta, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar + nu / alpha * sfK * zBar;
+    //TODO R white 28/07/2011 This could be written as 
+    //    final double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar
+    //        - (Math.pow((1 - beta) * alpha, 2) / Math.pow(sfK, 3) / 12 + (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
     final double sfKBar = nu / alpha * lnrfK * zBar + (1 + (1 - beta) * (1 - beta) / 24 * lnrfK * lnrfK + Math.pow(1 - beta, 4) / 1920 * Math.pow(lnrfK, 4)) * sf1Bar
-        + (-Math.pow((1 - beta) * alpha, 2) / Math.pow(sfK, 3) / 12 - (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
+            + (-Math.pow((1 - beta) * alpha, 2) / Math.pow(sfK, 3) / 12 - (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
     final double strikeBar = -1 / strike * lnrfKBar + (1 - beta) * sfK / (2 * strike) * sfKBar;
     final double forwardBar = 1 / forward * lnrfKBar + (1 - beta) * sfK / (2 * forward) * sfKBar;
     final double nuBar = 1 / alpha * sfK * lnrfK * zBar + ((rho * beta * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
