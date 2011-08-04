@@ -7,7 +7,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFuncti
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 public class EuropeanPriceIntegrandTest {
-  private static final GaussianCharacteristicExponent GAUSSIAN = new GaussianCharacteristicExponent(0.2, 0.5);
+  private static final MartingaleCharacteristicExponent GAUSSIAN = new GaussianMartingaleCharacteristicExponent(0.2);
   private static final double ALPHA = 0.4;
   private static final boolean USE_VARIANCE_REDUCTION = false;
   private static final EuropeanPriceIntegrand INTEGRAND = new EuropeanPriceIntegrand(GAUSSIAN, ALPHA, USE_VARIANCE_REDUCTION);
@@ -32,12 +32,12 @@ public class EuropeanPriceIntegrandTest {
   @Test
   public void test() {
     assertEquals(INTEGRAND.getAlpha(), ALPHA, 0);
-    assertEquals(INTEGRAND.getCharacteristicExponent(), new MeanCorrectedCharacteristicExponent(GAUSSIAN));
+    assertEquals(INTEGRAND.getCharacteristicExponent(), GAUSSIAN);
     assertEquals(INTEGRAND.useVarianceReduction(), USE_VARIANCE_REDUCTION);
     EuropeanPriceIntegrand other = new EuropeanPriceIntegrand(GAUSSIAN, ALPHA, USE_VARIANCE_REDUCTION);
     assertEquals(other, INTEGRAND);
     assertEquals(other.hashCode(), INTEGRAND.hashCode());
-    other = new EuropeanPriceIntegrand(new GaussianCharacteristicExponent(0.1, 0.6), ALPHA, USE_VARIANCE_REDUCTION);
+    other = new EuropeanPriceIntegrand(new GaussianMartingaleCharacteristicExponent(0.1), ALPHA, USE_VARIANCE_REDUCTION);
     assertFalse(other.equals(INTEGRAND));
     other = new EuropeanPriceIntegrand(GAUSSIAN, ALPHA + 1, USE_VARIANCE_REDUCTION);
     assertFalse(other.equals(INTEGRAND));

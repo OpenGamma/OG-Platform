@@ -33,6 +33,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -126,23 +127,23 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the country ISO code.
-   * This is the 2 letter country code.
+   * Gets the country.
    * @return the value of the property
    */
-  public String getCountryISO() {
-    return _identifiers.getIdentifierValue(RegionUtils.ISO_COUNTRY_ALPHA2);
+  public Country getCountry() {
+    String code = _identifiers.getIdentifierValue(RegionUtils.ISO_COUNTRY_ALPHA2);
+    return (code != null ? Country.of(code) : null);
   }
 
   /**
    * Sets the country, stored in the identifier set.
    * 
-   * @param countryISO  the country to set, null to remove any defined country ISO
+   * @param country  the country to set, null to remove any defined country
    */
-  public void setCountryISO(String countryISO) {
-    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
-    if (countryISO != null) {
-      addIdentifier(RegionUtils.countryRegionId(countryISO));
+  public void setCountry(Country country) {
+    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_CURRENCY_ALPHA3));
+    if (country != null) {
+      addIdentifier(RegionUtils.countryRegionId(country));
     }
   }
 

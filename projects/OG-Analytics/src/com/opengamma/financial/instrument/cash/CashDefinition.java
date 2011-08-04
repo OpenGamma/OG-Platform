@@ -116,7 +116,7 @@ public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
     Validate.isTrue(yieldCurveNames.length > 0);
     Validate.isTrue(!date.isAfter(_maturityDate), "Date is after maturity");
     if (yieldCurveNames.length > 1) {
-      s_logger.warn("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
+      s_logger.info("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
     }
     final LocalDate settlementDate = getSettlementDate(date.toLocalDate(), _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
     final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);

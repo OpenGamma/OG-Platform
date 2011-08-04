@@ -14,6 +14,8 @@ import static com.opengamma.math.ComplexMathUtils.sqrt;
 import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.number.ComplexNumber.I;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
@@ -36,7 +38,7 @@ import com.opengamma.math.number.ComplexNumber;
  * \\end{align*}
  * }
  */
-public class IntegratedCIRTimeChangeCharacteristicExponent implements CharacteristicExponent {
+public class IntegratedCIRTimeChangeCharacteristicExponent implements StocasticClockCharcteristicExponent {
   private final double _kappa;
   private final double _theta;
   private final double _lambda;
@@ -61,30 +63,33 @@ public class IntegratedCIRTimeChangeCharacteristicExponent implements Characteri
       @SuppressWarnings("synthetic-access")
       @Override
       public ComplexNumber evaluate(final ComplexNumber u) {
-
-        if (u.getReal() == 0.0 && u.getImaginary() == 0.0) {
-          return new ComplexNumber(0.0);
-        }
-
-        final ComplexNumber ui = multiply(I, u);
-
-        //handle small lambda properly 
-        if (2 * mod(u) * _lambda * _lambda / _kappa / _kappa < 1e-6) {
-          final double d = _theta * t + (1 - _theta) * (1 - Math.exp(-_kappa * t)) / _kappa;
-          return multiply(d, ui);
-        }
-
-        ComplexNumber temp = subtract(_kappa * _kappa, multiply(2 * _lambda * _lambda, ui));
-        final ComplexNumber gamma = sqrt(temp);
-        final ComplexNumber gammaHalfT = multiply(gamma, t / 2.0);
-        temp = divide(multiply(2, ui), add(_kappa, divide(gamma, TrigonometricFunctionUtils.tanh(gammaHalfT))));
-        final ComplexNumber kappaOverGamma = divide(_kappa, gamma);
-        final double power = 2 * _kappa * _theta / _lambda / _lambda;
-        final ComplexNumber res = add(multiply(power, subtract(_kappa * t / 2, getLogCoshSinh(gammaHalfT, kappaOverGamma))), temp);
-        return res;
-
+        return getValue(u, t);
       }
     };
+  }
+  
+  @Override
+  public ComplexNumber getValue(ComplexNumber u, double t) {
+    if (u.getReal() == 0.0 && u.getImaginary() == 0.0) {
+      return new ComplexNumber(0.0);
+    }
+
+    final ComplexNumber ui = multiply(I, u);
+
+    //handle small lambda properly 
+    if (2 * mod(u) * _lambda * _lambda / _kappa / _kappa < 1e-6) {
+      final double d = _theta * t + (1 - _theta) * (1 - Math.exp(-_kappa * t)) / _kappa;
+      return multiply(d, ui);
+    }
+
+    ComplexNumber temp = subtract(_kappa * _kappa, multiply(2 * _lambda * _lambda, ui));
+    final ComplexNumber gamma = sqrt(temp);
+    final ComplexNumber gammaHalfT = multiply(gamma, t / 2.0);
+    temp = divide(multiply(2, ui), add(_kappa, divide(gamma, TrigonometricFunctionUtils.tanh(gammaHalfT))));
+    final ComplexNumber kappaOverGamma = divide(_kappa, gamma);
+    final double power = 2 * _kappa * _theta / _lambda / _lambda;
+    final ComplexNumber res = add(multiply(power, subtract(_kappa * t / 2, getLogCoshSinh(gammaHalfT, kappaOverGamma))), temp);
+    return res;
   }
 
   // ln(cosh(a) + bsinh(a)
@@ -169,5 +174,17 @@ public class IntegratedCIRTimeChangeCharacteristicExponent implements Characteri
     }
     return Double.doubleToLongBits(_theta) == Double.doubleToLongBits(other._theta);
   }
+
+  @Override
+  public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
+    throw new NotImplementedException();
+  }
+
+ 
 
 }

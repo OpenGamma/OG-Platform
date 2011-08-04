@@ -108,6 +108,7 @@ import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
@@ -374,8 +375,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {
       @Override
       public void getValues(final Collection<Region> values) {
-        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("US")));
-        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("GB")));
+        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId(Country.US)));
+        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId(Country.GB)));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {

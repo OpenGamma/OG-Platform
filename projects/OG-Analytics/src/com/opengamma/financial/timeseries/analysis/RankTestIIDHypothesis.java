@@ -27,7 +27,7 @@ public class RankTestIIDHypothesis extends IIDHypothesis {
   @Override
   public boolean testIID(final DoubleTimeSeries<?> x) {
     Validate.notNull(x, "x");
-    final double[] data = x.toFastLongDoubleTimeSeries().valuesArrayFast();
+    final double[] data = x.valuesArrayFast();
     int t = 0;
     final int n = x.size();
     double val;

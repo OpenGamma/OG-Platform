@@ -16,6 +16,8 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.util.i18n.Country;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test RegionFileReader.
@@ -54,8 +56,8 @@ public class RegionFileReaderTest {
     assertNotNull(ukRegion);
     assertEquals("United Kingdom", ukRegion.getName());
     assertEquals(RegionClassification.INDEPENDENT_STATE, ukRegion.getClassification());
-    assertEquals("GB", ukRegion.getCountryISO());
-    assertEquals("GBP", ukRegion.getCurrency().getCode());
+    assertEquals(Country.GB, ukRegion.getCountry());
+    assertEquals(Currency.GBP, ukRegion.getCurrency());
     assertEquals(2, ukRegion.getParentRegionIds().size());
     
     RegionDocument gotDoc = _regionMaster.get(doc.getUniqueId());

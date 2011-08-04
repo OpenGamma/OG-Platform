@@ -12,6 +12,7 @@ import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.number.ComplexNumber.I;
 import static com.opengamma.math.number.ComplexNumber.ZERO;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -37,6 +38,9 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
   private final double _y;
   private final double _minAlpha;
   private final double _maxAlpha;
+  private final double _r1;
+  private final double _r2;
+  private final double _r3;
 
   /**
    * The parameters for the CGMY process
@@ -56,36 +60,40 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
     _y = y;
     _minAlpha = -(_g + 1.0);
     _maxAlpha = _m - 1.0;
+    _r1 = Math.pow(_m, _y) + Math.pow(_g, _y);
+    _r2 = _c * GAMMA_FUNCTION.evaluate(-_y);
+    _r3 = (Math.pow(_m - 1, _y) + Math.pow(_g + 1, _y) - _r1);
   }
 
   @Override
   public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
-    final double r1 = Math.pow(_m, _y) + Math.pow(_g, _y);
-    final double r2 = t * _c * GAMMA_FUNCTION.evaluate(-_y);
-    final double r3 = r2 * (Math.pow(_m - 1, _y) + Math.pow(_g + 1, _y) - r1);
-    final ComplexNumber complexR3 = new ComplexNumber(r3);
-
     return new Function1D<ComplexNumber, ComplexNumber>() {
-      @SuppressWarnings("synthetic-access")
       @Override
-      public ComplexNumber evaluate(final ComplexNumber u) {
-        if (u.getReal() == 0.0) {
-          if (u.getImaginary() == 0.0) {
-            return ZERO;
-          }
-          if (u.getImaginary() == -1.0) {
-            return complexR3;
-          }
-        }
-        final ComplexNumber iu = multiply(I, u);
-        final ComplexNumber c1 = pow(subtract(_m, iu), _y);
-        final ComplexNumber c2 = pow(add(_g, iu), _y);
-        final ComplexNumber c3 = add(c1, c2);
-        final ComplexNumber c4 = subtract(c3, r1);
-        final ComplexNumber res = multiply(r2, c4);
-        return res;
+      public ComplexNumber evaluate(ComplexNumber u) {
+        return getValue(u, t);
       }
     };
+  }
+
+  @Override
+  public ComplexNumber getValue(ComplexNumber u, double t) {
+    final double r2 = t * _r2;
+    final ComplexNumber complexR3 = new ComplexNumber(r2 * _r3);
+    if (u.getReal() == 0.0) {
+      if (u.getImaginary() == 0.0) {
+        return ZERO;
+      }
+      if (u.getImaginary() == -1.0) {
+        return complexR3;
+      }
+    }
+    final ComplexNumber iu = multiply(I, u);
+    final ComplexNumber c1 = pow(subtract(_m, iu), _y);
+    final ComplexNumber c2 = pow(add(_g, iu), _y);
+    final ComplexNumber c3 = add(c1, c2);
+    final ComplexNumber c4 = subtract(c3, _r1);
+    final ComplexNumber res = multiply(r2, c4);
+    return res;
   }
 
   /**
@@ -176,6 +184,16 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
       return false;
     }
     return Double.doubleToLongBits(_y) == Double.doubleToLongBits(other._y);
+  }
+
+  @Override
+  public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
+    throw new NotImplementedException();
   }
 
 }

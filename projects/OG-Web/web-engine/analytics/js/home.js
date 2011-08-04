@@ -19,7 +19,7 @@
     _create: function() {
       var self = this,
         select = this.element,
-        selectWidth = select.width() + 15,
+        selectWidth = Math.min(250, select.width() + 15),
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "";
       select.hide();
@@ -72,10 +72,6 @@
                 $(this).val("");
                 select.val("");
                 return false;
-              }
-            } else {
-              if (self.options.change) {
-                self.options.change(ui.item.option);
               }
             }
           }
@@ -213,7 +209,7 @@
       });
     }
         
-    $input.width($snapshotSelect.width() + 15);
+    $input.width(Math.min(250, $snapshotSelect.width() + 15));
     if (!currentValExists) {
       $input.val("Live market data");
     }
@@ -245,6 +241,11 @@
       snapshotId = null;
     }
     
+    prepareChangeView();    
+    _liveResultsClient.changeView(view, snapshotId);
+  }
+  
+  function prepareChangeView() {
     document.body.style.cursor = "wait";
     if (_resultsViewer) {
       _resultsViewer.destroy();
@@ -262,17 +263,18 @@
       });
       $resultsViewerContainer.append($loadingDots);
     }
-    
     setStatusTitle('Loading');
-    setResultTitle('initializing ' + view);
+    setResultTitle('initializing view');
     updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
-    
-    _liveResultsClient.changeView(view, snapshotId);
   }
   
   function onViewInitialized(gridStructures) {
+    if (_isRunning) {
+      // Unsolicited re-initialization
+      prepareChangeView();
+    }
     _resultsViewer = new TabbedViewResultsViewer($('#resultsViewer'), gridStructures, _liveResultsClient, _userConfig);
     
     // Ask the client to start

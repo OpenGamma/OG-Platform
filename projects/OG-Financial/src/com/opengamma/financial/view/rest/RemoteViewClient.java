@@ -245,7 +245,7 @@ public class RemoteViewClient implements ViewClient {
   }
   
   @Override
-  public ViewDefinition getViewDefinition() {
+  public ViewDefinition getLatestViewDefinition() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_DEFINITION);
     return _client.access(uri).get(ViewDefinition.class);
   }

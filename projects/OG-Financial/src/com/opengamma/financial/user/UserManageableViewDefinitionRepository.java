@@ -7,6 +7,7 @@ package com.opengamma.financial.user;
 
 import java.util.Set;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -29,6 +30,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void addViewDefinition(AddViewDefinitionRequest request) {
     _underlying.addViewDefinition(request);
@@ -59,6 +61,12 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public Set<String> getDefinitionNames() {
     return _underlying.getDefinitionNames();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

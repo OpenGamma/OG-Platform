@@ -16,7 +16,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * For a set of <i>n</i> function parameters, this takes <i>n</i> ParameterLimitsTransform (which can be the NullTransform which does NOT transform the parameter) which transform
- * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter. It also takes a BitArray (of length <i>n</i>) with an element set to <b>true</b> if
+ * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter. It also takes a BitSet (of length <i>n</i>) with an element set to <b>true</b> if
  * that parameter is fixed - a set of <i>n</i> startValues must also be provided, with only those corresponding to fixed parameters being used (i.e. the parameter is fixed at the startValue).
  * The purpose is to allow an optimiser to work with unconstrained parameters without modifying the function that one wishes to optimise. 
  */
@@ -33,7 +33,7 @@ public class TransformParameters {
    * @param startValues fixed parameter values (if no parameters are fixed this is completely ignored)
    * @param transforms Array of ParameterLimitsTransform (which can be the NullTransform which does NOT transform the parameter) which transform
    * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
-   * @param fixed BitArray  with an element set to <b>true</b> if that parameter is fixed
+   * @param fixed BitSet with an element set to <b>true</b> if that parameter is fixed
    */
   public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
     Validate.notNull(startValues, "null start values");

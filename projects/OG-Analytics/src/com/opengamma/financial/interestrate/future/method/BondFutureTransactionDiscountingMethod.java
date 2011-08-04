@@ -33,7 +33,7 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
   private static final BondFutureSecurityDiscountingMethod METHOD_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
 
   /**
-   * Computes the present value of future from the curves using an the cheapest-to-deliver and computing the value as a forward..
+   * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
    * @param future The future.
    * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
    * @return The present value.

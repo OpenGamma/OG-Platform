@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given market price.
- * !!! This probably needs to be discounted by daysToSpot... curve.getDiscountFactor(future.getDaysToSpot())
+ * FIXME !!! This probably needs to be discounted by daysToSpot... curve.getDiscountFactor(future.getDaysToSpot())
  */
 public abstract class EquityFutureMarkToMarket {
 

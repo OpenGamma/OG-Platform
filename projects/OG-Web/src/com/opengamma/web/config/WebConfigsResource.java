@@ -39,6 +39,7 @@ import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -209,7 +210,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     Class<?> typeClazz = typeMap.get(configType);
     String template = null;
     if (typeClazz != null) {
-      template = data().getTemplateMap().get(typeClazz);
+      JSONBuilder<?> jsonBuilder = data().getJsonBuilderMap().get(typeClazz);
+      if (jsonBuilder != null) {
+        template = jsonBuilder.getTemplate();
+      }
     } 
     FlexiBean out = super.createRootData();
     out.put("template", template);

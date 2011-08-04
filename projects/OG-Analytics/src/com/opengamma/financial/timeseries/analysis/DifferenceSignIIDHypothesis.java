@@ -27,7 +27,7 @@ public class DifferenceSignIIDHypothesis extends IIDHypothesis {
   @Override
   public boolean testIID(final DoubleTimeSeries<?> x) {
     Validate.notNull(x, "x");
-    final double[] data = x.toFastLongDoubleTimeSeries().valuesArrayFast();
+    final double[] data = x.valuesArrayFast();
     final int n = data.length;
     int t = 0;
     for (int i = 1; i < n; i++) {
