@@ -18,21 +18,25 @@ $.register_module({
                         var options = $.extend({}, {
                             cache_for: 30 * 1000,
                             handler: function (result) {
+                                var options = 0;
                                 if (result.error) return handler('an error occurred');
                                 if (meta) {
                                     result.data.types.forEach(function (datum) {
+                                        options += 1;
                                         var $option = $('<option/>').attr('value', datum).text(datum);
                                         if (value === datum) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
                                 } else {
                                     result.data.data.forEach(function (datum) {
+                                        options += 1;
                                         var fields = datum.split('|'),
                                             $option = $('<option/>').attr('value', fields[values]).text(fields[texts]);
                                         if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
                                 }
+                                if (!options) $select.attr('disabled', 'disabled');
                                 handler($html.html());
                             }
                         }, rest_options), $html = $('<p><select/></p>'), $select = $html.find('select');
@@ -47,6 +51,7 @@ $.register_module({
                                 if (value === datum.value) $option[0].setAttribute('selected', 'selected');
                                 $select.append($option);
                             });
+                            if (!data.length) $select.attr('disabled', 'disabled');
                             return handler($html.html());
                         });
                     },
