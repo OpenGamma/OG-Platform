@@ -13,8 +13,6 @@ $.register_module({
         'og.common.util.history',
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
-        'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -25,14 +23,13 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             batches,
-            resize = common.layout.resize,
             options = {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'batches',
@@ -40,15 +37,18 @@ $.register_module({
                         {
                             id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link', filter_type: 'input',
                             name: '<input type="text" placeholder="observation date" '
-                                + 'class="og-js-ob_date-filter" style="width: 110px;">'
+                                + 'class="og-js-ob_date-filter" style="width: 110px;">',
+                            toolTip: 'observation date'
                         },
                         {
                             id: 'ob_time', field: 'time', width: 130, filter_type: 'input',
                             name: '<input type="text" placeholder="observation time" '
-                                + 'class="og-js-ob_time-filter" style="width: 110px;">'
+                                + 'class="og-js-ob_time-filter" style="width: 110px;">',
+                            toolTip: 'observation time'
                         },
                         {
-                            id: 'status', field: 'status', width: 130, name: 'Status'
+                            id: 'status', field: 'status', width: 130, name: 'Status', toolTip: 'status'
+
                         }
                     ]
                 },
@@ -71,12 +71,14 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Batches',
                         recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args){
@@ -90,22 +92,20 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
-                            $.tmpl(template, json.template_data)
-                                .appendTo($('.OG-js-details-panel .OG-details').empty());
+                            var $html = $.tmpl(template, json.template_data);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.results('.OG-batch .og-js-results', json.data.batch_results);
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            details.favorites();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '.OG-js-details-panel',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
@@ -122,7 +122,6 @@ $.register_module({
                     {new_page: function (args) {
                         batches.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -145,7 +144,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: batches.load}]});
                 batches.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (!search) search = common.search_results.core();
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

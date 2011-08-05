@@ -17,6 +17,13 @@ $.register_module({
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler;
             og.dev.log('json!', json);
             api.text({module: module.name, handler: function (template, error) {
+                var header_html = '\
+                    <header class="OG-header-generic">\
+                      <div class="OG-toolbar"></div>\
+                      <h1 class="og-js-name">' + json.name + '</h1>\
+                    </header>\
+                ';
+                $('.ui-layout-inner-center .ui-layout-header').html(header_html);
                 json.config_data = json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                     : json.configXML ? json.configXML : '';
                 $.tmpl(template, json).appendTo($(selector).empty());

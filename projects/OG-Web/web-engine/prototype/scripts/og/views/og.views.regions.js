@@ -10,16 +10,14 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.layout.resize',
         'og.common.util.ui.toolbar',
         'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
-            masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
+            masthead = og.common.masthead, search, details = og.common.details,
             ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
-            resize = og.common.layout.resize,
             check_state = og.views.common.state.check.partial('/' + page_name),
             search_options = {
                 'selector': '.OG-js-search', 'page_type': 'regions',
@@ -44,17 +42,18 @@ $.register_module({
             },
             default_page = function () {
                 og.api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Regions',
                         recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(default_toolbar_options);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                }});
             },
             new_page = function (args) {
                 masthead.menu.set_tab(page_name);
-                layout('default');
                 regions.search(args);
             };
         module.rules = {
@@ -75,22 +74,22 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            var $html = $.tmpl(template, json.template_data);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.render_keys('.OG-region .og-js-keys', json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', json.parent);
                             f.render_regions('.OG-region .og-js-child_regions', json.child);
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(active_toolbar_options);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '#OG-details',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     },
@@ -116,7 +115,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: regions.load}]});
                 regions.details(args);
             },
-            search: function (args) {search.load($.extend(search_options, {url: args}));},
+            search: function (args) {
+                if (!search) search = og.common.search_results.core();
+                search.load($.extend(search_options, {url: args}));
+            },
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

@@ -6,15 +6,94 @@ $.register_module({
     name: 'og.views.common.layout',
     dependencies: [],
     obj: function () {
-        return function (layout) {
-            if (layout === 'analytics') {
-                $('.OG-js-search-panel, .OG-js-details-panel').hide();
-                $('.OG-js-analytics-panel').show();
+        var main_layout_settings = {
+            defaults: {},
+            north: {
+              spacing_open: 0,
+              paneClass: 'ui-layout-masthead',
+              size: 43
+            },
+            south: {
+              spacing_open: 0,
+              paneClass: 'ui-layout-footer',
+              size: 36
+            },
+            east: {
+              initClosed: true,
+              spacing_closed: 0
+            },
+            west: {
+              size: '33%',
+              paneClass: 'ui-layout-search',
+              contentSelector: '.ui-layout-content'
+            },
+            center: {
+              paneClass: 'ui-layout-details'
             }
-            if (layout === 'default') {
-                $('.OG-js-search-panel, .OG-js-details-panel').show();
-                $('.OG-js-analytics-panel').hide().find('.OG-analytics').empty();
+        },
+        details_layout_settings = {
+            center: {
+                paneSelector: '.ui-layout-inner-center',
+                contentSelector: '.ui-layout-content',
+                paneClass: '.ui-layout-inner-center'
+            },
+            north: {
+                paneSelector: '.ui-layout-inner-north',
+                paneClass: 'ui-layout-inner-north',
+                size: 50,
+                initClosed: true,
+                spacing_closed: 0,
+                spacing_open: 0
+            },
+            south: {
+                paneSelector: '.ui-layout-inner-south',
+                paneClass: 'ui-layout-inner-south',
+                size: 100,
+                initClosed: true,
+                spacing_closed: 0
             }
+        },
+        analytics = {
+            defaults: {},
+            north: {
+              spacing_open: 0,
+              paneClass: 'ui-layout-masthead',
+              size: 43
+            },
+            south: {
+              spacing_open: 0,
+              paneClass: 'ui-layout-footer',
+              size: 36
+            },
+            east: {
+              initClosed: true,
+              spacing_closed: 0
+            },
+            west: {
+              size: '33%',
+              initClosed: true,
+              spacing_closed: 0,
+              spacing_open: 0
+            },
+            center: {
+              paneClass: 'ui-layout-analytics',
+              contentSelector: '.ui-layout-content'
+            }
+        },
+        default_view = function () {
+            return {
+                main: $('.ui-layout-container').layout(main_layout_settings),
+                inner: $('.ui-layout-center').layout(details_layout_settings)
+            }
+        },
+        analytics_view = function () {
+            return {
+                main: $('.ui-layout-container').layout(analytics)
+            }
+        };
+        return {
+            'default': default_view,
+            'analytics': analytics_view
         }
     }
 });

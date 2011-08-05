@@ -14,7 +14,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state',
         'og.views.configs.viewdefinition',
@@ -28,14 +27,13 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             configs,
-            resize = og.common.layout.resize,
             config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -75,13 +73,14 @@ $.register_module({
                     'selector': '.OG-js-search', 'page_type': 'configs',
                     'columns': [
                         {
-                            id: 'type',
+                            id: 'type', toolTip: 'type',
                             name: null,
                             field: 'type', width: 100, filter_type: 'select'
                         },
                         {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">'
+                                + 'class="og-js-name-filter" style="width: 280px;">',
+                            toolTip: 'name'
                         }
                     ]
                 },
@@ -115,10 +114,13 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Configs',
                         recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     if (!config_types.length) {// disable new button until we have config_types
                         $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
@@ -133,7 +135,6 @@ $.register_module({
                             cache_for: 15 * 1000
                         });
                     }
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -151,40 +152,46 @@ $.register_module({
                         (form_generators[config_type] || form_generators['default'])({
                             data: details_json,
                             loading: function () {
-                                ui.message({location: '.OG-js-details-panel', message: 'saving...'});
+                                ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
                             },
                             save_new_handler: function (result) {
                                 var args = $.extend({}, routes.last().args, {id: result.meta.id});
-                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});
                                 configs.search(args);
                                 routes.go(routes.hash(module.rules.load_configs, args));
                             },
                             save_handler: function (result) {
-                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                ui.message({location: '.OG-js-details-panel', message: 'saved'});
+                                ui.message({location: '.ui-layout-inner-center', message: 'saved'});
                                 setTimeout(function () {
-                                    ui.message({location: '.OG-js-details-panel', destroy: true});
+                                    ui.message({location: '.ui-layout-inner-center', destroy: true});
                                     routes.handler();
                                 }, 300);
                             },
                             handler: function () {
                                 var json = details_json.template_data,
-                                    $warning = $('.OG-js-details-panel .og-box-error'),
-                                    warning_message = 'This configuration has been deleted';
+                                    error_html = '\
+                                        <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                            This configuration has been deleted\
+                                        </section>\
+                                    ',
+                                    layout = og.views.common.layout;
                                 ui.toolbar(options.toolbar.active);
                                 if (json && json.deleted) {
-                                    $warning.html(warning_message).show();
-                                    resize();
+                                    $('.ui-layout-inner-north').html(error_html);
+                                    layout.inner.sizePane('north', '0');
+                                    layout.inner.open('north');
                                     $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                                } else {$warning.empty().hide(), resize();}
-                                resize({element: '.OG-details-container', offsetpx: -41});
-                                resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                                resize({element: '.OG-details-container [data-og=config-data]', offsetpx: -120});
-                                ui.message({location: '.OG-js-details-panel', destroy: true});
+                                } else {
+                                    layout.inner.close('north');
+                                    $('.ui-layout-inner-north').empty();
+                                }
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                layout.inner.resizeAll();
                             },
-                            selector: '.OG-details'
+                            selector: '.ui-layout-inner-center .ui-layout-content'
                         });
                         if (!(config_type in form_generators))
                             og.dev.warn('using default config template for config type: ' + config_type);
@@ -192,7 +199,7 @@ $.register_module({
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '.OG-js-details-panel', message: {0: 'loading...', 3000: 'still loading...'}
+                            location: '.ui-layout-inner-center', message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
                 });
@@ -209,7 +216,6 @@ $.register_module({
                     {new_page: function (args) {
                         configs.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (!args.id) default_details_page();
@@ -229,6 +235,7 @@ $.register_module({
                 configs.details(args);
             },
             search: function (args) {
+                if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
                     return setTimeout(configs.search.partial(args), 500);
                 if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({

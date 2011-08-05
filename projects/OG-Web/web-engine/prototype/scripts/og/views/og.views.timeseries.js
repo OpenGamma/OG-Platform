@@ -13,7 +13,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -24,12 +23,11 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
-            resize = common.layout.resize,
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             timeseries,
@@ -103,31 +101,31 @@ $.register_module({
                     'selector': '.OG-js-search', 'page_type': 'timeseries',
                     'columns': [
                         {
-                            id: 'data_source',
+                            id: 'data_source', toolTip: 'data source',
                             name: '<input type="text" placeholder="data source" '
                                 + 'class="og-js-data_source-filter" style="width: 70px;">',
                             field: 'data_source', width: 90, cssClass: 'og-uppercase', filter_type: 'input'
                         },
                         {
-                            id: 'identifier',
+                            id: 'identifier', toolTip: 'identifier',
                             name: '<input type="text" placeholder="identifier" '
                                 + 'class="og-js-identifier-filter" style="width: 130px;">',
                             field: 'identifier', width: 150, cssClass: 'og-link', filter_type: 'input'
                         },
                         {
-                            id: 'data_provider',
+                            id: 'data_provider', toolTip: 'data provider',
                             name: '<input type="text" placeholder="data provider" '
                                 + 'class="og-js-data_provider-filter" style="width: 65px;">',
                             field: 'data_provider', width: 85, cssClass: 'og-link', filter_type: 'input'
                         },
                         {
-                            id: 'data_field',
+                            id: 'data_field', toolTip: 'data field',
                             name: '<input type="text" placeholder="data field" '
                                 + 'class="og-js-data_field-filter" style="width: 50px;">',
                             field: 'data_field', width: 70, cssClass: 'og-link', filter_type: 'input'
                         },
                         {
-                            id: 'observation_time',
+                            id: 'observation_time', toolTip: 'observation time',
                             name: '<input type="text" placeholder="observation time" '
                                 + 'class="og-js-observation_time-filter" style="width: 100px;">',
                             field: 'observation_time', width: 120, cssClass: 'og-link', filter_type: 'input'
@@ -159,12 +157,14 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Timeseries',
                         recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -179,16 +179,29 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var stop_loading = ui.message.partial({location: '.OG-js-details-panel', destroy: true}),
-                                $warning, warning_message = 'This timeseries has been deleted';
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .og-box-error');
+                            var error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This position has been deleted\
+                                    </section>\
+                                ',
+                                $html = $.tmpl(template, json.template_data),
+                                layout = og.views.common.layout,
+                                stop_loading = function () {
+                                    ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                    layout.inner.resizeAll();
+                                };
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $warning.html(warning_message).show();
-                                resize();
+                                $('.ui-layout-inner-north').html(error_html);
+                                layout.inner.sizePane('north', '0');
+                                layout.inner.open('north');
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), resize();}
+                            } else {
+                                layout.inner.close('north');
+                                $('.ui-layout-inner-north').empty();
+                            }
                             f.render_identifiers('.OG-timeseries .og-js-identifiers', json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {
@@ -197,15 +210,12 @@ $.register_module({
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            details.favorites();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '.OG-js-details-panel',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -232,7 +242,6 @@ $.register_module({
                     {new_page: function () {
                         timeseries.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -260,7 +269,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: timeseries.load}]});
                 timeseries.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (!search) search = common.search_results.core();
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {
                 for (var rule in module.rules) routes.add(module.rules[rule]);

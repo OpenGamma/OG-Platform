@@ -14,7 +14,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -25,13 +24,11 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this, positions,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            resize = common.layout.resize,
             get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -91,14 +88,14 @@ $.register_module({
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'positions',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link'},
+                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name'},
                         {id: 'quantity',
                             name: '<input type="text" '
                                 + 'placeholder="Quantity" '
                                 + 'class="og-js-quantity-filter" '
                                 + 'style="width: 80px;">',
-                            field: 'quantity', width: 100, filter_type: 'input'},
-                        {id: 'trades', name: 'Trades', field: 'trades', width: 60}
+                            field: 'quantity', width: 100, filter_type: 'input', toolTip: 'quantity'},
+                        {id: 'trades', name: 'Trades', field: 'trades', width: 60, toolTip: 'trades'}
                     ]
                 },
                 toolbar: {
@@ -150,19 +147,27 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var $warning, warning_message = 'This position has been deleted';
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .og-box-error');
+                            var error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This position has been deleted\
+                                    </section>\
+                                ',
+                                $html = $.tmpl(template, json.template_data),
+                                layout = og.views.common.layout;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $warning.html(warning_message).show();
-                                resize();
+                                $('.ui-layout-inner-north').html(error_html);
+                                layout.inner.sizePane('north', '0');
+                                layout.inner.open('north');
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), resize();}
+                            } else {
+                                layout.inner.close('north');
+                                $('.ui-layout-inner-north').empty();
+                            }
                             render_identifiers(json.securities);
                             render_trades(json.trades);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -171,14 +176,14 @@ $.register_module({
                                     })));
                                 }
                             });
-                            details.favorites();
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '#OG-details',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -186,12 +191,14 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Positions',
                         recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             };
         module.rules = {
@@ -238,7 +245,6 @@ $.register_module({
                     {new_page: function () {
                         positions.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -269,6 +275,7 @@ $.register_module({
             },
             search: function (args) {
                 var obj = {};
+                if (!search) search = common.search_results.core();
                 if (args.quantity) obj = get_quantities(args.quantity);
                 search.load($.extend(true, options.slickgrid, {url: args}, {url: obj}));
             },

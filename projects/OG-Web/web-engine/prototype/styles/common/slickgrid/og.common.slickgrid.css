@@ -85,6 +85,11 @@
   background: none;
 }
 
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default {
+  border: none;
+}
 
 .slick-header {
   position: relative;
@@ -92,6 +97,7 @@
   height: 29px;
   margin: 0 -2px;
   padding: 0 4px 2px 0;
+  border-bottom: 1px solid #fff;
 }
 
 .slick-header input,
@@ -163,8 +169,4 @@ ie8.slick-header:before {
   display: inline-block;
   line-height: 20px;
   vertical-align: middle;
-}
-
-.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
-  border: none;
 }

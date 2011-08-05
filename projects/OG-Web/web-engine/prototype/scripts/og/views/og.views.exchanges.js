@@ -13,8 +13,6 @@ $.register_module({
         'og.common.util.history',
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
-        'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -25,14 +23,13 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             exchanges,
-            resize = common.layout.resize,
             options = {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'exchanges',
@@ -40,7 +37,8 @@ $.register_module({
                         {
                             id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">'
+                                + 'class="og-js-name-filter" style="width: 280px;">',
+                            toolTip: 'name'
                         }
                     ]
                 },
@@ -63,12 +61,15 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Exchanges',
                         recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    }), layout = og.views.common.layout;
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                    layout.inner.resizeAll();
                 }});
             },
             details_page = function(args) {
@@ -82,19 +83,19 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            var $html = $.tmpl(template, json), layout = og.views.common.layout;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             ui.toolbar(options.toolbar.active);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            details.favorites();
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '.OG-js-details-panel',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}});
                         }
                 });
@@ -110,7 +111,6 @@ $.register_module({
                     {new_page: function () {
                         exchanges.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -133,7 +133,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: exchanges.load}]});
                 exchanges.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (!search) search = common.search_results.core();
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

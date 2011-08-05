@@ -25,6 +25,9 @@ $.register_module({
                     title = null;
                 });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
+                    og.views.common.layout = /^.*\/analytics\.ftl$/.test(window.location.href)
+                        ? og.views.common.layout.analytics()
+                        : og.views.common.layout['default']();
                     routes.handler();
                     set_title(routes.current().hash);
                 });

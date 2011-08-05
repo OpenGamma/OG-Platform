@@ -91,6 +91,17 @@ $.register_module({
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
+                    var header_html = '\
+                        <header class="OG-header-generic">\
+                          <div class="OG-toolbar"></div>\
+                          <h1>\
+                            <span class="og-js-name">' + master.name + '</span>\
+                            _<span class="og-js-currency">' + master.currency + '</span>\
+                          </h1>\
+                          <br />(Yield Curve Definition)\
+                        </header>\
+                    ';
+                    $('.ui-layout-inner-center .ui-layout-header').html(header_html);
                     $(form_id + ' [name=currency]').val(master.currency);
                     if (deleted) $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     load_handler();
@@ -104,7 +115,7 @@ $.register_module({
                 }},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
                     var currency = $(e.target).val();
-                    $(form_id + ' .og-js-currency').text(currency);
+                    $('.ui-layout-inner-center  .og-js-currency').text(currency);
                     $(form_id + ' .og-js-conv').each(function () {
                         var $el = $(this), idx = $el.attr('name').split('.').slice(1, -1),
                             row = master.strip[idx], value = row[CONV] || (row[CONV] = $el.val());
@@ -114,7 +125,7 @@ $.register_module({
                     });
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
-                    $(form_id + ' .og-js-name').text($(e.target).val());
+                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 }},
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) { // remove a strip
                     var $el = $(e.target).parents('.og-js-strip:first'),

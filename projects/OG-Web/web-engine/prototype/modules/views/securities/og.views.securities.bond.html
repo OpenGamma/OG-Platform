@@ -1,67 +1,69 @@
-<div class="OG-toolbar"></div>
-<header class="OG-header-generic">
-  <h1>${name}</h1>
-</header>
-<div class="OG-details-container">
-<div class="og-details-content OG-security">
-  <div class="OG-c10 og-grid-last OG-max-width-l">
-    <section class="OG-mod-1 OG-c6">
-      <table>
-        <col style="width: 40%" />
-        <col style="width: 60%" />
-        <thead>
-          <tr>
-            <td>${securityType}</td><td></td>
-          </tr>
-        </thead>
-        <tbody class="og-mod-content og-dotted">
-          <tr><td><span>Issuer name</span></td><td>${issuerName}</td></tr>
-          <tr><td><span>Issuer Type</span></td><td>${issuerType}</td></tr>
-          <tr><td><span>Issuer Domicile</span></td><td>${issuerDomicile}</td></tr>
-          <tr class="og-break"><td></td><td></td></tr>
-          <tr><td><span>Market</span></td><td>${market}</td></tr>
-          <tr><td><span>Currency</span></td><td>${currency}</td></tr>
-          <tr><td><span>Yield convention</span></td><td>${yieldConvention}</td></tr>
-          <tr class="og-break"><td></td><td></td></tr>
-          <tr><td><span>Last Trade Date</span></td><td>${lastTradeDate}</td></tr>
-          <tr><td><span>Last Trade Accuracy</span></td><td>${lastTradeAccuracy}</td></tr>
-          <tr class="og-break"><td></td><td></td></tr>
-          <tr><td><span>Coupon Type</span></td><td>${couponType}</td></tr>
-          <tr><td><span>Coupon Rate</span></td><td>${couponRate}</td></tr>
-          <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>
-          <tr class="og-break"><td></td><td></td></tr>
-          <tr><td><span>Day Count Convention</span></td><td>${dayCountConvention}</td></tr>
-          <tr><td><span>Guarantee Type</span></td><td>${guaranteeType}</td></tr>
-          <tr><td><span>Business Day Convention</span></td><td>${businessDayConvention}</td></tr>
-          <tr><td><span>Announcement Date</span></td><td>${announcementDate}</td></tr>
-          <tr><td><span>Interest Accrual Date</span></td><td>${interestAccrualDate.date} - ${interestAccrualDate.zone}</td></tr>
-          <tr><td><span>Settlement Date</span></td><td>${settlementDate.date} - ${settlementDate.zone}</td></tr>
-          <tr><td><span>First Coupon Date</span></td><td>${firstCouponDate.date} - ${firstCouponDate.zone}</td></tr>
-          <tr><td><span>Issuance Price</span></td><td>${issuancePrice}</td></tr>
-          <tr><td><span>Total Amount Issued</span></td><td>${totalAmountIssued}</td></tr>
-          <tr><td><span>Minimum Amount</span></td><td>${minimumAmount}</td></tr>
-          <tr><td><span>Minimum Increment</span></td><td>${minimumIncrement}</td></tr>
-          <tr><td><span>Par Amount</span></td><td>${parAmount}</td></tr>
-          <tr><td><span>Par Amount</span></td><td>${redemptionValue}</td></tr>
-        </tbody>
-      </table>
-    </section>
-    <section class="OG-mod-1 og-style-2 OG-c4">
-      <table>
-        <col style="width: 40%" />
-        <col style="width: 60%" />
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-toolbar"></div>
+    <h1>${name}</h1>
+  </header>
+  <section>
+  <div class="og-details-content OG-security OG-js-details-panel">
+    <div class="OG-c10 og-grid-last OG-max-width-l">
+      <section class="OG-mod-1 OG-c6">
+        <table>
+          <col style="width: 40%" />
+          <col style="width: 60%" />
           <thead>
-          <tr>
-            <td>Identifiers</td><td></td>
-          </tr>
-        </thead>
-        <tbody class="og-js-identifiers og-mod-content og-dotted"></tbody>
-      </table>
-    </section>
-    <div class="og-box">
-      <div class="og-lbl">Identifiers</div>
-      <div class="og-cnt og-js-identifiers"></div>
+            <tr>
+              <td>${securityType}</td><td></td>
+            </tr>
+          </thead>
+          <tbody class="og-mod-content og-dotted">
+            <tr><td><span>Issuer name</span></td><td>${issuerName}</td></tr>
+            <tr><td><span>Issuer Type</span></td><td>${issuerType}</td></tr>
+            <tr><td><span>Issuer Domicile</span></td><td>${issuerDomicile}</td></tr>
+            <tr class="og-break"><td></td><td></td></tr>
+            <tr><td><span>Market</span></td><td>${market}</td></tr>
+            <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+            <tr><td><span>Yield convention</span></td><td>${yieldConvention}</td></tr>
+            <tr class="og-break"><td></td><td></td></tr>
+            <tr><td><span>Last Trade Date</span></td><td>${lastTradeDate}</td></tr>
+            <tr><td><span>Last Trade Accuracy</span></td><td>${lastTradeAccuracy}</td></tr>
+            <tr class="og-break"><td></td><td></td></tr>
+            <tr><td><span>Coupon Type</span></td><td>${couponType}</td></tr>
+            <tr><td><span>Coupon Rate</span></td><td>${couponRate}</td></tr>
+            <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>
+            <tr class="og-break"><td></td><td></td></tr>
+            <tr><td><span>Day Count Convention</span></td><td>${dayCountConvention}</td></tr>
+            <tr><td><span>Guarantee Type</span></td><td>${guaranteeType}</td></tr>
+            <tr><td><span>Business Day Convention</span></td><td>${businessDayConvention}</td></tr>
+            <tr><td><span>Announcement Date</span></td><td>${announcementDate}</td></tr>
+            <tr><td><span>Interest Accrual Date</span></td><td>${interestAccrualDate.date} - ${interestAccrualDate.zone}</td></tr>
+            <tr><td><span>Settlement Date</span></td><td>${settlementDate.date} - ${settlementDate.zone}</td></tr>
+            <tr><td><span>First Coupon Date</span></td><td>${firstCouponDate.date} - ${firstCouponDate.zone}</td></tr>
+            <tr><td><span>Issuance Price</span></td><td>${issuancePrice}</td></tr>
+            <tr><td><span>Total Amount Issued</span></td><td>${totalAmountIssued}</td></tr>
+            <tr><td><span>Minimum Amount</span></td><td>${minimumAmount}</td></tr>
+            <tr><td><span>Minimum Increment</span></td><td>${minimumIncrement}</td></tr>
+            <tr><td><span>Par Amount</span></td><td>${parAmount}</td></tr>
+            <tr><td><span>Par Amount</span></td><td>${redemptionValue}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="OG-mod-1 og-style-2 OG-c4">
+        <table>
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+            <thead>
+            <tr>
+              <td>Identifiers</td><td></td>
+            </tr>
+          </thead>
+          <tbody class="og-js-identifiers og-mod-content og-dotted"></tbody>
+        </table>
+      </section>
+      <div class="og-box">
+        <div class="og-lbl">Identifiers</div>
+        <div class="og-cnt og-js-identifiers"></div>
+      </div>
     </div>
   </div>
-</div>
-</div>
+  </section>
+</article>

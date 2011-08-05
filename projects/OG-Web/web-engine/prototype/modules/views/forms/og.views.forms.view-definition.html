@@ -1,30 +1,24 @@
-<div class="OG-toolbar"></div>
-<header class="OG-header-generic">
-  <h1>${name}</h1>
-  <br />
-  (View Definition)
-</header>
-<div class="OG-details-container">
-<div class="og-details-content OG-config">
-  <div class="OG-c10 og-grid-last OG-max-width-l OG-form">
-  {{html item_0}}<!-- view definition currency and identifier -->
-  {{html item_1}}<!-- result model definition -->
-  {{html item_2}}<!-- execution parameters -->
-  <section class="OG-mod-0 OG-c10 og-grid-last og-column-sets og-js-colsets">
-    <div>
-      <h3>Column Sets</h3>
-      <p>
-        A list of named <em>column sets</em>. These allow the same analytics to be computed using different settings and
-        viewed side by side at the same time.
-      </p>
-      {{html item_3}}<!-- column set tabs -->
+<section>
+  <div class="og-details-content OG-config OG-grid">
+    <div class="OG-c10 og-grid-last OG-max-width-l OG-form">
+    {{html item_0}}<!-- view definition currency and identifier -->
+    {{html item_1}}<!-- result model definition -->
+    {{html item_2}}<!-- execution parameters -->
+    <section class="OG-mod-0 OG-c10 og-grid-last og-column-sets og-js-colsets">
+      <div>
+        <h3>Column Sets</h3>
+        <p>
+          A list of named <em>column sets</em>. These allow the same analytics to be computed using different settings and
+          viewed side by side at the same time.
+        </p>
+        {{html item_3}}<!-- column set tabs -->
+      </div>
+      {{html item_4}}<!-- column sets -->
+    </section>
+    <section class="OG-mod-0">
+      <button type="submit" value="save" class="OG-small-button og-js-submit">Save</button>
+      <button type="submit" value="save_as_new" class="OG-small-button og-js-submit">Save As New</button>
+    </section>
     </div>
-    {{html item_4}}<!-- column sets -->
-  </section>
-  <section class="OG-mod-0">
-    <button type="submit" value="save" class="OG-small-button og-js-submit">Save</button>
-    <button type="submit" value="save_as_new" class="OG-small-button og-js-submit">Save As New</button>
-  </section>
   </div>
-</div>
-</div>
+</section>

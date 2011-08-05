@@ -14,7 +14,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
         'og.views.common.state'
     ],
@@ -25,14 +24,13 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
             layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             holidays,
-            resize = common.layout.resize,
             options = {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'holidays',
@@ -44,7 +42,8 @@ $.register_module({
                             field: 'name',
                             width: 100,
                             cssClass: 'og-link',
-                            filter_type: 'input'
+                            filter_type: 'input',
+                            toolTip: 'name'
                         },
                         {
                             id: 'type',
@@ -57,7 +56,8 @@ $.register_module({
                                 + '</select>',
                             field: 'type', width: 200,
                             filter_type: 'select',
-                            filter_type_options: ['CURRENCY', 'BANK', 'SETTLEMENT', 'TRADING']
+                            filter_type_options: ['CURRENCY', 'BANK', 'SETTLEMENT', 'TRADING'],
+                            toolTip: 'type'
                         }
                     ]
                 },
@@ -80,13 +80,15 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    $html = $.tmpl(template, {
                         name: 'Holidays',
                         favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
                         recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -100,8 +102,10 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            var $html = $.tmpl(template, json.template_data);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration
                                 showCurrentAtPos: new Date().getMonth(),    // Makes the first month January
@@ -113,15 +117,16 @@ $.register_module({
                             });
                             details.favorites();
                             ui.toolbar(options.toolbar.active);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
                         }});
                     },
                     id: args.id,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({
+                            location: '.ui-layout-inner-center',
+                            message: {0: 'loading...', 3000: 'still loading...'}
+                        });
                     }
                 });
             };
@@ -137,7 +142,6 @@ $.register_module({
                     {new_page: function () {
                         holidays.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -160,7 +164,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: holidays.load}]});
                 holidays.details(args);
             },
-            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            search: function (args) {
+                if (!search) search = common.search_results.core();
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

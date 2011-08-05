@@ -15,8 +15,7 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
-        'og.views.common.state',
-        'og.common.layout.resize'
+        'og.views.common.state'
     ],
     obj: function () {
         var api = og.api,
@@ -25,15 +24,13 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             json = {},
             portfolios,
-            resize = common.layout.resize,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -92,7 +89,8 @@ $.register_module({
                         {
                             id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">'
+                                + 'class="og-js-name-filter" style="width: 280px;">',
+                            toolTip: 'name'
                         }
                     ]
                 },
@@ -115,12 +113,14 @@ $.register_module({
             },
             default_details_page = function () {
                 og.api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
+                    var $html = $.tmpl(template, {
                         name: 'Portfolios',
                         recent_list: history.get_html('history.portfolios.recent') || 'no recently viewed portfolios'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
+                    });
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args) {
@@ -251,7 +251,6 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
-                        resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     },
                     render_position_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions;
@@ -305,7 +304,6 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
-                        resize({element: selector, offsetpx: -120, callback: slick.resizeCanvas});
                     };
                 api.rest.portfolios.get({
                     handler: function (result) {
@@ -317,20 +315,29 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var $warning, warning_message = 'This portfolio has been deleted';
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .og-box-error');
+                            var error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This portfolio has been deleted\
+                                    </section>\
+                                ',
+                                $html = $.tmpl(template, json.template_data),
+                                layout = og.views.common.layout;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $warning.html(warning_message).show();
-                                resize();
+                                $('.ui-layout-inner-north').html(error_html);
+                                layout.inner.sizePane('north', '0');
+                                layout.inner.open('north');
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), common.layout.resize();}
+                            } else {
+                                layout.inner.close('north');
+                                $('.ui-layout-inner-north').empty();
+                            }
                             hook_up_add_portfolio_form(), hook_up_add_position_form();
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {
@@ -339,13 +346,16 @@ $.register_module({
                                     })));
                                 }
                             });
-                            details.favorites();
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     node: args.node,
                     loading: function () {
-                        ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
+                        ui.message({
+                            location: '.ui-layout-inner-center',
+                            message: {0: 'loading...', 3000: 'still loading...'}
+                        });
                     }
                 });
             },
@@ -376,7 +386,6 @@ $.register_module({
                     {new_page: function (args) {
                         portfolios.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
@@ -408,6 +417,7 @@ $.register_module({
                 portfolios.details(args);
             },
             search: function (args) {
+                if (!search) search = common.search_results.core();
                 search.load($.extend(options.slickgrid, {url: args}));
             },
             details: details_page,
