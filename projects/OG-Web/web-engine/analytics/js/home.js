@@ -46,7 +46,7 @@
             }) );
           },
           select: function(event, ui) {
-            ui.item.option.selected = true;
+            select.val(ui.item.option.value);
             self._trigger("selected", event, {
               item: ui.item.option
             });
@@ -115,20 +115,21 @@
   
   function onInitDataReceived(initData) {
     if (_init) {
-      return;
+      updateViewList(initData.viewNames);
+    } else {
+      initControls(initData);
     }
-    
+  }
+  
+  function initControls(initData) {
     $('#viewcontrols').show();
     
     viewList = initData.viewNames;
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
     var $backingSnapshotList = $("<select id='snapshotlist'></select>")
-    $('<option value=""></option>').appendTo($backingViewList);
-    $.each(viewList, function() {
-      var $opt = $('<option value="' + this + '">' + this + '</option>');
-      $opt.appendTo($backingViewList);
-    });
+
+    updateViewList(initData.viewNames);
     $backingViewList.combobox({
       change: function(item) { populateSnapshots($backingSnapshotList, initData.snapshots, $(item).val()); }
     });
@@ -166,6 +167,16 @@
     $('#viewcontrols').hide().show(500);
     $('#loadingviews').remove();
     _init = true;
+  }
+  
+  function updateViewList(viewList) {
+    var $backingViewList = $("#viewlist")
+    $backingViewList.empty();
+    $('<option value=""></option>').appendTo($backingViewList);
+    $.each(viewList, function() {
+      var $opt = $('<option value="' + this + '">' + this + '</option>');
+      $opt.appendTo($backingViewList);
+    });
   }
   
   function populateSnapshots($snapshotSelect, snapshots, selectedView) {

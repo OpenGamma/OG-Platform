@@ -86,7 +86,7 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
       case ADDED:
       case UPDATED:
       case CORRECTED:
-        if (event.beforeId() != null) {
+        if (event.getBeforeId() != null) {
           ConfigDocument<?> oldDocument = getConfigMaster().get(event.getBeforeId());
           if (!(oldDocument.getValue() instanceof ViewDefinition)) {
             return;
