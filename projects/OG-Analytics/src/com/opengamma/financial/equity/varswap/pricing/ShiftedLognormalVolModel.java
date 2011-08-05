@@ -5,17 +5,18 @@
  */
 package com.opengamma.financial.equity.varswap.pricing;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.volatility.BlackFormula;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.util.tuple.DoublesPair;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -25,73 +26,96 @@ public class ShiftedLognormalVolModel {
   private double _expiry;
   private double _vol;
   private double _shift;
-  private double _cutoff;
   private BlackFormula _shiftedBlackOption;
 
   private static final double DEF_TOL = 1.0E-6;
   private static final int DEF_STEPS = 10000;
-
-  private static final double DEF_GUESS_VOL = 0.2;
-  private static final double DEF_GUESS_SHIFT = 0.25; // fwd*(1+shift)
+  private static final double DEF_GUESS_VOL = 0.20;
+  private static final double DEF_GUESS_SHIFT = 0.1; // Fraction of forward
   private static final VectorRootFinder DEF_SOLVER = new BroydenVectorRootFinder(DEF_TOL, DEF_TOL, DEF_STEPS);
+  private static final ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // This is used to remove sigma > 0 constraint in search
 
-  public ShiftedLognormalVolModel(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike,
+  /**
+   * Build a Shifted Lognormal Volatility model directly from model inputs 
+   * @param forward absolute level of the forward
+   * @param expiry expiry in years
+   * @param lognormalVol annual lognormal (black) vol
+   * @param shift absolute level of the shift applied to the forward and strike. A positive value shifts distribution left.
+   */
+  public ShiftedLognormalVolModel(final double forward, final double expiry, double lognormalVol, double shift) {
+
+    _forward = forward;
+    _expiry = expiry;
+    _vol = lognormalVol;
+    _shift = shift;
+    _shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
+  }
+
+  /**
+   * Fit a Shifted Lognormal Volatility to two target points at one expiry 
+   * @param forward absolute level of the forward
+   * @param expiry expiry in years
+   * @param targetStrike1 absolute level of the first target strike 
+   * @param targetVol1 lognormal vol at the first target strike
+   * @param targetStrike2 absolute level of the second target strike
+   * @param targetVol2 lognormal vol at the second target strike
+   * @param volGuess initial guess for the model's annual lognormal vol
+   * @param shiftGuess initial guess for the model's shift, as absolute level
+   * @param solver VectorRootFinder 
+   */
+  public ShiftedLognormalVolModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2,
       final double volGuess, final double shiftGuess, final VectorRootFinder solver) {
 
     _forward = forward;
     _expiry = expiry;
-    _cutoff = cutoffStrike;
 
-    final DoubleMatrix1D volShift = fitShiftedLnParams(volSurface, cutoffStrike, secondStrike,
-                                                          volGuess, shiftGuess, solver);
+    // Find target volatilities
+    final DoubleMatrix1D volShift = fitShiftedLnParams(targetStrike1, targetVol1, targetStrike2, targetVol2,
+                                                          volGuess, shiftGuess * _forward, solver);
     _vol = volShift.getEntry(0);
     _shift = volShift.getEntry(1);
 
-    _shiftedBlackOption = new BlackFormula(_forward * (1 + _shift), _forward * (1 + _shift), _expiry, _vol, null, true);
+    _shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
 
   }
 
-  public ShiftedLognormalVolModel(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike) {
-    this(forward, expiry, volSurface, cutoffStrike, secondStrike, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
+  public ShiftedLognormalVolModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
+    this(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
-  public ShiftedLognormalVolModel from(final double forward, final double expiry, final VolatilitySurface volSurface, final double cutoffStrike, final double secondStrike) {
-    return new ShiftedLognormalVolModel(forward, expiry, volSurface, cutoffStrike, secondStrike, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
+  public ShiftedLognormalVolModel from(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
+    return new ShiftedLognormalVolModel(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
   private DoubleMatrix1D fitShiftedLnParams(
-      final VolatilitySurface vsurf,
-      final double strikeTarget1, final double strikeTarget2,
+      final double strikeTarget1, final double volTarget1,
+      final double strikeTarget2, final double volTarget2,
       final double volGuess, final double shiftGuess,
       final VectorRootFinder solver) {
 
     Validate.notNull(solver, "solver");
-    DoubleMatrix1D volShiftParams; // [vol,shift]
-    final DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {volGuess, shiftGuess});
+    DoubleMatrix1D volShiftParams; // [transform(vol),shift]
+
+    final DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {TRANSFORM.transform(volGuess), shiftGuess });
 
     // Targets
-    final DoublesPair target1 = DoublesPair.of(_expiry, strikeTarget1 * _forward);
-    final double target1Vol = vsurf.getVolatility(target1);
-    final double target1Price = new BlackFormula(_forward, strikeTarget1 * _forward, _expiry,
-                                        target1Vol, null, strikeTarget1 > 1).computePrice();
+    final double target1Price = new BlackFormula(_forward, strikeTarget1, _expiry,
+        volTarget1, null, strikeTarget1 > _forward).computePrice();
 
-    final DoublesPair target2 = DoublesPair.of(_expiry, (strikeTarget2) * _forward);
-    final double target2Vol = vsurf.getVolatility(target2);
-    final double target2Price = new BlackFormula(_forward, strikeTarget2 * _forward, _expiry,
-                                         target2Vol, null, strikeTarget2 > 1).computePrice();
+    final double target2Price = new BlackFormula(_forward, strikeTarget2, _expiry,
+        volTarget2, null, strikeTarget2 > _forward).computePrice();
 
     // Function
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> priceDiffs = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D volShiftPair) {
-        final double[] diffs = new double[] {100, 100};
-        final double vol = Math.max(1e-9, volShiftPair.getEntry(0));
+        final double[] diffs = new double[] {100, 100 };
+        final double vol = TRANSFORM.inverseTransform(volShiftPair.getEntry(0)); // Math.max(1e-9, volShiftPair.getEntry(0));
         final double shift = volShiftPair.getEntry(1);
 
-        diffs[0] = (target1Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget1 + shift), _expiry, vol, null, strikeTarget1 > 1).computePrice()) * 1.0E+6;
-        diffs[1] = (target2Price - new BlackFormula(_forward * (1 + shift), _forward * (strikeTarget2 + shift), _expiry, vol, null, strikeTarget2 > 1).computePrice()) * 1.0E+6;
-
+        diffs[0] = (target1Price - new BlackFormula(_forward + shift, strikeTarget1 + shift, _expiry, vol, null, strikeTarget1 > _forward).computePrice()) * 1.0E+6;
+        diffs[1] = (target2Price - new BlackFormula(_forward + shift, strikeTarget2 + shift, _expiry, vol, null, strikeTarget2 > _forward).computePrice()) * 1.0E+6;
         return new DoubleMatrix1D(diffs);
       }
     };
@@ -99,22 +123,34 @@ public class ShiftedLognormalVolModel {
     try {
       volShiftParams = solver.getRoot(priceDiffs, guess);
     } catch (final Exception e) {
-      System.err.println("Failed to find roots to fit a Shifted Lognormal Distribution to your targets. Increase maxSteps, change guess, or change secondTarget.");
-      // "Matrix is singular; could not perform LU decomposition" OR "Failed to converge in backtracking, even after a Jacobian recalculation."
       try {
-        volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {target2Vol, 0.0}));
+        System.err.println("Failed on first solver attempt. Doing a second");
+        volShiftParams = solver.getRoot(priceDiffs, new DoubleMatrix1D(new double[] {TRANSFORM.transform(volTarget2), 0.0 }));
       } catch (final Exception e2) {
+        System.err.println("Failed to find roots to fit a Shifted Lognormal Distribution to your targets. Increase maxSteps, change guess, or change secondTarget.");
+        System.err.println("K1 = " + strikeTarget1 + ",vol1 = " + volTarget1 + ",price1 = " + target1Price);
+        System.err.println("K2 = " + strikeTarget2 + ",vol2 = " + volTarget2 + ",price2 = " + target2Price);
         throw new OpenGammaRuntimeException(e.getMessage());
       }
-
     }
+    /* TODO REMOVE ********************************************
+    System.err.println("Success");
+    System.err.println("K1 = " + strikeTarget1 + ",vol1 = " + volTarget1 + ",price1 = " + target1Price);
+    System.err.println("K2 = " + strikeTarget2 + ",vol2 = " + volTarget2 + ",price2 = " + target2Price);
+    System.err.println("Fitted Params: vol = " + TRANSFORM.inverseTransform(volShiftParams.getEntry(0))
+                          + ",shift = " + volShiftParams.getEntry(1));
+    // ******************************************************** */
 
-    return volShiftParams;
+    return new DoubleMatrix1D(new double[] {TRANSFORM.inverseTransform(volShiftParams.getEntry(0)), volShiftParams.getEntry(1) });
   }
 
-  public double priceFromRelativeStrike(final double relStrike) {
-    _shiftedBlackOption.setStrike((relStrike + _shift) * _forward);
-    _shiftedBlackOption.setIsCall(relStrike > 1.0);
+  /**
+   * @param absoluteStrike 
+   * @return Price of the calibrated model given a fixed (absolute) strike. So if the forward, was 80, and OTM Put might have a strike of 65.
+   */
+  public double priceFromFixedStrike(final double absoluteStrike) {
+    _shiftedBlackOption.setStrike(absoluteStrike + _shift);
+    _shiftedBlackOption.setIsCall(absoluteStrike > _forward);
     return _shiftedBlackOption.computePrice();
   }
 
@@ -183,22 +219,6 @@ public class ShiftedLognormalVolModel {
   }
 
   /**
-   * Gets the cutoff.
-   * @return the cutoff
-   */
-  public final double getCutoff() {
-    return _cutoff;
-  }
-
-  /**
-   * Sets the cutoff.
-   * @param cutoff  the cutoff
-   */
-  public final void setCutoff(final double cutoff) {
-    _cutoff = cutoff;
-  }
-
-  /**
    * Gets the shiftedBlackOption.
    * @return the shiftedBlackOption
    */
@@ -219,8 +239,6 @@ public class ShiftedLognormalVolModel {
     final int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_cutoff);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_expiry);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_forward);
@@ -242,9 +260,7 @@ public class ShiftedLognormalVolModel {
       return false;
     }
     final ShiftedLognormalVolModel other = (ShiftedLognormalVolModel) obj;
-    if (Double.doubleToLongBits(_cutoff) != Double.doubleToLongBits(other._cutoff)) {
-      return false;
-    }
+
     if (Double.doubleToLongBits(_expiry) != Double.doubleToLongBits(other._expiry)) {
       return false;
     }

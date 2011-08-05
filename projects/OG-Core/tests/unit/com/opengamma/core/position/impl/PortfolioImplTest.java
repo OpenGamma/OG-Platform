@@ -29,7 +29,7 @@ public class PortfolioImplTest {
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_String_null() {
-    new PortfolioImpl(null);
+    new PortfolioImpl((String) null);
   }
 
   //-------------------------------------------------------------------------

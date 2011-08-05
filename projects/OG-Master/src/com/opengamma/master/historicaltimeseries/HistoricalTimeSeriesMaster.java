@@ -8,11 +8,11 @@ package com.opengamma.master.historicaltimeseries;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * from the versioning of the information.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument>, NotifyingMaster {
+public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument>, ChangeProvider {
 
   /**
    * Queries the meta-data about the master.

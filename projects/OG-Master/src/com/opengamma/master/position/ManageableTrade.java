@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.position;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,11 +29,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -46,8 +48,12 @@ import com.opengamma.util.money.Currency;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable {
+public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable, Serializable {
 
+  /**
+   * Version
+   */
+  private static final long serialVersionUID = 1L;
   /**
    * The trade unique identifier.
    * This field should be null until added to the master.
@@ -67,19 +73,11 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   @PropertyDefinition
   private BigDecimal _quantity;
   /**
-   * The identifiers specifying the security.
-   * This field must not be null for the object to be valid.
+   * The link referencing the security, not null.
+   * This may also hold the resolved security.
    */
-  @PropertyDefinition
-  private IdentifierBundle _securityKey;
-  /**
-   * The resolved security being held, which may be null.
-   * The security is normally referred to at the data level using the security key.
-   * However, in certain circumstances it is useful to hold the security itself, which this allows.
-   * For example, this field could be populated before the security is added to the database.
-   */
-  @PropertyDefinition
-  private ManageableSecurity _security;
+  @PropertyDefinition(validate = "notNull")
+  private SecurityLink _securityLink;
   /**
    * The trade date.
    * This field must not be null for the object to be valid.
@@ -141,6 +139,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * Creates an instance.
    */
   public ManageableTrade() {
+    _securityLink = new SecurityLink();
   }
 
   /**
@@ -151,16 +150,16 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
-    setParentPositionId(trade.getParentPositionId());
-    setQuantity(trade.getQuantity());
-    setSecurityKey(trade.getSecurityKey());
-    setTradeDate(trade.getTradeDate());
-    setTradeTime(trade.getTradeTime());
-    setCounterpartyKey((trade.getCounterparty() != null) ? trade.getCounterparty().getIdentifier() : null);
-    setPremium(trade.getPremium());
-    setPremiumCurrency(trade.getPremiumCurrency());
-    setPremiumDate(trade.getPremiumDate());
-    setPremiumTime(trade.getPremiumTime());
+    _parentPositionId = trade.getParentPositionId();
+    _quantity = trade.getQuantity();
+    _securityLink = trade.getSecurityLink().clone();
+    _tradeDate = trade.getTradeDate();
+    _tradeTime = trade.getTradeTime();
+    _counterpartyKey = (trade.getCounterparty() != null ? trade.getCounterparty().getIdentifier() : null);
+    _premium = trade.getPremium();
+    _premiumCurrency = trade.getPremiumCurrency();
+    _premiumDate = trade.getPremiumDate();
+    _premiumTime = trade.getPremiumTime();
     for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
       addAttribute(entry.getKey(), entry.getValue());
     }
@@ -172,8 +171,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * @param quantity  the amount of the trade, not null
    * @param securityKey  the security identifier, not null
    * @param tradeDate  the trade date, not null
-   * @param tradeTime the trade time with timezone, may be null
-   * @param counterpartyId the counterparty identifier, not null
+   * @param tradeTime  the trade time with offset, may be null
+   * @param counterpartyId  the counterparty identifier, not null
    */
   public ManageableTrade(final BigDecimal quantity, final Identifier securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final Identifier counterpartyId) {
     ArgumentChecker.notNull(quantity, "quantity");
@@ -184,7 +183,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _counterpartyKey = counterpartyId;
-    _securityKey = IdentifierBundle.of(securityKey);
+    _securityLink = new SecurityLink(securityKey);
   }
 
   /**
@@ -193,8 +192,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * @param quantity  the amount of the trade, not null
    * @param securityKey  the security identifier, not null
    * @param tradeDate  the trade date, not null
-   * @param tradeTime the trade time with timezone, may be null
-   * @param counterpartyId the counterparty identifier, not null
+   * @param tradeTime  the trade time with offset, may be null
+   * @param counterpartyId  the counterparty identifier, not null
    */
   public ManageableTrade(final BigDecimal quantity, final IdentifierBundle securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final Identifier counterpartyId) {
     ArgumentChecker.notNull(quantity, "quantity");
@@ -205,19 +204,9 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _counterpartyKey = counterpartyId;
-    _securityKey = securityKey;
+    _securityLink = new SecurityLink(securityKey);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Adds an identifier to the security key.
-   * @param securityKeyIdentifier  the identifier to add, not null
-   */
-  public void addSecurityKey(final Identifier securityKeyIdentifier) {
-    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
-    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
-  }
-  
   //-------------------------------------------------------------------------
   /**
    * Adds a key value pair to attributes
@@ -235,6 +224,11 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   @Override
   public Counterparty getCounterparty() {
     return new CounterpartyImpl(getCounterpartyKey());
+  }
+
+  @Override
+  public Security getSecurity() {
+    return _securityLink.getTarget();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -264,10 +258,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
         return getParentPositionId();
       case -1285004149:  // quantity
         return getQuantity();
-      case 1550083839:  // securityKey
-        return getSecurityKey();
-      case 949122880:  // security
-        return getSecurity();
+      case 807992154:  // securityLink
+        return getSecurityLink();
       case 752419634:  // tradeDate
         return getTradeDate();
       case 752903761:  // tradeTime
@@ -305,11 +297,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
         return;
-      case 1550083839:  // securityKey
-        setSecurityKey((IdentifierBundle) newValue);
-        return;
-      case 949122880:  // security
-        setSecurity((ManageableSecurity) newValue);
+      case 807992154:  // securityLink
+        setSecurityLink((SecurityLink) newValue);
         return;
       case 752419634:  // tradeDate
         setTradeDate((LocalDate) newValue);
@@ -346,6 +335,12 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   }
 
   @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_securityLink, "securityLink");
+    super.validate();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -355,8 +350,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getParentPositionId(), other.getParentPositionId()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityKey(), other.getSecurityKey()) &&
-          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
           JodaBeanUtils.equal(getCounterpartyKey(), other.getCounterpartyKey()) &&
@@ -377,8 +371,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKey());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyKey());
@@ -478,64 +471,31 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifiers specifying the security.
-   * This field must not be null for the object to be valid.
-   * @return the value of the property
+   * Gets the link referencing the security, not null.
+   * This may also hold the resolved security.
+   * @return the value of the property, not null
    */
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
+  public SecurityLink getSecurityLink() {
+    return _securityLink;
   }
 
   /**
-   * Sets the identifiers specifying the security.
-   * This field must not be null for the object to be valid.
-   * @param securityKey  the new value of the property
+   * Sets the link referencing the security, not null.
+   * This may also hold the resolved security.
+   * @param securityLink  the new value of the property, not null
    */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    this._securityKey = securityKey;
+  public void setSecurityLink(SecurityLink securityLink) {
+    JodaBeanUtils.notNull(securityLink, "securityLink");
+    this._securityLink = securityLink;
   }
 
   /**
-   * Gets the the {@code securityKey} property.
-   * This field must not be null for the object to be valid.
+   * Gets the the {@code securityLink} property.
+   * This may also hold the resolved security.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> securityKey() {
-    return metaBean().securityKey().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the resolved security being held, which may be null.
-   * The security is normally referred to at the data level using the security key.
-   * However, in certain circumstances it is useful to hold the security itself, which this allows.
-   * For example, this field could be populated before the security is added to the database.
-   * @return the value of the property
-   */
-  public ManageableSecurity getSecurity() {
-    return _security;
-  }
-
-  /**
-   * Sets the resolved security being held, which may be null.
-   * The security is normally referred to at the data level using the security key.
-   * However, in certain circumstances it is useful to hold the security itself, which this allows.
-   * For example, this field could be populated before the security is added to the database.
-   * @param security  the new value of the property
-   */
-  public void setSecurity(ManageableSecurity security) {
-    this._security = security;
-  }
-
-  /**
-   * Gets the the {@code security} property.
-   * The security is normally referred to at the data level using the security key.
-   * However, in certain circumstances it is useful to hold the security itself, which this allows.
-   * For example, this field could be populated before the security is added to the database.
-   * @return the property, not null
-   */
-  public final Property<ManageableSecurity> security() {
-    return metaBean().security().createProperty(this);
+  public final Property<SecurityLink> securityLink() {
+    return metaBean().securityLink().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -833,15 +793,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
         this, "quantity", ManageableTrade.class, BigDecimal.class);
     /**
-     * The meta-property for the {@code securityKey} property.
+     * The meta-property for the {@code securityLink} property.
      */
-    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(
-        this, "securityKey", ManageableTrade.class, IdentifierBundle.class);
-    /**
-     * The meta-property for the {@code security} property.
-     */
-    private final MetaProperty<ManageableSecurity> _security = DirectMetaProperty.ofReadWrite(
-        this, "security", ManageableTrade.class, ManageableSecurity.class);
+    private final MetaProperty<SecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
+        this, "securityLink", ManageableTrade.class, SecurityLink.class);
     /**
      * The meta-property for the {@code tradeDate} property.
      */
@@ -901,8 +856,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
         "uniqueId",
         "parentPositionId",
         "quantity",
-        "securityKey",
-        "security",
+        "securityLink",
         "tradeDate",
         "tradeTime",
         "counterpartyKey",
@@ -929,10 +883,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
           return _parentPositionId;
         case -1285004149:  // quantity
           return _quantity;
-        case 1550083839:  // securityKey
-          return _securityKey;
-        case 949122880:  // security
-          return _security;
+        case 807992154:  // securityLink
+          return _securityLink;
         case 752419634:  // tradeDate
           return _tradeDate;
         case 752903761:  // tradeTime
@@ -998,19 +950,11 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     }
 
     /**
-     * The meta-property for the {@code securityKey} property.
+     * The meta-property for the {@code securityLink} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> securityKey() {
-      return _securityKey;
-    }
-
-    /**
-     * The meta-property for the {@code security} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ManageableSecurity> security() {
-      return _security;
+    public final MetaProperty<SecurityLink> securityLink() {
+      return _securityLink;
     }
 
     /**

@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 
 /**
  * 
@@ -49,5 +50,14 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final LocalDateLabelledMatrix1D m5 = new LocalDateLabelledMatrix1D(keys, keys, values);
     final LocalDateLabelledMatrix1D m6 = cycleObject(LocalDateLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
+  }
+
+  @Test
+  public void testString() {
+    final String[] keys = new String[] {"A", "B", "C", "D", "E"};
+    final double[] values = new double[] {0.1, 0.2, 0.3, 0.4, 0.5};
+    final StringLabelledMatrix1D m1 = new StringLabelledMatrix1D(keys, values);
+    final StringLabelledMatrix1D m2 = cycleObject(StringLabelledMatrix1D.class, m1);
+    assertEquals(m1, m2);
   }
 }

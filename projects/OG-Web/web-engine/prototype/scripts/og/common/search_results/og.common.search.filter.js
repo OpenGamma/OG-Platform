@@ -21,7 +21,7 @@ $.register_module({
                 !!~calendar.indexOf(filter) && $selector.datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
                 $selector.val(routes.current().args[filter]);
                 $selector.unbind(event_type).bind(event_type, function () {
-                    var cur = routes.last(), view = og.views[cur.page.substring(1)], hash, obj;
+                    var cur = routes.last(), view = og.views[cur.page.split('/')[1]], hash, obj;
                     obj = {}, obj[filter] = $(this).val(), obj.filter = true;
                     hash = routes.hash(view.rules.load_filter, $.extend(true, {}, cur.args, obj));
                     clearTimeout(module.t), module.t = setTimeout(function () {routes.go(hash), delete module.t;}, 200);

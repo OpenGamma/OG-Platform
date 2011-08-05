@@ -142,14 +142,17 @@ public interface ViewClient extends UniqueIdentifiable {
   MarketDataInjector getLiveDataOverrideInjector();
   
   /**
-   * Gets the view definition currently being operated on by the view process to which the client is attached. This
-   * could be a newer version than the one used in the computation of the latest result as seen by this client; to
-   * access a specific version use the appropriate {@link CompiledViewDefinition} or {@link ViewCycle}.
+   * Gets the latest view definition referenced by the view process to which the client is attached. This could be a
+   * different version from the one used in the computation of the latest result as seen by this client; to access a
+   * specific version use the appropriate {@link CompiledViewDefinition} or {@link ViewCycle}.
    * 
    * @return the view definition currently being operated on by the view process, not null
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  ViewDefinition getViewDefinition();
+  // NOTE jonathan 2011-08-04 -- Some operations will need to ensure that the view definition does not change. When we
+  // reference view definitions by unique identifier, these would attach to a specific version rather than the latest
+  // version. At the moment, we only support attaching to the latest version.
+  ViewDefinition getLatestViewDefinition();
   
   //-------------------------------------------------------------------------
   /**

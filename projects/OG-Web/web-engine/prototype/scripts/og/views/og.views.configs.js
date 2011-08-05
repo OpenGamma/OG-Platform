@@ -44,7 +44,10 @@ $.register_module({
                     ],
                     buttons: {
                         'OK': function () {
-                            alert(ui.dialog({return_field_value: 'config_type'}));
+                            var config_type = ui.dialog({return_field_value: 'config_type'}),
+                                args = $.extend({}, routes.last().args, {config_type: config_type});
+                            $(this).dialog('close');
+                            routes.go(routes.hash(module.rules.load_new, args));
                         }
                     }
                 })},
@@ -54,11 +57,11 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete this configuration?',
                     buttons: {
                         'Delete': function () {
+                            var args = routes.current().args;
                             $(this).dialog('close');
                             api.rest.configs.del({
                                 handler: function (result) {
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    var args = routes.current().args;
                                     delete args.id;
                                     configs.search(args);
                                     routes.go(routes.hash(module.rules.load, args));
@@ -106,11 +109,18 @@ $.register_module({
                 viewdefinition: og.views.configs.viewdefinition,
                 yieldcurvedefinition: og.views.configs.yieldcurvedefinition
             },
-            load_configs_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: configs.load, stop: true}]});
-                delete args[field];
-                configs.search(args);
-                routes.go(routes.hash(module.rules.load_configs, args));
+            toolbar = function (type) {
+                ui.toolbar(options.toolbar[type]);
+                if (!config_types.length) // disable new button until we have config_types
+                    $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                api.rest.configs.get({
+                    meta: true,
+                    handler: function (result) {
+                        config_types = result.data.types.map(function (val, idx) {return {name: val, value: val};});
+                        $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                    },
+                    cache_for: 15 * 1000
+                });
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
@@ -121,94 +131,90 @@ $.register_module({
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                     og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                    ui.toolbar(options.toolbar['default']);
-                    if (!config_types.length) {// disable new button until we have config_types
-                        $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
-                        api.rest.configs.get({
-                            meta: true,
-                            handler: function (result) {
-                                result.data.types.forEach(function (val, idx) {
-                                    config_types.push({name: val, value: val});
-                                });
-                                $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
-                            },
-                            cache_for: 15 * 1000
-                        });
-                    }
+                    toolbar('default');
+                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
-            details_page = function (args) {
-                api.rest.configs.get({
-                    handler: function (result) {
-                        if (result.error) return alert(result.message);
-                        var details_json = result.data,
-                            config_type = details_json.template_data.type.toLowerCase(),
-                            template = module.name + '.' + config_type, text_handler;
-                        history.put({
-                            name: details_json.template_data.name,
-                            item: 'history.configs.recent',
-                            value: routes.current().hash
-                        });
-                        (form_generators[config_type] || form_generators['default'])({
-                            data: details_json,
-                            loading: function () {
-                                ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
-                            },
-                            save_new_handler: function (result) {
-                                var args = $.extend({}, routes.last().args, {id: result.meta.id});
-                                ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                configs.search(args);
-                                routes.go(routes.hash(module.rules.load_configs, args));
-                            },
-                            save_handler: function (result) {
-                                ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                                setTimeout(function () {
-                                    ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                    routes.handler();
-                                }, 300);
-                            },
-                            handler: function () {
-                                var json = details_json.template_data,
-                                    error_html = '\
-                                        <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                            This configuration has been deleted\
-                                        </section>\
-                                    ',
-                                    layout = og.views.common.layout;
-                                ui.toolbar(options.toolbar.active);
-                                if (json && json.deleted) {
-                                    $('.ui-layout-inner-north').html(error_html);
-                                    layout.inner.sizePane('north', '0');
-                                    layout.inner.open('north');
-                                    $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                                } else {
-                                    layout.inner.close('north');
-                                    $('.ui-layout-inner-north').empty();
-                                }
-                                ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                layout.inner.resizeAll();
-                            },
-                            selector: '.ui-layout-inner-center .ui-layout-content'
-                        });
-                        if (!(config_type in form_generators))
-                            og.dev.warn('using default config template for config type: ' + config_type);
-                    },
-                    id: args.id,
+            details_page = function (args, new_config_type) {
+                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                    if (result.error) return alert(result.message);
+                    if (is_new) {
+                        if (!result.data) result.data = {template_data: {type: new_config_type, configJSON: {}}};
+                        if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
+                        result.data.template_data.name = 'UNTITLED';
+                        result.data.template_data.configJSON.name = 'UNTITLED';
+                    }
+                    var details_json = result.data,
+                        config_type = details_json.template_data.type.toLowerCase(),
+                        template = module.name + '.' + config_type, text_handler;
+                    if (!is_new) history.put({
+                        name: details_json.template_data.name,
+                        item: 'history.configs.recent',
+                        value: routes.current().hash
+                    });
+                    (form_generators[config_type] || form_generators['default'])({
+                        is_new: is_new,
+                        data: details_json,
+                        loading: function () {
+                            ui.message({location: '.ui-layout-inner-center', message: 'saving...'});
+                        },
+                        save_new_handler: function (result) {
+                            var args = $.extend({}, routes.last().args, {id: result.meta.id});
+                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            configs.search(args);
+                            routes.go(routes.hash(module.rules.load_configs, args));
+                        },
+                        save_handler: function (result) {
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            if (result.error) return ui.dialog({type: 'error', message: result.message});
+                            ui.message({location: '.ui-layout-inner-center', message: 'saved'});
+                            setTimeout(function () {
+                                routes.handler();
+                            }, 300);
+                        },
+                        handler: function () {
+                            var json = details_json.template_data,
+                                error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This configuration has been deleted\
+                                    </section>\
+                                ',
+                                layout = og.views.common.layout;
+                            toolbar('active');
+                            if (json && json.deleted) {
+                                $('.ui-layout-inner-north').html(error_html);
+                                layout.inner.sizePane('north', '0');
+                                layout.inner.open('north');
+                                $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                            } else {
+                                if (is_new) $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
+                                layout.inner.close('north');
+                                $('.ui-layout-inner-north').empty();
+                            }
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                        },
+                        selector: '.ui-layout-inner-center .ui-layout-content'
+                    });
+                    if (!(config_type in form_generators))
+                        og.dev.warn('using default config template for config type: ' + config_type);
+                };
+                rest_options = {
+                    handler: rest_handler,
                     loading: function () {
                         ui.message({
                             location: '.ui-layout-inner-center', message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
-                });
-            },
-            state = {};
+                };
+                if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
+                api.rest.configs.get(rest_options);
+            };
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
             load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'}
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
+            load_new: {route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'}
         };
         return configs = {
             load: function (args) {
@@ -218,21 +224,28 @@ $.register_module({
                         masthead.menu.set_tab(page_name);
                     }}
                 ]});
-                if (!args.id) default_details_page();
+                if (!args.id && !args.config_type) default_details_page();
             },
             load_filter: function (args) {
                 var search_filter = function () {
-                        var filter_name = options.slickgrid.columns[0].name;
-                        if (!filter_name || filter_name === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
-                        search.filter($.extend(args, {filter: true}));
+                    var filter_name = options.slickgrid.columns[0].name;
+                    if (!filter_name || filter_name === 'loading') // wait until type filter is populated
+                        return setTimeout(search_filter, 500);
+                    search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [{new_page: configs.load_configs}]});
+                check_state({args: args, conditions: [{new_page: function () {
+                    if (args.id) return configs.load_configs(args);
+                    configs.load(args);
+                }}]});
                 search_filter();
             },
             load_configs: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
                 configs.details(args);
+            },
+            load_new: function (args) {
+                check_state({args: args, conditions: [{new_page: configs.load}]});
+                details_page(args, args.config_type);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();
@@ -255,7 +268,6 @@ $.register_module({
                 });
                 search.load($.extend(options.slickgrid, {url: args}));
             },
-            state: {},
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

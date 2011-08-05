@@ -13,7 +13,9 @@ $.register_module({
                 if (typeof page !== 'string' || !page.length)
                     throw new TypeError(self + ': page must be a non-empty string');
                 if (typeof bundle !== 'object') throw new TypeError (self + ': bundle must be an object');
-                var last = routes.last() || {}, args = bundle.args, new_page = !routes.last() || last.page !== page;
+                var last = routes.last() || {}, args = bundle.args,
+                    /* /configs/new is the *same* page as /configs for our purposes */
+                    new_page = !routes.last() || last.page.split('/')[1] !== page.split('/')[1];
                 // using $.each instead of [].map because you can break out of it
                 $.each(bundle.conditions, function (index, val) {
                     var condition = false;

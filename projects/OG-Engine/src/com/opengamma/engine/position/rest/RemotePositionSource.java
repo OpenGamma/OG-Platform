@@ -7,6 +7,8 @@ package com.opengamma.engine.position.rest;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -26,18 +28,29 @@ public class RemotePositionSource implements PositionSource {
    * The base URI to call.
    */
   private final RestTarget _target;
-
   /**
    * The client API.
    */
   private final RestClient _client;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget) {
+    this(fudgeContext, restTarget, new BasicChangeManager());
+  }
+  
+  public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget, ChangeManager changeManager) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(restTarget, "restTarget");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _client = RestClient.getInstance(fudgeContext, null);
     _target = restTarget;
+    _changeManager = changeManager;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
@@ -66,7 +79,13 @@ public class RemotePositionSource implements PositionSource {
     return result;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns a string summary of this object.
    * 

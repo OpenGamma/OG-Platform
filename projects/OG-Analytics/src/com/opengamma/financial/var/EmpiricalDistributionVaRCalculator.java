@@ -55,7 +55,7 @@ public class EmpiricalDistributionVaRCalculator implements Function<DoubleTimeSe
     Validate.notEmpty(ts, "ts");
     final DoubleTimeSeries<?> returns = ts[0];
     Validate.notNull(returns, "returns");
-    final double[] data = returns.toFastLongDoubleTimeSeries().valuesArrayFast();
+    final double[] data = returns.valuesArrayFast();
     Arrays.sort(data);
     return _mult * _percentileCalculator.evaluate(data);
   }

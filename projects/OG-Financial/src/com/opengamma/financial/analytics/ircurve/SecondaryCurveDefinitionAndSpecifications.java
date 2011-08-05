@@ -21,6 +21,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -115,58 +116,58 @@ public class SecondaryCurveDefinitionAndSpecifications {
     //Map<Currency, YieldCurveDefinition> fundingDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     Currency usd = Currency.USD;
-    Identifier usdRegion = RegionUtils.countryRegionId("US");
+    Identifier usdRegion = RegionUtils.countryRegionId(Country.US);
     singleDefinitions.put(usd, buildSecondaryCurve(usd, usdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency eur = Currency.EUR;
-    Identifier eurRegion = RegionUtils.countryRegionId("EU");
+    Identifier eurRegion = RegionUtils.countryRegionId(Country.EU);
     singleDefinitions.put(eur, buildSecondaryCurve(eur, eurRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency gbp = Currency.GBP;
-    Identifier gbpRegion = RegionUtils.countryRegionId("GB");
+    Identifier gbpRegion = RegionUtils.countryRegionId(Country.GB);
     singleDefinitions.put(gbp, buildSecondaryCurve(gbp, gbpRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency chf = Currency.CHF;
-    Identifier chfRegion = RegionUtils.countryRegionId("CH");
+    Identifier chfRegion = RegionUtils.countryRegionId(Country.CH);
     singleDefinitions.put(chf, buildSecondaryCurve(chf, chfRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency aud = Currency.AUD;
-    Identifier audRegion = RegionUtils.countryRegionId("AU");
+    Identifier audRegion = RegionUtils.countryRegionId(Country.AU);
     singleDefinitions.put(aud, buildSecondaryCurve(aud, audRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
-    Currency sek = Currency.of("SEK");
-    Identifier sekRegion = RegionUtils.countryRegionId("SE");
+    Currency sek = Currency.SEK;
+    Identifier sekRegion = RegionUtils.countryRegionId(Country.SE);
     singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
-    Currency nzd = Currency.of("NZD");
-    Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
+    Currency nzd = Currency.NZD;
+    Identifier nzdRegion = RegionUtils.countryRegionId(Country.NZ);
     singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 30 })));
     
     Currency cad = Currency.CAD;
-    Identifier cadRegion = RegionUtils.countryRegionId("CA");
+    Identifier cadRegion = RegionUtils.countryRegionId(Country.CA);
     singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
-    Currency dkk = Currency.of("DKK");
-    Identifier dkkRegion = RegionUtils.countryRegionId("DK");
+    Currency dkk = Currency.DKK;
+    Identifier dkkRegion = RegionUtils.countryRegionId(Country.DK);
     singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40 })));
     
     Currency jpy = Currency.JPY;
-    Identifier jpyRegion = RegionUtils.countryRegionId("JP");
+    Identifier jpyRegion = RegionUtils.countryRegionId(Country.JP);
     singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 35, 40})));
 //    Currency nzd = Currency.of("NZD");
-//    Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
+//    Identifier nzdRegion = RegionUtils.countryRegionId(Country.NZ);
 //    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
 //    
 //    Currency cad = Currency.CAD;
-//    Identifier cadRegion = RegionUtils.countryRegionId("CA");
+//    Identifier cadRegion = RegionUtils.countryRegionId(Country.CA);
 //    singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
 //    
 //    Currency dkk = Currency.of("DKK");
-//    Identifier dkkRegion = RegionUtils.countryRegionId("DK");
+//    Identifier dkkRegion = RegionUtils.countryRegionId(Country.DK);
 //    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
 //    
 //    Currency jpy = Currency.JPY;
-//    Identifier jpyRegion = RegionUtils.countryRegionId("JP");
+//    Identifier jpyRegion = RegionUtils.countryRegionId(Country.JP);
 //    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
 //    
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
@@ -195,6 +196,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     configurations.put(Currency.HKD, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.HKD, scheme));
     configurations.put(Currency.GBP, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.GBP, scheme));
     configurations.put(Currency.FRF, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.FRF, scheme));
+    configurations.put(Currency.CHF, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.CHF, scheme));
     return configurations;
   }
   

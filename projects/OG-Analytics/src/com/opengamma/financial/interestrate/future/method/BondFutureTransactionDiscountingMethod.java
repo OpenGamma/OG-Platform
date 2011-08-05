@@ -17,28 +17,36 @@ import com.opengamma.util.money.CurrencyAmount;
  * Method to compute the present value and its sensitivities for an bond future with discounting (using the cheapest-to-deliver). 
  * The delivery option is not taken into account.
  */
-public class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+public final class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+  private static final BondFutureTransactionDiscountingMethod INSTANCE = new BondFutureTransactionDiscountingMethod();
+
+  public static BondFutureTransactionDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  private BondFutureTransactionDiscountingMethod() {
+  }
 
   /**
    * The bond future security method.
    */
-  private static final BondFutureSecurityDiscountingMethod METHOD_SECURITY = new BondFutureSecurityDiscountingMethod();
+  private static final BondFutureSecurityDiscountingMethod METHOD_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
 
   /**
-   * Computes the present value of future from the curves using an the cheapest-to-deliver and computing the value as a forward..
+   * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
    * @param future The future.
    * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
    * @return The present value.
    */
   public CurrencyAmount presentValue(final BondFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    double futurePrice = METHOD_SECURITY.priceFromCurves(future.getUnderlyingFuture(), curves);
-    double pv = presentValueFromPrice(future, futurePrice);
+    final double futurePrice = METHOD_SECURITY.priceFromCurves(future.getUnderlyingFuture(), curves);
+    final double pv = presentValueFromPrice(future, futurePrice);
     return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof BondFutureTransaction, "Bond future transaction");
     return presentValue((BondFutureTransaction) instrument, curves);
   }
@@ -51,8 +59,8 @@ public class BondFutureTransactionDiscountingMethod extends BondFutureTransactio
    */
   public PresentValueSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    PresentValueSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
-    PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity());
+    final PresentValueSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
+    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity());
     return transactionSensitivity;
   }
 

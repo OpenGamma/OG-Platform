@@ -40,7 +40,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       Client local, Client remote) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "undefined"); 
+        remote, "Loading..."); 
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
@@ -65,7 +65,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   private String getRowName(PortfolioRow row, ComputationTargetType targetType) {
     String rowName;
     if (targetType == ComputationTargetType.POSITION) {
-      Security security = row.getPosition().getSecurity();
+      Security security = row.getPosition().getSecurityLink().getTarget();
       String des = security.getName();
       rowName = des + " (" + row.getPosition().getQuantity().toPlainString() + ")";
     } else {

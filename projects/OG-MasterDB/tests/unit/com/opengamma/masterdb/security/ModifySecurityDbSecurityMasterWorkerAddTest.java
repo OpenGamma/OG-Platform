@@ -56,7 +56,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
   public void test_add_add() {
     Instant now = Instant.now(_secMaster.getTimeSource());
     
-    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument test = _secMaster.add(doc);
@@ -84,7 +84,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
 
   @Test
   public void test_add_addThenGet() {
-    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument added = _secMaster.add(doc);

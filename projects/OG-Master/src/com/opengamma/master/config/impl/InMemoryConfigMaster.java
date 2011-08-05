@@ -16,6 +16,9 @@ import javax.time.Instant;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
@@ -30,9 +33,6 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 
@@ -62,7 +62,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   /**
    * The change manager.
    */
-  private final MasterChangeManager _changeManager;
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -76,7 +76,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * 
    * @param changeManager  the change manager, not null
    */
-  public InMemoryConfigMaster(final MasterChangeManager changeManager) {
+  public InMemoryConfigMaster(final ChangeManager changeManager) {
     this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
   }
 
@@ -86,7 +86,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
-    this(objectIdSupplier, new BasicMasterChangeManager());
+    this(objectIdSupplier, new BasicChangeManager());
   }
 
 
@@ -96,7 +96,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
+  public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -140,7 +140,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return (ConfigDocument<T>) doc;
   }
 
@@ -164,7 +164,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -175,7 +175,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Config not found: " + uniqueId);
     }
-    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +186,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

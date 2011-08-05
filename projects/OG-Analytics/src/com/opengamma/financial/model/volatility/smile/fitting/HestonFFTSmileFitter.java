@@ -11,9 +11,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -109,7 +109,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D fp) {
-        final CharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
+        final MartingaleCharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
         final double[][] strikeNPrice = FFT_PRICER.price(forward, 1.0, maturity, true, ce, lowestStrike, highestStrike, n, limitSigma, _alpha, _limitTolerance);
         final int nStrikes = strikeNPrice.length;
         final double[] k = new double[nStrikes];
@@ -182,7 +182,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
    * @param fp
    * @return
    */
-  CharacteristicExponent getCharacteristicExponent(final TransformParameters transforms, final DoubleMatrix1D fp) {
+  MartingaleCharacteristicExponent getCharacteristicExponent(final TransformParameters transforms, final DoubleMatrix1D fp) {
     final DoubleMatrix1D mp = transforms.inverseTransform(fp);
     final double kappa = mp.getEntry(0);
     final double theta = mp.getEntry(1);
@@ -199,7 +199,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
       rho = mp.getEntry(3);
     }
 
-    final CharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final MartingaleCharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
     return ce;
   }
 }

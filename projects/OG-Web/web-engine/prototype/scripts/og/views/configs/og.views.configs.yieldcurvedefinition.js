@@ -15,7 +15,7 @@ $.register_module({
         return function (config) {
             og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
-                loading = config.loading || $.noop, deleted = config.data.template_data.deleted,
+                loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.configJSON.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
@@ -27,7 +27,7 @@ $.register_module({
                     data: master,
                     selector: selector,
                     extras: {
-                        name: master.name, currency: master.currency,
+                        name: master.name, currency: master.currency || (master.currency = 'USD'),
                         region_scheme: master.region.Scheme,
                         interpolator: master[INTR]
                     },
@@ -103,7 +103,9 @@ $.register_module({
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header_html);
                     $(form_id + ' [name=currency]').val(master.currency);
-                    if (deleted) $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (deleted || is_new)
+                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: '#' + form.id + ' .og-js-submit', handler: function (e) {

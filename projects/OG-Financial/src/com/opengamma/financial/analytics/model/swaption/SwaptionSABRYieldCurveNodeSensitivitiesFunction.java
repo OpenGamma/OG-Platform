@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.swaption;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -33,13 +32,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
-import com.opengamma.financial.analytics.swaption.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -78,10 +77,9 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   private final PresentValueNodeSensitivityCalculator _nodeSensitivityCalculator;
   private SecuritySource _securitySource;
   private SwaptionSecurityConverter _swaptionVisitor;
-  private InterpolatedYieldCurveDefinitionSource _definitionSource;
-  private String _forwardCurveName;
-  private String _fundingCurveName;
-  private VolatilityCubeFunctionHelper _helper;
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
+  private final VolatilityCubeFunctionHelper _helper;
   private boolean _useSABRExtrapolation;
 
   public SwaptionSABRYieldCurveNodeSensitivitiesFunction(final String currency, final String definitionName, final String useSABRExtrapolation, final String forwardCurveName,
@@ -107,7 +105,6 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _definitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
     _swaptionVisitor = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
   }
 
@@ -131,6 +128,11 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     if (jacobianObject == null) {
       throw new OpenGammaRuntimeException("Could not get jacobian");
     }
+    final Object forwardCurveSpecObject = inputs.getValue(getForwardCurveSpecRequirement(currency, _forwardCurveName));
+    if (forwardCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException("Could not get forward curve spec");
+    }
+    final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     if (_forwardCurveName.equals(_fundingCurveName)) {
       final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
       final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
@@ -140,13 +142,18 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
       final SABRInterestRateDataBundle data = getModelData(target, inputs, bundle);
       final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
       final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(swaption, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
-      final DoubleLabelledMatrix1D resultMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, result, currency);
+      final DoubleLabelledMatrix1D resultMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, result, currency, forwardCurveSpec);
       return Sets.newHashSet(new ComputedValue(getSingleSpec(target, currency, _forwardCurveName), resultMatrix));
     }
     final Object fundingCurveObject = inputs.getValue(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (fundingCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get funding curve");
     }
+    final Object fundingCurveSpecObject = inputs.getValue(getFundingCurveSpecRequirement(currency, _fundingCurveName));
+    if (fundingCurveSpecObject == null) {
+      throw new OpenGammaRuntimeException("Could not get funding curve spec");
+    }
+    final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     interpolatedCurves.put(_forwardCurveName, forwardCurve);
@@ -156,14 +163,13 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivitiesObject;
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
     final SABRInterestRateDataBundle data = getModelData(target, inputs, bundle);
-    System.err.println(data.getSABRParameter().getClass());
     final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(swaption, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
     final int nForward = forwardCurve.getCurve().size();
     final int nFunding = fundingCurve.getCurve().size();
     final DoubleMatrix1D forwardCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), 0, nForward));
     final DoubleMatrix1D fundingCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), nForward, nFunding + 1));
-    final DoubleLabelledMatrix1D forwardCurveMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, forwardCurveResult, currency);
-    final DoubleLabelledMatrix1D fundingCurveMatrix = getSensitivitiesForCurve(target, _fundingCurveName, bundle, fundingCurveResult, currency);
+    final DoubleLabelledMatrix1D forwardCurveMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, forwardCurveResult, currency, forwardCurveSpec);
+    final DoubleLabelledMatrix1D fundingCurveMatrix = getSensitivitiesForCurve(target, _fundingCurveName, bundle, fundingCurveResult, currency, fundingCurveSpec);
     return Sets.newHashSet(new ComputedValue(getForwardSpec(target, currency, _forwardCurveName), forwardCurveMatrix),
                            new ComputedValue(getFundingSpec(target, currency, _fundingCurveName), fundingCurveMatrix));
   }
@@ -188,9 +194,12 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final Currency currency = swaption.getCurrency();
     if (_forwardCurveName.equals(_fundingCurveName)) {
       result.add(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
+      result.add(getForwardCurveSpecRequirement(currency, _forwardCurveName));
     } else {
       result.add(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
       result.add(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
+      result.add(getForwardCurveSpecRequirement(currency, _forwardCurveName));
+      result.add(getFundingCurveSpecRequirement(currency, _fundingCurveName));
     }
     result.add(getCouponSensitivitiesRequirement(currency, _forwardCurveName, _fundingCurveName));
     result.add(getJacobianRequirement(currency, _forwardCurveName, _fundingCurveName));
@@ -199,7 +208,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
     final Currency currency = swaption.getCurrency();
     if (_forwardCurveName.equals(_fundingCurveName)) {
@@ -208,22 +217,27 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     return Sets.newHashSet(getForwardSpec(target, currency, _forwardCurveName), getFundingSpec(target, currency, _fundingCurveName));
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
-    final Currency currency = swaption.getCurrency();
-    return Sets.newHashSet(getForwardSpec(target, currency), getFundingSpec(target, currency));
-  }
-
   private ValueRequirement getForwardCurveRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
     final ValueRequirement forwardCurveRequirement = YieldCurveFunction.getCurveRequirement(currency, forwardCurveDefinitionName, forwardCurveDefinitionName, fundingCurveDefinitionName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     return forwardCurveRequirement;
   }
 
+  private ValueRequirement getForwardCurveSpecRequirement(final Currency currency, final String forwardCurveDefinitionName) {
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveDefinitionName).get());
+    return forwardCurveRequirement;
+  }
+
   private ValueRequirement getFundingCurveRequirement(final Currency currency, final String forwardCurveDefinitionName, final String fundingCurveDefinitionName) {
     final ValueRequirement fundingCurveRequirement = YieldCurveFunction.getCurveRequirement(currency, fundingCurveDefinitionName, forwardCurveDefinitionName, fundingCurveDefinitionName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+    return fundingCurveRequirement;
+  }
+
+  private ValueRequirement getFundingCurveSpecRequirement(final Currency currency, final String fundingCurveDefinitionName) {
+    final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.builder()
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveDefinitionName).get());
     return fundingCurveRequirement;
   }
 
@@ -256,27 +270,10 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
 
-  private ValueSpecification getForwardSpec(final ComputationTarget target, final Currency currency) {
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
-        .get();
-    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
-  }
-
   private ValueSpecification getFundingSpec(final ComputationTarget target, final Currency currency, final String fundingCurveDefinitionName) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveDefinitionName)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode()).get();
-    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
-  }
-
-  private ValueSpecification getFundingSpec(final ComputationTarget target, final Currency currency) {
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode()).get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
@@ -307,12 +304,12 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   }
 
   private DoubleLabelledMatrix1D getSensitivitiesForCurve(final ComputationTarget target, final String curveDefinitionName,
-      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final Currency currency) {
+      final YieldCurveBundle bundle, final DoubleMatrix1D sensitivities, final Currency currency, final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec) {
     final int n = sensitivities.getNumberOfElements();
     final YieldAndDiscountCurve curve = bundle.getCurve(curveDefinitionName);
     final Double[] keys = curve.getCurve().getXData();
     final double[] values = new double[n];
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(_definitionSource, currency, curveDefinitionName);
+    final Object[] labels = YieldCurveLabelGenerator.getLabels(yieldCurveSpec, currency, curveDefinitionName);
     DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
     for (int i = 0; i < n; i++) {
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivities.getEntry(i));

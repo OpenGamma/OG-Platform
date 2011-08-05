@@ -26,14 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
-import com.opengamma.master.listener.MasterChangeListener;
-import com.opengamma.master.listener.MasterChanged;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -50,8 +50,8 @@ public class ViewProcessorManager implements Lifecycle {
 
   private final Set<ViewProcessorInternal> _viewProcessors = new HashSet<ViewProcessorInternal>();
   private final Set<CompiledFunctionService> _functions = new HashSet<CompiledFunctionService>();
-  private final Map<NotifyingMaster, VersionedSource> _masterToSource = new HashMap<NotifyingMaster, VersionedSource>();
-  private final Map<NotifyingMaster, MasterChangeListener> _masterToListener = new HashMap<NotifyingMaster, MasterChangeListener>();
+  private final Map<ChangeProvider, VersionedSource> _masterToSource = new HashMap<ChangeProvider, VersionedSource>();
+  private final Map<ChangeProvider, ChangeListener> _masterToListener = new HashMap<ChangeProvider, ChangeListener>();
   private Map<VersionedSource, Instant> _latchInstants = new HashMap<VersionedSource, Instant>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
@@ -88,7 +88,7 @@ public class ViewProcessorManager implements Lifecycle {
     return Collections.unmodifiableSet(_viewProcessors);
   }
 
-  public void setMasterAndSource(final NotifyingMaster master, final VersionedSource source) {
+  public void setMasterAndSource(final ChangeProvider master, final VersionedSource source) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(source, "source");
     assertNotRunning();
@@ -96,7 +96,7 @@ public class ViewProcessorManager implements Lifecycle {
     _masterToSource.put(master, source);
   }
 
-  public void setMastersAndSources(final Map<NotifyingMaster, VersionedSource> masterToSource) {
+  public void setMastersAndSources(final Map<ChangeProvider, VersionedSource> masterToSource) {
     ArgumentChecker.notNull(masterToSource, "masterToSource");
     assertNotRunning();
     _masterToSource.clear();
@@ -128,12 +128,12 @@ public class ViewProcessorManager implements Lifecycle {
         _changeLock.lock();
         try {
           final Instant now = Instant.now();
-          for (Map.Entry<NotifyingMaster, VersionedSource> entry : _masterToSource.entrySet()) {
-            final NotifyingMaster master = entry.getKey();
+          for (Map.Entry<ChangeProvider, VersionedSource> entry : _masterToSource.entrySet()) {
+            final ChangeProvider master = entry.getKey();
             final VersionedSource source = entry.getValue();
-            final MasterChangeListener listener = new MasterChangeListener() {
+            final ChangeListener listener = new ChangeListener() {
               @Override
-              public void masterChanged(MasterChanged event) {
+              public void entityChanged(ChangeEvent event) {
                 if (_watchSet.contains(event.getBeforeId())) {
                   ViewProcessorManager.this.onMasterChanged(Instant.now(), source, event.getBeforeId());
                 }
@@ -178,9 +178,9 @@ public class ViewProcessorManager implements Lifecycle {
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           viewProcessor.stop();
         }
-        final Iterator<Map.Entry<NotifyingMaster, MasterChangeListener>> itr = _masterToListener.entrySet().iterator();
+        final Iterator<Map.Entry<ChangeProvider, ChangeListener>> itr = _masterToListener.entrySet().iterator();
         while (itr.hasNext()) {
-          Map.Entry<NotifyingMaster, MasterChangeListener> entry = itr.next();
+          Map.Entry<ChangeProvider, ChangeListener> entry = itr.next();
           entry.getKey().changeManager().removeChangeListener(entry.getValue());
           itr.remove();
         }

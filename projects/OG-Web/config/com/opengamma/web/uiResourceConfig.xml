@@ -128,7 +128,7 @@
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery-1.5.1.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-1.6.2.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>

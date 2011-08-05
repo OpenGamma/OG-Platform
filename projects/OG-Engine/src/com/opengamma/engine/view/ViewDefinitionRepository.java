@@ -7,13 +7,15 @@ package com.opengamma.engine.view;
 
 import java.util.Set;
 
+import com.opengamma.core.change.ChangeProvider;
+
 /**
  * Allows modules, specifically the {@link ViewProcessor}, access to
  * {@link ViewDefinition}s.
  *
  * @author kirk
  */
-public interface ViewDefinitionRepository {
+public interface ViewDefinitionRepository extends ChangeProvider {
   
   /**
    * Returns the set of all currently defined views.

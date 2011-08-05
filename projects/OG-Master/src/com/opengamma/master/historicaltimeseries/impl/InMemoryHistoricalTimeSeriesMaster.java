@@ -22,6 +22,9 @@ import org.joda.beans.JodaBeanUtils;
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
@@ -37,9 +40,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators;
@@ -72,7 +72,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
   /**
    * The change manager.
    */
-  private final MasterChangeManager _changeManager;
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -86,7 +86,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * 
    * @param changeManager  the change manager, not null
    */
-  public InMemoryHistoricalTimeSeriesMaster(final MasterChangeManager changeManager) {
+  public InMemoryHistoricalTimeSeriesMaster(final ChangeManager changeManager) {
     this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
@@ -96,7 +96,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
-    this(objectIdSupplier, new BasicMasterChangeManager());
+    this(objectIdSupplier, new BasicChangeManager());
   }
 
   /**
@@ -105,7 +105,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
+  public InMemoryHistoricalTimeSeriesMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -198,7 +198,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     cloned.setCorrectionFromInstant(now);
     cloned.getInfo().setTimeSeriesObjectId(objectId);
     _storeInfo.put(objectId, cloned);
-    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return cloned;
   }
 
@@ -221,7 +221,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     if (_storeInfo.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -232,7 +232,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     if (_storeInfo.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Historical time-series not found: " + uniqueId);
     }
-    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -313,7 +313,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     }
     final Instant now = Instant.now();
     final UniqueIdentifier uniqueId = objectId.atLatestVersion();
-    changeManager().masterChanged(MasterChangedType.UPDATED, uniqueId, uniqueId, now);
+    changeManager().entityChanged(ChangeType.UPDATED, uniqueId, uniqueId, now);
     return uniqueId;
   }
 
@@ -337,7 +337,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
     }
     final Instant now = Instant.now();
     final UniqueIdentifier uniqueId = objectId.atLatestVersion();
-    changeManager().masterChanged(MasterChangedType.CORRECTED, uniqueId, uniqueId, now);
+    changeManager().entityChanged(ChangeType.CORRECTED, uniqueId, uniqueId, now);
     return uniqueId;
   }
 
@@ -369,7 +369,7 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

@@ -274,14 +274,14 @@ public class YieldCurveBootStrapTest {
   }
 
   private void doHotSpot(final NewtonVectorRootFinder rootFinder, final String name, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> JacobianFunction, final Boolean doubleCurveTest) {
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final Boolean doubleCurveTest) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      doTest(rootFinder, function, JacobianFunction, doubleCurveTest);
+      doTest(rootFinder, function, jacobianFunction, doubleCurveTest);
     }
     if (BENCHMARK_CYCLES > 0) {
       final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on " + name, BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-        doTest(rootFinder, function, JacobianFunction, doubleCurveTest);
+        doTest(rootFinder, function, jacobianFunction, doubleCurveTest);
       }
       timer.finished();
     }

@@ -137,6 +137,11 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
       final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new CurrencyLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
+    } else if (value instanceof StringLabelledMatrix1D) {
+      final StringLabelledMatrix1D m = (StringLabelledMatrix1D) value;
+      final double quantity = target.getPosition().getQuantity().doubleValue();
+      final double[] scaled = getScaledMatrix(m.getValues(), quantity);
+      scaledValue = new ComputedValue(specification, new StringLabelledMatrix1D(m.getKeys(), scaled));
     } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
       @SuppressWarnings("unchecked")
       final Map<String, List<DoublesPair>> map = (Map<String, List<DoublesPair>>) value;

@@ -50,6 +50,7 @@ import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.test.MockViewDefinitionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -150,7 +151,12 @@ public class CancelExecutionTest {
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     
-    final ViewProcessContext vpc = new ViewProcessContext(viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource, securitySource,
+    ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
+    viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
+    MockViewDefinitionRepository viewDefinitionRepository = new MockViewDefinitionRepository();
+    viewDefinitionRepository.addDefinition(viewDefinition);
+    
+    final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
         viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
@@ -164,8 +170,6 @@ public class CancelExecutionTest {
       graph.addDependencyNode(node);
       previous = node;
     }
-    ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
-    viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);

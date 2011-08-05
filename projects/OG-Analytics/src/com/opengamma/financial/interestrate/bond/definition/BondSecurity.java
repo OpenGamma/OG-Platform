@@ -24,7 +24,7 @@ public abstract class BondSecurity<C extends Coupon> implements InterestRateDeri
    */
   private final GenericAnnuity<PaymentFixed> _nominal;
   /**
-   * The bond coupons. The coupons notional should be in line with the bond nominal.
+   * The bond coupons. The coupons notional should be in line with the bond nominal. The discounting curve should be the same for the nominal and the coupons.
    */
   private final GenericAnnuity<C> _coupon;
   /**
@@ -91,6 +91,14 @@ public abstract class BondSecurity<C extends Coupon> implements InterestRateDeri
    */
   public String getRepoCurveName() {
     return _repoCurveName;
+  }
+
+  /**
+   * Gets the name of the curve used for discounting.
+   * @return The curve name.
+   */
+  public String getDiscountingCurveName() {
+    return getNominal().getDiscountCurve();
   }
 
   @Override

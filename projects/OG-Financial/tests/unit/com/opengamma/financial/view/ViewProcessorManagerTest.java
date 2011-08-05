@@ -21,6 +21,11 @@ import javax.time.Instant;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -38,11 +43,6 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
-import com.opengamma.master.listener.MasterChangeListener;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChanged;
-import com.opengamma.master.listener.MasterChangedType;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -169,17 +169,17 @@ public class ViewProcessorManagerTest {
   }
 
   //-------------------------------------------------------------------------
-  private static final class MockChangeManager implements MasterChangeManager {
-    private MasterChangeListener _listener;
+  private static final class MockChangeManager implements ChangeManager {
+    private ChangeListener _listener;
 
     @Override
-    public void addChangeListener(MasterChangeListener listener) {
+    public void addChangeListener(ChangeListener listener) {
       assertNull(_listener);
       _listener = listener;
     }
 
     @Override
-    public void removeChangeListener(MasterChangeListener listener) {
+    public void removeChangeListener(ChangeListener listener) {
       assertEquals(listener, _listener);
       _listener = null;
     }
@@ -189,24 +189,24 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public void masterChanged(MasterChangedType type, UniqueIdentifier beforeId, UniqueIdentifier afterId, Instant versionInstant) {
+    public void entityChanged(ChangeType type, UniqueIdentifier beforeId, UniqueIdentifier afterId, Instant versionInstant) {
     }
 
     public void notifyListenerUnwatchedIdentifier() {
-      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Unwatched"), UniqueIdentifier.of("Test", "UnwatchedNew"), Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.UPDATED, UniqueIdentifier.of("Test", "Unwatched"), UniqueIdentifier.of("Test", "UnwatchedNew"), Instant.now()));
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Watched"), UniqueIdentifier.of("Test", "WatchedNew"), Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.UPDATED, UniqueIdentifier.of("Test", "Watched"), UniqueIdentifier.of("Test", "WatchedNew"), Instant.now()));
     }
   }
 
   //-------------------------------------------------------------------------
-  private static class MockNotifyingMaster implements NotifyingMaster {
-    private MasterChangeManager _changeManager = new MockChangeManager();
+  private static class MockNotifyingMaster implements ChangeProvider {
+    private ChangeManager _changeManager = new MockChangeManager();
 
     @Override
-    public MasterChangeManager changeManager() {
+    public ChangeManager changeManager() {
       return _changeManager;
     }
   }
