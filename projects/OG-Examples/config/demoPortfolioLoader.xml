@@ -25,14 +25,14 @@
   <bean id="demoEquityPortfolioLoader" class="com.opengamma.integration.server.DemoEquityPortfolioLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean-->
-  <bean id="selfContainedEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.SelfContainedEquityPortfolioAndSecurityLoader">
+  <bean id="demoEquityPortfolioAndSecurityLoader" class="com.opengamma.examples.loader.DemoEquityPortfolioAndSecurityLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
-  <bean id="selfContainedSwapPortfolioLoader" class="com.opengamma.examples.loader.SelfContainedSwapPortfolioLoader">
+  <bean id="demoSwapPortfolioLoader" class="com.opengamma.examples.loader.DemoSwapPortfolioLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   
-  <bean id="multiCurrencySwapPortfolioLoader" class="com.opengamma.examples.loader.DemoMultiCurrencySwapPortfolioLoader">
+  <bean id="demoMultiCurrencySwapPortfolioLoader" class="com.opengamma.examples.loader.DemoMultiCurrencySwapPortfolioLoader">
     <property name="loaderContext" ref="loaderContext" />
   </bean>
   

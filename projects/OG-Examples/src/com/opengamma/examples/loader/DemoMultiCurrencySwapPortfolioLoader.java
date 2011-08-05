@@ -82,7 +82,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Demo MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -327,7 +327,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "selfContainedSwapPortfolioLoader".
+   * under the name "demoMultiSwapPortfolioLoader".
    * 
    * @param args  the arguments, unused
    */
@@ -350,7 +350,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         System.out.println("Loading historicalTimeSeries config data");
         populator.saveHistoricalTimeSeriesRatings();
         
-        DemoMultiCurrencySwapPortfolioLoader loader = appContext.getBean("multiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
+        DemoMultiCurrencySwapPortfolioLoader loader = appContext.getBean("demoMultiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
         System.out.println("Loading data");
         loader.createPortfolio();
       } finally {

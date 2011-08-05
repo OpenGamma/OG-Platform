@@ -77,17 +77,17 @@ public class DemoDatabasePopulater {
         historicalDataGenerator.run();
         System.out.println("Finished");
         
-        SelfContainedEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader", SelfContainedEquityPortfolioAndSecurityLoader.class);
+        DemoEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("demoEquityPortfolioAndSecurityLoader", DemoEquityPortfolioAndSecurityLoader.class);
         System.out.println("Creating example equity portfolio");
         equityLoader.createExamplePortfolio();
         System.out.println("Finished");
         
-        SelfContainedSwapPortfolioLoader swapLoader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
+        DemoSwapPortfolioLoader swapLoader = appContext.getBean("demoSwapPortfolioLoader", DemoSwapPortfolioLoader.class);
         System.out.println("Creating example swap portfolio");
         swapLoader.createExamplePortfolio();
         System.out.println("Finished");
         
-        DemoMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = appContext.getBean("multiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
+        DemoMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = appContext.getBean("demoMultiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
         System.out.println("Creating example multi currency swap portfolio");
         multiCurrSwapLoader.createPortfolio();
         System.out.println("Finished");
