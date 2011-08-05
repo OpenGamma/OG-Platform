@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.marketdata.MarketDataListener;
@@ -587,9 +588,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   
   private void updateViewDefinitionIfRequired() {
     if (_viewDefinitionDirty) {
-      _viewDefinitionDirty = false;
       _viewDefinition = getViewProcess().getLatestViewDefinition();
       invalidateCachedCompiledViewDefinition();
+      if (_viewDefinition == null) {
+        throw new DataNotFoundException("View definition " + getViewProcess().getDefinitionName() + " not found");
+      }
+      _viewDefinitionDirty = false;
     }
   }
   
