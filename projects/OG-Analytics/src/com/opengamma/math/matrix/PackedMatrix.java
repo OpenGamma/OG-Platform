@@ -10,15 +10,15 @@ import java.util.Arrays;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- *
+ * Converts or instantiates a matrix to Packed Matrix format. This class is reserved for expert use only.
  */
 public class PackedMatrix implements MatrixPrimitiveInterface  {
-  private double[] _data;
-  private int _rows;
-  private int _cols;
-  private int _els;
-  private int[] _colCount;
-  private int[] _rowPtr;
+  private double[] _data; // the data
+  private int _rows; // number of rows
+  private int _cols; // number of columns
+  private int _els; // number of elements
+  private int[] _colCount; // cumulative sum of unwound columns (incremented per row)
+  private int[] _rowPtr; // pointer to where the data should start on a given row
 
 /**
  * Constructors
@@ -30,6 +30,14 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
    */
   public PackedMatrix(double[][] aMatrix) {
     this(aMatrix, false, aMatrix.length, aMatrix[0].length);
+  }
+
+  /**
+   * Constructs from a DoubleMatrix2D representation
+   * @param aMatrix is a DoubleMatrix2D
+   */
+  public PackedMatrix(DoubleMatrix2D aMatrix) {
+    this(aMatrix.toArray(), false, aMatrix.getNumberOfRows(), aMatrix.getNumberOfColumns());
   }
 
   /**
@@ -119,7 +127,7 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
 
   @Override
   public int getNumberOfElements() {
-    return _data.length;
+    return _els;
   }
 
   @Override
@@ -179,7 +187,16 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
 
   @Override
   public double[] getColumnElements(int index) {
-    return null;
+    double[] tmp = new double[_rows];
+    int idx = 0;
+    for (int i = 0; i < _rows; i++) {
+      if (index >= _rowPtr[i] && index < ((_colCount[i + 1] - _colCount[i]) + _rowPtr[i])) {
+        tmp[idx] =  _data[_colCount[i] + (index - _rowPtr[i])];
+        idx++;
+      }
+
+    }
+    return Arrays.copyOfRange(tmp, 0, idx);
   }
 
   @Override
@@ -189,7 +206,67 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
 
   @Override
   public double[][] toArray() {
-    return null;
+    double[][] tmp = new double[_rows][_cols];
+    for (int i = 0; i < _rows; i++) {
+      for (int j = 0; j < _cols; j++) {
+        if (j >= _rowPtr[i] && j < ((_colCount[i + 1] - _colCount[i]) + _rowPtr[i])) {
+          tmp[i][j] =  _data[_colCount[i] + (j - _rowPtr[i])];
+        } else {
+          tmp[i][j] = 0.0;
+        }
+      }
+    }
+    return tmp;
+  }
+
+  @Override
+  public String toString() {
+    return "PackedMatrix:\ndata = " + Arrays.toString(_data)
+      + "\nrows = " + _rows + "\ncols= " + _cols + "\nels= " + _els + "n_colCount= " + Arrays.toString(_colCount) + "\n rowPtr= "
+      + Arrays.toString(_rowPtr);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_colCount);
+    result = prime * result + _cols;
+    result = prime * result + Arrays.hashCode(_data);
+    result = prime * result + _els;
+    result = prime * result + Arrays.hashCode(_rowPtr);
+    result = prime * result + _rows;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    PackedMatrix other = (PackedMatrix) obj;
+    if (_cols != other._cols) {
+      return false;
+    }
+    if (_rows != other._rows) {
+      return false;
+    }
+    if (!Arrays.equals(_colCount, other._colCount)) {
+      return false;
+    }
+    if (!Arrays.equals(_rowPtr, other._rowPtr)) {
+      return false;
+    }
+    if (!Arrays.equals(_data, other._data)) {
+      return false;
+    }
+    return true;
   }
 
 }
