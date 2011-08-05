@@ -132,7 +132,6 @@ $.register_module({
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                     og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     toolbar('default');
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
                 }});
             },
             details_page = function (args, new_config_type) {
