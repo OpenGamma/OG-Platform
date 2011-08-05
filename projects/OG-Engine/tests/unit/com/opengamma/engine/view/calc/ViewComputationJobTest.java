@@ -70,6 +70,19 @@ public class ViewComputationJobTest {
   private static final String SOURCE_1_NAME = "source1";
   private static final String SOURCE_2_NAME = "source2";
   
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testAttachToUnknownView() {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    TestViewResultListener resultListener = new TestViewResultListener();
+    client.setResultListener(resultListener);
+    client.attachToViewProcess("Something random", ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+  }
+  
   @Test
   public void testInterruptJobBetweenCycles() throws InterruptedException {
     // Due to all the dependencies between components for execution to take place, it's easiest to test it in a
