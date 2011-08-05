@@ -22,7 +22,7 @@ $.register_module({
             search_options = {
                 'selector': '.OG-js-search', 'page_type': 'regions',
                 'columns': [
-                    {id: 'name', field: 'name',width: 300, cssClass: 'og-link', filter_type: 'input',
+                    {id: 'name', field: 'name',width: 300, cssClass: 'og-link', filter_type: 'input', toolTip: 'name',
                         name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
                 ]
             },

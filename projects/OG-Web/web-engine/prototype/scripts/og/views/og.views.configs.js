@@ -193,6 +193,7 @@ $.register_module({
                                 $('.ui-layout-inner-north').empty();
                             }
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
