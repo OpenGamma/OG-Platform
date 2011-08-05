@@ -55,6 +55,10 @@ public class TestViewResultListener implements ViewResultListener {
     return expectNextCall(ViewDefinitionCompiledCall.class, timeoutMillis);
   }
   
+  public ViewDefinitionCompilationFailedCall getViewDefinitionCompilationFailed(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(ViewDefinitionCompilationFailedCall.class, timeoutMillis);
+  }
+  
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
     return expectNextCall(CycleCompletedCall.class, timeoutMillis);
   }
@@ -102,6 +106,26 @@ public class TestViewResultListener implements ViewResultListener {
     }
     if (expectedCompiledViewDefinition != null) {
       assertEquals(expectedCompiledViewDefinition, ((ViewDefinitionCompiledCall) call).getCompiledViewDefinition());
+    }
+  }
+  
+  public void assertViewDefinitionCompilationFailed() {
+    assertViewDefinitionCompilationFailed(0);
+  }
+  
+  public void assertViewDefinitionCompilationFailed(long timeoutMillis) {
+    assertViewDefinitionCompilationFailed(timeoutMillis, null);
+  }
+  
+  public void assertViewDefinitionCompilationFailed(long timeoutMillis, String exceptionMessage) {
+    ViewDefinitionCompilationFailedCall call;
+    try {
+      call = getViewDefinitionCompilationFailed(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected viewDefinitionCompilationFailed call error: " + e.getMessage());
+    }
+    if (exceptionMessage != null) {
+      assertEquals(exceptionMessage, call.getException().getMessage());
     }
   }
   

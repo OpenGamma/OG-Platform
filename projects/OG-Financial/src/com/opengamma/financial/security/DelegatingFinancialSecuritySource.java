@@ -8,6 +8,8 @@ package com.opengamma.financial.security;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
@@ -26,12 +28,18 @@ public class DelegatingFinancialSecuritySource
     implements FinancialSecuritySource {
 
   /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager;
+  
+  /**
    * Creates an instance specifying the default delegate.
    * 
    * @param defaultSource  the source to use when no scheme matches, not null
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource) {
     super(defaultSource);
+    _changeManager = defaultSource.changeManager();
   }
 
   /**
@@ -42,6 +50,13 @@ public class DelegatingFinancialSecuritySource
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource, Map<String, FinancialSecuritySource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
+    
+    AggregatingChangeManager changeManager = new AggregatingChangeManager();
+    changeManager.addChangeManager(defaultSource.changeManager());
+    for (FinancialSecuritySource source : schemePrefixToSourceMap.values()) {
+      changeManager.addChangeManager(source.changeManager());
+    }
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -87,6 +102,12 @@ public class DelegatingFinancialSecuritySource
       }
     }
     return getDefaultDelegate().getBondsWithIssuerName(issuerName);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -245,6 +247,11 @@ public final class SecurityLinkResolver {
         }
       }
       return security;
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
     }
   }
 

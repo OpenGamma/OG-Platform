@@ -13,6 +13,7 @@ import static com.opengamma.math.ComplexMathUtils.mod;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.sqrt;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.ComplexMathUtils.square;
 import static com.opengamma.math.number.ComplexNumber.I;
 import static com.opengamma.math.number.ComplexNumber.ZERO;
 
@@ -42,7 +43,7 @@ import com.opengamma.math.number.ComplexNumber;
  * \\end{align*}
  * }
  */
-public class HestonCharacteristicExponent implements CharacteristicExponent {
+public class HestonCharacteristicExponent implements MartingaleCharacteristicExponent {
   private final double _kappa;
   private final double _theta;
   private final double _vol0;
@@ -75,31 +76,156 @@ public class HestonCharacteristicExponent implements CharacteristicExponent {
 
   @Override
   public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
-
     return new Function1D<ComplexNumber, ComplexNumber>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public ComplexNumber evaluate(final ComplexNumber u) {
-        // that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected
-        if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
-          return ZERO;
-        }
-
-        //non-stochastic vol limit 
-        if (_omega == 0.0 || mod(multiply(multiply(_omega / _kappa, u), add(I, u))) < 1e-6) {
-          final ComplexNumber z = multiply(u, add(I, u));
-          if (_kappa * t < 1e-6) {
-            return multiply(-_vol0 / 2 * t, z);
-          }
-          final double var = _theta * t + (_vol0 - _theta) * (1 - Math.exp(-_kappa * t)) / _kappa;
-          return multiply(-var / 2, z);
-        }
-
-        final ComplexNumber c = getC(u, t);
-        final ComplexNumber dv0 = multiply(_vol0, getD(u, t));
-        return add(c, dv0);
+        return getValue(u, t);
       }
     };
+  }
+
+  @Override
+  public ComplexNumber getValue(ComplexNumber u, double t) {
+    // that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected
+    if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
+      return ZERO;
+    }
+
+    //non-stochastic vol limit 
+    if (_omega == 0.0 || mod(multiply(multiply(_omega / _kappa, u), add(I, u))) < 1e-6) {
+      final ComplexNumber z = multiply(u, add(I, u));
+      if (_kappa * t < 1e-6) {
+        return multiply(-_vol0 / 2 * t, z);
+      }
+      final double var = _theta * t + (_vol0 - _theta) * (1 - Math.exp(-_kappa * t)) / _kappa;
+      return multiply(-var / 2, z);
+    }
+
+    final ComplexNumber c = getC(u, t);
+    final ComplexNumber dv0 = multiply(_vol0, getD(u, t));
+    return add(c, dv0);
+  }
+
+  @Override
+  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(final double t) {
+    return new Function1D<ComplexNumber, ComplexNumber[]>() {
+      @Override
+      public ComplexNumber[] evaluate(final ComplexNumber u) {
+        return getCharacteristicExponentAjoint(u, t);
+      }
+    };
+  }
+
+  @Override
+  public ComplexNumber[] getCharacteristicExponentAjoint(final ComplexNumber u, final double t) {
+    ComplexNumber[] res = new ComplexNumber[6];
+
+    final double kto = _kappa * _theta / _omega / _omega;
+
+    final ComplexNumber rhoOmegaUi = multiply(u, new ComplexNumber(0, _rho * _omega));
+    final ComplexNumber rhoOmegaUiMinusKappa = subtract(rhoOmegaUi, _kappa);
+    final ComplexNumber rhoOmegaUiMinusKappa2 = square(rhoOmegaUiMinusKappa);
+    final ComplexNumber uOmega2i = multiply(u, new ComplexNumber(0, _omega * _omega));
+    final ComplexNumber omega2u2 = square(multiply(u, _omega));
+    final ComplexNumber smallD2 = add(add(rhoOmegaUiMinusKappa2, uOmega2i), omega2u2);
+    final ComplexNumber smallD = sqrt(smallD2);
+
+    final ComplexNumber num = subtract(smallD, rhoOmegaUiMinusKappa);
+    final ComplexNumber denom = multiply(-1.0, add(smallD, rhoOmegaUiMinusKappa));
+    final ComplexNumber smallC = divide(num, denom);
+
+    final ComplexNumber denomT = multiply(t, denom);
+    final ComplexNumber e = exp(multiply(smallD, -t));
+    final ComplexNumber arg1 = divide(subtract(smallC, e), subtract(smallC, 1));
+
+    final ComplexNumber lnArg1 = log(arg1);
+    final ComplexNumber arg2 = divide(subtract(1, e), subtract(smallC, e));
+
+    final ComplexNumber bigC = multiply(kto, subtract(denomT, multiply(2, lnArg1)));
+    final ComplexNumber bigD = divide(multiply(num, arg2), _omega * _omega);
+
+    final ComplexNumber dv0 = multiply(_vol0, bigD);
+    res[0] = add(bigC, dv0); //value of CE
+
+    //backwards sweep
+    final ComplexNumber bigCBar = new ComplexNumber(1.0);
+    final ComplexNumber bigDBar = new ComplexNumber(_vol0);
+    res[3] = bigD; //vol0
+
+    final ComplexNumber bigDXarg2 = divide(num, _omega * _omega);
+    final ComplexNumber arg2Bar = multiply(bigDBar, bigDXarg2);
+    final ComplexNumber bigDXNum = divide(arg2, _omega * _omega);
+    final ComplexNumber numBar1 = multiply(bigDBar, bigDXNum); //since num appears in several places in the graph we need to split it out 
+    final ComplexNumber bigDXOmega = multiply(-2 / _omega, bigD);
+    final ComplexNumber omegaBar1 = multiply(bigDBar, bigDXOmega);
+
+    final ComplexNumber bigCXlnArg1 = new ComplexNumber(-2 * kto);
+    final ComplexNumber lnArg1Bar = multiply(bigCBar, bigCXlnArg1);
+    final ComplexNumber bigCXdenom = new ComplexNumber(t * kto);
+    final ComplexNumber denomBar1 = multiply(bigCBar, bigCXdenom);
+    final ComplexNumber bigCXkto = divide(bigC, kto);
+    final ComplexNumber ktoBar = multiply(bigCBar, bigCXkto);
+
+    final ComplexNumber arg2XsmallC = divide(arg2, subtract(e, smallC));
+    final ComplexNumber smallCBar1 = multiply(arg2Bar, arg2XsmallC);
+    final ComplexNumber arg2Xe = divide(subtract(1, smallC), square(subtract(smallC, e)));
+    final ComplexNumber eBar1 = multiply(arg2Bar, arg2Xe);
+
+    final ComplexNumber lnArg1Xarg1 = divide(1.0, arg1);
+    final ComplexNumber arg1Bar = multiply(lnArg1Bar, lnArg1Xarg1);
+    final ComplexNumber arg1XsmallC = divide(subtract(e, 1.0), square(subtract(smallC, 1.0)));
+    final ComplexNumber smallCBar2 = multiply(arg1Bar, arg1XsmallC);
+    final ComplexNumber arg1Xe = divide(1.0, subtract(1.0, smallC));
+    final ComplexNumber eBar2 = multiply(arg1Bar, arg1Xe);
+
+    final ComplexNumber eXsmallD = multiply(-t, e);
+    final ComplexNumber smallDBar1 = multiply(add(eBar1, eBar2), eXsmallD);
+
+    final ComplexNumber smallCXnum = divide(1.0, denom);
+    final ComplexNumber smallCBar = add(smallCBar1, smallCBar2);
+    final ComplexNumber numBar2 = multiply(smallCBar, smallCXnum);
+    final ComplexNumber smallCXdenom = multiply(-1.0, divide(smallC, denom));
+    final ComplexNumber denomBar2 = multiply(smallCBar, smallCXdenom);
+
+    final ComplexNumber numBar = add(numBar1, numBar2);
+    final ComplexNumber denomBar = add(denomBar1, denomBar2);
+    final ComplexNumber smallDBar2 = numBar;
+    final ComplexNumber smallDBar3 = multiply(-1.0, denomBar);
+    final ComplexNumber smallDBar = add(smallDBar1, smallDBar2, smallDBar3);
+
+    final ComplexNumber smallDXsmallD2 = divide(0.5, smallD);
+    final ComplexNumber smallD2Bar = multiply(smallDBar, smallDXsmallD2);
+    final ComplexNumber rhoOmegaUiMinusKappa2Bar = smallD2Bar;
+    final ComplexNumber uOmega2iBar = smallD2Bar;
+    final ComplexNumber omega2u2Bar = smallD2Bar;
+    final ComplexNumber rhoOmegaUiMinusKappa2XrhoOmegaUiMinusKappa = multiply(2.0, rhoOmegaUiMinusKappa);
+    final ComplexNumber rhoOmegaUiMinusKappaBar1 = multiply(rhoOmegaUiMinusKappa2Bar, rhoOmegaUiMinusKappa2XrhoOmegaUiMinusKappa);
+    final ComplexNumber rhoOmegaUiMinusKappaBar2 = multiply(numBar, -1.0);
+    final ComplexNumber rhoOmegaUiMinusKappaBar3 = multiply(denomBar, -1.0);
+    final ComplexNumber rhoOmegaUiMinusKappaBar = add(rhoOmegaUiMinusKappaBar1, rhoOmegaUiMinusKappaBar2, rhoOmegaUiMinusKappaBar3);
+
+    final ComplexNumber rhoOmegaUiBar = rhoOmegaUiMinusKappaBar;
+    final ComplexNumber kappaBar1 = multiply(rhoOmegaUiMinusKappaBar, -1.0);
+    final double ktoXkappa = kto / _kappa;
+    final ComplexNumber kappaBar2 = multiply(ktoBar, ktoXkappa);
+    res[1] = add(kappaBar1, kappaBar2); //kappaBar
+    final double ktoXtheta = kto / _theta;
+    res[2] = multiply(ktoBar, ktoXtheta); //thetaBar
+
+    final double ktoXomega = -2.0 * kto / _omega;
+    final ComplexNumber omegaBar2 = multiply(ktoBar, ktoXomega);
+    final ComplexNumber rhoOmegaUiXomega = multiply(u, new ComplexNumber(0.0, _rho));
+    final ComplexNumber omegaBar3 = multiply(rhoOmegaUiBar, rhoOmegaUiXomega);
+    final ComplexNumber uOmega2iXomega = multiply(u, new ComplexNumber(0.0, 2 * _omega));
+    final ComplexNumber omegaBar4 = multiply(uOmega2iBar, uOmega2iXomega);
+    final ComplexNumber omega2u2Xomega = multiply(2 * _omega, square(u));
+    final ComplexNumber omegaBar5 = multiply(omega2u2Bar, omega2u2Xomega);
+    res[4] = add(omegaBar1, omegaBar2, omegaBar3, omegaBar4, omegaBar5);
+
+    final ComplexNumber rhoOmegaUiXrho = multiply(u, new ComplexNumber(0.0, _omega));
+    res[5] = multiply(rhoOmegaUiBar, rhoOmegaUiXrho);
+
+    return res;
   }
 
   private ComplexNumber getC(final ComplexNumber u, final double t) {

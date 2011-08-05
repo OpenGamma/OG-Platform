@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.marketdatasnapshot;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -14,7 +14,7 @@ import com.opengamma.util.PublicSPI;
  * <p>
  */
 @PublicSPI
-public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>,  NotifyingMaster {
+public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>,  ChangeProvider {
 
   /**
    * Searches for snasphots matching the specified search criteria.

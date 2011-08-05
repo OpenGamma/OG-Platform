@@ -6,10 +6,10 @@
 package com.opengamma.master.config;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.util.PublicSPI;
  * Many different kinds of configuration element may be stored in a single master.
  */
 @PublicSPI
-public interface ConfigMaster extends NotifyingMaster {
+public interface ConfigMaster extends ChangeProvider {
 
   /**
    * Gets a document by unique identifier.

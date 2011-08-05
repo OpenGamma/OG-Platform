@@ -29,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewProcessContext {
 
+  private final ViewDefinitionRepository _viewDefinitionRepository;
   private final ViewPermissionProvider _viewPermissionProvider;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
@@ -44,6 +45,7 @@ public class ViewProcessContext {
   private final MarketDataProviderResolver _marketDataProviderResolver;
 
   public ViewProcessContext(
+      ViewDefinitionRepository viewDefinitionRepository,
       ViewPermissionProvider viewPermissionProvider,
       MarketDataProviderResolver marketDataProviderResolver,
       CompiledFunctionService functionCompilationService,
@@ -56,6 +58,7 @@ public class ViewProcessContext {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
+    ArgumentChecker.notNull(viewDefinitionRepository, "viewDefinitionRepository");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
@@ -68,6 +71,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
 
+    _viewDefinitionRepository = viewDefinitionRepository;
     _viewPermissionProvider = viewPermissionProvider;
     
     InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(securitySource);
@@ -87,6 +91,15 @@ public class ViewProcessContext {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * Gets the view definition repository
+   * 
+   * @return the view definition repository, not {@code null}
+   */
+  public ViewDefinitionRepository getViewDefinitionRepository() {
+    return _viewDefinitionRepository;
+  }
+  
   /**
    * Gets the view permission provider
    * 

@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import static com.opengamma.math.number.ComplexNumber.MINUS_I;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -43,7 +44,7 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
    * @param base The base characteristic exponent, not null
    * @param timeChange The characteristic exponent to time change, not null
    */
-  public TimeChangedCharacteristicExponent(final CharacteristicExponent base, final CharacteristicExponent timeChange) {
+  public TimeChangedCharacteristicExponent(final CharacteristicExponent base, final StocasticClockCharcteristicExponent timeChange) {
     Validate.notNull(base, "base");
     Validate.notNull(timeChange, "timeChange");
     _base = base;
@@ -62,6 +63,12 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
         return timeChangeFunction.evaluate(z);
       }
     };
+  }
+
+  @Override
+  public ComplexNumber getValue(ComplexNumber u, double t) {
+    Function1D<ComplexNumber, ComplexNumber> func = getFunction(t);
+    return func.evaluate(u);
   }
 
   /**
@@ -123,6 +130,16 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
       return false;
     }
     return ObjectUtils.equals(_timeChange, other._timeChange);
+  }
+
+  @Override
+  public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
+    throw new NotImplementedException();
   }
 
 }

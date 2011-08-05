@@ -20,8 +20,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingRule;
 import com.opengamma.util.PlatformConfigUtils;
@@ -60,7 +62,7 @@ public class TimeSeriesRatingLoader {
     HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
     configDoc.setName(DEFAULT_CONFIG_NAME);
     configDoc.setValue(ratingConfig);
-    configMaster.add(configDoc);
+    ConfigMasterUtils.storeByName(configMaster, configDoc);
   }
 
   //-------------------------------------------------------------------------

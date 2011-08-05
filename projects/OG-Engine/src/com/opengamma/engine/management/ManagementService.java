@@ -97,7 +97,7 @@ public final class ManagementService implements ViewProcessorEventListener {
 
   private void initializeGraphExecutionStatistics() throws Exception {
     for (ViewProcess viewProcess : _viewProcessor.getViewProcesses()) {
-      Set<String> configurationNames = viewProcess.getDefinition().getAllCalculationConfigurationNames();
+      Set<String> configurationNames = viewProcess.getLatestViewDefinition().getAllCalculationConfigurationNames();
       _calcConfigByViewProcessId.putIfAbsent(viewProcess.getUniqueId(), configurationNames);
       for (String calcConfigName : configurationNames) {
         com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
@@ -175,7 +175,7 @@ public final class ManagementService implements ViewProcessorEventListener {
     } catch (Exception e) {
       s_logger.warn("Error registering view for management for " + viewManagement.getObjectName() + " . Error was " + e.getMessage(), e);
     }
-    Set<String> configurationNames = view.getDefinition().getAllCalculationConfigurationNames();
+    Set<String> configurationNames = view.getLatestViewDefinition().getAllCalculationConfigurationNames();
     _calcConfigByViewProcessId.putIfAbsent(viewProcessId, configurationNames);
     for (String calcConfigName : configurationNames) {
       com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =

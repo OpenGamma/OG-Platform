@@ -7,6 +7,8 @@ package com.opengamma.core.position.impl;
 
 import java.util.Map;
 
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -21,9 +23,13 @@ import com.opengamma.util.ArgumentChecker;
  * underlying source should handle the request.
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
+ * <p>
+ * Change events are aggregated from the different sources and presented through a single change manager.
  */
 public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<PositionSource> implements PositionSource {
 
+  private final ChangeManager _changeManager;
+  
   /**
    * Creates an instance specifying the default delegate.
    * 
@@ -31,6 +37,7 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
    */
   public DelegatingPositionSource(PositionSource defaultSource) {
     super(defaultSource);
+    _changeManager = defaultSource.changeManager();
   }
 
   /**
@@ -41,6 +48,15 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
    */
   public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
+    AggregatingChangeManager changeManager = new AggregatingChangeManager();
+    
+    // REVIEW jonathan 2011-08-03 -- this assumes that the delegating source lasts for the lifetime of the engine as we
+    // never detach from the underlying change managers.
+    changeManager.addChangeManager(defaultSource.changeManager());
+    for (PositionSource source : schemePrefixToSourceMap.values()) {
+      changeManager.addChangeManager(source.changeManager());
+    }
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -66,6 +82,12 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
   public Trade getTrade(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getTrade(uid);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

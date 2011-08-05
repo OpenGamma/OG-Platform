@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.model.volatility;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -16,6 +13,9 @@ import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Black pricing in the forward measure. All prices, input/output, are *forward* prices, i.e. price(t,T) / Zero(t,T).
@@ -73,10 +73,17 @@ public class BlackFormula {
 
     final double d1 = Math.log(_forward / _strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
-
     return sign * (_forward * NORMAL.getCDF(sign * d1) - _strike * NORMAL.getCDF(sign * d2));
   }
 
+  /**
+   * Computes the derivative of the *forward price* with respect to the forward.
+   * If the current value of a call with expiry, T is C(0,T), the forward price is this normalized by the terminal bond, Z(0,T) = exp(-rT).
+   * Hence *forward price* c(0,T) = C(0,T) / Z(0,T). And ForwardDelta = dc/dF == d(C/Z)/dF   
+   * This is NOT a getter of the data member, _fwdMtm. For that, use getFwdMtm().
+   * Nor does this set any data member.
+   * @return  d/dF [C(0,T) / Z(0,T)] 
+   */
   public final double computeForwardDelta() {
     Validate.notNull(_lognormalVol, "Black Volatility parameter, _vol, has not been set.");
 
@@ -98,7 +105,7 @@ public class BlackFormula {
 
   /**
    * Via the BlackFormula, this converts a Delta-parameterised strike into the actual strike value.
-   * fwdDelta, defined here, is always positive, in [0,1]. At-the-money is 0.5, out-of-the-money < 0.5, etc.
+   * fwdDelta, defined here, is always positive, in [0,1]. At 0.5, a straddle has zero delta, occurring at K == F*exp(0.5 sig^2 T). So deltas < 0.5 are out-of-the-money.
    * Hence a 0.25 put and a 0.25 call will have a strike less and greater than the forward, respectively. 
    * @param fwdDelta the first order derivative of the price with respect to the forward
    * @param forCall Choose whether you would like to see the strike of the call or put for the fwdDelta provided
