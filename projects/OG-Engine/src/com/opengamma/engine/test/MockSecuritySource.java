@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -73,6 +75,12 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------

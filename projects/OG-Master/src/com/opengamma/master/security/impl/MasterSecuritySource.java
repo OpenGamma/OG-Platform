@@ -7,6 +7,7 @@ package com.opengamma.master.security.impl;
 
 import java.util.Collection;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -84,6 +85,12 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
    */
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     return getMaster().search(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return getMaster().changeManager();
   }
 
 }

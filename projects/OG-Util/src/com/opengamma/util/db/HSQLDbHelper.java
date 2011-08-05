@@ -57,5 +57,25 @@ public class HSQLDbHelper extends DbHelper {
     handler.setWrapAsLob(true);
     return handler;
   }
+  
+  /**
+   * Returns the prefix with the correct wildcard search type.
+   * Returns 'prefix LIKE paramName ' if there are wildcards,
+   * 'prefix = paramName ' if no wildcards and '' if null.
+   * The prefix is normally 'AND columnName ' or 'OR columnName '.
+   * @param prefix  the prefix such as 'AND columnName ', not null
+   * @param paramName  the parameter name normally prefixed by colon, not null
+   * @param value  the string value, may be null
+   * @return the SQL fragment, not null
+   */
+  public String sqlWildcardQuery(final String prefix, final String paramName, final String value) {
+    if (value == null) {
+      return "";
+    } else if (isWildcard(value)) {
+      return prefix + "LIKE " + paramName + " ESCAPE '\\' ";
+    } else {
+      return prefix + "= " + paramName + ' ';
+    }
+  }
 
 }

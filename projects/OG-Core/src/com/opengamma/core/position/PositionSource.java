@@ -6,6 +6,7 @@
 package com.opengamma.core.position;
 
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.PublicSPI;
  * This may be backed by a full-featured position master, or by a much simpler data structure.
  */
 @PublicSPI
-public interface PositionSource {
+public interface PositionSource extends ChangeProvider {
 
   /**
    * Finds a specific portfolio by unique identifier.

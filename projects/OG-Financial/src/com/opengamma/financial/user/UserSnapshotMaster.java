@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.user;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -89,7 +89,7 @@ public class UserSnapshotMaster implements MarketDataSnapshotMaster {
   }
 
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _underlying.changeManager();
   }
 

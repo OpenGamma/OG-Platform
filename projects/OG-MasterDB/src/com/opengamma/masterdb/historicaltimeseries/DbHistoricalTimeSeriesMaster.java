@@ -30,12 +30,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdWithDates;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -48,7 +49,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -670,7 +670,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
             return insertDataPoints(uniqueId, series, now);
           }
         });
-        changeManager().masterChanged(MasterChangedType.UPDATED, uniqueId, resultId, now);
+        changeManager().entityChanged(ChangeType.UPDATED, uniqueId, resultId, now);
         return resultId;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
@@ -782,7 +782,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
             return correctDataPoints(uniqueId, series, now);
           }
         });
-        changeManager().masterChanged(MasterChangedType.CORRECTED, uniqueId, resultId, now);
+        changeManager().entityChanged(ChangeType.CORRECTED, uniqueId, resultId, now);
         return resultId;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
@@ -859,7 +859,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
             return removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now);
           }
         });
-        changeManager().masterChanged(MasterChangedType.UPDATED, uniqueId, resultId, now);
+        changeManager().entityChanged(ChangeType.UPDATED, uniqueId, resultId, now);
         return resultId;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {

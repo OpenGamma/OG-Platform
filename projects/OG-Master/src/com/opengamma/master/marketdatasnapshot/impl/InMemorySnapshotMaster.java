@@ -15,14 +15,14 @@ import javax.time.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -58,7 +58,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   /**
    * The change manager.
    */
-  private final MasterChangeManager _changeManager;
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -72,7 +72,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * 
    * @param changeManager  the change manager, not null
    */
-  public InMemorySnapshotMaster(final MasterChangeManager changeManager) {
+  public InMemorySnapshotMaster(final ChangeManager changeManager) {
     this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
@@ -82,7 +82,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier) {
-    this(objectIdSupplier, new BasicMasterChangeManager());
+    this(objectIdSupplier, new BasicChangeManager());
   }
 
   /**
@@ -91,7 +91,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier, final MasterChangeManager changeManager) {
+  public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -152,7 +152,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return doc;
   }
 
@@ -176,7 +176,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -187,7 +187,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
-    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -211,7 +211,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

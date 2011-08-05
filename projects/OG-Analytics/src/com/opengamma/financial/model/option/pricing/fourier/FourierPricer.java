@@ -32,11 +32,11 @@ public class FourierPricer {
     _integrator = integrator;
   }
 
-  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance) {
+  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final MartingaleCharacteristicExponent ce, final double alpha, final double limitTolerance) {
     return price(data, option, ce, alpha, limitTolerance, false);
   }
 
-  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance,
+  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final MartingaleCharacteristicExponent ce, final double alpha, final double limitTolerance,
       final boolean useVarianceReduction) {
     Validate.notNull(data, "data");
     Validate.notNull(option, "option");
@@ -60,6 +60,8 @@ public class FourierPricer {
       final double diff = discountFactor * forward * integral;
       return diff + black;
     }
+    
+//    return discountFactor * forward * integral;
     if (isCall) {
       if (alpha > 0.0) {
         return discountFactor * forward * integral;
@@ -77,7 +79,7 @@ public class FourierPricer {
     return discountFactor * (forward * integral + strike);
   }
 
-  public double priceFromVol(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance,
+  public double priceFromVol(final BlackFunctionData data, final EuropeanVanillaOption option, final MartingaleCharacteristicExponent ce, final double alpha, final double limitTolerance,
       final boolean useVarianceReduction) {
     final double forward = data.getForward();
     final double discountFactor = data.getDiscountFactor();

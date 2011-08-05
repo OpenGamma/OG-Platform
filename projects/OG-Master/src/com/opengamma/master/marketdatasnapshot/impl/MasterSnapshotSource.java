@@ -7,13 +7,13 @@ package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMasterSource;
-import com.opengamma.master.listener.MasterChangeListener;
-import com.opengamma.master.listener.MasterChanged;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.PublicSPI;
@@ -29,9 +29,9 @@ import com.opengamma.util.tuple.Pair;
 public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapshotDocument, MarketDataSnapshotMaster>
     implements MarketDataSnapshotSource {
 
-  private final ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, MasterChangeListener> _registeredListeners =
-      new ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, MasterChangeListener>();
-
+  private final ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener> _registeredListeners = 
+    new  ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener>();
+  
   /**
    * Creates an instance with an underlying master which does not override versions.
    * 
@@ -48,10 +48,10 @@ public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapsho
 
   @Override
   public void addChangeListener(final UniqueId uniqueId, final MarketDataSnapshotChangeListener listener) {
-    MasterChangeListener masterListener = new MasterChangeListener() {
+    ChangeListener changeListener = new ChangeListener() {
 
       @Override
-      public void masterChanged(MasterChanged event) {
+      public void entityChanged(ChangeEvent event) {
         UniqueId changedId = event.getAfterId();
         if (changedId != null && changedId.getScheme().equals(uniqueId.getScheme()) && changedId.getValue().equals(uniqueId.getValue())) {
           //TODO This is over cautious in the case of corrections to non latest versions
@@ -61,14 +61,14 @@ public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapsho
         }
       }
     };
-    _registeredListeners.put(Pair.of(uniqueId, listener), masterListener);
-    getMaster().changeManager().addChangeListener(masterListener);
+    _registeredListeners.put(Pair.of(uniqueId, listener), changeListener);
+    getMaster().changeManager().addChangeListener(changeListener);
   }
 
   @Override
-  public void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
-    MasterChangeListener masterListener = _registeredListeners.remove(Pair.of(uniqueId, listener));
-    getMaster().changeManager().removeChangeListener(masterListener);
+  public void removeChangeListener(UniqueId uid, MarketDataSnapshotChangeListener listener) {
+    ChangeListener changeListener = _registeredListeners.remove(Pair.of(uid, listener));
+    getMaster().changeManager().removeChangeListener(changeListener);
   }
 
 }

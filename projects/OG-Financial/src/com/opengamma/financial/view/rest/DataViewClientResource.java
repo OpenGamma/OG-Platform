@@ -174,8 +174,8 @@ public class DataViewClientResource {
   
   @GET
   @Path(PATH_VIEW_DEFINITION)
-  public Response getViewDefinition() {
-    return Response.ok(getViewClient().getViewDefinition()).build();
+  public Response getLatestViewDefinition() {
+    return Response.ok(getViewClient().getLatestViewDefinition()).build();
   }
   
   //-------------------------------------------------------------------------  

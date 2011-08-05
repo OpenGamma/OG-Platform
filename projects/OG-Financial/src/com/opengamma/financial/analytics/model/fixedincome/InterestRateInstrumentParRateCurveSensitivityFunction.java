@@ -28,17 +28,17 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY;
 
-  public InterestRateInstrumentParRateCurveSensitivityFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentParRateCurveSensitivityFunction(String forwardCurveName, String fundingCurveName) {
+    super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
+      FinancialSecurity security) {
     Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-          fundingCurveName, forwardCurveName, createValueProperties()));
+          getFundingCurveName(), getForwardCurveName(), createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, sensitivities));
 
   }

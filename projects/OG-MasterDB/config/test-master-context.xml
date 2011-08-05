@@ -17,8 +17,8 @@
     </property>
   </bean>
 
-  <bean id="positionMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="positionMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
 
   <!-- ============================================================================== -->
   <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">

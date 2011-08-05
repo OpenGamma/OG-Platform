@@ -19,6 +19,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;

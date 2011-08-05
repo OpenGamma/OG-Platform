@@ -31,7 +31,6 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.MapViewDefinitionRepository;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -91,7 +90,7 @@ public class ViewProcessorTestEnvironment {
   private ViewProcessorImpl _viewProcessor;
   private FunctionResolver _functionResolver;
   private CachingComputationTargetResolver _cachingComputationTargetResolver;
-  private MapViewDefinitionRepository _viewDefinitionRepository;
+  private MockViewDefinitionRepository _viewDefinitionRepository;
 
   public void init() {
     ViewDefinition viewDefinition = getViewDefinition() != null ? getViewDefinition() : generateViewDefinition();
@@ -104,7 +103,7 @@ public class ViewProcessorTestEnvironment {
     SecuritySource securitySource = getSecuritySource() != null ? getSecuritySource() : generateSecuritySource();
     FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext() != null ? getFunctionCompilationContext() : generateFunctionCompilationContext();
 
-    MapViewDefinitionRepository viewDefinitionRepository = new MapViewDefinitionRepository();
+    MockViewDefinitionRepository viewDefinitionRepository = new MockViewDefinitionRepository();
     viewDefinitionRepository.addDefinition(viewDefinition);
 
     InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
@@ -352,7 +351,7 @@ public class ViewProcessorTestEnvironment {
     return result.getCalculationResult(TEST_CALC_CONFIG_NAME);
   }
   
-  public MapViewDefinitionRepository getViewDefinitionRepository() {
+  public MockViewDefinitionRepository getViewDefinitionRepository() {
     return _viewDefinitionRepository;
   }
 }

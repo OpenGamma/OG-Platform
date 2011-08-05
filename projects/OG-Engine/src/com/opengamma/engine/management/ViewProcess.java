@@ -16,13 +16,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An MBean implementation for those attributes and operations we wish to expose on a View.
+ * An MBean implementation for attributes and operations on a view process.
  * 
  */
 public class ViewProcess implements ViewProcessMBean {
 
   /**
-   * A View backing instance
+   * The backing view process instance
    */
   private final ViewProcessInternal _viewProcess;
 
@@ -61,7 +61,7 @@ public class ViewProcess implements ViewProcessMBean {
   
   @Override
   public String getPortfolioIdentifier() {
-    return _viewProcess.getDefinition().getPortfolioId().toString();
+    return _viewProcess.getLatestViewDefinition().getPortfolioId().toString();
   }
 
   @Override

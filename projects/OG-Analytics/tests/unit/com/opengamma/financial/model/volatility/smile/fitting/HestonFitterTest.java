@@ -17,9 +17,9 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -59,7 +59,7 @@ public class HestonFitterTest {
   private static final HestonFourierSmileFitter FOURIER_VOL_FITTER = new HestonFourierSmileFitter(FIX_VOL0);
 
   static {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
+    final MartingaleCharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
     final FourierPricer pricer = new FourierPricer();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
     final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula();

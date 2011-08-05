@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -105,6 +107,12 @@ public class MockPositionSource implements PositionSource {
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     return uniqueId == null ? null : _trades.get(uniqueId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------

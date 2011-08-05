@@ -567,7 +567,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(2), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0003M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m")), "EUR LIBOR 3m", act360, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURLIBORP3M")), "EUR LIBOR 3m", act360, modified,
         Period.ofMonths(3), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0004M Index"),
@@ -579,7 +579,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(5), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0006M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m")), "EUR LIBOR 6m", act360, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURLIBORP6M")), "EUR LIBOR 6m", act360, modified,
         Period.ofMonths(6), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0007M Index"),
@@ -603,7 +603,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(11), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0012M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m")), "EUR LIBOR 12m", act360, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURLIBORP6M")), "EUR LIBOR 12m", act360, modified,
         Period.ofMonths(12), 2, false, null);
 
     //TODO holiday associated with EUR swaps is TARGET
@@ -715,7 +715,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(2), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0003M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 3m"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYLIBORP3M")), "JPY LIBOR 3m", act360, following,
         Period.ofMonths(3), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0004M Index"),
@@ -727,7 +727,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(5), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0006M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYLIBORP6M")), "JPY LIBOR 6m", act360, following,
         Period.ofMonths(6), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0007M Index"),
@@ -751,7 +751,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(11), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0012M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m")), "JPY LIBOR 12m", act360, following,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYLIBORP12M")), "JPY LIBOR 12m", act360, following,
         Period.ofMonths(12), 2, false, null);
 
     //TODO holiday associated with JPY swaps is Tokyo
@@ -843,7 +843,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(2), 0, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0003M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m")), "GBP LIBOR 3m", act365, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPLIBORP3M")), "GBP LIBOR 3m", act365, modified,
         Period.ofMonths(3), 0, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0004M Index"),
@@ -855,7 +855,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(5), 0, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0006M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m")), "GBP LIBOR 6m", act365, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPLIBORP6M")), "GBP LIBOR 6m", act365, modified,
         Period.ofMonths(6), 0, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0007M Index"),
@@ -879,7 +879,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(11), 0, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0012M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m")), "GBP LIBOR 12m", act365, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPLIBORP12M")), "GBP LIBOR 12m", act365, modified,
         Period.ofMonths(12), 0, false, null);
 
     //TODO holiday associated with GBP swaps is London
@@ -1034,7 +1034,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(5), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0006M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m")), "CHF LIBOR 6m", act360, following,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFLIBORP6M")), "CHF LIBOR 6m", act360, following,
         Period.ofMonths(6), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0007M Index"),

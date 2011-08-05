@@ -118,7 +118,7 @@
   </bean>
 
   <!-- SecurityMaster -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="dbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
@@ -237,7 +237,7 @@
   </bean>
   
   <!-- MarketDataSnapshotMaster -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="finDbSource" />
     <property name="changeManager" ref="snapshotMasterChangeManager" />

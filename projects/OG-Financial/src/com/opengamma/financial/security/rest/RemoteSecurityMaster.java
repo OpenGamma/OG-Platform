@@ -21,12 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -52,7 +52,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   private final RestTarget _targetMetaData;
   private final RestTarget _targetSearch;
   private final RestTarget _targetHistoric;
-  private final MasterChangeManager _changeManager;
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -61,7 +61,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
    * @param baseTarget  the RESTful target, not null
    */
   public RemoteSecurityMaster(FudgeContext fudgeContext, RestTarget baseTarget) {
-    this(fudgeContext, baseTarget, new BasicMasterChangeManager());
+    this(fudgeContext, baseTarget, new BasicChangeManager());
   }
 
   /**
@@ -71,7 +71,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
    * @param baseTarget  the RESTful target, not null
    * @param changeManager  the change manager, not null
    */
-  public RemoteSecurityMaster(FudgeContext fudgeContext, RestTarget baseTarget, MasterChangeManager changeManager) {
+  public RemoteSecurityMaster(FudgeContext fudgeContext, RestTarget baseTarget, ChangeManager changeManager) {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _fudgeContext = fudgeContext;
     _targetSecurity = baseTarget.resolveBase(SECURITYMASTER_SECURITY);
@@ -230,7 +230,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -65,7 +66,7 @@ public class ViewProcessorTest {
   }
 
   @Test
-  public void testAttachToKnownView() {
+  public void testAttachToView() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -75,17 +76,6 @@ public class ViewProcessorTest {
     client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
     
     vp.stop();
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testAttachToUnknownView() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess("Something random", ExecutionOptions.infinite(MarketData.live()));
   }
 
   @Test

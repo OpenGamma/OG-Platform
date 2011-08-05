@@ -12,10 +12,10 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -126,7 +126,7 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   }
 
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     throw new UnsupportedOperationException();
   }
 }

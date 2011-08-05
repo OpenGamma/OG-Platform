@@ -13,15 +13,15 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * An in-memory master for yield curve definitions, backed by a hash-map.
  */
-public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource, NotifyingMaster {
+public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource, ChangeProvider {
   
   /**
    * Default scheme used for identifiers created.
@@ -37,7 +37,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
-  private final MasterChangeManager _changeManager = new BasicMasterChangeManager();  // TODO
+  private final ChangeManager _changeManager = new BasicChangeManager();  // TODO
 
   private String _uniqueIdScheme;
   private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
@@ -130,7 +130,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     _definitions.put(key, value);
     final UniqueId uid = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
     document.setUniqueId(uid);
-    changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
+    changeManager().entityChanged(ChangeType.ADDED, null, uid, now);
     return document;
   }
 
@@ -156,12 +156,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         value.clear();
       }
       value.put(now, document.getYieldCurveDefinition());
-      changeManager().masterChanged(MasterChangedType.UPDATED, uid, uid, now);
+      changeManager().entityChanged(ChangeType.UPDATED, uid, uid, now);
     } else {
       value = new TreeMap<Instant, YieldCurveDefinition>();
       value.put(now, document.getYieldCurveDefinition());
       _definitions.put(key, value);
-      changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
+      changeManager().entityChanged(ChangeType.ADDED, null, uid, now);
     }
     document.setUniqueId(uid);
     return document;
@@ -273,7 +273,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         throw new DataNotFoundException("Curve definition not found");
       }
     }
-    changeManager().masterChanged(MasterChangedType.REMOVED, uid, null, Instant.now());
+    changeManager().entityChanged(ChangeType.REMOVED, uid, null, Instant.now());
   }
 
   @Override
@@ -302,12 +302,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     Instant now = Instant.now();
     value.put(now, document.getYieldCurveDefinition());
     document.setUniqueId(uid);
-    changeManager().masterChanged(MasterChangedType.UPDATED, uid, uid, now);
+    changeManager().entityChanged(ChangeType.UPDATED, uid, uid, now);
     return document;
   }
 
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

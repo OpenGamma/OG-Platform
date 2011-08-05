@@ -46,7 +46,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
   
   private final UniqueId _viewProcessId;
-  private final ViewDefinition _definition;
+  private final String _viewDefinitionName;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ObjectId _cycleObjectId;
@@ -76,24 +76,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Constructs an instance.
    * 
    * @param viewProcessId  the unique identifier of the view process, not null
-   * @param definition  the view definition, not null
+   * @param viewDefinitionName  the name of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param viewProcessContext  the process context, not null
    * @param cycleManager  the view cycle manager, not null
    * @param cycleObjectId  the object identifier of cycles, not null
    */
-  public ViewProcessImpl(UniqueId viewProcessId, ViewDefinition definition,
-      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext,
-      EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectId cycleObjectId) {
+  public ViewProcessImpl(UniqueId viewProcessId, String viewDefinitionName, ViewExecutionOptions executionOptions,
+      ViewProcessContext viewProcessContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
+      ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
-    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
 
     _viewProcessId = viewProcessId;
-    _definition = definition;
+    _viewDefinitionName = viewDefinitionName;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _cycleManager = cycleManager;
@@ -108,12 +108,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   @Override
   public String getDefinitionName() {
-    return getDefinition().getName();
+    return _viewDefinitionName;
   }
-
+  
   @Override
-  public ViewDefinition getDefinition() {
-    return _definition;
+  public ViewDefinition getLatestViewDefinition() {
+    return getProcessContext().getViewDefinitionRepository().getDefinition(getDefinitionName());
   }
   
   @Override
@@ -257,7 +257,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     ViewComputationResultModel previousResult = _latestResult.get();
     _latestResult.set(result);
     
-    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
     for (ViewResultListener listener : _listeners) {
       try {
         listener.cycleCompleted(result, deltaResult);
@@ -386,7 +386,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     try {
       if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
-          startComputationJob();
+          try {
+            startComputationJob();
+          } catch (Exception e) {
+            // Roll-back
+            _listeners.remove(listener);
+            s_logger.error("Failed to start computation job while adding listener for view process {}", this);
+            throw new OpenGammaRuntimeException("Failed to start computation job while adding listener for view process " + toString(), e);
+          }
         } else {
           // Push initial state to listener
           try {
@@ -458,15 +465,22 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
     
-    ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-    Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
-
-    setComputationJob(computationJob);
-    setComputationThread(computationJobThread);
-    setState(ViewProcessState.RUNNING);
-    computationJobThread.start();
+    try {
+      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
+      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
+  
+      setComputationJob(computationJob);
+      setComputationThread(computationJobThread);
+      setState(ViewProcessState.RUNNING);
+      computationJobThread.start();
+    } catch (Exception e) {
+      // Roll-back
+      terminateComputationJob();
+      s_logger.error("Failed to start computation job for view process " + toString(), e);
+      throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
+    }
     
-    s_logger.info("Started.");
+    s_logger.info("Started computation job for view process {}", this);
   }
 
   /**

@@ -93,8 +93,7 @@ public class WebView {
       }
       
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-        // TODO: support for changing compilation results     
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {     
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
@@ -132,10 +131,7 @@ public class WebView {
   // Initialisation
   
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
-    if (_isInit.getAndSet(true)) {
-      // Already initialised
-      return;
-    }
+    _isInit.set(true);
     
     RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {

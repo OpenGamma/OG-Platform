@@ -20,6 +20,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -28,9 +31,6 @@ import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -56,7 +56,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   /**
    * The change manager.
    */
-  private MasterChangeManager _changeManager = new BasicMasterChangeManager();
+  private ChangeManager _changeManager = new BasicChangeManager();
   /**
    * The maximum number of retries.
    */
@@ -100,7 +100,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * 
    * @return the change manager, not null
    */
-  public MasterChangeManager getChangeManager() {
+  public ChangeManager getChangeManager() {
     return _changeManager;
   }
 
@@ -109,7 +109,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * 
    * @param changeManager  the change manager, not null
    */
-  public void setChangeManager(final MasterChangeManager changeManager) {
+  public void setChangeManager(final ChangeManager changeManager) {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _changeManager = changeManager;
   }
@@ -120,7 +120,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * 
    * @return the change manager, not null if in use
    */
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return getChangeManager();
   }
 
@@ -394,7 +394,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             return doAddInTransaction(document);
           }
         });
-        changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
+        changeManager().entityChanged(ChangeType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
         return result;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
@@ -443,7 +443,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             return doUpdateInTransaction(document);
           }
         });
-        changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+        changeManager().entityChanged(ChangeType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
         return result;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
@@ -495,7 +495,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             return doRemoveInTransaction(uniqueId);
           }
         });
-        changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
+        changeManager().entityChanged(ChangeType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
         return;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
@@ -541,7 +541,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             return doCorrectInTransaction(document);
           }
         });
-        changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+        changeManager().entityChanged(ChangeType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
         return result;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {

@@ -189,9 +189,17 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewClientImpl client = getViewClient(clientId);
     
     _processLock.lock();
+    ViewProcessImpl process = null;
     try {
-      ViewProcessImpl process = getOrCreateViewProcess(viewDefinitionName, executionOptions);
+      process = getOrCreateViewProcess(viewDefinitionName, executionOptions);
       return attachClientToViewProcessCore(client, listener, process, false);
+    } catch (Exception e) {
+      // Roll-back
+      if (process != null) {
+        removeViewProcessIfUnused(process);
+      }
+      s_logger.error("Error attaching client to shared view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to shared view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -211,10 +219,18 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
     
+    ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      ViewProcessImpl process = createViewProcess(viewDefinitionName, executionOptions, true);
+      process = createViewProcess(viewDefinitionName, executionOptions, true);
       return attachClientToViewProcessCore(client, listener, process, true);
+    } catch (Exception e) {
+      // Roll-back
+      if (process != null) {
+        removeViewProcess(process);
+      }
+      s_logger.error("Error attaching client to private view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to private view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -235,6 +251,10 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     try {
       ViewProcessImpl process = getViewProcess(processId);
       return attachClientToViewProcessCore(client, listener, process, false);
+    } catch (Exception e) {
+      // Nothing to roll back
+      s_logger.error("Error attaching client to existing view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to existing view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -248,8 +268,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (existingAttachment != null) {
         throw new IllegalStateException("View client " + client.getUniqueId() + " is already attached to view process " + existingAttachment.getFirst().getUniqueId());
       }
+      ViewPermissionProvider permissionProvider = process.attachListener(listener);
       _clientToProcess.put(client.getUniqueId(), processListenerPair);
-      return process.attachListener(listener);
+      return permissionProvider;
     } finally {
       _processLock.unlock();
     }
@@ -273,12 +294,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewResultListener listener = processAttachment.getSecond();
       process.detachListener(listener);
       
-      if (!process.hasExecutionDemand()) {
-        // REVIEW jonathan 2011-03-25 -- could have rules for keeping processes around for some time in case new clients
-        // come along, to avoid the overhead of reconstructing them. Batch and terminated processes would still want to 
-        // be torn down straight away.
-        removeViewProcess(process);
-      }
+      removeViewProcessIfUnused(process);
     } finally {
       _processLock.unlock();
     }
@@ -302,15 +318,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _processLock.lock();
     try {
-      ViewDefinition definition = getViewDefinitionRepository().getDefinition(viewDefinitionName);
-      if (definition == null) {
-        throw new OpenGammaRuntimeException("No view definition with the name '" + viewDefinitionName + "' exists");
-      }
       String idValue = generateIdValue(_processIdSource);
       UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       ObjectId cycleObjectId = ObjectId.of(CYCLE_SCHEME, idValue);
       ViewProcessContext viewProcessContext = createViewProcessContext();
-      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definition, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
+      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, viewDefinitionName, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
       
       // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
@@ -351,6 +363,15 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
   }
   
+  private void removeViewProcessIfUnused(ViewProcessImpl process) {
+    if (!process.hasExecutionDemand()) {
+      // REVIEW jonathan 2011-03-25 -- could have rules for keeping processes around for some time in case new clients
+      // come along, to avoid the overhead of reconstructing them. Batch and terminated processes would still want to 
+      // be torn down straight away.
+      removeViewProcess(process);
+    }
+  }
+  
   //-------------------------------------------------------------------------
   
   /**
@@ -371,8 +392,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the view definition, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public ViewDefinition getViewDefinition(UniqueId clientId) {
-    return getClientViewProcess(clientId).getDefinition();
+  public ViewDefinition getLatestViewDefinition(UniqueId clientId) {
+    return getClientViewProcess(clientId).getLatestViewDefinition();
   }
   
   /**
@@ -484,6 +505,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
+        _viewDefinitionRepository,
         _viewPermissionProvider,
         _marketDataProviderFactoryResolver,
         _functionCompilationService,

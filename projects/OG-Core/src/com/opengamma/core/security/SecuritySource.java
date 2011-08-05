@@ -7,6 +7,7 @@ package com.opengamma.core.security;
 
 import java.util.Collection;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -18,7 +19,7 @@ import com.opengamma.util.PublicSPI;
  * This may be backed by a full-featured security master, or by a much simpler data structure.
  */
 @PublicSPI
-public interface SecuritySource {
+public interface SecuritySource extends ChangeProvider {
 
   /**
    * Finds a specific security by unique identifier.

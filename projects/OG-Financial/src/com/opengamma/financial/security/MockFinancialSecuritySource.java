@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -98,6 +100,12 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(security, "security");
     IdUtils.setInto(security, _uidSupplier.get());
     _securities.put(security.getUniqueId(), security);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
 }

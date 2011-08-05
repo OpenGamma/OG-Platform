@@ -23,8 +23,8 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.bond.BondFutureSecurityConverter;
-import com.opengamma.financial.analytics.bond.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -87,7 +87,7 @@ public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiled
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof BondFutureSecurity;
+    return target.getSecurity() instanceof com.opengamma.financial.security.future.BondFutureSecurity;
   }
 
 }

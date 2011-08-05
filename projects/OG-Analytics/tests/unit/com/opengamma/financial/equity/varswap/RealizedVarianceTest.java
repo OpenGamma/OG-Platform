@@ -28,20 +28,23 @@ public class RealizedVarianceTest {
   final double varNotional = 3150;
   final double expiry = 5;
   final int nObsExpected = 750;
+  final int noMktDisruptions = 0;
   final double annualizationFactor = 252;
 
-  final VarianceSwap swapNull = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, nObsExpected, null, null);
-  Double[] oneObs = {100.0 };
-  final VarianceSwap swapOneObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, nObsExpected, oneObs, null);
+  double[] noObs = {};
+  double[] defaultWeights = {};
+  final VarianceSwap swapNull = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, nObsExpected, noMktDisruptions, noObs, defaultWeights);
+  double[] oneObs = {100.0 };
+  final VarianceSwap swapOneObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, nObsExpected, noMktDisruptions, oneObs, defaultWeights);
 
-  Double[] twoObs = {100.0, 150.0 };
-  final VarianceSwap swapTwoObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 1, twoObs, null);
+  double[] twoObs = {100.0, 150.0 };
+  final VarianceSwap swapTwoObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 1, noMktDisruptions, twoObs, defaultWeights);
 
-  Double[] threeObs = {100.0, 150.0, 100.0 };
-  final VarianceSwap swapThreeObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, threeObs, null);
+  double[] threeObs = {100.0, 150.0, 100.0 };
+  final VarianceSwap swapThreeObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, threeObs, defaultWeights);
 
-  Double[] ObsWithZero = {100.0, 150.0, 0.0 };
-  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, ObsWithZero, null);
+  double[] ObsWithZero = {100.0, 150.0, 0.0 };
+  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, ObsWithZero, defaultWeights);
 
   // -------------------------------- TESTS ------------------------------------------
 
@@ -66,7 +69,6 @@ public class RealizedVarianceTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  // TODO How come I don't see the string in Validate.isTrue when I run this?
   public void testZeroInTimeSeries() {
     realVariance.evaluate(swapWithZeroObs);
   }

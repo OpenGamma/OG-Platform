@@ -16,6 +16,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -39,6 +41,10 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
    * The base URI of the RESTful server.
    */
   private final RestTarget _targetBase;
+  /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -47,10 +53,23 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
    * @param baseTarget  the base target URI to call, not null
    */
   public RemoteFinancialSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+    this(fudgeContext, baseTarget, new BasicChangeManager());
+  }
+  
+  /**
+   * Creates an instance.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param baseTarget  the base target URI to call, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemoteFinancialSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget, ChangeManager changeManager) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(baseTarget, "baseTarget");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -115,6 +134,12 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
       }
     }
     return securities;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }
