@@ -56,10 +56,10 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.  It is designed to run against the HSQLDB example
  * database.  It should be possible to run this class with no extra parameters.
  */
-public class SelfContainedEquityPortfolioAndSecurityLoader {
+public class DemoEquityPortfolioAndSecurityLoader {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(SelfContainedEquityPortfolioAndSecurityLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DemoEquityPortfolioAndSecurityLoader.class);
 
   private static final Map<String, String> SECTORS = new HashMap<String, String>();
   static {
@@ -78,7 +78,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Self Contained Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Demo Equity Portfolio";
 
   /**
    * The context.
@@ -192,7 +192,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
 
   private Collection<EquitySecurity> loadEquitySecurities() {
     Collection<EquitySecurity> equities = new ArrayList<EquitySecurity>();
-    InputStream inputStream = SelfContainedEquityPortfolioAndSecurityLoader.class.getResourceAsStream("demo-equity.csv");  
+    InputStream inputStream = DemoEquityPortfolioAndSecurityLoader.class.getResourceAsStream("demo-equity.csv");  
     try {
       if (inputStream != null) {
         CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
@@ -321,7 +321,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "selfContainedEquityPortfolioAndSecurityLoader".
+   * under the name "demoEquityPortfolioAndSecurityLoader".
    * 
    * @param args  the arguments, unused
    */
@@ -340,7 +340,7 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
       appContext.start();
       
       try {
-        SelfContainedEquityPortfolioAndSecurityLoader loader = (SelfContainedEquityPortfolioAndSecurityLoader) appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader");
+        DemoEquityPortfolioAndSecurityLoader loader = (DemoEquityPortfolioAndSecurityLoader) appContext.getBean("demoEquityPortfolioAndSecurityLoader");
         System.out.println("Loading data");
         loader.createExamplePortfolio();
       } finally {

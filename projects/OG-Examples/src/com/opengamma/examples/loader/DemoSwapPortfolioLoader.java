@@ -74,16 +74,16 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.  It is designed to run against the HSQLDB example
  * database.  It should be possible to run this class with no extra parameters.
  */
-public class SelfContainedSwapPortfolioLoader {
+public class DemoSwapPortfolioLoader {
   /**
    * Logger.
    */
-  private static Logger s_logger = LoggerFactory.getLogger(SelfContainedSwapPortfolioLoader.class);
+  private static Logger s_logger = LoggerFactory.getLogger(DemoSwapPortfolioLoader.class);
   
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Self Contained Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Demo Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -163,7 +163,7 @@ public class SelfContainedSwapPortfolioLoader {
    * Loads the test portfolio into the position master.
    */
   public void createExamplePortfolio() {
-    InputStream inputStream = SelfContainedSwapPortfolioLoader.class.getResourceAsStream("demo-swap-portfolio.csv");  
+    InputStream inputStream = DemoSwapPortfolioLoader.class.getResourceAsStream("demo-swap-portfolio.csv");  
     if (inputStream != null) {
       Collection<SwapSecurity> swaps = parseSwaps(inputStream);
       if (swaps.size() == 0) {
@@ -307,7 +307,7 @@ public class SelfContainedSwapPortfolioLoader {
    * <p>
    * This loader requires a Spring configuration file that defines the security,
    * position and portfolio masters, together with an instance of this bean
-   * under the name "selfContainedSwapPortfolioLoader".
+   * under the name "demoSwapPortfolioLoader".
    * 
    * @param args  the arguments, unused
    */
@@ -326,7 +326,7 @@ public class SelfContainedSwapPortfolioLoader {
       appContext.start();
       
       try {
-        SelfContainedSwapPortfolioLoader loader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
+        DemoSwapPortfolioLoader loader = appContext.getBean("demoSwapPortfolioLoader", DemoSwapPortfolioLoader.class);
         System.out.println("Loading data");
         loader.createExamplePortfolio();
       } finally {

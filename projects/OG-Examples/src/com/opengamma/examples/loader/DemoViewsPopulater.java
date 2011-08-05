@@ -87,8 +87,8 @@ public class DemoViewsPopulater {
   }
   
   public void persistViewDefinitions() {
-    saveViewDefinition(makeEquityViewDefinition(SelfContainedEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
-    saveViewDefinition(makeSwapViewDefinition(SelfContainedSwapPortfolioLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeEquityViewDefinition(DemoEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeSwapViewDefinition(DemoSwapPortfolioLoader.PORTFOLIO_NAME));
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
