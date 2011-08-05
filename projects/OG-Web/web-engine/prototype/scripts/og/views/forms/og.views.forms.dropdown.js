@@ -39,7 +39,7 @@ $.register_module({
                         if (name) $select.attr('name', name);
                         if (classes) $select.attr('class', classes);
                         $select.attr('id', id);
-                        if (placeholder) $select.append($('<option/>').text(placeholder));;
+                        if (placeholder) $select.append($('<option value="" />').text(placeholder));;
                         if (!data_generator) return og.api.rest[resource].get(options);
                         data_generator(function (data) {
                             data.forEach(function (datum) {
