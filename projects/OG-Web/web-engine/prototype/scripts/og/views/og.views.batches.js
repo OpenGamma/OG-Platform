@@ -25,7 +25,6 @@ $.register_module({
             routes = common.routes,
             search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
@@ -71,14 +70,16 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
                         name: 'Batches',
                         recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
+                    layout.inner.resizeAll();
                 }});
             },
             details_page = function (args){
@@ -92,14 +93,16 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var $html = $.tmpl(template, json.template_data);
+                            var layout = og.views.common.layout,
+                                $html = $.tmpl(template, json.template_data);
                             $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                             $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                            layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.results('.OG-batch .og-js-results', json.data.batch_results);
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,

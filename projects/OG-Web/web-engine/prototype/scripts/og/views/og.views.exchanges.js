@@ -25,7 +25,6 @@ $.register_module({
             routes = common.routes,
             search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),

@@ -191,14 +191,16 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
                         name: 'Positions',
                         recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
+                    layout.inner.resizeAll();
                 }});
             };
         module.rules = {
