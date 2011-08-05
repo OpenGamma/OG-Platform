@@ -189,7 +189,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "100"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(100.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "S100")));
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -212,7 +212,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "120"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(120.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "T130")));
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -244,7 +244,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "121"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(2, secKey.size());
     assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "MSFT")));
     assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("NASDAQ", "Micro")));
@@ -276,7 +276,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "122"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(ExternalId.of("TICKER", "ORCL"), secKey.getExternalIds().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -296,7 +296,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "123"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(123.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(2, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("NASDAQ", "ORCL135")));
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("TICKER", "ORCL134")));
@@ -337,7 +337,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "221"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(ExternalId.of("TICKER", "IBMC"), secKey.getExternalIds().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
@@ -364,7 +364,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(ExternalId.of("A", "222"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
-    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(ExternalId.of("TICKER", "IBMC"), secKey.getExternalIds().iterator().next());
     assertEquals(ObjectId.of("DbSec", "1234"), position.getSecurityLink().getObjectId());

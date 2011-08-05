@@ -73,8 +73,8 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     if (position.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, position.getQuantity());
     }
-    if (position.getSecurityLink().getBundleId().size() > 0) {
-      context.addToMessage(message, FIELD_SECURITYKEY, null, position.getSecurityLink().getBundleId());
+    if (position.getSecurityLink().getExternalId().size() > 0) {
+      context.addToMessage(message, FIELD_SECURITYKEY, null, position.getSecurityLink().getExternalId());
     }
     if (position.getSecurityLink().getObjectId() != null) {
       context.addToMessage(message, FIELD_SECURITYID, null, position.getSecurityLink().getObjectId());
@@ -119,7 +119,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        position.getSecurityLink().setBundleId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
+        position.getSecurityLink().setExternalId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
       }
     }
     if (message.hasField(FIELD_SECURITYID)) {

@@ -66,7 +66,7 @@ public class WebSecuritiesUris {
     if (link.getObjectId() != null) {
       return WebSecurityResource.uri(_data, link.getObjectId().atLatestVersion());
     }
-    return WebSecuritiesResource.uri(_data, link.getBundleId());
+    return WebSecuritiesResource.uri(_data, link.getExternalId());
   }
 
   /**

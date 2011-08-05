@@ -63,7 +63,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * An empty bundle is used if not referencing a target by external bundle.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalIdBundle _bundleId = ExternalIdBundle.EMPTY;
+  private ExternalIdBundle _externalId = ExternalIdBundle.EMPTY;
   /**
    * The resolved target.
    */
@@ -104,7 +104,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    */
   public Link(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    setBundleId(bundle);
+    setExternalId(bundle);
   }
 
   /**
@@ -149,7 +149,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     UniqueId uniqueId = target.getUniqueId();
     if (uniqueId != null) {
       setObjectId(uniqueId.getObjectId());
-      setBundleId(ExternalIdBundle.EMPTY);
+      setExternalId(ExternalIdBundle.EMPTY);
     }
   }
 
@@ -178,7 +178,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   public Object getBest() {
     T target = getTarget();
     ObjectId objectId = getObjectId();
-    ExternalIdBundle bundle = getBundleId();
+    ExternalIdBundle bundle = getExternalId();
     return Objects.firstNonNull(target, Objects.firstNonNull(objectId, bundle));
   }
 
@@ -190,7 +190,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    */
   public void addExternalId(final ExternalId externalId) {
     ArgumentChecker.notNull(externalId, "externalId");
-    setBundleId(getBundleId().withExternalId(externalId));
+    setExternalId(getExternalId().withExternalId(externalId));
   }
 
   /**
@@ -200,7 +200,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    */
   public void addExternalIds(final Iterable<ExternalId> externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
-    setBundleId(getBundleId().withExternalIds(externalIds));
+    setExternalId(getExternalId().withExternalIds(externalIds));
   }
 
   //-------------------------------------------------------------------------
@@ -211,7 +211,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    */
   @Override
   public Iterator<ExternalId> iterator() {
-    return getBundleId().iterator();
+    return getExternalId().iterator();
   }
 
   /**
@@ -221,7 +221,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * @return all the identifiers, not null
    */
   public Set<ExternalId> getExternalIds() {
-    return getBundleId().getExternalIds();
+    return getExternalId().getExternalIds();
   }
 
   /**
@@ -231,7 +231,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * @return all the identifiers, not null
    */
   public Set<ExternalId> getAllExternalIds() {
-    Set<ExternalId> identifiers = getBundleId().getExternalIds();
+    Set<ExternalId> identifiers = getExternalId().getExternalIds();
     ObjectId objectId = getObjectId();
     if (objectId != null) {
       Set<ExternalId> set = new HashSet<ExternalId>(identifiers);
@@ -268,7 +268,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       case 90495162:  // objectId
         return getObjectId();
       case -1294655171:  // bundleId
-        return getBundleId();
+        return getExternalId();
       case -880905839:  // target
         return getTarget();
     }
@@ -283,7 +283,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
         setObjectId((ObjectId) newValue);
         return;
       case -1294655171:  // bundleId
-        setBundleId((ExternalIdBundle) newValue);
+        setExternalId((ExternalIdBundle) newValue);
         return;
       case -880905839:  // target
         setTarget((T) newValue);
@@ -294,7 +294,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_bundleId, "bundleId");
+    JodaBeanUtils.notNull(_externalId, "bundleId");
     super.validate();
   }
 
@@ -306,7 +306,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       Link<?> other = (Link<?>) obj;
       return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getBundleId(), other.getBundleId()) &&
+          JodaBeanUtils.equal(getExternalId(), other.getExternalId()) &&
           JodaBeanUtils.equal(getTarget(), other.getTarget());
     }
     return false;
@@ -316,7 +316,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
     return hash;
   }
@@ -352,8 +352,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * An empty bundle is used if not referencing a target by external bundle.
    * @return the value of the property, not null
    */
-  public ExternalIdBundle getBundleId() {
-    return _bundleId;
+  public ExternalIdBundle getExternalId() {
+    return _externalId;
   }
 
   /**
@@ -361,9 +361,9 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * An empty bundle is used if not referencing a target by external bundle.
    * @param bundleId  the new value of the property, not null
    */
-  public void setBundleId(ExternalIdBundle bundleId) {
+  public void setExternalId(ExternalIdBundle bundleId) {
     JodaBeanUtils.notNull(bundleId, "bundleId");
-    this._bundleId = bundleId;
+    this._externalId = bundleId;
   }
 
   /**

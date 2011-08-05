@@ -89,7 +89,7 @@ public final class SecurityLinkResolver {
     for (SecurityLink link : securityLinks) {
       Security security = link.getTarget();
       if (security == null) {
-        if (link.getObjectId() != null || link.getBundleId().size() > 0) {
+        if (link.getObjectId() != null || link.getExternalId().size() > 0) {
           SecurityResolutionJob task = new SecurityResolutionJob(link, _securitySource);
           submitted.add(completionService.submit(task));
         } else {

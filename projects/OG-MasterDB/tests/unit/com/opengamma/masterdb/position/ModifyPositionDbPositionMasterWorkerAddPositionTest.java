@@ -81,7 +81,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    ExternalIdBundle secKey = testPosition.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
   }
@@ -114,7 +114,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    ExternalIdBundle secKey = testPosition.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
     
@@ -126,7 +126,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(tradeDate, testTrade.getTradeDate());
     assertEquals(tradeTime, testTrade.getTradeTime());
     assertEquals(ExternalId.of("CPS", "CPV"), testTrade.getCounterpartyExternalId());
-    assertEquals(secKey, testTrade.getSecurityLink().getBundleId());
+    assertEquals(secKey, testTrade.getSecurityLink().getExternalId());
   }
 
   @Test
@@ -162,7 +162,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(testPosition);
     assertEquals(uniqueId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    ExternalIdBundle secKey = testPosition.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
     
@@ -174,7 +174,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(tradeDate, testTrade.getTradeDate());
     assertEquals(tradeTime, testTrade.getTradeTime());
     assertEquals(ExternalId.of("CPS", "CPV"), testTrade.getCounterpartyExternalId());
-    assertEquals(secKey, testTrade.getSecurityLink().getBundleId());
+    assertEquals(secKey, testTrade.getSecurityLink().getExternalId());
     assertEquals(1000000.00, testTrade.getPremium());
     assertEquals(Currency.USD, testTrade.getPremiumCurrency());
     assertEquals(tradeDate.plusDays(1), testTrade.getPremiumDate());
@@ -233,7 +233,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(testPosition);
     assertEquals(portfolioId, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
-    ExternalIdBundle secKey = testPosition.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
     

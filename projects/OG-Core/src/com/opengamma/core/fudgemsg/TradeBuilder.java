@@ -94,8 +94,8 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
     }
-    if (trade.getSecurityLink().getBundleId().size() > 0) {
-      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityLink().getBundleId());
+    if (trade.getSecurityLink().getExternalId().size() > 0) {
+      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityLink().getExternalId());
     }
     if (trade.getSecurityLink().getObjectId() != null) {
       context.addToMessage(message, FIELD_SECURITYID, null, trade.getSecurityLink().getObjectId());
@@ -161,7 +161,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        trade.getSecurityLink().setBundleId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
+        trade.getSecurityLink().setExternalId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
       }
     }
     if (message.hasField(FIELD_SECURITYID)) {

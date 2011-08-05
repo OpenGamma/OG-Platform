@@ -39,8 +39,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, ExternalId.of("A", "B"));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getBundleId().size());
-    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getExternalId().size());
+    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getExternalId().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -59,8 +59,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, ExternalIdBundle.of(ExternalId.of("A", "B")));
     assertEquals(null, test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getBundleId().size());
-    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getExternalId().size());
+    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getExternalId().iterator().next());
     assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -79,8 +79,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueId.of("B", "C"), BigDecimal.ONE, ExternalId.of("A", "B"));
     assertEquals(UniqueId.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getBundleId().size());
-    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getExternalId().size());
+    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getExternalId().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -104,8 +104,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueId.of("B", "C"), BigDecimal.ONE, ExternalIdBundle.of(ExternalId.of("A", "B")));
     assertEquals(UniqueId.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getBundleId().size());
-    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getExternalId().size());
+    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getExternalId().iterator().next());
     assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
@@ -131,8 +131,8 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueId.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueId.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
-    assertEquals(1, test.getSecurityLink().getBundleId().size());
-    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getBundleId().iterator().next());
+    assertEquals(1, test.getSecurityLink().getExternalId().size());
+    assertEquals(ExternalId.of("A", "B"), test.getSecurityLink().getExternalId().iterator().next());
     assertEquals(true, test.toString().startsWith("Position[B~C, 1"));
   }
 

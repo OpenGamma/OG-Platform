@@ -56,7 +56,7 @@ public class SecurityLink extends Link<Security> {
     SecurityLink link = new SecurityLink();
     link.setAndLockTarget(security);
     if (link.getObjectId() == null) {
-      link.setBundleId(security.getIdentifiers());
+      link.setExternalId(security.getIdentifiers());
     }
     return link;
   }
@@ -128,7 +128,7 @@ public class SecurityLink extends Link<Security> {
   public String getBestName() {
     Security security = getTarget();
     ObjectId objectId = getObjectId();
-    ExternalIdBundle bundle = getBundleId();
+    ExternalIdBundle bundle = getExternalId();
     if (security != null) {
       bundle = security.getIdentifiers();
     }
@@ -171,7 +171,7 @@ public class SecurityLink extends Link<Security> {
         return target;
       }
     }
-    ExternalIdBundle bundle = getBundleId();
+    ExternalIdBundle bundle = getExternalId();
     if (bundle.size() > 0) {
       target = source.getSecurity(bundle);
       if (target != null) {

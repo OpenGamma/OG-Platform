@@ -16,10 +16,12 @@
 
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
-<#list exchange.regionKey.identifiers as item>
+<#if exchange.regionIdBundle?has_content>
+<#list exchange.regionIdBundle.externalIds as item>
     <@rowout label="Region id">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
-<#list exchange.identifiers.identifiers as item>
+</#if>
+<#list exchange.externalIdBundle.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
 </@subsection>
