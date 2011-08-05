@@ -29,20 +29,36 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
    * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
    */
   public PackedMatrix(double[][] aMatrix) {
+    this(aMatrix, false, aMatrix.length, aMatrix[0].length);
+  }
+
+  /**
+   * Constructs from an array of arrays representation.
+   * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
+   * @param allowZeros is set to allow the packing of zeros in the packed data structure.
+   */
+  public PackedMatrix(double[][] aMatrix, boolean allowZeros) {
+    this(aMatrix, allowZeros, aMatrix.length, aMatrix[0].length);
+  }
+
+  /**
+   * Constructs from array of arrays *but* allows zeros to be packed into the data structure. This is particularly useful for banded matrices in which
+   * allowing some zero padding is beneficial in terms of making access patterns more simple.
+   * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays.
+   * @param allowZeros is set to allow the packing of zeros in the packed data structure.
+   * @param rows is the number of rows in the matrix that is to be represented
+   * @param cols is the number of columns in the matrix that is to be represented
+   */
+  public PackedMatrix(double[][] aMatrix, boolean allowZeros, int rows, int cols) {
     // test if ragged
     if (MatrixPrimitiveUtils.isRagged(aMatrix)) {
       throw new NotImplementedException("Construction from ragged array not implemented");
     }
 
-    _rows = aMatrix.length;
-    // test if square
-    if (MatrixPrimitiveUtils.isSquare(aMatrix)) {
-      _cols = _rows;
-    } else {
-      _cols = aMatrix[0].length;
-    }
-
+    _rows = rows;
+    _cols = cols;
     _els = _rows * _cols;
+
 
     double[] tmp = new double[_els];
     _rowPtr = new int[_rows];
@@ -53,17 +69,40 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     int count = 0;
     _colCount[0] = 0;
 
-    // make flat!
-    for (int i = 0; i < _rows; i++) {
-      isSet = false; // init each starting point as not being set and look for it.
-      // test to ensure data is contiguous
-      if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
-        throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+    if (!allowZeros) {
+      // make flat!
+      for (int i = 0; i < _rows; i++) {
+        isSet = false; // init each starting point as not being set and look for it.
+        // test to ensure data is contiguous
+        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
+          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+        }
+        // flatten
+        for (int j = 0; j < _cols; j++) { //for each col
+          val = aMatrix[i][j]; // get the value
+
+          if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+            tmp[count] = val; // assign to tmp
+            count++;
+            if (!isSet) { // if we haven't already set the starting point in the row
+              _rowPtr[i] = j; // assign this element as the starting point
+              isSet = true; // and ensure we don't come back here for this row
+            }
+          }
+        }
+        _colCount[i + 1] += count;
       }
-      // flatten
-      for (int j = 0; j < _cols; j++) { //for each col
-        val = aMatrix[i][j]; // get the value
-        if (Double.doubleToLongBits(val) != 0L) { // test if not zero
+    } else { /** ALLOWING ZEROS TO BE PACKED INTO THE ARRAY, BEHAVIOUR IS SLIGHTLY DIFFERENT! */
+      // make flat!
+      for (int i = 0; i <  aMatrix.length; i++) {
+        isSet = false; // init each starting point as not being set and look for it.
+        // test to ensure data is contiguous
+        if (!MatrixPrimitiveUtils.arrayHasContiguousRowEntries(aMatrix[i])) {
+          throw new IllegalArgumentException("Matrix given does not contain contiguous nonzero entries, error was thrown due to bad data on row " + i);
+        }
+        // flatten
+        for (int j = 0; j < aMatrix[i].length; j++) { // for each col
+          val = aMatrix[i][j]; // get the value
           tmp[count] = val; // assign to tmp
           count++;
           if (!isSet) { // if we haven't already set the starting point in the row
@@ -71,11 +110,12 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
             isSet = true; // and ensure we don't come back here for this row
           }
         }
+        _colCount[i + 1] += count;
       }
-      _colCount[i + 1] += count;
     }
     _data = Arrays.copyOfRange(tmp, 0, count);
   }
+
 
   @Override
   public int getNumberOfElements() {
@@ -120,7 +160,11 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
 
   @Override
   public double[] getFullColumn(int index) {
-    return null;
+    double[] tmp = new double[_rows];
+    for (int i = 0; i < _rows; i++) {
+      tmp[i] = getEntry(i, index);
+    }
+    return tmp;
   }
 
   @Override
@@ -140,7 +184,7 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
 
   @Override
   public int getNumberOfNonZeroElements() {
-    return 0;
+    return _data.length;
   }
 
   @Override
