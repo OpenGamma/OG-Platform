@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
@@ -71,8 +73,17 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     
+    viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
+
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        sendInitData(false);
+      }
+      
+    });
+    
     s_logger.info("Subscribing to services");
-    subscribe("/service/initData", "processInitDataRequest");
+    subscribe("/service/getInitData", "processInitDataRequest");
     subscribe("/service/changeView", "processChangeViewRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
@@ -189,15 +200,21 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   public void processInitDataRequest(Client remote, Message message) {
     s_logger.info("processInitDataRequest");
+    sendInitData(true);
+  }
+  
+  private void sendInitData(boolean includeSnapshots) {
     Map<String, Object> reply = new HashMap<String, Object>();
     
     List<String> availableViewNames = getViewNames();
     reply.put("viewNames", availableViewNames);
     
-    Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
-    reply.put("snapshots", snapshotDetails);
+    if (includeSnapshots) {
+      Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
+      reply.put("snapshots", snapshotDetails);
+    }
     
-    remote.deliver(getClient(), "/initData", reply, null);
+    getBayeux().getChannel("/initData", true).publish(getClient(), reply, null);
   }
 
   private List<String> getViewNames() {
