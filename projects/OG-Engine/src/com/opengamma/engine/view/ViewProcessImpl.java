@@ -386,7 +386,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     try {
       if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
-          startComputationJob();
+          try {
+            startComputationJob();
+          } catch (Exception e) {
+            // Roll-back
+            _listeners.remove(listener);
+            s_logger.error("Failed to start computation job while adding listener for view process {}", this);
+            throw new OpenGammaRuntimeException("Failed to start computation job while adding listener for view process " + toString(), e);
+          }
         } else {
           // Push initial state to listener
           try {
@@ -458,15 +465,22 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
     
-    ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-    Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
-
-    setComputationJob(computationJob);
-    setComputationThread(computationJobThread);
-    setState(ViewProcessState.RUNNING);
-    computationJobThread.start();
+    try {
+      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
+      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
+  
+      setComputationJob(computationJob);
+      setComputationThread(computationJobThread);
+      setState(ViewProcessState.RUNNING);
+      computationJobThread.start();
+    } catch (Exception e) {
+      // Roll-back
+      terminateComputationJob();
+      s_logger.error("Failed to start computation job for view process " + toString(), e);
+      throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
+    }
     
-    s_logger.info("Started.");
+    s_logger.info("Started computation job for view process {}", this);
   }
 
   /**
