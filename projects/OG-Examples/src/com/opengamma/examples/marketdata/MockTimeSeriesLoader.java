@@ -11,8 +11,8 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
 /**
@@ -28,13 +28,13 @@ public class MockTimeSeriesLoader implements HistoricalTimeSeriesLoader {
       "\nPlease contact sales@opengamma.com.";
 
   @Override
-  public Map<Identifier, UniqueIdentifier> addTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+  public Map<ExternalId, UniqueId> addTimeSeries(Set<ExternalId> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
   }
 
   @Override
-  public boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier) {
+  public boolean updateTimeSeries(UniqueId uniqueIdentifier) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
   }

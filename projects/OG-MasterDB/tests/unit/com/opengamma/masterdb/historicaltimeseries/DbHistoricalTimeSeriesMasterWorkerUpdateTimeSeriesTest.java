@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -42,17 +42,17 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_nullOID() {
-    _htsMaster.updateTimeSeriesDataPoints((ObjectIdentifier) null, new ArrayLocalDateDoubleTimeSeries());
+    _htsMaster.updateTimeSeriesDataPoints((ObjectId) null, new ArrayLocalDateDoubleTimeSeries());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_nullSeries() {
-    _htsMaster.updateTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), null);
+    _htsMaster.updateTimeSeriesDataPoints(ObjectId.of("DbHts", "DP101"), null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_versioned_notFoundId() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP0");
+    ObjectId oid = ObjectId.of("DbHts", "DP0");
     _htsMaster.updateTimeSeriesDataPoints(oid, new ArrayLocalDateDoubleTimeSeries());
   }
 
@@ -63,7 +63,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     double[] values = {0.9d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    _htsMaster.updateTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), series);
+    _htsMaster.updateTimeSeriesDataPoints(ObjectId.of("DbHts", "DP101"), series);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -72,7 +72,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     double[] values = {0.9d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    _htsMaster.updateTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), series);
+    _htsMaster.updateTimeSeriesDataPoints(ObjectId.of("DbHts", "DP101"), series);
   }
 
   //-------------------------------------------------------------------------
@@ -82,11 +82,11 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     double[] values = {1.1d, 2.2d, 3.3d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP102");
-    UniqueIdentifier uid = _htsMaster.updateTimeSeriesDataPoints(oid, series);
+    ObjectId oid = ObjectId.of("DbHts", "DP102");
+    UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, test.getUniqueId());
+    ManageableHistoricalTimeSeries test = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(series, test.getTimeSeries());
   }
 
@@ -96,15 +96,15 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTimeSeriesTest extends Abst
     double[] values = {1.1d, 2.2d, 3.3d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.updateTimeSeriesDataPoints(oid, series);
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.updateTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testAdded = _htsMaster.getTimeSeries(uid, LocalDate.of(2011, 7, 1), null);
-    assertEquals(uid, testAdded.getUniqueId());
+    ManageableHistoricalTimeSeries testAdded = _htsMaster.getTimeSeries(uniqueId, LocalDate.of(2011, 7, 1), null);
+    assertEquals(uniqueId, testAdded.getUniqueId());
     assertEquals(series, testAdded.getTimeSeries());
     
-    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testAll.getUniqueId());
+    ManageableHistoricalTimeSeries testAll = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testAll.getUniqueId());
     assertEquals(6, testAll.getTimeSeries().size());
   }
 

@@ -28,7 +28,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
@@ -81,7 +81,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
         new ValueRequirement("value", 
             new ComputationTargetSpecification(
                 ComputationTargetType.PRIMITIVE, 
-                UniqueIdentifier.of("scheme", valueName))),
+                UniqueId.of("scheme", valueName))),
         "mockFunctionId");
     return valueSpec;
   }
@@ -255,7 +255,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
         ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement(requirementName, 
             new ComputationTargetSpecification(
                 ComputationTargetType.PRIMITIVE, 
-                UniqueIdentifier.of("scheme", identifierName))),
+                UniqueId.of("scheme", identifierName))),
             "mockFunctionId");
 
         // Just throw away the actual identifier. We don't care.
@@ -278,7 +278,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
         valueSpecs.add (new ValueSpecification(new ValueRequirement(requirementName, 
             new ComputationTargetSpecification(
                 ComputationTargetType.PRIMITIVE, 
-                UniqueIdentifier.of("scheme", identifierName))),
+                UniqueId.of("scheme", identifierName))),
             "mockFunctionId"));
       }
       idSource.getIdentifiers(valueSpecs);

@@ -19,7 +19,7 @@ import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tests the portfolio filtering classes.
@@ -56,7 +56,7 @@ public class FilteringTest {
     root.setName("Sample");
     root.addChildNode(samplePortfolioNode(num, 2));
     root.addChildNode(samplePortfolioNode(num, 2));
-    return new PortfolioImpl(UniqueIdentifier.of("Test", "Sample"), "Sample", root);
+    return new PortfolioImpl(UniqueId.of("Test", "Sample"), "Sample", root);
   }
 
   private static void assertShape(final PortfolioNode portfolioNode, final Object[] tree) {

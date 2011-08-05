@@ -22,10 +22,10 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
@@ -36,15 +36,15 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeAndPositionBuilderTest.class);
 
-  private UniqueIdentifierSupplier _uidSupplier;
+  private UniqueIdSupplier _uniqueIdSupplier;
 
   @BeforeMethod
   public void init() {
-    _uidSupplier = new UniqueIdentifierSupplier("PortfolioNodeBuilderTest");
+    _uniqueIdSupplier = new UniqueIdSupplier("PortfolioNodeBuilderTest");
   }
 
-  private UniqueIdentifier nextIdentifier() {
-    return _uidSupplier.get();
+  private UniqueId nextUniqueId() {
+    return _uniqueIdSupplier.get();
   }
 
   private void linkNodes(final PortfolioNodeImpl parent, final PortfolioNodeImpl child) {
@@ -55,7 +55,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   private PortfolioNodeImpl[] createPortfolioNodes() {
     final PortfolioNodeImpl nodes[] = new PortfolioNodeImpl[7];
     for (int i = 0; i < nodes.length; i++) {
-      nodes[i] = new PortfolioNodeImpl(nextIdentifier(), "node " + i);
+      nodes[i] = new PortfolioNodeImpl(nextUniqueId(), "node " + i);
     }
     linkNodes(nodes[0], nodes[1]);
     linkNodes(nodes[0], nodes[2]);
@@ -68,7 +68,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
 
   private void addPositions(final PortfolioNodeImpl node, final int num) {
     for (int i = 0; i < num; i++) {
-      node.addPosition(new PositionImpl(nextIdentifier(), new BigDecimal(10), Identifier.of("Security", "Foo")));
+      node.addPosition(new PositionImpl(nextUniqueId(), new BigDecimal(10), ExternalId.of("Security", "Foo")));
     }
   }
 
@@ -127,14 +127,14 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     return message;
   }
 
-  private int countParentIdentifiers(final FudgeMsg message) {
+  private int countParents(final FudgeMsg message) {
     int count = 0;
     for (FudgeField field : message) {
       if (PortfolioNodeBuilder.FIELD_PARENT.equals(field.getName()) || PositionBuilder.FIELD_PARENT.equals(field.getName())) {
         s_logger.debug("Found parent ref {}", field.getValue());
         count++;
       } else if (field.getValue() instanceof FudgeMsg) {
-        count += countParentIdentifiers((FudgeMsg) field.getValue());
+        count += countParents((FudgeMsg) field.getValue());
       }
     }
     return count;
@@ -142,19 +142,19 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
 
   public void testPortfolio() {
     final FudgeMsg message = runPortfolioNodeTest(createPortfolioNodes()[0]);
-    assertEquals(0, countParentIdentifiers(message));
+    assertEquals(0, countParents(message));
   }
 
   public void testPortfolioWithPositions() {
     final FudgeMsg message = runPortfolioNodeTest(createPortfolioWithPositions());
-    assertEquals(0, countParentIdentifiers(message));
+    assertEquals(0, countParents(message));
   }
 
   public void testPortfolioWithParent() {
     final PortfolioNodeImpl root = createPortfolioNodes()[0];
-    root.setParentNodeId(nextIdentifier());
+    root.setParentNodeId(nextUniqueId());
     final FudgeMsg message = runPortfolioNodeTest(root);
-    assertEquals(1, countParentIdentifiers(message));
+    assertEquals(1, countParents(message));
   }
 
   private FudgeMsg runPositionTest(final Position original) {
@@ -166,16 +166,16 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   }
 
   public void testPosition() {
-    final FudgeMsg message = runPositionTest(new PositionImpl(nextIdentifier(), new BigDecimal(100), IdentifierBundle.of(Identifier.of("Scheme 1", "Id 1"), Identifier
+    final FudgeMsg message = runPositionTest(new PositionImpl(nextUniqueId(), new BigDecimal(100), ExternalIdBundle.of(ExternalId.of("Scheme 1", "Id 1"), ExternalId
         .of("Scheme 2", "Id 2"))));
-    assertEquals(0, countParentIdentifiers(message));
+    assertEquals(0, countParents(message));
   }
 
   public void testPositionWithPortfolioNode() {
-    final PositionImpl position = new PositionImpl(nextIdentifier(), new BigDecimal(100), Identifier.of("Security", "Bar"));
-    position.setParentNodeId(nextIdentifier());
+    final PositionImpl position = new PositionImpl(nextUniqueId(), new BigDecimal(100), ExternalId.of("Security", "Bar"));
+    position.setParentNodeId(nextUniqueId());
     final FudgeMsg message = runPositionTest(position);
-    assertEquals(1, countParentIdentifiers(message));
+    assertEquals(1, countParents(message));
   }
 
 }

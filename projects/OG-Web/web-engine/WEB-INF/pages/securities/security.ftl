@@ -209,7 +209,7 @@
         <#break>
     </#switch>
 <@space />
-<#list security.identifiers.identifiers as item>
+<#list security.identifiers.externalIds as item>
     <@rowout label="Identifier">${item.scheme.name?replace("_", " ")} - ${item.value}</@rowout>
 </#list>
 </@subsection>

@@ -24,8 +24,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -109,12 +109,12 @@ public class RemoteSecurityMaster implements SecurityMaster {
       return null;
     }
     s_logger.debug("add-recv {}", env.getMessage());
-    final UniqueIdentifier uid = getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage());
+    final UniqueId uid = getFudgeDeserializationContext().fudgeMsgToObject(UniqueId.class, env.getMessage());
     if (uid == null) {
       return null;
     }
     document.setUniqueId(uid);
-    UniqueIdentifiables.setInto(document.getSecurity(), uid);
+    IdUtils.setInto(document.getSecurity(), uid);
     return document;
   }
 
@@ -133,7 +133,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public SecurityDocument get(UniqueIdentifier uid) {
+  public SecurityDocument get(UniqueId uid) {
     final RestTarget target = _targetSecurity.resolve(uid.toString());
     s_logger.debug("get-get to {}", target);
     final FudgeMsg message = getRestClient().getMsg(target);
@@ -165,7 +165,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uid) {
+  public void remove(UniqueId uid) {
     final RestTarget target = _targetSecurity.resolve(uid.toString());
     s_logger.debug("remove-post to {}", target);
     getRestClient().delete(target);
@@ -224,7 +224,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
       return null;
     }
     s_logger.debug("update-recv {}", env.getMessage());
-    document.setUniqueId(getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage()));
+    document.setUniqueId(getFudgeDeserializationContext().fudgeMsgToObject(UniqueId.class, env.getMessage()));
     return document;
   }
 

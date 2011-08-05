@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.LiveDataDeltaCalculator;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -51,8 +51,8 @@ public class LiveDataDeltaCalculatorTest {
   @BeforeMethod
   public void setUp() {
     final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
-    _cache = source.getCache(UniqueIdentifier.of("Test", "ViewCycle", "1"), "Default"); 
-    _previousCache = source.getCache(UniqueIdentifier.of("Test", "ViewCycle", "0"), "Default");
+    _cache = source.getCache(UniqueId.of("Test", "ViewCycle", "1"), "Default"); 
+    _previousCache = source.getCache(UniqueId.of("Test", "ViewCycle", "0"), "Default");
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
         _cache,
@@ -61,7 +61,7 @@ public class LiveDataDeltaCalculatorTest {
   }
   
   private ComputationTarget getTarget(String name) {
-    return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("testdomain", name));
+    return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", name));
   }
   
   private ValueRequirement getValueRequirement(String name) {

@@ -14,8 +14,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -49,20 +49,20 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
   }
   
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor) {
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
     throw new OpenGammaRuntimeException("Only futures supported");
   }
   
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
     return createQuarterlyIRFutureStrips(curveDate, tenor, numQuarterlyFuturesFromTenor, _futurePrefix, " " + _marketSector);
   }
     
   private static final DateAdjuster s_nextExpiryAdjuster = new NextExpiryAdjuster();
     
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER; 
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER; 
   
-  private Identifier createQuarterlyIRFutureStrips(LocalDate curveDate, Tenor tenor, int numQuartlyFuturesFromTenor, String prefix, String postfix) {
+  private ExternalId createQuarterlyIRFutureStrips(LocalDate curveDate, Tenor tenor, int numQuartlyFuturesFromTenor, String prefix, String postfix) {
     LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
     LocalDate futureExpiryDate = curveFutureStartDate.with(s_nextExpiryAdjuster);
     for (int i = 1; i < numQuartlyFuturesFromTenor; i++) {
@@ -83,7 +83,7 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
       futureCode.append(Integer.toString(futureExpiryDate.getYear() % 10));
     }
     futureCode.append(postfix);
-    return Identifier.of(SCHEME, futureCode.toString());
+    return ExternalId.of(SCHEME, futureCode.toString());
   }
   
   // for serialisation only

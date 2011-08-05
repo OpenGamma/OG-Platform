@@ -23,7 +23,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -41,7 +41,7 @@ import com.opengamma.util.money.Currency;
  */
 public class DemoViewsPopulater {
 
-  private static final UniqueIdentifier UID_USD = UniqueIdentifier.of("CurrencyISO", "USD");
+  private static final UniqueId UID_USD = UniqueId.of("CurrencyISO", "USD");
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DemoViewsPopulater.class);
@@ -55,7 +55,7 @@ public class DemoViewsPopulater {
     _loaderContext = loaderContext;
   }
   
-  private UniqueIdentifier getPortfolioId(String portfolioName) {
+  private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
     PortfolioSearchResult searchResult = _loaderContext.getPortfolioMaster().search(searchRequest);
@@ -67,7 +67,7 @@ public class DemoViewsPopulater {
   }
   
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
-    UniqueIdentifier portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName);
     ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
@@ -92,7 +92,7 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
-    UniqueIdentifier portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName);
     ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);

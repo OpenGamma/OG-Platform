@@ -20,7 +20,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -94,10 +94,10 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   }
   
   //-------------------------------------------------------------------------
-  private UniqueIdentifier getUniqueId(String definitionName) {
+  private UniqueId getUniqueId(String definitionName) {
     // NOTE jonathan 2011-08-03 -- at the moment view definitions are identified to the engine by name, so this is an
     // intermediate solution
-    return UniqueIdentifier.of(UID_SCHEME, definitionName);
+    return UniqueId.of(UID_SCHEME, definitionName);
   }
 
 }

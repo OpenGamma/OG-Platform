@@ -19,8 +19,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
@@ -59,7 +59,7 @@ public class DbConfigMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_cfgMaster);
-    assertEquals(true, _cfgMaster.getIdentifierScheme().equals("DbCfg"));
+    assertEquals(true, _cfgMaster.getUniqueIdScheme().equals("DbCfg"));
     assertNotNull(_cfgMaster.getDbSource());
     assertNotNull(_cfgMaster.getTimeSource());
   }
@@ -67,54 +67,54 @@ public class DbConfigMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_single_type() throws Exception {
-    ConfigDocument<Identifier> addDoc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> addDoc = new ConfigDocument<ExternalId>(ExternalId.class);
     addDoc.setName("Config test");
-    addDoc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> added = _cfgMaster.add(addDoc);
+    addDoc.setValue(ExternalId.of("A", "B"));
+    ConfigDocument<ExternalId> added = _cfgMaster.add(addDoc);
     
-    ConfigDocument<Identifier> loaded = _cfgMaster.get(added.getUniqueId(), Identifier.class);
+    ConfigDocument<ExternalId> loaded = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
     assertEquals(added, loaded);
     
-    ConfigDocument<Identifier> loadedType = _cfgMaster.get(added.getUniqueId(), Identifier.class);
+    ConfigDocument<ExternalId> loadedType = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
     assertEquals(added, loadedType);
   }
   
   //-------------------------------------------------------------------------
   @Test
   public void test_multiple_types() throws Exception {
-    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>(Identifier.class);
-    identifierDoc.setName("Identifier test");
-    identifierDoc.setValue(Identifier.of("A", "B"));
+    ConfigDocument<ExternalId> identifierDoc = new ConfigDocument<ExternalId>(ExternalId.class);
+    identifierDoc.setName("ExternalId test");
+    identifierDoc.setValue(ExternalId.of("A", "B"));
     
-    ConfigDocument<Identifier> addedIdentifier = _cfgMaster.add(identifierDoc);
+    ConfigDocument<ExternalId> addedId = _cfgMaster.add(identifierDoc);
     
-    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> bundleDoc = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
     bundleDoc.setName("Bundle test");
-    bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
-    ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
+    bundleDoc.setValue(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
+    ConfigDocument<ExternalIdBundle> addedBundle = _cfgMaster.add(bundleDoc);
     
-    ConfigDocument<Identifier> loadedIdentifier = _cfgMaster.get(addedIdentifier.getUniqueId(), Identifier.class);
-    assertEquals(addedIdentifier, loadedIdentifier);
+    ConfigDocument<ExternalId> loadedId = _cfgMaster.get(addedId.getUniqueId(), ExternalId.class);
+    assertEquals(addedId, loadedId);
     
-    ConfigDocument<IdentifierBundle> loadedBundle = _cfgMaster.get(addedBundle.getUniqueId(), IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> loadedBundle = _cfgMaster.get(addedBundle.getUniqueId(), ExternalIdBundle.class);
     assertEquals(addedBundle, loadedBundle);
   }
   
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_type() throws Exception {
-    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>(Identifier.class);
-    identifierDoc.setName("Identifier test");
-    identifierDoc.setValue(Identifier.of("A", "B"));
+    ConfigDocument<ExternalId> identifierDoc = new ConfigDocument<ExternalId>(ExternalId.class);
+    identifierDoc.setName("ExternalId test");
+    identifierDoc.setValue(ExternalId.of("A", "B"));
     
     _cfgMaster.add(identifierDoc);
     
-    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> bundleDoc = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
     bundleDoc.setName("Bundle test");
-    bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
-    ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
+    bundleDoc.setValue(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
+    ConfigDocument<ExternalIdBundle> addedBundle = _cfgMaster.add(bundleDoc);
     
-    _cfgMaster.get(addedBundle.getUniqueId(), Identifier.class);    
+    _cfgMaster.get(addedBundle.getUniqueId(), ExternalId.class);    
   }
   
   //-------------------------------------------------------------------------

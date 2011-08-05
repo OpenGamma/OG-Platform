@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.user;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tracks events trapped by the user data masters.
@@ -20,7 +20,7 @@ public interface UserDataTracker {
    * @param type the data type
    * @param identifier the identifier allocated by the underlying
    */
-  void created(String userName, String clientName, UserDataType type, UniqueIdentifier identifier);
+  void created(String userName, String clientName, UserDataType type, UniqueId identifier);
 
   /**
    * Called after the user has deleted a data entry.
@@ -30,7 +30,7 @@ public interface UserDataTracker {
    * @param type the data type
    * @param identifier the identifier deleted from the underlying
    */
-  void deleted(String userName, String clientName, UserDataType type, UniqueIdentifier identifier);
+  void deleted(String userName, String clientName, UserDataType type, UniqueId identifier);
 
   // TODO: Do we want any form of access control callbacks
 

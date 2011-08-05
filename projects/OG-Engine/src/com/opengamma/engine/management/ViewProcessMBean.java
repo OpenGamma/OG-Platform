@@ -6,7 +6,7 @@
 package com.opengamma.engine.management;
 
 import com.opengamma.engine.view.ViewProcessState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A management bean for a View
@@ -19,7 +19,7 @@ public interface ViewProcessMBean {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the portfolio Identifier

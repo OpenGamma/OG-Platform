@@ -14,7 +14,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -57,7 +57,7 @@ public final class ValueRequirement implements Serializable {
    * @param targetType  the target type, not null
    * @param targetId  the target identifier, may be null
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueId targetId) {
     this(valueName, new ComputationTargetSpecification(targetType, targetId));
   }
 
@@ -71,7 +71,7 @@ public final class ValueRequirement implements Serializable {
    * @param targetId  the unique identifier of the target, not null
    * @param constraints  the value constraints that must be satisfied
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId, ValueProperties constraints) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueId targetId, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(targetType, targetId), constraints);
   }
 

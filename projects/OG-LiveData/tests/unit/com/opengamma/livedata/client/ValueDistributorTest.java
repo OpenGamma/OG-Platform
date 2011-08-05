@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -32,7 +32,7 @@ public class ValueDistributorTest {
     
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
     CollectingLiveDataListener listener2 = new CollectingLiveDataListener();
-    LiveDataSpecification spec = new LiveDataSpecification("foo", Identifier.of("bar", "baz"));
+    LiveDataSpecification spec = new LiveDataSpecification("foo", ExternalId.of("bar", "baz"));
     
     distributor.addListener(spec, listener1);
     activeSpecs = distributor.getActiveSpecifications();
@@ -64,8 +64,8 @@ public class ValueDistributorTest {
     Set<LiveDataSpecification> activeSpecs = null;
     
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecification("x", Identifier.of("foo", "bar1"));
-    LiveDataSpecification spec2 = new LiveDataSpecification("x", Identifier.of("foo", "bar2"));
+    LiveDataSpecification spec1 = new LiveDataSpecification("x", ExternalId.of("foo", "bar1"));
+    LiveDataSpecification spec2 = new LiveDataSpecification("x", ExternalId.of("foo", "bar2"));
     
     distributor.addListener(spec1, listener1);
     activeSpecs = distributor.getActiveSpecifications();
@@ -85,7 +85,7 @@ public class ValueDistributorTest {
   public void simpleDistribution() {
     ValueDistributor distributor = new ValueDistributor();
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecification("foo", Identifier.of("bar", "baz"));
+    LiveDataSpecification spec1 = new LiveDataSpecification("foo", ExternalId.of("bar", "baz"));
     
     distributor.addListener(spec1, listener1);
     

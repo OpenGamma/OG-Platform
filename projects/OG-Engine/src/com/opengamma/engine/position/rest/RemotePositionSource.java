@@ -14,7 +14,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -52,28 +52,28 @@ public class RemotePositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueIdentifier uid) {
+  public Portfolio getPortfolio(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Portfolio result = _client.getSingleValue(Portfolio.class, DataPositionSourceResource.targetPortfolio(_target, uid), "portfolio");
     return result;
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
+  public PortfolioNode getPortfolioNode(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     PortfolioNode result = _client.getSingleValue(PortfolioNode.class, DataPositionSourceResource.targetPortfolioNode(_target, uid), "node");
     return result;
   }
 
   @Override
-  public Position getPosition(UniqueIdentifier uid) {
+  public Position getPosition(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Position result = _client.getSingleValue(Position.class, DataPositionSourceResource.targetPosition(_target, uid), "position");
     return result;
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier uid) {
+  public Trade getTrade(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Trade result = _client.getSingleValue(Trade.class, DataPositionSourceResource.targetTrade(_target, uid), "trade");
     return result;

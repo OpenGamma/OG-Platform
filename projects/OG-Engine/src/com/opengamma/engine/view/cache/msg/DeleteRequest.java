@@ -4,12 +4,12 @@
 package com.opengamma.engine.view.cache.msg;
 public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitDeleteRequest (this); }
-  private static final long serialVersionUID = 35229501837005l;
-  private com.opengamma.id.UniqueIdentifier _viewCycleId;
+  private static final long serialVersionUID = 35179780636863l;
+  private com.opengamma.id.UniqueId _viewCycleId;
   public static final String VIEW_CYCLE_ID_KEY = "viewCycleId";
   private String _calculationConfigurationName;
   public static final String CALCULATION_CONFIGURATION_NAME_KEY = "calculationConfigurationName";
-  public DeleteRequest (com.opengamma.id.UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  public DeleteRequest (com.opengamma.id.UniqueId viewCycleId, String calculationConfigurationName) {
     if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
       _viewCycleId = viewCycleId;
@@ -23,10 +23,10 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
     fudgeField = fudgeMsg.getByName (VIEW_CYCLE_ID_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewCycleId' is not present");
     try {
-      _viewCycleId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _viewCycleId = com.opengamma.id.UniqueId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewCycleId' is not UniqueIdentifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'viewCycleId' is not UniqueId message", e);
     }
     fudgeField = fudgeMsg.getByName (CALCULATION_CONFIGURATION_NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'calculationConfigurationName' is not present");
@@ -37,7 +37,7 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
       throw new IllegalArgumentException ("Fudge message is not a DeleteRequest - field 'calculationConfigurationName' is not string", e);
     }
   }
-  public DeleteRequest (Long correlationId, com.opengamma.id.UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  public DeleteRequest (Long correlationId, com.opengamma.id.UniqueId viewCycleId, String calculationConfigurationName) {
     super (correlationId);
     if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
@@ -67,7 +67,7 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_viewCycleId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewCycleId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewCycleId.getClass (), com.opengamma.id.UniqueId.class);
       _viewCycleId.toFudgeMsg (fudgeContext, fudge1);
       msg.add (VIEW_CYCLE_ID_KEY, null, fudge1);
     }
@@ -89,10 +89,10 @@ public class DeleteRequest extends com.opengamma.engine.view.cache.msg.CacheMess
     }
     return new DeleteRequest (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getViewCycleId () {
+  public com.opengamma.id.UniqueId getViewCycleId () {
     return _viewCycleId;
   }
-  public void setViewCycleId (com.opengamma.id.UniqueIdentifier viewCycleId) {
+  public void setViewCycleId (com.opengamma.id.UniqueId viewCycleId) {
     if (viewCycleId == null) throw new NullPointerException ("'viewCycleId' cannot be null");
     else {
       _viewCycleId = viewCycleId;

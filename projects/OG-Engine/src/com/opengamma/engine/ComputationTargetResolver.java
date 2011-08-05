@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A resolver from a target specification to a real target.
@@ -18,7 +18,7 @@ public interface ComputationTargetResolver {
   /**
    * Resolves the specification to a real target.
    * <p>
-   * The specification contains a {@link UniqueIdentifier} that refers to a real target,
+   * The specification contains a {@link UniqueId} that refers to a real target,
    * such as a portfolio or security. The resolver converts this reference back to the original
    * fully formed object.
    * @param specification  the specification to resolve, not null

@@ -7,7 +7,7 @@ public class FixedInterestRateLeg extends com.opengamma.financial.security.swap.
   private static final long serialVersionUID = -1217671502l;
   private final double _rate;
   public static final String RATE_KEY = "rate";
-  public FixedInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, double rate) {
+  public FixedInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, double rate) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     _rate = rate;
   }

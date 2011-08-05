@@ -20,8 +20,8 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -93,14 +93,14 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = _targetBase.resolveBase("security").resolve(uid.toString());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+  public Collection<Security> getSecurities(ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
     final FudgeMsg message = getRestClient().getMsg(target);
@@ -115,7 +115,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle securityKey) {
+  public Security getSecurity(ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", securityKey.toStringList());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);

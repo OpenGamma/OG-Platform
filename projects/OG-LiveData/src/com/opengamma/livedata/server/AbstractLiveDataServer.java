@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -172,7 +172,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @return Identification domain that uniquely identifies securities for this
    *         type of server.
    */
-  protected abstract IdentificationScheme getUniqueIdDomain();
+  protected abstract ExternalScheme getUniqueIdDomain();
   
   /**
    * Connects to the underlying market data provider.
@@ -282,7 +282,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public LiveDataSpecification getLiveDataSpecification(String securityUniqueId) {
     LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
         getDefaultNormalizationRuleSetId(),
-        Identifier.of(getUniqueIdDomain(), securityUniqueId));
+        ExternalId.of(getUniqueIdDomain(), securityUniqueId));
     return liveDataSpecification;
   }
 

@@ -99,9 +99,9 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
@@ -221,24 +221,24 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       }
     });
     s_dataProviders.put(Double.TYPE, provider);
-    s_dataProviders.put(UniqueIdentifier.class, new TestDataProvider<UniqueIdentifier>() {
+    s_dataProviders.put(UniqueId.class, new TestDataProvider<UniqueId>() {
       @Override
-      public void getValues(final Collection<UniqueIdentifier> values) {
-        values.add(UniqueIdentifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
+      public void getValues(final Collection<UniqueId> values) {
+        values.add(UniqueId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
-    s_dataProviders.put(Identifier.class, new TestDataProvider<Identifier>() {
+    s_dataProviders.put(ExternalId.class, new TestDataProvider<ExternalId>() {
       @Override
-      public void getValues(final Collection<Identifier> values) {
-        values.add(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
+      public void getValues(final Collection<ExternalId> values) {
+        values.add(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)));
       }
     });
-    s_dataProviders.put(IdentifierBundle.class, new TestDataProvider<IdentifierBundle>() {
+    s_dataProviders.put(ExternalIdBundle.class, new TestDataProvider<ExternalIdBundle>() {
       @Override
-      public void getValues(final Collection<IdentifierBundle> values) {
-        values.add(IdentifierBundle.EMPTY);
-        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
-        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
+      public void getValues(final Collection<ExternalIdBundle> values) {
+        values.add(ExternalIdBundle.EMPTY);
+        values.add(ExternalIdBundle.of(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
+        values.add(ExternalIdBundle.of(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), ExternalId.of(RandomStringUtils.randomAlphanumeric(8),
             RandomStringUtils.randomAlphanumeric(16))));
       }
     });

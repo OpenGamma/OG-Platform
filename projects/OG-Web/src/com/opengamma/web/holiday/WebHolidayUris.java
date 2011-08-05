@@ -7,7 +7,7 @@ package com.opengamma.web.holiday;
 
 import java.net.URI;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * URIs for web-based holidays.
@@ -49,7 +49,7 @@ public class WebHolidayUris {
    * @param holidayId  the holiday, not null
    * @return the URI
    */
-  public URI holiday(final UniqueIdentifier holidayId) {
+  public URI holiday(final UniqueId holidayId) {
     return WebHolidayResource.uri(_data, holidayId);
   }
 

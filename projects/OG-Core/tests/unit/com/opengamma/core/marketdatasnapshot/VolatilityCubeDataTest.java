@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -47,8 +47,8 @@ public class VolatilityCubeDataTest {
     data.setDataPoints(dataPoints);
     
     SnapshotDataBundle bundle = new SnapshotDataBundle();
-    HashMap<UniqueIdentifier, Double> otherDataMap = new HashMap<UniqueIdentifier, Double>();
-    otherDataMap.put(UniqueIdentifier.of("Test", "Test"), 0.0);
+    HashMap<UniqueId, Double> otherDataMap = new HashMap<UniqueId, Double>();
+    otherDataMap.put(UniqueId.of("Test", "Test"), 0.0);
     bundle.setDataPoints(otherDataMap);
     data.setOtherData(bundle);
     return data;

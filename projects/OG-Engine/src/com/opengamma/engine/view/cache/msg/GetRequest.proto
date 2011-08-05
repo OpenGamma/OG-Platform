@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message GetRequest extends CacheMessage {
   
-    required id.UniqueIdentifier viewCycleId;
+    required id.UniqueId viewCycleId;
     required string calculationConfigurationName;
   
     required repeated long identifier;

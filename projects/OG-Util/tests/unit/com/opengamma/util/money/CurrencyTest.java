@@ -16,8 +16,8 @@ import java.io.ObjectOutputStream;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test Currency.
@@ -169,8 +169,8 @@ public class CurrencyTest {
   public void test_gets() {
     Currency test = Currency.of("GBP");
     assertEquals("GBP", test.getCode());
-    assertEquals(ObjectIdentifier.of("CurrencyISO", "GBP"), test.getObjectId());
-    assertEquals(UniqueIdentifier.of("CurrencyISO", "GBP"), test.getUniqueId());
+    assertEquals(ObjectId.of("CurrencyISO", "GBP"), test.getObjectId());
+    assertEquals(UniqueId.of("CurrencyISO", "GBP"), test.getUniqueId());
     assertEquals(java.util.Currency.getInstance("GBP"), test.toCurrency());
   }
 

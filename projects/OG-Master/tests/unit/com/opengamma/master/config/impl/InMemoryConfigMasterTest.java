@@ -18,11 +18,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMetaDataRequest;
@@ -36,36 +36,36 @@ import com.opengamma.master.config.ConfigSearchResult;
 @Test
 public class InMemoryConfigMasterTest {
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
-  private static final Identifier VAL1 = Identifier.of ("Test", "sec1");
-  private static final Identifier VAL2 = Identifier.of ("Test", "sec2");
-  private static final IdentifierBundle VAL3 = IdentifierBundle.of(VAL1);
-  private static final IdentifierBundle VAL4 = IdentifierBundle.of(VAL2);
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
+  private static final ExternalId VAL1 = ExternalId.of ("Test", "sec1");
+  private static final ExternalId VAL2 = ExternalId.of ("Test", "sec2");
+  private static final ExternalIdBundle VAL3 = ExternalIdBundle.of(VAL1);
+  private static final ExternalIdBundle VAL4 = ExternalIdBundle.of(VAL2);
 
   private ConfigMaster _testEmpty;
   private ConfigMaster _testPopulated;
-  private ConfigDocument<Identifier> _doc1;
-  private ConfigDocument<Identifier> _doc2;
-  private ConfigDocument<IdentifierBundle> _doc3;
-  private ConfigDocument<IdentifierBundle> _doc4;
+  private ConfigDocument<ExternalId> _doc1;
+  private ConfigDocument<ExternalId> _doc2;
+  private ConfigDocument<ExternalIdBundle> _doc3;
+  private ConfigDocument<ExternalIdBundle> _doc4;
 
   @BeforeMethod
   public void setUp() {
-    _testEmpty = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
-    _testPopulated = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
-    _doc1 = new ConfigDocument<Identifier>(Identifier.class);
+    _testEmpty = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
+    _testPopulated = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
+    _doc1 = new ConfigDocument<ExternalId>(ExternalId.class);
     _doc1.setName("ONE");
     _doc1.setValue(VAL1);
     _doc1 = _testPopulated.add(_doc1);
-    _doc2 = new ConfigDocument<Identifier>(Identifier.class);
+    _doc2 = new ConfigDocument<ExternalId>(ExternalId.class);
     _doc2.setName("TWO");
     _doc2.setValue(VAL2);
     _doc2 = _testPopulated.add(_doc2);
-    _doc3 = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
+    _doc3 = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
     _doc3.setName("THREE");
     _doc3.setValue(VAL3);
     _doc3 = _testPopulated.add(_doc3);
-    _doc4 = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
+    _doc4 = new ConfigDocument<ExternalIdBundle>(ExternalIdBundle.class);
     _doc4.setName("FOUR");
     _doc4.setValue(VAL4);
     _doc4 = _testPopulated.add(_doc4);
@@ -74,39 +74,39 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemoryConfigMaster((Supplier<ObjectIdentifier>) null);
+    new InMemoryConfigMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster();
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("ONE");
     doc.setValue(VAL1);
-    ConfigDocument<Identifier> added = master.add(doc);
+    ConfigDocument<ExternalId> added = master.add(doc);
     assertEquals("MemCfg", added.getUniqueId().getScheme());
   }
 
   public void test_alternateSupplier() {
-    InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Hello"));
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdSupplier("Hello"));
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("ONE");
     doc.setValue(VAL1);
-    ConfigDocument<Identifier> added = master.add(doc);
+    ConfigDocument<ExternalId> added = master.add(doc);
     assertEquals("Hello", added.getUniqueId().getScheme());
   }
 
   //-------------------------------------------------------------------------
   public void test_search_oneId_noMatch() {
-    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
-    request.addConfigId(ObjectIdentifier.of("A", "UNREAL"));
-    ConfigSearchResult<Identifier> result = _testPopulated.search(request);
+    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
+    request.addConfigId(ObjectId.of("A", "UNREAL"));
+    ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(0, result.getDocuments().size());
   }
 
   public void test_search_oneId() {
-    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
+    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
     request.addConfigId(_doc2.getObjectId());
-    ConfigSearchResult<Identifier> result = _testPopulated.search(request);
+    ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(_doc2, result.getFirstDocument());
   }
@@ -116,8 +116,8 @@ public class InMemoryConfigMasterTest {
     ConfigMetaDataResult test = _testPopulated.metaData(new ConfigMetaDataRequest());
     assertNotNull(test);
     assertEquals(2, test.getConfigTypes().size());
-    assertTrue(test.getConfigTypes().contains(Identifier.class));
-    assertTrue(test.getConfigTypes().contains(IdentifierBundle.class));
+    assertTrue(test.getConfigTypes().contains(ExternalId.class));
+    assertTrue(test.getConfigTypes().contains(ExternalIdBundle.class));
   }
 
   public void test_metaData_noTypes() {
@@ -158,9 +158,9 @@ public class InMemoryConfigMasterTest {
   }
   
   public void test_search_populatedMaster_filterByType() {
-    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
-    request.setType(Identifier.class);
-    ConfigSearchResult<Identifier> result = _testPopulated.search(request);
+    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
+    request.setType(ExternalId.class);
+    ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     assertEquals(2, result.getDocuments().size());
     assertEquals(true, result.getDocuments().contains(_doc1));
@@ -170,7 +170,7 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_emptyMaster() {
-    assertNull(_testEmpty.get(OTHER_UID, Identifier.class));
+    assertNull(_testEmpty.get(OTHER_UID, ExternalId.class));
   }
 
   public void test_get_populatedMaster() {
@@ -181,29 +181,29 @@ public class InMemoryConfigMasterTest {
   }
   
   public void test_get_typed_populatedMaster() {
-    ConfigDocument<Identifier> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), Identifier.class);
+    ConfigDocument<ExternalId> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), ExternalId.class);
     assertSame(_doc1, storedDoc1);
-    ConfigDocument<Identifier> storedDoc2 = _testPopulated.get(_doc2.getUniqueId(), Identifier.class);
+    ConfigDocument<ExternalId> storedDoc2 = _testPopulated.get(_doc2.getUniqueId(), ExternalId.class);
     assertSame(_doc2, storedDoc2);
     
-    ConfigDocument<IdentifierBundle> storedDoc3 = _testPopulated.get(_doc3.getUniqueId(), IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> storedDoc3 = _testPopulated.get(_doc3.getUniqueId(), ExternalIdBundle.class);
     assertSame(_doc3, storedDoc3);
-    ConfigDocument<IdentifierBundle> storedDoc4 = _testPopulated.get(_doc4.getUniqueId(), IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> storedDoc4 = _testPopulated.get(_doc4.getUniqueId(), ExternalIdBundle.class);
     assertSame(_doc4, storedDoc4);
   }
   
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_typed_populatedMaster() {
-    ConfigDocument<IdentifierBundle> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), IdentifierBundle.class);
+    ConfigDocument<ExternalIdBundle> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), ExternalIdBundle.class);
     assertSame(_doc1, storedDoc1);
   }
 
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("Test");
     doc.setValue(VAL1);
-    ConfigDocument<Identifier> added = _testEmpty.add(doc);
+    ConfigDocument<ExternalId> added = _testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
     assertEquals("Test", added.getUniqueId().getScheme());
     assertSame(VAL1, added.getValue());
@@ -212,17 +212,17 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setValue(VAL1);
     doc.setUniqueId(OTHER_UID);
     _testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setValue(VAL1);
     doc.setUniqueId(_doc1.getUniqueId());
-    ConfigDocument<Identifier> updated = _testPopulated.update(doc);
+    ConfigDocument<ExternalId> updated = _testPopulated.update(doc);
     assertEquals(_doc1.getUniqueId(), updated.getUniqueId());
     assertNotNull(_doc1.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());

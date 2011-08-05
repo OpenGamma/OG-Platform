@@ -22,7 +22,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
@@ -51,10 +51,10 @@ public class HeartbeatSenderTest {
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
     LiveDataSpecification spec1 = new LiveDataSpecification(
         "Test",
-        Identifier.of("foo", "bar"));
+        ExternalId.of("foo", "bar"));
     LiveDataSpecification spec2 = new LiveDataSpecification(
         "Test",
-        Identifier.of("foo", "baz"));
+        ExternalId.of("foo", "baz"));
     valueDistributor.addListener(spec1, listener1);
     valueDistributor.addListener(spec2, listener1);
     

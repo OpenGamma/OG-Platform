@@ -12,9 +12,9 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -54,7 +54,7 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableHoliday getHoliday(UniqueIdentifier uniqueId) {
+  public ManageableHoliday getHoliday(UniqueId uniqueId) {
     HolidayDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getHoliday() : null);
   }
@@ -67,15 +67,15 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
   }
 
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final IdentifierBundle regionOrExchangeIds) {
+  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
     HolidaySearchRequest request = new HolidaySearchRequest(holidayType, regionOrExchangeIds);
     request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);
   }
 
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final Identifier regionOrExchangeId) {
-    HolidaySearchRequest request = new HolidaySearchRequest(holidayType, IdentifierBundle.of(regionOrExchangeId));
+  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalId regionOrExchangeId) {
+    HolidaySearchRequest request = new HolidaySearchRequest(holidayType, ExternalIdBundle.of(regionOrExchangeId));
     request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);
   }

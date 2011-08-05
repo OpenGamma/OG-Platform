@@ -53,7 +53,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
@@ -72,8 +72,8 @@ public class ViewProcessorTestEnvironment {
   public static final String TEST_VIEW_DEFINITION_NAME = "Test View";
   public static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
   
-  private static final ValueRequirement s_primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
-  private static final ValueRequirement s_primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
+  private static final ValueRequirement s_primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "PrimitiveValue"));
+  private static final ValueRequirement s_primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "PrimitiveValue"));
 
   // Settings
   private MarketDataProvider _marketDataProvider;
@@ -327,7 +327,7 @@ public class ViewProcessorTestEnvironment {
     return _cachingComputationTargetResolver;
   }
 
-  public ViewProcessImpl getViewProcess(ViewProcessorImpl viewProcessor, UniqueIdentifier viewClientId) {
+  public ViewProcessImpl getViewProcess(ViewProcessorImpl viewProcessor, UniqueId viewClientId) {
     return viewProcessor.getViewProcessForClient(viewClientId);
   }
   

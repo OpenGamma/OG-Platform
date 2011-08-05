@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.FudgeRestClient;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -34,7 +34,7 @@ public abstract class RemoteEngineResourceManager<T extends UniqueIdentifiable> 
   }
   
   @Override
-  public EngineResourceReference<T> createReference(UniqueIdentifier cycleId) {
+  public EngineResourceReference<T> createReference(UniqueId cycleId) {
     ClientResponse response = _client.access(_baseUri).post(ClientResponse.class);
     URI baseUri = response.getLocation();
     return getRemoteReference(baseUri, _scheduler);

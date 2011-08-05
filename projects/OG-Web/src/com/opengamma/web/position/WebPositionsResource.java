@@ -29,10 +29,10 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -100,7 +100,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     
     PositionSearchRequest searchRequest = new PositionSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
-    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
+    searchRequest.setSecurityIdValue(StringUtils.trimToNull(identifier));
     if (NumberUtils.isNumber(minQuantityStr)) {
       searchRequest.setMinQuantity(NumberUtils.createBigDecimal(minQuantityStr));
     }
@@ -108,10 +108,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       searchRequest.setMaxQuantity(NumberUtils.createBigDecimal(maxQuantityStr));
     }
     for (String positionIdStr : positionIdStrs) {
-      searchRequest.addPositionId(ObjectIdentifier.parse(positionIdStr));
+      searchRequest.addPositionObjectId(ObjectId.parse(positionIdStr));
     }
     for (String tradeIdStr : tradeIdStrs) {
-      searchRequest.addPositionId(ObjectIdentifier.parse(tradeIdStr));
+      searchRequest.addPositionObjectId(ObjectId.parse(tradeIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -152,9 +152,9 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/positions-add.ftl", out);
       return Response.ok(html).build();
     }
-    IdentifierBundle id = IdentifierBundle.of(Identifier.of(idScheme, idValue));
-    Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueIdentifier secUid = loaded.get(id);
+    ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
+    Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+    UniqueId secUid = loaded.get(id);
     if (secUid == null) {
       FlexiBean out = createRootData();
       out.put("err_idvalueNotFound", true);
@@ -182,9 +182,9 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       return Response.status(Status.BAD_REQUEST).build();
     }
     
-    IdentifierBundle id = IdentifierBundle.of(Identifier.of(idScheme, idValue));
-    Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-    UniqueIdentifier secUid = loaded.get(id);
+    ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
+    Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+    UniqueId secUid = loaded.get(id);
     if (secUid == null) {
       throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
     }
@@ -192,7 +192,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     return Response.created(uri).build();
   }
 
-  private URI addPosition(BigDecimal quantity, UniqueIdentifier secUid) {
+  private URI addPosition(BigDecimal quantity, UniqueId secUid) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
     ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getIdentifiers());
     PositionDocument doc = new PositionDocument(position);
@@ -205,7 +205,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       PositionDocument doc = data().getPositionMaster().get(oid);
       data().setPosition(doc);

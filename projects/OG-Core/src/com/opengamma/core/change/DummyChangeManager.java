@@ -7,7 +7,7 @@ package com.opengamma.core.change;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Implementation of {@link ChangeManager} to use when change notifications are not supported or never needed.
@@ -34,7 +34,7 @@ public final class DummyChangeManager implements ChangeManager {
   }
 
   @Override
-  public void entityChanged(ChangeType type, UniqueIdentifier beforeId, UniqueIdentifier afterId, Instant versionInstant) {
+  public void entityChanged(ChangeType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
     throw new UnsupportedOperationException(DummyChangeManager.class.getSimpleName() + " does not support change notifications");
   }
 

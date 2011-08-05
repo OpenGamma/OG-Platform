@@ -14,7 +14,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -28,7 +28,7 @@ public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
   }
 
   @Override
-  protected void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details) {
+  protected void addRowDetails(UniqueId target, int rowId, Map<String, Object> details) {
     // TODO: resolve the target and use a more sensible name
     details.put("name", target.toString());
   }

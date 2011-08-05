@@ -19,8 +19,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -41,16 +41,16 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
     for (FixedIncomeStrip strip : object.getStrips()) {
       context.addToMessage(message, "strip", null, strip);
     }
-    context.addToMessageWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueId.class);
     return message;
   }
 
   @Override
   public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
-    Identifier region = null;
+    ExternalId region = null;
     if (message.hasField("region")) {
-      region = context.fieldValueToObject(Identifier.class, message.getByName("region"));
+      region = context.fieldValueToObject(ExternalId.class, message.getByName("region"));
     }
     String name = message.getString("name");
     String interpolatorName = message.getString("interpolatorName");
@@ -63,7 +63,7 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
     YieldCurveDefinition curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
     FudgeField uniqueId = message.getByName("uniqueId");
     if (uniqueId != null) {
-      curveDefinition.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
+      curveDefinition.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueId));
     }
     return curveDefinition;
   }

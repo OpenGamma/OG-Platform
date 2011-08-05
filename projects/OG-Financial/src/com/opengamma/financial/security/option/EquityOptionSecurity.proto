@@ -16,7 +16,7 @@ namespace com.opengamma.financial.security.option {
     required OptionType optionType;
     required double strike; 
     required com.opengamma.util.money.Currency currency;
-    required id.Identifier underlyingIdentifier;
+    required id.ExternalId underlyingIdentifier;
     required ExerciseType exerciseType;
     required util.time.Expiry expiry;
     required double pointValue;

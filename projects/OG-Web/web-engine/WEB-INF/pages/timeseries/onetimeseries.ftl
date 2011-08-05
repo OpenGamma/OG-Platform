@@ -11,7 +11,7 @@
 <@section title="Time series">
   <p>
     <@rowout label="Reference">${info.uniqueId.value}</@rowout>
-   	<#list info.identifiers.iterator() as item>
+   	<#list info.externalIdBundle.externalIds as item>
     <@rowout label="Identifier">${item}</@rowout>
    	</#list>
     <@rowout label="Data source">${info.dataSource}</@rowout>

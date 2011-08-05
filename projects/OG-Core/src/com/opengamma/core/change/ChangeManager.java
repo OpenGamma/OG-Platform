@@ -7,7 +7,7 @@ package com.opengamma.core.change;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -48,6 +48,6 @@ public interface ChangeManager {
    * @param afterId  the unique identifier of the entity after the change, may be null
    * @param versionInstant  the instant at which the change is recorded as happening, not null
    */
-  void entityChanged(final ChangeType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant);
+  void entityChanged(final ChangeType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant);
 
 }

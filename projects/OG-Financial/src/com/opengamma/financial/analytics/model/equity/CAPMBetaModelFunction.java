@@ -34,8 +34,8 @@ import com.opengamma.financial.equity.capm.CAPMBetaCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.math.statistics.descriptive.SampleCovarianceCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
@@ -66,11 +66,11 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
       final Set<ValueRequirement> desiredValues) {
     final Object positionOrNode = getTarget(target);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final ConventionBundle bundle = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
+    final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IdentifierBundle.of(
+    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode));
     final Object fairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));

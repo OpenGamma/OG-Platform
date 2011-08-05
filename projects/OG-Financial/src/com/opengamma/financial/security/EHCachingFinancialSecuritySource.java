@@ -21,8 +21,8 @@ import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -127,7 +127,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Element e = _uidCache.get(uid);
     Security result = null;
@@ -150,7 +150,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Element e = _bundleCache.get(bundle);
     Collection<Security> result = new HashSet<Security>();
@@ -174,7 +174,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<Security> matched = getSecurities(bundle);
     if (matched.isEmpty()) {
@@ -250,9 +250,9 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   }
   
   //-------------------------------------------------------------------------
-  private void cleanCaches(UniqueIdentifier id) {
+  private void cleanCaches(UniqueId id) {
     // Only care where the unversioned ID has been cached since it now represents something else
-    UniqueIdentifier latestId = id.toLatest();
+    UniqueId latestId = id.toLatest();
     _uidCache.remove(latestId);
   }
 

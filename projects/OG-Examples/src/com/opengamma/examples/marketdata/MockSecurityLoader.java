@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -28,7 +28,7 @@ public class MockSecurityLoader implements SecurityLoader {
   private SecurityMaster _securityMaster;
     
   @Override
-  public Map<IdentifierBundle, UniqueIdentifier> loadSecurity(Collection<IdentifierBundle> identifiers) {
+  public Map<ExternalIdBundle, UniqueId> loadSecurity(Collection<ExternalIdBundle> identifiers) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
   }

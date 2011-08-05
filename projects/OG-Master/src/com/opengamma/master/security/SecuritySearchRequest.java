@@ -20,12 +20,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -49,22 +49,22 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _securityIds;
+  private List<ObjectId> _objectIds;
   /**
-   * The security keys to match, null to not match on security keys.
+   * The security external identifiers to match, null to not match on security identifiers.
    */
   @PropertyDefinition
-  private IdentifierSearch _securityKeys;
+  private ExternalIdSearch _externalIdSearch;
   /**
-   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * The external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    */
   @PropertyDefinition
-  private String _identifierValue;
+  private String _externalIdValue;
   /**
    * The security name, wildcards allowed, null to not match on name.
    */
@@ -93,19 +93,19 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param securityKey  the security key identifier to search for, not null
+   * @param securityId  the security external identifier to search for, not null
    */
-  public SecuritySearchRequest(Identifier securityKey) {
-    addSecurityKey(securityKey);
+  public SecuritySearchRequest(ExternalId securityId) {
+    addExternalId(securityId);
   }
 
   /**
    * Creates an instance using a bundle of identifiers.
    * 
-   * @param securityKeys  the security key identifiers to search for, not null
+   * @param securityBundle  the security bundle to search for, not null
    */
-  public SecuritySearchRequest(IdentifierBundle securityKeys) {
-    addSecurityKeys(securityKeys);
+  public SecuritySearchRequest(ExternalIdBundle securityBundle) {
+    addExternalIds(securityBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -114,12 +114,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * 
    * @param securityId  the security object identifier to add, not null
    */
-  public void addSecurityId(ObjectIdentifiable securityId) {
+  public void addObjectId(ObjectIdentifiable securityId) {
     ArgumentChecker.notNull(securityId, "securityId");
-    if (_securityIds == null) {
-      _securityIds = new ArrayList<ObjectIdentifier>();
+    if (_objectIds == null) {
+      _objectIds = new ArrayList<ObjectId>();
     }
-    _securityIds.add(securityId.getObjectId());
+    _objectIds.add(securityId.getObjectId());
   }
 
   /**
@@ -128,59 +128,59 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * 
    * @param securityIds  the new security identifiers, null clears the security id search
    */
-  public void setSecurityIds(Iterable<? extends ObjectIdentifiable> securityIds) {
+  public void setObjectIds(Iterable<? extends ObjectIdentifiable> securityIds) {
     if (securityIds == null) {
-      _securityIds = null;
+      _objectIds = null;
     } else {
-      _securityIds = new ArrayList<ObjectIdentifier>();
+      _objectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable securityId : securityIds) {
-        _securityIds.add(securityId.getObjectId());
+        _objectIds.add(securityId.getObjectId());
       }
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single security key identifier to the collection to search for.
+   * Adds a single security external identifier to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKey  the security key identifier to add, not null
+   * @param securityId  the security key identifier to add, not null
    */
-  public void addSecurityKey(Identifier securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    addSecurityKeys(Arrays.asList(securityKey));
+  public void addExternalId(ExternalId securityId) {
+    ArgumentChecker.notNull(securityId, "securityId");
+    addExternalIds(Arrays.asList(securityId));
   }
 
   /**
-   * Adds a collection of security key identifiers to the collection to search for.
+   * Adds a collection of security external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKeys  the security key identifiers to add, not null
+   * @param securityIds  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Identifier... securityKeys) {
-    ArgumentChecker.notNull(securityKeys, "securityKeys");
-    if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(securityKeys));
+  public void addExternalIds(ExternalId... securityIds) {
+    ArgumentChecker.notNull(securityIds, "securityIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(securityIds));
     } else {
-      getSecurityKeys().addIdentifiers(securityKeys);
+      getExternalIdSearch().addExternalIds(securityIds);
     }
   }
 
   /**
-   * Adds a collection of security key identifiers to the collection to search for.
+   * Adds a collection of security external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKeys  the security key identifiers to add, not null
+   * @param securityIds  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
-    ArgumentChecker.notNull(securityKeys, "securityKeys");
-    if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(securityKeys));
+  public void addExternalIds(Iterable<ExternalId> securityIds) {
+    ArgumentChecker.notNull(securityIds, "securityIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(securityIds));
     } else {
-      getSecurityKeys().addIdentifiers(securityKeys);
+      getExternalIdSearch().addExternalIds(securityIds);
     }
   }
 
@@ -192,10 +192,10 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     }
     SecurityDocument document = (SecurityDocument) obj;
     ManageableSecurity security = document.getSecurity();
-    if (getSecurityIds() != null && getSecurityIds().contains(document.getObjectId()) == false) {
+    if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getSecurityKeys() != null && getSecurityKeys().matches(security.getIdentifiers()) == false) {
+    if (getExternalIdSearch() != null && getExternalIdSearch().matches(security.getIdentifiers()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), document.getName()) == false) {
@@ -204,9 +204,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (getSecurityType() != null && getSecurityType().equals(security.getSecurityType()) == false) {
       return false;
     }
-    if (getIdentifierValue() != null) {
-      for (Identifier identifier : security.getIdentifiers()) {
-        if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue()) == false) {
+    if (getExternalIdValue() != null) {
+      for (ExternalId identifier : security.getIdentifiers()) {
+        if (RegexUtils.wildcardMatch(getExternalIdValue(), identifier.getValue()) == false) {
           return false;
         }
       }
@@ -235,12 +235,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1550081880:  // securityIds
-        return getSecurityIds();
-      case 807958868:  // securityKeys
-        return getSecurityKeys();
-      case 2085582408:  // identifierValue
-        return getIdentifierValue();
+      case -1489617159:  // objectIds
+        return getObjectIds();
+      case -265376882:  // externalIdSearch
+        return getExternalIdSearch();
+      case 2072311499:  // externalIdValue
+        return getExternalIdValue();
       case 3373707:  // name
         return getName();
       case 808245914:  // securityType
@@ -255,14 +255,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1550081880:  // securityIds
-        setSecurityIds((List<ObjectIdentifier>) newValue);
+      case -1489617159:  // objectIds
+        setObjectIds((List<ObjectId>) newValue);
         return;
-      case 807958868:  // securityKeys
-        setSecurityKeys((IdentifierSearch) newValue);
+      case -265376882:  // externalIdSearch
+        setExternalIdSearch((ExternalIdSearch) newValue);
         return;
-      case 2085582408:  // identifierValue
-        setIdentifierValue((String) newValue);
+      case 2072311499:  // externalIdValue
+        setExternalIdValue((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -284,9 +284,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SecuritySearchRequest other = (SecuritySearchRequest) obj;
-      return JodaBeanUtils.equal(getSecurityIds(), other.getSecurityIds()) &&
-          JodaBeanUtils.equal(getSecurityKeys(), other.getSecurityKeys()) &&
-          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
           JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
@@ -298,9 +298,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKeys());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
@@ -313,82 +313,82 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getSecurityIds() {
-    return _securityIds;
+  public List<ObjectId> getObjectIds() {
+    return _objectIds;
   }
 
   /**
-   * Gets the the {@code securityIds} property.
+   * Gets the the {@code objectIds} property.
    * Note that an empty set will return no securities.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> securityIds() {
-    return metaBean().securityIds().createProperty(this);
+  public final Property<List<ObjectId>> objectIds() {
+    return metaBean().objectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security keys to match, null to not match on security keys.
+   * Gets the security external identifiers to match, null to not match on security identifiers.
    * @return the value of the property
    */
-  public IdentifierSearch getSecurityKeys() {
-    return _securityKeys;
+  public ExternalIdSearch getExternalIdSearch() {
+    return _externalIdSearch;
   }
 
   /**
-   * Sets the security keys to match, null to not match on security keys.
-   * @param securityKeys  the new value of the property
+   * Sets the security external identifiers to match, null to not match on security identifiers.
+   * @param externalIdSearch  the new value of the property
    */
-  public void setSecurityKeys(IdentifierSearch securityKeys) {
-    this._securityKeys = securityKeys;
+  public void setExternalIdSearch(ExternalIdSearch externalIdSearch) {
+    this._externalIdSearch = externalIdSearch;
   }
 
   /**
-   * Gets the the {@code securityKeys} property.
+   * Gets the the {@code externalIdSearch} property.
    * @return the property, not null
    */
-  public final Property<IdentifierSearch> securityKeys() {
-    return metaBean().securityKeys().createProperty(this);
+  public final Property<ExternalIdSearch> externalIdSearch() {
+    return metaBean().externalIdSearch().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier value, matching against the <b>value</b> of the identifiers,
+   * Gets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    * @return the value of the property
    */
-  public String getIdentifierValue() {
-    return _identifierValue;
+  public String getExternalIdValue() {
+    return _externalIdValue;
   }
 
   /**
-   * Sets the identifier value, matching against the <b>value</b> of the identifiers,
+   * Sets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
-   * @param identifierValue  the new value of the property
+   * @param externalIdValue  the new value of the property
    */
-  public void setIdentifierValue(String identifierValue) {
-    this._identifierValue = identifierValue;
+  public void setExternalIdValue(String externalIdValue) {
+    this._externalIdValue = externalIdValue;
   }
 
   /**
-   * Gets the the {@code identifierValue} property.
+   * Gets the the {@code externalIdValue} property.
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    * @return the property, not null
    */
-  public final Property<String> identifierValue() {
-    return metaBean().identifierValue().createProperty(this);
+  public final Property<String> externalIdValue() {
+    return metaBean().externalIdValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -486,21 +486,21 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityIds} property.
+     * The meta-property for the {@code objectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(
-        this, "securityIds", SecuritySearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _objectIds = DirectMetaProperty.ofReadWrite(
+        this, "objectIds", SecuritySearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code securityKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      */
-    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(
-        this, "securityKeys", SecuritySearchRequest.class, IdentifierSearch.class);
+    private final MetaProperty<ExternalIdSearch> _externalIdSearch = DirectMetaProperty.ofReadWrite(
+        this, "externalIdSearch", SecuritySearchRequest.class, ExternalIdSearch.class);
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code externalIdValue} property.
      */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
-        this, "identifierValue", SecuritySearchRequest.class, String.class);
+    private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
+        this, "externalIdValue", SecuritySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -521,9 +521,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "securityIds",
-        "securityKeys",
-        "identifierValue",
+        "objectIds",
+        "externalIdSearch",
+        "externalIdValue",
         "name",
         "securityType",
         "fullDetail");
@@ -537,12 +537,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1550081880:  // securityIds
-          return _securityIds;
-        case 807958868:  // securityKeys
-          return _securityKeys;
-        case 2085582408:  // identifierValue
-          return _identifierValue;
+        case -1489617159:  // objectIds
+          return _objectIds;
+        case -265376882:  // externalIdSearch
+          return _externalIdSearch;
+        case 2072311499:  // externalIdValue
+          return _externalIdValue;
         case 3373707:  // name
           return _name;
         case 808245914:  // securityType
@@ -570,27 +570,27 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityIds} property.
+     * The meta-property for the {@code objectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> securityIds() {
-      return _securityIds;
+    public final MetaProperty<List<ObjectId>> objectIds() {
+      return _objectIds;
     }
 
     /**
-     * The meta-property for the {@code securityKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierSearch> securityKeys() {
-      return _securityKeys;
+    public final MetaProperty<ExternalIdSearch> externalIdSearch() {
+      return _externalIdSearch;
     }
 
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code externalIdValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> identifierValue() {
-      return _identifierValue;
+    public final MetaProperty<String> externalIdValue() {
+      return _externalIdValue;
     }
 
     /**

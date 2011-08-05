@@ -13,7 +13,7 @@ namespace com.opengamma.financial.security.option {
    
     required string securityType [default = "SWAPTION"];
     required boolean isPayer;
-    required id.Identifier underlyingIdentifier;
+    required id.ExternalId underlyingIdentifier;
     required boolean isLong;
     required util.time.Expiry expiry;
     required boolean isCashSettled;

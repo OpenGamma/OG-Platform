@@ -32,7 +32,7 @@ public class CurrencyTest extends FinancialTestBase {
   }
 
   @Test
-  public void testFromUniqueIdentifier() {
+  public void testFromUniqueId() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
         UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getUniqueId().toString())));
   }

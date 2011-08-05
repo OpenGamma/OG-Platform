@@ -37,7 +37,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
   }
 
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
-  protected Calendar getCalendar(final Identifier regionId) {
+  protected Calendar getCalendar(final ExternalId regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
       final Set<Region> resultRegions = new HashSet<Region>();
@@ -97,10 +97,10 @@ public class FixedFloatSwapSecurityToSwapConverter {
     } else {
       throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps");
     }
-    final Identifier regionId = payLeg.getRegionIdentifier();
+    final ExternalId regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = getCalendar(regionId);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
+    final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
     return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate,
         maturityDate, fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays(), !isPayer));

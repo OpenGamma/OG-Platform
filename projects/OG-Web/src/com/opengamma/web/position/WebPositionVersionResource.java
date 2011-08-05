@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 
 /**
@@ -93,7 +93,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPositionsData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebPositionsData data, final UniqueId overrideVersionId) {
     String positionId = data.getBestPositionUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebPositionVersionResource.class).build(positionId, versionId);

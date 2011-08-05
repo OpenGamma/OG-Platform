@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.cache;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Generates, and manages the lifecycle of, {@link ViewComputationCache} instances.
@@ -19,7 +19,7 @@ public interface ViewComputationCacheSource {
    * @param calculationConfigurationName  the name of the view calculation configuration, not {@code null} 
    * @return the computation cache for the given arguments
    */
-  ViewComputationCache getCache(UniqueIdentifier viewCycleId, String calculationConfigurationName);
+  ViewComputationCache getCache(UniqueId viewCycleId, String calculationConfigurationName);
   
   // REVIEW kirk 2010-08-07 -- This might be better suited with another method. It's not currently
   // being called by anything.
@@ -31,14 +31,14 @@ public interface ViewComputationCacheSource {
    * @param calculationConfigurationName  the name of the view calculation configuration, not {@code null} 
    * @return the cloned cache
    */
-  ViewComputationCache cloneCache(UniqueIdentifier viewCycleId, String calculationConfigurationName);
+  ViewComputationCache cloneCache(UniqueId viewCycleId, String calculationConfigurationName);
   
   /**
-   * Releases all caches previously generated using {@link #getCache(UniqueIdentifier, String)} for the given
+   * Releases all caches previously generated using {@link #getCache(UniqueId, String)} for the given
    * view cycle.
    * 
    * @param viewCycleId  the unique identifier of the view cycle
    */
-  void releaseCaches(UniqueIdentifier viewCycleId);
+  void releaseCaches(UniqueId viewCycleId);
   
 }

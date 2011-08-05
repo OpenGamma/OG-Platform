@@ -15,7 +15,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test VersionCorrection. 
+ * Test {@link VersionCorrection}. 
  */
 @Test
 public class VersionCorrectionTest {

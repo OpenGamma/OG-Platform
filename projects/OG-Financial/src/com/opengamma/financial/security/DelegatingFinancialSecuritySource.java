@@ -12,9 +12,9 @@ import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  * If no scheme-specific handler has been registered, a default is used.
  */
 public class DelegatingFinancialSecuritySource
-    extends UniqueIdentifierSchemeDelegator<FinancialSecuritySource>
+    extends UniqueIdSchemeDelegator<FinancialSecuritySource>
     implements FinancialSecuritySource {
 
   /**
@@ -61,13 +61,13 @@ public class DelegatingFinancialSecuritySource
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getSecurity(uid);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
@@ -80,7 +80,7 @@ public class DelegatingFinancialSecuritySource
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {

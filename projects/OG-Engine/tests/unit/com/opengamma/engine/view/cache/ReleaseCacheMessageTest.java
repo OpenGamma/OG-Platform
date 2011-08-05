@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -91,10 +91,10 @@ public class ReleaseCacheMessageTest {
         new InMemoryIdentifierMap(), s_fudgeContext, new DefaultFudgeMessageStoreFactory(privateServerStore,
             s_fudgeContext), new DefaultFudgeMessageStoreFactory(sharedStore, s_fudgeContext));
     s_logger.info("Creating server local caches");
-    UniqueIdentifier viewCycle1Id = UniqueIdentifier.of("Test", "ViewCycle", "1");
-    UniqueIdentifier viewCycle2Id = UniqueIdentifier.of("Test", "ViewCycle", "2");
-    UniqueIdentifier viewCycle3Id = UniqueIdentifier.of("Test", "ViewCycle", "3");
-    UniqueIdentifier viewCycle4Id = UniqueIdentifier.of("Test", "ViewCycle", "4");
+    UniqueId viewCycle1Id = UniqueId.of("Test", "ViewCycle", "1");
+    UniqueId viewCycle2Id = UniqueId.of("Test", "ViewCycle", "2");
+    UniqueId viewCycle3Id = UniqueId.of("Test", "ViewCycle", "3");
+    UniqueId viewCycle4Id = UniqueId.of("Test", "ViewCycle", "4");
     putStuffIntoCache(cacheSource.getCache(viewCycle1Id, "Config 1"));
     putStuffIntoCache(cacheSource.getCache(viewCycle1Id, "Config 2"));
     putStuffIntoCache(cacheSource.getCache(viewCycle2Id, "Config 1"));
@@ -141,7 +141,7 @@ public class ReleaseCacheMessageTest {
       pause ();
     }
     s_logger.info("Using new cache at remote client");
-    UniqueIdentifier viewCycle5Id = UniqueIdentifier.of("Test", "ViewCycle", "5");
+    UniqueId viewCycle5Id = UniqueId.of("Test", "ViewCycle", "5");
     putStuffIntoCache(remoteSource.getCache(viewCycle5Id, "Config 1"));
     assertEquals(9, privateServerStore._cachesCreated.size());
     assertEquals(9, sharedStore._cachesCreated.size());

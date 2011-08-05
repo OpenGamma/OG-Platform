@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.tuple.Pair;
@@ -83,7 +83,7 @@ public class JmsChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    UniqueIdentifier addedId = generateUniqueId();
+    UniqueId addedId = generateUniqueId();
     _changeManager.entityChanged(ChangeType.ADDED, null, addedId, Instant.now());
     _testListener.waitForAddedItem(WAIT_TIMEOUT);
     assertEquals(addedId, _testListener.getAddedItem());
@@ -93,7 +93,7 @@ public class JmsChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    UniqueIdentifier removedId = generateUniqueId();
+    UniqueId removedId = generateUniqueId();
     _changeManager.entityChanged(ChangeType.REMOVED, removedId, null, Instant.now());
     _testListener.waitForRemovedItem(WAIT_TIMEOUT);
     assertEquals(removedId, _testListener.getRemovedItem());
@@ -103,8 +103,8 @@ public class JmsChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
 
-    UniqueIdentifier oldId = generateUniqueId();
-    UniqueIdentifier newId = generateUniqueId();
+    UniqueId oldId = generateUniqueId();
+    UniqueId newId = generateUniqueId();
     _changeManager.entityChanged(ChangeType.UPDATED, oldId, newId, Instant.now());
     _testListener.waitForUpdatedItem(WAIT_TIMEOUT);
     assertEquals(Pair.of(oldId, newId), _testListener.getUpdatedItem());
@@ -120,8 +120,8 @@ public class JmsChangeManagerTest {
     }
     startContainer();
     
-    UniqueIdentifier v1Id = generateUniqueId();
-    UniqueIdentifier v2Id = generateUniqueId();
+    UniqueId v1Id = generateUniqueId();
+    UniqueId v2Id = generateUniqueId();
     _changeManager.entityChanged(ChangeType.ADDED, null, v1Id, Instant.now());
     _changeManager.entityChanged(ChangeType.UPDATED, v1Id, v2Id, Instant.now());
     _changeManager.entityChanged(ChangeType.REMOVED, v2Id, null, Instant.now());
@@ -141,8 +141,8 @@ public class JmsChangeManagerTest {
     }
   }
 
-  private UniqueIdentifier generateUniqueId() {
-    return UniqueIdentifier.of("TestEntitySource", GUIDGenerator.generate().toString());
+  private UniqueId generateUniqueId() {
+    return UniqueId.of("TestEntitySource", GUIDGenerator.generate().toString());
   }
 
 }

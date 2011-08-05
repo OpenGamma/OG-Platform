@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -57,14 +57,14 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier resolve(String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
+  public UniqueId resolve(String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(identifiers, "identifiers");
     resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
     // find all matching time-series
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest(identifiers);
-    searchRequest.setIdentifierValidityDate(identifierValidityDate);
+    searchRequest.setValidityDate(identifierValidityDate);
     searchRequest.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {
@@ -88,12 +88,12 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
    * @param rating  the configured rules, not null
    * @return the best match, null if no match
    */
-  private UniqueIdentifier bestMatch(List<ManageableHistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesRating rating) {
+  private UniqueId bestMatch(List<ManageableHistoricalTimeSeriesInfo> infoList, HistoricalTimeSeriesRating rating) {
     s_logger.debug("Find best match using rules: {}", rating);
     
     // pick the highest score
     int currentScore = Integer.MIN_VALUE;
-    UniqueIdentifier result = null;
+    UniqueId result = null;
     for (ManageableHistoricalTimeSeriesInfo info : infoList) {
       int score = rating.rate(info);
       s_logger.debug("Score: {} for info: {}", score, info);

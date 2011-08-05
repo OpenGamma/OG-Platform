@@ -13,7 +13,7 @@ import javax.time.Duration;
 import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -29,14 +29,14 @@ public interface ViewResultModel {
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getViewProcessId();
+  UniqueId getViewProcessId();
   
   /**
    * Gets the unique identifier of the view cycle responsible for the results.
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getViewCycleId();
+  UniqueId getViewCycleId();
 
   /**
    * Returns the time for which the results were computed. 

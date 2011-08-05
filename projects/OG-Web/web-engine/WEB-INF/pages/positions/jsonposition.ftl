@@ -18,7 +18,7 @@
         "quantity": "${position.quantity}"
     },
     "securities": [
-        <#list position.securityLink.bundleId.identifiers as item>{
+        <#list position.securityLink.externalId.externalIds as item>{
             "scheme": "${item.scheme.name}",
             "value": "${item.value}"
         }<#if item_has_next>,</#if></#list>
@@ -27,7 +27,7 @@
         <#list position.trades as item>{
             "id": "${item.uniqueId.objectId}",
             "quantity": "${item.quantity}",
-            "counterParty": "${item.counterpartyKey}",
+            "counterParty": "${item.counterpartyExternalId}",
             "date": "${item.tradeDate}"
         }<#if item_has_next>,</#if></#list>
     ]

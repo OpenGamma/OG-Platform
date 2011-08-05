@@ -19,9 +19,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.test.DBTest;
@@ -44,30 +44,30 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removePosition_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
-    _posMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "0", "0");
+    _posMaster.remove(uniqueId);
   }
 
   @Test
   public void test_removePosition_removed() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
-    _posMaster.remove(uid);
-    PositionDocument test = _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "122", "0");
+    _posMaster.remove(uniqueId);
+    PositionDocument test = _posMaster.get(uniqueId);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueId());
+    assertEquals(uniqueId, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
-    assertEquals(Identifier.of("TICKER", "ORCL"), secKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("TICKER", "ORCL"), secKey.getExternalIds().iterator().next());
   }
 
   //-------------------------------------------------------------------------

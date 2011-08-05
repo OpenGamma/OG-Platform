@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
@@ -21,13 +21,13 @@ import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
  */
 public class MockDistributionSpecificationResolver implements DistributionSpecificationResolver {
 
-  private final IdentificationScheme _domain;
+  private final ExternalScheme _domain;
   private final DistributionSpecificationResolver _distributionSpecificationResolver;
 
-  public MockDistributionSpecificationResolver(IdentificationScheme domain) {
+  public MockDistributionSpecificationResolver(ExternalScheme domain) {
     this(domain, new NaiveDistributionSpecificationResolver());
   }
-  public MockDistributionSpecificationResolver(IdentificationScheme domain,
+  public MockDistributionSpecificationResolver(ExternalScheme domain,
       DistributionSpecificationResolver distributionSpecificationResolver) {
     _domain = domain;
     _distributionSpecificationResolver = distributionSpecificationResolver;
@@ -40,7 +40,7 @@ public class MockDistributionSpecificationResolver implements DistributionSpecif
       return null;
     } else {
       LiveDataSpecification inner = new LiveDataSpecification(
-          liveDataSpecificationFromClient.getNormalizationRuleSetId(), Collections.singleton(Identifier.of(_domain,
+          liveDataSpecificationFromClient.getNormalizationRuleSetId(), Collections.singleton(ExternalId.of(_domain,
               id)));
       return _distributionSpecificationResolver.resolve(inner);
     }

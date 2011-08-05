@@ -38,7 +38,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
@@ -172,7 +172,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
-        final Map<Identifier, Double> marketDataMap = _helper.buildMarketDataMap(inputs);
+        final Map<ExternalId, Double> marketDataMap = _helper.buildMarketDataMap(inputs);
 
         // Gather market data rates
         // Note that this assumes that all strips are priced in decimal percent. We need to resolve

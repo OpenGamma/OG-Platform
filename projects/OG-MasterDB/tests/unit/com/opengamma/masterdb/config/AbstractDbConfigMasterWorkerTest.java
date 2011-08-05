@@ -29,9 +29,9 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -51,8 +51,8 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
   protected Instant _version1cInstant;
   protected Instant _version2Instant;
   protected int _totalConfigs;
-  protected int _totalIdentifiers;
-  protected int _totalIdentifierBundles;
+  protected int _totalExternalIds;
+  protected int _totalBundles;
  
 
   public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion) {
@@ -73,15 +73,15 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     _version1bInstant = now.minusSeconds(101);
     _version1cInstant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
-    addIdentifiers();
-    addIdentifierBundles();
+    addExternalIds();
+    addExternalIdBundles();
     _totalConfigs = 6;
   }
 
-  private void addIdentifiers() {
-    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(Identifier.of("A", "B"));
+  private void addExternalIds() {
+    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(ExternalId.of("A", "B"));
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
-    String cls = Identifier.class.getName();
+    String cls = ExternalId.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
     final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
@@ -96,13 +96,13 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig202", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    _totalIdentifiers = 3;
+    _totalExternalIds = 3;
   }
   
-  private void addIdentifierBundles() {
-    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
+  private void addExternalIdBundles() {
+    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
-    String cls = IdentifierBundle.class.getName();
+    String cls = ExternalIdBundle.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
     final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
@@ -117,7 +117,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         402, 401, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig402", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    _totalIdentifierBundles = 3;
+    _totalBundles = 3;
   }
   
   @AfterMethod
@@ -127,51 +127,51 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
   }
 
   //-------------------------------------------------------------------------
-  protected void assert101(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
+  protected void assert101(final ConfigDocument<ExternalId> test) {
+    UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig101", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
   }
 
-  protected void assert102(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "102", "0");
+  protected void assert102(final ConfigDocument<ExternalId> test) {
+    UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1bInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1bInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig102", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
   }
 
-  protected void assert201(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
+  protected void assert201(final ConfigDocument<ExternalId> test) {
+    UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1cInstant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1cInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig201", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
   }
 
-  protected void assert202(final ConfigDocument<Identifier> test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
+  protected void assert202(final ConfigDocument<ExternalId> test) {
+    UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
   }
 
 }

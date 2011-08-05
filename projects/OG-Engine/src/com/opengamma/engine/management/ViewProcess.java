@@ -12,7 +12,7 @@ import net.sf.ehcache.CacheException;
 
 import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,7 +44,7 @@ public class ViewProcess implements ViewProcessMBean {
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorId>,name=<viewProcessId>"
    */
-  static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId) {
+  static ObjectName createObjectName(UniqueId viewProcessorId, UniqueId viewProcessId) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorId.getValue() + ",name=ViewProcess " + viewProcessId.getValue());
@@ -55,7 +55,7 @@ public class ViewProcess implements ViewProcessMBean {
   }
   
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _viewProcess.getUniqueId();
   }
   

@@ -20,10 +20,10 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierWithDates;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
@@ -59,9 +59,9 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     _htsMaster.update(doc);
   }
@@ -69,22 +69,22 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noHistoricalTimeSeries() {
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    doc.setUniqueId(UniqueId.of("DbHts", "101", "0"));
     _htsMaster.update(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "0", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "0", "0"));
     info.setName("Updated");
     info.setDataField("DF");
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     _htsMaster.update(doc);
   }
@@ -92,15 +92,15 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "201", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "201", "0"));
     info.setName("Updated");
     info.setDataField("DF");
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     _htsMaster.update(doc);
   }
@@ -109,17 +109,17 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
   public void test_update_getUpdateGet() {
     Instant now = Instant.now(_htsMaster.getTimeSource());
     
-    HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "101", "0"));
     info.setName("Updated");
     info.setDataField("DF");
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument input = new HistoricalTimeSeriesInfoDocument(info);
     
     HistoricalTimeSeriesInfoDocument updated = _htsMaster.update(input);
@@ -130,7 +130,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getInfo(), updated.getInfo());
     
-    HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
@@ -150,17 +150,17 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
         return "INSERT";  // bad sql
       }
     };
-    final HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    final HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setUniqueId(UniqueIdentifier.of("DbHts", "101", "0"));
+    info.setUniqueId(UniqueId.of("DbHts", "101", "0"));
     info.setName("Updated");
     info.setDataField("DF");
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument input = new HistoricalTimeSeriesInfoDocument(info);
     try {
       w.update(input);
@@ -168,7 +168,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final HistoricalTimeSeriesInfoDocument test = _htsMaster.get(UniqueIdentifier.of("DbHts", "101", "0"));
+    final HistoricalTimeSeriesInfoDocument test = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     
     assertEquals(base, test);
   }

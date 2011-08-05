@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
@@ -87,7 +87,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   public WebRegionVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     RegionDocument doc = data().getRegion();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       RegionDocument versioned = data().getRegionMaster().get(combined);
       data().setVersioned(versioned);
