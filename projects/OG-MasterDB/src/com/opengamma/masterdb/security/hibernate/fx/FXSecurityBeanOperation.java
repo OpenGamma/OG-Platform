@@ -7,8 +7,8 @@
 package com.opengamma.masterdb.security.hibernate.fx;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
@@ -36,7 +36,7 @@ public final class FXSecurityBeanOperation extends AbstractSecurityBeanOperation
     bean.setPayCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPayCurrency().getCode()));
     bean.setReceiveAmount(security.getReceiveAmount());
     bean.setReceiveCurrency(secMasterSession.getOrCreateCurrencyBean(security.getReceiveCurrency().getCode()));
-    bean.setRegion(identifierToIdentifierBean(security.getRegion()));
+    bean.setRegion(externalIdToExternalIdBean(security.getRegion()));
     return bean;
   }
 
@@ -46,7 +46,7 @@ public final class FXSecurityBeanOperation extends AbstractSecurityBeanOperation
         currencyBeanToCurrency(bean.getReceiveCurrency()), 
         bean.getPayAmount(), 
         bean.getReceiveAmount(), 
-        identifierBeanToIdentifier(bean.getRegion()));
+        externalIdBeanToExternalId(bean.getRegion()));
   }
 
 }

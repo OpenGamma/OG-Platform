@@ -13,7 +13,7 @@
     <property name="conversionFactor" type="double" not-null="true" />
     <set name="identifiers" table="sec_futurebundleidentifier">
       <key column="bundle_id" />
-      <composite-element class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+      <composite-element class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
         <property name="scheme" type="string" not-null="true" />
         <property name="identifier" type="string" not-null="true" />
       </composite-element>

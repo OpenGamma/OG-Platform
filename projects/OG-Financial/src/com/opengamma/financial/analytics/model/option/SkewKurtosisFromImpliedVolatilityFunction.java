@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.math.function.Function2D;
 import com.opengamma.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
 import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
@@ -45,7 +45,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    final UniqueIdentifier uid = option.getUniqueId();
+    final UniqueId uid = option.getUniqueId();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
@@ -89,7 +89,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
+      final UniqueId uid = target.getSecurity().getUniqueId();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));

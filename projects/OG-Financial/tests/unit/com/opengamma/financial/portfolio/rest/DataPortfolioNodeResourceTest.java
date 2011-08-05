@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -25,7 +25,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPortfolioNodeResourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "NodeA");
+  private static final UniqueId UID = UniqueId.of("Test", "NodeA");
   private PortfolioMaster _underlying;
   private DataPortfolioNodeResource _resource;
 

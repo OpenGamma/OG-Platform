@@ -16,7 +16,7 @@ import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 
@@ -34,15 +34,15 @@ public class RemoteViewCycle implements ViewCycle {
   }
   
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueIdentifier.class);
+    return _client.access(uri).get(UniqueId.class);
   }
 
   @Override
-  public UniqueIdentifier getViewProcessId() {
+  public UniqueId getViewProcessId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_VIEW_PROCESS_ID).build();
-    return _client.access(uri).get(UniqueIdentifier.class);
+    return _client.access(uri).get(UniqueId.class);
   }
 
   @Override

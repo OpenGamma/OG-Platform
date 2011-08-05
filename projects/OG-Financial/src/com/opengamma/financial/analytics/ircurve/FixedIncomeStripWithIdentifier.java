@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -20,7 +20,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
   private final StripInstrumentType _instrumentType;
   private final Tenor _maturity;
   private int _nthFutureFromTenor;
-  private final Identifier _security;
+  private final ExternalId _security;
 
   /**
    * Gets the instrumentType field.
@@ -42,7 +42,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
    * Gets the security field.
    * @return the security
    */
-  public Identifier getSecurity() {
+  public ExternalId getSecurity() {
     return _security;
   }
 
@@ -59,7 +59,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
     return _nthFutureFromTenor;
   }
 
-  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final int nthFutureFromTenor, final Identifier security) {
+  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final int nthFutureFromTenor, final ExternalId security) {
     _instrumentType = instrumentType;
     if (_instrumentType != StripInstrumentType.FUTURE) {
       throw new IllegalStateException("Cannot set number of futures after tenor for a non future node, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
@@ -71,7 +71,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
     _security = security;
   }
 
-  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final Identifier security) {
+  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final ExternalId security) {
     _instrumentType = instrumentType;
     if (_instrumentType == StripInstrumentType.FUTURE) {
       throw new IllegalStateException("Cannot create future node type without a nthFutureFromTenor parameter, type=" + instrumentType + " maturity=" + maturity + " security=" + security);

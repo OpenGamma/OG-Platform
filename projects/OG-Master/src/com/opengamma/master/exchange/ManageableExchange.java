@@ -25,9 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -46,13 +46,13 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
-   * The bundle of identifiers that define the exchange.
+   * The bundle of external identifiers that define the exchange.
    * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
-  private IdentifierBundle _identifiers = IdentifierBundle.EMPTY;
+  private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The name of the exchange intended for display purposes.
    * This field must not be null for the object to be valid.
@@ -60,10 +60,10 @@ public class ManageableExchange extends DirectBean implements Exchange {
   @PropertyDefinition
   private String _name;
   /**
-   * The region key identifier bundle that defines where the exchange is located.
+   * The region external identifier bundle that defines where the exchange is located.
    */
   @PropertyDefinition
-  private IdentifierBundle _regionKey;
+  private ExternalIdBundle _regionIdBundle;
   /**
    * The time-zone of the exchange.
    */
@@ -86,40 +86,41 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * 
    * @param identifiers  the bundle of identifiers that define the exchange, not null
    * @param name  the name of the exchange, for display purposes, not null
-   * @param regionKey  the region key identifier bundle where the exchange is located, null if not applicable (dark pool, electronic, ...)
+   * @param regionBundle  the region external identifier bundle where the exchange is located, null if not applicable (dark pool, electronic, ...)
    * @param timeZone  the time-zone, may be null
    */
-  public ManageableExchange(IdentifierBundle identifiers, String name, IdentifierBundle regionKey, TimeZone timeZone) {
+  public ManageableExchange(ExternalIdBundle identifiers, String name, ExternalIdBundle regionBundle, TimeZone timeZone) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(name, "name");
-    setIdentifiers(identifiers);
+    setExternalIdBundle(identifiers);
     setName(name);
-    setRegionKey(regionKey);
+    setRegionIdBundle(regionBundle);
     setTimeZone(timeZone);
   }
 
   /**
    * Returns an independent clone of this exchange.
+   * 
    * @return the clone, not null
    */
   public ManageableExchange clone() {
     ManageableExchange cloned = new ManageableExchange();
     cloned._uniqueId = _uniqueId;
     cloned._name = _name;
-    cloned._identifiers = _identifiers;
-    cloned._regionKey = _regionKey;
+    cloned._externalIdBundle = _externalIdBundle;
+    cloned._regionIdBundle = _regionIdBundle;
     cloned._detail.addAll(_detail);
     return cloned;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the bundle representing this exchange.
+   * Adds an external identifier to the bundle representing this exchange.
    * 
-   * @param identifier  the identifier to add, not null
+   * @param exchangeId  the identifier to add, not null
    */
-  public void addIdentifier(Identifier identifier) {
-    setIdentifiers(getIdentifiers().withIdentifier(identifier));
+  public void addExternalId(ExternalId exchangeId) {
+    setExternalIdBundle(getExternalIdBundle().withExternalId(exchangeId));
   }
 
   //-------------------------------------------------------------------------
@@ -129,7 +130,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * @return the value of the property
    */
   public String getISOMic() {
-    return _identifiers.getIdentifierValue(ExchangeUtils.ISO_MIC);
+    return _externalIdBundle.getValue(ExchangeUtils.ISO_MIC);
   }
 
   /**
@@ -138,9 +139,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * @param isoMicCode  the exchange MIC to set, null to remove any defined ISO MIC
    */
   public void setISOMic(String isoMicCode) {
-    setIdentifiers(getIdentifiers().withoutScheme(ExchangeUtils.ISO_MIC));
+    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExchangeUtils.ISO_MIC));
     if (isoMicCode != null) {
-      addIdentifier(ExchangeUtils.isoMicExchangeId(isoMicCode));
+      addExternalId(ExchangeUtils.isoMicExchangeId(isoMicCode));
     }
   }
 
@@ -167,12 +168,12 @@ public class ManageableExchange extends DirectBean implements Exchange {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
+      case -736922008:  // externalIdBundle
+        return getExternalIdBundle();
       case 3373707:  // name
         return getName();
-      case 74328779:  // regionKey
-        return getRegionKey();
+      case 979697809:  // regionIdBundle
+        return getRegionIdBundle();
       case -2077180903:  // timeZone
         return getTimeZone();
       case -1335224239:  // detail
@@ -186,16 +187,16 @@ public class ManageableExchange extends DirectBean implements Exchange {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((IdentifierBundle) newValue);
+      case -736922008:  // externalIdBundle
+        setExternalIdBundle((ExternalIdBundle) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
         return;
-      case 74328779:  // regionKey
-        setRegionKey((IdentifierBundle) newValue);
+      case 979697809:  // regionIdBundle
+        setRegionIdBundle((ExternalIdBundle) newValue);
         return;
       case -2077180903:  // timeZone
         setTimeZone((TimeZone) newValue);
@@ -215,9 +216,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
     if (obj != null && obj.getClass() == this.getClass()) {
       ManageableExchange other = (ManageableExchange) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getRegionKey(), other.getRegionKey()) &&
+          JodaBeanUtils.equal(getRegionIdBundle(), other.getRegionIdBundle()) &&
           JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
           JodaBeanUtils.equal(getDetail(), other.getDetail());
     }
@@ -228,9 +229,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDetail());
     return hash;
@@ -242,7 +243,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -251,7 +252,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -260,36 +261,36 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bundle of identifiers that define the exchange.
+   * Gets the bundle of external identifiers that define the exchange.
    * This field must not be null for the object to be valid.
    * @return the value of the property
    */
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
+  public ExternalIdBundle getExternalIdBundle() {
+    return _externalIdBundle;
   }
 
   /**
-   * Sets the bundle of identifiers that define the exchange.
+   * Sets the bundle of external identifiers that define the exchange.
    * This field must not be null for the object to be valid.
-   * @param identifiers  the new value of the property
+   * @param externalIdBundle  the new value of the property
    */
-  public void setIdentifiers(IdentifierBundle identifiers) {
-    this._identifiers = identifiers;
+  public void setExternalIdBundle(ExternalIdBundle externalIdBundle) {
+    this._externalIdBundle = externalIdBundle;
   }
 
   /**
-   * Gets the the {@code identifiers} property.
+   * Gets the the {@code externalIdBundle} property.
    * This field must not be null for the object to be valid.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> identifiers() {
-    return metaBean().identifiers().createProperty(this);
+  public final Property<ExternalIdBundle> externalIdBundle() {
+    return metaBean().externalIdBundle().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -322,27 +323,27 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region key identifier bundle that defines where the exchange is located.
+   * Gets the region external identifier bundle that defines where the exchange is located.
    * @return the value of the property
    */
-  public IdentifierBundle getRegionKey() {
-    return _regionKey;
+  public ExternalIdBundle getRegionIdBundle() {
+    return _regionIdBundle;
   }
 
   /**
-   * Sets the region key identifier bundle that defines where the exchange is located.
-   * @param regionKey  the new value of the property
+   * Sets the region external identifier bundle that defines where the exchange is located.
+   * @param regionIdBundle  the new value of the property
    */
-  public void setRegionKey(IdentifierBundle regionKey) {
-    this._regionKey = regionKey;
+  public void setRegionIdBundle(ExternalIdBundle regionIdBundle) {
+    this._regionIdBundle = regionIdBundle;
   }
 
   /**
-   * Gets the the {@code regionKey} property.
+   * Gets the the {@code regionIdBundle} property.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> regionKey() {
-    return metaBean().regionKey().createProperty(this);
+  public final Property<ExternalIdBundle> regionIdBundle() {
+    return metaBean().regionIdBundle().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -409,23 +410,23 @@ public class ManageableExchange extends DirectBean implements Exchange {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableExchange.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableExchange.class, UniqueId.class);
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code externalIdBundle} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
-        this, "identifiers", ManageableExchange.class, IdentifierBundle.class);
+    private final MetaProperty<ExternalIdBundle> _externalIdBundle = DirectMetaProperty.ofReadWrite(
+        this, "externalIdBundle", ManageableExchange.class, ExternalIdBundle.class);
     /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", ManageableExchange.class, String.class);
     /**
-     * The meta-property for the {@code regionKey} property.
+     * The meta-property for the {@code regionIdBundle} property.
      */
-    private final MetaProperty<IdentifierBundle> _regionKey = DirectMetaProperty.ofReadWrite(
-        this, "regionKey", ManageableExchange.class, IdentifierBundle.class);
+    private final MetaProperty<ExternalIdBundle> _regionIdBundle = DirectMetaProperty.ofReadWrite(
+        this, "regionIdBundle", ManageableExchange.class, ExternalIdBundle.class);
     /**
      * The meta-property for the {@code timeZone} property.
      */
@@ -443,9 +444,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "identifiers",
+        "externalIdBundle",
         "name",
-        "regionKey",
+        "regionIdBundle",
         "timeZone",
         "detail");
 
@@ -460,12 +461,12 @@ public class ManageableExchange extends DirectBean implements Exchange {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 1368189162:  // identifiers
-          return _identifiers;
+        case -736922008:  // externalIdBundle
+          return _externalIdBundle;
         case 3373707:  // name
           return _name;
-        case 74328779:  // regionKey
-          return _regionKey;
+        case 979697809:  // regionIdBundle
+          return _regionIdBundle;
         case -2077180903:  // timeZone
           return _timeZone;
         case -1335224239:  // detail
@@ -494,16 +495,16 @@ public class ManageableExchange extends DirectBean implements Exchange {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code externalIdBundle} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> identifiers() {
-      return _identifiers;
+    public final MetaProperty<ExternalIdBundle> externalIdBundle() {
+      return _externalIdBundle;
     }
 
     /**
@@ -515,11 +516,11 @@ public class ManageableExchange extends DirectBean implements Exchange {
     }
 
     /**
-     * The meta-property for the {@code regionKey} property.
+     * The meta-property for the {@code regionIdBundle} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> regionKey() {
-      return _regionKey;
+    public final MetaProperty<ExternalIdBundle> regionIdBundle() {
+      return _regionIdBundle;
     }
 
     /**

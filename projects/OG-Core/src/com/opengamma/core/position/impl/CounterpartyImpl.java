@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,16 +25,16 @@ public class CounterpartyImpl implements Counterparty, Serializable {
   /**
    * The counterparty identifier.
    */
-  private Identifier _identifier;
+  private ExternalId _counterpartyId;
 
   /**
    * Creates an instance.
    * 
-   * @param identifier  the identifier, not null
+   * @param counterpartyId  the identifier, not null
    */
-  public CounterpartyImpl(Identifier identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    _identifier = identifier;
+  public CounterpartyImpl(ExternalId counterpartyId) {
+    ArgumentChecker.notNull(counterpartyId, "counterpartyId");
+    _counterpartyId = counterpartyId;
   }
 
   //-------------------------------------------------------------------------
@@ -44,8 +44,8 @@ public class CounterpartyImpl implements Counterparty, Serializable {
    * @return the identifier, not null
    */
   @Override
-  public Identifier getIdentifier() {
-    return _identifier;
+  public ExternalId getExternalId() {
+    return _counterpartyId;
   }
 
   //-------------------------------------------------------------------------
@@ -56,7 +56,7 @@ public class CounterpartyImpl implements Counterparty, Serializable {
     }
     if (obj instanceof CounterpartyImpl) {
       CounterpartyImpl other = (CounterpartyImpl) obj;
-      return ObjectUtils.equals(getIdentifier(), other.getIdentifier());
+      return ObjectUtils.equals(getExternalId(), other.getExternalId());
     }
     return false;
   }
@@ -64,13 +64,13 @@ public class CounterpartyImpl implements Counterparty, Serializable {
   @Override
   public int hashCode() {
     int hashCode = 65;
-    hashCode += getIdentifier().hashCode();
+    hashCode += getExternalId().hashCode();
     return hashCode;
   }
 
   @Override
   public String toString() {
-    return new StrBuilder().append("Counterparty[id:").append(getIdentifier().toString()).append(']').toString();
+    return new StrBuilder().append("Counterparty[id:").append(getExternalId().toString()).append(']').toString();
   }
 
 }

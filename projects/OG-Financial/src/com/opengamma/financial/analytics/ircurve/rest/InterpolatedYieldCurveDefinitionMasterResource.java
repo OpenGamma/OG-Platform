@@ -24,7 +24,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -80,7 +80,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @GET
   @Path("curves/{uid}")
   public FudgeMsgEnvelope get(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
@@ -96,7 +96,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @DELETE
   @Path("curves/{uid}")
   public FudgeMsgEnvelope remove(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       getUnderlying().remove(uid);
       return null;
@@ -108,7 +108,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @PUT
   @Path("curves/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
     final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     YieldCurveDefinitionDocument document = new YieldCurveDefinitionDocument(uid, curveDefinition);

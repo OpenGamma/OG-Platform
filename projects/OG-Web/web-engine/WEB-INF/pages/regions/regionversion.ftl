@@ -17,7 +17,7 @@
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
     <@rowout label="Full name">${region.fullName}</@rowout>
-<#list region.identifiers.identifiers as item>
+<#list region.externalIdBundle.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
 </@subsection>

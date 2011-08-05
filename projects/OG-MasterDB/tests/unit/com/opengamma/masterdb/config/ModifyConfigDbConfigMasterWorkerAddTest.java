@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -46,7 +46,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noConfig() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     _cfgMaster.add(doc);
   }
 
@@ -54,33 +54,33 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
   public void test_add_add() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("TestConfig");
-    doc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> test = _cfgMaster.add(doc);
+    doc.setValue(ExternalId.of("A", "B"));
+    ConfigDocument<ExternalId> test = _cfgMaster.add(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbCfg", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbCfg", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
     assertEquals("TestConfig", test.getName());
   }
   
   @Test
   public void test_add_addThenGet() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("TestConfig");
-    doc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> added = _cfgMaster.add(doc);
+    doc.setValue(ExternalId.of("A", "B"));
+    ConfigDocument<ExternalId> added = _cfgMaster.add(doc);
     
-    ConfigDocument<Identifier> test = _cfgMaster.get(added.getUniqueId(), Identifier.class);
+    ConfigDocument<ExternalId> test = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
     assertEquals(added, test);
   }
 

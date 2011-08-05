@@ -44,7 +44,7 @@ namespace com.opengamma.financial.security.swap {
    *  e.g. an Index or an Equity.
    */
   message SecurityNotional extends Notional {
-    required readonly id.UniqueIdentifier notionalIdentifier;
+    required readonly id.UniqueId notionalIdentifier;
 
     binding Java {
       body "public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitSecurityNotional (this); }";

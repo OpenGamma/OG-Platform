@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -39,7 +39,7 @@ public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<Fixed
   public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     Tenor tenor = context.fieldValueToObject(Tenor.class, message.getByName("tenor"));
-    Identifier security = context.fieldValueToObject(Identifier.class, message.getByName("identifier"));
+    ExternalId security = context.fieldValueToObject(ExternalId.class, message.getByName("identifier"));
     if (type == StripInstrumentType.FUTURE) {
       int numFutures = message.getInt("numFutures");
       return new FixedIncomeStripWithIdentifier(type, tenor, numFutures, security);

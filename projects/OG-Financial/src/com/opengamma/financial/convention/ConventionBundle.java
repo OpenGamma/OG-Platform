@@ -11,10 +11,10 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A complete defined set of conventions, such as for LIBOR, EURIBOR and STIBOR.
@@ -26,13 +26,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return the unique identifier for these conventions, not null
    */
   @Override
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Get the identifier bundle for this reference rate.
    * @return the identifier bundle
    */
-  IdentifierBundle getIdentifiers();
+  ExternalIdBundle getIdentifiers();
 
   /**
    * Get the display name for the reference rate.
@@ -57,7 +57,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Get the region.
    * @return the region identifier
    */
-  Identifier getRegion();
+  ExternalId getRegion();
 
   /**
    * Get the frequency.
@@ -105,7 +105,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Gets the region identifier for the fixed leg.
    * @return the region identifier for the fixed leg
    */
-  Identifier getSwapFixedLegRegion();
+  ExternalId getSwapFixedLegRegion();
 
   /**
    * Gets the swapFloatingLegDayCount field.
@@ -135,13 +135,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Get the swapFloatingLegInitialRate field.
    * @return the swapFloatingLegInitialRate
    */
-  Identifier getSwapFloatingLegInitialRate();
+  ExternalId getSwapFloatingLegInitialRate();
 
   /**
    * Gets the region identifier for the floating leg.
    * @return the region identifier for the floating leg
    */
-  Identifier getSwapFloatingLegRegion();
+  ExternalId getSwapFloatingLegRegion();
 
   /**
    * Gets the name of the risk free rate for CAPM.
@@ -183,13 +183,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Get the basisSwapPayFloatingLegInitialRate field.
    * @return the basisSwapPayFloatingLegInitialRate
    */
-  Identifier getBasisSwapPayFloatingLegInitialRate();
+  ExternalId getBasisSwapPayFloatingLegInitialRate();
 
   /**
    * Gets the region identifier for the pay floating leg of the basis swap.
    * @return the region identifier for the fixed leg
    */
-  Identifier getBasisSwapPayFloatingLegRegion();
+  ExternalId getBasisSwapPayFloatingLegRegion();
 
   /**
    * Gets the basisSwapReceiveFloatingLegDayCount field.
@@ -219,13 +219,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Get the basisSwapReceiveFloatingLegInitialRate field.
    * @return the basisSwapReceiveFloatingLegInitialRate
    */
-  Identifier getBasisSwapReceiveFloatingLegInitialRate();
+  ExternalId getBasisSwapReceiveFloatingLegInitialRate();
 
   /**
    * Gets the region identifier for the receive floating leg of the basis swap.
    * @return the region identifier for the fixed leg
    */
-  Identifier getBasisSwapReceiveFloatingLegRegion();
+  ExternalId getBasisSwapReceiveFloatingLegRegion();
 
   /**
    * Whether or not the convention for payments is end-of-month or not.

@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -90,7 +90,7 @@ public class BasicChangeManager implements ChangeManager {
    * @param versionInstant  the instant at which the change is recorded as happening, not null
    */
   @Override
-  public void entityChanged(final ChangeType type, final UniqueIdentifier beforeId, final UniqueIdentifier afterId, final Instant versionInstant) {
+  public void entityChanged(final ChangeType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant) {
     ChangeEvent event = new ChangeEvent(type, beforeId, afterId, versionInstant);
     handleEntityChanged(event);
   }

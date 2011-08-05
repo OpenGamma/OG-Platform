@@ -10,7 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,10 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 
   private static final long serialVersionUID = 1L;
   
-  private final UniqueIdentifier _viewCycleId;
+  private final UniqueId _viewCycleId;
   private final String _calculationConfigurationName;
   
-  public ViewComputationCacheKey(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  public ViewComputationCacheKey(UniqueId viewCycleId, String calculationConfigurationName) {
     ArgumentChecker.notNull(viewCycleId, "viewCycleId");
     ArgumentChecker.notNull(calculationConfigurationName, "calculationConfigurationName");
     _viewCycleId = viewCycleId;
@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
    * 
    * @return the unique identifier of the view cycle, not {@code null}
    */
-  public UniqueIdentifier getViewCycleId() {
+  public UniqueId getViewCycleId() {
     return _viewCycleId;
   }
 

@@ -34,9 +34,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -106,7 +106,7 @@ public class YieldCurveFunctionHelper {
       final InterpolatedYieldCurveSpecification specification, Instant expiry) {
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip
+        final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(ExternalIdBundle.of(strip
             .getSecurity()));
         final Instant futureInvalidAt = future.getExpiry().getExpiry().minus(strip.getMaturity().getPeriod())
             .toInstant();
@@ -147,21 +147,21 @@ public class YieldCurveFunctionHelper {
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
 
-  public Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
+  public Map<ExternalId, Double> buildMarketDataMap(final FunctionInputs inputs) {
     final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
-    Map<UniqueIdentifier, Double> dataPoints = marketDataBundle.getDataPoints();
+    Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
     
-    HashMap<Identifier, Double> ret = new HashMap<Identifier, Double>();
-    for (Entry<UniqueIdentifier, Double> entry : dataPoints.entrySet()) {
-      UniqueIdentifier uid = entry.getKey();
-      Identifier identifier = getIdentifier(uid);
+    HashMap<ExternalId, Double> ret = new HashMap<ExternalId, Double>();
+    for (Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
+      UniqueId uid = entry.getKey();
+      ExternalId identifier = getIdentifier(uid);
       ret.put(identifier, entry.getValue());
     }
     return ret;
   }
 
-  private Identifier getIdentifier(UniqueIdentifier uid) {
-    Identifier identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
+  private ExternalId getIdentifier(UniqueId uid) {
+    ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
     return identifier;
   }
 

@@ -21,7 +21,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -99,7 +99,7 @@ public class MarketDataSnapshotMasterResource {
   @GET
   @Path("snapshots/{uid}")
   public FudgeMsgEnvelope get(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       final MarketDataSnapshotDocument document = _snapshotMaster.get(uid);
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
@@ -114,7 +114,7 @@ public class MarketDataSnapshotMasterResource {
   @DELETE
   @Path("snapshots/{uid}")
   public FudgeMsgEnvelope remove(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       _snapshotMaster.remove(uid);
       return null;
@@ -126,7 +126,7 @@ public class MarketDataSnapshotMasterResource {
   @PUT
   @Path("snapshots/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
     final ManageableMarketDataSnapshot snapshot = dctx.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
 

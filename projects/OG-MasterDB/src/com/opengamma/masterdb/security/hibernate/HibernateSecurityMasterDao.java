@@ -8,7 +8,7 @@ package com.opengamma.masterdb.security.hibernate;
 import java.util.Date;
 import java.util.List;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.masterdb.security.hibernate.bond.CouponTypeBean;
 import com.opengamma.masterdb.security.hibernate.bond.GuaranteeTypeBean;
@@ -115,7 +115,7 @@ public interface HibernateSecurityMasterDao {
   IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(Date now, String scheme,
       String identifier, SecurityBean security);
 
-  void associateOrUpdateIdentifierWithSecurity(Date now, Identifier identifier, SecurityBean security);
+  void associateOrUpdateExternalIdWithSecurity(Date now, ExternalId externalId, SecurityBean security);
 
   // Debug/testing
   <T extends SecurityBean> List<T> getAllSecurityBeans(Class<T> beanClass);

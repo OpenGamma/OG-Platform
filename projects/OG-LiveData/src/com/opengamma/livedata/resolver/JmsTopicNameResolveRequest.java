@@ -9,7 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 
 /**
@@ -20,7 +20,7 @@ public class JmsTopicNameResolveRequest {
   /**
    * what market data the server is going to publish
    */
-  private final Identifier _marketDataUniqueId;
+  private final ExternalId _marketDataUniqueId;
   
   /**
    * what normalization rule will be applied to the raw market data
@@ -28,7 +28,7 @@ public class JmsTopicNameResolveRequest {
   private final NormalizationRuleSet _normalizationRule;
   
   public JmsTopicNameResolveRequest(
-      Identifier marketDataUniqueId,
+      ExternalId marketDataUniqueId,
       NormalizationRuleSet normalizationRule) {
     _marketDataUniqueId = marketDataUniqueId;
     _normalizationRule = normalizationRule;
@@ -38,7 +38,7 @@ public class JmsTopicNameResolveRequest {
   /**
    * @return what market data the server is going to publish
    */
-  public Identifier getMarketDataUniqueId() {
+  public ExternalId getMarketDataUniqueId() {
     return _marketDataUniqueId;
   }
 

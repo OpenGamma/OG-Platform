@@ -5,14 +5,14 @@ package com.opengamma.financial.security.option;
 public class IRFutureOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept (IRFutureOptionSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
-  private static final long serialVersionUID = -420022685199336823l;
+  private static final long serialVersionUID = 4260132724852642790l;
   private String _exchange;
   public static final String EXCHANGE_KEY = "exchange";
   private com.opengamma.util.time.Expiry _expiry;
   public static final String EXPIRY_KEY = "expiry";
   private com.opengamma.financial.security.option.ExerciseType _exerciseType;
   public static final String EXERCISE_TYPE_KEY = "exerciseType";
-  private com.opengamma.id.Identifier _underlyingIdentifier;
+  private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   private double _pointValue;
   public static final String POINT_VALUE_KEY = "pointValue";
@@ -25,7 +25,7 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
   private com.opengamma.financial.security.option.OptionType _optionType;
   public static final String OPTION_TYPE_KEY = "optionType";
   public static final String SECURITY_TYPE = "IRFUTURE_OPTION";
-  public IRFutureOptionSecurity (String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.Identifier underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
+  public IRFutureOptionSecurity (String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.ExternalId underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
     super (SECURITY_TYPE);
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
     _exchange = exchange;
@@ -79,10 +79,10 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'underlyingIdentifier' is not present");
     try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (POINT_VALUE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'pointValue' is not present");
@@ -125,7 +125,7 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
       throw new IllegalArgumentException ("Fudge message is not a IRFutureOptionSecurity - field 'optionType' is not OptionType enum", e);
     }
   }
-  public IRFutureOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.Identifier underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
+  public IRFutureOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, String exchange, com.opengamma.util.time.Expiry expiry, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.id.ExternalId underlyingIdentifier, double pointValue, boolean isMargined, com.opengamma.util.money.Currency currency, double strike, com.opengamma.financial.security.option.OptionType optionType) {
     super (uniqueId, name, securityType, identifiers);
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
     _exchange = exchange;
@@ -196,7 +196,7 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
       msg.add (EXERCISE_TYPE_KEY, null, fudge1);
     }
     if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _underlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
@@ -249,10 +249,10 @@ public class IRFutureOptionSecurity extends com.opengamma.financial.security.Fin
       _exerciseType = exerciseType;
     }
   }
-  public com.opengamma.id.Identifier getUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
+  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;

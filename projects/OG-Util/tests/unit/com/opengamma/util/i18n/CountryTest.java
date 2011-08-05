@@ -16,8 +16,8 @@ import java.io.ObjectOutputStream;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test Country.
@@ -184,8 +184,8 @@ public class CountryTest {
   public void test_gets() {
     Country test = Country.of("GB");
     assertEquals("GB", test.getCode());
-    assertEquals(ObjectIdentifier.of("CountryISO", "GB"), test.getObjectId());
-    assertEquals(UniqueIdentifier.of("CountryISO", "GB"), test.getUniqueId());
+    assertEquals(ObjectId.of("CountryISO", "GB"), test.getObjectId());
+    assertEquals(UniqueId.of("CountryISO", "GB"), test.getUniqueId());
   }
 
   //-----------------------------------------------------------------------

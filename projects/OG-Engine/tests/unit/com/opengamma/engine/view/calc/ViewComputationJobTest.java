@@ -51,7 +51,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -269,7 +269,7 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    UniqueIdentifier viewDefinitionId = UniqueIdentifier.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
+    UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);

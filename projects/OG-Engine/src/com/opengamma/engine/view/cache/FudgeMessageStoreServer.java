@@ -39,7 +39,7 @@ import com.opengamma.engine.view.cache.msg.GetResponse;
 import com.opengamma.engine.view.cache.msg.PutRequest;
 import com.opengamma.engine.view.cache.msg.ReleaseCacheMessage;
 import com.opengamma.engine.view.cache.msg.SlaveChannelMessage;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeConnectionStateListener;
@@ -131,7 +131,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   }
 
   @Override
-  public void onReleaseCaches(final UniqueIdentifier viewCycleId) {
+  public void onReleaseCaches(final UniqueId viewCycleId) {
     s_logger.debug("onReleaseCaches - {}", viewCycleId);
     broadcast(new ReleaseCacheMessage(viewCycleId));
   }

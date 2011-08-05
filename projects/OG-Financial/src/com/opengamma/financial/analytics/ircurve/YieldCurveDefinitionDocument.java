@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 
 /**
@@ -13,11 +13,11 @@ import com.opengamma.master.AbstractDocument;
  */
 public class YieldCurveDefinitionDocument extends AbstractDocument {
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
 
   private YieldCurveDefinition _yieldCurveDefinition;
 
-  public YieldCurveDefinitionDocument(final UniqueIdentifier uniqueId, final YieldCurveDefinition yieldCurveDefinition) {
+  public YieldCurveDefinitionDocument(final UniqueId uniqueId, final YieldCurveDefinition yieldCurveDefinition) {
     setUniqueId(uniqueId);
     setYieldCurveDefinition(yieldCurveDefinition);
   }
@@ -38,12 +38,12 @@ public class YieldCurveDefinitionDocument extends AbstractDocument {
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
   @Override
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 

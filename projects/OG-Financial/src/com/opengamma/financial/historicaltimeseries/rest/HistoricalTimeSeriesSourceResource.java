@@ -40,9 +40,9 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -100,10 +100,10 @@ public class HistoricalTimeSeriesSourceResource {
     return new FudgeSerializationContext(getFudgeContext());
   }
 
-  private IdentifierBundle identifiersToBundle(final List<String> identifiers) {
-    IdentifierBundle bundle = IdentifierBundle.EMPTY;
+  private ExternalIdBundle identifiersToBundle(final List<String> identifiers) {
+    ExternalIdBundle bundle = ExternalIdBundle.EMPTY;
     for (String identifier : identifiers) {
-      bundle = bundle.withIdentifier(Identifier.parse(identifier));
+      bundle = bundle.withExternalId(ExternalId.parse(identifier));
     }
     return bundle;
   }
@@ -114,7 +114,7 @@ public class HistoricalTimeSeriesSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueId.class);
     context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
@@ -123,7 +123,7 @@ public class HistoricalTimeSeriesSourceResource {
   @GET
   @Path("uid/{uid}")
   public FudgeMsgEnvelope getUid(@PathParam("uid") String uid) {
-    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueIdentifier.parse(uid)));
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(UniqueId.parse(uid)));
   }
 
   @GET
@@ -134,7 +134,7 @@ public class HistoricalTimeSeriesSourceResource {
       @PathParam("end") String end,
       @PathParam("excludeEnd") String excludeEnd) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
-        UniqueIdentifier.parse(uid), 
+        UniqueId.parse(uid), 
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
@@ -227,7 +227,7 @@ public class HistoricalTimeSeriesSourceResource {
     
     FudgeMsg msg = request.getMessage();
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
-    Set<IdentifierBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
+    Set<ExternalIdBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
     String dataSource = msg.getString(REQUEST_DATA_SOURCE);
     String dataProvider = msg.getString(REQUEST_DATA_PROVIDER);
     String dataField = msg.getString(REQUEST_DATA_FIELD);
@@ -236,7 +236,7 @@ public class HistoricalTimeSeriesSourceResource {
     LocalDate end = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_END));
     boolean exclusiveEnd = msg.getBoolean(REQUEST_EXCLUSIVE_END);
     
-    Map<IdentifierBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg message = context.newMessage();

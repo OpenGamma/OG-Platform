@@ -21,7 +21,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -77,7 +77,7 @@ public class DataPositionSourceResource {
   @GET
   @Path("portfolios/{portfolioId}")
   public FudgeMsgEnvelope getPortfolio(@PathParam("portfolioId") String portfolioId) {
-    UniqueIdentifier uniqueId = UniqueIdentifier.parse(portfolioId);
+    UniqueId uniqueId = UniqueId.parse(portfolioId);
     Portfolio result = getPositionSource().getPortfolio(uniqueId);
     if (result == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -91,7 +91,7 @@ public class DataPositionSourceResource {
   @GET
   @Path("nodes/{nodeId}")
   public FudgeMsgEnvelope getNode(@PathParam("nodeId") String nodeId) {
-    UniqueIdentifier uniqueId = UniqueIdentifier.parse(nodeId);
+    UniqueId uniqueId = UniqueId.parse(nodeId);
     PortfolioNode result = getPositionSource().getPortfolioNode(uniqueId);
     if (result == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -105,7 +105,7 @@ public class DataPositionSourceResource {
   @GET
   @Path("positions/{positionId}")
   public FudgeMsgEnvelope getPosition(@PathParam("positionId") String positionId) {
-    UniqueIdentifier uniqueId = UniqueIdentifier.parse(positionId);
+    UniqueId uniqueId = UniqueId.parse(positionId);
     Position result = getPositionSource().getPosition(uniqueId);
     if (result == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -119,7 +119,7 @@ public class DataPositionSourceResource {
   @GET
   @Path("trades/{tradeId}")
   public FudgeMsgEnvelope getTrade(@PathParam("tradeId") String tradeId) {
-    UniqueIdentifier uniqueId = UniqueIdentifier.parse(tradeId);
+    UniqueId uniqueId = UniqueId.parse(tradeId);
     Trade result = getPositionSource().getTrade(uniqueId);
     if (result == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -132,19 +132,19 @@ public class DataPositionSourceResource {
 
   // -------------------------------------------------------------------------
 
-  public static RestTarget targetPortfolio(final RestTarget target, final UniqueIdentifier uniqueId) {
+  public static RestTarget targetPortfolio(final RestTarget target, final UniqueId uniqueId) {
     return target.resolveBase("portfolios").resolve(uniqueId.toString());
   }
 
-  public static RestTarget targetPortfolioNode(final RestTarget target, final UniqueIdentifier uniqueId) {
+  public static RestTarget targetPortfolioNode(final RestTarget target, final UniqueId uniqueId) {
     return target.resolveBase("nodes").resolve(uniqueId.toString());
   }
 
-  public static RestTarget targetPosition(final RestTarget target, final UniqueIdentifier uniqueId) {
+  public static RestTarget targetPosition(final RestTarget target, final UniqueId uniqueId) {
     return target.resolveBase("positions").resolve(uniqueId.toString());
   }
 
-  public static RestTarget targetTrade(final RestTarget target, final UniqueIdentifier uniqueId) {
+  public static RestTarget targetTrade(final RestTarget target, final UniqueId uniqueId) {
     return target.resolveBase("trades").resolve(uniqueId.toString());
   }
 

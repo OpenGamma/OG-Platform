@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.web.json.JSONBuilder;
@@ -105,7 +105,7 @@ public class WebConfigData extends DirectBean {
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */
-  public String getBestConfigUriId(final UniqueIdentifier overrideId) {
+  public String getBestConfigUriId(final UniqueId overrideId) {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }

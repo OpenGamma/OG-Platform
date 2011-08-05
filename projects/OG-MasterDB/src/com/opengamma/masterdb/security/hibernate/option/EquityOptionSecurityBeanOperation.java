@@ -8,8 +8,8 @@ package com.opengamma.masterdb.security.hibernate.option;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -43,7 +43,7 @@ public final class EquityOptionSecurityBeanOperation  extends AbstractSecurityBe
     bean.setOptionType(security.getOptionType());
     bean.setStrike(security.getStrike());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
-    bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
     bean.setPointValue(security.getPointValue());
@@ -79,7 +79,7 @@ public final class EquityOptionSecurityBeanOperation  extends AbstractSecurityBe
     EquityOptionSecurity sec = new EquityOptionSecurity(bean.getOptionType(), 
         bean.getStrike(), 
         currencyBeanToCurrency(bean.getCurrency()), 
-        identifierBeanToIdentifier(bean.getUnderlying()), 
+        externalIdBeanToExternalId(bean.getUnderlying()), 
         exerciseType, 
         expiryBeanToExpiry(bean.getExpiry()), 
         bean.getPointValue(), 

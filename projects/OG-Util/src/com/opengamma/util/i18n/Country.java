@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -35,9 +35,9 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
    */
   private static final ConcurrentMap<String, Country> s_instanceMap = new ConcurrentHashMap<String, Country>(16, 0.75f, 4);
   /**
-   * A scheme for the unique identifier.
+   * The scheme to use in object identifiers.
    */
-  public static final String OBJECT_IDENTIFIER_SCHEME = "CountryISO";
+  public static final String OBJECT_SCHEME = "CountryISO";
 
   // Europe
   /**
@@ -255,25 +255,25 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
   /**
    * Gets the object identifier for the country.
    * <p>
-   * This uses the scheme {@link #OBJECT_IDENTIFIER_SCHEME CountryISO}.
+   * This uses the scheme {@link #OBJECT_SCHEME CountryISO}.
    * 
    * @return the object identifier, not null
    */
   @Override
-  public ObjectIdentifier getObjectId() {
-    return ObjectIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _code);
+  public ObjectId getObjectId() {
+    return ObjectId.of(OBJECT_SCHEME, _code);
   }
 
   /**
    * Gets the unique identifier for the country.
    * <p>
-   * This uses the scheme {@link #OBJECT_IDENTIFIER_SCHEME CountryISO}.
+   * This uses the scheme {@link #OBJECT_SCHEME CountryISO}.
    * 
    * @return the unique identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
-    return UniqueIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _code);
+  public UniqueId getUniqueId() {
+    return UniqueId.of(OBJECT_SCHEME, _code);
   }
 
   //-----------------------------------------------------------------------

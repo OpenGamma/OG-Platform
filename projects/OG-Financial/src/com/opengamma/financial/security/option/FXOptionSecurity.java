@@ -99,7 +99,7 @@ public class FXOptionSecurity extends com.opengamma.financial.security.Financial
       throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'isLong' is not boolean", e);
     }
   }
-  public FXOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, boolean isLong) {
+  public FXOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, boolean isLong) {
     super (uniqueId, name, securityType, identifiers);
     if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
     _putCurrency = putCurrency;

@@ -7,7 +7,7 @@ package com.opengamma.web.config;
 
 import java.net.URI;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * URIs for web-based configuration management.
@@ -49,7 +49,7 @@ public class WebConfigUris {
    * @param configId  the config id, not null
    * @return the URI
    */
-  public URI config(final UniqueIdentifier configId) {
+  public URI config(final UniqueId configId) {
     return WebConfigResource.uri(_data, configId);
   }
 
@@ -74,7 +74,7 @@ public class WebConfigUris {
    * @param configId  the config id, not null
    * @return the URI
    */
-  public URI configVersion(final UniqueIdentifier configId) {
+  public URI configVersion(final UniqueId configId) {
     return WebConfigVersionResource.uri(_data, configId);
   }
 

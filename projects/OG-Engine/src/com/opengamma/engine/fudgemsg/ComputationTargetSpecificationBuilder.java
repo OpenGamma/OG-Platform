@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
 
   protected static void addMessageFields(final FudgeSerializationContext context, final MutableFudgeMsg msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());
-    UniqueIdentifier uid = object.getUniqueId();
+    UniqueId uid = object.getUniqueId();
     if (uid != null) {
       context.addToMessage(msg, IDENTIFIER_FIELD_NAME, null, uid);
     }
@@ -48,10 +48,10 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
 
   protected static ComputationTargetSpecification buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     final ComputationTargetType type = ComputationTargetType.valueOf(message.getString(TYPE_FIELD_NAME));
-    UniqueIdentifier uid = null;
+    UniqueId uid = null;
     if (message.hasField(IDENTIFIER_FIELD_NAME)) {
       FudgeField fudgeField = message.getByName(IDENTIFIER_FIELD_NAME);
-      uid = context.fieldValueToObject(UniqueIdentifier.class, fudgeField);
+      uid = context.fieldValueToObject(UniqueId.class, fudgeField);
     }
     return new ComputationTargetSpecification(type, uid);
   }

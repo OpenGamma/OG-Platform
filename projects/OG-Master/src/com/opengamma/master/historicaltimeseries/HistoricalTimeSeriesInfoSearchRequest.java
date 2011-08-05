@@ -23,12 +23,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -52,27 +52,27 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * Note that an empty set will return no time-series.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _infoIds;
+  private List<ObjectId> _objectIds;
   /**
-   * The time-series keys to match, null to not match on time-series keys.
+   * The external identifiers to match, null to not match on external identifiers.
    */
   @PropertyDefinition
-  private IdentifierSearch _identifierKeys;
+  private ExternalIdSearch _externalIdSearch;
   /**
-   * The identifier value, matching against the <i>value</i> of the identifiers,
+   * The external identifier value, matching against the <i>value</i> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code identifiers}
    * search is useful for exact machine searching.
    */
   @PropertyDefinition
-  private String _identifierValue;
+  private String _externalIdValue;
   /**
-   * The date on which identifiers must be valid.
+   * The date on which external identifiers must be valid.
    */
   @PropertyDefinition
-  private LocalDate _identifierValidityDate;
+  private LocalDate _validityDate;
   /**
    * The time-series name, wildcards allowed, null to not match on name.
    */
@@ -108,19 +108,19 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param historicalTimeSeriesKey  the historical time-series key identifier to search for, not null
+   * @param historicalTimeSeriesId  the historical time-series external identifier to search for, not null
    */
-  public HistoricalTimeSeriesInfoSearchRequest(Identifier historicalTimeSeriesKey) {
-    addIdentifierKey(historicalTimeSeriesKey);
+  public HistoricalTimeSeriesInfoSearchRequest(ExternalId historicalTimeSeriesId) {
+    addExternalId(historicalTimeSeriesId);
   }
 
   /**
    * Creates an instance using a bundle of identifiers.
    * 
-   * @param historicalTimeSeriesKeys  the historical time-series key identifiers to search for, not null
+   * @param historicalTimeSeriesBundle  the historical time-series external identifiers to search for, not null
    */
-  public HistoricalTimeSeriesInfoSearchRequest(IdentifierBundle historicalTimeSeriesKeys) {
-    addIdentifierKeys(historicalTimeSeriesKeys);
+  public HistoricalTimeSeriesInfoSearchRequest(ExternalIdBundle historicalTimeSeriesBundle) {
+    addExternalIds(historicalTimeSeriesBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -129,12 +129,12 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * 
    * @param infoId  the historical time-series object identifier to add, not null
    */
-  public void addInfoId(ObjectIdentifiable infoId) {
+  public void addObjectId(ObjectIdentifiable infoId) {
     ArgumentChecker.notNull(infoId, "infoId");
-    if (_infoIds == null) {
-      _infoIds = new ArrayList<ObjectIdentifier>();
+    if (_objectIds == null) {
+      _objectIds = new ArrayList<ObjectId>();
     }
-    _infoIds.add(infoId.getObjectId());
+    _objectIds.add(infoId.getObjectId());
   }
 
   /**
@@ -143,59 +143,59 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * 
    * @param infoIds  the new historical time-series identifiers, null clears the historical time-series id search
    */
-  public void setInfoIds(Iterable<? extends ObjectIdentifiable> infoIds) {
+  public void setObjectIds(Iterable<? extends ObjectIdentifiable> infoIds) {
     if (infoIds == null) {
-      _infoIds = null;
+      _objectIds = null;
     } else {
-      _infoIds = new ArrayList<ObjectIdentifier>();
+      _objectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable exchangeId : infoIds) {
-        _infoIds.add(exchangeId.getObjectId());
+        _objectIds.add(exchangeId.getObjectId());
       }
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single historical time-series key identifier to the collection to search for.
+   * Adds a single historical time-series external identifier to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param identifierKey  the historical time-series key identifier to add, not null
+   * @param externalId  the historical time-series key identifier to add, not null
    */
-  public void addIdentifierKey(Identifier identifierKey) {
-    ArgumentChecker.notNull(identifierKey, "identifierKey");
-    addIdentifierKeys(Arrays.asList(identifierKey));
+  public void addExternalId(ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    addExternalIds(Arrays.asList(externalId));
   }
 
   /**
-   * Adds a collection of historical time-series key identifiers to the collection to search for.
+   * Adds a collection of historical time-series external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param identifierKeys  the historical time-series key identifiers to add, not null
+   * @param externalIds  the historical time-series key identifiers to add, not null
    */
-  public void addIdentifierKeys(Identifier... identifierKeys) {
-    ArgumentChecker.notNull(identifierKeys, "identifierKeys");
-    if (getIdentifierKeys() == null) {
-      setIdentifierKeys(new IdentifierSearch(identifierKeys));
+  public void addExternalIds(ExternalId... externalIds) {
+    ArgumentChecker.notNull(externalIds, "externalIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(externalIds));
     } else {
-      getIdentifierKeys().addIdentifiers(identifierKeys);
+      getExternalIdSearch().addExternalIds(externalIds);
     }
   }
 
   /**
-   * Adds a collection of historical time-series key identifiers to the collection to search for.
+   * Adds a collection of historical time-series external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param identifierKeys  the historical time-series key identifiers to add, not null
+   * @param externalIds  the historical time-series key identifiers to add, not null
    */
-  public void addIdentifierKeys(Iterable<Identifier> identifierKeys) {
-    ArgumentChecker.notNull(identifierKeys, "identifierKeys");
-    if (getIdentifierKeys() == null) {
-      setIdentifierKeys(new IdentifierSearch(identifierKeys));
+  public void addExternalIds(Iterable<ExternalId> externalIds) {
+    ArgumentChecker.notNull(externalIds, "externalIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(externalIds));
     } else {
-      getIdentifierKeys().addIdentifiers(identifierKeys);
+      getExternalIdSearch().addExternalIds(externalIds);
     }
   }
 
@@ -207,11 +207,11 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     }
     final HistoricalTimeSeriesInfoDocument document = (HistoricalTimeSeriesInfoDocument) obj;
     ManageableHistoricalTimeSeriesInfo info = document.getInfo();
-    if (getInfoIds() != null && getInfoIds().contains(document.getObjectId()) == false) {
+    if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getIdentifierKeys() != null && getIdentifierKeys().matches(
-        info.getIdentifiers().asIdentifierBundle(getIdentifierValidityDate())) == false) {
+    if (getExternalIdSearch() != null && getExternalIdSearch().matches(
+        info.getExternalIdBundle().toBundle(getValidityDate())) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), info.getName()) == false) {
@@ -229,11 +229,11 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     if (getObservationTime() != null && getObservationTime().equals(info.getObservationTime()) == false) {
       return false;
     }    
-    if (getIdentifierValue() != null) {
+    if (getExternalIdValue() != null) {
       success: {  // label used with break statement, CSIGNORE
-        IdentifierBundle docBundle = info.getIdentifiers().asIdentifierBundle();
-        for (Identifier identifier : docBundle.getIdentifiers()) {
-          if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue())) {
+        ExternalIdBundle docBundle = info.getExternalIdBundle().toBundle();
+        for (ExternalId identifier : docBundle.getExternalIds()) {
+          if (RegexUtils.wildcardMatch(getExternalIdValue(), identifier.getValue())) {
             break success;
           }
         }
@@ -264,14 +264,14 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1945391914:  // infoIds
-        return getInfoIds();
-      case 482595389:  // identifierKeys
-        return getIdentifierKeys();
-      case 2085582408:  // identifierValue
-        return getIdentifierValue();
-      case 48758089:  // identifierValidityDate
-        return getIdentifierValidityDate();
+      case -1489617159:  // objectIds
+        return getObjectIds();
+      case -265376882:  // externalIdSearch
+        return getExternalIdSearch();
+      case 2072311499:  // externalIdValue
+        return getExternalIdValue();
+      case -390680064:  // validityDate
+        return getValidityDate();
       case 3373707:  // name
         return getName();
       case 1272470629:  // dataSource
@@ -290,17 +290,17 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1945391914:  // infoIds
-        setInfoIds((List<ObjectIdentifier>) newValue);
+      case -1489617159:  // objectIds
+        setObjectIds((List<ObjectId>) newValue);
         return;
-      case 482595389:  // identifierKeys
-        setIdentifierKeys((IdentifierSearch) newValue);
+      case -265376882:  // externalIdSearch
+        setExternalIdSearch((ExternalIdSearch) newValue);
         return;
-      case 2085582408:  // identifierValue
-        setIdentifierValue((String) newValue);
+      case 2072311499:  // externalIdValue
+        setExternalIdValue((String) newValue);
         return;
-      case 48758089:  // identifierValidityDate
-        setIdentifierValidityDate((LocalDate) newValue);
+      case -390680064:  // validityDate
+        setValidityDate((LocalDate) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -328,10 +328,10 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesInfoSearchRequest other = (HistoricalTimeSeriesInfoSearchRequest) obj;
-      return JodaBeanUtils.equal(getInfoIds(), other.getInfoIds()) &&
-          JodaBeanUtils.equal(getIdentifierKeys(), other.getIdentifierKeys()) &&
-          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
-          JodaBeanUtils.equal(getIdentifierValidityDate(), other.getIdentifierValidityDate()) &&
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getValidityDate(), other.getValidityDate()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
@@ -345,10 +345,10 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfoIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierKeys());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValidityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValidityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
@@ -363,107 +363,107 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
    * Note that an empty set will return no time-series.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getInfoIds() {
-    return _infoIds;
+  public List<ObjectId> getObjectIds() {
+    return _objectIds;
   }
 
   /**
-   * Gets the the {@code infoIds} property.
+   * Gets the the {@code objectIds} property.
    * Note that an empty set will return no time-series.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> infoIds() {
-    return metaBean().infoIds().createProperty(this);
+  public final Property<List<ObjectId>> objectIds() {
+    return metaBean().objectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time-series keys to match, null to not match on time-series keys.
+   * Gets the external identifiers to match, null to not match on external identifiers.
    * @return the value of the property
    */
-  public IdentifierSearch getIdentifierKeys() {
-    return _identifierKeys;
+  public ExternalIdSearch getExternalIdSearch() {
+    return _externalIdSearch;
   }
 
   /**
-   * Sets the time-series keys to match, null to not match on time-series keys.
-   * @param identifierKeys  the new value of the property
+   * Sets the external identifiers to match, null to not match on external identifiers.
+   * @param externalIdSearch  the new value of the property
    */
-  public void setIdentifierKeys(IdentifierSearch identifierKeys) {
-    this._identifierKeys = identifierKeys;
+  public void setExternalIdSearch(ExternalIdSearch externalIdSearch) {
+    this._externalIdSearch = externalIdSearch;
   }
 
   /**
-   * Gets the the {@code identifierKeys} property.
+   * Gets the the {@code externalIdSearch} property.
    * @return the property, not null
    */
-  public final Property<IdentifierSearch> identifierKeys() {
-    return metaBean().identifierKeys().createProperty(this);
+  public final Property<ExternalIdSearch> externalIdSearch() {
+    return metaBean().externalIdSearch().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier value, matching against the <i>value</i> of the identifiers,
+   * Gets the external identifier value, matching against the <i>value</i> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code identifiers}
    * search is useful for exact machine searching.
    * @return the value of the property
    */
-  public String getIdentifierValue() {
-    return _identifierValue;
+  public String getExternalIdValue() {
+    return _externalIdValue;
   }
 
   /**
-   * Sets the identifier value, matching against the <i>value</i> of the identifiers,
+   * Sets the external identifier value, matching against the <i>value</i> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code identifiers}
    * search is useful for exact machine searching.
-   * @param identifierValue  the new value of the property
+   * @param externalIdValue  the new value of the property
    */
-  public void setIdentifierValue(String identifierValue) {
-    this._identifierValue = identifierValue;
+  public void setExternalIdValue(String externalIdValue) {
+    this._externalIdValue = externalIdValue;
   }
 
   /**
-   * Gets the the {@code identifierValue} property.
+   * Gets the the {@code externalIdValue} property.
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code identifiers}
    * search is useful for exact machine searching.
    * @return the property, not null
    */
-  public final Property<String> identifierValue() {
-    return metaBean().identifierValue().createProperty(this);
+  public final Property<String> externalIdValue() {
+    return metaBean().externalIdValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date on which identifiers must be valid.
+   * Gets the date on which external identifiers must be valid.
    * @return the value of the property
    */
-  public LocalDate getIdentifierValidityDate() {
-    return _identifierValidityDate;
+  public LocalDate getValidityDate() {
+    return _validityDate;
   }
 
   /**
-   * Sets the date on which identifiers must be valid.
-   * @param identifierValidityDate  the new value of the property
+   * Sets the date on which external identifiers must be valid.
+   * @param validityDate  the new value of the property
    */
-  public void setIdentifierValidityDate(LocalDate identifierValidityDate) {
-    this._identifierValidityDate = identifierValidityDate;
+  public void setValidityDate(LocalDate validityDate) {
+    this._validityDate = validityDate;
   }
 
   /**
-   * Gets the the {@code identifierValidityDate} property.
+   * Gets the the {@code validityDate} property.
    * @return the property, not null
    */
-  public final Property<LocalDate> identifierValidityDate() {
-    return metaBean().identifierValidityDate().createProperty(this);
+  public final Property<LocalDate> validityDate() {
+    return metaBean().validityDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -602,26 +602,26 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code infoIds} property.
+     * The meta-property for the {@code objectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _infoIds = DirectMetaProperty.ofReadWrite(
-        this, "infoIds", HistoricalTimeSeriesInfoSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _objectIds = DirectMetaProperty.ofReadWrite(
+        this, "objectIds", HistoricalTimeSeriesInfoSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code identifierKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      */
-    private final MetaProperty<IdentifierSearch> _identifierKeys = DirectMetaProperty.ofReadWrite(
-        this, "identifierKeys", HistoricalTimeSeriesInfoSearchRequest.class, IdentifierSearch.class);
+    private final MetaProperty<ExternalIdSearch> _externalIdSearch = DirectMetaProperty.ofReadWrite(
+        this, "externalIdSearch", HistoricalTimeSeriesInfoSearchRequest.class, ExternalIdSearch.class);
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code externalIdValue} property.
      */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
-        this, "identifierValue", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
+    private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
+        this, "externalIdValue", HistoricalTimeSeriesInfoSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code identifierValidityDate} property.
+     * The meta-property for the {@code validityDate} property.
      */
-    private final MetaProperty<LocalDate> _identifierValidityDate = DirectMetaProperty.ofReadWrite(
-        this, "identifierValidityDate", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
+    private final MetaProperty<LocalDate> _validityDate = DirectMetaProperty.ofReadWrite(
+        this, "validityDate", HistoricalTimeSeriesInfoSearchRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -652,10 +652,10 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "infoIds",
-        "identifierKeys",
-        "identifierValue",
-        "identifierValidityDate",
+        "objectIds",
+        "externalIdSearch",
+        "externalIdValue",
+        "validityDate",
         "name",
         "dataSource",
         "dataProvider",
@@ -671,14 +671,14 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1945391914:  // infoIds
-          return _infoIds;
-        case 482595389:  // identifierKeys
-          return _identifierKeys;
-        case 2085582408:  // identifierValue
-          return _identifierValue;
-        case 48758089:  // identifierValidityDate
-          return _identifierValidityDate;
+        case -1489617159:  // objectIds
+          return _objectIds;
+        case -265376882:  // externalIdSearch
+          return _externalIdSearch;
+        case 2072311499:  // externalIdValue
+          return _externalIdValue;
+        case -390680064:  // validityDate
+          return _validityDate;
         case 3373707:  // name
           return _name;
         case 1272470629:  // dataSource
@@ -710,35 +710,35 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code infoIds} property.
+     * The meta-property for the {@code objectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> infoIds() {
-      return _infoIds;
+    public final MetaProperty<List<ObjectId>> objectIds() {
+      return _objectIds;
     }
 
     /**
-     * The meta-property for the {@code identifierKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierSearch> identifierKeys() {
-      return _identifierKeys;
+    public final MetaProperty<ExternalIdSearch> externalIdSearch() {
+      return _externalIdSearch;
     }
 
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code externalIdValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> identifierValue() {
-      return _identifierValue;
+    public final MetaProperty<String> externalIdValue() {
+      return _externalIdValue;
     }
 
     /**
-     * The meta-property for the {@code identifierValidityDate} property.
+     * The meta-property for the {@code validityDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> identifierValidityDate() {
-      return _identifierValidityDate;
+    public final MetaProperty<LocalDate> validityDate() {
+      return _validityDate;
     }
 
     /**

@@ -39,13 +39,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.Deal;
 import com.opengamma.master.position.ManageablePosition;
@@ -81,7 +81,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPos";
   /**
@@ -160,9 +160,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     s_logger.debug("search {}", request);
 
     final PositionSearchResult result = new PositionSearchResult();
-    if ((request.getPositionIds() != null && request.getPositionIds().size() == 0) ||
-        (request.getTradeIds() != null && request.getTradeIds().size() == 0) ||
-        (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
+    if ((request.getPositionObjectIds() != null && request.getPositionObjectIds().size() == 0) ||
+        (request.getTradeObjectIds() != null && request.getTradeObjectIds().size() == 0) ||
+        (ExternalIdSearch.canMatch(request.getSecurityIdSearch()) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -172,24 +172,24 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("min_quantity", request.getMinQuantity())
         .addValueNullIgnored("max_quantity", request.getMaxQuantity());
-    if (request.getSecurityKeys() != null) {
+    if (request.getSecurityIdSearch() != null) {
       int i = 0;
-      for (Identifier id : request.getSecurityKeys()) {
+      for (ExternalId id : request.getSecurityIdSearch()) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
       }
     }
-    if (request.getPositionProviderKey() != null) {
-      args.addValue("pos_provider_scheme", request.getPositionProviderKey().getScheme().getName());
-      args.addValue("pos_provider_value", request.getPositionProviderKey().getValue());
+    if (request.getPositionProviderId() != null) {
+      args.addValue("pos_provider_scheme", request.getPositionProviderId().getScheme().getName());
+      args.addValue("pos_provider_value", request.getPositionProviderId().getValue());
     }
-    if (request.getTradeProviderKey() != null) {
-      args.addValue("trade_provider_scheme", request.getTradeProviderKey().getScheme().getName());
-      args.addValue("trade_provider_value", request.getTradeProviderKey().getValue());
+    if (request.getTradeProviderId() != null) {
+      args.addValue("trade_provider_scheme", request.getTradeProviderId().getScheme().getName());
+      args.addValue("trade_provider_value", request.getTradeProviderId().getValue());
     }
 
-    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
+    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getSecurityIdValue()));
 
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
@@ -204,7 +204,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getPositionProviderKey() != null) {
+    if (request.getPositionProviderId() != null) {
       where += "AND provider_scheme = :pos_provider_scheme AND provider_value = :pos_provider_value ";
     }
     if (request.getMinQuantity() != null) {
@@ -213,33 +213,33 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     if (request.getMaxQuantity() != null) {
       where += "AND quantity <= :max_quantity ";
     }
-    if (request.getPositionIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getPositionIds().size() * 10);
-      for (ObjectIdentifier obectId : request.getPositionIds()) {
+    if (request.getPositionObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getPositionObjectIds().size() * 10);
+      for (ObjectId obectId : request.getPositionObjectIds()) {
         checkScheme(obectId);
         buf.append(extractOid(obectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getTradeIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getTradeIds().size() * 10);
-      for (ObjectIdentifier obejctId : request.getTradeIds()) {
+    if (request.getTradeObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getTradeObjectIds().size() * 10);
+      for (ObjectId obejctId : request.getTradeObjectIds()) {
         checkScheme(obejctId);
         buf.append(extractOid(obejctId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN (" + buf + ")) ";
     }
-    if (request.getTradeProviderKey() != null) {
+    if (request.getTradeProviderId() != null) {
       where += "AND oid IN (SELECT DISTINCT position_oid FROM pos_trade " +
           "WHERE provider_scheme = :trade_provider_scheme AND provider_value = :trade_provider_value) ";
     }
-    if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
-      where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
+    if (request.getSecurityIdSearch() != null && request.getSecurityIdSearch().size() > 0) {
+      where += sqlSelectMatchingSecurityKeys(request.getSecurityIdSearch());
     }
-    if (request.getIdentifierValue() != null) {
-      where += sqlSelectIdentifierValue(request.getIdentifierValue());
+    if (request.getSecurityIdValue() != null) {
+      where += sqlSelectExternalIdValue(request.getSecurityIdValue());
     }
     where += sqlAdditionalWhere();
 
@@ -256,7 +256,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param identifierValue the identifier value, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectIdentifierValue(String identifierValue) {
+  protected String sqlSelectExternalIdValue(String identifierValue) {
     String select = "SELECT DISTINCT position_id " +
         "FROM pos_position2idkey, pos_position main " +
         "WHERE position_id = main.id " +
@@ -267,12 +267,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   }
 
   /**
-   * Gets the SQL to match the {@code IdentifierSearch}.
+   * Gets the SQL to match the {@code ExternalIdSearch}.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeys(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeys(final ExternalIdSearch idSearch) {
     switch (idSearch.getSearchType()) {
       case EXACT:
         return "AND id IN (" + sqlSelectMatchingSecurityKeysExact(idSearch) + ") ";
@@ -292,7 +292,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysExact(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysExact(final ExternalIdSearch idSearch) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT position_id AS matched_position_id, COUNT(position_id) AS matched_count " +
@@ -322,7 +322,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysAll(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAll(final ExternalIdSearch idSearch) {
     // only return position_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT position_id " +
@@ -342,7 +342,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysAny(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAny(final ExternalIdSearch idSearch) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT position_id " +
@@ -360,7 +360,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysOr(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysOr(final ExternalIdSearch idSearch) {
     String select = "SELECT id FROM pos_idkey ";
     for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
@@ -371,7 +371,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(final UniqueIdentifier uniqueId) {
+  public PositionDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new PositionDocumentExtractor(), "Position");
   }
 
@@ -400,7 +400,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
 
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
-    final UniqueIdentifier positionUid = createUniqueIdentifier(positionOid, positionId);
+    final UniqueId positionUid = createUniqueId(positionOid, positionId);
     final ManageablePosition position = document.getPosition();
 
     // the arguments for inserting into the position table
@@ -412,8 +412,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
         .addValue("quantity", position.getQuantity())
-        .addValue("provider_scheme", (position.getProviderKey() != null ? position.getProviderKey().getScheme().getName() : null))
-        .addValue("provider_value", (position.getProviderKey() != null ? position.getProviderKey().getValue() : null));
+        .addValue("provider_scheme", (position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null))
+        .addValue("provider_value", (position.getProviderId() != null ? position.getProviderId().getValue() : null));
     
     // the arguments for inserting into the pos_attribute table
     final List<DbMapSqlParameterSource> posAttrList = Lists.newArrayList();
@@ -431,7 +431,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
     final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
-    for (Identifier id : position.getSecurityLink().getAllIdentifiers()) {
+    for (ExternalId id : position.getSecurityLink().getAllExternalIds()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
           .addValue("position_id", positionId)
           .addValue("key_scheme", id.getScheme().getName())
@@ -447,7 +447,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     for (ManageableTrade trade : position.getTrades()) {
       final long tradeId = nextId("pos_master_seq");
       final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
-      final Identifier counterpartyId = trade.getCounterpartyKey();
+      final ExternalId counterpartyId = trade.getCounterpartyExternalId();
 
       final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource()
           .addValue("trade_id", tradeId)
@@ -460,8 +460,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("zone_offset", (trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null))
           .addValue("cparty_scheme", counterpartyId.getScheme().getName())
           .addValue("cparty_value", counterpartyId.getValue())
-          .addValue("provider_scheme", (position.getProviderKey() != null ? position.getProviderKey().getScheme().getName() : null))
-          .addValue("provider_value", (position.getProviderKey() != null ? position.getProviderKey().getValue() : null))
+          .addValue("provider_scheme", (position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null))
+          .addValue("provider_value", (position.getProviderId() != null ? position.getProviderId().getValue() : null))
           .addValue("premium_value", (trade.getPremium() != null ? trade.getPremium() : null))
           .addValue("premium_currency", (trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null))
           .addDateNullIgnored("premium_date", trade.getPremiumDate())
@@ -493,10 +493,10 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       }
       
       // set the trade uniqueId
-      final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId);
-      UniqueIdentifiables.setInto(trade, tradeUid);
+      final UniqueId tradeUid = createUniqueId(tradeOid, tradeId);
+      IdUtils.setInto(trade, tradeUid);
       trade.setParentPositionId(positionUid);
-      for (Identifier id : trade.getSecurityLink().getAllIdentifiers()) {
+      for (ExternalId id : trade.getSecurityLink().getAllExternalIds()) {
         final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
             .addValue("trade_id", tradeId)
             .addValue("key_scheme", id.getScheme().getName())
@@ -627,7 +627,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableTrade getTrade(final UniqueIdentifier uniqueId) {
+  public ManageableTrade getTrade(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
 
@@ -646,7 +646,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param correctedTo  the instant to fetch, not null
    * @return the trade, null if not found
    */
-  protected ManageableTrade getTradeByInstants(final UniqueIdentifier uniqueId, final Instant versionAsOf, final Instant correctedTo) {
+  protected ManageableTrade getTradeByInstants(final UniqueId uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getTradeByLatest {}", uniqueId);
     final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -681,7 +681,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    * @param uniqueId  the unique identifier, not null
    * @return the trade, null if not found
    */
-  protected ManageableTrade getTradeById(final UniqueIdentifier uniqueId) {
+  protected ManageableTrade getTradeById(final UniqueId uniqueId) {
     s_logger.debug("getTradeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addValue("trade_id", extractRowId(uniqueId));
@@ -745,12 +745,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         final String posIdScheme = rs.getString("POS_KEY_SCHEME");
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
-          if (posIdScheme.equals(ObjectIdentifier.OID.getName())) {
-            ObjectIdentifier oid = ObjectIdentifier.parse(posIdValue);
+          if (posIdScheme.equals(ObjectId.EXTERNAL_SCHEME.getName())) {
+            ObjectId oid = ObjectId.parse(posIdValue);
             _position.getSecurityLink().setObjectId(oid);
           } else {
-            Identifier id = Identifier.of(posIdScheme, posIdValue);
-            _position.getSecurityLink().addBundleId(id);
+            ExternalId id = ExternalId.of(posIdScheme, posIdValue);
+            _position.getSecurityLink().addExternalId(id);
           }
         }
         
@@ -768,12 +768,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
         final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
         if (tradeIdScheme != null && tradeIdValue != null) {
-          if (tradeIdScheme.equals(ObjectIdentifier.OID.getName())) {
-            ObjectIdentifier oid = ObjectIdentifier.parse(tradeIdValue);
+          if (tradeIdScheme.equals(ObjectId.EXTERNAL_SCHEME.getName())) {
+            ObjectId oid = ObjectId.parse(tradeIdValue);
             _trade.getSecurityLink().setObjectId(oid);
           } else {
-            Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
-            _trade.getSecurityLink().addBundleId(id);
+            ExternalId id = ExternalId.of(tradeIdScheme, tradeIdValue);
+            _trade.getSecurityLink().addExternalId(id);
           }
         }
         
@@ -823,17 +823,17 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String providerScheme = rs.getString("POS_PROVIDER_SCHEME");
       final String providerValue = rs.getString("POS_PROVIDER_VALUE");
-      _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
-      _position.setUniqueId(createUniqueIdentifier(positionOid, positionId));
+      _position = new ManageablePosition(quantity, ExternalIdBundle.EMPTY);
+      _position.setUniqueId(createUniqueId(positionOid, positionId));
       if (providerScheme != null && providerValue != null) {
-        _position.setProviderKey(Identifier.of(providerScheme, providerValue));
+        _position.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
       PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setUniqueId(createUniqueIdentifier(positionOid, positionId));
+      doc.setUniqueId(createUniqueId(positionOid, positionId));
       _documents.add(doc);
     }
 
@@ -852,14 +852,14 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       if (tradeTime != null) {
         tradeOffsetTime = OffsetTime.of(tradeTime, ZoneOffset.ofTotalSeconds(zoneOffset));
       }
-      Identifier counterpartyId = null;
+      ExternalId counterpartyId = null;
       if (cpartyScheme != null && cpartyValue != null) {
-        counterpartyId = Identifier.of(cpartyScheme, cpartyValue);
+        counterpartyId = ExternalId.of(cpartyScheme, cpartyValue);
       }
-      _trade = new ManageableTrade(tradeQuantity, IdentifierBundle.EMPTY, tradeDate, tradeOffsetTime, counterpartyId);
-      _trade.setUniqueId(createUniqueIdentifier(tradeOid, tradeId));
+      _trade = new ManageableTrade(tradeQuantity, ExternalIdBundle.EMPTY, tradeDate, tradeOffsetTime, counterpartyId);
+      _trade.setUniqueId(createUniqueId(tradeOid, tradeId));
       if (providerScheme != null && providerValue != null) {
-        _trade.setProviderKey(Identifier.of(providerScheme, providerValue));
+        _trade.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
       //set premium
       Object premiumValue = rs.getObject("PREMIUM_VALUE");

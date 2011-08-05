@@ -19,7 +19,7 @@ import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -80,8 +80,8 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
   //-------------------------------------------------------------------------
   private void entityChanged(ChangeEvent event) {
     ArgumentChecker.notNull(event, "event");
-    UniqueIdentifier beforeId = null;
-    UniqueIdentifier afterId = null;
+    UniqueId beforeId = null;
+    UniqueId afterId = null;
     switch (event.getType()) {
       case ADDED:
       case UPDATED:
@@ -120,12 +120,12 @@ public class ConfigDbViewDefinitionRepository implements ViewDefinitionRepositor
     changeManager().entityChanged(event.getType(), beforeId, afterId, event.getVersionInstant());
   }
 
-  private UniqueIdentifier getUniqueId(String definitionName) {
+  private UniqueId getUniqueId(String definitionName) {
     // REVIEW jonathan 2011-08-02 -- as an intermediate step to get change notifications to the engine, but without
     // having to change view definition names to unique identifiers everywhere, we cram the definition name into a
     // unique identifier for listeners to extract. Long-term, the actual master change event should be passed to the
     // engine.
-    return UniqueIdentifier.of(VIEW_DEFINITION_SCHEME, definitionName);
+    return UniqueId.of(VIEW_DEFINITION_SCHEME, definitionName);
   }
   
   private ConfigMaster getConfigMaster() {

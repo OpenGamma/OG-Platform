@@ -29,7 +29,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchGetRequest;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -215,7 +215,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
    * @param overrideBatchId  the override batch id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebBatchData data, final UniqueIdentifier overrideBatchId) {
+  public static URI uri(final WebBatchData data, final UniqueId overrideBatchId) {
     String batchId = data.getBestBatchUriId(overrideBatchId);
     return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(batchId);
   }

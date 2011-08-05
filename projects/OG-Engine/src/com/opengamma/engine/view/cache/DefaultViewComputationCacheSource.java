@@ -18,7 +18,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -34,7 +34,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
    */
   public static interface ReleaseCachesCallback {
 
-    void onReleaseCaches(UniqueIdentifier viewCycleId);
+    void onReleaseCaches(UniqueId viewCycleId);
 
   }
 
@@ -53,7 +53,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final FudgeContext _fudgeContext;
 
   private final ConcurrentMap<ViewComputationCacheKey, DefaultViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, DefaultViewComputationCache>();
-  private final Map<UniqueIdentifier, List<ViewComputationCacheKey>> _activeCachesByCycle = new HashMap<UniqueIdentifier, List<ViewComputationCacheKey>>();
+  private final Map<UniqueId, List<ViewComputationCacheKey>> _activeCachesByCycle = new HashMap<UniqueId, List<ViewComputationCacheKey>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
   private final FudgeMessageStoreFactory _privateDataStoreFactory;
   private final FudgeMessageStoreFactory _sharedDataStoreFactory;
@@ -95,7 +95,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public ViewComputationCache cloneCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  public ViewComputationCache cloneCache(UniqueId viewCycleId, String calculationConfigurationName) {
     final ViewComputationCacheKey key = new ViewComputationCacheKey(viewCycleId, calculationConfigurationName);
     final DefaultViewComputationCache cache = _cachesByKey.get(key);
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
@@ -107,7 +107,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public DefaultViewComputationCache getCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  public DefaultViewComputationCache getCache(UniqueId viewCycleId, String calculationConfigurationName) {
     return getCache(new ViewComputationCacheKey(viewCycleId, calculationConfigurationName));
   }
 
@@ -119,7 +119,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     return cache;
   }
 
-  protected DefaultViewComputationCache findCache(UniqueIdentifier viewCycleId, String calculationConfigurationName) {
+  protected DefaultViewComputationCache findCache(UniqueId viewCycleId, String calculationConfigurationName) {
     return findCache(new ViewComputationCacheKey(viewCycleId, calculationConfigurationName));
   }
 
@@ -183,7 +183,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   @Override
-  public void releaseCaches(UniqueIdentifier viewCycleId) {
+  public void releaseCaches(UniqueId viewCycleId) {
     ArgumentChecker.notNull(viewCycleId, "viewCycleId");
     final ReleaseCachesCallback callback = getReleaseCachesCallback();
     if (callback != null) {

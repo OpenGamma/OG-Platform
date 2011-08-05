@@ -15,7 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -42,54 +42,54 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getExchange_versioned_notFoundId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
-    _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "0", "0");
+    _exgMaster.get(uniqueId);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getExchange_versioned_notFoundVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "1");
-    _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "101", "1");
+    _exgMaster.get(uniqueId);
   }
 
   @Test
   public void test_getExchange_versioned_oneExchangeDate() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
-    ExchangeDocument test = _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
+    ExchangeDocument test = _exgMaster.get(uniqueId);
     assert101(test);
   }
 
   @Test
   public void test_getExchange_versioned_twoExchangeDates() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "102", "0");
-    ExchangeDocument test = _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "102", "0");
+    ExchangeDocument test = _exgMaster.get(uniqueId);
     assert102(test);
   }
 
   @Test
   public void test_getExchange_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "0");
-    ExchangeDocument test = _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "201", "0");
+    ExchangeDocument test = _exgMaster.get(uniqueId);
     assert201(test);
   }
 
   @Test
   public void test_getExchange_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "1");
-    ExchangeDocument test = _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "201", "1");
+    ExchangeDocument test = _exgMaster.get(uniqueId);
     assert202(test);
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getExchange_unversioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0");
-    _exgMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbExg", "0");
+    _exgMaster.get(uniqueId);
   }
 
   @Test
   public void test_getExchange_unversioned() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    UniqueId oid = UniqueId.of("DbExg", "201");
     ExchangeDocument test = _exgMaster.get(oid);
     assert202(test);
   }

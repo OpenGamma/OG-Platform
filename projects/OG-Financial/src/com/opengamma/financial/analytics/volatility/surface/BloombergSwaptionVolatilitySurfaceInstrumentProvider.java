@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.Tenor;
 
@@ -45,18 +45,18 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   }
 
   @Override
-  public Identifier getInstrument(final Tenor swapMaturityTenor, final Tenor swaptionExpiryTenor) {
+  public ExternalId getInstrument(final Tenor swapMaturityTenor, final Tenor swaptionExpiryTenor) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_countryPrefix);
     ticker.append(_typePrefix);
     ticker.append(tenorToCode(swaptionExpiryTenor, _zeroPadSwaptionExpiryTenor));
     ticker.append(tenorToCode(swapMaturityTenor, _zeroPadSwapMaturityTenor));
     ticker.append(_postfix);
-    return Identifier.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, ticker.toString());
+    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, ticker.toString());
   }
 
   @Override
-  public Identifier getInstrument(final Tenor startTenor, final Tenor maturity, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final Tenor startTenor, final Tenor maturity, final LocalDate surfaceDate) {
     return getInstrument(startTenor, maturity);
   }
 

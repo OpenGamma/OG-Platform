@@ -10,9 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -20,10 +18,10 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ class TestChangeClient implements ChangeListener {
 
-  private UniqueIdentifier _addedItem;
-  private UniqueIdentifier _removedItem;
-  private Pair<UniqueIdentifier, UniqueIdentifier> _updatedItem;
-  private Pair<UniqueIdentifier, UniqueIdentifier> _correctedItem;
+  private UniqueId _addedItem;
+  private UniqueId _removedItem;
+  private Pair<UniqueId, UniqueId> _updatedItem;
+  private Pair<UniqueId, UniqueId> _correctedItem;
   private final CountDownLatch _removedItemLatch = new CountDownLatch(1);
   private final CountDownLatch _addedItemLatch = new CountDownLatch(1);
   private final CountDownLatch _updatedItemLatch = new CountDownLatch(1);
@@ -56,7 +54,7 @@ import com.opengamma.util.tuple.Pair;
    * Gets the addedItem field.
    * @return the addedItem
    */
-  public UniqueIdentifier getAddedItem() {
+  public UniqueId getAddedItem() {
     return _addedItem;
   }
 
@@ -64,7 +62,7 @@ import com.opengamma.util.tuple.Pair;
    * Gets the removedItem field.
    * @return the removedItem
    */
-  public UniqueIdentifier getRemovedItem() {
+  public UniqueId getRemovedItem() {
     return _removedItem;
   }
 
@@ -72,7 +70,7 @@ import com.opengamma.util.tuple.Pair;
    * Gets the updatedItem field.
    * @return the updatedItem
    */
-  public Pair<UniqueIdentifier, UniqueIdentifier> getUpdatedItem() {
+  public Pair<UniqueId, UniqueId> getUpdatedItem() {
     return _updatedItem;
   }
 
@@ -80,7 +78,7 @@ import com.opengamma.util.tuple.Pair;
    * Gets the correctedItem field.
    * @return the correctedItem
    */
-  public Pair<UniqueIdentifier, UniqueIdentifier> getCorrectedItem() {
+  public Pair<UniqueId, UniqueId> getCorrectedItem() {
     return _correctedItem;
   }
 

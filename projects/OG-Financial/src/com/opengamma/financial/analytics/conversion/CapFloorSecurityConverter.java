@@ -21,7 +21,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -45,7 +45,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
     final ZonedDateTime fixingDate = capFloorSecurity.getStartDate(); //TODO is this right?
     final double strike = capFloorSecurity.getStrike();
     final boolean isCap = capFloorSecurity.getIsCap();
-    final Identifier underlyingId = capFloorSecurity.getUnderlyingIdentifier();
+    final ExternalId underlyingId = capFloorSecurity.getUnderlyingIdentifier();
     final Currency currency = capFloorSecurity.getCurrency();
     final Frequency tenor = capFloorSecurity.getFrequency();
     final ConventionBundle indexConvention = _conventionSource.getConventionBundle(underlyingId);

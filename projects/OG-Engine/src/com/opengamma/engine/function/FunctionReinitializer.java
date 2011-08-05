@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -25,7 +25,7 @@ public interface FunctionReinitializer {
    * @param function the function to be reinitialized
    * @param identifier the identifier of the resource
    */
-  void reinitializeFunction(FunctionDefinition function, UniqueIdentifier identifier);
+  void reinitializeFunction(FunctionDefinition function, UniqueId identifier);
 
   /**
    * Requests that the function be reinitialized if a change is detected to one or more of the resources
@@ -34,6 +34,6 @@ public interface FunctionReinitializer {
    * @param function the function to be reinitialized
    * @param identifiers the identifiers of the resources
    */
-  void reinitializeFunction(FunctionDefinition function, Collection<UniqueIdentifier> identifiers);
+  void reinitializeFunction(FunctionDefinition function, Collection<UniqueId> identifiers);
 
 }

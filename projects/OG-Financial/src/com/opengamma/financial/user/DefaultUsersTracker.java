@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.user.rest.UsersResourceContext;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,8 +31,8 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultUsersTracker.class);
 
   private final ConcurrentMap<String, Set<String>> _username2clients = new ConcurrentHashMap<String, Set<String>>();
-  private final ConcurrentMap<Identifier, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<Identifier, Set<String>>();
-  private final ConcurrentMap<Identifier, Set<UniqueIdentifier>> _marketDataSnapShots = new ConcurrentHashMap<Identifier, Set<UniqueIdentifier>>();
+  private final ConcurrentMap<ExternalId, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<ExternalId, Set<String>>();
+  private final ConcurrentMap<ExternalId, Set<UniqueId>> _marketDataSnapShots = new ConcurrentHashMap<ExternalId, Set<UniqueId>>();
   private final UsersResourceContext _context;
  
   public DefaultUsersTracker(UsersResourceContext context) {
@@ -49,7 +49,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   }
 
   @Override
-  public void created(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
+  public void created(String userName, String clientName, UserDataType type, UniqueId identifier) {
     switch (type) {
       case VIEW_DEFINITION:
         trackCreatedViewDefinition(userName, clientName, identifier);
@@ -68,9 +68,9 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     }
   }
 
-  private void trackCreatedMarketDataSnapshot(String userName, String clientName, UniqueIdentifier identifier) {
-    ConcurrentSkipListSet<UniqueIdentifier> freshIds = new ConcurrentSkipListSet<UniqueIdentifier>();
-    Set<UniqueIdentifier> marketDataSnapshotIds = _marketDataSnapShots.putIfAbsent(Identifier.of(userName, clientName), freshIds);
+  private void trackCreatedMarketDataSnapshot(String userName, String clientName, UniqueId identifier) {
+    ConcurrentSkipListSet<UniqueId> freshIds = new ConcurrentSkipListSet<UniqueId>();
+    Set<UniqueId> marketDataSnapshotIds = _marketDataSnapShots.putIfAbsent(ExternalId.of(userName, clientName), freshIds);
     if (marketDataSnapshotIds == null) {
       marketDataSnapshotIds = freshIds;
     }
@@ -78,9 +78,9 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     s_logger.debug("{} marketdatasnapshot created by {}", identifier, userName);
   }
 
-  private void trackCreatedViewDefinition(String userName, String clientName, UniqueIdentifier identifier) {
+  private void trackCreatedViewDefinition(String userName, String clientName, UniqueId identifier) {
     ConcurrentSkipListSet<String> freshDefinitions = new ConcurrentSkipListSet<String>();
-    Set<String> viewDefinitions = _viewDefinitionNames.putIfAbsent(Identifier.of(userName, clientName), freshDefinitions);
+    Set<String> viewDefinitions = _viewDefinitionNames.putIfAbsent(ExternalId.of(userName, clientName), freshDefinitions);
     if (viewDefinitions == null) {
       viewDefinitions = freshDefinitions;
     }
@@ -89,7 +89,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   }
 
   @Override
-  public void deleted(String userName, String clientName, UserDataType type, UniqueIdentifier identifier) {
+  public void deleted(String userName, String clientName, UserDataType type, UniqueId identifier) {
     Set<String> clients = _username2clients.get(userName);
     if (clients != null) {
       if (clients.contains(clientName)) {
@@ -128,8 +128,8 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
       if (marketDataSnapshotMaster != null) {
-        Set<UniqueIdentifier> snapshotIds = _marketDataSnapShots.remove(Identifier.of(userName, clientName));
-        for (UniqueIdentifier uid : snapshotIds) {
+        Set<UniqueId> snapshotIds = _marketDataSnapShots.remove(ExternalId.of(userName, clientName));
+        for (UniqueId uid : snapshotIds) {
           marketDataSnapshotMaster.remove(uid);
           s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, clientName});
         }
@@ -141,13 +141,13 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       MarketDataSnapshotMaster marketDataSnapshotMaster = getContext().getSnapshotMaster();
       if (marketDataSnapshotMaster != null) {
-        Iterator<Entry<Identifier, Set<UniqueIdentifier>>> iterator = _marketDataSnapShots.entrySet().iterator();
+        Iterator<Entry<ExternalId, Set<UniqueId>>> iterator = _marketDataSnapShots.entrySet().iterator();
         while (iterator.hasNext()) {
-          Entry<Identifier, Set<UniqueIdentifier>> entry = iterator.next();
-          Identifier identifier = entry.getKey();
+          Entry<ExternalId, Set<UniqueId>> entry = iterator.next();
+          ExternalId identifier = entry.getKey();
           if (identifier.getScheme().getName().equals(userName)) {
-            Set<UniqueIdentifier> uids = entry.getValue();
-            for (UniqueIdentifier uid : uids) {
+            Set<UniqueId> uids = entry.getValue();
+            for (UniqueId uid : uids) {
               marketDataSnapshotMaster.remove(uid);
               s_logger.debug("market data snapshot {} discarded for {}/{}", new Object[] {uid, userName, identifier.getValue()});
             }
@@ -184,10 +184,10 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
-        Iterator<Entry<Identifier, Set<String>>> iterator = _viewDefinitionNames.entrySet().iterator();
+        Iterator<Entry<ExternalId, Set<String>>> iterator = _viewDefinitionNames.entrySet().iterator();
         while (iterator.hasNext()) {
-          Entry<Identifier, Set<String>> entry = iterator.next();
-          Identifier identifier = entry.getKey();
+          Entry<ExternalId, Set<String>> entry = iterator.next();
+          ExternalId identifier = entry.getKey();
           if (identifier.getScheme().getName().equals(userName)) {
             Set<String> viewDefinitions = entry.getValue();
             for (String viewDefinitionName : viewDefinitions) {
@@ -205,7 +205,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
-        Set<String> viewDefinitions = _viewDefinitionNames.remove(Identifier.of(userName, clientName));
+        Set<String> viewDefinitions = _viewDefinitionNames.remove(ExternalId.of(userName, clientName));
         for (String viewDefinitionName : viewDefinitions) {
           viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
           s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, clientName});

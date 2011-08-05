@@ -61,7 +61,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
@@ -261,12 +261,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final ZonedDateTime now = snapshotClock.zonedDateTime();
       final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
-        final Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+        final Map<ExternalId, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs);
         return getSingleCurveResult(marketDataMap, builder, now, dataSource);
       }
 
-      final Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
-      final Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
+      final Map<ExternalId, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs);
+      final Map<ExternalId, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs);
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);
@@ -443,7 +443,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return ComputationTargetType.PRIMITIVE;
     }
 
-    private Set<ComputedValue> getSingleCurveResult(final Map<Identifier, Double> marketDataMap,
+    private Set<ComputedValue> getSingleCurveResult(final Map<ExternalId, Double> marketDataMap,
         final FixedIncomeStripIdentifierAndMaturityBuilder builder,
         final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
       // TODO going to arbitrarily use funding curve - will give the same result as forward curve

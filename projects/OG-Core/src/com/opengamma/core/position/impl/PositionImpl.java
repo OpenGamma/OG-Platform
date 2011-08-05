@@ -22,10 +22,10 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,11 +39,11 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   /**
    * The unique identifier of the position.
    */
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The unique identifier of the parent node.
    */
-  private UniqueIdentifier _parentNodeId;
+  private UniqueId _parentNodeId;
   /**
    * The amount of the position.
    */
@@ -74,7 +74,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(BigDecimal quantity, ExternalId securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -87,7 +87,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(BigDecimal quantity, ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -101,7 +101,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(UniqueIdentifier uniqueId, BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, ExternalId securityKey) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
@@ -117,7 +117,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(UniqueIdentifier uniqueId, BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
@@ -133,7 +133,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param security  the security, not null
    */
-  public PositionImpl(UniqueIdentifier uniqueId, BigDecimal quantity, Security security) {
+  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, Security security) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(security, "security");
@@ -168,7 +168,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @return the position unique identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -177,7 +177,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * 
    * @param uniqueId  the new identifier, not null
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
   }
@@ -189,7 +189,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @return the parent node unique identifier, null if not connected to a node
    */
   @Override
-  public UniqueIdentifier getParentNodeId() {
+  public UniqueId getParentNodeId() {
     return _parentNodeId;
   }
 
@@ -198,7 +198,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * 
    * @param parentNodeId  the parent node unique identifier, null if not connected to a node
    */
-  public void setParentNodeId(final UniqueIdentifier parentNodeId) {
+  public void setParentNodeId(final UniqueId parentNodeId) {
     _parentNodeId = parentNodeId;
   }
 

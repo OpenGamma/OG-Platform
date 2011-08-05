@@ -15,10 +15,10 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearchType;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
@@ -33,14 +33,14 @@ import com.opengamma.util.money.Currency;
 public class InMemoryRegionMasterTest {
 
   private static String NAME = "France";
-  private static Identifier ID_COUNTRY = RegionUtils.countryRegionId(Country.FR);
-  private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(Currency.EUR);
-  private static Identifier ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
-  private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "The French");
-  private static Identifier ID_OTHER2 = Identifier.of("TEST_SCHEME", "France");
-  private static IdentifierBundle BUNDLE_FULL = IdentifierBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_CURENCY);
-  private static IdentifierBundle BUNDLE_PART = IdentifierBundle.of(ID_COUNTRY, ID_CURENCY);
-  private static IdentifierBundle BUNDLE_OTHER = IdentifierBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_OTHER1);
+  private static ExternalId ID_COUNTRY = RegionUtils.countryRegionId(Country.FR);
+  private static ExternalId ID_CURENCY = RegionUtils.currencyRegionId(Currency.EUR);
+  private static ExternalId ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
+  private static ExternalId ID_OTHER1 = ExternalId.of("TEST_SCHEME", "The French");
+  private static ExternalId ID_OTHER2 = ExternalId.of("TEST_SCHEME", "France");
+  private static ExternalIdBundle BUNDLE_FULL = ExternalIdBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_CURENCY);
+  private static ExternalIdBundle BUNDLE_PART = ExternalIdBundle.of(ID_COUNTRY, ID_CURENCY);
+  private static ExternalIdBundle BUNDLE_OTHER = ExternalIdBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_OTHER1);
 
   private InMemoryRegionMaster master;
   private RegionDocument addedDoc;
@@ -62,12 +62,12 @@ public class InMemoryRegionMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
-    master.get(UniqueIdentifier.of("A", "B"));
+    master.get(UniqueId.of("A", "B"));
   }
 
   public void test_get_match() {
     RegionDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(UniqueIdentifier.of("MemReg", "1"), result.getUniqueId());
+    assertEquals(UniqueId.of("MemReg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
@@ -95,7 +95,7 @@ public class InMemoryRegionMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_oneBundle_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_OTHER);
-    request.getRegionKeys().setSearchType(IdentifierSearchType.ALL);
+    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -117,16 +117,16 @@ public class InMemoryRegionMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_twoBundles_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addRegionKey(ID_OTHER1);
-    request.addRegionKey(ID_OTHER2);
+    request.addExternalId(ID_OTHER1);
+    request.addExternalId(ID_OTHER2);
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
 
   public void test_search_twoBundles_oneMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addRegionKey(ID_COUNTRY);
-    request.addRegionKey(ID_OTHER1);
+    request.addExternalId(ID_COUNTRY);
+    request.addExternalId(ID_OTHER1);
     RegionSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
@@ -134,8 +134,8 @@ public class InMemoryRegionMasterTest {
 
   public void test_search_twoBundles_bothMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addRegionKey(ID_COUNTRY);
-    request.addRegionKey(ID_CURENCY);
+    request.addExternalId(ID_COUNTRY);
+    request.addExternalId(ID_CURENCY);
     RegionSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());

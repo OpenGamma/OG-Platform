@@ -96,7 +96,7 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'receiveLeg' is not SwapLeg message", e);
     }
   }
-  public SwapSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg) {
+  public SwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg) {
     super (uniqueId, name, securityType, identifiers);
     if (tradeDate == null) throw new NullPointerException ("'tradeDate' cannot be null");
     else {

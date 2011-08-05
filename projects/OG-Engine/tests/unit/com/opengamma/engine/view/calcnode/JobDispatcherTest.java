@@ -28,7 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.test.Timeout;
 
@@ -46,7 +46,7 @@ public class JobDispatcherTest {
   private static final AtomicLong s_jobId = new AtomicLong();
 
   protected static CalculationJobSpecification createTestJobSpec() {
-    return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "default", Instant.now(), s_jobId.incrementAndGet());
+    return new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "default", Instant.now(), s_jobId.incrementAndGet());
   }
 
   protected static List<CalculationJobItem> createTestJobItems() {

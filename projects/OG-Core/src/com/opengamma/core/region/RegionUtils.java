@@ -12,8 +12,8 @@ import javax.time.calendar.TimeZone;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.i18n.Country;
@@ -30,28 +30,28 @@ public class RegionUtils {
   /**
    * Identification scheme for the ISO alpha 2 country code ISO standard.
    */
-  public static final IdentificationScheme ISO_COUNTRY_ALPHA2 = IdentificationScheme.of("ISO_COUNTRY_ALPHA2");
+  public static final ExternalScheme ISO_COUNTRY_ALPHA2 = ExternalScheme.of("ISO_COUNTRY_ALPHA2");
   /**
    * Identification scheme for the ISO alpha 3 currency code ISO standard.
    */
-  public static final IdentificationScheme ISO_CURRENCY_ALPHA3 = IdentificationScheme.of("ISO_CURRENCY_ALPHA3");
+  public static final ExternalScheme ISO_CURRENCY_ALPHA3 = ExternalScheme.of("ISO_CURRENCY_ALPHA3");
   /**
    * Identification scheme for the Copp Clark version of UN/LOCODE , formatted without spaces.
    */
-  public static final IdentificationScheme COPP_CLARK_LOCODE = IdentificationScheme.of("COPP_CLARK_LOCODE");
+  public static final ExternalScheme COPP_CLARK_LOCODE = ExternalScheme.of("COPP_CLARK_LOCODE");
   /**
    * Identification scheme for the UN/LOCODE 2010-2 code standard, formatted without spaces.
    */
-  public static final IdentificationScheme UN_LOCODE_2010_2 = IdentificationScheme.of("UN_LOCODE_2010_2");
+  public static final ExternalScheme UN_LOCODE_2010_2 = ExternalScheme.of("UN_LOCODE_2010_2");
   /**
    * Identification scheme for the tz database time-zone standard.
    */
-  public static final IdentificationScheme TZDB_TIME_ZONE = IdentificationScheme.of("TZDB_TIME_ZONE");
+  public static final ExternalScheme TZDB_TIME_ZONE = ExternalScheme.of("TZDB_TIME_ZONE");
   /**
    * Identification scheme for financial activity.
    * This currently tends to be the country code, but can be more complex.
    */
-  public static final IdentificationScheme FINANCIAL = IdentificationScheme.of("FINANCIAL_REGION");
+  public static final ExternalScheme FINANCIAL = ExternalScheme.of("FINANCIAL_REGION");
 
   /**
    * Restricted constructor.
@@ -68,9 +68,9 @@ public class RegionUtils {
    * @param country  the country, not null
    * @return the region identifier, not null
    */
-  public static Identifier countryRegionId(Country country) {
+  public static ExternalId countryRegionId(Country country) {
     ArgumentChecker.notNull(country, "country");
-    return Identifier.of(ISO_COUNTRY_ALPHA2, country.getCode());
+    return ExternalId.of(ISO_COUNTRY_ALPHA2, country.getCode());
   }
 
   /**
@@ -81,9 +81,9 @@ public class RegionUtils {
    * @param currency  the currency, not null
    * @return the region identifier, not null
    */
-  public static Identifier currencyRegionId(Currency currency) {
+  public static ExternalId currencyRegionId(Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
-    return Identifier.of(ISO_CURRENCY_ALPHA3, currency.getCode());
+    return ExternalId.of(ISO_CURRENCY_ALPHA3, currency.getCode());
   }
 
   /**
@@ -94,12 +94,12 @@ public class RegionUtils {
    * @param locode  the UN/LOCODE, not null
    * @return the region identifier, not null
    */
-  public static Identifier unLocode20102RegionId(String locode) {
+  public static ExternalId unLocode20102RegionId(String locode) {
     ArgumentChecker.notNull(locode, "locode");
     if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
       throw new IllegalArgumentException("UN/LOCODE is invalid: " + locode);
     }
-    return Identifier.of(UN_LOCODE_2010_2, locode);
+    return ExternalId.of(UN_LOCODE_2010_2, locode);
   }
 
   /**
@@ -111,12 +111,12 @@ public class RegionUtils {
    * @param locode  the Copp Clark LOCODE, not null
    * @return the region identifier, not null
    */
-  public static Identifier coppClarkRegionId(String locode) {
+  public static ExternalId coppClarkRegionId(String locode) {
     ArgumentChecker.notNull(locode, "locode");
     if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
       throw new IllegalArgumentException("Copp Clark LOCODE is invalid: " + locode);
     }
-    return Identifier.of(COPP_CLARK_LOCODE, locode);
+    return ExternalId.of(COPP_CLARK_LOCODE, locode);
   }
 
   /**
@@ -127,9 +127,9 @@ public class RegionUtils {
    * @param zone  the time-zone, not null
    * @return the region identifier, not null
    */
-  public static Identifier timeZoneRegionId(TimeZone zone) {
+  public static ExternalId timeZoneRegionId(TimeZone zone) {
     ArgumentChecker.notNull(zone, "zone");
-    return Identifier.of(TZDB_TIME_ZONE, zone.getID());
+    return ExternalId.of(TZDB_TIME_ZONE, zone.getID());
   }
 
   /**
@@ -138,12 +138,12 @@ public class RegionUtils {
    * @param code  the code, not null
    * @return the region identifier, not null
    */
-  public static Identifier financialRegionId(String code) {
+  public static ExternalId financialRegionId(String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.matches("[A-Z+]+") == false) {
       throw new IllegalArgumentException("Code is invalid: " + code);
     }
-    return Identifier.of(FINANCIAL, code);
+    return ExternalId.of(FINANCIAL, code);
   }
 
   /**
@@ -153,7 +153,7 @@ public class RegionUtils {
    * @return a set of the region(s)
    */
   @SuppressWarnings("unchecked")
-  public static Set<Region> getRegions(RegionSource regionSource, final Identifier regionId) {
+  public static Set<Region> getRegions(RegionSource regionSource, final ExternalId regionId) {
     Validate.notNull(regionSource, "region source");
     Validate.notNull(regionId, "region id");
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {

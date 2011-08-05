@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.db.PagingRequest;
@@ -40,33 +40,33 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_invalid_historyRequest() {
-    ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>();
+    ConfigHistoryRequest<ExternalId> request = new ConfigHistoryRequest<ExternalId>();
     _cfgMaster.history(request);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
     assert201(test.getDocuments().get(1));
   }
 
-  private ConfigHistoryRequest<Identifier> createRequest(ObjectIdentifier oid) {
-    ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>(oid, Identifier.class);
+  private ConfigHistoryRequest<ExternalId> createRequest(ObjectId oid) {
+    ConfigHistoryRequest<ExternalId> request = new ConfigHistoryRequest<ExternalId>(oid, ExternalId.class);
     return request;
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -80,10 +80,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setPagingRequest(PagingRequest.of(1, 1));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -95,10 +95,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setPagingRequest(PagingRequest.of(2, 1));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -114,10 +114,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsFromInstant(_version1aInstant.minusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -128,10 +128,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsFromInstant(_version1cInstant.plusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     assert202(test.getDocuments().get(0));
@@ -140,10 +140,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     assert202(test.getDocuments().get(0));
@@ -152,10 +152,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsToInstant(_version1aInstant.minusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -164,10 +164,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsToInstant(_version1cInstant.plusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     assert201(test.getDocuments().get(0));
@@ -175,10 +175,10 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest<Identifier> request = createRequest(oid);
+    ObjectId oid = ObjectId.of("DbCfg", "201");
+    ConfigHistoryRequest<ExternalId> request = createRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
+    ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

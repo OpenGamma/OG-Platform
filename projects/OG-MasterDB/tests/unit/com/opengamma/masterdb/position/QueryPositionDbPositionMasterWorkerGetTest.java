@@ -15,7 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -42,54 +42,54 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_versioned_notFoundId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
-    _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "0", "0");
+    _posMaster.get(uniqueId);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_versioned_notFoundVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "1");
-    _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "121", "1");
+    _posMaster.get(uniqueId);
   }
 
   @Test
   public void test_getPosition_versioned_oneSecurityKey() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
-    PositionDocument test = _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "122", "0");
+    PositionDocument test = _posMaster.get(uniqueId);
     assert122(test);
   }
 
   @Test
   public void test_getPosition_versioned_twoSecurityKeys() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121", "0");
-    PositionDocument test = _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "121", "0");
+    PositionDocument test = _posMaster.get(uniqueId);
     assert121(test);
   }
 
   @Test
   public void test_getPosition_versioned_notLatest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "0");
-    PositionDocument test = _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "221", "0");
+    PositionDocument test = _posMaster.get(uniqueId);
     assert221(test);
   }
 
   @Test
   public void test_getPosition_versioned_latest() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
-    PositionDocument test = _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "221", "1");
+    PositionDocument test = _posMaster.get(uniqueId);
     assert222(test);
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getPosition_unversioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0");
-    _posMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbPos", "0");
+    _posMaster.get(uniqueId);
   }
 
   @Test
   public void test_getPosition_unversioned() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
+    UniqueId oid = UniqueId.of("DbPos", "221");
     PositionDocument test = _posMaster.get(oid);
     assert222(test);
   }

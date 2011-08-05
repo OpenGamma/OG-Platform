@@ -10,8 +10,8 @@ import org.testng.annotations.Test;
 import java.util.Timer;
 
 import org.fudgemsg.FudgeContext;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
@@ -25,7 +25,7 @@ public class ExpirationManagerTest {
   
   @Test
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {
-    IdentificationScheme identificationDomain = IdentificationScheme.of("BbgId");
+    ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
@@ -39,7 +39,7 @@ public class ExpirationManagerTest {
     // subscribe on the client side - starts sending heartbeats
     LiveDataSpecification subscription = new LiveDataSpecification(
         dataServer.getDefaultNormalizationRuleSetId(),
-        Identifier.of(identificationDomain, "USSw5 Curncy"));
+        ExternalId.of(identificationDomain, "USSw5 Curncy"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     valueDistributor.addListener(subscription, listener);
     
@@ -65,7 +65,7 @@ public class ExpirationManagerTest {
   
   @Test
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
-    IdentificationScheme identificationDomain = IdentificationScheme.of("BbgId");
+    ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
@@ -74,7 +74,7 @@ public class ExpirationManagerTest {
     // subscribe on the server side
     LiveDataSpecification subscription = new LiveDataSpecification(
         dataServer.getDefaultNormalizationRuleSetId(),
-        Identifier.of(identificationDomain, "USSw5 Curncy"));
+        ExternalId.of(identificationDomain, "USSw5 Curncy"));
     dataServer.subscribe("USSw5 Curncy");
     
     assertEquals(1, dataServer.getActualSubscriptions().size());

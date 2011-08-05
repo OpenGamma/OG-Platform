@@ -40,7 +40,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -127,7 +127,7 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final String callCurveName = getCallCurveName();
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, getSurfaceName())
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();

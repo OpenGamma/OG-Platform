@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.util.tuple.Pair;
 
@@ -113,7 +113,7 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebHolidayData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebHolidayData data, final UniqueId overrideVersionId) {
     String holidayId = data.getBestHolidayUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebHolidayVersionResource.class).build(holidayId, versionId);

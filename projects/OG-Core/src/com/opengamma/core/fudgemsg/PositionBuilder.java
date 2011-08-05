@@ -20,9 +20,9 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 
 /**
  * Fudge message builder for {@code Position}.
@@ -73,8 +73,8 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     if (position.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, position.getQuantity());
     }
-    if (position.getSecurityLink().getBundleId().size() > 0) {
-      context.addToMessage(message, FIELD_SECURITYKEY, null, position.getSecurityLink().getBundleId());
+    if (position.getSecurityLink().getExternalId().size() > 0) {
+      context.addToMessage(message, FIELD_SECURITYKEY, null, position.getSecurityLink().getExternalId());
     }
     if (position.getSecurityLink().getObjectId() != null) {
       context.addToMessage(message, FIELD_SECURITYID, null, position.getSecurityLink().getObjectId());
@@ -105,9 +105,9 @@ public class PositionBuilder implements FudgeBuilder<Position> {
   protected static PositionImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     PositionImpl position = new PositionImpl();
     if (message.hasField(FIELD_UNIQUE_ID)) {
-      FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
-      if (uidField != null) {
-        position.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uidField));
+      FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
+      if (uniqueIdField != null) {
+        position.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueIdField));
       }      
     }
     if (message.hasField(FIELD_QUANTITY)) {
@@ -119,13 +119,13 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        position.getSecurityLink().setBundleId(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+        position.getSecurityLink().setExternalId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
       }
     }
     if (message.hasField(FIELD_SECURITYID)) {
       FudgeField secIdField = message.getByName(FIELD_SECURITYID);
       if (secIdField != null) {
-        position.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectIdentifier.class, secIdField));
+        position.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectId.class, secIdField));
       }
     }
     readTrades(context, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_TRADES)), position);
@@ -136,7 +136,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
   public Position buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     final PositionImpl position = buildObjectImpl(context, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
-    final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
+    final UniqueId parentId = (parentField != null) ? context.fieldValueToObject(UniqueId.class, parentField) : null;
     if (parentId != null) {
       position.setParentNodeId(parentId);
     }
